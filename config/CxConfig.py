@@ -135,6 +135,6 @@ class CxConfig(object):
         get the team that the user is a member of
         :return:
         str
-            the team, if not provided in config.ini
+            the team, if not provided in config.ini, fallback to CxServer\\SP\\Company\\Users
         """
         return self.cx_config.get("team", r"CxServer\SP\Company\Users")
