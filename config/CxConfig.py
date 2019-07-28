@@ -25,7 +25,7 @@ class CxConfig(object):
         except FileNotFoundError:
             print("config.ini not found under config directory.")
 
-        parser_obj = configparser.ConfigParser()
+        parser_obj = configparser.ConfigParser(interpolation=configparser.BasicInterpolation())
         parser_obj.read(config_file)
         self.cx_config = parser_obj["checkmarx"]
 
