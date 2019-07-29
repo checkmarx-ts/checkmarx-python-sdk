@@ -14,6 +14,7 @@ class CxConfig(object):
     """
     get configuration information from config.ini
     """
+    config = None
 
     def __init__(self, config_file=config_file_path):
         """
@@ -28,6 +29,7 @@ class CxConfig(object):
         parser_obj = configparser.ConfigParser(interpolation=configparser.BasicInterpolation())
         parser_obj.read(config_file)
         self.cx_config = parser_obj["checkmarx"]
+        CxConfig.config = self
 
     @property
     def base_url(self):
@@ -138,3 +140,8 @@ class CxConfig(object):
             the team, if not provided in config.ini, fallback to CxServer\\SP\\Company\\Users
         """
         return self.cx_config.get("team", r"CxServer\SP\Company\Users")
+
+
+# construct an CxConfig object when import this module, so that the file config.ini will only be read once.
+# please use CxConfig.config class variable to get configuration data.
+CxConfig()
