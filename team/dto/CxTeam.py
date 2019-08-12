@@ -5,7 +5,7 @@ class CxTeam(object):
     """
     The team.
     """
-    def __init__(self, team_id, name, full_name, parent_id):
+    def __init__(self, team_id=None, name=None, full_name=None, parent_id=None):
         """
 
         :param team_id: int
@@ -25,4 +25,3 @@ class CxTeam(object):
         self.name = name
         self.full_name = full_name
         self.parent_id = parent_id
-
