@@ -37,7 +37,7 @@ class TeamAPI(object):
             ]
             TeamAPI.teams = teams
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
