@@ -3,10 +3,10 @@ import http
 
 import requests
 
-from auth import AuthenticationAPI
-from config import CxConfig
+from src.CxRestAPISDK.auth import AuthenticationAPI
+from src.CxRestAPISDK.config import CxConfig
 
-from team.dto import CxTeam
+from src.CxRestAPISDK.team.dto import CxTeam
 
 
 class TeamAPI(object):

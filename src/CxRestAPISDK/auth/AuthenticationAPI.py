@@ -3,10 +3,10 @@ import http
 
 import requests
 
-from config import CxConfig
+from src.CxRestAPISDK.config import CxConfig
 
 
-from auth.dto import (CxAuthRequest, CxAuthResponse, TokenErrorException)
+from src.CxRestAPISDK.auth.dto import (CxAuthRequest, CxAuthResponse, TokenErrorException)
 
 
 class AuthenticationAPI(object):
@@ -46,7 +46,8 @@ class AuthenticationAPI(object):
             AuthenticationAPI.auth_headers = {
                 "Authorization": auth_response.token_type + " " + auth_response.access_token,
                 "Accept": "application/json;v=1.0",
-                "Content-Type": "application/json;v=1.0"
+                "Content-Type": "application/json;v=1.0",
+                "cxOrigin": "REST API"
             }
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
             d = r.json()
