@@ -11,7 +11,6 @@ from pathlib import Path
 
 from src.CxRestAPISDK.config import CxConfig
 from src.CxRestAPISDK.auth import AuthenticationAPI
-from src.CxRestAPISDK.team import TeamAPI
 
 from src.CxRestAPISDK.sast.projects.dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
     CxIssueTrackingSystemDetail, CxSharedRemoteSourceSettingsRequest, CxIssueTrackingSystemField, \
@@ -1089,61 +1088,3 @@ class ProjectsAPI(object):
         else:
             raise Exception("Network Error")
         return preset
-
-
-# a_team_api = TeamAPI.TeamAPI()
-# a_team_id = a_team_api.get_team_id_by_full_name("/CxServer")
-# target_team_id = a_team_api.get_team_id_by_full_name("/CxServer/SP/Company/Users")
-# a_projects_api = ProjectsAPI()
-# a_project_id = a_projects_api.get_project_id_by_name("JVL-SSH", a_team_id)
-# # the_project = a_projects_api.get_project_details_by_id(a_project_id)
-#
-# # custom_field_id = CustomFieldsAPI.CustomFieldsAPI().get_custom_field_id_by_name("projectManager")
-# # a_projects_api.update_project_by_id(project_id=a_project_id,
-# #                                     name="create_test_07_29_1",
-# #                                     owning_team=target_team_id,
-# #                                     custom_field_id=custom_field_id,
-# #                                     custom_field_value="Happy")
-# # a_projects_api.update_project_name_team_id(project_id=a_project_id, project_name="create_test_07_29", team_id=target_team_id)
-# # a_projects_api.delete_project_by_id(project_id=a_project_id)
-# # a_projects_api.create_branched_project(project_id=a_project_id, branched_project_name="JVL-branched-1")
-# # a_projects_api.get_all_issue_tracking_systems()
-# # excludesettings = a_projects_api.get_project_exclude_settings_by_project_id(a_project_id)
-# # a_projects_api.set_project_exclude_settings_by_project_id(a_project_id, "dd, bb", "d.txt, b.js")
-# git_remote_settings = a_projects_api.get_remote_source_settings_for_git_by_project_id(a_project_id)
-# # a_project_id = a_projects_api.get_project_id_by_name("Jvl-git-branched", a_team_id)
-# # a_projects_api.set_remote_source_setting_to_git(
-# #     a_project_id,
-# #     url="https://github.com/CSPF-Founder/JavaVulnerableLab.git",
-# #     branch="refs/heads/master"
-# # )
-#
-# # a_svn_project = a_projects_api.get_remote_source_settings_for_svn_by_project_id(a_project_id)
-# # presets = a_projects_api.get_all_preset_details()
-# # preset_id = a_projects_api.get_preset_id_by_name("Checkmarx Default")
-# # preset_detail = a_projects_api.get_preset_details_by_preset_id(preset_id)
-#
-# # a_projects_api.upload_source_code_zip_file(project_id=a_project_id,
-# #                                            zip_file_path=r"C:\Users\HappyY\Downloads\WebGoat_5_0.zip")
-# with open(r"C:\Users\HappyY\.ssh\id_rsa", "r") as file:
-#     # file_content = file.read().replace("\n", "")
-#     file_content = file.read()
-#
-# a_projects_api.set_remote_source_setting_to_git_using_ssh(
-#     project_id=a_project_id,
-#     url="git@github.com:CSPF-Founder/JavaVulnerableLab.git",
-#     branch="refs/heads/master",
-#     private_key_file_path=r"C:\Users\HappyY\.ssh\id_rsa")
-#
-#
-# a_projects_api.set_data_retention_settings_by_project_id(a_project_id, 1)
-#
-#
-# # a_projects_api.set_remote_source_setting_to_git(
-# #     project_id=a_project_id,
-# #     url="git@github.com:CSPF-Founder/JavaVulnerableLab.git",
-# #     branch="refs/heads/master",
-# #     private_key=file_content)
-
-
-
