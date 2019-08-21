@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as eT
 
 
 class CxScanReportXmlContent(object):
@@ -9,7 +9,7 @@ class CxScanReportXmlContent(object):
     """
 
     def __init__(self, report_file_path):
-        self.tree = ET.parse(report_file_path)
+        self.tree = eT.parse(report_file_path)
         self.root = self.tree.getroot()
 
     def filter_to_keep_xml_result_by_severity(self, high=True, medium=True, low=True, info=True):
@@ -75,7 +75,15 @@ class CxScanReportXmlContent(object):
             for query in self.root.findall("Query"):
                 for result in query.findall("Result"):
                     assign_to_user = result.attrib.get("AssignToUser")
-                    if assign_to_user and (assign_to_user not in user_list):
+                    if assign_to_user:
+                        user_not_in_assigned_user = True
+                        for user in user_list:
+                            if user in assign_to_user:
+                                user_not_in_assigned_user = False
+                                break
+                        if user_not_in_assigned_user:
+                            query.remove(result)
+                    else:
                         query.remove(result)
                 # remove the parent Result tag if it has no child element
                 if query.find("Result") is None:
@@ -100,8 +108,10 @@ class CxScanReportXmlContent(object):
                 categories = query.attrib.get("categories")
                 if categories:
                     ca = [item.split(";")[0] for item in categories.split(",")]
-                    if len(set(ca).intersection(categories_list)) == 0:
+                    if len(set(ca).intersection(set(categories_list))) == 0:
                         self.root.remove(query)
+                else:
+                    self.root.remove(query)
 
     def filter_to_keep_xml_result_by_query_names(self, query_names=None):
         """
@@ -128,10 +138,3 @@ class CxScanReportXmlContent(object):
         :return:
         """
         self.tree.write(new_xml_file_path)
-
-
-d = CxScanReportXmlContent(r"C:\Users\HappyY\Downloads\JVL_local_zip.xml")
-# d.filter_to_keep_xml_result_by_severity(low=False, info=False)
-d.filter_to_keep_xml_result_by_state(to_verify=False, confirmed=True)
-d.tree.write(r"C:\Users\HappyY\Downloads\output.xml")
-pass
