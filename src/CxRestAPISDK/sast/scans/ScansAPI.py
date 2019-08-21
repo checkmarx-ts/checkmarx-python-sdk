@@ -835,18 +835,3 @@ class ScansAPI(object):
         else:
             raise Exception("Network Error")
         return report_content
-
-# scan_api = ScansAPI()
-# all_scans = scan_api.get_all_scans_for_project()
-# scan = scan_api.get_sast_scan_details_by_scan_id(1000004)
-# statistics_result = scan_api.get_statistics_results_by_scan_id(1000004)
-# # scan_queue = ScansAPI().get_scan_queue_details_by_scan_id(1000004)
-# scan_details_in_queue = scan_api.get_all_scan_details_in_queue()
-# scan_settings = scan_api.get_scan_settings_by_project_id(4)
-# scanReportResponse_1 = scan_api.register_scan_report(scan_id=1000002, report_type="XML")
-# report_id = scanReportResponse_1.report_id
-# while scan_api.get_report_status_by_id(report_id).status.id != 2:
-#     pass
-# scan_api.get_report_by_id(report_id)
-#
-# pass
