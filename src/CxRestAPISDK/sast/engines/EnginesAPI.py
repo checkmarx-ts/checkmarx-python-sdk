@@ -56,7 +56,7 @@ class EnginesAPI(object):
                 ) for item in a_list
             ]
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
@@ -64,6 +64,16 @@ class EnginesAPI(object):
         else:
             raise Exception("Network Error")
         return all_engine_server_details
+
+    def get_engine_id_by_name(self, engine_name):
+        """
+
+        :param engine_name: str
+        :return:
+        """
+        all_engine_servers = self.get_all_engine_server_details()
+        a_dict = {item.name: item.id for item in all_engine_servers}
+        return a_dict.get(engine_name)
 
     def register_engine(self, name, uri, min_loc, max_loc, is_blocked):
         """
@@ -87,7 +97,7 @@ class EnginesAPI(object):
         r = requests.post(self.engine_servers_url, data=post_request_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        if r.status_code == 200:
+        if r.status_code == 201:
             a_dict = r.json()
             engine_server = CxEngineServer.CxEngineServer(
                 id=a_dict.get("id"),
@@ -97,7 +107,7 @@ class EnginesAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
@@ -118,7 +128,7 @@ class EnginesAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
             raise Exception("Not Found")
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
@@ -159,7 +169,7 @@ class EnginesAPI(object):
                     )
                 )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
@@ -203,7 +213,7 @@ class EnginesAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
@@ -229,7 +239,7 @@ class EnginesAPI(object):
                 ) for item in a_list
             ]
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
@@ -259,7 +269,7 @@ class EnginesAPI(object):
                     name=a_dict.get("name")
                 )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request")
+            raise Exception("Bad Request", r.text)
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
