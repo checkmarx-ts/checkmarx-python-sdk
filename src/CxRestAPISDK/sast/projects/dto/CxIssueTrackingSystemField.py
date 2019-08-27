@@ -5,19 +5,26 @@ class CxIssueTrackingSystemField(object):
     """
     field
     """
-    def __init__(self, id, name, multiple, required, supported, allowed_values):
+    def __init__(self, tracking_system_field_id, name, multiple, required, supported, allowed_values):
         """
 
-        :param id:
-        :param name:
-        :param multiple:
-        :param required:
-        :param supported:
-        :param allowed_values: list of CxIssueTrackingSystemFieldAllowedValue
+        Args:
+            tracking_system_field_id (int):
+            name (str):
+            multiple (bool):
+            required (bool):
+            supported (bool):
+            allowed_values (:obj:`list` of :obj:`CxIssueTrackingSystemFieldAllowedValue`):
         """
-        self.id = id
+        self.id = tracking_system_field_id
         self.name = name
         self.multiple = multiple
         self.required = required
         self.supported = supported
         self.allowed_values = allowed_values
+
+    def __str__(self):
+        return """CxIssueTrackingSystemField(tracking_system_field_id={}, name={], multiple={], required={], 
+                supported={], allowed_values={})""".format(
+            self.id, self.name, self.multiple, self.required, self.supported, self.allowed_values
+        )

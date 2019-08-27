@@ -141,6 +141,10 @@ class CxConfig(object):
         """
         return self.cx_config.get("team", r"CxServer\SP\Company\Users")
 
+    @property
+    def max_try(self):
+        return int(self.cx_config.get("max_try", 3))
+
 
 # construct an CxConfig object when import this module, so that the file config.ini will only be read once.
 # please use CxConfig.config class variable to get configuration data.

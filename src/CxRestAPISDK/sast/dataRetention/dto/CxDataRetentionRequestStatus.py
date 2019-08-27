@@ -5,23 +5,20 @@ class CxDataRetentionRequestStatus(object):
     """
     data retention request status
     """
-    class Stage(object):
-        def __init__(self, id, value):
-            """
 
-            :param id: int
-            :param value: str
-            """
-            self.id = id
-            self.value = value
-
-    def __init__(self, id, stage, link):
+    def __init__(self, status_id, stage, link):
         """
 
-        :param id: int
-        :param stage: CxDataRetentionRequestStatus.Stage
-        :param link: CxLink
+        Args:
+            status_id (int):
+            stage (:obj:`CxDataRetentionRequestStatusStage`:
+            link (:obj:`CxLink`):
         """
-        self.id = id
+        self.id = status_id
         self.stage = stage
         self.link = link
+
+    def __str__(self):
+        return "CxDataRetentionRequestStatus(status_id={}, stage={}, link={})".format(
+            self.id, self.stage, self.link
+        )

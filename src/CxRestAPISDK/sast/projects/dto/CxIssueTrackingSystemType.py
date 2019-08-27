@@ -5,15 +5,21 @@ class CxIssueTrackingSystemType(object):
     """
     one of issue types
     """
-    def __init__(self, id, name, sub_task, fields):
+    def __init__(self, issue_tracking_system_type_id, name, sub_task, fields):
         """
 
-        :param id: str
-        :param name: str
-        :param sub_task: boolean
-        :param fields: list of CxIssueTrackingSystemField
+        Args:
+            issue_tracking_system_type_id (str):
+            name (str):
+            sub_task (bool):
+            fields (:obj:`list` of :obj:`CxIssueTrackingSystemField`):
         """
-        self.id = id
+        self.id = issue_tracking_system_type_id
         self.name = name
         self.sub_task = sub_task
         self.fields = fields
+
+    def __str__(self):
+        return "CxIssueTrackingSystemType(issue_tracking_system_type_id={}, name={}, sub_task={}, fields={})".format(
+            self.id, self.name, self.sub_task, self.fields
+        )

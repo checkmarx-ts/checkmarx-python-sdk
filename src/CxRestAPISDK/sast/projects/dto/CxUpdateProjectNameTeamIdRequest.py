@@ -10,9 +10,9 @@ class CxUpdateProjectNameTeamIdRequest(object):
     def __init__(self, project_name, owning_team):
         """
 
-        :param project_name: str
-        :param owning_team: int
-            team_id
+        Args:
+            project_name (str):
+            owning_team (int): team_id
         """
         self.project_name = project_name
         self.owning_team = owning_team
@@ -27,4 +27,9 @@ class CxUpdateProjectNameTeamIdRequest(object):
                 "name": self.project_name,
                 "owningTeam": self.owning_team
             }
+        )
+
+    def __str__(self):
+        return "CxUpdateProjectNameTeamIdRequest(project_name={}, owning_team={})".format(
+            self.project_name, self.owning_team
         )

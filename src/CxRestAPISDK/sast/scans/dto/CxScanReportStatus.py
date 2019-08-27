@@ -6,22 +6,29 @@ class CxScanReportStatus(object):
     scan report status
     """
     class Status(object):
-        def __init__(self, id, value):
+        def __init__(self, status_id, value):
             """
 
-            :param id: int
-            :param value: str
+            Args:
+                status_id (int):
+                value (str):
             """
-            self.id = id
+            self.id = status_id
             self.value = value
 
     def __init__(self, link, content_type, status):
         """
 
-        :param link: CxLink
-        :param content_type:
-        :param status:
+        Args:
+            link (:obj:`CxLink`):
+            content_type (str):
+            status (:obj:`CxScanReportStatus.Status`):
         """
         self.link = link
         self.content_type = content_type
         self.status = status
+
+    def __str__(self):
+        return "CxScanReportStatus(link={}, content_type={}, status={})".format(
+            self.link, self.content_type, self.status
+        )

@@ -14,18 +14,23 @@ from src.CxRestAPISDK.auth import AuthenticationAPI
 
 from src.CxRestAPISDK.sast.projects.dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
     CxIssueTrackingSystemDetail, CxSharedRemoteSourceSettingsRequest, CxIssueTrackingSystemField, \
-    CxSharedRemoteSourceSettingsResponse, CxGitSettingsResponse, CxCustomRemoteSourceSettingsRequest, \
-    CxGitSettingsPostRequest, CxIssueTrackingSystemType, CxIssueTrackingSystemFieldAllowedValue, CxSourceSettingsLink, \
+    CxSharedRemoteSourceSettingsResponse, CxGitSettings, \
+    CxIssueTrackingSystemType, CxIssueTrackingSystemFieldAllowedValue, CxSourceSettingsLink, \
     CxCreateProjectRequest, CxIssueTrackingSystem, CxLink, CxProject, CxCustomRemoteSourceSettings, \
-    CxUpdateProjectRequest, CxProjectExcludeSettings, CxCredential, CxSVNSettings
-
+    CxUpdateProjectRequest, CxProjectExcludeSettings, CxCredential, CxSVNSettings, CxURI, CxPerforceSettings, \
+    CxTFSSettings, CxIssueTrackingSystemJira
 from src.CxRestAPISDK.sast.projects.dto.presets import CxPreset
+from src.CxRestAPISDK.team.TeamAPI import TeamAPI
+from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+
+default_team_id = TeamAPI().get_team_id_by_full_name()
 
 
 class ProjectsAPI(object):
     """
     the projects API
     """
+    max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
     projects_url = base_url + "/projects"
     project_url = base_url + "/projects/{id}"
@@ -54,13 +59,22 @@ class ProjectsAPI(object):
         """
         self.retry = 0
 
-    def get_all_project_details(self, project_name=None, team_id=None):
+    def get_all_project_details(self, project_name=None, team_id=default_team_id):
         """
         REST API: get all project details.
         For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
-        :param project_name: str
-        :param team_id: int
-        :return:
+
+        Args:
+            project_name (str):
+            team_id (int):
+
+        Returns:
+            :obj:`list` of :obj:`CxProject`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         all_projects = []
 
@@ -88,16 +102,19 @@ class ProjectsAPI(object):
                 ) for item in a_list
             ]
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_project_details()
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return all_projects
 
-    def create_project_with_default_configuration(self, name, owning_team, is_public=True):
+    def create_project_with_default_configuration(self, name, owning_team=default_team_id, is_public=True):
         """
         REST API: create project
         :param name: str
@@ -105,8 +122,22 @@ class ProjectsAPI(object):
             the owning_team is the team_id
         :param is_public: boolean
         :return: CxCreateProjectResponse
+
+        Args:
+            name (str):
+            owning_team (int): team id
+            is_public (bool):
+
+        Returns:
+            :obj:`CxCreateProjectResponse`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         project = None
+
         req_data = CxCreateProjectRequest.CxCreateProjectRequest(name, owning_team, is_public).get_post_data()
         r = requests.post(
             url=self.projects_url,
@@ -122,25 +153,29 @@ class ProjectsAPI(object):
                     uri=(d.get("link", {}) or {}).get("uri")
                 )
             )
-
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_project_with_default_configuration(name, owning_team, is_public)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return project
 
-    def get_project_id_by_name(self, project_name, team_id):
+    def get_project_id_by_name(self, project_name, team_id=default_team_id):
         """
         utility provided by SDK: get project id by project name, and team id
-        :param project_name: str
-            project name under one team, different teams may have projects of the same name
-        :param team_id: int
-            you can get team_id by using TeamAPI.get_team_id_by_full_name
-        :return:
+
+        Args:
+            project_name (str): project name under one team, different teams may have projects of the same name
+            team_id (int): you can get team_id by using TeamAPI.get_team_id_by_full_name
+
+        Returns:
+            int: project id
         """
         all_projects = self.get_all_project_details()
         # a_dict, key is {project_name}&{team_id}, value is project_id
@@ -151,9 +186,18 @@ class ProjectsAPI(object):
     def get_project_details_by_id(self, project_id):
         """
         REST API: get project details by project id
-        :param project_id: int
-            consider using get_project_id_by_name to get project_id
-        :return:
+
+        Args:
+            project_id (int): consider using get_project_id_by_name to get project_id
+
+        Returns:
+            :obj:`CxProject`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
+
         """
         project = None
         self.project_url = self.project_url.format(id=project_id)
@@ -167,7 +211,7 @@ class ProjectsAPI(object):
                 name=a_dict.get("name"),
                 is_public=a_dict.get("isPublic"),
                 source_settings_link=CxSourceSettingsLink.CxSourceSettingsLink(
-                    type=(a_dict.get("sourceSettingsLink", {}) or {}).get("type"),
+                    source_settings_link_type=(a_dict.get("sourceSettingsLink", {}) or {}).get("type"),
                     rel=(a_dict.get("sourceSettingsLink", {}) or {}).get("rel"),
                     uri=(a_dict.get("sourceSettingsLink", {}) or {}).get("uri")
                 ),
@@ -177,18 +221,19 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_project_details_by_id(project_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return project
 
-    def update_project_by_id(self, project_id, name=None, owning_team=None, custom_field_id=None,
+    def update_project_by_id(self, project_id, name, owning_team=default_team_id, custom_field_id=None,
                              custom_field_value=None):
         """
         update project info by project id
@@ -204,6 +249,22 @@ class ProjectsAPI(object):
         :param custom_field_value: str
             the value of the custom field that you want to change to
         :return:
+
+        Args:
+            project_id (int): consider using get_project_id_by_name to get project_id
+            name (str): the project name that you want the current project change to
+            owning_team (int): the team id that you want the current project change to
+            custom_field_id (int): the id of the custom field that you want to change,
+                                    consider using CustomFieldsAPI.get_custom_field_id_by_name
+            custom_field_value (str): the value of the custom field that you want to change to
+
+        Returns:
+            bool: True means successful, False means not successful
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
         self.project_url = self.project_url.format(id=project_id)
@@ -222,28 +283,34 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_project_by_id(project_id, name, owning_team, custom_field_id, custom_field_value)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
 
         return is_successful
 
-    def update_project_name_team_id(self, project_id, project_name=None, team_id=None):
+    def update_project_name_team_id(self, project_id, project_name, team_id=default_team_id):
         """
         REST API: update project name, team id
-        :param project_id: int
-            consider using ProjectsAPI.get_project_id_by_name
-        :param project_name: str
-            the project name to change to
-        :param team_id: int
-            the project id to change to
-        :return:
+
+        Args:
+            project_id (int): consider using ProjectsAPI.get_project_id_by_name
+            project_name (str): the project name to change to
+            team_id (int): the project id to change to
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
 
         is_successful = False
@@ -262,27 +329,36 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_project_name_team_id(project_id, project_name, team_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
 
         return is_successful
 
     def delete_project_by_id(self, project_id, delete_running_scans=False):
         """
         REST API: delete project by id
-        :param project_id:
-        :param delete_running_scans: boolean
-            default False
-        :return:
+
+
+        Args:
+            project_id (int):
+            delete_running_scans (bool):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
-        is_successful = None
+        is_successful = False
         self.project_url = self.project_url.format(id=project_id)
 
         request_body = json.dumps({"deleteRunningScans": delete_running_scans})
@@ -294,28 +370,36 @@ class ProjectsAPI(object):
         if r.status_code == 202:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_project_by_id(project_id, delete_running_scans)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
 
         return is_successful
 
     def create_branched_project(self, project_id, branched_project_name):
         """
         Create a branch of an existing project.
-        :param project_id: int
-        :param branched_project_name: str
-            specifies the name of the branched project
-        :return:
-            CxCreateProjectResponse
+
+        Args:
+            project_id (int):
+            branched_project_name (str): specifies the name of the branched project
+        Returns:
+            :obj:`CxCreateProjectResponse`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
+
         """
         project = None
+
         self.project_branch_url = self.project_branch_url.format(id=project_id)
 
         request_body = json.dumps({"name": branched_project_name})
@@ -333,19 +417,30 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_branched_project(project_id, branched_project_name)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return project
 
     def get_all_issue_tracking_systems(self):
         """
         Get details of all issue tracking systems (e.g. Jira) currently registered to CxSAST.
-        :return:
+
+        Returns:
+            :obj:`list` of :obj:`CxIssueTrackingSystem`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
+
         """
         issue_tracking_systems = []
 
@@ -355,29 +450,34 @@ class ProjectsAPI(object):
             a_list = r.json()
             issue_tracking_systems = [
                 CxIssueTrackingSystem.CxIssueTrackingSystem(
-                    id=item.get("id"),
+                    tracking_system_id=item.get("id"),
                     name=item.get("name"),
-                    type=item.get("type"),
+                    tracking_system_type=item.get("type"),
                     url=item.get("url")
                 ) for item in a_list
             ]
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_issue_tracking_systems()
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return issue_tracking_systems
 
     def get_issue_tracking_system_id_by_name(self, name):
         """
         get issue tracking system id by name
-        :param name: issue tracking system name
-        :return:
-            int
-                issue tracking system id
+
+        Args:
+            name (str): issue tracking system name
+
+        Returns:
+            int: issue_tracking_system id
         """
         issue_tracking_systems = self.get_all_issue_tracking_systems()
         a_dict = {item.name: item.id for item in issue_tracking_systems}
@@ -388,10 +488,20 @@ class ProjectsAPI(object):
         Get metadata for a specific issue tracking system (e.g. Jira) according to the Issue Tracking System Id.
         :param issue_tracking_system_id: int
         :return:
+
+        Args:
+            issue_tracking_system_id (int):
+
+        Returns:
+            dict
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
-        issue_tracking_system = {
-            "projects": []
-        }
+        # TODO Check, when have jira
+        issue_tracking_system = None
 
         self.issue_tracking_systems_metadata_url = self.issue_tracking_systems_metadata_url.format(
             id=issue_tracking_system_id
@@ -415,23 +525,23 @@ class ProjectsAPI(object):
                 issue_tracking_system = {
                     "projects": [
                         CxIssueTrackingSystemDetail.CxIssueTrackingSystemDetail(
-                            id=a_dict.get("id"),
+                            tracking_system_detail_id=a_dict.get("id"),
                             name=a_dict.get("name"),
                             issue_types=[
                                 CxIssueTrackingSystemType.CxIssueTrackingSystemType(
-                                    id=issue_type.get("id"),
+                                    issue_tracking_system_type_id=issue_type.get("id"),
                                     name=issue_type.get("name"),
                                     sub_task=issue_type.get("subtask"),
                                     fields=[
                                         CxIssueTrackingSystemField.CxIssueTrackingSystemField(
-                                            id=field.get("id"),
+                                            tracking_system_field_id=field.get("id"),
                                             name=field.get("name"),
                                             multiple=field.get("multiple"),
                                             required=field.get("required"),
                                             supported=field.get("supported"),
                                             allowed_values=[
                                                 c.CxIssueTrackingSystemFieldAllowedValue(
-                                                    id=item.get("id"),
+                                                    allowed_value_id=item.get("id"),
                                                     name=item.get("name")
                                                 ) for item in allowed_values
                                             ]
@@ -443,13 +553,16 @@ class ProjectsAPI(object):
                     ]
                 }
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_issue_tracking_system_details_by_id(issue_tracking_system_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return issue_tracking_system
 
     def get_project_exclude_settings_by_project_id(self, project_id):
@@ -457,6 +570,17 @@ class ProjectsAPI(object):
         get details of a project's exclude folders/files settings according to the project Id.
         :param project_id:
         :return:
+
+        Args:
+            project_id (int):
+
+        Returns:
+            :obj:`CxProjectExcludeSettings`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
 
         project_exclude_settings = None
@@ -476,22 +600,34 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_project_exclude_settings_by_project_id(project_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return project_exclude_settings
 
     def set_project_exclude_settings_by_project_id(self, project_id, exclude_folders_pattern, exclude_files_pattern):
         """
         set a project's exclude folders/files settings according to the project Id.
-        :param project_id: int
-        :param exclude_folders_pattern: str
-        :param exclude_files_pattern: str
-        :return:
+
+        Args:
+            project_id (int):
+            exclude_folders_pattern (str):
+            exclude_files_pattern (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
         self.exclude_settings_url = self.exclude_settings_url.format(id=project_id)
@@ -505,14 +641,17 @@ class ProjectsAPI(object):
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             is_successful = True
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern, exclude_files_pattern)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def get_remote_source_settings_for_git_by_project_id(self, project_id):
@@ -520,14 +659,26 @@ class ProjectsAPI(object):
         Get a specific project's remote source settings for a GIT repository according to the Project Id.
         :param project_id: int
         :return:
+
+        Args:
+            project_id (int):
+
+        Returns:
+            :obj:`CxGitSettings`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         git_settings = None
+
         self.remote_settings_git_url = self.remote_settings_git_url.format(id=project_id)
         r = requests.get(url=self.remote_settings_git_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
-            git_settings = CxGitSettingsResponse.CxGitSettingsResponse(
+            git_settings = CxGitSettings.CxGitSettings(
                 url=a_dict.get("url"),
                 branch=a_dict.get("branch"),
                 use_ssh=a_dict.get("useSsh"),
@@ -537,13 +688,16 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_git_by_project_id(project_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return git_settings
 
     def set_remote_source_setting_to_git(self, project_id, url, branch, private_key=None):
@@ -557,13 +711,28 @@ class ProjectsAPI(object):
         :param private_key: str
             The private key (optional) which is used to connect to the GIT repository using SSH protocol
         :return:
+
+        Args:
+            project_id (int):
+            url (str): The url which is used to connect to the GIT repository (e.g. git@github.com:test/repo.git)
+            branch (str): The branch of a GIT repository (e.g. refs/heads/master)
+            private_key (str): The private key (optional) which is used to connect to the GIT repository using
+                                SSH protocol
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
 
         is_successful = False
 
         self.remote_settings_git_url = self.remote_settings_git_url.format(id=project_id)
 
-        post_body = CxGitSettingsPostRequest.CxGitSettingsPostRequest(
+        post_body = CxGitSettings.CxGitSettings(
             url=url, branch=branch, private_key=private_key
         ).get_post_data()
 
@@ -573,22 +742,32 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_to_git(project_id, url, branch, private_key)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def get_remote_source_settings_for_svn_by_project_id(self, project_id):
         """
         get a specific project's remote source location settings for SVN repository according to the Project Id.
-        :param project_id int
-        :return:
+
+        Args:
+            project_id (int):
+
+        Returns:
+            :obj:`CxSVNSettings`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
 
         svn_settings = None
@@ -599,7 +778,7 @@ class ProjectsAPI(object):
         if r.status_code == 200:
             a_dict = r.json()
             svn_settings = CxSVNSettings.CxSVNSettings(
-                uri=CxSVNSettings.CxSVNSettings.URI(
+                uri=CxURI.CxURI(
                     absolute_url=(a_dict.get("uri", {}) or {}).get("absoluteUrl"),
                     port=(a_dict.get("uri", {}) or {}).get("port")
                 ),
@@ -611,35 +790,45 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_svn_by_project_id(project_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return svn_settings
 
     def set_remote_source_settings_to_svn(self, project_id, absolute_url, port, paths, username, password,
                                           private_key=None):
         """
         set a specific project's remote source location to a SVN repository using SSH protocol.
-        :param project_id: int
-        :param absolute_url: str
-        :param port: int
-        :param paths: str
-        :param username: str
-        :param password: str
-        :param private_key: str
-        :return:
+
+        Args:
+            project_id (int):
+            absolute_url (str):
+            port (int):
+            paths (:obj:`lsit` of :obj:`str`):
+            username (str):
+            password (str):
+            private_key (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
-        is_successful = None
+        is_successful = False
         self.remote_settings_svn_url = self.remote_settings_svn_url.format(id=project_id)
 
         post_body_data = CxSVNSettings.CxSVNSettings(
-            uri=CxSVNSettings.CxSVNSettings.URI(
+            uri=CxURI.CxURI(
                 absolute_url=absolute_url,
                 port=port
             ),
@@ -658,38 +847,125 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_settings_to_svn(project_id, absolute_url, port, paths, username, password,
                                                    private_key)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
 
         return is_successful
 
     def get_remote_source_settings_for_tfs_by_project_id(self, project_id):
         """
         Get a specific project's remote source location settings for TFS repository according to the Project Id.
-        :param project_id:
-        :return:
-        """
-        # TODO, due to lack of TFS environment
 
-    def set_remote_source_settings_to_tfs(self, username, password, absolute_url, port, paths):
-        """
+        Args:
+            project_id (int):
 
-        :param username:
-        :param password:
-        :param absolute_url:
-        :param port:
-        :param paths:
-        :return:
+        Returns:
+            :obj:`CxTFSSettings`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
-        # TODO, due to lack of TFS environment
+        # TODO, check, when have TFS environment
+
+        tfs_settings = None
+
+        if project_id:
+            self.remote_settings_tfs_url = self.remote_settings_tfs_url.format(id=project_id)
+
+        r = requests.get(url=self.remote_settings_tfs_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        if r.status_code == 200:
+            a_dict = r.json()
+            tfs_settings = CxTFSSettings.CxTFSSettings(
+                uri=CxURI.CxURI(
+                    absolute_url=(a_dict.get("uri", {}) or {}).get("absoluteUrl"),
+                    port=(a_dict.get("uri", {}) or {}).get("port"),
+                ),
+                paths=a_dict.get("paths"),
+                link=CxLink.CxLink(
+                    rel=(a_dict.get("link", {}) or {}).get("rel"),
+                    uri=(a_dict.get("link", {}) or {}).get("uri")
+                )
+            )
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.get_remote_source_settings_for_tfs_by_project_id(project_id)
+        else:
+            raise UnknownHttpStatusError()
+
+        return tfs_settings
+
+    def set_remote_source_settings_to_tfs(self, project_id, username, password, absolute_url, port, paths):
+        """
+        Set a specific project's remote source location to a TFS repository.
+
+        Args:
+            project_id (int):
+            username (str):
+            password (str):
+            absolute_url (str):
+            port (int):
+            paths (:obj:`list` of :obj:`str`):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
+        """
+        # TODO, check, when have TFS environment
+        is_successful = False
+
+        if project_id:
+            self.remote_settings_tfs_url = self.remote_settings_tfs_url.format(id=project_id)
+
+        post_data = CxTFSSettings.CxTFSSettings(
+            credentials=CxCredential.CxCredential(
+                username=username,
+                password=password
+            ),
+            uri=CxURI.CxURI(
+                absolute_url=absolute_url,
+                port=port
+            ),
+            paths=paths
+        ).get_post_data()
+
+        r = requests.post(
+            url=self.remote_settings_tfs_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            data=post_data
+        )
+        if r.status_code == 204:
+            is_successful = True
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.set_remote_source_settings_to_tfs(project_id, username, password, absolute_url, port, paths)
+        else:
+            raise UnknownHttpStatusError()
+
+        return is_successful
 
     def get_remote_source_settings_for_custom_by_project_id(self, project_id):
         """
@@ -697,8 +973,20 @@ class ProjectsAPI(object):
          according to the Project Id.
         :param project_id:
         :return:
+
+        Args:
+            project_id (int):
+
+        Returns:
+            :obj:`CxCustomRemoteSourceSettings`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         custom_remote_setting = None
+
         self.remote_settings_custom_url = self.remote_settings_custom_url.format(id=project_id)
         r = requests.get(url=self.remote_settings_custom_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -713,13 +1001,16 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_custom_by_project_id(project_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return custom_remote_setting
 
     def set_remote_source_setting_for_custom_by_project_id(self, project_id, path,
@@ -727,18 +1018,28 @@ class ProjectsAPI(object):
         """
         Set a specific project's remote source location settings for custom repository
         (e.g. source pulling) according to the Project Id.
-        :param project_id: int
-        :param path: str
-        :param pre_scan_command_id: int
-        :param username: str
-        :param password: str
-        :return:
+
+
+        Args:
+            project_id (int):
+            path (str):
+            pre_scan_command_id (int):
+            username (str):
+            password (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
         self.remote_settings_custom_url = self.remote_settings_custom_url.format(id=project_id)
-        request_body_data = CxCustomRemoteSourceSettingsRequest.CxCustomRemoteSourceSettingsRequest(
+        request_body_data = CxCustomRemoteSourceSettings.CxCustomRemoteSourceSettings(
             path=path,
-            pre_scan_command_id=pre_scan_command_id,
+            pulling_command_id=pre_scan_command_id,
             credentials=CxCredential.CxCredential(
                 username=username,
                 password=password
@@ -750,21 +1051,33 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_for_custom_by_project_id(project_id, path,
                                                                     pre_scan_command_id, username, password)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def get_remote_source_settings_for_shared_by_project_id(self, project_id):
         """
         Get a specific project's remote source location settings for shared repository according to the Project Id.
-        :param project_id: int
-        :return:
+
+        Args:
+            project_id (int):
+
+        Returns:
+            :obj:`CxSharedRemoteSourceSettingsResponse`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         shared_source_setting = None
         self.remote_settings_shared_url = self.remote_settings_shared_url.format(id=project_id)
@@ -780,27 +1093,38 @@ class ProjectsAPI(object):
                 )
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_shared_by_project_id(project_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return shared_source_setting
 
     def set_remote_source_settings_to_shared(self, project_id, paths, username, password):
         """
         Set a specific project's remote source location to a shared repository.
-        :param project_id: int
-        :param paths: list of str
-        :param username: str
-        :param password: str
-        :return:
+
+        Args:
+            project_id (int):
+            paths (:obj:`list` of :obj:`str`):
+            username (str):
+            password (sr):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
+
         self.remote_settings_shared_url = self.remote_settings_shared_url.format(id=project_id)
         post_body_data = CxSharedRemoteSourceSettingsRequest.CxSharedRemoteSourceSettingsRequest(
             paths=paths,
@@ -816,46 +1140,151 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_settings_to_shared(project_id, paths, username, password)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def get_remote_source_settings_for_perforce_by_project_id(self, project_id):
         """
         Get a specific project's remote source location settings for Perforce repository according to the Project Id.
-        :param project_id:
-        :return:
+
+        Args:
+            project_id (int):
+
+        Returns:
+            :obj:`CxPerforceSettings`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
-        # TODO, due to lack of perforce environment
+        # TODO, check, when have perforce environment
+        perforce_settings = None
+
+        if project_id:
+            self.remote_settings_perforce_url = self.remote_settings_perforce_url.format(id=project_id)
+
+        r = requests.get(
+            url=self.remote_settings_perforce_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers
+        )
+
+        if r.status_code == 200:
+            a_dict = r.json()
+            perforce_settings = CxPerforceSettings.CxPerforceSettings(
+                uri=CxURI.CxURI(
+                    absolute_url=(a_dict.get("uri", {}) or {}).get("absoluteUrl"),
+                    port=(a_dict.get("uri", {}) or {}).get("port")
+                ),
+                paths=a_dict.get("paths"),
+                browse_mode=a_dict.get("browseMode"),
+                link=CxLink.CxLink(
+                    rel=(a_dict.get("link", {}) or {}).get("rel"),
+                    uri=(a_dict.get("link", {}) or {}).get("uri")
+                )
+            )
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.get_remote_source_settings_for_perforce_by_project_id(project_id)
+        else:
+            raise UnknownHttpStatusError()
+
+        return perforce_settings
 
     def set_remote_source_settings_to_perforce(self, project_id, username, password, absolute_url, port, paths,
                                                browse_mode):
         """
         Set a specific project's remote source location to a Perforce repository.
-        :param project_id:
-        :param username:
-        :param password:
-        :param absolute_url:
-        :param port:
-        :param paths:
-        :param browse_mode:
-        :return:
+
+        Args:
+            project_id (int):
+            username (str):
+            password (str):
+            absolute_url (str):
+            port (int):
+            paths (:obj:`list` of :obj:`str`):
+            browse_mode (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
-        # TODO, due to lack of perforce environment
+        # TODO, check, when have perforce environment
+
+        is_successful = False
+
+        if project_id:
+            self.remote_settings_perforce_url = self.remote_settings_perforce_url.format(id=project_id)
+
+        post_data = CxPerforceSettings.CxPerforceSettings(
+            credentials=CxCredential.CxCredential(
+                username=username,
+                password=password,
+            ),
+            uri=CxURI.CxURI(
+                absolute_url=absolute_url,
+                port=port
+            ),
+            paths=paths,
+            browse_mode=browse_mode
+        ).get_post_data()
+
+        r = requests.post(
+            url=self.remote_settings_perforce_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            data=post_data
+        )
+        if r.status_code == 204:
+            is_successful = True
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.set_remote_source_settings_to_perforce(project_id, username, password, absolute_url, port, paths,
+                                                        browse_mode)
+        else:
+            raise UnknownHttpStatusError()
+
+        return is_successful
 
     def set_remote_source_setting_to_git_using_ssh(self, project_id, url, branch, private_key_file_path):
         """
         Set a specific project's remote source location to a GIT repository using the SSH protocol
-        :param project_id: int
-        :param url: str
-        :param branch: str
-        :param private_key_file_path: str
-        :return:
+
+        Args:
+            project_id (int):
+            url (str):
+            branch (str):
+            private_key_file_path (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
 
@@ -881,27 +1310,39 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_to_git_using_ssh(project_id, url, branch, private_key_file_path)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def set_remote_source_setting_to_svn_using_ssh(self, project_id, absolute_url, port, paths, private_key_file_path):
         """
         Set a specific project's remote source location to a SVN repository which uses the SSH protocol
-        :param project_id: int
-        :param absolute_url: str
-        :param port: int
-        :param paths: str
-        :param private_key_file_path: str
-        :return:
+
+        Args:
+            project_id (int):
+            absolute_url (str):
+            port (int):
+            paths (:obj:`list` of :obj:`str`):
+            private_key_file_path (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
-        # TODO check when have svn
+        # TODO check, when have svn
         self.remote_settings_svn_ssh_url = self.remote_settings_svn_ssh_url.format(id=project_id)
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -921,23 +1362,34 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_to_svn_using_ssh(project_id, absolute_url, port, paths,
                                                             private_key_file_path)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def upload_source_code_zip_file(self, project_id, zip_file_path):
         """
         Upload a zip file that contains the source code for scanning.
-        :param project_id: int
-        :param zip_file_path: str
-            absolute file path
-        :return:
+
+        Args:
+            project_id (int):
+            zip_file_path (str): absolute file path
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
         self.attachments_url = self.attachments_url.format(id=project_id)
@@ -956,24 +1408,36 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.upload_source_code_zip_file(project_id, zip_file_path)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
-    def set_data_retention_settings_by_project_id(self, project_id, scans_to_keep):
+    def set_data_retention_settings_by_project_id(self, project_id, scans_to_keep=10):
         """
         Set the data retention settings according to Project Id.
-        :param project_id: int
-        :param scans_to_keep: int
-            number of scans to keep
-        :return:
+
+        Args:
+            project_id (int):
+            scans_to_keep (int): number of scans to keep
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         is_successful = False
+
         self.data_retention_settings_url = self.data_retention_settings_url.format(id=project_id)
 
         post_body = json.dumps(
@@ -988,33 +1452,85 @@ class ProjectsAPI(object):
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_data_retention_settings_by_project_id(project_id, scans_to_keep)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return is_successful
 
     def set_issue_tracking_system_as_jira_by_id(self, project_id, issue_tracking_system_id, jira_project_id,
-                                                issue_type_id):
+                                                issue_type_id, jira_fields):
         """
         Set a specific issue tracking system as Jira according to Project Id.
-        :param project_id:
-        :param issue_tracking_system_id:
-        :param jira_project_id:
-        :param issue_type_id:
-        :return:
+
+        Args:
+            project_id (int):
+            issue_tracking_system_id (int):
+            jira_project_id (str):
+            issue_type_id (str):
+            jira_fields (:obj:`list` of :obj:`CxIssueTrackingSystemJiraField`)
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         # TODO, when have jira
+
+        is_successful = False
+
+        if project_id:
+            self.jira_url = self.jira_url.format(id=project_id)
+        post_data = CxIssueTrackingSystemJira.CxIssueTrackingSystemJira(
+            issue_tracking_system_id=issue_tracking_system_id,
+            jira_project_id=jira_project_id,
+            issue_type_id=issue_type_id,
+            fields=jira_fields
+        ).get_post_data()
+
+        r = requests.post(
+            url=self.jira_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            data=post_data
+        )
+
+        if r.status_code == 204:
+            is_successful = True
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.set_issue_tracking_system_as_jira_by_id(project_id, issue_tracking_system_id, jira_project_id,
+                                                         issue_type_id, jira_fields)
+        else:
+            raise UnknownHttpStatusError()
+
+        return is_successful
 
     def get_all_preset_details(self):
         """
         get details of all presets
-        :return:
+
+        Returns:
+            :obj:`list` of :obj:`CxPreset`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
+
         """
         all_preset_details = []
         r = requests.get(url=self.presets_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -1023,7 +1539,7 @@ class ProjectsAPI(object):
             a_list = r.json()
             all_preset_details = [
                 CxPreset.CxPreset(
-                    id=item.get("id"),
+                    preset_id=item.get("id"),
                     name=item.get("name"),
                     owner_name=item.get("ownerName"),
                     link=CxLink.CxLink(
@@ -1033,22 +1549,26 @@ class ProjectsAPI(object):
                 ) for item in a_list
             ]
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_preset_details()
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return all_preset_details
 
     def get_preset_id_by_name(self, preset_name):
         """
 
-        :param preset_name:
-        :return:
+        Args:
+            preset_name (str):
+
+        Returns:
+            int: preset id
         """
         all_presets = self.get_all_preset_details()
         a_dict_preset_name_id = {item.name: item.id for item in all_presets}
@@ -1057,8 +1577,17 @@ class ProjectsAPI(object):
     def get_preset_details_by_preset_id(self, preset_id):
         """
         Get details of a specified preset by Id.
-        :param preset_id:
-        :return:
+
+        Args:
+            preset_id (int):
+
+        Returns:
+            :obj:`CxPreset`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            UnknownHttpStatusError
         """
         preset = None
         self.preset_url = self.preset_url.format(id=preset_id)
@@ -1068,7 +1597,7 @@ class ProjectsAPI(object):
         if r.status_code == 200:
             a_dict = r.json()
             preset = CxPreset.CxPreset(
-                id=a_dict.get("id"),
+                preset_id=a_dict.get("id"),
                 name=a_dict.get("name"),
                 owner_name=a_dict.get("ownerName"),
                 link=CxLink.CxLink(
@@ -1078,13 +1607,14 @@ class ProjectsAPI(object):
                 query_ids=a_dict.get("queryIds")
             )
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            raise Exception("Bad Request", r.text)
+            raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise Exception("Not Found")
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_preset_details_by_preset_id(preset_id)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError()
+
         return preset

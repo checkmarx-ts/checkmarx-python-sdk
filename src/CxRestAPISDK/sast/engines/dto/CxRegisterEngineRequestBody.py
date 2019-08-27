@@ -11,11 +11,12 @@ class CxRegisterEngineRequestBody(object):
     def __init__(self, name, uri, min_loc, max_loc, is_blocked):
         """
 
-        :param name: str
-        :param uri: str
-        :param min_loc: int
-        :param max_loc: int
-        :param is_blocked: boolean
+        Args:
+            name (str):
+            uri (str):
+            min_loc (int):
+            max_loc (int):
+            is_blocked (bool):
         """
         self.name = name
         self.uri = uri
@@ -32,4 +33,9 @@ class CxRegisterEngineRequestBody(object):
                 "maxLoc": self.max_loc,
                 "isBlocked": self.is_blocked
             }
+        )
+
+    def __str__(self):
+        return "CxRegisterEngineRequestBody(name={}, uri={}, min_loc={}, max_loc={}, is_blocked={})".format(
+            self.name, self.uri, self.min_loc, self.max_loc, self.is_blocked
         )

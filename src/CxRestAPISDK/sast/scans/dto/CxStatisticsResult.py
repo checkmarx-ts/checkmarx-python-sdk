@@ -10,14 +10,20 @@ class CxStatisticsResult(object):
                  statistics_calculation_date=None):
         """
 
-        :param high_severity: int
-        :param medium_severity: int
-        :param low_severity: int
-        :param info_severity: int
-        :param statistics_calculation_date: str
+        Args:
+            high_severity (int):
+            medium_severity (int):
+            low_severity (int):
+            info_severity (int):
+            statistics_calculation_date (str):
         """
         self.high_severity = high_severity
         self.medium_severity = medium_severity
         self.low_severity = low_severity
         self.info_severity = info_severity
         self.statistics_calculation_date = statistics_calculation_date
+
+    def __str__(self):
+        return """CxStatisticsResult, high_severity: {}, medium_severity: {}, low_severity: {}, info_severity:{},
+            statistics_calculation_date:{}""".format(self.high_severity, self.medium_severity, self.low_severity,
+                                                     self.info_severity, self.statistics_calculation_date)

@@ -10,8 +10,9 @@ class CxDefineDataRetentionNumberOfScansRequest(object):
     def __init__(self, number_of_successful_scans_to_preserve, duration_limit_in_hours):
         """
 
-        :param number_of_successful_scans_to_preserve: int
-        :param duration_limit_in_hours: int
+        Args:
+            number_of_successful_scans_to_preserve (int):
+            duration_limit_in_hours (int):
         """
         self.number_of_successful_scans_to_preserve = number_of_successful_scans_to_preserve
         self.duration_limit_in_hours = duration_limit_in_hours
@@ -22,4 +23,10 @@ class CxDefineDataRetentionNumberOfScansRequest(object):
                 "numOfSuccessfulScansToPreserve": self.number_of_successful_scans_to_preserve,
                 "durationLimitInHours": self.duration_limit_in_hours
             }
+        )
+
+    def __str__(self):
+        return """CxDefineDataRetentionNumberOfScansRequest(number_of_successful_scans_to_preserve={},
+         duration_limit_in_hours={})""".format(
+            self.number_of_successful_scans_to_preserve, self.duration_limit_in_hours
         )

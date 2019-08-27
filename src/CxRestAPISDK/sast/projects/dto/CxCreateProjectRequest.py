@@ -10,9 +10,11 @@ class CxCreateProjectRequest(object):
 
     def __init__(self, name, owning_team, is_public):
         """
-        :param name: str
-        :param owning_team: str
-        :param is_public: boolean
+
+        Args:
+            name (str):
+            owning_team (int):
+            is_public (bool):
         """
         self.name = name
         self.owning_team = owning_team
@@ -21,7 +23,8 @@ class CxCreateProjectRequest(object):
     def get_post_data(self):
         """
         get the data that will be posted to create a project with default configuration.
-        :return: dict
+        :return:
+            str
         """
         return json.dumps(
             {
@@ -29,4 +32,9 @@ class CxCreateProjectRequest(object):
                 "owningTeam": self.owning_team,
                 "isPublic": self.is_public
             }
+        )
+
+    def __str__(self):
+        return "CxCreateProjectRequest(name={}, owning_team={}, is_public={})".format(
+            self.name, self.owning_team, self.is_public
         )

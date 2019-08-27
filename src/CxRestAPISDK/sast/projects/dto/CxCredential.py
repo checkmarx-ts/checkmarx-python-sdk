@@ -8,8 +8,12 @@ class CxCredential(object):
     def __init__(self, username, password):
         """
 
-        :param username: str
-        :param password: str
+        Args:
+            username (str):
+            password (str):
         """
         self.username = username
         self.password = password
+
+    def __str__(self):
+        return "CxCredential(username={}, password={})".format(self.username, self.password)

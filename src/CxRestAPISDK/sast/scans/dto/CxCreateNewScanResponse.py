@@ -9,8 +9,14 @@ class CxCreateNewScanResponse(object):
     def __init__(self, scan_id, link):
         """
 
-        :param scan_id: int
-        :param link: CxLink.CxLink
+        Args:
+            scan_id (int):
+            link (:obj:`CxLink`):
         """
         self.id = scan_id
         self.link = link
+
+    def __str__(self):
+        return "CxCreateNewScanResponse(scan_id={}, link={})".format(
+            self.id, self.link
+        )

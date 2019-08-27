@@ -6,27 +6,19 @@ class CxStatus(object):
     scan status
     """
 
-    class Detail(object):
-        """
-        scan status detail
+    def __init__(self, status_id=None, name=None, details=None):
         """
 
-        def __init__(self, stage, step):
-            """
-
-            :param stage: str
-            :param step: str
-            """
-            self.stage = stage
-            self.step = step
-
-    def __init__(self, id=None, name=None, details=None):
+        Args:
+            status_id (int):
+            name (str):
+            details (:obj:`CxStatusDetail`):
         """
-
-        :param id: int
-        :param name: str
-        :param details: CxStatus.Detail
-        """
-        self.id = id
+        self.id = status_id
         self.name = name
         self.details = details
+
+    def __str__(self):
+        return "CxStatus(status_id={}, name={}, details={})".format(
+            self.id, self.name, self.details
+        )

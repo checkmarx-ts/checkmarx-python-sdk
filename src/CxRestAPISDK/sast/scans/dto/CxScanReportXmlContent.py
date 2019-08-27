@@ -15,15 +15,12 @@ class CxScanReportXmlContent(object):
     def filter_to_keep_xml_result_by_severity(self, high=True, medium=True, low=True, info=True):
         """
         filter at Query level
-        :param high: boolean
-            True means keep, False means remove
-        :param medium: boolean
-            True means keep, False means remove
-        :param low: boolean
-            True means keep, False means remove
-        :param info: boolean
-            True means keep, False means remove
-        :return:
+
+        Args:
+            high (bool):  True means keep, False means remove
+            medium (bool): True means keep, False means remove
+            low (bool): True means keep, False means remove
+            info (bool): True means keep, False means remove
         """
         for query in self.root.findall("Query"):
             severity = query.attrib.get("Severity")
@@ -37,17 +34,14 @@ class CxScanReportXmlContent(object):
                                            proposed_not_exploitable=True):
         """
         filter at Path level
-        :param to_verify: boolean
-            True means keep, False means remove
-        :param not_exploitable：boolean
-            True means keep, False means remove
-        :param confirmed: boolean
-            True means keep, False means remove
-        :param urgent: boolean
-            True means keep, False means remove
-        :param proposed_not_exploitable: boolean
-            True means keep, False means remove
-        :return:
+
+        Args:
+            to_verify (bool): True means keep, False means remove
+            not_exploitable (bool): True means keep, False means remove
+            confirmed (bool): True means keep, False means remove
+            urgent (bool): True means keep, False means remove
+            proposed_not_exploitable (bool): True means keep, False means remove
+
         """
         a_dict = {
             0: to_verify,
@@ -68,8 +62,8 @@ class CxScanReportXmlContent(object):
     def filter_to_keep_xml_result_by_assign_to_user(self, user_list=None):
         """
 
-        :param user_list: list of str
-        :return:
+        Args:
+            user_list (:obj:`list` of :obj:`str`):
         """
         if user_list:
             for query in self.root.findall("Query"):
@@ -92,16 +86,16 @@ class CxScanReportXmlContent(object):
     def filter_to_keep_xml_result_by_categories(self, categories_list=None):
         """
 
-        :param categories_list: list of str
-            example:
-            [
-                PCI DSS v3.2,
-                OWASP Top 10 2013,
-                FISMA 2014,
-                NIST SP 800-53,
-                OWASP Top 10 2017
-            ]
-        :return:
+        Args:
+            categories_list (:obj:`list` of :obj:`str`):
+                example:
+                [
+                    PCI DSS v3.2,
+                    OWASP Top 10 2013,
+                    FISMA 2014,
+                    NIST SP 800-53,
+                    OWASP Top 10 2017
+                ]
         """
         if categories_list:
             for query in self.root.findall("Query"):
@@ -116,14 +110,14 @@ class CxScanReportXmlContent(object):
     def filter_to_keep_xml_result_by_query_names(self, query_names=None):
         """
 
-        :param query_names: list of query names
-            example:
-            [
-                Code_Injection,
-                Connection_String_Injection,
-                Reflected_XSS_All_Clients
-            ]
-        :return:
+        Args:
+            query_names (:obj:`list` of :obj:`str`):
+                example:
+                [
+                    Code_Injection,
+                    Connection_String_Injection,
+                    Reflected_XSS_All_Clients
+                ]
         """
         if query_names:
             for query in self.root.findall("Query"):
@@ -134,7 +128,8 @@ class CxScanReportXmlContent(object):
     def write_new_xml(self, new_xml_file_path):
         """
         write modified data into a new xml file
-        :param new_xml_file_path: str
-        :return:
+
+        Args:
+            new_xml_file_path (str):
         """
         self.tree.write(new_xml_file_path)

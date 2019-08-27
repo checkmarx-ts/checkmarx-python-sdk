@@ -11,11 +11,12 @@ class CxCreateScan(object):
     def __init__(self, project_id, is_incremental, is_public, force_scan, comment):
         """
 
-        :param project_id: int
-        :param is_incremental: boolean
-        :param is_public: boolean
-        :param force_scan: boolean
-        :param comment: str
+        Args:
+            project_id (int):
+            is_incremental (bool):
+            is_public (bool):
+            force_scan (bool):
+            comment (str):
         """
         self.project_id = project_id
         self.is_incremental = is_incremental
@@ -32,4 +33,9 @@ class CxCreateScan(object):
                 "forceScan": self.force_scan,
                 "comment": self.comment
             }
+        )
+
+    def __str__(self):
+        return "CxCreateScan(project_id={}, is_incremental={}, is_public={}, force_scan={}, comment={})".format(
+            self.project_id, self.is_incremental, self.is_public, self.force_scan, self.comment
         )

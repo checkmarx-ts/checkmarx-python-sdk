@@ -34,14 +34,16 @@ class CxAuthRequest(object):
             Your dictionary of data will automatically be form-encoded when the request is made.
         """
         return {
-            "username": self.username,
-            "password": self.password,
-            "grant_type": self.grant_type,
-            "scope": self.scope,
-            "client_id": self.client_id,
-            "client_secret": self.client_secret
-        }
+                "username": self.username,
+                "password": self.password,
+                "grant_type": self.grant_type,
+                "scope": self.scope,
+                "client_id": self.client_id,
+                "client_secret": self.client_secret
+            }
 
     def __str__(self):
-        return "CxAuthRequest(username={}, password={}, grant_type={}, scope={}, client_id={}, client_secret={})".format(
-            self.username, self.password, self.grant_type, self.scope, self.client_id, self.client_secret)
+        return """CxAuthRequest(username={}, password={}, grant_type={}, scope={}, 
+                client_id={}, client_secret={})""".format(
+            self.username, self.password, self.grant_type, self.scope, self.client_id, self.client_secret
+        )

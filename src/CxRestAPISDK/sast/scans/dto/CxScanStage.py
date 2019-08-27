@@ -6,11 +6,17 @@ class CxScanStage(object):
     scan stage
     """
 
-    def __init__(self, id, value):
+    def __init__(self, scan_stage_id, value):
         """
 
-        :param id: int
-        :param value: str
+        Args:
+            scan_stage_id (int):
+            value (str):
         """
-        self.id = id
+        self.id = scan_stage_id
         self.value = value
+
+    def __str__(self):
+        return "CxScanStage(id={}, value={})".format(
+            self.id, self.value
+        )

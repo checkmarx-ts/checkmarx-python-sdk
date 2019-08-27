@@ -10,9 +10,10 @@ class CxSchedulingSettings(object):
     def __init__(self, schedule_type, schedule_days, schedule_time):
         """
 
-        :param schedule_type: str
-        :param schedule_days: list of str
-        :param schedule_time: str
+        Args:
+            schedule_type (str):
+            schedule_days (:obj:`list` of :obj:`str`):
+            schedule_time (str):
         """
         self.schedule_type = schedule_type
         self.schedule_days = schedule_days
@@ -25,4 +26,9 @@ class CxSchedulingSettings(object):
                 "scheduledDays": list(self.schedule_days),
                 "scheduleTime": self.schedule_time
             }
+        )
+
+    def __str__(self):
+        return "CxSchedulingSettings(schedule_type={}, schedule_days={}, schedule_time={})".format(
+            self.schedule_type, self.schedule_days, self.schedule_time
         )

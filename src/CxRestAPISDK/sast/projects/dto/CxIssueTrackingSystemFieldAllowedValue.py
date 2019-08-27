@@ -6,11 +6,17 @@ class CxIssueTrackingSystemFieldAllowedValue(object):
     allowed value
     """
 
-    def __init__(self, id, name):
+    def __init__(self, allowed_value_id, name):
         """
 
-        :param id: str
-        :param name: str
+        Args:
+            allowed_value_id (str):
+            name (str):
         """
-        self.id = id
+        self.id = allowed_value_id
         self.name = name
+
+    def __str__(self):
+        return "CxIssueTrackingSystemFieldAllowedValue(allowed_value_id={}, name={})".format(
+            self.id, self.name
+        )

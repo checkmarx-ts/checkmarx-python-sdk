@@ -1,12 +1,10 @@
 # encoding: utf-8
 import http
-
 import requests
 
 from src.CxRestAPISDK.config import CxConfig
-
-
-from src.CxRestAPISDK.auth.dto import (CxAuthRequest, CxAuthResponse, TokenErrorException)
+from src.CxRestAPISDK.auth.dto import (CxAuthRequest, CxAuthResponse)
+from src.CxRestAPISDK.exceptions.CxError import BadRequestError, UnknownHttpStatusError
 
 
 class AuthenticationAPI(object):
@@ -36,8 +34,8 @@ class AuthenticationAPI(object):
             username=config_info.username, password=config_info.password,
             grant_type=config_info.grant_type, scope=config_info.scope,
             client_id=config_info.client_id, client_secret=config_info.client_secret
-        )
-        r = requests.post(url=AuthenticationAPI.token_url, data=req_data.get_post_data())
+        ).get_post_data()
+        r = requests.post(url=AuthenticationAPI.token_url, data=req_data)
         if r.status_code == http.HTTPStatus.OK:
             d = r.json()
             auth_response = CxAuthResponse.CxAuthResponse(
@@ -50,10 +48,9 @@ class AuthenticationAPI(object):
                 "cxOrigin": "REST API"
             }
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
-            d = r.json()
-            raise TokenErrorException.TokenErrorException("error", d.get("error"))
+            raise BadRequestError(r.text)
         else:
-            raise Exception("Network Error")
+            raise UnknownHttpStatusError
 
 
 AuthenticationAPI()

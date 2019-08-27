@@ -6,34 +6,22 @@ class CxEngineServer(object):
     engine server
     """
 
-    class Status(object):
-        """
-        engine status
-        """
-        def __init__(self, id=None, value=None):
-            """
-
-            :param id: int
-            :param value: str
-            """
-            self.id = id
-            self.value = value
-
-    def __init__(self, id=None, name=None, uri=None, min_loc=None, max_loc=None, max_scans=None, cx_version=None,
-                 status=None, link=None):
+    def __init__(self, engine_server_id=None, name=None, uri=None, min_loc=None, max_loc=None, max_scans=None,
+                 cx_version=None, status=None, link=None):
         """
 
-        :param id: int
-        :param name: str
-        :param uri: str
-        :param min_loc: int
-        :param max_loc: int
-        :param max_scans: int
-        :param cx_version: str
-        :param status: status
-        :param link: CxProject.CxLink
+        Args:
+            engine_server_id (int):
+            name (str):
+            uri (str):
+            min_loc (int):
+            max_loc (int):
+            max_scans (int):
+            cx_version (str):
+            status (:obj:`CxEngineServerStatus`):
+            link (:obj:`CxLink`):
         """
-        self.id = id
+        self.id = engine_server_id
         self.name = name
         self.uri = uri
         self.min_loc = min_loc
@@ -42,3 +30,10 @@ class CxEngineServer(object):
         self.cx_version = cx_version
         self.status = status
         self.link = link
+
+    def __str__(self):
+        return """CxEngineServer(engine_server_id={}, name={}, uri={}, min_loc={}, max_loc={}, max_scans={}, 
+                 cx_version={}, status={}, link={})""".format(
+            self.id, self.name, self.uri, self.min_loc, self.max_loc, self.max_scans,
+            self.cx_version, self.status, self.link
+        )

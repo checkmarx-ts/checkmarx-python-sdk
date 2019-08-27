@@ -1,7 +1,7 @@
 # encoding: utf-8
 import json
 
-from src.CxRestAPISDK.sast.projects.dto.customFields import CxCustomFields
+from src.CxRestAPISDK.sast.projects.dto.customFields import CxCustomField
 
 
 class CxUpdateProjectRequest(object):
@@ -12,21 +12,15 @@ class CxUpdateProjectRequest(object):
     def __init__(self, name, owning_team, custom_field_id, custom_field_value):
         """
 
-        :param name: str
-            the project name that you want the current project change to
-        :param owning_team: int
-            the team id that you want the current project change to
-        :param custom_field_id:
-            the id of the custom field that you want to change
-        :param custom_field_value:
-            the value of the custom field that you want to change to
+        Args:
+            name (str):  the project name that you want the current project change to
+            owning_team（int):  the team id that you want the current project change to
+            custom_field_id （int): the id of the custom field that you want to change
+            custom_field_value (str): the value of the custom field that you want to change to
         """
         self.name = name
         self.owning_team = owning_team
-        if custom_field_id and custom_field_value:
-            self.custom_fields = CxCustomFields.CxCustomFields(id=custom_field_id, name=custom_field_value)
-        else:
-            self.custom_fields = None
+        self.custom_fields = CxCustomField.CxCustomField(custom_field_id=custom_field_id, name=custom_field_value)
 
     def get_post_data(self):
         """
@@ -46,4 +40,9 @@ class CxUpdateProjectRequest(object):
                     }
                 ] if self.custom_fields else []
             }
+        )
+
+    def __str__(self):
+        return "CxUpdateProjectRequest(name={}, owning_team={}, custom_fields={})".format(
+            self.name, self.owning_team, self.custom_fields
         )

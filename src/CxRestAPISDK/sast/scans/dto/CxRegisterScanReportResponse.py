@@ -10,8 +10,9 @@ class CxRegisterScanReportResponse(object):
         def __init__(self, report, status):
             """
 
-            :param report: CxLink
-            :param status: CxLink
+            Args:
+                report (:obj:`CxLink`):
+                status (:obj:`CxLink`):
             """
             self.report = report
             self.status = status
@@ -19,8 +20,14 @@ class CxRegisterScanReportResponse(object):
     def __init__(self, report_id, links):
         """
 
-        :param report_id: int
-        :param links: CxRegisterScanReportResponse.Links
+        Args:
+            report_id (int):
+            links (:obj:`CxRegisterScanReportResponse.Links`):
         """
         self.report_id = report_id
         self.links = links
+
+    def __str__(self):
+        return "CxRegisterScanReportResponse(report_id={}, links={})".format(
+            self.report_id, self.links
+        )

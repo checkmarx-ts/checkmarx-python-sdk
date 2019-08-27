@@ -10,8 +10,9 @@ class CxSharedRemoteSourceSettingsRequest(object):
     def __init__(self, paths, credentials):
         """
 
-        :param paths: list of paths
-        :param credentials: CxCredential
+        Args:
+            paths (:obj:`list` of :obj:`str`):
+            credentials (:obj:`CxCredential`):
         """
         self.paths = paths
         self.credentials = credentials
@@ -25,4 +26,9 @@ class CxSharedRemoteSourceSettingsRequest(object):
                     "password": self.credentials.password
                 }
             }
+        )
+
+    def __str__(self):
+        return "CxSharedRemoteSourceSettingsRequest(paths={}, credentials={})".format(
+            self.paths, self.credentials
         )

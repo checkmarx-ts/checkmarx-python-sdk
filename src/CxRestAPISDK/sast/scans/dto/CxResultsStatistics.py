@@ -9,6 +9,12 @@ class CxResultsStatistics(object):
     def __init__(self, link):
         """
 
-        :param link: str
+        Args:
+            link (str):
         """
         self.link = link
+
+    def __str__(self):
+        return "CxResultsStatistics(link={})".format(
+            self.link
+        )

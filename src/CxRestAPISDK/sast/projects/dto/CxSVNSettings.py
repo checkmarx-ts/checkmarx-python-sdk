@@ -8,22 +8,16 @@ class CxSVNSettings(object):
     svn settings
     """
 
-    class URI(object):
-        """
-        the URI of SVN settings
-        """
-        def __init__(self, absolute_url, port):
-            self.absolute_url = absolute_url
-            self.port = port
-
     def __init__(self, uri, paths, use_ssh=None, link=None, credentials=None, private_key=None):
         """
 
-        :param uri: CxSVNSettingsResponse.URI
-        :param paths: list of str
-        :param use_ssh: boolean
-        :param link: CxLink.CxLink
-        :param credentials: CxCredential
+        Args:
+            uri (:obj:`CxURI`):
+            paths (:obj:`list` of :obj:`str`):
+            use_ssh (bool):
+            link (:obj:`CxLink`):
+            credentials (:obj:`CxCredential`):
+            private_key (str):
         """
         self.uri = uri
         self.paths = paths
@@ -46,4 +40,9 @@ class CxSVNSettings(object):
                 },
                 "privateKey": self.private_key
             }
+        )
+
+    def __str__(self):
+        return "CxSVNSettings(uri={}, paths={}, use_ssh={}, link={}, credentials={}, private_key={})".format(
+            self.uri, self.paths, self.use_ssh, self.link, self.credentials, self.private_key
         )

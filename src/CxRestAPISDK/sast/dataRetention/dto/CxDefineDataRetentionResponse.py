@@ -5,11 +5,17 @@ class CxDefineDataRetentionResponse(object):
     """
     define data retention response
     """
-    def __init__(self, id, link):
+    def __init__(self, data_retention_response_id, link):
         """
 
-        :param id: in
-        :param link: CxLink
+        Args:
+            data_retention_response_id (int):
+            link (:obj:`CxLink`):
         """
-        self.id = id
+        self.id = data_retention_response_id
         self.link = link
+
+    def __str__(self):
+        return "CxDefineDataRetentionResponse(data_retention_response_id={}, link={})".format(
+            self.id, self.link
+        )

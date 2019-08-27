@@ -11,6 +11,6 @@ class CxAuthResponse(object):
         self.token_type = token_type
 
     def __str__(self):
-        return "CxAuthResponse(access_token={}, expires_in={}, token_type={})".format(self.access_token,
-                                                                                      self.expires_in,
-                                                                                      self.token_type)
+        return "CxAuthResponse(access_token={}, expires_in={}, token_type={})".format(
+            self.access_token, self.expires_in, self.token_type
+        )

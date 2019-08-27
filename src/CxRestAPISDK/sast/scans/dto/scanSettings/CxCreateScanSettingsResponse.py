@@ -6,11 +6,17 @@ class CxCreateScanSettingsResponse(object):
     create scan settings response
     """
 
-    def __init__(self, id=None, link=None):
+    def __init__(self, scan_setting_response_id=None, link=None):
         """
 
-        :param id:
-        :param link: CxLink.CxLink
+        Args:
+            scan_setting_response_id (int):
+            link (:obj:`CxLink`):
         """
-        self.id = id
+        self.id = scan_setting_response_id
         self.link = link
+
+    def __str__(self):
+        return "CxCreateScanSettingsResponse(scan_setting_response_id={}, link={})".format(
+            self.id, self.link
+        )
