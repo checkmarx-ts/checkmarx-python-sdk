@@ -1,14 +1,16 @@
 # Cx-REST-API-SDK-Python
 A Checkmarx REST API SDK written in Python.
 
-Here is a tree view of these API list.
+## Here is a tree view of these API list.
 
-AuthenticationAPI
+1. AuthenticationAPI
     - auth_headers
-TeamAPI
+
+2. TeamAPI
     - get_all_teams
     - get_team_id_by_full_name
-ProjectsAPI
+
+3. ProjectsAPI
     - get_all_project_details
     - create_project_with_default_configuration
     - get_project_id_by_name
@@ -42,14 +44,17 @@ ProjectsAPI
     - get_all_preset_details
     - get_preset_id_by_name
     - get_preset_details_by_preset_id
-CustomTasksAPI
+
+4. CustomTasksAPI
     - get_all_custom_tasks
     - get_custom_task_id_by_name
     - get_custom_task_by_id
-CustomFieldsAPI
+
+5. CustomFieldsAPI
     - get_all_custom_fields
     - get_custom_field_id_by_name
-ScansAPI
+
+6. ScansAPI
     - get_all_scans_for_project
     - get_last_scan_id_of_a_project
     - create_new_scan
@@ -70,12 +75,14 @@ ScansAPI
     - register_scan_report
     - get_report_status_by_id
     - get_report_by_id
-DataRetentionAPI
+
+7. DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
     - define_data_retention_by_number_of_scans
     - get_data_retention_request_status
-EnginesAPI
+
+8. EnginesAPI
     - get_all_engine_server_details
     - get_engine_id_by_name
     - register_engine
@@ -85,7 +92,8 @@ EnginesAPI
     - get_all_engine_configurations
     - get_engine_configuration_id_by_name
     - get_engine_configuration_by_id
-OsaAPI
+
+9. OsaAPI
     - get_all_osa_scan_details_for_project
     - get_last_osa_scan_id_of_a_project
     - get_osa_scan_by_scan_id
@@ -98,7 +106,7 @@ OsaAPI
     - get_osa_scan_vulnerability_comments_by_id
     - get_osa_scan_summary_report
 
-possible Exceptions:
+10. possible Exceptions
     - BadRequestError
     - NotFoundError
     - UnknownHttpStatusError
