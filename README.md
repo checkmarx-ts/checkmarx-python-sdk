@@ -1,6 +1,12 @@
 # Cx-REST-API-SDK-Python
 A Checkmarx REST API SDK written in Python.
 
+## Notice
+This SDK is a Python package. In order to add this package into PYTHONPATH, please download this package,
+create a ".pth" file under Python lib\site-packages, and set the absolute file path of the package CxRestAPISDK.
+For example, in lib\site-packages\a.pth,
+input a line: C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python\src
+
 ## Change configuration
 Change configuration in file CxRestAPISDK/config/config.ini as needed. Set your own username, password, team, and so on.
 If you want to put config.ini in another location, set your own config.ini file path for CxConfig constructor.
