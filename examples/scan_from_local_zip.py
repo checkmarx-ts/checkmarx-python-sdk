@@ -19,9 +19,9 @@ import time
 
 from pathlib import Path
 
-from src.CxRestAPISDK.team.TeamAPI import TeamAPI
-from src.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAPI
-from src.CxRestAPISDK.sast.scans.ScansAPI import ScansAPI
+from CxRestAPISDK import TeamAPI
+from CxRestAPISDK import ProjectsAPI
+from CxRestAPISDK import ScansAPI
 
 
 def check_scan_finished(scan_id):
