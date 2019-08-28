@@ -1,2 +1,104 @@
 # Cx-REST-API-SDK-Python
 A Checkmarx REST API SDK written in Python.
+
+Here is a tree view of these API list.
+
+AuthenticationAPI
+    -auth_headers
+TeamAPI
+    -get_all_teams
+    -get_team_id_by_full_name
+ProjectsAPI
+    -get_all_project_details
+    -create_project_with_default_configuration
+    -get_project_id_by_name
+    -get_project_details_by_id
+    -update_project_by_id
+    -update_project_name_team_id
+    -delete_project_by_id
+    -create_branched_project
+    -get_all_issue_tracking_systems
+    -get_issue_tracking_system_id_by_name
+    -get_issue_tracking_system_details_by_id
+    -get_project_exclude_settings_by_project_id
+    -set_project_exclude_settings_by_project_id
+    -get_remote_source_settings_for_git_by_project_id
+    -set_remote_source_setting_to_git
+    -get_remote_source_settings_for_svn_by_project_id
+    -set_remote_source_settings_to_svn
+    -get_remote_source_settings_for_tfs_by_project_id
+    -set_remote_source_settings_to_tfs
+    -get_remote_source_settings_for_custom_by_project_id
+    -set_remote_source_setting_for_custom_by_project_id
+    -get_remote_source_settings_for_shared_by_project_id
+    -set_remote_source_settings_to_shared
+    -get_remote_source_settings_for_perforce_by_project_id
+    -set_remote_source_settings_to_perforce
+    -set_remote_source_setting_to_git_using_ssh
+    -set_remote_source_setting_to_svn_using_ssh
+    -upload_source_code_zip_file
+    -set_data_retention_settings_by_project_id
+    -set_issue_tracking_system_as_jira_by_id
+    -get_all_preset_details
+    -get_preset_id_by_name
+    -get_preset_details_by_preset_id
+CustomTasksAPI
+    -get_all_custom_tasks
+    -get_custom_task_id_by_name
+    -get_custom_task_by_id
+CustomFieldsAPI
+    -get_all_custom_fields
+    -get_custom_field_id_by_name
+ScansAPI
+    -get_all_scans_for_project
+    -get_last_scan_id_of_a_project
+    -create_new_scan
+    -get_sast_scan_details_by_scan_id
+    -add_or_update_a_comment_by_scan_id
+    -delete_scan_by_scan_id
+    -get_statistics_results_by_scan_id
+    -get_scan_queue_details_by_scan_id
+    -update_queued_scan_status_by_scan_id
+    -get_all_scan_details_in_queue
+    -get_scan_settings_by_project_id
+    -define_sast_scan_settings
+    -update_sast_scan_settings
+    -define_sast_scan_scheduling_settings
+    -assign_ticket_to_scan_results
+    -publish_last_scan_results_to_management_and_orchestration_by_project_id
+    -get_the_publish_last_scan_results_to_management_and_orchestration_status
+    -register_scan_report
+    -get_report_status_by_id
+    -get_report_by_id
+DataRetentionAPI
+    -stop_data_retention
+    -define_data_retention_date_range
+    -define_data_retention_by_number_of_scans
+    -get_data_retention_request_status
+EnginesAPI
+    -get_all_engine_server_details
+    -get_engine_id_by_name
+    -register_engine
+    -unregister_engine_by_engine_id
+    -get_engine_details
+    -update_engine_server
+    -get_all_engine_configurations
+    -get_engine_configuration_id_by_name
+    -get_engine_configuration_by_id
+OsaAPI
+    -get_all_osa_scan_details_for_project
+    -get_last_osa_scan_id_of_a_project
+    -get_osa_scan_by_scan_id
+    -create_an_osa_scan_request
+    -get_all_osa_file_extentions
+    -get_osa_licenses_by_id
+    -get_osa_scan_libraries
+    -get_osa_scan_vulnerabilities_by_id
+    -get_first_vulnerability_id
+    -get_osa_scan_vulnerability_comments_by_id
+    -get_osa_scan_summary_report
+
+possible Exceptions:
+    -BadRequestError
+    -NotFoundError
+    -UnknownHttpStatusError
