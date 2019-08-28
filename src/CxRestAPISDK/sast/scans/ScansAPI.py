@@ -4,22 +4,18 @@ import requests
 import http
 import json
 
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.auth import AuthenticationAPI
-
-from src.CxRestAPISDK.sast.projects.dto import CxLink, CxProject
-from src.CxRestAPISDK.sast.projects.dto.presets import CxPreset
-
-from src.CxRestAPISDK.sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsStatus, \
+from ...config import CxConfig
+from ...auth import AuthenticationAPI
+from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...sast.projects.dto import CxLink, CxProject
+from ...sast.projects.dto.presets import CxPreset
+from ...sast.engines.dto import CxEngineServer, CxEngineConfiguration
+from .dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsStatus, \
     CxResultsStatistics, CxPolicyFindingResponse, CxStatus, CxFinishedScanStatus, CxStatisticsResult, \
     CxCreateNewScanResponse, CxCreateScan, CxRegisterScanReportResponse, CxScanType, CxScanDetail, CxScanReportStatus, \
     CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail
-
-from src.CxRestAPISDK.sast.scans.dto.scanSettings import CxScanSettings, CxCreateScanSettingsResponse,  \
+from .dto.scanSettings import CxScanSettings, CxCreateScanSettingsResponse,  \
     CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage
-
-from src.CxRestAPISDK.sast.engines.dto import CxEngineServer, CxEngineConfiguration
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
 
 
 class ScansAPI(object):

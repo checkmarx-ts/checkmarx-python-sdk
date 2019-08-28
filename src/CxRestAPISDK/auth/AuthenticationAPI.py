@@ -2,9 +2,9 @@
 import http
 import requests
 
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.auth.dto import (CxAuthRequest, CxAuthResponse)
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, UnknownHttpStatusError
+from ..config import CxConfig
+from ..exceptions.CxError import BadRequestError, UnknownHttpStatusError
+from .dto import (CxAuthRequest, CxAuthResponse)
 
 
 class AuthenticationAPI(object):

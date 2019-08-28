@@ -6,13 +6,15 @@ import copy
 
 from pathlib import Path
 from requests_toolbelt import MultipartEncoder
-from src.CxRestAPISDK.auth import AuthenticationAPI
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.osa.dto import (CxOsaScanDetail, CxOsaState, CxOsaLicense, CxOsaLibrary, CxOsaMatchType,
-                                      CxOsaLocation, CxOsaSeverity, CxOsaVulnerability, CxOsaVulnerabilityState,
-                                      CxOsaVulnerabilityComment, CxOsaSummaryReport)
 
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ..auth import AuthenticationAPI
+from ..config import CxConfig
+from ..exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from .dto import (
+    CxOsaScanDetail, CxOsaState, CxOsaLicense, CxOsaLibrary, CxOsaMatchType,
+    CxOsaLocation, CxOsaSeverity, CxOsaVulnerability, CxOsaVulnerabilityState,
+    CxOsaVulnerabilityComment, CxOsaSummaryReport
+)
 
 
 class OsaAPI(object):

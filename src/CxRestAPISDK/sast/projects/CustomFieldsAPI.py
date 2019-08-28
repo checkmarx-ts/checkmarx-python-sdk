@@ -3,11 +3,10 @@ import http
 
 import requests
 
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.auth import AuthenticationAPI
-
-from src.CxRestAPISDK.sast.projects.dto.customFields import CxCustomField
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...config import CxConfig
+from ...auth import AuthenticationAPI
+from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from .dto.customFields import CxCustomField
 
 
 class CustomFieldsAPI(object):

@@ -4,16 +4,17 @@ import requests
 import http
 
 
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.auth import AuthenticationAPI
-
-from src.CxRestAPISDK.sast.dataRetention.dto import (CxDefineDataRetentionNumberOfScansRequest,
-                                                     CxDefineDataRetentionResponse,
-                                                     CxDefineDataRetentionDateRangeRequest,
-                                                     CxDataRetentionRequestStatus,
-                                                     CxDataRetentionRequestStatusStage)
-from src.CxRestAPISDK.sast.projects.dto import CxLink
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...config import CxConfig
+from ...auth import AuthenticationAPI
+from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ..projects.dto import CxLink
+from .dto import (
+    CxDefineDataRetentionNumberOfScansRequest,
+    CxDefineDataRetentionResponse,
+    CxDefineDataRetentionDateRangeRequest,
+    CxDataRetentionRequestStatus,
+    CxDataRetentionRequestStatusStage
+)
 
 
 class DataRetentionAPI(object):

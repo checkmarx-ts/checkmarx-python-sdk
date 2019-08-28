@@ -3,12 +3,11 @@ import http
 
 import requests
 
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.auth import AuthenticationAPI
-
-from src.CxRestAPISDK.sast.projects.dto.customTasks import CxCustomTask
-from src.CxRestAPISDK.sast.projects.dto import CxLink
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...config import CxConfig
+from ...auth import AuthenticationAPI
+from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from .dto.customTasks import CxCustomTask
+from .dto import CxLink
 
 
 class CustomTasksAPI(object):

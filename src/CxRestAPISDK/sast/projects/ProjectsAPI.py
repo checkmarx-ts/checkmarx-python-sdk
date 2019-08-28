@@ -9,19 +9,18 @@ import requests
 from requests_toolbelt import MultipartEncoder
 from pathlib import Path
 
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.auth import AuthenticationAPI
-
-from src.CxRestAPISDK.sast.projects.dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
+from ...config import CxConfig
+from ...auth import AuthenticationAPI
+from ...team.TeamAPI import TeamAPI
+from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from .dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
     CxIssueTrackingSystemDetail, CxSharedRemoteSourceSettingsRequest, CxIssueTrackingSystemField, \
     CxSharedRemoteSourceSettingsResponse, CxGitSettings, \
     CxIssueTrackingSystemType, CxIssueTrackingSystemFieldAllowedValue, CxSourceSettingsLink, \
     CxCreateProjectRequest, CxIssueTrackingSystem, CxLink, CxProject, CxCustomRemoteSourceSettings, \
     CxUpdateProjectRequest, CxProjectExcludeSettings, CxCredential, CxSVNSettings, CxURI, CxPerforceSettings, \
     CxTFSSettings, CxIssueTrackingSystemJira
-from src.CxRestAPISDK.sast.projects.dto.presets import CxPreset
-from src.CxRestAPISDK.team.TeamAPI import TeamAPI
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from .dto.presets import CxPreset
 
 default_team_id = TeamAPI().get_team_id_by_full_name()
 

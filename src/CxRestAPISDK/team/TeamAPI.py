@@ -5,10 +5,10 @@ import requests
 
 from pathlib import Path
 
-from src.CxRestAPISDK.auth import AuthenticationAPI
-from src.CxRestAPISDK.config import CxConfig
-from src.CxRestAPISDK.team.dto import CxTeam
-from src.CxRestAPISDK.exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ..auth import AuthenticationAPI
+from ..config import CxConfig
+from ..exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from .dto import CxTeam
 
 
 class TeamAPI(object):
