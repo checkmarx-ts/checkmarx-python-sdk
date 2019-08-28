@@ -1,10 +1,13 @@
 # Cx-REST-API-SDK-Python
 A Checkmarx REST API SDK written in Python.
 
+## Change configuration
+change configuration in file CxRestAPISDK/config/config.ini as needed. Set your own username, password, team, and so on.
+
 ## Here is a tree view of these API list.
 
 1. AuthenticationAPI
-    - auth_headers
+    - auth_headers (This is a class variable that stored token)
 
 2. TeamAPI
     - get_all_teams
