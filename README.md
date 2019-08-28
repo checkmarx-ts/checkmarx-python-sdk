@@ -5,6 +5,9 @@ A Checkmarx REST API SDK written in Python.
 Change configuration in file CxRestAPISDK/config/config.ini as needed. Set your own username, password, team, and so on.
 If you want to put config.ini in another location, set your own config.ini file path for CxConfig constructor.
 
+## Checkmarx REST API Document
+https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
+
 ## The API list
 
 1. AuthenticationAPI
