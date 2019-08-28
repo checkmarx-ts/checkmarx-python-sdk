@@ -114,3 +114,7 @@ If you want to put config.ini in another location, set your own config.ini file 
     - BadRequestError
     - NotFoundError
     - UnknownHttpStatusError
+
+## examples
+1. scan_from_local_zip
+2. scan_from_git
