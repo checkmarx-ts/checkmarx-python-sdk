@@ -21,18 +21,18 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - auth_headers (This is a class variable that stored token)
 + TeamAPI
     - get_all_teams
-    - get_team_id_by_team_full_name &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  (provided by SDK)
-    - get_team_full_name_by_team_id                                         (provided by SDK)
+    - <pre>get_team_id_by_team_full_name                                         (provided by SDK)</pre>
+    - <pre>get_team_full_name_by_team_id                                         (provided by SDK)</pre>
 + ProjectsAPI
     - get_all_project_details
     - create_project_with_default_configuration
-    - get_project_id_by_project_name_and_team_full_name                     (provided by SDK)
+    - <pre>get_project_id_by_project_name_and_team_full_name                     (provided by SDK)</pre>
     - get_project_details_by_id
     - update_project_by_id
     - update_project_name_team_id
     - delete_project_by_id
-    - create_project_if_not_exists_by_project_name_and_team_full_name       (provided by SDK)
-    - delete_project_if_exists_by_project_name_and_team_full_name           (provided by SDK)
+    - <pre>create_project_if_not_exists_by_project_name_and_team_full_name       (provided by SDK)</pre>
+    - <pre>delete_project_if_exists_by_project_name_and_team_full_name           (provided by SDK)</pre>
     - create_branched_project
     - get_all_issue_tracking_systems
     - get_issue_tracking_system_id_by_name
@@ -87,8 +87,8 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - register_scan_report
     - get_report_status_by_id
     - get_report_by_id
-    - is_scanning_finished                                                          (provided by SDK)
-    - is_report_generation_finished                                                 (provided by SDK)
+    - <pre>is_scanning_finished                                                          (provided by SDK)</pre>
+    - <pre>is_report_generation_finished                                                 (provided by SDK)</pre>
 + DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
@@ -117,9 +117,9 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_osa_scan_vulnerability_comments_by_id
     - get_osa_scan_summary_report
 + possible Exceptions
-    - BadRequestError
-    - NotFoundError
-    - UnknownHttpStatusError
+    - <pre>BadRequestError                                                              (provided by SDK)</pre>
+    - <pre>NotFoundError
+    - <pre>UnknownHttpStatusError                                                       (provided by SDK)</pre>
 
 ## examples
 1. scan_from_local_zip
