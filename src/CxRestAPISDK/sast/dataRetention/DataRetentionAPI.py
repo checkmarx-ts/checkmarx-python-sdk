@@ -39,7 +39,7 @@ class DataRetentionAPI(object):
         Stop the data retention (global)
 
         Returns:
-            bool: False
+            boolean: False
 
         Raises:
             BadRequestError
@@ -67,9 +67,9 @@ class DataRetentionAPI(object):
         Define the global setting for data retention by date range
 
         Args:
-            start_date (str): eg. "2019-06-17"
-            end_date (str): eg. "2019-06-18"
-            duration_limit_in_hours (int):
+            start_date (str): Data retention start date eg. "2019-06-17"
+            end_date (str): Data retention end date eg. "2019-06-18"
+            duration_limit_in_hours (int): Duration limit (in hours)
 
         Returns:
             CxDefineDataRetentionResponse
@@ -118,8 +118,8 @@ class DataRetentionAPI(object):
         Define the global setting for the data retention by number of scans.
 
         Args:
-            number_of_successful_scans_to_preserve (int): 
-            duration_limit_in_hours (int):
+            number_of_successful_scans_to_preserve (int): Number of successful scans to keep
+            duration_limit_in_hours (int): Duration limit (in hours)
         
         Returns:
             CxDefineDataRetentionResponse：
@@ -169,7 +169,7 @@ class DataRetentionAPI(object):
         :return:
 
         Args:
-            request_id (int):
+            request_id (int): Unique Id of the data retention request.
         
         Returns:
             CxDataRetentionRequestStatus

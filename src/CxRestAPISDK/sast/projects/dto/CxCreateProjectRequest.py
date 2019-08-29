@@ -14,7 +14,7 @@ class CxCreateProjectRequest(object):
         Args:
             name (str):
             team_id (int):
-            is_public (bool):
+            is_public (boolean):
         """
         self.name = name
         self.owning_team = team_id

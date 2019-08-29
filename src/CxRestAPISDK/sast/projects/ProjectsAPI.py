@@ -62,8 +62,9 @@ class ProjectsAPI(object):
         For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
 
         Args:
-            project_name (str):
-            team_id (int): default to id of the corresponding team full name in config.ini
+            project_name (str, optional): Unique name of a specific project or projects
+            team_id (int, str, optional): Unique Id of a specific team or teams.
+                            default to id of the corresponding team full name in config.ini
 
         Returns:
             :obj:`list` of :obj:`CxProject`
@@ -111,14 +112,16 @@ class ProjectsAPI(object):
 
         return all_projects
 
-    def create_project_with_default_configuration(self, name, team_id=TeamAPI.default_team_id, is_public=True):
+    def create_project_with_default_configuration(self, project_name, team_id=TeamAPI.default_team_id, is_public=True):
         """
         REST API: create project
 
         Args:
-            name (str):
-            team_id (int): the id of a team, default to the id of the team full name in config.ini
-            is_public (bool): default True
+            project_name (str):  Specifies the name of the project
+            team_id (int, str): Specifies the id of the team that owns the project
+                                default to the id of the team full name in config.ini
+            is_public (boolean): Specifies whether the project is public or not
+                                default True
 
         Returns:
             :obj:`CxCreateProjectResponse`
@@ -130,7 +133,7 @@ class ProjectsAPI(object):
         """
         project = None
 
-        req_data = CxCreateProjectRequest.CxCreateProjectRequest(name, team_id, is_public).get_post_data()
+        req_data = CxCreateProjectRequest.CxCreateProjectRequest(project_name, team_id, is_public).get_post_data()
         r = requests.post(
             url=self.projects_url,
             data=req_data,
@@ -152,7 +155,7 @@ class ProjectsAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.create_project_with_default_configuration(name, team_id, is_public)
+            self.create_project_with_default_configuration(project_name, team_id, is_public)
         else:
             raise UnknownHttpStatusError()
 
@@ -185,7 +188,7 @@ class ProjectsAPI(object):
         REST API: get project details by project id
 
         Args:
-            project_id (int): consider using get_project_id_by_name to get project_id
+            project_id (int):  Unique Id of the project
 
         Returns:
             :obj:`CxProject`
@@ -230,18 +233,18 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, name, team_id=TeamAPI.default_team_id, custom_fields=None):
+    def update_project_by_id(self, project_id, project_name, team_id=TeamAPI.default_team_id, custom_fields=None):
         """
         update project info by project id
 
         Args:
-            project_id (int): consider using get_project_id_by_name to get project_id
-            name (str): the project name that you want the current project change to
-            team_id (int): the team id that you want the current project change to
-            custom_fields (:obj:`list` of :obj:`CxCustomField`):
+            project_id (int): Unique Id of the project
+            project_name (str, optional): Specifies the name of the project
+            team_id (int, str, optional): Specifies the Id of the team that owns the project
+            custom_fields (:obj:`list` of :obj:`CxCustomField`, optional):  specifies the custom field details
 
         Returns:
-            bool: True means successful, False means not successful
+            boolean: True means successful, False means not successful
 
         Raises:
             BadRequestError
@@ -252,7 +255,7 @@ class ProjectsAPI(object):
         self.project_url = self.project_url.format(id=project_id)
 
         request_body = CxUpdateProjectRequest.CxUpdateProjectRequest(
-            name=name,
+            name=project_name,
             team_id=team_id,
             custom_fields=custom_fields
         ).get_post_data()
@@ -270,7 +273,7 @@ class ProjectsAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.update_project_by_id(project_id, name, team_id, custom_fields)
+            self.update_project_by_id(project_id, project_name, team_id, custom_fields)
         else:
             raise UnknownHttpStatusError()
 
@@ -281,12 +284,12 @@ class ProjectsAPI(object):
         REST API: update project name, team id
 
         Args:
-            project_id (int): consider using ProjectsAPI.get_project_id_by_name
-            project_name (str): the project name to change to
-            team_id (int): the project id to change to
+            project_id (int):  consider using ProjectsAPI.get_project_id_by_name
+            project_name (str, optional): Specifies the name of the project
+            team_id (int, str, optional): Specifies the Id of the team that owns the project
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -326,13 +329,13 @@ class ProjectsAPI(object):
         """
         REST API: delete project by id
 
-
         Args:
-            project_id (int):
-            delete_running_scans (bool):
+            project_id (int):  Unique Id of the project
+            delete_running_scans (boolean): Specifies whether running scans are to be deleted. Options are false/true.
+                                Default=False, if not specified.
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -370,8 +373,8 @@ class ProjectsAPI(object):
         create a project if it not exists by project name and a team full name
 
         Args:
-            project_name:
-            team_full_name:
+            project_name (str):
+            team_full_name (str):
 
         Returns:
             int: project id
@@ -397,7 +400,7 @@ class ProjectsAPI(object):
             team_full_name (str): for example "/CxServer/SP/Company/Users"
 
         Returns:
-            bool
+            boolean
 
         """
         is_successful = False
@@ -413,7 +416,7 @@ class ProjectsAPI(object):
         Create a branch of an existing project.
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
             branched_project_name (str): specifies the name of the branched project
         Returns:
             :obj:`CxCreateProjectResponse`
@@ -514,7 +517,7 @@ class ProjectsAPI(object):
         Get metadata for a specific issue tracking system (e.g. Jira) according to the Issue Tracking System Id.
 
         Args:
-            issue_tracking_system_id (int):
+            issue_tracking_system_id (int):  Unique Id of the issue tracking system
 
         Returns:
             dict
@@ -594,7 +597,7 @@ class ProjectsAPI(object):
         get details of a project's exclude folders/files settings according to the project Id.
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Returns:
             :obj:`CxProjectExcludeSettings`
@@ -639,12 +642,15 @@ class ProjectsAPI(object):
         set a project's exclude folders/files settings according to the project Id.
 
         Args:
-            project_id (int):
-            exclude_folders_pattern (str):
-            exclude_files_pattern (str):
+            project_id (int):  Unique Id of the project
+            exclude_folders_pattern (str, optional): comma separated list of folders,
+                        including wildcard patterns to exclude (e.g. add-ons, connectors, doc, src, lib)
+            exclude_files_pattern (str, optional): comma separated list of files,
+                        including wildcard patterns to exclude (e.g. cvc3.js, spass.js, z3.js, readme.txt,
+                        smt_solver.js, readme.txt, find_sql_injections.js, jquery.js, logic.js)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -679,11 +685,9 @@ class ProjectsAPI(object):
     def get_remote_source_settings_for_git_by_project_id(self, project_id):
         """
         Get a specific project's remote source settings for a GIT repository according to the Project Id.
-        :param project_id: int
-        :return:
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Returns:
             :obj:`CxGitSettings`
@@ -725,24 +729,20 @@ class ProjectsAPI(object):
     def set_remote_source_setting_to_git(self, project_id, url, branch, private_key=None):
         """
         Set a specific project's remote source location to a GIT repository using SSH protocol.
-        :param project_id: str
-        :param url: str
-            The url which is used to connect to the GIT repository (e.g. git@github.com:test/repo.git)
-        :param branch: str
-            The branch of a GIT repository (e.g. refs/heads/master)
-        :param private_key: str
-            The private key (optional) which is used to connect to the GIT repository using SSH protocol
-        :return:
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
             url (str): The url which is used to connect to the GIT repository (e.g. git@github.com:test/repo.git)
             branch (str): The branch of a GIT repository (e.g. refs/heads/master)
-            private_key (str): The private key (optional) which is used to connect to the GIT repository using
+            private_key (str, optional): The private key (optional) which is used to connect to the GIT repository using
                                 SSH protocol
+                                (e.g. -----BEGIN RSA PRIVATE KEY-----
+                                MIIJKgIBAAKCAgEahM6IR0lb4Rag4s5JM+xyEfKiUotGlHx
+                                SkeRjzXyWwjX5dAfR3K7pzHzn0rSMN7yUYlhZDLKff6R
+                                      -----END RSA PRIVATE KEY-----)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -781,7 +781,7 @@ class ProjectsAPI(object):
         get a specific project's remote source location settings for SVN repository according to the Project Id.
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
 
         Returns:
             :obj:`CxSVNSettings`
@@ -830,16 +830,21 @@ class ProjectsAPI(object):
         set a specific project's remote source location to a SVN repository using SSH protocol.
 
         Args:
-            project_id (int):
-            absolute_url (str):
-            port (int):
-            paths (:obj:`list` of :obj:`str`):
+            project_id (int):  Unique Id of the project
+            absolute_url (str):  Specifies the absolute url (e.g. http://<server_ip>/svn/testrepo)
+            port (int):  Specifies the port number of the uri (e.g. 8080)
+            paths (:obj:`list` of :obj:`str`):  Specifies the list of paths to scan at SVN repository (e.g. /trunk )
             username (str):
             password (str):
-            private_key (str):
+            private_key (str, optional):  The private key (optional) which is used to connect to the SVN repository
+                using SSH protocol
+                (e.g. -----BEGIN RSA PRIVATE KEY-----
+                MIIJKgIBAAKCAgEahM6IR0lb4Rag4s5JM+xyEfKiUotGlHx
+                SkeRjzXyWwjX5dAfR3K7pzHzn0rSMN7yUYlhZDLKff6R
+                     -----END RSA PRIVATE KEY-----)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -887,7 +892,7 @@ class ProjectsAPI(object):
         Get a specific project's remote source location settings for TFS repository according to the Project Id.
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
 
         Returns:
             :obj:`CxTFSSettings`
@@ -936,15 +941,16 @@ class ProjectsAPI(object):
         Set a specific project's remote source location to a TFS repository.
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
             username (str):
             password (str):
-            absolute_url (str):
-            port (int):
-            paths (:obj:`list` of :obj:`str`):
+            absolute_url (str):  Specifies the absolute url (e.g. http://<site_name>/tfs/DefaultCollection)
+            port (int):  Specifies the port number of the uri (e.g. 8080)
+            paths (:obj:`list` of :obj:`str`): Specifies the list of paths to scan at TFS repository
+                                    (e.g. /Root/Optimization/V6.2.2.9-branch/CSharp/Graph, /Root/test)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -997,7 +1003,7 @@ class ProjectsAPI(object):
         :return:
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
 
         Returns:
             :obj:`CxCustomRemoteSourceSettings`
@@ -1043,14 +1049,14 @@ class ProjectsAPI(object):
 
 
         Args:
-            project_id (int):
-            path (str):
-            pre_scan_command_id (int):
+            project_id (int): Unique Id of the project
+            path (str): Path to the network folders containing the project code
+            pre_scan_command_id (int): Unique Id of script that pulls the source code
             username (str):
             password (str):
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1091,7 +1097,7 @@ class ProjectsAPI(object):
         Get a specific project's remote source location settings for shared repository according to the Project Id.
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
 
         Returns:
             :obj:`CxSharedRemoteSourceSettingsResponse`
@@ -1132,13 +1138,14 @@ class ProjectsAPI(object):
         Set a specific project's remote source location to a shared repository.
 
         Args:
-            project_id (int):
-            paths (:obj:`list` of :obj:`str`):
+            project_id (int):  Unique Id of the project
+            paths (:obj:`list` of :obj:`str`):  Specifies the list of paths to scan at the shared repository
+                            (e.g. \\\\storage\\qa\\projects_new\\CPP\\1_Under_70k\\cpp_22_LOC)
             username (str):
             password (sr):
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1179,7 +1186,7 @@ class ProjectsAPI(object):
         Get a specific project's remote source location settings for Perforce repository according to the Project Id.
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the specific project
 
         Returns:
             :obj:`CxPerforceSettings`
@@ -1233,16 +1240,18 @@ class ProjectsAPI(object):
         Set a specific project's remote source location to a Perforce repository.
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the specific project
             username (str):
             password (str):
-            absolute_url (str):
-            port (int):
-            paths (:obj:`list` of :obj:`str`):
-            browse_mode (str):
+            absolute_url (str):  Specifies the absolute url (e.g. <server_ip>)
+            port (int):  Specifies the port number of this Uri (e.g. 8080)
+            paths (:obj:`list` of :obj:`str`): Specifies the list of paths to scan at Perforce repository
+                                                (e.g. ////depot)
+            browse_mode (str):  Specifies the browsing mode of the Perforce repository
+                                (depot for shared or workspace for grouped).
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1295,13 +1304,14 @@ class ProjectsAPI(object):
         Set a specific project's remote source location to a GIT repository using the SSH protocol
 
         Args:
-            project_id (int):
-            url (str):
-            branch (str):
-            private_key_file_path (str):
+            project_id (int):  Unique Id of the project
+            url (str):  The URL which is used to connect to the GIT repository (e.g. git@github.com:test_repo/test.git)
+            branch (str): The branch of a GIT repository (e.g. refs/heads/master)
+            private_key_file_path (str): The SSH certificate which is used to connect to the GIT repository
+                                    using SSH protocol (multipart/form-data)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1349,14 +1359,16 @@ class ProjectsAPI(object):
         Set a specific project's remote source location to a SVN repository which uses the SSH protocol
 
         Args:
-            project_id (int):
-            absolute_url (str):
-            port (int):
-            paths (:obj:`list` of :obj:`str`):
-            private_key_file_path (str):
+            project_id (int): Unique Id of the specific project
+            absolute_url (str):  The URL which is used to connect to the SVN repository
+                                (e.g. http://<server_ip>/svn/testrepo)
+            port (int): Specifies the port number of SVN repository url
+            paths (:obj:`list` of :obj:`str`): Specifies the paths of the SVN repository (e.g. /trunk)
+            private_key_file_path (str): The SSH certificate which is used to connect to the SVN repository
+                                         using SSH protocol (multipart/form-data)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1364,7 +1376,7 @@ class ProjectsAPI(object):
             UnknownHttpStatusError
         """
         is_successful = False
-        # TODO check, when have svn
+        # TODO check, when have svn + ssh
         self.remote_settings_svn_ssh_url = self.remote_settings_svn_ssh_url.format(id=project_id)
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -1402,11 +1414,11 @@ class ProjectsAPI(object):
         Upload a zip file that contains the source code for scanning.
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
             zip_file_path (str): absolute file path
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1447,11 +1459,11 @@ class ProjectsAPI(object):
         Set the data retention settings according to Project Id.
 
         Args:
-            project_id (int):
-            scans_to_keep (int): number of scans to keep
+            project_id (int):  Unique Id of the project
+            scans_to_keep (int): The amount of scans to keep before they are deleted (1-1000 or null)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -1492,21 +1504,22 @@ class ProjectsAPI(object):
         Set a specific issue tracking system as Jira according to Project Id.
 
         Args:
-            project_id (int):
-            issue_tracking_system_id (int):
-            jira_project_id (str):
-            issue_type_id (str):
-            jira_fields (:obj:`list` of :obj:`CxIssueTrackingSystemJiraField`)
+            project_id (int):  Unique Id of the project
+            issue_tracking_system_id (int): Specifies the issue tracking system Id
+            jira_project_id (str): Specifies the specific Id of Jira project
+            issue_type_id (str): Specifies the Id of issue type
+            jira_fields (:obj:`list` of :obj:`CxIssueTrackingSystemJiraField`) Specifies the list of fields associated
+                                                        with the issue type
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO, when have jira
+        # TODO, check when have jira
 
         is_successful = False
 
@@ -1601,7 +1614,7 @@ class ProjectsAPI(object):
         Get details of a specified preset by Id.
 
         Args:
-            preset_id (int):
+            preset_id (int): Unique Id of the preset
 
         Returns:
             :obj:`CxPreset`

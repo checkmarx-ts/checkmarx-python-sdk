@@ -17,10 +17,10 @@ class CxScanReportXmlContent(object):
         filter at Query level
 
         Args:
-            high (bool):  True means keep, False means remove
-            medium (bool): True means keep, False means remove
-            low (bool): True means keep, False means remove
-            info (bool): True means keep, False means remove
+            high (boolean):  True means keep, False means remove
+            medium (boolean): True means keep, False means remove
+            low (boolean): True means keep, False means remove
+            info (boolean): True means keep, False means remove
         """
         for query in self.root.findall("Query"):
             severity = query.attrib.get("Severity")
@@ -36,11 +36,11 @@ class CxScanReportXmlContent(object):
         filter at Path level
 
         Args:
-            to_verify (bool): True means keep, False means remove
-            not_exploitable (bool): True means keep, False means remove
-            confirmed (bool): True means keep, False means remove
-            urgent (bool): True means keep, False means remove
-            proposed_not_exploitable (bool): True means keep, False means remove
+            to_verify (boolean): True means keep, False means remove
+            not_exploitable (boolean): True means keep, False means remove
+            confirmed (boolean): True means keep, False means remove
+            urgent (boolean): True means keep, False means remove
+            proposed_not_exploitable (boolean): True means keep, False means remove
 
         """
         a_dict = {

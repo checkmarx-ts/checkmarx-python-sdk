@@ -11,16 +11,19 @@ class CxTeam(object):
         """
 
         Args:
-            team_id (int): team id is unique at global level
+            team_id (int, str): team id is unique at global level.
+                                        From v9.0, team id changes to integer
             name (str): the name after last slash in the full name, this name is not unique at global level.
-            full_name (str): team full name, for example: "/CxServer/SP/Company/Users",
+            full_name (str): team full name.
+                from v9.0, team full name change to linux file path style, used to be windows style
+                for example: "/CxServer/SP/Company/Users",
                 team full name is unique at global level
                 default team full names:
                 '/CxServer'
                 '/CxServer/SP'
                 '/CxServer/SP/Company'
                 '/CxServer/SP/Company/Users'
-            parent_id (int):
+            parent_id (int, str):
         """
         self.team_id = team_id
         self.name = name

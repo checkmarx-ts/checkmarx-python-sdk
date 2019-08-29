@@ -11,9 +11,9 @@ class CxIssueTrackingSystemField(object):
         Args:
             tracking_system_field_id (int):
             name (str):
-            multiple (bool):
-            required (bool):
-            supported (bool):
+            multiple (boolean):
+            required (boolean):
+            supported (boolean):
             allowed_values (:obj:`list` of :obj:`CxIssueTrackingSystemFieldAllowedValue`):
         """
         self.id = tracking_system_field_id

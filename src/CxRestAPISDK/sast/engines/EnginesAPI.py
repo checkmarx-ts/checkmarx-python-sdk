@@ -91,11 +91,11 @@ class EnginesAPI(object):
         """
 
         Args:
-            name (str):
-            uri (str):
-            min_loc (int):
-            max_loc (int):
-            is_blocked (bool):
+            name (str): Name of the engine server
+            uri (str): Specifies the url of the engine server
+            min_loc (int): Specifies the minimum number of lines of code to scan
+            max_loc (int): Specifies the maximum number of lines of code to scan
+            is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
 
         Returns:
             CxEngineServer
@@ -145,10 +145,10 @@ class EnginesAPI(object):
         Unregister an existing engine server.
 
         Args:
-            engine_id (int):
+            engine_id (int): Unique Id of the engine server
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -180,7 +180,7 @@ class EnginesAPI(object):
         Get details of a specific engine server by Id.
 
         Args:
-            engine_id (int):
+            engine_id (int): Unique Id of the engine server
 
         Returns:
             :obj:`CxEngineServer`
@@ -232,12 +232,12 @@ class EnginesAPI(object):
 
 
         Args:
-            engine_id (int):
-            name (str):
-            uri (str):
-            min_loc (int):
-            max_loc (int):
-            is_blocked (bool):
+            engine_id (int): Unique Id of the engine server
+            name (str): Name of the engine server
+            uri (str): Specifies the url of the engine server
+            min_loc (int): Specifies the minimum number of lines of code to scan
+            max_loc (int): Specifies the maximum number of lines of code to scan
+            is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
 
         Returns:
             CxEngineServer
@@ -340,7 +340,7 @@ class EnginesAPI(object):
         Get a specific engine configuration by configuration Id.
 
         Args:
-            configuration_id (int):
+            configuration_id (int): Unique Id of the engine configuration
 
         Returns:
             :obj:`CxEngineConfiguration`

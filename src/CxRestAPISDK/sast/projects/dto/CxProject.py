@@ -13,7 +13,7 @@ class CxProject(object):
             project_id (int):
             team_id (str):
             name (str):
-            is_public (bool):
+            is_public (boolean):
             source_settings_link (:obj:`CxSourceSettingsLink`):
             link (:obj:`CxLink`):
         """

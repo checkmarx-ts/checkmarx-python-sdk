@@ -16,7 +16,7 @@ class CxRegisterEngineRequestBody(object):
             uri (str):
             min_loc (int):
             max_loc (int):
-            is_blocked (bool):
+            is_blocked (boolean):
         """
         self.name = name
         self.uri = uri

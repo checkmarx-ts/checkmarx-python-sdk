@@ -11,7 +11,7 @@ class CxIssueTrackingSystemType(object):
         Args:
             issue_tracking_system_type_id (str):
             name (str):
-            sub_task (bool):
+            sub_task (boolean):
             fields (:obj:`list` of :obj:`CxIssueTrackingSystemField`):
         """
         self.id = issue_tracking_system_type_id

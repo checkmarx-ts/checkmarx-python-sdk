@@ -13,9 +13,9 @@ class CxCreateScan(object):
 
         Args:
             project_id (int):
-            is_incremental (bool):
-            is_public (bool):
-            force_scan (bool):
+            is_incremental (boolean):
+            is_public (boolean):
+            force_scan (boolean):
             comment (str):
         """
         self.project_id = project_id

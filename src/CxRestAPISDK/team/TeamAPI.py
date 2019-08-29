@@ -85,7 +85,7 @@ class TeamAPI(object):
         utility provided by SDK: get team full name by team id
 
         Args:
-            team_id (int):
+            team_id (int, str):
 
         Returns:
             str: team full name, "/CxServer/SP/Company/Users"

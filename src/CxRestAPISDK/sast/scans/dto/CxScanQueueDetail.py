@@ -25,8 +25,8 @@ class CxScanQueueDetail(object):
             engine_started_on (str):
             completed_on (str):
             loc (int):
-            is_incremental (bool):
-            is_public (bool):
+            is_incremental (boolean):
+            is_public (boolean):
             origin (str):
             queue_position (int):
             total_percent (int):

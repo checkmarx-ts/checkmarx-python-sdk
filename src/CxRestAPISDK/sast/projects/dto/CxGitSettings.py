@@ -14,7 +14,7 @@ class CxGitSettings(object):
         Args:
             url (str):
             branch (str):
-            use_ssh (bool):
+            use_ssh (boolean):
             link (:obj:`CxLink`):
         """
         self.url = url
@@ -24,13 +24,15 @@ class CxGitSettings(object):
         self.private_key = private_key
 
     def get_post_data(self):
-        return json.dumps(
-            {
-                "url": self.url,
-                "branch": self.branch,
-                "privateKey": self.private_key
-            }
-        )
+        target_dict = {
+            "url": self.url,
+            "branch": self.branch,
+        }
+
+        if self.private_key:
+            target_dict.update({"privateKey": self.private_key})
+
+        return json.dumps(target_dict)
 
     def __str__(self):
         return "CxGitSettings(url={}, branch={}, use_ssh={}, link={})".format(

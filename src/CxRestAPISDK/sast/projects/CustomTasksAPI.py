@@ -89,7 +89,7 @@ class CustomTasksAPI(object):
         """
 
         Args:
-            task_id (int):
+            task_id (int):  Unique Id of the custom task
 
         Returns:
             :obj:`CxCustomTask`

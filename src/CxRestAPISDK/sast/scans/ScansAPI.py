@@ -125,10 +125,11 @@ class ScansAPI(object):
 
 
         Args:
-            project_id (int):
-            scan_status (str): possible values are 1="New", 2="PreScan", 3="Queued", 4="Scanning", 6="PostScan",
-                                7="Finished", 8="Canceled", 9="Failed", 10="SourcePullingAndDeployment", 1001="None"
-            last (int): number of last scans
+            project_id (int, optional): Unique Id of the project
+            scan_status (str, optional): The current status of the scan
+                        (1="New", 2="PreScan", 3="Queued", 4="Scanning", 6="PostScan", 7="Finished", 8="Canceled",
+                        9="Failed", 10="SourcePullingAndDeployment", 1001="None").
+            last (int):  Number of last scans to include.
         Returns:
             :obj:`list` of :obj:`CxScanDetail`
 
@@ -177,7 +178,7 @@ class ScansAPI(object):
         get the last scan id of a project
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Returns:
             int: scan id
@@ -196,11 +197,12 @@ class ScansAPI(object):
         Create a new SAST scan and assign it to a project.
 
         Args:
-            project_id (int):
-            is_incremental (bool):
-            is_public (bool):
-            force_scan (bool):
-            comment (str):
+            project_id (int):  Unique Id of the project to be scanned
+            is_incremental (boolean): Specifies whether the requested scan is incremental or full scan
+            is_public (boolean):  Specifies whether the requested scan is public or private
+            force_scan (boolean): Specifies whether the code should be scanned or not, regardless of whether changes
+                                were made to the code since the last scan.
+            comment (str): Specifies the scan comment.
 
         Returns:
             :obj:`CxCreateNewScanResponse`
@@ -246,7 +248,7 @@ class ScansAPI(object):
         Get details of a specific SAST scan.
 
         Args:
-            scan_id (int):
+            scan_id (int): Unique Id of the scan
 
         Returns:
             :obj:`CxScanDetail`
@@ -282,11 +284,11 @@ class ScansAPI(object):
         Add a new comment or update an existing comment according to the scan Id.
 
         Args:
-            scan_id (int):
-            comment (str):
+            scan_id (int): Unique Id of a specific scan
+            comment (str): Specifies the comment content
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -323,10 +325,10 @@ class ScansAPI(object):
         Delete specific SAST scan according to scan Id.
 
         Args:
-            scan_id (int):
+            scan_id (int): Unique Id of the scan
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -356,7 +358,7 @@ class ScansAPI(object):
         Get statistic results for a specific scan.
 
         Args:
-            scan_id (int):
+            scan_id (int): Unique Id of the scan
 
         Returns:
             :obj:`CxStatisticsResult`
@@ -443,7 +445,7 @@ class ScansAPI(object):
         Get details of a specific CxSAST scan in the scan queue according to the scan Id.
 
         Args:
-            scan_id (int):
+            scan_id (int): Unique Id of the scan
 
         Returns:
             :obj:`CxScanQueueDetail`
@@ -479,12 +481,12 @@ class ScansAPI(object):
 
 
         Args:
-            scan_id (int):
-            status_id (int):
-            status_value (str):
+            scan_id (int):  Unique Id of a specific scan in the queue
+            status_id (int): Unique Id of the status
+            status_value (str): Requested scan status in the queue. Status option include Cancelled.
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -526,7 +528,7 @@ class ScansAPI(object):
         :return:
 
         Args:
-            project_id （int):
+            project_id （int): Unique Id of the project
 
         Returns:
             :obj:`list` of :obj:`CxScanQueueDetail`
@@ -564,7 +566,7 @@ class ScansAPI(object):
         Get scan settings by project Id.
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Raises:
             BadRequestError
@@ -625,13 +627,14 @@ class ScansAPI(object):
         Define the SAST scan settings according to a project (preset and engine configuration).
 
         Args:
-            project_id (int):
-            preset_id (int):
-            engine_configuration_id (int):
-            post_scan_action_id (int, optional):
-            failed_scan_emails (:obj:`list` of :obj:`str`, optional):
-            before_scan_emails (:obj:`list` of :obj:`str`, optional):
-            after_scan_emails (:obj:`list` of :obj:`str`, optional):
+            project_id (int): Unique Id of the project
+            preset_id (int):  Unique Id of the preset
+            engine_configuration_id (int): Unique Id of the engine configuration
+            post_scan_action_id (int, optional): Unique Id of the post scan action
+            before_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the pre-scan message
+            failed_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the scan failure
+                                                                        message
+            after_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the post-scan message
 
         Returns:
             :obj:`CxCreateScanSettingsResponse`
@@ -684,13 +687,16 @@ class ScansAPI(object):
         (preset, engine configuration, custom actions and email notifications).
 
         Args:
-            project_id (int):
-            preset_id (int):
-            engine_configuration_id (int):
-            post_scan_action_id (int, optional):
-            failed_scan_emails (:obj:`list` of :obj:`str`, optional):
-            before_scan_emails (:obj:`list` of :obj:`str`, optional):
-            after_scan_emails (:obj:`list` of :obj:`str`, optional):
+            project_id (int): Unique Id of the project
+            preset_id (int): Unique Id of the preset
+            engine_configuration_id (int):  Unique Id of the engine configuration
+            post_scan_action_id (int, optional):  Unique Id of the post scan action
+            failed_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the scan failure
+                                                                        notification
+            before_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the pre-scan
+                                                                    notification
+            after_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the post-scan
+                                                                    notification
 
         Returns:
             :obj:`CxCreateScanSettingsResponse`
@@ -742,13 +748,15 @@ class ScansAPI(object):
 
 
         Args:
-            project_id (int):
-            schedule_type (str):
-            schedule_days (:obj:`list` of :obj:`str`):
-            schedule_time (str):
+            project_id (int):  Unique Id of the project
+            schedule_type (str): Specifies the schedule type (none or weekly)
+            schedule_days (:obj:`list` of :obj:`str`):  Specifies the day(s) to perform the scan
+                                    (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday).
+                                    Comma separate days can also be defined
+            schedule_time (str): Specifies the time(s) to perform the scan (hh:mm)
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -786,11 +794,11 @@ class ScansAPI(object):
         Assign ticket to scan results according to scan results and ticket Id.
 
         Args:
-            results_id (str):
-            ticket_id (str):
+            results_id (str): Unique Id of the result
+            ticket_id (str): Unique Id of the ticket.
 
         Returns:
-            bool
+            boolean
 
         Raises:
             BadRequestError
@@ -828,7 +836,7 @@ class ScansAPI(object):
         (only for policy management evaluation in v8.9.0).
 
         Args:
-            project_id (int):
+            project_id (int):  Unique Id of the project
 
         Returns:
             :obj:`CxPolicyFindingResponse`
@@ -871,7 +879,7 @@ class ScansAPI(object):
         :return:
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Returns:
             :obj:`CxPolicyFindingsStatus`
@@ -925,7 +933,7 @@ class ScansAPI(object):
         Generate a new CxSAST scan report.
 
         Args:
-            scan_id (int):
+            scan_id (int): Unique Id of the scan
             report_type (str): Report type options are: PDF, RTF, CSV or XML
 
         Returns:
@@ -981,7 +989,7 @@ class ScansAPI(object):
 
 
         Args:
-            report_id (int):
+            report_id (int): Unique Id of the report
 
         Returns:
             :obj:`CxScanReportStatus`
@@ -1028,7 +1036,7 @@ class ScansAPI(object):
         :return:
 
         Args:
-            report_id (int):
+            report_id (int): Unique Id of the report
 
         Returns:
             byte
@@ -1065,10 +1073,10 @@ class ScansAPI(object):
         check if a scan is finished
 
         Args:
-            scan_id (int):
+            scan_id (int): unique id of a scan
 
         Returns:
-            bool
+            boolean
         """
         is_finished = False
 
@@ -1083,7 +1091,7 @@ class ScansAPI(object):
         check if a report generation is finished
 
         Args:
-            report_id (int):
+            report_id (int): unique id of a report
 
         Returns:
 

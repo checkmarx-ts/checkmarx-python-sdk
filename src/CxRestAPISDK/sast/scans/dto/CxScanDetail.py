@@ -25,9 +25,9 @@ class CxScanDetail(object):
             origin (str):
             initiator_name (str):
             owning_team_id (int):
-            is_public (bool):
-            is_locked (bool):
-            is_incremental (bool):
+            is_public (boolean):
+            is_locked (boolean):
+            is_incremental (boolean):
             scan_risk (int):
             scan_risk_severity (int):
             engine_server (:obj:`CxEngineServer`):

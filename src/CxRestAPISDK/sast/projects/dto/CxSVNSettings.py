@@ -14,7 +14,7 @@ class CxSVNSettings(object):
         Args:
             uri (:obj:`CxURI`):
             paths (:obj:`list` of :obj:`str`):
-            use_ssh (bool):
+            use_ssh (boolean):
             link (:obj:`CxLink`):
             credentials (:obj:`CxCredential`):
             private_key (str):
@@ -27,20 +27,23 @@ class CxSVNSettings(object):
         self.private_key = private_key
 
     def get_post_data(self):
-        return json.dumps(
-            {
-                "uri": {
-                    "absoluteUrl": self.uri.absolute_url,
-                    "port": self.uri.port
-                },
-                "paths": self.paths,
-                "credentials": {
-                    "userName": self.credentials.username,
-                    "password": self.credentials.password
-                },
-                "privateKey": self.private_key
+
+        target_dict = {
+            "uri": {
+                "absoluteUrl": self.uri.absolute_url,
+                "port": self.uri.port
+            },
+            "paths": self.paths,
+            "credentials": {
+                "userName": self.credentials.username,
+                "password": self.credentials.password
             }
-        )
+        }
+
+        if self.private_key:
+            target_dict.update({"privateKey": self.private_key})
+
+        return json.dumps(target_dict)
 
     def __str__(self):
         return "CxSVNSettings(uri={}, paths={}, use_ssh={}, link={}, credentials={}, private_key={})".format(
