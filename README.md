@@ -10,7 +10,8 @@ input a line: C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python
 ## Change configuration
 Change configuration in file CxRestAPISDK/config/config.ini as needed.
 Set your own username, password, team_full_name, and so on.
-If you want to put config.ini in another location, set your own config.ini file path for CxConfig constructor.
+If you want to put config.ini in another location, set your own config.ini file path
+for CxConfig constructor at the end of CxConfig.py. This will load your own config.ini file when you import this package.
 
 ## Checkmarx REST API Document
 https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
