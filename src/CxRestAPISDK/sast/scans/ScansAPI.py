@@ -628,10 +628,10 @@ class ScansAPI(object):
             project_id (int):
             preset_id (int):
             engine_configuration_id (int):
-            post_scan_action_id (int):
-            failed_scan_emails (:obj:`list` of :obj:`str`):
-            before_scan_emails (:obj:`list` of :obj:`str`):
-            after_scan_emails (:obj:`list` of :obj:`str`):
+            post_scan_action_id (int, optional):
+            failed_scan_emails (:obj:`list` of :obj:`str`, optional):
+            before_scan_emails (:obj:`list` of :obj:`str`, optional):
+            after_scan_emails (:obj:`list` of :obj:`str`, optional):
 
         Returns:
             :obj:`CxCreateScanSettingsResponse`
@@ -687,10 +687,10 @@ class ScansAPI(object):
             project_id (int):
             preset_id (int):
             engine_configuration_id (int):
-            post_scan_action_id (int):
-            failed_scan_emails (:obj:`list` of :obj:`str`):
-            before_scan_emails (:obj:`list` of :obj:`str`):
-            after_scan_emails (:obj:`list` of :obj:`str`):
+            post_scan_action_id (int, optional):
+            failed_scan_emails (:obj:`list` of :obj:`str`, optional):
+            before_scan_emails (:obj:`list` of :obj:`str`, optional):
+            after_scan_emails (:obj:`list` of :obj:`str`, optional):
 
         Returns:
             :obj:`CxCreateScanSettingsResponse`
