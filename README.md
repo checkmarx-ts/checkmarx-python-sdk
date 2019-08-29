@@ -118,7 +118,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_osa_scan_summary_report
 + possible Exceptions
     - <pre>BadRequestError                                                              (provided by SDK)</pre>
-    - <pre>NotFoundError
+    - <pre>NotFoundError                                                                (provided by SDK)</pre>
     - <pre>UnknownHttpStatusError                                                       (provided by SDK)</pre>
 
 ## examples
