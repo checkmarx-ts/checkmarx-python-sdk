@@ -9,7 +9,7 @@ class CxUpdateProjectRequest(object):
     the request body of update project
     """
 
-    def __init__(self, name, owning_team, custom_fields):
+    def __init__(self, name, team_id, custom_fields):
         """
 
         Args:
@@ -18,7 +18,7 @@ class CxUpdateProjectRequest(object):
             custom_fields (:obj:`list` of :obj:`CxCustomField`):
         """
         self.name = name
-        self.owning_team = owning_team
+        self.owning_team = team_id
         self.custom_fields = custom_fields
 
     def get_post_data(self):

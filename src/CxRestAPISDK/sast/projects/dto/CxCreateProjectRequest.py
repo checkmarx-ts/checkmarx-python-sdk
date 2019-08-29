@@ -8,16 +8,16 @@ class CxCreateProjectRequest(object):
     the data type used to create a project.
     """
 
-    def __init__(self, name, owning_team, is_public):
+    def __init__(self, name, team_id, is_public):
         """
 
         Args:
             name (str):
-            owning_team (int):
+            team_id (int):
             is_public (bool):
         """
         self.name = name
-        self.owning_team = owning_team
+        self.owning_team = team_id
         self.is_public = is_public
 
     def get_post_data(self):

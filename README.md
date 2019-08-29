@@ -8,7 +8,8 @@ For example, in lib\site-packages\Checkmarx.pth,
 input a line: C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python\src
 
 ## Change configuration
-Change configuration in file CxRestAPISDK/config/config.ini as needed. Set your own username, password, team, and so on.
+Change configuration in file CxRestAPISDK/config/config.ini as needed.
+Set your own username, password, team_full_name, and so on.
 If you want to put config.ini in another location, set your own config.ini file path for CxConfig constructor.
 
 ## Checkmarx REST API Document
@@ -21,16 +22,19 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
 
 2. TeamAPI
     - get_all_teams
-    - get_team_id_by_full_name
+    - get_team_id_by_team_full_name                                         (provided by SDK)
+    - get_team_full_name_by_team_id                                         (provided by SDK)
 
 3. ProjectsAPI
     - get_all_project_details
     - create_project_with_default_configuration
-    - get_project_id_by_name
+    - get_project_id_by_project_name_and_team_full_name                     (provided by SDK)
     - get_project_details_by_id
     - update_project_by_id
     - update_project_name_team_id
     - delete_project_by_id
+    - create_project_if_not_exists_by_project_name_and_team_full_name       (provided by SDK)
+    - delete_project_if_exists_by_project_name_and_team_full_name           (provided by SDK)
     - create_branched_project
     - get_all_issue_tracking_systems
     - get_issue_tracking_system_id_by_name
@@ -88,6 +92,8 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - register_scan_report
     - get_report_status_by_id
     - get_report_by_id
+    - is_scanning_finished                                                          (provided by SDK)
+    - is_report_generation_finished                                                 (provided by SDK)
 
 7. DataRetentionAPI
     - stop_data_retention

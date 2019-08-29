@@ -132,14 +132,14 @@ class CxConfig(object):
         return self.cx_config.get("configuration", "Default Configuration")
 
     @property
-    def team(self):
+    def team_full_name(self):
         """
         get the team that the user is a member of
         :return:
         str
-            the team, if not provided in config.ini, fallback to CxServer\\SP\\Company\\Users
+            the team, if not provided in config.ini, fallback to /CxServer/SP/Company/Users
         """
-        return self.cx_config.get("team", r"CxServer\SP\Company\Users")
+        return self.cx_config.get("team_full_name", r"/CxServer/SP/Company/Users")
 
     @property
     def max_try(self):

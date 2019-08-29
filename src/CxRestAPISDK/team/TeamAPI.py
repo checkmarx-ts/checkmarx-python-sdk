@@ -18,10 +18,12 @@ class TeamAPI(object):
     max_try = CxConfig.CxConfig.config.max_try
     teams = []
     teams_url = CxConfig.CxConfig.config.url + "/auth/teams"
+    default_team_id = None
 
     def __init__(self):
         self.get_all_teams()
         self.retry = 0
+        self.get_team_id_by_team_full_name()
 
     def get_all_teams(self):
         """
@@ -57,7 +59,7 @@ class TeamAPI(object):
             raise UnknownHttpStatusError()
         return teams
 
-    def get_team_id_by_full_name(self, team_full_name=CxConfig.CxConfig.config.team):
+    def get_team_id_by_team_full_name(self, team_full_name=CxConfig.CxConfig.config.team_full_name):
         """
         utility provided by SDK: get team id by team full name
 
@@ -69,6 +71,29 @@ class TeamAPI(object):
             int: the team id for the team full name
         """
         all_teams = self.get_all_teams()
-        # construct a dict of team_full_name: team_id
+
+        # construct a dict of {team_full_name: team_id}
         team_full_name_id_dict = {item.full_name: item.team_id for item in all_teams}
-        return team_full_name_id_dict.get(Path(team_full_name))
+
+        team_id = team_full_name_id_dict.get(Path(team_full_name))
+        TeamAPI.default_team_id = team_id
+
+        return team_id
+
+    def get_team_full_name_by_team_id(self, team_id):
+        """
+        utility provided by SDK: get team full name by team id
+
+        Args:
+            team_id (int):
+
+        Returns:
+            str: team full name, "/CxServer/SP/Company/Users"
+
+        """
+        all_teams = self.get_all_teams()
+
+        # construct a dict of team_id: team_full_name
+        team_id_team_full_name_dict = {item.team_id: item.full_name for item in all_teams}
+
+        return team_id_team_full_name_dict.get(team_id)

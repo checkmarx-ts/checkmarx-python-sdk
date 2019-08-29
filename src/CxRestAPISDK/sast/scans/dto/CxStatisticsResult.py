@@ -24,6 +24,11 @@ class CxStatisticsResult(object):
         self.statistics_calculation_date = statistics_calculation_date
 
     def __str__(self):
-        return """CxStatisticsResult, high_severity: {}, medium_severity: {}, low_severity: {}, info_severity:{},
-            statistics_calculation_date:{}""".format(self.high_severity, self.medium_severity, self.low_severity,
-                                                     self.info_severity, self.statistics_calculation_date)
+        return """CxStatisticsResult(
+                    high_severity: {}, 
+                    medium_severity: {}, 
+                    low_severity: {}, 
+                    info_severity:{},
+                    statistics_calculation_date:{}
+                  )""".format(self.high_severity, self.medium_severity, self.low_severity, self.info_severity,
+                              self.statistics_calculation_date)

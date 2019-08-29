@@ -22,8 +22,6 @@ from .dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
     CxTFSSettings, CxIssueTrackingSystemJira
 from .dto.presets import CxPreset
 
-default_team_id = TeamAPI().get_team_id_by_full_name()
-
 
 class ProjectsAPI(object):
     """
@@ -58,14 +56,14 @@ class ProjectsAPI(object):
         """
         self.retry = 0
 
-    def get_all_project_details(self, project_name=None, team_id=default_team_id):
+    def get_all_project_details(self, project_name=None, team_id=TeamAPI.default_team_id):
         """
         REST API: get all project details.
         For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
 
         Args:
             project_name (str):
-            team_id (int):
+            team_id (int): default to id of the corresponding team full name in config.ini
 
         Returns:
             :obj:`list` of :obj:`CxProject`
@@ -113,14 +111,14 @@ class ProjectsAPI(object):
 
         return all_projects
 
-    def create_project_with_default_configuration(self, name, owning_team=default_team_id, is_public=True):
+    def create_project_with_default_configuration(self, name, team_id=TeamAPI.default_team_id, is_public=True):
         """
         REST API: create project
 
         Args:
             name (str):
-            owning_team (int): team id
-            is_public (bool):
+            team_id (int): the id of a team, default to the id of the team full name in config.ini
+            is_public (bool): default True
 
         Returns:
             :obj:`CxCreateProjectResponse`
@@ -132,7 +130,7 @@ class ProjectsAPI(object):
         """
         project = None
 
-        req_data = CxCreateProjectRequest.CxCreateProjectRequest(name, owning_team, is_public).get_post_data()
+        req_data = CxCreateProjectRequest.CxCreateProjectRequest(name, team_id, is_public).get_post_data()
         r = requests.post(
             url=self.projects_url,
             data=req_data,
@@ -154,27 +152,32 @@ class ProjectsAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.create_project_with_default_configuration(name, owning_team, is_public)
+            self.create_project_with_default_configuration(name, team_id, is_public)
         else:
             raise UnknownHttpStatusError()
 
         return project
 
-    def get_project_id_by_name(self, project_name, team_id=default_team_id):
+    def get_project_id_by_project_name_and_team_full_name(self, project_name,
+                                                          team_full_name=CxConfig.CxConfig.config.team_full_name):
         """
-        utility provided by SDK: get project id by project name, and team id
+        utility provided by SDK: get project id by project name, and team full name
 
         Args:
             project_name (str): project name under one team, different teams may have projects of the same name
-            team_id (int): you can get team_id by using TeamAPI.get_team_id_by_full_name
+            team_full_name (str): for example "/CxServer/SP/Company/Users"
 
         Returns:
             int: project id
         """
         all_projects = self.get_all_project_details()
+
         # a_dict, key is {project_name}&{team_id}, value is project_id
         a_dict = {(project.name + "&" + str(project.team_id)): project.project_id for project in all_projects}
+
+        team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name=team_full_name)
         the_key = project_name + "&" + str(team_id)
+
         return a_dict.get(the_key)
 
     def get_project_details_by_id(self, project_id):
@@ -227,14 +230,14 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, name, owning_team=default_team_id, custom_fields=None):
+    def update_project_by_id(self, project_id, name, team_id=TeamAPI.default_team_id, custom_fields=None):
         """
         update project info by project id
 
         Args:
             project_id (int): consider using get_project_id_by_name to get project_id
             name (str): the project name that you want the current project change to
-            owning_team (int): the team id that you want the current project change to
+            team_id (int): the team id that you want the current project change to
             custom_fields (:obj:`list` of :obj:`CxCustomField`):
 
         Returns:
@@ -250,7 +253,7 @@ class ProjectsAPI(object):
 
         request_body = CxUpdateProjectRequest.CxUpdateProjectRequest(
             name=name,
-            owning_team=owning_team,
+            team_id=team_id,
             custom_fields=custom_fields
         ).get_post_data()
 
@@ -267,13 +270,13 @@ class ProjectsAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.update_project_by_id(project_id, name, owning_team, custom_fields)
+            self.update_project_by_id(project_id, name, team_id, custom_fields)
         else:
             raise UnknownHttpStatusError()
 
         return is_successful
 
-    def update_project_name_team_id(self, project_id, project_name, team_id=default_team_id):
+    def update_project_name_team_id(self, project_id, project_name, team_id=TeamAPI.default_team_id):
         """
         REST API: update project name, team id
 
@@ -357,6 +360,51 @@ class ProjectsAPI(object):
             self.delete_project_by_id(project_id, delete_running_scans)
         else:
             raise UnknownHttpStatusError()
+
+        return is_successful
+
+    def create_project_if_not_exists_by_project_name_and_team_full_name(
+            self, project_name, team_full_name=CxConfig.CxConfig.config.team_full_name
+    ):
+        """
+        create a project if it not exists by project name and a team full name
+
+        Args:
+            project_name:
+            team_full_name:
+
+        Returns:
+            int: project id
+        """
+        team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name)
+
+        project_id = self.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
+
+        if not project_id:
+            project = self.create_project_with_default_configuration(project_name, team_id, True)
+            if project:
+                project_id = project.id
+
+        return project_id
+
+    def delete_project_if_exists_by_project_name_and_team_full_name(
+            self, project_name, team_full_name=CxConfig.CxConfig.config.team_full_name
+    ):
+        """
+
+        Args:
+            project_name (str):
+            team_full_name (str): for example "/CxServer/SP/Company/Users"
+
+        Returns:
+            bool
+
+        """
+        is_successful = False
+
+        project_id = self.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
+        if project_id:
+            is_successful = self.delete_project_by_id(project_id)
 
         return is_successful
 

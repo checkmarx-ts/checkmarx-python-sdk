@@ -126,8 +126,9 @@ class ScansAPI(object):
 
         Args:
             project_id (int):
-            scan_status (str):
-            last (int):
+            scan_status (str): possible values are 1="New", 2="PreScan", 3="Queued", 4="Scanning", 6="PostScan",
+                                7="Finished", 8="Canceled", 9="Failed", 10="SourcePullingAndDeployment", 1001="None"
+            last (int): number of last scans
         Returns:
             :obj:`list` of :obj:`CxScanDetail`
 
@@ -355,7 +356,7 @@ class ScansAPI(object):
         Get statistic results for a specific scan.
 
         Args:
-            scan_id (str):
+            scan_id (int):
 
         Returns:
             :obj:`CxStatisticsResult`
@@ -440,8 +441,6 @@ class ScansAPI(object):
     def get_scan_queue_details_by_scan_id(self, scan_id):
         """
         Get details of a specific CxSAST scan in the scan queue according to the scan Id.
-        :param scan_id: int
-        :return:
 
         Args:
             scan_id (int):
@@ -992,13 +991,13 @@ class ScansAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        retport_status = None
+        report_status = None
 
         self.report_status_url = self.report_status_url.format(id=report_id)
         r = requests.get(url=self.report_status_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
-            retport_status = CxScanReportStatus.CxScanReportStatus(
+            report_status = CxScanReportStatus.CxScanReportStatus(
                 link=CxLink.CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
@@ -1020,7 +1019,7 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
-        return retport_status
+        return report_status
 
     def get_report_by_id(self, report_id):
         """
@@ -1060,3 +1059,39 @@ class ScansAPI(object):
             raise UnknownHttpStatusError()
         
         return report_content
+
+    def is_scanning_finished(self, scan_id):
+        """
+        check if a scan is finished
+
+        Args:
+            scan_id (int):
+
+        Returns:
+            bool
+        """
+        is_finished = False
+
+        scan_detail = self.get_sast_scan_details_by_scan_id(scan_id=scan_id)
+        if scan_detail.status.name == "Finished":
+            is_finished = True
+
+        return is_finished
+
+    def is_report_generation_finished(self, report_id):
+        """
+        check if a report generation is finished
+
+        Args:
+            report_id (int):
+
+        Returns:
+
+        """
+        is_finished = False
+
+        report_status = self.get_report_status_by_id(report_id)
+        if report_status.status.value == "Created":
+            is_finished = True
+
+        return is_finished
