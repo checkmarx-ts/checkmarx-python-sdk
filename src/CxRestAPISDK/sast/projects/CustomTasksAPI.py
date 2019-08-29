@@ -48,7 +48,7 @@ class CustomTasksAPI(object):
                 CxCustomTask.CxCustomTask(
                     custom_task_id=item.get("id"),
                     name=item.get("name"),
-                    type=item.get("type"),
+                    custom_task_type=item.get("type"),
                     data=item.get("data"),
                     link=CxLink.CxLink(
                         (item.get("link", {}) or {}).get("rel"),
@@ -110,7 +110,7 @@ class CustomTasksAPI(object):
             custom_task = CxCustomTask.CxCustomTask(
                 custom_task_id=a_dict.get("id"),
                 name=a_dict.get("name"),
-                type=a_dict.get("type"),
+                custom_task_type=a_dict.get("type"),
                 data=a_dict.get("data"),
                 link=CxLink.CxLink(
                     (a_dict.get("link", {}) or {}).get("rel"),

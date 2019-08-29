@@ -6,19 +6,19 @@ class CxCustomTask(object):
     custom tasks
     """
 
-    def __init__(self, custom_task_id, name, type, data, link):
+    def __init__(self, custom_task_id, name, custom_task_type, data, link):
         """
 
         Args:
             custom_task_id (int):
             name (str):
-            type (str):
+            custom_task_type (str):
             data (str):
             link (CxLink):
         """
         self.id = custom_task_id
         self.name = name
-        self.type = type
+        self.type = custom_task_type
         self.data = data
         self.link = link
 

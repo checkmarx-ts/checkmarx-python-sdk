@@ -9,18 +9,17 @@ class CxUpdateProjectRequest(object):
     the request body of update project
     """
 
-    def __init__(self, name, owning_team, custom_field_id, custom_field_value):
+    def __init__(self, name, owning_team, custom_fields):
         """
 
         Args:
             name (str):  the project name that you want the current project change to
             owning_team（int):  the team id that you want the current project change to
-            custom_field_id （int): the id of the custom field that you want to change
-            custom_field_value (str): the value of the custom field that you want to change to
+            custom_fields (:obj:`list` of :obj:`CxCustomField`):
         """
         self.name = name
         self.owning_team = owning_team
-        self.custom_fields = CxCustomField.CxCustomField(custom_field_id=custom_field_id, name=custom_field_value)
+        self.custom_fields = custom_fields
 
     def get_post_data(self):
         """

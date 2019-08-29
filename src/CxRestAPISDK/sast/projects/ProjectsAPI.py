@@ -116,11 +116,6 @@ class ProjectsAPI(object):
     def create_project_with_default_configuration(self, name, owning_team=default_team_id, is_public=True):
         """
         REST API: create project
-        :param name: str
-        :param owning_team: int
-            the owning_team is the team_id
-        :param is_public: boolean
-        :return: CxCreateProjectResponse
 
         Args:
             name (str):
@@ -232,30 +227,15 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, name, owning_team=default_team_id, custom_field_id=None,
-                             custom_field_value=None):
+    def update_project_by_id(self, project_id, name, owning_team=default_team_id, custom_fields=None):
         """
         update project info by project id
-        :param project_id: int
-            consider using get_project_id_by_name to get project_id
-        :param name: str
-            the project name that you want the current project change to
-        :param owning_team: int
-            the team id that you want the current project change to
-        :param custom_field_id: int
-            the id of the custom field that you want to change,
-            consider using CustomFieldsAPI.get_custom_field_id_by_name
-        :param custom_field_value: str
-            the value of the custom field that you want to change to
-        :return:
 
         Args:
             project_id (int): consider using get_project_id_by_name to get project_id
             name (str): the project name that you want the current project change to
             owning_team (int): the team id that you want the current project change to
-            custom_field_id (int): the id of the custom field that you want to change,
-                                    consider using CustomFieldsAPI.get_custom_field_id_by_name
-            custom_field_value (str): the value of the custom field that you want to change to
+            custom_fields (:obj:`list` of :obj:`CxCustomField`):
 
         Returns:
             bool: True means successful, False means not successful
@@ -271,8 +251,7 @@ class ProjectsAPI(object):
         request_body = CxUpdateProjectRequest.CxUpdateProjectRequest(
             name=name,
             owning_team=owning_team,
-            custom_field_id=custom_field_id,
-            custom_field_value=custom_field_value
+            custom_fields=custom_fields
         ).get_post_data()
 
         r = requests.put(url=self.project_url, data=request_body,
@@ -288,7 +267,7 @@ class ProjectsAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.update_project_by_id(project_id, name, owning_team, custom_field_id, custom_field_value)
+            self.update_project_by_id(project_id, name, owning_team, custom_fields)
         else:
             raise UnknownHttpStatusError()
 
@@ -485,8 +464,6 @@ class ProjectsAPI(object):
     def get_issue_tracking_system_details_by_id(self, issue_tracking_system_id):
         """
         Get metadata for a specific issue tracking system (e.g. Jira) according to the Issue Tracking System Id.
-        :param issue_tracking_system_id: int
-        :return:
 
         Args:
             issue_tracking_system_id (int):
@@ -567,8 +544,6 @@ class ProjectsAPI(object):
     def get_project_exclude_settings_by_project_id(self, project_id):
         """
         get details of a project's exclude folders/files settings according to the project Id.
-        :param project_id:
-        :return:
 
         Args:
             project_id (int):
@@ -810,7 +785,7 @@ class ProjectsAPI(object):
             project_id (int):
             absolute_url (str):
             port (int):
-            paths (:obj:`lsit` of :obj:`str`):
+            paths (:obj:`list` of :obj:`str`):
             username (str):
             password (str):
             private_key (str):
