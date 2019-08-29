@@ -79,6 +79,7 @@ class DataRetentionAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
+        # TODO, check why response content is empty byte
         data_retention = None
 
         post_body_data = CxDefineDataRetentionDateRangeRequest.CxDefineDataRetentionDateRangeRequest(
@@ -128,6 +129,7 @@ class DataRetentionAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
+        # TODO, check why response content is empty byte
         data_retention = None
         post_body_data = CxDefineDataRetentionNumberOfScansRequest.CxDefineDataRetentionNumberOfScansRequest(
             number_of_successful_scans_to_preserve=number_of_successful_scans_to_preserve,
