@@ -41,7 +41,7 @@ class OsaAPI(object):
         v8.4.2 and up
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Returns:
             list: :obj:`list` of :obj:`CxOsaScanDetail`
@@ -94,7 +94,7 @@ class OsaAPI(object):
         """
 
         Args:
-            project_id (int):
+            project_id (int): Unique Id of the project
 
         Returns:
             str:  last OSA scan id for project with project_id
@@ -114,7 +114,7 @@ class OsaAPI(object):
         v8.4.2 and up
 
         Args:
-            scan_id (int):
+            scan_id (int): Unique Id of the OSA scan
 
         Returns:
            CxOsaScanDetail:
@@ -164,9 +164,9 @@ class OsaAPI(object):
         v8.4.2 and up
 
         Args:
-            project_id (int):
-            zipped_source_path (str):
-            origin (str):
+            project_id (int): The Project Id associated with requested OSA scan
+            zipped_source_path (str): the file path of Zipped Open Source code to scan.
+            origin (str):The location from which OSA scan was requested. Portal=Default.
 
         Returns:
             str: the osa scan id
@@ -244,7 +244,7 @@ class OsaAPI(object):
         v8.6.0 and up
 
         Args:
-            scan_id (str): osa scan id
+            scan_id (str): Unique Id of the OSA scan
 
         Returns:
             :obj:`list` of :obj:`CxOsaLicense`
@@ -293,10 +293,10 @@ class OsaAPI(object):
     def get_osa_scan_libraries(self, scan_id):
         """
         Get all the used libraries details for the specified CxOSA scan Id.
-        Supported from 9.0
+        Supported v8.6.0 and up
 
         Args:
-            scan_id （str):
+            scan_id （str): Unique Id of the OSA scan
 
         Returns:
             :obj:`list` of :obj:`CxOsaLibrary`
@@ -373,15 +373,15 @@ class OsaAPI(object):
                                            until=None):
         """
         Get all the vulnerabilities for the specified CxOSA scan Id.
-        v8.9.0 and up
+        v8.4.2 and up
 
         Args:
-            scan_id (str):
-            library_id (str):
-            state_id (int):
-            comment (str):
-            since (long):
-            until (long):
+            scan_id (str): Unique Id of the OSA scan
+            library_id (str, optional): Filter by Library Id(s)
+            state_id (int, optional):  Filter by State Id(s)
+            comment (str, optional): Filter by Comment text
+            since (long, optional): Filter by start time (not earlier than timestamp value)
+            until (long, optional): Filter by end time (not later than timestamp value)
 
         Returns:
             :obj:`list` of :obj:`CxOsaVulnerability`
@@ -451,7 +451,7 @@ class OsaAPI(object):
         """
 
         Args:
-            scan_id (str):
+            scan_id (str): unique id of a osa scan
 
         Returns:
             str: vulnerability id
@@ -466,14 +466,11 @@ class OsaAPI(object):
         """
         Get existing comments for vulnerabilities according to Vulnerability Id and Project Id.
         v9.0 and up
-        :param vulnerability_id: str
-        :param project_id: long
-        :return:
-            CxOsaVulnerabilityComment
+
 
         Args:
-            vulnerability_id (str):
-            project_id (long):
+            vulnerability_id (str): Unique Id of the vulnerability
+            project_id (long): Unique Id of the project
 
         Returns:
             :obj:`list` of :obj:`CxOsaVulnerabilityComment`
@@ -519,10 +516,10 @@ class OsaAPI(object):
     def get_osa_scan_summary_report(self, scan_id):
         """
         Generate a new summary report (.json) for the specified OSA scan Id.
-        v8.7 and up
+        v8.4.2 and up
 
         Args:
-            scan_id (str):
+            scan_id (str): Unique Id of the OSA scan
 
         Returns:
              CxOsaSummaryReport
