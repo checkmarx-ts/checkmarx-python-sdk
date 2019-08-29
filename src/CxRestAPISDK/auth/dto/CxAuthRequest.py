@@ -9,12 +9,14 @@ class CxAuthRequest(object):
     def __init__(self, username, password, grant_type, scope, client_id, client_secret):
         """
         get attribute from configuration file by default
-        :param username: str
-        :param password: str
-        :param grant_type: str
-        :param scope: str
-        :param client_id: str
-        :param client_secret: str
+
+        Args:
+            username (str):
+            password (str):
+            grant_type (str):
+            scope (str):
+            client_id (str):
+            client_secret (str):
         """
         self.username = username
         self.password = password
@@ -26,12 +28,13 @@ class CxAuthRequest(object):
     def get_post_data(self):
         """
         get the data that will be posted in order to get token.
-        :return:
-        dict
-            In Python package requests, the following statements about HTTP POST should be noted.
-            Typically, you want to send some form-encoded data — much like an HTML form.
-            To do this, simply pass a dictionary to the data argument.
-            Your dictionary of data will automatically be form-encoded when the request is made.
+
+        Returns:
+            dict
+                In Python package requests, the following statements about HTTP POST should be noted.
+                Typically, you want to send some form-encoded data — much like an HTML form.
+                To do this, simply pass a dictionary to the data argument.
+                Your dictionary of data will automatically be form-encoded when the request is made.
         """
         return {
                 "username": self.username,

@@ -25,9 +25,10 @@ class AuthenticationAPI(object):
         """
         use the credentials from config.ini to get access token, store it in a CxAuthResponse object,
         get the HTTP header
-        :return:
-        dict
-            the HTTP header that will be used in other REST API
+
+        Returns:
+            dict
+                the HTTP header that will be used in other REST API
         """
         config_info = CxConfig.CxConfig.config
         req_data = CxAuthRequest.CxAuthRequest(
@@ -51,6 +52,8 @@ class AuthenticationAPI(object):
             raise BadRequestError(r.text)
         else:
             raise UnknownHttpStatusError
+
+        return AuthenticationAPI.auth_headers
 
 
 AuthenticationAPI()
