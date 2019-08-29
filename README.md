@@ -111,7 +111,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_last_osa_scan_id_of_a_project
     - get_osa_scan_by_scan_id
     - create_an_osa_scan_request
-    - get_all_osa_file_extentions
+    - get_all_osa_file_extensions
     - get_osa_licenses_by_id
     - get_osa_scan_libraries
     - get_osa_scan_vulnerabilities_by_id
