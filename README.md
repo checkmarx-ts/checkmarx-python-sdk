@@ -17,15 +17,13 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
 
 ## The API list
 
-1. AuthenticationAPI
++ AuthenticationAPI
     - auth_headers (This is a class variable that stored token)
-
-2. TeamAPI
++ TeamAPI
     - get_all_teams
     - get_team_id_by_team_full_name &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  (provided by SDK)
     - get_team_full_name_by_team_id                                         (provided by SDK)
-
-3. ProjectsAPI
++ ProjectsAPI
     - get_all_project_details
     - create_project_with_default_configuration
     - get_project_id_by_project_name_and_team_full_name                     (provided by SDK)
@@ -61,17 +59,14 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_all_preset_details
     - get_preset_id_by_name
     - get_preset_details_by_preset_id
-
-4. CustomTasksAPI
++ CustomTasksAPI
     - get_all_custom_tasks
     - get_custom_task_id_by_name
     - get_custom_task_by_id
-
-5. CustomFieldsAPI
++ CustomFieldsAPI
     - get_all_custom_fields
     - get_custom_field_id_by_name
-
-6. ScansAPI
++ ScansAPI
     - get_all_scans_for_project
     - get_last_scan_id_of_a_project
     - create_new_scan
@@ -94,14 +89,12 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_report_by_id
     - is_scanning_finished                                                          (provided by SDK)
     - is_report_generation_finished                                                 (provided by SDK)
-
-7. DataRetentionAPI
++ DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
     - define_data_retention_by_number_of_scans
     - get_data_retention_request_status
-
-8. EnginesAPI
++ EnginesAPI
     - get_all_engine_server_details
     - get_engine_id_by_name
     - register_engine
@@ -111,8 +104,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_all_engine_configurations
     - get_engine_configuration_id_by_name
     - get_engine_configuration_by_id
-
-9. OsaAPI
++ OsaAPI
     - get_all_osa_scan_details_for_project
     - get_last_osa_scan_id_of_a_project
     - get_osa_scan_by_scan_id
@@ -124,8 +116,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_first_vulnerability_id
     - get_osa_scan_vulnerability_comments_by_id
     - get_osa_scan_summary_report
-
-10. possible Exceptions
++ possible Exceptions
     - BadRequestError
     - NotFoundError
     - UnknownHttpStatusError
