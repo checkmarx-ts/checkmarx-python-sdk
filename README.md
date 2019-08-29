@@ -22,7 +22,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
 
 2. TeamAPI
     - get_all_teams
-    - get_team_id_by_team_full_name                                         (provided by SDK)
+    - get_team_id_by_team_full_name &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  (provided by SDK)
     - get_team_full_name_by_team_id                                         (provided by SDK)
 
 3. ProjectsAPI
