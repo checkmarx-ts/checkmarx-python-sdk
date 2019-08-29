@@ -42,7 +42,7 @@ def scan_from_git():
     team_id = team_api.get_team_id_by_team_full_name(team_full_name)
 
     # 3. create project with default configuration, will get project id
-    project = projects_api.create_project_with_default_configuration(name=project_name, team_id=team_id)
+    project = projects_api.create_project_with_default_configuration(project_name=project_name, team_id=team_id)
     project_id = project.id
 
     # 4. set remote source setting to git
