@@ -17,22 +17,22 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
 
 ## The API list
 
-+ AuthenticationAPI
+1. AuthenticationAPI
     - auth_headers (This is a class variable that stored token)
-+ TeamAPI
+2. TeamAPI
     - get_all_teams
-    - <pre>get_team_id_by_team_full_name                                         (provided by SDK)</pre>
-    - <pre>get_team_full_name_by_team_id                                         (provided by SDK)</pre>
-+ ProjectsAPI
+    - get_team_id_by_team_full_name                                         **(provided by SDK)**__text__
+    - get_team_full_name_by_team_id                                         **(provided by SDK)**__text__
+3. ProjectsAPI
     - get_all_project_details
     - create_project_with_default_configuration
-    - <pre>get_project_id_by_project_name_and_team_full_name                     (provided by SDK)</pre>
+    - get_project_id_by_project_name_and_team_full_name                     **(provided by SDK)**__text__
     - get_project_details_by_id
     - update_project_by_id
     - update_project_name_team_id
     - delete_project_by_id
-    - <pre>create_project_if_not_exists_by_project_name_and_team_full_name       (provided by SDK)</pre>
-    - <pre>delete_project_if_exists_by_project_name_and_team_full_name           (provided by SDK)</pre>
+    - create_project_if_not_exists_by_project_name_and_team_full_name       **(provided by SDK)**__text__
+    - delete_project_if_exists_by_project_name_and_team_full_name           **(provided by SDK)**__text__
     - create_branched_project
     - get_all_issue_tracking_systems
     - get_issue_tracking_system_id_by_name
@@ -59,14 +59,14 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_all_preset_details
     - get_preset_id_by_name
     - get_preset_details_by_preset_id
-+ CustomTasksAPI
+4. CustomTasksAPI
     - get_all_custom_tasks
     - get_custom_task_id_by_name
     - get_custom_task_by_id
-+ CustomFieldsAPI
+5. CustomFieldsAPI
     - get_all_custom_fields
     - get_custom_field_id_by_name
-+ ScansAPI
+6. ScansAPI
     - get_all_scans_for_project
     - get_last_scan_id_of_a_project
     - create_new_scan
@@ -87,14 +87,14 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - register_scan_report
     - get_report_status_by_id
     - get_report_by_id
-    - <pre>is_scanning_finished                                                          (provided by SDK)</pre>
-    - <pre>is_report_generation_finished                                                 (provided by SDK)</pre>
-+ DataRetentionAPI
+    - is_scanning_finished                                                      **(provided by SDK)**__text__
+    - is_report_generation_finished                                             **(provided by SDK)**__text__
+7. DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
     - define_data_retention_by_number_of_scans
     - get_data_retention_request_status
-+ EnginesAPI
+8. EnginesAPI
     - get_all_engine_server_details
     - get_engine_id_by_name
     - register_engine
@@ -104,7 +104,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_all_engine_configurations
     - get_engine_configuration_id_by_name
     - get_engine_configuration_by_id
-+ OsaAPI
+9. OsaAPI
     - get_all_osa_scan_details_for_project
     - get_last_osa_scan_id_of_a_project
     - get_osa_scan_by_scan_id
@@ -116,10 +116,10 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - get_first_vulnerability_id
     - get_osa_scan_vulnerability_comments_by_id
     - get_osa_scan_summary_report
-+ possible Exceptions
-    - <pre>BadRequestError                                                              (provided by SDK)</pre>
-    - <pre>NotFoundError                                                                (provided by SDK)</pre>
-    - <pre>UnknownHttpStatusError                                                       (provided by SDK)</pre>
+10. possible Exceptions
+    - BadRequestError                                                          **(provided by SDK)**__text__
+    - NotFoundError                                                            **(provided by SDK)**__text__
+    - UnknownHttpStatusError                                                   **(provided by SDK)**__text__
 
 ## examples
 1. scan_from_local_zip
