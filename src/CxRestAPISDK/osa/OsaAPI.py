@@ -25,7 +25,7 @@ class OsaAPI(object):
     base_url = CxConfig.CxConfig.config.url
     osa_scans_url = base_url + "/osa/scans"
     osa_scan_by_scan_id_url = base_url + "/osa/scans/{scanId}"
-    osa_file_extentions_url = base_url + "/osa/fileextensions"
+    osa_file_extensions_url = base_url + "/osa/fileextensions"
     osa_licenses_url = base_url + "/osa/licenses"
     osa_libraries_url = base_url + "/osa/libraries"
     osa_vulnerabilities_url = base_url + "/osa/vulnerabilities"
@@ -97,7 +97,7 @@ class OsaAPI(object):
             project_id (int):
 
         Returns:
-            int:  last OSA scan id for project with project_id
+            str:  last OSA scan id for project with project_id
         """
         osa_scan_id = None
 
@@ -206,13 +206,13 @@ class OsaAPI(object):
 
         return scan_id
 
-    def get_all_osa_file_extentions(self):
+    def get_all_osa_file_extensions(self):
         """
         Get all CxOSA file extension information.
         v8.6.0 and up
 
         Returns:
-            str: the osa file extentions, separated by semicolon
+            str: the osa file extensions, separated by semicolon
 
         Raises:
             BadRequestError:
@@ -220,11 +220,11 @@ class OsaAPI(object):
             UnknownHttpStatusError:
 
         """
-        file_extentions = None
+        file_extensions = None
 
-        r = requests.get(url=self.osa_file_extentions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=self.osa_file_extensions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
-            file_extentions = r.text
+            file_extensions = r.text
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
             raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
@@ -232,11 +232,11 @@ class OsaAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.get_all_osa_file_extentions()
+            self.get_all_osa_file_extensions()
         else:
             raise NotFoundError()
 
-        return file_extentions
+        return file_extensions
 
     def get_osa_licenses_by_id(self, scan_id):
         """
@@ -271,7 +271,7 @@ class OsaAPI(object):
                     patent_risk_score=item.get("patentRiskScore"),
                     copy_left=item.get("copyLeft"),
                     linking=item.get("linking"),
-                    royality_free=item.get("royalityFree"),
+                    royalty_free=item.get("royalityFree"),
                     reference_type=item.get("referenceType"),
                     reference=item.get("reference"),
                     url=item.get("url")
@@ -309,7 +309,7 @@ class OsaAPI(object):
         libraries = None
 
         if scan_id:
-            self.osa_libraries_url + "?scanId=" + str(scan_id)
+            self.osa_libraries_url = self.osa_libraries_url + "?scanId=" + str(scan_id)
 
         r = requests.get(url=self.osa_libraries_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
