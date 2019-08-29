@@ -21,7 +21,7 @@ https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API
     - auth_headers (This is a class variable that stored token)
 2. TeamAPI
     - get_all_teams
-    - get_team_id_by_team_full_name                                         **(provided by SDK)**
+    - <span style="color:blue">get_team_id_by_team_full_name</span>         **(provided by SDK)**
     - get_team_full_name_by_team_id                                         **(provided by SDK)**
 3. ProjectsAPI
     - get_all_project_details
