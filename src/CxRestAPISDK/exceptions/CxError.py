@@ -31,7 +31,9 @@ class BadRequestError(CxError):
         super().__init__(msg, 400)
 
     def __str__(self):
-        super().__str__()
+        return "BadRequestError(http_code={}, msg={})".format(
+            self.code, self.msg
+        )
 
 
 class NotFoundError(CxError):
@@ -55,4 +57,6 @@ class UnknownHttpStatusError(CxError):
         super().__init__("Unknown HTTP Status", 1)
 
     def __str__(self):
-        super().__str__()
+        return "UnknownHttpStatusError(http_code={}, msg={})".format(
+            self.code, self.msg
+        )
