@@ -7,6 +7,9 @@ create a ".pth" file under Python lib\site-packages, and set the absolute file p
 For example, in lib\site-packages\Checkmarx.pth,
 input a line: C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python\src
 
+## Install third party libraries
+pip install -r requirements.txt
+
 ## Change configuration
 Change configuration in file CxRestAPISDK/config/config.ini as needed.
 Set your own username, password, team_full_name, and so on.
