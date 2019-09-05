@@ -110,6 +110,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return all_projects
 
     def create_project_with_default_configuration(self, project_name, team_id=TeamAPI.default_team_id, is_public=True):
@@ -158,6 +160,8 @@ class ProjectsAPI(object):
             self.create_project_with_default_configuration(project_name, team_id, is_public)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return project
 
@@ -231,6 +235,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return project
 
     def update_project_by_id(self, project_id, project_name, team_id=TeamAPI.default_team_id, custom_fields=None):
@@ -276,6 +282,8 @@ class ProjectsAPI(object):
             self.update_project_by_id(project_id, project_name, team_id, custom_fields)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -323,6 +331,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def delete_project_by_id(self, project_id, delete_running_scans=False):
@@ -363,6 +373,8 @@ class ProjectsAPI(object):
             self.delete_project_by_id(project_id, delete_running_scans)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -456,6 +468,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return project
 
     def get_all_issue_tracking_systems(self):
@@ -495,6 +509,8 @@ class ProjectsAPI(object):
             self.get_all_issue_tracking_systems()
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return issue_tracking_systems
 
@@ -590,6 +606,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return issue_tracking_system
 
     def get_project_exclude_settings_by_project_id(self, project_id):
@@ -634,6 +652,8 @@ class ProjectsAPI(object):
             self.get_project_exclude_settings_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return project_exclude_settings
 
@@ -680,6 +700,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def get_remote_source_settings_for_git_by_project_id(self, project_id):
@@ -723,6 +745,8 @@ class ProjectsAPI(object):
             self.get_remote_source_settings_for_git_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return git_settings
 
@@ -774,6 +798,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def get_remote_source_settings_for_svn_by_project_id(self, project_id):
@@ -821,6 +847,8 @@ class ProjectsAPI(object):
             self.get_remote_source_settings_for_svn_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return svn_settings
 
@@ -885,6 +913,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def get_remote_source_settings_for_tfs_by_project_id(self, project_id):
@@ -933,6 +963,8 @@ class ProjectsAPI(object):
             self.get_remote_source_settings_for_tfs_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return tfs_settings
 
@@ -993,6 +1025,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def get_remote_source_settings_for_custom_by_project_id(self, project_id):
@@ -1038,6 +1072,8 @@ class ProjectsAPI(object):
             self.get_remote_source_settings_for_custom_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return custom_remote_setting
 
@@ -1090,6 +1126,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def get_remote_source_settings_for_shared_by_project_id(self, project_id):
@@ -1130,6 +1168,8 @@ class ProjectsAPI(object):
             self.get_remote_source_settings_for_shared_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return shared_source_setting
 
@@ -1178,6 +1218,8 @@ class ProjectsAPI(object):
             self.set_remote_source_settings_to_shared(project_id, paths, username, password)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -1231,6 +1273,8 @@ class ProjectsAPI(object):
             self.get_remote_source_settings_for_perforce_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return perforce_settings
 
@@ -1297,6 +1341,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def set_remote_source_setting_to_git_using_ssh(self, project_id, url, branch, private_key_file_path):
@@ -1351,6 +1397,8 @@ class ProjectsAPI(object):
             self.set_remote_source_setting_to_git_using_ssh(project_id, url, branch, private_key_file_path)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -1407,6 +1455,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def upload_source_code_zip_file(self, project_id, zip_file_path):
@@ -1452,6 +1502,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def set_data_retention_settings_by_project_id(self, project_id, scans_to_keep=10):
@@ -1495,6 +1547,8 @@ class ProjectsAPI(object):
             self.set_data_retention_settings_by_project_id(project_id, scans_to_keep)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -1552,6 +1606,8 @@ class ProjectsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def get_all_preset_details(self):
@@ -1593,6 +1649,8 @@ class ProjectsAPI(object):
             self.get_all_preset_details()
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return all_preset_details
 
@@ -1651,5 +1709,7 @@ class ProjectsAPI(object):
             self.get_preset_details_by_preset_id(preset_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return preset

@@ -72,6 +72,8 @@ class EnginesAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return all_engine_server_details
 
     def get_engine_id_by_name(self, engine_name):
@@ -138,6 +140,8 @@ class EnginesAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return engine_server
 
     def unregister_engine_by_engine_id(self, engine_id):
@@ -172,6 +176,8 @@ class EnginesAPI(object):
             self.unregister_engine_by_engine_id(engine_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -223,6 +229,8 @@ class EnginesAPI(object):
             self.get_engine_details(engine_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return engine_server
 
@@ -282,6 +290,8 @@ class EnginesAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return engine_server
 
     def get_all_engine_configurations(self):
@@ -319,6 +329,8 @@ class EnginesAPI(object):
             self.get_all_engine_configurations()
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return all_engine_configurations
 
@@ -370,5 +382,7 @@ class EnginesAPI(object):
             self.get_engine_configuration_by_id(configuration_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return engine_configuration

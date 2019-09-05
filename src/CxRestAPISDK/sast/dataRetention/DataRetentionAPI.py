@@ -60,6 +60,9 @@ class DataRetentionAPI(object):
             self.stop_data_retention()
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
+
         return is_successful
 
     def define_data_retention_date_range(self, start_date, end_date, duration_limit_in_hours):
@@ -111,6 +114,9 @@ class DataRetentionAPI(object):
             self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
+
         return data_retention
 
     def define_data_retention_by_number_of_scans(self, number_of_successful_scans_to_preserve, duration_limit_in_hours):
@@ -160,6 +166,9 @@ class DataRetentionAPI(object):
                                                           duration_limit_in_hours)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
+
         return data_retention
 
     def get_data_retention_request_status(self, request_id):
@@ -207,5 +216,7 @@ class DataRetentionAPI(object):
             self.get_data_retention_request_status(request_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return data_detention_request_status

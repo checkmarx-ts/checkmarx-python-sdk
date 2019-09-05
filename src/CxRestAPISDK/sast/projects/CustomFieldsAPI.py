@@ -59,6 +59,8 @@ class CustomFieldsAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return custom_fields
 
     def get_custom_field_id_by_name(self, custom_field_name):

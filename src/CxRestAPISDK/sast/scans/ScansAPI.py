@@ -171,6 +171,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return all_scans
 
     def get_last_scan_id_of_a_project(self, project_id):
@@ -241,6 +243,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return scan
 
     def get_sast_scan_details_by_scan_id(self, scan_id):
@@ -276,6 +280,8 @@ class ScansAPI(object):
             self.get_sast_scan_details_by_scan_id(scan_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return scan_detail
 
@@ -318,6 +324,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def delete_scan_by_scan_id(self, scan_id):
@@ -350,6 +358,8 @@ class ScansAPI(object):
             self.delete_scan_by_scan_id(scan_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -391,6 +401,8 @@ class ScansAPI(object):
             self.get_statistics_results_by_scan_id(scan_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return statistics
 
@@ -473,6 +485,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return scan_queue_details
 
     def update_queued_scan_status_by_scan_id(self, scan_id, status_id, status_value):
@@ -493,17 +507,16 @@ class ScansAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
+        # TODO check why always HTTP 400
         is_successful = False
         self.scans_queue_url = self.scans_queue_url.format(id=scan_id)
 
-        patch_data = json.dumps(
-            {
-                "status": {
-                    "id": status_id,
-                    "value": status_value
-                }
+        patch_data = json.dumps({
+            "status": {
+                "id": status_id,
+                "value": status_value
             }
-        )
+        })
 
         r = requests.patch(url=self.scans_queue_url, data=patch_data,
                            headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -519,6 +532,8 @@ class ScansAPI(object):
             self.update_queued_scan_status_by_scan_id(scan_id, status_id, status_value)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -558,6 +573,8 @@ class ScansAPI(object):
             self.get_all_scan_details_in_queue(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return all_scan_details_in_queue
 
@@ -619,6 +636,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return scan_settings
 
     def define_sast_scan_settings(self, project_id, preset_id=1, engine_configuration_id=1, post_scan_action_id=None,
@@ -677,6 +696,8 @@ class ScansAPI(object):
                                            failed_scan_emails, before_scan_emails, after_scan_emails)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return sast_scan_settings
 
@@ -740,6 +761,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return sast_scan_settings
 
     def define_sast_scan_scheduling_settings(self, project_id, schedule_type, schedule_days, schedule_time):
@@ -787,6 +810,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return is_successful
 
     def assign_ticket_to_scan_results(self, results_id, ticket_id):
@@ -827,6 +852,8 @@ class ScansAPI(object):
             self.assign_ticket_to_scan_results(results_id, ticket_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return is_successful
 
@@ -869,6 +896,8 @@ class ScansAPI(object):
             self.publish_last_scan_results_to_management_and_orchestration_by_project_id(project_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return policy_finding_response
 
@@ -926,6 +955,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return policy_finding_status
 
     def register_scan_report(self, scan_id, report_type):
@@ -981,6 +1012,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return scan_report
 
     def get_report_status_by_id(self, report_id):
@@ -1027,6 +1060,8 @@ class ScansAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return report_status
 
     def get_report_by_id(self, report_id):
@@ -1065,7 +1100,9 @@ class ScansAPI(object):
             self.get_report_by_id(report_id)
         else:
             raise UnknownHttpStatusError()
-        
+
+        self.retry = 0
+
         return report_content
 
     def is_scanning_finished(self, scan_id):

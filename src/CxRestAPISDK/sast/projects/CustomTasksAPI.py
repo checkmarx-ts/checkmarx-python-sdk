@@ -68,6 +68,8 @@ class CustomTasksAPI(object):
         else:
             raise UnknownHttpStatusError()
 
+        self.retry = 0
+
         return custom_tasks
 
     def get_custom_task_id_by_name(self, task_name):
@@ -127,5 +129,7 @@ class CustomTasksAPI(object):
             self.get_custom_task_by_id(task_id)
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
 
         return custom_task

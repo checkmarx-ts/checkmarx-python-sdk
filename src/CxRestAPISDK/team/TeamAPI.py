@@ -57,6 +57,9 @@ class TeamAPI(object):
             self.get_all_teams()
         else:
             raise UnknownHttpStatusError()
+
+        self.retry = 0
+
         return teams
 
     def get_team_id_by_team_full_name(self, team_full_name=CxConfig.CxConfig.config.team_full_name):
