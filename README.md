@@ -33,7 +33,7 @@ If you want to put config.ini in another location, set your own config.ini file 
 for CxConfig constructor at the end of CxConfig.py. This will load your own config.ini file when you import this package.
 
 ## 4. Run the examples
-There are 2 examples under Cx-REST-API-SDK-Python\examples - scan_from_local_zip.py and scan_from_git.py, which show detail scan process by REST API-project creation, remote source settings, SAST scan settings, report generation, etc. If you want to run them, please follow below instructions:
+There are 2 examples under Cx-REST-API-SDK-Python\examples - scan_from_local_zip.py and scan_from_git.py, which show detail scan process by REST API-project creation, remote source settings, SAST scan settings, report generation, etc. If you want to run them, please follow below steps:
 
  Scan from local zip file:
 ```Shell
