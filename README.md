@@ -8,7 +8,7 @@ With REST-based API provides the ability to manage all CxSAST and CxOSA related 
 
 # Installation Instructions:
 
-##1 Add Cx-REST-API-SDK-Python package into PYTHONPATH
+## 1. Add Cx-REST-API-SDK-Python package into PYTHONPATH
 Download Cx-REST-API-SDK-Python package from https://github.com/HappyY19/Cx-REST-API-SDK-Python
 
 Create "Checkmarx.pth" file under Python lib\site-packages, e.g. 
@@ -21,18 +21,18 @@ Add absolu1e path to Cx-REST-API-SDK-Python\src and add it into Checkmarx.pth fi
 C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python\src
 ```
 
-##2 Install third party libraries with pip install
+## 2. Install third party libraries with pip install
 
 ```Shell
 pip install -r Cx-REST-API-SDK-Python\requirements.txt
 ```
 
-##3 Change Checkmarx configuration as needed
+## 3. Change Checkmarx configuration as needed
 Set right username, password, team_full_name and other related info in Cx-REST-API-SDK-Python/config/config.ini.  
 If you want to put config.ini in another location, set your own config.ini file path
 for CxConfig constructor at the end of CxConfig.py. This will load your own config.ini file when you import this package.
 
-##4 Run the examples
+## 4. Run the examples
 Scan from local zip file:
 ```Shell
 python Cx-REST-API-SDK-Python\examples\scan_from_local_zip.py
