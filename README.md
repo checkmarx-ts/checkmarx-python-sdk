@@ -16,7 +16,7 @@ Create "Checkmarx.pth" file under Python lib\site-packages, e.g.
 C:\Users\hanba\AppData\Local\Programs\Python\Python37-32\Lib\site-packages\Checkmarx.pth
 ```
 
-Add absolu1e path to Cx-REST-API-SDK-Python\src and add it into Checkmarx.pth file, i.e
+Add absolute path to Cx-REST-API-SDK-Python\src and add it into Checkmarx.pth file, i.e
 ```Shell
 C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python\src
 ```
@@ -33,15 +33,19 @@ If you want to put config.ini in another location, set your own config.ini file 
 for CxConfig constructor at the end of CxConfig.py. This will load your own config.ini file when you import this package.
 
 ## 4. Run the examples
-Scan from local zip file:
+There are 2 examples under Cx-REST-API-SDK-Python\examples - scan_from_local_zip.py and scan_from_git.py, which show detail scan process by REST API-project creation, remote source settings, SAST scan settings, report generation, etc. If you want to run them, please follow below instructions:
+
+ Scan from local zip file:
 ```Shell
-python Cx-REST-API-SDK-Python\examples\scan_from_local_zip.py
+python \scan_from_local_zip.py
 ``` 
 
 Scan from git:
 ```Shell
 python Cx-REST-API-SDK-Python\examples\scan_from_git.py
 ``` 
+
+
 
 # The CxSAST and CxOSA REST API list
 
