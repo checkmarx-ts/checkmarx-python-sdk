@@ -1,8 +1,6 @@
 # encoding: utf-8
 import json
 
-from src.CxRestAPISDK.sast.projects.dto.customFields import CxCustomField
-
 
 class CxUpdateProjectRequest(object):
     """
