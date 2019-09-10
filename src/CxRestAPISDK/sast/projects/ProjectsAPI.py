@@ -1433,8 +1433,8 @@ class ProjectsAPI(object):
         m = MultipartEncoder(
             fields={
                 "absoluteUrl": absolute_url,
-                "port": port,
-                "paths": paths,
+                "port": str(port),
+                "paths": str(paths),
                 "privateKey": (file_name, open(private_key_file_path, "rb"), "text/plain")
             }
         )
