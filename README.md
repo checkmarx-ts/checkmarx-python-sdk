@@ -15,18 +15,18 @@ Download and unzip Cx-REST-API-SDK-Python package from https://github.com/HappyY
 
 Create "Checkmarx.pth" file under Python lib\site-packages, e.g. 
 ```Shell
-C:\Users\hanba\AppData\Local\Programs\Python\Python37-32\Lib\site-packages\Checkmarx.pth
+<Python Installation Path>\Lib\site-packages\Checkmarx.pth
 ```
 
 Add absolute path to Cx-REST-API-SDK-Python\src and add it into Checkmarx.pth file, i.e
 ```Shell
-C:\Users\HappyY\Downloads\SourceCode\GitHub\Cx-REST-API-SDK-Python\src
+<Path to Cx-REST-API-SDK-Python>\src\src
 ```
 
 ## 2. Install third party libraries with pip install
 
 ```Shell
-pip install -r Cx-REST-API-SDK-Python\requirements.txt
+pip install -r <Path to Cx-REST-API-SDK-Python>\requirements.txt
 ```
 
 ## 3. Change Checkmarx configuration as needed
