@@ -114,7 +114,7 @@ class OsaAPI(object):
         v8.4.2 and up
 
         Args:
-            scan_id (int): Unique Id of the OSA scan
+            scan_id (str): Unique Id of the OSA scan
 
         Returns:
            CxOsaScanDetail:
