@@ -78,7 +78,7 @@ class TeamAPI(object):
         # construct a dict of {team_full_name: team_id}
         team_full_name_id_dict = {item.full_name: item.team_id for item in all_teams}
 
-        team_id = team_full_name_id_dict.get(Path(team_full_name))
+        team_id = team_full_name_id_dict.get(Path(team_full_name.replace("\\", "/")))
         TeamAPI.default_team_id = team_id
 
         return team_id
