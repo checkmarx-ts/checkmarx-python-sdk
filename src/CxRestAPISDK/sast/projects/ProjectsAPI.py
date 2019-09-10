@@ -561,7 +561,7 @@ class ProjectsAPI(object):
                 issue_type = issue_types[0] if issue_types else {}
                 fields = issue_type.get("fields")
                 field = fields[0] if fields else {}
-                allowed_values = field.get("allowedValues")
+                allowed_values = field.get("allowedValues", []) or []
 
                 c = CxIssueTrackingSystemFieldAllowedValue
 
