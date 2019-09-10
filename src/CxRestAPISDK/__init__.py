@@ -1,4 +1,12 @@
 # encoding: utf-8
+"""
+    CxRestAPISDK
+
+    A Checkmarx REST API SDK implemented in Python.
+
+    :copyright: Checkmarx
+    :license: MIT
+"""
 
 from .team.TeamAPI import TeamAPI
 from .auth.AuthenticationAPI import AuthenticationAPI
