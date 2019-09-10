@@ -4,12 +4,14 @@ A Checkmarx REST API SDK written in Python.
 CxSAST and CxOSA provides scan results either as static reports, or in an interactive interface that enables tracking runtime behavior per vulnerability through the code, and provides tools and guidelines for remediation. Results can be customized to eliminate false positives, and various types of workflow metadata can be added to each result instance. Metadata is maintained through subsequent scans, as long as the instance continues to be found.
 
 # Introduction
-With REST-based API provides the ability to manage all CxSAST and CxOSA related tasks. The following data can be consumed through the REST API; Login, Projects, Scans, Scan Results, Scan Reports, Engines, Managing Users, Data Retention and Open Source Analysis. For more information about the REST API, refer to the CxSAST (REST) API Summary:https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API and CxOSA(REST) API Summary:https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
+With REST-based API provides the ability to manage all CxSAST and CxOSA related tasks. The following data can be consumed through the REST API; Login, Projects, Scans, Scan Results, Scan Reports, Engines, Managing Users, Data Retention and Open Source Analysis. For more information about the REST API, refer to：
+CxSAST (REST) API Summary:https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API 
+CxOSA(REST) API Summary:https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
 
 # Installation Instructions:
+Download and unzip Cx-REST-API-SDK-Python package from https://github.com/HappyY19/Cx-REST-API-SDK-Python
 
 ## 1. Add Cx-REST-API-SDK-Python package into PYTHONPATH
-Download Cx-REST-API-SDK-Python package from https://github.com/HappyY19/Cx-REST-API-SDK-Python
 
 Create "Checkmarx.pth" file under Python lib\site-packages, e.g. 
 ```Shell
