@@ -540,7 +540,6 @@ class ScansAPI(object):
     def get_all_scan_details_in_queue(self, project_id=None):
         """
         Get details of all SAST scans in the scans queue.
-        :return:
 
         Args:
             project_id （int): Unique Id of the project
@@ -904,8 +903,6 @@ class ScansAPI(object):
     def get_the_publish_last_scan_results_to_management_and_orchestration_status(self, project_id):
         """
         Get the status of publish last scan results to Management and Orchestration layer for a specific project.
-        :param project_id:
-        :return:
 
         Args:
             project_id (int): Unique Id of the project
@@ -1067,8 +1064,6 @@ class ScansAPI(object):
     def get_report_by_id(self, report_id):
         """
         Get the specified report once generated.
-        :param report_id:
-        :return:
 
         Args:
             report_id (int): Unique Id of the report
