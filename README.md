@@ -39,7 +39,7 @@ There are 2 examples under Cx-REST-API-SDK-Python\examples - scan_from_local_zip
 
  Scan from local zip file:
 ```Shell
-python \scan_from_local_zip.py
+python Cx-REST-API-SDK-Python\examples\scan_from_local_zip.py
 ``` 
 
 Scan from git:
