@@ -20,7 +20,7 @@ Create "Checkmarx.pth" file under Python lib\site-packages, e.g.
 
 Add absolute path to Cx-REST-API-SDK-Python\src and add it into Checkmarx.pth file, i.e
 ```Shell
-<Path to Cx-REST-API-SDK-Python>\src\src
+<Path to Cx-REST-API-SDK-Python>\src
 ```
 
 ## 2. Install third party libraries with pip install
