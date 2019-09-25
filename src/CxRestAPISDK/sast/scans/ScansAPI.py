@@ -512,10 +512,7 @@ class ScansAPI(object):
         self.scans_queue_url = self.scans_queue_url.format(id=scan_id)
 
         patch_data = json.dumps({
-            "status": {
-                "id": status_id,
-                "value": status_value
-            }
+            "status": "Canceled"
         })
 
         r = requests.patch(url=self.scans_queue_url, data=patch_data,
