@@ -507,7 +507,7 @@ class ScansAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO check why always HTTP 400
+
         is_successful = False
         self.scans_queue_url = self.scans_queue_url.format(id=scan_id)
 
@@ -636,7 +636,7 @@ class ScansAPI(object):
 
         return scan_settings
 
-    def define_sast_scan_settings(self, project_id, preset_id=1, engine_configuration_id=1, post_scan_action_id=None,
+    def define_sast_scan_settings(self, project_id, preset_id, engine_configuration_id=1, post_scan_action_id=None,
                                   failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None):
         """
         Define the SAST scan settings according to a project (preset and engine configuration).

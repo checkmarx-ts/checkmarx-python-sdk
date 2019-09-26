@@ -26,7 +26,7 @@ from CxRestAPISDK import ScansAPI
 
 def scan_from_local():
 
-    team_full_name = "/CxServer"
+    team_full_name = "/CxServer/SP/Company/Users"
     project_name = "jvl_local"
     zip_file_path = Path(__file__).parent.absolute() / "JavaVulnerableLab-master.zip"
     report_name = "local_report.xml"
@@ -52,7 +52,8 @@ def scan_from_local():
     projects_api.set_data_retention_settings_by_project_id(project_id=project_id, scans_to_keep=3)
 
     # 7. define SAST scan settings
-    scan_api.define_sast_scan_settings(project_id=project_id)
+    preset_id = projects_api.get_preset_id_by_name()
+    scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 
     # 8. create new scan, will get a scan id
     scan = scan_api.create_new_scan(project_id=project_id)

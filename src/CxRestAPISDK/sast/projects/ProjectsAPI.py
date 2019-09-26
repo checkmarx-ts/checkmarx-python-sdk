@@ -543,7 +543,6 @@ class ProjectsAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO Check, when have jira
         issue_tracking_system = None
 
         self.issue_tracking_systems_metadata_url = self.issue_tracking_systems_metadata_url.format(
@@ -932,7 +931,6 @@ class ProjectsAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO, check, when have TFS environment
 
         tfs_settings = None
 
@@ -989,7 +987,6 @@ class ProjectsAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO, check, when have TFS environment
         is_successful = False
 
         if project_id:
@@ -1238,7 +1235,6 @@ class ProjectsAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO, check, when have perforce environment
         perforce_settings = None
 
         if project_id:
@@ -1302,7 +1298,6 @@ class ProjectsAPI(object):
             NotFoundError
             UnknownHttpStatusError
         """
-        # TODO, check, when have perforce environment
 
         is_successful = False
 
@@ -1654,7 +1649,7 @@ class ProjectsAPI(object):
 
         return all_preset_details
 
-    def get_preset_id_by_name(self, preset_name):
+    def get_preset_id_by_name(self, preset_name=CxConfig.CxConfig.config.scan_preset):
         """
 
         Args:
