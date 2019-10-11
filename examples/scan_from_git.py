@@ -25,7 +25,7 @@ from CxRestAPISDK import ScansAPI
 
 
 def scan_from_git():
-    team_full_name = "/CxServer"
+    team_full_name = "/CxServer/SP/Company/Users"
     project_name = "jvl_git"
     report_name = "report.xml"
 
@@ -55,12 +55,21 @@ def scan_from_git():
     preset_id = projects_api.get_preset_id_by_name()
     scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 
+    projects_api.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern="",
+                                                            exclude_files_pattern="")
+
     # 8. create new scan, will get a scan id
     scan = scan_api.create_new_scan(project_id=project_id)
     scan_id = scan.id
 
     # 9. get scan details by scan id
-    while not scan_api.is_scanning_finished(scan_id):
+    while True:
+        scan_detail = scan_api.get_sast_scan_details_by_scan_id(scan_id=scan_id)
+        scan_status = scan_detail.status.name
+        if scan_status == "Finished":
+            break
+        elif scan_status == "Failed":
+            return
         time.sleep(1)
 
     # 11[optional]. get statistics results by scan id

@@ -60,7 +60,13 @@ def scan_from_local():
     scan_id = scan.id
 
     # 9. get scan details by scan id
-    while not scan_api.is_scanning_finished(scan_id):
+    while True:
+        scan_detail = scan_api.get_sast_scan_details_by_scan_id(scan_id=scan_id)
+        scan_status = scan_detail.status.name
+        if scan_status == "Finished":
+            break
+        elif scan_status == "Failed":
+            return
         time.sleep(1)
 
     # 11[optional]. get statistics results by scan id
