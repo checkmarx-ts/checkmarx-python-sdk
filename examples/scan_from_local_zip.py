@@ -26,7 +26,7 @@ from CxRestAPISDK import ScansAPI
 
 def scan_from_local():
 
-    team_full_name = "/CxServer/SP/Company/Users"
+    team_full_name = "/CxServer"
     project_name = "jvl_local"
     zip_file_path = Path(__file__).parent.absolute() / "JavaVulnerableLab-master.zip"
     report_name = "local_report.xml"

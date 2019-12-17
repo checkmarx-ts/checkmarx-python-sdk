@@ -25,7 +25,7 @@ from CxRestAPISDK import ScansAPI
 
 
 def scan_from_git():
-    team_full_name = "/CxServer/SP/Company/Users"
+    team_full_name = "/CxServer"
     project_name = "jvl_git"
     report_name = "report.xml"
 
