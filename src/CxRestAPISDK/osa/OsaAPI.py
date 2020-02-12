@@ -9,7 +9,7 @@ from requests_toolbelt import MultipartEncoder
 
 from ..auth import AuthenticationAPI
 from ..config import CxConfig
-from ..exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto import (
     CxOsaScanDetail, CxOsaState, CxOsaLicense, CxOsaLibrary, CxOsaMatchType,
     CxOsaLocation, CxOsaSeverity, CxOsaVulnerability, CxOsaVulnerabilityState,
@@ -49,7 +49,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         osa_scan_details = None
 
@@ -86,7 +86,7 @@ class OsaAPI(object):
             self.retry += 1
             self.get_all_osa_scan_details_for_project(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return osa_scan_details
 
@@ -122,7 +122,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         osa_scan_detail = None
 
@@ -154,7 +154,7 @@ class OsaAPI(object):
             self.retry += 1
             self.get_osa_scan_by_scan_id(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return osa_scan_detail
 
@@ -174,7 +174,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         scan_id = None
 
@@ -202,7 +202,7 @@ class OsaAPI(object):
             self.retry += 1
             self.create_an_osa_scan_request(project_id, zipped_source_path, origin)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return scan_id
 
@@ -217,7 +217,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
 
         """
         file_extensions = None
@@ -252,7 +252,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         licenses = None
 
@@ -286,7 +286,7 @@ class OsaAPI(object):
             self.retry += 1
             self.get_osa_licenses_by_id(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return licenses
 
@@ -304,7 +304,7 @@ class OsaAPI(object):
         Raise:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         libraries = None
 
@@ -365,7 +365,7 @@ class OsaAPI(object):
             self.retry += 1
             self.get_osa_scan_libraries(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return libraries
 
@@ -389,7 +389,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
 
         """
         vulnerabilities = None
@@ -443,7 +443,7 @@ class OsaAPI(object):
             self.retry += 1
             self.get_osa_scan_vulnerabilities_by_id(scan_id, library_id, state_id, comment, since, until)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return vulnerabilities
 
@@ -478,7 +478,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         comment = None
 
@@ -509,7 +509,7 @@ class OsaAPI(object):
             self.retry += 1
             self.get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return comment
 
@@ -527,7 +527,7 @@ class OsaAPI(object):
         Raises:
             BadRequestError:
             NotFoundError:
-            UnknownHttpStatusError:
+            CxError:
         """
         report = None
 
@@ -560,6 +560,6 @@ class OsaAPI(object):
             self.retry += 1
             self.get_osa_scan_summary_report(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         return report

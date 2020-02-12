@@ -5,7 +5,7 @@ import requests
 
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto.customTasks import CxCustomTask
 from .dto import CxLink
 
@@ -33,7 +33,7 @@ class CustomTasksAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         custom_tasks = []
@@ -66,7 +66,7 @@ class CustomTasksAPI(object):
             self.retry += 1
             self.get_all_custom_tasks()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -99,7 +99,7 @@ class CustomTasksAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         custom_task = None
         custom_task_url = self.custom_task_url.format(id=task_id)
@@ -128,7 +128,7 @@ class CustomTasksAPI(object):
             self.retry += 1
             self.get_custom_task_by_id(task_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

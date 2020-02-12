@@ -153,5 +153,5 @@ python Cx-REST-API-SDK-Python\examples\scan_from_git.py
 10. possible Exceptions
     - BadRequestError                                                          **(provided by SDK)**
     - NotFoundError                                                            **(provided by SDK)**
-    - UnknownHttpStatusError                                                   **(provided by SDK)**
+    - CxError                                                   **(provided by SDK)**
 

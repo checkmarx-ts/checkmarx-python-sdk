@@ -12,7 +12,7 @@ from pathlib import Path
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...team.TeamAPI import TeamAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
     CxIssueTrackingSystemDetail, CxSharedRemoteSourceSettingsRequest, CxIssueTrackingSystemField, \
     CxSharedRemoteSourceSettingsResponse, CxGitSettings, \
@@ -72,7 +72,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         all_projects = []
 
@@ -108,7 +108,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_all_project_details()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -131,7 +131,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         project = None
 
@@ -159,7 +159,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.create_project_with_default_configuration(project_name, team_id, is_public)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -200,7 +200,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         project = None
@@ -233,7 +233,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_project_details_by_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -255,7 +255,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.project_url = self.project_url.format(id=project_id)
@@ -281,7 +281,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.update_project_by_id(project_id, project_name, team_id, custom_fields)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -302,7 +302,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         is_successful = False
@@ -329,7 +329,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.update_project_name_team_id(project_id, project_name, team_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -350,7 +350,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.project_url = self.project_url.format(id=project_id)
@@ -372,7 +372,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.delete_project_by_id(project_id, delete_running_scans)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -436,7 +436,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         project = None
@@ -466,7 +466,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.create_branched_project(project_id, branched_project_name)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -482,7 +482,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         issue_tracking_systems = []
@@ -508,7 +508,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_all_issue_tracking_systems()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -541,7 +541,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         issue_tracking_system = None
 
@@ -603,7 +603,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_issue_tracking_system_details_by_id(issue_tracking_system_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -622,7 +622,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         project_exclude_settings = None
@@ -650,7 +650,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_project_exclude_settings_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -674,7 +674,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.exclude_settings_url = self.exclude_settings_url.format(id=project_id)
@@ -697,7 +697,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern, exclude_files_pattern)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -716,7 +716,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         git_settings = None
 
@@ -743,7 +743,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_remote_source_settings_for_git_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -770,7 +770,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         is_successful = False
@@ -795,7 +795,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.set_remote_source_setting_to_git(project_id, url, branch, private_key)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -814,7 +814,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         svn_settings = None
@@ -845,7 +845,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_remote_source_settings_for_svn_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -876,7 +876,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.remote_settings_svn_url = self.remote_settings_svn_url.format(id=project_id)
@@ -910,7 +910,7 @@ class ProjectsAPI(object):
             self.set_remote_source_settings_to_svn(project_id, absolute_url, port, paths, username, password,
                                                    private_key)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -929,7 +929,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         tfs_settings = None
@@ -960,7 +960,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_remote_source_settings_for_tfs_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -985,7 +985,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
 
@@ -1020,7 +1020,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.set_remote_source_settings_to_tfs(project_id, username, password, absolute_url, port, paths)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1042,7 +1042,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         custom_remote_setting = None
 
@@ -1068,7 +1068,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_remote_source_settings_for_custom_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1094,7 +1094,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.remote_settings_custom_url = self.remote_settings_custom_url.format(id=project_id)
@@ -1121,7 +1121,7 @@ class ProjectsAPI(object):
             self.set_remote_source_setting_for_custom_by_project_id(project_id, path,
                                                                     pre_scan_command_id, username, password)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1140,7 +1140,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         shared_source_setting = None
         self.remote_settings_shared_url = self.remote_settings_shared_url.format(id=project_id)
@@ -1164,7 +1164,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_remote_source_settings_for_shared_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1187,7 +1187,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
 
@@ -1214,7 +1214,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.set_remote_source_settings_to_shared(project_id, paths, username, password)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1233,7 +1233,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         perforce_settings = None
 
@@ -1268,7 +1268,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_remote_source_settings_for_perforce_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1296,7 +1296,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         is_successful = False
@@ -1334,7 +1334,7 @@ class ProjectsAPI(object):
             self.set_remote_source_settings_to_perforce(project_id, username, password, absolute_url, port, paths,
                                                         browse_mode)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1357,7 +1357,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
 
@@ -1391,7 +1391,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.set_remote_source_setting_to_git_using_ssh(project_id, url, branch, private_key_file_path)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1416,7 +1416,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         # TODO check, when have svn + ssh
@@ -1448,7 +1448,7 @@ class ProjectsAPI(object):
             self.set_remote_source_setting_to_svn_using_ssh(project_id, absolute_url, port, paths,
                                                             private_key_file_path)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1468,7 +1468,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.attachments_url = self.attachments_url.format(id=project_id)
@@ -1495,7 +1495,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.upload_source_code_zip_file(project_id, zip_file_path)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1515,7 +1515,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
 
@@ -1541,7 +1541,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.set_data_retention_settings_by_project_id(project_id, scans_to_keep)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1566,7 +1566,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         # TODO, check when have jira
 
@@ -1599,7 +1599,7 @@ class ProjectsAPI(object):
             self.set_issue_tracking_system_as_jira_by_id(project_id, issue_tracking_system_id, jira_project_id,
                                                          issue_type_id, jira_fields)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1615,7 +1615,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         all_preset_details = []
@@ -1643,7 +1643,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_all_preset_details()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1675,7 +1675,7 @@ class ProjectsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         preset = None
         self.preset_url = self.preset_url.format(id=preset_id)
@@ -1703,7 +1703,7 @@ class ProjectsAPI(object):
             self.retry += 1
             self.get_preset_details_by_preset_id(preset_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

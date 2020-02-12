@@ -6,7 +6,7 @@ import json
 
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
 from ...sast.projects.dto import CxLink, CxProject
 from ...sast.projects.dto.presets import CxPreset
 from ...sast.engines.dto import CxEngineServer, CxEngineConfiguration
@@ -136,7 +136,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         all_scans = []
@@ -169,7 +169,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_all_scans_for_project(project_id, scan_status, last)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -212,7 +212,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         scan = None
 
@@ -241,7 +241,7 @@ class ScansAPI(object):
             self.retry += 1
             self.create_new_scan(project_id, is_incremental, is_public, force_scan, comment)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -260,7 +260,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         scan_detail = None
 
@@ -279,7 +279,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_sast_scan_details_by_scan_id(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -299,7 +299,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
 
@@ -322,7 +322,7 @@ class ScansAPI(object):
             self.retry += 1
             self.add_or_update_a_comment_by_scan_id(scan_id, comment)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -341,7 +341,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.sast_scan_url = self.sast_scan_url.format(id=scan_id)
@@ -357,7 +357,7 @@ class ScansAPI(object):
             self.retry += 1
             self.delete_scan_by_scan_id(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -376,7 +376,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         statistics = None
 
@@ -400,7 +400,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_statistics_results_by_scan_id(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -465,7 +465,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         scan_queue_details = None
 
@@ -483,7 +483,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_scan_queue_details_by_scan_id(scan_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -505,7 +505,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         is_successful = False
@@ -528,7 +528,7 @@ class ScansAPI(object):
             self.retry += 1
             self.update_queued_scan_status_by_scan_id(scan_id, status_id, status_value)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -547,7 +547,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
 
         all_scan_details_in_queue = None
@@ -568,7 +568,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_all_scan_details_in_queue(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -584,7 +584,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         scan_settings = None
         self.scan_settings_url = self.scan_settings_url.format(projectId=project_id)
@@ -630,7 +630,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_scan_settings_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -657,7 +657,7 @@ class ScansAPI(object):
         Raises：
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         sast_scan_settings = None
 
@@ -691,7 +691,7 @@ class ScansAPI(object):
             self.define_sast_scan_settings(project_id, preset_id, engine_configuration_id, post_scan_action_id,
                                            failed_scan_emails, before_scan_emails, after_scan_emails)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -721,7 +721,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         sast_scan_settings = None
 
@@ -755,7 +755,7 @@ class ScansAPI(object):
             self.update_sast_scan_settings(project_id, preset_id, engine_configuration_id, post_scan_action_id,
                                            failed_scan_emails, before_scan_emails, after_scan_emails)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -780,7 +780,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         self.schedule_settings_url = self.schedule_settings_url.format(projectId=project_id)
@@ -804,7 +804,7 @@ class ScansAPI(object):
             self.retry += 1
             self.define_sast_scan_scheduling_settings(project_id, schedule_type, schedule_days, schedule_time)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -824,7 +824,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         post_body_data = json.dumps(
@@ -847,7 +847,7 @@ class ScansAPI(object):
             self.retry += 1
             self.assign_ticket_to_scan_results(results_id, ticket_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -867,7 +867,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         policy_finding_response = None
 
@@ -891,7 +891,7 @@ class ScansAPI(object):
             self.retry += 1
             self.publish_last_scan_results_to_management_and_orchestration_by_project_id(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -910,7 +910,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         policy_finding_status = None
@@ -947,7 +947,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_the_publish_last_scan_results_to_management_and_orchestration_status(project_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -967,7 +967,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         scan_report = None
         post_body = json.dumps(
@@ -1004,7 +1004,7 @@ class ScansAPI(object):
             self.retry += 1
             self.register_scan_report(scan_id, report_type)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1024,7 +1024,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         report_status = None
 
@@ -1052,7 +1052,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_report_status_by_id(report_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -1071,7 +1071,7 @@ class ScansAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         report_content = None
@@ -1091,7 +1091,7 @@ class ScansAPI(object):
             self.retry += 1
             self.get_report_by_id(report_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

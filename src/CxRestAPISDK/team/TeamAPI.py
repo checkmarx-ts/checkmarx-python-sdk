@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ..auth import AuthenticationAPI
 from ..config import CxConfig
-from ..exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto import CxTeam
 
 
@@ -35,7 +35,7 @@ class TeamAPI(object):
         Raises:
             BadRequestError
             notFoundError
-            UnknownHttpStatusError
+            CxError
         """
         teams = []
         r = requests.get(TeamAPI.teams_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -56,7 +56,7 @@ class TeamAPI(object):
             self.retry += 1
             self.get_all_teams()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

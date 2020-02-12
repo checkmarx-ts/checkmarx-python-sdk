@@ -46,17 +46,3 @@ class NotFoundError(CxError):
 
     def __str__(self):
         super().__str__()
-
-
-class UnknownHttpStatusError(CxError):
-    """
-    not valid http status
-    """
-
-    def __init__(self):
-        super().__init__("Unknown HTTP Status", 1)
-
-    def __str__(self):
-        return "UnknownHttpStatusError(http_code={}, msg={})".format(
-            self.code, self.msg
-        )

@@ -17,4 +17,4 @@ from .sast.scans.ScansAPI import ScansAPI
 from .sast.dataRetention.DataRetentionAPI import DataRetentionAPI
 from .sast.engines.EnginesAPI import EnginesAPI
 from .osa.OsaAPI import OsaAPI
-from .exceptions.CxError import (BadRequestError, NotFoundError, UnknownHttpStatusError)
+from .exceptions.CxError import (BadRequestError, NotFoundError, CxError)

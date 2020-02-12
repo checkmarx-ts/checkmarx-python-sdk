@@ -6,7 +6,7 @@ import http
 
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
 from ..projects.dto import CxLink
 from .dto import (CxRegisterEngineRequestBody, CxEngineServer, CxEngineConfiguration, CxEngineServerStatus)
 
@@ -35,7 +35,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         all_engine_server_details = None
         r = requests.get(url=self.engine_servers_url,
@@ -70,7 +70,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.get_all_engine_server_details()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -105,7 +105,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         engine_server = None
 
@@ -138,7 +138,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.register_engine(name, uri, min_loc, max_loc, is_blocked)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -157,7 +157,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
 
@@ -175,7 +175,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.unregister_engine_by_engine_id(engine_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -194,7 +194,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         engine_server = None
 
@@ -228,7 +228,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.get_engine_details(engine_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -253,7 +253,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         engine_server = None
 
@@ -288,7 +288,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -304,7 +304,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
 
         """
         all_engine_configurations = None
@@ -328,7 +328,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.get_all_engine_configurations()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -360,7 +360,7 @@ class EnginesAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         engine_configuration = None
 
@@ -381,7 +381,7 @@ class EnginesAPI(object):
             self.retry += 1
             self.get_engine_configuration_by_id(configuration_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

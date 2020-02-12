@@ -6,7 +6,7 @@ import http
 
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
 from ..projects.dto import CxLink
 from .dto import (
     CxDefineDataRetentionNumberOfScansRequest,
@@ -44,7 +44,7 @@ class DataRetentionAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         is_successful = False
         r = requests.post(url=self.stop_data_retention_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -59,7 +59,7 @@ class DataRetentionAPI(object):
             self.retry += 1
             self.stop_data_retention()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -80,7 +80,7 @@ class DataRetentionAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         # TODO, check why response content is empty byte
         data_retention = None
@@ -113,7 +113,7 @@ class DataRetentionAPI(object):
             self.retry += 1
             self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -133,7 +133,7 @@ class DataRetentionAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         # TODO, check why response content is empty byte
         data_retention = None
@@ -165,7 +165,7 @@ class DataRetentionAPI(object):
             self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
                                                           duration_limit_in_hours)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 
@@ -186,7 +186,7 @@ class DataRetentionAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         data_detention_request_status = None
         self.data_retention_request_status_url = self.data_retention_request_status_url.format(requestId=request_id)
@@ -215,7 +215,7 @@ class DataRetentionAPI(object):
             self.retry += 1
             self.get_data_retention_request_status(request_id)
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

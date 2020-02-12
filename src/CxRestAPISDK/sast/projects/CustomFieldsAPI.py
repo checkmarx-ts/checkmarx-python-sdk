@@ -5,7 +5,7 @@ import requests
 
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, UnknownHttpStatusError
+from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto.customFields import CxCustomField
 
 
@@ -33,7 +33,7 @@ class CustomFieldsAPI(object):
         Raises:
             BadRequestError
             NotFoundError
-            UnknownHttpStatusError
+            CxError
         """
         custom_fields = []
 
@@ -57,7 +57,7 @@ class CustomFieldsAPI(object):
             self.retry += 1
             self.get_all_custom_fields()
         else:
-            raise UnknownHttpStatusError()
+            raise CxError(r.text, r.status_code)
 
         self.retry = 0
 

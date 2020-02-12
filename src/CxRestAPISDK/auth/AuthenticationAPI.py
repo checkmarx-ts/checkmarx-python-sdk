@@ -3,7 +3,7 @@ import http
 import requests
 
 from ..config import CxConfig
-from ..exceptions.CxError import BadRequestError, UnknownHttpStatusError
+from ..exceptions.CxError import BadRequestError, CxError
 from .dto import (CxAuthRequest, CxAuthResponse)
 
 
@@ -51,7 +51,7 @@ class AuthenticationAPI(object):
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
             raise BadRequestError(r.text)
         else:
-            raise UnknownHttpStatusError
+            raise CxError(r.text, r.status_code)
 
         return AuthenticationAPI.auth_headers
 
