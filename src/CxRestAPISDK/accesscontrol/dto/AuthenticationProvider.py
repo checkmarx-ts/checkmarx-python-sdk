@@ -1,19 +1,20 @@
+# encoding: utf-8
 
 
 class AuthenticationProvider(object):
 
-    def __init__(self, id, name, provider_id, provider_type, is_external, active):
+    def __init__(self, authentication_provider_id, name, provider_id, provider_type, is_external, active):
         """
 
         Args:
-            id:
-            name:
-            provider_id:
-            provider_type:
-            is_external:
-            active:
+            authentication_provider_id (int):
+            name (str):
+            provider_id (int):
+            provider_type (str):
+            is_external (bool):
+            active (bool):
         """
-        self.id = id
+        self.id = authentication_provider_id
         self.name = name
         self.provider_id = provider_id
         self.provider_type = provider_type
