@@ -21,8 +21,8 @@ class TeamAPI(object):
     default_team_id = None
 
     def __init__(self):
-        self.get_all_teams()
         self.retry = 0
+        self.get_all_teams()
         self.get_team_id_by_team_full_name()
 
     def get_all_teams(self):
