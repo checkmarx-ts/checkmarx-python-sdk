@@ -19,9 +19,9 @@ import time
 
 from pathlib import Path
 
-from CxRestAPISDK import TeamAPI
-from CxRestAPISDK import ProjectsAPI
-from CxRestAPISDK import ScansAPI
+from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
+from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
+from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
 
 
 def scan_from_git():
