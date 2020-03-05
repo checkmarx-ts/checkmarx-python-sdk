@@ -1,53 +1,52 @@
-# Cx-REST-API-SDK-Python
-A Checkmarx REST API SDK written in Python.
+# Checkmarx Python SDK
+This is a Checkmarx Python SDK. By using this SDK, Checkmarx users will be able to do automatic scanning with CxSAST and CxOSA.
+This SDK uses Python requests package to initiate HTTP requests to do related CxSAST and CxOSA scanning, and reports generation.
 
-CxSAST and CxOSA provides scan results either as static reports, or in an interactive interface that enables tracking runtime behavior per vulnerability through the code, and provides tools and guidelines for remediation. Results can be customized to eliminate false positives, and various types of workflow metadata can be added to each result instance. Metadata is maintained through subsequent scans, as long as the instance continues to be found.
 
-# Introduction
-With REST-based API provides the ability to manage all CxSAST and CxOSA related tasks. The following data can be consumed through the REST API; Login, Projects, Scans, Scan Results, Scan Reports, Engines, Managing Users, Data Retention and Open Source Analysis. For more information about the REST API, refer to：
-CxSAST (REST) API Summary:https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API 
-CxOSA(REST) API Summary:https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
+# REST API Official Documents
+For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center： 
+CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
+CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
 
-# Installation Instructions:
-Download and unzip Cx-REST-API-SDK-Python package from https://github.com/HappyY19/Cx-REST-API-SDK-Python
-
-## 1. Add Cx-REST-API-SDK-Python package into PYTHONPATH
-
-Create "Checkmarx.pth" file under Python lib\site-packages, e.g. 
-```Shell
-<Python Installation Path>\Lib\site-packages\Checkmarx.pth
+# Quick Start
+First, Download and unzip this repository or clone this repository to your local drive.  
+```
+$ git clone https://github.com/checkmarx-ts/checkmarx-python-sdk.git
 ```
 
-Add absolute path to Cx-REST-API-SDK-Python\src and add it into Checkmarx.pth file, i.e
-```Shell
-<Path to Cx-REST-API-SDK-Python>\src
+Next, install the library
+```
+$ pip install <Path to checkmarx-python-sdk>/dist/CheckmarxPythonSDK-0.0.1.tar.gz
 ```
 
-## 2. Install third party libraries with pip install
-
-```Shell
-pip install -r <Path to Cx-REST-API-SDK-Python>\requirements.txt
+Next, set up configuration (in e.g. ~/.Checkmarx/config, or C:\\Users\\Administrator\\.Checkmarx\\config)
+```buildoutcfg
+[checkmarx]
+base_url = http://localhost:80
+username = ******
+password = ******
+grant_type = password
+scope = sast_rest_api access_control_api
+client_id = resource_owner_client
+client_secret = 014DF517-39D1-4453-B7B3-9930C563627C
+url =  %(base_url)s/cxrestapi
+scan_preset = Checkmarx Default
+configuration = Default Configuration
+team_full_name = /CxServer
+max_try = 3
 ```
 
-## 3. Change Checkmarx configuration as needed
-Set right username, password, team_full_name and other related info in Cx-REST-API-SDK-Python/config/config.ini.  
-If you want to put config.ini in another location, set your own config.ini file path
-for CxConfig constructor at the end of CxConfig.py. This will load your own config.ini file when you import this package.
-
-## 4. Run the examples
-There are 2 examples under Cx-REST-API-SDK-Python\examples - scan_from_local_zip.py and scan_from_git.py, which show detail scan process by REST API-project creation, remote source settings, SAST scan settings, report generation, etc. If you want to run them, please follow below steps:
-
- Scan from local zip file:
+# Examples
+ 
+ Example 1: Scan from local zip file:
 ```Shell
-python Cx-REST-API-SDK-Python\examples\scan_from_local_zip.py
+python <Path to checkmarx-python-sdk>\examples\scan_from_local_zip.py
 ``` 
 
-Scan from git:
+Example 2: Scan from git:
 ```Shell
-python Cx-REST-API-SDK-Python\examples\scan_from_git.py
+python <Path to checkmarx-python-sdk>\examples\scan_from_git.py
 ``` 
-
-
 
 # The CxSAST and CxOSA REST API list
 
