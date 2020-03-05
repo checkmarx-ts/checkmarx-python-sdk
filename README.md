@@ -8,6 +8,9 @@ For more information about Checkmarx REST API, please refer to Checkmarx knowled
 CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
 CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
 
+# Notice
+Please use Python3
+
 # Quick Start
 First, Download and unzip this repository or clone this repository to your local drive.  
 ```
