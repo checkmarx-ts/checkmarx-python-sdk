@@ -19,7 +19,7 @@ Next, install the library
 $ pip install CheckmarxPythonSDK
 ```
 
-Next, set up configuration (in e.g. ~/.Checkmarx/config, or C:\\Users\\Administrator\\.Checkmarx\\config)
+Next, set up configuration (in e.g. ~/.Checkmarx/config.ini, or C:\\Users\\Administrator\\.Checkmarx\\config.ini)
 ```buildoutcfg
 [checkmarx]
 base_url = http://localhost:80
