@@ -40,12 +40,12 @@ max_try = 3
  
  Example 1: Scan from local zip file:
 ```Shell
-python <Path to checkmarx-python-sdk>\examples\scan_from_local_zip.py
+python <Path to checkmarx-python-sdk>/examples/scan_from_local_zip.py
 ``` 
 
 Example 2: Scan from git:
 ```Shell
-python <Path to checkmarx-python-sdk>\examples\scan_from_git.py
+python <Path to checkmarx-python-sdk>/examples/scan_from_git.py
 ``` 
 
 # The CxSAST and CxOSA REST API list
