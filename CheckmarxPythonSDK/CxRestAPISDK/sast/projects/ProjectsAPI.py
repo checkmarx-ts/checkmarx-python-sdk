@@ -663,7 +663,7 @@ class ProjectsAPI(object):
         Args:
             project_id (int):  Unique Id of the project
             exclude_folders_pattern (str, optional): comma separated list of folders,
-                        including wildcard patterns to exclude (e.g. add-ons, connectors, doc, src, lib)
+                        including wildcard patterns to exclude (e.g. add-ons, connectors, doc, CheckmarxPythonSDK, lib)
             exclude_files_pattern (str, optional): comma separated list of files,
                         including wildcard patterns to exclude (e.g. cvc3.js, spass.js, z3.js, readme.txt,
                         smt_solver.js, readme.txt, find_sql_injections.js, jquery.js, logic.js)

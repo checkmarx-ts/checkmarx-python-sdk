@@ -7,7 +7,8 @@ import configparser
 import pathlib
 
 config_folder = pathlib.Path(__file__).parent.absolute()
-config_file_path = config_folder / "config.ini"
+# config_file_path = config_folder / "config.ini"
+config_file_path = pathlib.Path.home() / ".Checkmarx/config.ini"
 
 
 class CxConfig(object):
