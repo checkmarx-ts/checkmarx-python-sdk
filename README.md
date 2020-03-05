@@ -4,7 +4,7 @@ This SDK uses Python requests package to initiate HTTP requests to do related Cx
 
 
 # REST API Official Documents
-For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center： 
+For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center：  
 CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
 CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
 
@@ -26,7 +26,7 @@ base_url = http://localhost:80
 username = ******
 password = ******
 grant_type = password
-scope = sast_rest_api access_control_api
+scope = sast_rest_api
 client_id = resource_owner_client
 client_secret = 014DF517-39D1-4453-B7B3-9930C563627C
 url =  %(base_url)s/cxrestapi
