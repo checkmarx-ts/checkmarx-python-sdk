@@ -2,17 +2,15 @@
 
 import time
 
-from src.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAPI
-from src.CxRestAPISDK.sast.scans.ScansAPI import ScansAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.scans.ScansAPI import ScansAPI
 
 
-def get_project_id(project_name="JVL_local_zip"):
+def get_project_id(project_name="dd"):
     projects_api = ProjectsAPI()
     project_name = project_name
     project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
 
-    zip_file_path = r"C:\Users\HappyY\Downloads\SourceCode\CxSAST Sample Projects\JavaVulnerableLab-master.zip"
-    projects_api.upload_source_code_zip_file(project_id, zip_file_path)
     return project_id
 
 

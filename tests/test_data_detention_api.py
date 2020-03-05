@@ -8,7 +8,7 @@
 
 """
 
-from src.CxRestAPISDK.sast.dataRetention.DataRetentionAPI import DataRetentionAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.dataRetention.DataRetentionAPI import DataRetentionAPI
 
 
 def test_stop_data_retention():

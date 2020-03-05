@@ -8,7 +8,7 @@
 
 """
 
-from src.CxRestAPISDK.sast.engines.EnginesAPI import EnginesAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.engines.EnginesAPI import EnginesAPI
 
 
 def test_get_all_engine_server_details():

@@ -8,7 +8,7 @@
 
 """
 
-from src.CxRestAPISDK.sast.projects.CustomFieldsAPI import CustomFieldsAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.CustomFieldsAPI import CustomFieldsAPI
 
 
 def test_get_all_custom_fields():

@@ -1,8 +1,8 @@
 # encoding: utf-8
 from pathlib import Path
 
-from src.CxRestAPISDK.osa.OsaAPI import OsaAPI
-from src.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAPI
+from CheckmarxPythonSDK.CxRestAPISDK.osa.OsaAPI import OsaAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAPI
 
 
 def get_project_id():

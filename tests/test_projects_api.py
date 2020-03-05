@@ -12,7 +12,7 @@
 
 from CxRestAPISDK.sast.projects import ProjectsAPI
 from CxRestAPISDK.team.TeamAPI import TeamAPI
-from src.CxRestAPISDK.sast.projects.CustomTasksAPI import CustomTasksAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.CustomTasksAPI import CustomTasksAPI
 
 
 def test_get_all_project_details():
@@ -258,8 +258,8 @@ def test_set_remote_source_settings_to_perforce():
     paths = ["//Depot_1/BookStore Java_21412lines/"]
     browse_mode = "depot"
 
-    is_successful = projects_api.set_remote_source_settings_to_perforce(project_id, username, password, absolute_url, port,
-                                                                   paths, browse_mode)
+    is_successful = projects_api.set_remote_source_settings_to_perforce(project_id, username, password, absolute_url,
+                                                                        port, paths, browse_mode)
     assert is_successful is True
 
 

@@ -8,7 +8,7 @@
 
 """
 
-from src.CxRestAPISDK.sast.projects.CustomTasksAPI import CustomTasksAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.CustomTasksAPI import CustomTasksAPI
 
 
 def test_get_all_custom_tasks():
