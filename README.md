@@ -16,7 +16,7 @@ $ git clone https://github.com/checkmarx-ts/checkmarx-python-sdk.git
 
 Next, install the library
 ```
-$ pip install <Path to checkmarx-python-sdk>/dist/CheckmarxPythonSDK-0.0.1.tar.gz
+$ pip install CheckmarxPythonSDK
 ```
 
 Next, set up configuration (in e.g. ~/.Checkmarx/config, or C:\\Users\\Administrator\\.Checkmarx\\config)
