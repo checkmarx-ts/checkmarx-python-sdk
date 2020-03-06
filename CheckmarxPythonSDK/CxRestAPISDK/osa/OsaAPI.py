@@ -117,7 +117,7 @@ class OsaAPI(object):
             scan_id (str): Unique Id of the OSA scan
 
         Returns:
-           CxOsaScanDetail:
+           :obj:`CxOsaScanDetail`
 
         Raises:
             BadRequestError:
@@ -522,7 +522,7 @@ class OsaAPI(object):
             scan_id (str): Unique Id of the OSA scan
 
         Returns:
-             CxOsaSummaryReport
+             :obj:`CxOsaSummaryReport`
 
         Raises:
             BadRequestError:
