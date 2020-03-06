@@ -10,8 +10,8 @@
 
 """
 
-from CxRestAPISDK.sast.projects import ProjectsAPI
-from CxRestAPISDK.team.TeamAPI import TeamAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.projects import ProjectsAPI
+from CheckmarxPythonSDK.CxRestAPISDK.team.TeamAPI import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.CustomTasksAPI import CustomTasksAPI
 
 

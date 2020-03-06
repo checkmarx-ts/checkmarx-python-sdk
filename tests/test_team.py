@@ -8,7 +8,7 @@
 
 """
 
-from CxRestAPISDK.team import TeamAPI
+from CheckmarxPythonSDK.CxRestAPISDK.team import TeamAPI
 
 
 def test_team():

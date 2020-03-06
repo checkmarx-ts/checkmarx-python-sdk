@@ -8,7 +8,7 @@
 
 """
 
-from CxRestAPISDK.config import CxConfig
+from CheckmarxPythonSDK.CxRestAPISDK.config import CxConfig
 
 
 def test_config_from_file():

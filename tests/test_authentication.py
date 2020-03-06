@@ -8,7 +8,7 @@
 
 """
 
-from CxRestAPISDK.auth import AuthenticationAPI
+from CheckmarxPythonSDK.CxRestAPISDK.auth import AuthenticationAPI
 
 
 def test_auth():
