@@ -51,6 +51,12 @@ Example 2: Scan from git:
 python <Path to checkmarx-python-sdk>/examples/scan_from_git.py
 ``` 
 
+Example 3: OSA scan demo:
+```Shell
+python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
+``` 
+
+
 # The CxSAST and CxOSA REST API list
 
 1. AuthenticationAPI
