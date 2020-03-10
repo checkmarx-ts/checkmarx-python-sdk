@@ -3,7 +3,6 @@
 import requests
 import http
 
-
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -18,10 +17,6 @@ class EnginesAPI(object):
 
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
-    engine_servers_url = base_url + "/sast/engineServers"
-    engine_server_url = base_url + "/sast/engineServers/{id}"
-    engine_configurations_url = base_url + "/sast/engineConfigurations"
-    engine_configuration_url = base_url + "/sast/engineConfigurations/{id}"
 
     def __init__(self):
         self.retry = 0
@@ -38,7 +33,10 @@ class EnginesAPI(object):
             CxError
         """
         all_engine_server_details = None
-        r = requests.get(url=self.engine_servers_url,
+
+        engine_servers_url = self.base_url + "/sast/engineServers"
+
+        r = requests.get(url=engine_servers_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_list = r.json()
@@ -117,7 +115,9 @@ class EnginesAPI(object):
             is_blocked=is_blocked
         ).get_post_data()
 
-        r = requests.post(self.engine_servers_url, data=post_request_body,
+        engine_servers_url = self.base_url + "/sast/engineServers"
+
+        r = requests.post(engine_servers_url, data=post_request_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 201:
@@ -161,8 +161,9 @@ class EnginesAPI(object):
         """
         is_successful = False
 
-        self.engine_server_url = self.engine_server_url.format(id=engine_id)
-        r = requests.delete(url=self.engine_server_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        engine_server_url = self.base_url + "/sast/engineServers/{id}".format(id=engine_id)
+
+        r = requests.delete(url=engine_server_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 204:
             is_successful = True
@@ -198,8 +199,9 @@ class EnginesAPI(object):
         """
         engine_server = None
 
-        self.engine_server_url = self.engine_server_url.format(id=engine_id)
-        r = requests.get(url=self.engine_server_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        engine_server_url = self.base_url + "/sast/engineServers/{id}".format(id=engine_id)
+
+        r = requests.get(url=engine_server_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             item = r.json()
             engine_server = CxEngineServer.CxEngineServer(
@@ -257,7 +259,7 @@ class EnginesAPI(object):
         """
         engine_server = None
 
-        self.engine_server_url = self.engine_server_url.format(id=engine_id)
+        engine_server_url = self.base_url + "/sast/engineServers/{id}".format(id=engine_id)
 
         post_request_body = CxRegisterEngineRequestBody.CxRegisterEngineRequestBody(
             name=name,
@@ -267,7 +269,7 @@ class EnginesAPI(object):
             is_blocked=is_blocked
         ).get_post_data()
 
-        r = requests.put(self.engine_server_url, data=post_request_body,
+        r = requests.put(engine_server_url, data=post_request_body,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
@@ -309,7 +311,9 @@ class EnginesAPI(object):
         """
         all_engine_configurations = None
 
-        r = requests.get(url=self.engine_configurations_url,
+        engine_configurations_url = self.base_url + "/sast/engineConfigurations"
+
+        r = requests.get(url=engine_configurations_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_list = r.json()
@@ -364,8 +368,9 @@ class EnginesAPI(object):
         """
         engine_configuration = None
 
-        self.engine_configuration_url = self.engine_configuration_url.format(id=configuration_id)
-        r = requests.get(url=self.engine_configuration_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        engine_configuration_url = self.base_url + "/sast/engineConfigurations/{id}".format(id=configuration_id)
+
+        r = requests.get(url=engine_configuration_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
             engine_configuration = CxEngineConfiguration.CxEngineConfiguration(

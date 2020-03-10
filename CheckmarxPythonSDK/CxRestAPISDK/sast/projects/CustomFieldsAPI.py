@@ -15,7 +15,6 @@ class CustomFieldsAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     custom_fields = []
-    custom_fields_url = CxConfig.CxConfig.config.url + "/customFields"
 
     def __init__(self):
         """
@@ -37,8 +36,11 @@ class CustomFieldsAPI(object):
         """
         custom_fields = []
 
-        r = requests.get(url=CustomFieldsAPI.custom_fields_url,
+        custom_fields_url = CxConfig.CxConfig.config.url + "/customFields"
+
+        r = requests.get(url=custom_fields_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
             custom_fields = [

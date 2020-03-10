@@ -29,26 +29,6 @@ class ProjectsAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
-    projects_url = base_url + "/projects"
-    project_url = base_url + "/projects/{id}"
-    project_branch_url = base_url + "/projects/{id}/branch"
-    issue_tracking_systems_url = base_url + "/issueTrackingSystems"
-    issue_tracking_systems_metadata_url = base_url + "/issueTrackingSystems/{id}/metadata"
-    exclude_settings_url = base_url + "/projects/{id}/sourceCode/excludeSettings"
-    remote_settings_git_url = base_url + "/projects/{id}/sourceCode/remoteSettings/git"
-    remote_settings_svn_url = base_url + "/projects/{id}/sourceCode/remoteSettings/svn"
-    remote_settings_tfs_url = base_url + "/projects/{id}/sourceCode/remoteSettings/tfs"
-    remote_settings_custom_url = base_url + "/projects/{id}/sourceCode/remoteSettings/custom"
-    remote_settings_shared_url = base_url + "/projects/{id}/sourceCode/remoteSettings/shared"
-    remote_settings_perforce_url = base_url + "/projects/{id}/sourceCode/remoteSettings/perforce"
-    remote_settings_git_ssh_url = base_url + "/projects/{id}/sourceCode/remoteSettings/git/ssh"
-    remote_settings_svn_ssh_url = base_url + "/projects/{id}/sourceCode/remoteSettings/svn/ssh"
-    attachments_url = base_url + "/projects/{id}/sourceCode/attachments"
-
-    data_retention_settings_url = base_url + "/projects/{id}/dataRetentionSettings"
-    jira_url = base_url + "/projects/{id}/issueTrackingSettings/jira"
-    presets_url = base_url + "/sast/presets"
-    preset_url = base_url + "/sast/presets/{id}"
 
     def __init__(self):
         """
@@ -76,10 +56,12 @@ class ProjectsAPI(object):
         """
         all_projects = []
 
-        if project_name and team_id:
-            self.projects_url += "?projectName=" + str(project_name) + "&teamId=" + str(team_id)
+        projects_url = self.base_url + "/projects"
 
-        r = requests.get(self.projects_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        if project_name and team_id:
+            projects_url += "?projectName=" + str(project_name) + "&teamId=" + str(team_id)
+
+        r = requests.get(projects_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
             all_projects = [
@@ -135,9 +117,11 @@ class ProjectsAPI(object):
         """
         project = None
 
+        projects_url = self.base_url + "/projects"
+
         req_data = CxCreateProjectRequest.CxCreateProjectRequest(project_name, team_id, is_public).get_post_data()
         r = requests.post(
-            url=self.projects_url,
+            url=projects_url,
             data=req_data,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers
         )
@@ -204,9 +188,10 @@ class ProjectsAPI(object):
 
         """
         project = None
-        self.project_url = self.project_url.format(id=project_id)
 
-        r = requests.get(self.project_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        project_url = self.base_url + "/projects/{id}".format(id=project_id)
+
+        r = requests.get(project_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == http.HTTPStatus.OK:
             a_dict = r.json()
             project = CxProject.CxProject(
@@ -258,7 +243,8 @@ class ProjectsAPI(object):
             CxError
         """
         is_successful = False
-        self.project_url = self.project_url.format(id=project_id)
+
+        project_url = self.base_url + "/projects/{id}".format(id=project_id)
 
         request_body = CxUpdateProjectRequest.CxUpdateProjectRequest(
             name=project_name,
@@ -266,7 +252,7 @@ class ProjectsAPI(object):
             custom_fields=custom_fields
         ).get_post_data()
 
-        r = requests.put(url=self.project_url, data=request_body,
+        r = requests.put(url=project_url, data=request_body,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         # In Python http module, HTTP status ACCEPTED is 202
@@ -307,14 +293,14 @@ class ProjectsAPI(object):
 
         is_successful = False
 
-        self.project_url = self.project_url.format(id=project_id)
+        project_url = self.base_url + "/projects/{id}".format(id=project_id)
 
         request_body = CxUpdateProjectNameTeamIdRequest.CxUpdateProjectNameTeamIdRequest(
             project_name=project_name,
             owning_team=team_id
         ).get_post_data()
 
-        r = requests.patch(url=self.project_url, data=request_body,
+        r = requests.patch(url=project_url, data=request_body,
                            headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         # In Python http module, HTTP status ACCEPTED is 202
@@ -353,11 +339,12 @@ class ProjectsAPI(object):
             CxError
         """
         is_successful = False
-        self.project_url = self.project_url.format(id=project_id)
+
+        project_url = self.base_url + "/projects/{id}".format(id=project_id)
 
         request_body = json.dumps({"deleteRunningScans": delete_running_scans})
 
-        r = requests.delete(url=self.project_url, data=request_body,
+        r = requests.delete(url=project_url, data=request_body,
                             headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         # In Python http module, HTTP status ACCEPTED is 202
@@ -441,11 +428,11 @@ class ProjectsAPI(object):
         """
         project = None
 
-        self.project_branch_url = self.project_branch_url.format(id=project_id)
+        project_branch_url = self.base_url + "/projects/{id}/branch".format(id=project_id)
 
         request_body = json.dumps({"name": branched_project_name})
 
-        r = requests.post(url=self.project_branch_url, data=request_body,
+        r = requests.post(url=project_branch_url, data=request_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 201:
@@ -487,7 +474,9 @@ class ProjectsAPI(object):
         """
         issue_tracking_systems = []
 
-        r = requests.get(url=self.issue_tracking_systems_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        issue_tracking_systems_url = self.base_url + "/issueTrackingSystems"
+
+        r = requests.get(url=issue_tracking_systems_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_list = r.json()
@@ -545,11 +534,11 @@ class ProjectsAPI(object):
         """
         issue_tracking_system = None
 
-        self.issue_tracking_systems_metadata_url = self.issue_tracking_systems_metadata_url.format(
-            id=issue_tracking_system_id
-        )
+        issue_tracking_systems_metadata_url = self.base_url + "/issueTrackingSystems/{id}/metadata".format(
+                id=issue_tracking_system_id
+            )
 
-        r = requests.get(url=self.issue_tracking_systems_metadata_url,
+        r = requests.get(url=issue_tracking_systems_metadata_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
@@ -627,8 +616,9 @@ class ProjectsAPI(object):
 
         project_exclude_settings = None
 
-        self.exclude_settings_url = self.exclude_settings_url.format(id=project_id)
-        r = requests.get(url=self.exclude_settings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        exclude_settings_url = self.base_url + "/projects/{id}/sourceCode/excludeSettings".format(id=project_id)
+
+        r = requests.get(url=exclude_settings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -677,14 +667,16 @@ class ProjectsAPI(object):
             CxError
         """
         is_successful = False
-        self.exclude_settings_url = self.exclude_settings_url.format(id=project_id)
+
+        exclude_settings_url = self.base_url + "/projects/{id}/sourceCode/excludeSettings".format(id=project_id)
+
         body_data = json.dumps(
             {
                 "excludeFoldersPattern": exclude_folders_pattern,
                 "excludeFilesPattern": exclude_files_pattern
             }
         )
-        r = requests.put(url=self.exclude_settings_url, data=body_data,
+        r = requests.put(url=exclude_settings_url, data=body_data,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             is_successful = True
@@ -720,8 +712,9 @@ class ProjectsAPI(object):
         """
         git_settings = None
 
-        self.remote_settings_git_url = self.remote_settings_git_url.format(id=project_id)
-        r = requests.get(url=self.remote_settings_git_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        remote_settings_git_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/git".format(id=project_id)
+
+        r = requests.get(url=remote_settings_git_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -775,13 +768,13 @@ class ProjectsAPI(object):
 
         is_successful = False
 
-        self.remote_settings_git_url = self.remote_settings_git_url.format(id=project_id)
+        remote_settings_git_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/git".format(id=project_id)
 
         post_body = CxGitSettings.CxGitSettings(
             url=url, branch=branch, private_key=private_key
         ).get_post_data()
 
-        r = requests.post(url=self.remote_settings_git_url, data=post_body,
+        r = requests.post(url=remote_settings_git_url, data=post_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 204:
@@ -819,8 +812,9 @@ class ProjectsAPI(object):
 
         svn_settings = None
 
-        self.remote_settings_svn_url = self.remote_settings_svn_url.format(id=project_id)
-        r = requests.get(url=self.remote_settings_svn_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        remote_settings_svn_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/svn".format(id=project_id)
+
+        r = requests.get(url=remote_settings_svn_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -879,7 +873,8 @@ class ProjectsAPI(object):
             CxError
         """
         is_successful = False
-        self.remote_settings_svn_url = self.remote_settings_svn_url.format(id=project_id)
+
+        remote_settings_svn_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/svn".format(id=project_id)
 
         post_body_data = CxSVNSettings.CxSVNSettings(
             uri=CxURI.CxURI(
@@ -894,7 +889,7 @@ class ProjectsAPI(object):
             private_key=private_key
         ).get_post_data()
 
-        r = requests.post(url=self.remote_settings_svn_url,
+        r = requests.post(url=remote_settings_svn_url,
                           data=post_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -934,10 +929,9 @@ class ProjectsAPI(object):
 
         tfs_settings = None
 
-        if project_id:
-            self.remote_settings_tfs_url = self.remote_settings_tfs_url.format(id=project_id)
+        remote_settings_tfs_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/tfs".format(id=project_id)
 
-        r = requests.get(url=self.remote_settings_tfs_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=remote_settings_tfs_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
             tfs_settings = CxTFSSettings.CxTFSSettings(
@@ -989,8 +983,7 @@ class ProjectsAPI(object):
         """
         is_successful = False
 
-        if project_id:
-            self.remote_settings_tfs_url = self.remote_settings_tfs_url.format(id=project_id)
+        remote_settings_tfs_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/tfs".format(id=project_id)
 
         post_data = CxTFSSettings.CxTFSSettings(
             credentials=CxCredential.CxCredential(
@@ -1005,7 +998,7 @@ class ProjectsAPI(object):
         ).get_post_data()
 
         r = requests.post(
-            url=self.remote_settings_tfs_url,
+            url=remote_settings_tfs_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             data=post_data
         )
@@ -1046,8 +1039,11 @@ class ProjectsAPI(object):
         """
         custom_remote_setting = None
 
-        self.remote_settings_custom_url = self.remote_settings_custom_url.format(id=project_id)
-        r = requests.get(url=self.remote_settings_custom_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        remote_settings_custom_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/custom".format(
+            id=project_id
+        )
+
+        r = requests.get(url=remote_settings_custom_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -1097,7 +1093,11 @@ class ProjectsAPI(object):
             CxError
         """
         is_successful = False
-        self.remote_settings_custom_url = self.remote_settings_custom_url.format(id=project_id)
+
+        remote_settings_custom_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/custom".format(
+            id=project_id
+        )
+
         request_body_data = CxCustomRemoteSourceSettings.CxCustomRemoteSourceSettings(
             path=path,
             pulling_command_id=pre_scan_command_id,
@@ -1107,7 +1107,7 @@ class ProjectsAPI(object):
             )
         ).get_post_data()
 
-        r = requests.post(url=self.remote_settings_custom_url, data=request_body_data,
+        r = requests.post(url=remote_settings_custom_url, data=request_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 204:
             is_successful = True
@@ -1143,8 +1143,12 @@ class ProjectsAPI(object):
             CxError
         """
         shared_source_setting = None
-        self.remote_settings_shared_url = self.remote_settings_shared_url.format(id=project_id)
-        r = requests.get(url=self.remote_settings_shared_url,
+
+        remote_settings_shared_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/shared".format(
+            id=project_id
+        )
+
+        r = requests.get(url=remote_settings_shared_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
@@ -1191,7 +1195,10 @@ class ProjectsAPI(object):
         """
         is_successful = False
 
-        self.remote_settings_shared_url = self.remote_settings_shared_url.format(id=project_id)
+        remote_settings_shared_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/shared".format(
+            id=project_id
+        )
+
         post_body_data = CxSharedRemoteSourceSettingsRequest.CxSharedRemoteSourceSettingsRequest(
             paths=paths,
             credentials=CxCredential.CxCredential(
@@ -1200,7 +1207,7 @@ class ProjectsAPI(object):
             )
         ).get_post_data()
 
-        r = requests.post(url=self.remote_settings_shared_url, data=post_body_data,
+        r = requests.post(url=remote_settings_shared_url, data=post_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 204:
@@ -1237,11 +1244,12 @@ class ProjectsAPI(object):
         """
         perforce_settings = None
 
-        if project_id:
-            self.remote_settings_perforce_url = self.remote_settings_perforce_url.format(id=project_id)
+        remote_settings_perforce_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/perforce".format(
+            id=project_id
+        )
 
         r = requests.get(
-            url=self.remote_settings_perforce_url,
+            url=remote_settings_perforce_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers
         )
 
@@ -1301,8 +1309,9 @@ class ProjectsAPI(object):
 
         is_successful = False
 
-        if project_id:
-            self.remote_settings_perforce_url = self.remote_settings_perforce_url.format(id=project_id)
+        remote_settings_perforce_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/perforce".format(
+            id=project_id
+        )
 
         post_data = CxPerforceSettings.CxPerforceSettings(
             credentials=CxCredential.CxCredential(
@@ -1318,7 +1327,7 @@ class ProjectsAPI(object):
         ).get_post_data()
 
         r = requests.post(
-            url=self.remote_settings_perforce_url,
+            url=remote_settings_perforce_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             data=post_data
         )
@@ -1361,7 +1370,9 @@ class ProjectsAPI(object):
         """
         is_successful = False
 
-        self.remote_settings_git_ssh_url = self.remote_settings_git_ssh_url.format(id=project_id)
+        remote_settings_git_ssh_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/git/ssh".format(
+            id=project_id
+        )
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -1379,7 +1390,7 @@ class ProjectsAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=self.remote_settings_git_ssh_url, headers=headers, data=m)
+        r = requests.post(url=remote_settings_git_ssh_url, headers=headers, data=m)
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1420,7 +1431,9 @@ class ProjectsAPI(object):
         """
         is_successful = False
         # TODO check, when have svn + ssh
-        self.remote_settings_svn_ssh_url = self.remote_settings_svn_ssh_url.format(id=project_id)
+        remote_settings_svn_ssh_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/svn/ssh".format(
+            id=project_id
+        )
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -1435,7 +1448,7 @@ class ProjectsAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=self.remote_settings_git_ssh_url, headers=headers, data=m)
+        r = requests.post(url=remote_settings_svn_ssh_url, headers=headers, data=m)
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1471,7 +1484,8 @@ class ProjectsAPI(object):
             CxError
         """
         is_successful = False
-        self.attachments_url = self.attachments_url.format(id=project_id)
+
+        attachments_url = self.base_url + "/projects/{id}/sourceCode/attachments".format(id=project_id)
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -1483,7 +1497,7 @@ class ProjectsAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=self.attachments_url, headers=headers, data=m)
+        r = requests.post(url=attachments_url, headers=headers, data=m)
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1519,7 +1533,7 @@ class ProjectsAPI(object):
         """
         is_successful = False
 
-        self.data_retention_settings_url = self.data_retention_settings_url.format(id=project_id)
+        data_retention_settings_url = self.base_url + "/projects/{id}/dataRetentionSettings".format(id=project_id)
 
         post_body = json.dumps(
             {
@@ -1527,7 +1541,7 @@ class ProjectsAPI(object):
             }
         )
 
-        r = requests.post(url=self.data_retention_settings_url, data=post_body,
+        r = requests.post(url=data_retention_settings_url, data=post_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 204:
@@ -1572,8 +1586,8 @@ class ProjectsAPI(object):
 
         is_successful = False
 
-        if project_id:
-            self.jira_url = self.jira_url.format(id=project_id)
+        jira_url = self.base_url + "/projects/{id}/issueTrackingSettings/jira".format(id=project_id)
+
         post_data = CxIssueTrackingSystemJira.CxIssueTrackingSystemJira(
             issue_tracking_system_id=issue_tracking_system_id,
             jira_project_id=jira_project_id,
@@ -1582,7 +1596,7 @@ class ProjectsAPI(object):
         ).get_post_data()
 
         r = requests.post(
-            url=self.jira_url,
+            url=jira_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             data=post_data
         )
@@ -1619,7 +1633,10 @@ class ProjectsAPI(object):
 
         """
         all_preset_details = []
-        r = requests.get(url=self.presets_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+
+        presets_url = self.base_url + "/sast/presets"
+
+        r = requests.get(url=presets_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_list = r.json()
@@ -1678,9 +1695,10 @@ class ProjectsAPI(object):
             CxError
         """
         preset = None
-        self.preset_url = self.preset_url.format(id=preset_id)
 
-        r = requests.get(url=self.preset_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        preset_url = self.base_url + "/sast/presets/{id}".format(id=preset_id)
+
+        r = requests.get(url=preset_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()

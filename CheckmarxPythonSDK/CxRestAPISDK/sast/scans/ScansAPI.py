@@ -24,20 +24,6 @@ class ScansAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
-    all_scans_url = base_url + "/sast/scans"
-    sast_scan_url = base_url + "/sast/scans/{id}"
-    statistics_results_url = base_url + "/sast/scans/{id}/resultsStatistics"
-    scans_queue_url = base_url + "/sast/scansQueue/{id}"
-    all_scan_queue_url = base_url + "/sast/scansQueue"
-    scan_settings_url = base_url + "/sast/scanSettings/{projectId}"
-    all_scan_settings_url = base_url + "/sast/scanSettings"
-    schedule_settings_url = base_url + "/sast/project/{projectId}/scheduling"
-    scan_results_ticket_url = base_url + "/sast/results/tickets"
-    policy_findings_url = base_url + "/sast/projects/{id}/publisher/policyFindings"
-    policy_findings_status_url = base_url + "/sast/projects/{id}/publisher/policyFindings/status"
-    register_scan_report_url = base_url + "/reports/sastScan"
-    report_status_url = base_url + "/reports/sastScan/{id}/status"
-    report_url = base_url + "/reports/sastScan/{id}"
 
     def __init__(self):
         self.retry = 0
@@ -141,20 +127,22 @@ class ScansAPI(object):
         """
         all_scans = []
 
-        if project_id:
-            if "?" not in self.all_scans_url:
-                self.all_scans_url += "?"
-            self.all_scans_url += "projectId={}".format(project_id)
-        if scan_status:
-            if "?" not in self.all_scans_url:
-                self.all_scans_url += "?"
-            self.all_scans_url += "scanStatus={}".format(scan_status)
-        if last:
-            if "?" not in self.all_scans_url:
-                self.all_scans_url += "?"
-            self.all_scans_url += "last={}".format(last)
+        all_scans_url = self.base_url + "/sast/scans"
 
-        r = requests.get(self.all_scans_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        if project_id:
+            if "?" not in all_scans_url:
+                all_scans_url += "?"
+            all_scans_url += "projectId={}".format(project_id)
+        if scan_status:
+            if "?" not in all_scans_url:
+                all_scans_url += "?"
+            all_scans_url += "scanStatus={}".format(scan_status)
+        if last:
+            if "?" not in all_scans_url:
+                all_scans_url += "?"
+            all_scans_url += "last={}".format(last)
+
+        r = requests.get(all_scans_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_list = r.json()
             all_scans = [
@@ -216,11 +204,13 @@ class ScansAPI(object):
         """
         scan = None
 
+        all_scans_url = self.base_url + "/sast/scans"
+
         post_body = CxCreateScan.CxCreateScan(
             project_id, is_incremental, is_public, force_scan, comment
         ).get_post_data()
 
-        r = requests.post(url=self.all_scans_url, data=post_body,
+        r = requests.post(url=all_scans_url, data=post_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 201:
@@ -264,9 +254,9 @@ class ScansAPI(object):
         """
         scan_detail = None
 
-        self.sast_scan_url = self.sast_scan_url.format(id=scan_id)
+        sast_scan_url = self.base_url + "/sast/scans/{id}".format(id=scan_id)
 
-        r = requests.get(self.sast_scan_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(sast_scan_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             item = r.json()
             scan_detail = self.__construct_scan(item)
@@ -303,13 +293,14 @@ class ScansAPI(object):
         """
         is_successful = False
 
-        self.sast_scan_url = self.sast_scan_url.format(id=scan_id)
+        sast_scan_url = self.base_url + "/sast/scans/{id}".format(id=scan_id)
+
         patch_data = json.dumps(
             {
                 "comment": comment
             }
         )
-        r = requests.patch(url=self.sast_scan_url, data=patch_data,
+        r = requests.patch(url=sast_scan_url, data=patch_data,
                            headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 204:
             is_successful = True
@@ -344,8 +335,10 @@ class ScansAPI(object):
             CxError
         """
         is_successful = False
-        self.sast_scan_url = self.sast_scan_url.format(id=scan_id)
-        r = requests.delete(url=self.sast_scan_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+
+        sast_scan_url = self.base_url + "/sast/scans/{id}".format(id=scan_id)
+
+        r = requests.delete(url=sast_scan_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 202:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -380,8 +373,9 @@ class ScansAPI(object):
         """
         statistics = None
 
-        self.statistics_results_url = self.statistics_results_url.format(id=scan_id)
-        r = requests.get(url=self.statistics_results_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        statistics_results_url = self.base_url + "/sast/scans/{id}/resultsStatistics".format(id=scan_id)
+
+        r = requests.get(url=statistics_results_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             item = r.json()
             statistics = CxStatisticsResult.CxStatisticsResult(
@@ -469,8 +463,9 @@ class ScansAPI(object):
         """
         scan_queue_details = None
 
-        self.scans_queue_url = self.scans_queue_url.format(id=scan_id)
-        r = requests.get(url=self.scans_queue_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        scans_queue_url = self.base_url + "/sast/scansQueue/{id}".format(id=scan_id)
+
+        r = requests.get(url=scans_queue_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             item = r.json()
             scan_queue_details = self.__construct_scan_queue_detail(item)
@@ -509,13 +504,14 @@ class ScansAPI(object):
         """
 
         is_successful = False
-        self.scans_queue_url = self.scans_queue_url.format(id=scan_id)
+
+        scans_queue_url = self.base_url + "/sast/scansQueue/{id}".format(id=scan_id)
 
         patch_data = json.dumps({
             "status": "Canceled"
         })
 
-        r = requests.patch(url=self.scans_queue_url, data=patch_data,
+        r = requests.patch(url=scans_queue_url, data=patch_data,
                            headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             is_successful = True
@@ -552,10 +548,12 @@ class ScansAPI(object):
 
         all_scan_details_in_queue = None
 
-        if project_id:
-            self.all_scan_queue_url = self.all_scan_queue_url + "?projectId=" + str(project_id)
+        all_scan_queue_url = self.base_url + "/sast/scansQueue"
 
-        r = requests.get(url=self.all_scan_queue_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        if project_id:
+            all_scan_queue_url += "?projectId=" + str(project_id)
+
+        r = requests.get(url=all_scan_queue_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_list = r.json()
             all_scan_details_in_queue = [self.__construct_scan_queue_detail(item) for item in a_list]
@@ -587,9 +585,10 @@ class ScansAPI(object):
             CxError
         """
         scan_settings = None
-        self.scan_settings_url = self.scan_settings_url.format(projectId=project_id)
 
-        r = requests.get(url=self.scan_settings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        scan_settings_url = self.base_url + "/sast/scanSettings/{projectId}".format(projectId=project_id)
+
+        r = requests.get(url=scan_settings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
             scan_settings = CxScanSettings.CxScanSettings(
@@ -661,6 +660,8 @@ class ScansAPI(object):
         """
         sast_scan_settings = None
 
+        all_scan_settings_url = self.base_url + "/sast/scanSettings"
+
         post_body_data = CxCreateScanSettingsRequestBody.CxCreateScanSettingsRequestBody(
             project_id=project_id,
             preset_id=preset_id,
@@ -670,7 +671,7 @@ class ScansAPI(object):
             before_scan_emails=before_scan_emails,
             after_scan_emails=after_scan_emails
         ).get_post_data()
-        r = requests.post(url=self.all_scan_settings_url, data=post_body_data,
+        r = requests.post(url=all_scan_settings_url, data=post_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
@@ -725,6 +726,8 @@ class ScansAPI(object):
         """
         sast_scan_settings = None
 
+        all_scan_settings_url = self.base_url + "/sast/scanSettings"
+
         post_body_data = CxCreateScanSettingsRequestBody.CxCreateScanSettingsRequestBody(
             project_id=project_id,
             preset_id=preset_id,
@@ -734,7 +737,7 @@ class ScansAPI(object):
             before_scan_emails=before_scan_emails,
             after_scan_emails=after_scan_emails
         ).get_post_data()
-        r = requests.put(url=self.all_scan_settings_url, data=post_body_data,
+        r = requests.put(url=all_scan_settings_url, data=post_body_data,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
@@ -783,7 +786,8 @@ class ScansAPI(object):
             CxError
         """
         is_successful = False
-        self.schedule_settings_url = self.schedule_settings_url.format(projectId=project_id)
+
+        schedule_settings_url = self.base_url + "/sast/project/{projectId}/scheduling".format(projectId=project_id)
 
         post_body_data = CxSchedulingSettings.CxSchedulingSettings(
             schedule_type=schedule_type,
@@ -791,7 +795,7 @@ class ScansAPI(object):
             schedule_time=schedule_time
         ).get_post_data()
 
-        r = requests.put(url=self.schedule_settings_url, data=post_body_data,
+        r = requests.put(url=schedule_settings_url, data=post_body_data,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 204:
             is_successful = True
@@ -834,7 +838,9 @@ class ScansAPI(object):
             }
         )
 
-        r = requests.post(url=self.scan_results_ticket_url, data=post_body_data,
+        scan_results_ticket_url = self.base_url + "/sast/results/tickets"
+
+        r = requests.post(url=scan_results_ticket_url, data=post_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             is_successful = True
@@ -871,8 +877,9 @@ class ScansAPI(object):
         """
         policy_finding_response = None
 
-        self.policy_findings_url = self.policy_findings_url.format(id=project_id)
-        r = requests.post(url=self.policy_findings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        policy_findings_url = self.base_url + "/sast/projects/{id}/publisher/policyFindings".format(id=project_id)
+
+        r = requests.post(url=policy_findings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 201:
             a_dict = r.json()
             policy_finding_response = CxPolicyFindingResponse.CxPolicyFindingResponse(
@@ -915,8 +922,11 @@ class ScansAPI(object):
         """
         policy_finding_status = None
 
-        self.policy_findings_status_url = self.policy_findings_status_url.format(id=project_id)
-        r = requests.get(url=self.policy_findings_status_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        policy_findings_status_url = self.base_url + "/sast/projects/{id}/publisher/policyFindings/status".format(
+            id=project_id
+        )
+
+        r = requests.get(url=policy_findings_status_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -977,7 +987,9 @@ class ScansAPI(object):
             }
         )
 
-        r = requests.post(url=self.register_scan_report_url, data=post_body,
+        register_scan_report_url = self.base_url + "/reports/sastScan"
+
+        r = requests.post(url=register_scan_report_url, data=post_body,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 202:
@@ -1028,8 +1040,9 @@ class ScansAPI(object):
         """
         report_status = None
 
-        self.report_status_url = self.report_status_url.format(id=report_id)
-        r = requests.get(url=self.report_status_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        report_status_url = self.base_url + "/reports/sastScan/{id}/status".format(id=report_id)
+
+        r = requests.get(url=report_status_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_dict = r.json()
             report_status = CxScanReportStatus.CxScanReportStatus(
@@ -1075,8 +1088,10 @@ class ScansAPI(object):
 
         """
         report_content = None
-        self.report_url = self.report_url.format(id=report_id)
-        r = requests.get(url=self.report_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+
+        report_url = self.base_url + "/reports/sastScan/{id}".format(id=report_id)
+
+        r = requests.get(url=report_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             # write r.content to file with "wb" mode
             report_content = r.content

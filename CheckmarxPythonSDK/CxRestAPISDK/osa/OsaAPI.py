@@ -23,14 +23,6 @@ class OsaAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
-    osa_scans_url = base_url + "/osa/scans"
-    osa_scan_by_scan_id_url = base_url + "/osa/scans/{scanId}"
-    osa_file_extensions_url = base_url + "/osa/fileextensions"
-    osa_licenses_url = base_url + "/osa/licenses"
-    osa_libraries_url = base_url + "/osa/libraries"
-    osa_vulnerabilities_url = base_url + "/osa/vulnerabilities"
-    osa_vulnerability_comment_url = base_url + "/osa/vulnerabilities/{vulnerabilityId}/comments"
-    osa_reports_url = base_url + "/osa/reports"
 
     def __init__(self):
         self.retry = 0
@@ -53,12 +45,11 @@ class OsaAPI(object):
         """
         osa_scan_details = None
 
-        if project_id:
-            self.osa_scans_url = self.osa_scans_url + "?projectId=" + str(project_id)
+        osa_scans_url = self.base_url + "/osa/scans" + "?projectId=" + str(project_id)
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        r = requests.get(url=self.osa_scans_url, headers=headers)
+        r = requests.get(url=osa_scans_url, headers=headers)
         if r.status_code == 200:
             a_list = r.json()
             osa_scan_details = [
@@ -126,8 +117,9 @@ class OsaAPI(object):
         """
         osa_scan_detail = None
 
-        self.osa_scan_by_scan_id_url = self.osa_scan_by_scan_id_url.format(scanId=scan_id)
-        r = requests.get(url=self.osa_scan_by_scan_id_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        osa_scan_by_scan_id_url = self.base_url + "/osa/scans/{scanId}".format(scanId=scan_id)
+
+        r = requests.get(url=osa_scan_by_scan_id_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -190,7 +182,9 @@ class OsaAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=self.osa_scans_url, headers=headers, data=m)
+        osa_scans_url = self.base_url + "/osa/scans" + "?projectId=" + str(project_id)
+
+        r = requests.post(url=osa_scans_url, headers=headers, data=m)
         if r.status_code == 202:
             scan_id = r.json().get("scanId")
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -222,7 +216,9 @@ class OsaAPI(object):
         """
         file_extensions = None
 
-        r = requests.get(url=self.osa_file_extensions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        osa_file_extensions_url = self.base_url + "/osa/fileextensions"
+
+        r = requests.get(url=osa_file_extensions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             file_extensions = r.text
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -256,10 +252,9 @@ class OsaAPI(object):
         """
         licenses = None
 
-        if scan_id:
-            self.osa_licenses_url += "?scanId=" + str(scan_id)
+        osa_licenses_url = self.base_url + "/osa/licenses" + "?scanId=" + str(scan_id)
 
-        r = requests.get(url=self.osa_licenses_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=osa_licenses_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_list = r.json()
             licenses = [
@@ -308,10 +303,9 @@ class OsaAPI(object):
         """
         libraries = None
 
-        if scan_id:
-            self.osa_libraries_url = self.osa_libraries_url + "?scanId=" + str(scan_id)
+        osa_libraries_url = self.base_url + "/osa/libraries" + "?scanId=" + str(scan_id)
 
-        r = requests.get(url=self.osa_libraries_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=osa_libraries_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_list = r.json()
@@ -393,20 +387,23 @@ class OsaAPI(object):
 
         """
         vulnerabilities = None
-        if scan_id:
-            self.osa_vulnerabilities_url += "?scanId=" + str(scan_id)
-            if library_id:
-                self.osa_vulnerabilities_url += "&libraryId=" + library_id
-            if state_id:
-                self.osa_vulnerabilities_url += "&stateId=" + str(state_id)
-            if comment:
-                self.osa_vulnerabilities_url += "&comment=" + comment
-            if since:
-                self.osa_vulnerabilities_url += "&since=" + str(since)
-            if until:
-                self.osa_vulnerabilities_url += "&until=" + str(until)
 
-        r = requests.get(url=self.osa_vulnerabilities_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        osa_vulnerabilities_url = self.base_url + "/osa/vulnerabilities"
+
+        if scan_id:
+            osa_vulnerabilities_url += "?scanId=" + str(scan_id)
+            if library_id:
+                osa_vulnerabilities_url += "&libraryId=" + library_id
+            if state_id:
+                osa_vulnerabilities_url += "&stateId=" + str(state_id)
+            if comment:
+                osa_vulnerabilities_url += "&comment=" + comment
+            if since:
+                osa_vulnerabilities_url += "&since=" + str(since)
+            if until:
+                osa_vulnerabilities_url += "&until=" + str(until)
+
+        r = requests.get(url=osa_vulnerabilities_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
             a_list = r.json()
             vulnerabilities = [
@@ -482,13 +479,13 @@ class OsaAPI(object):
         """
         comment = None
 
-        if vulnerability_id and project_id:
-            self.osa_vulnerability_comment_url = self.osa_vulnerability_comment_url.format(
+        osa_vulnerability_comment_url = self.base_url + "/osa/vulnerabilities/{vulnerabilityId}/comments".format(
                 vulnerabilityId=vulnerability_id
             )
-            self.osa_vulnerability_comment_url += "?projectId=" + str(project_id)
 
-        r = requests.get(url=self.osa_vulnerability_comment_url,
+        osa_vulnerability_comment_url += "?projectId=" + str(project_id)
+
+        r = requests.get(url=osa_vulnerability_comment_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
@@ -531,10 +528,9 @@ class OsaAPI(object):
         """
         report = None
 
-        if scan_id:
-            self.osa_reports_url += "?scanId=" + str(scan_id)
+        osa_reports_url = self.base_url + "/osa/reports" + "?scanId=" + str(scan_id)
 
-        r = requests.get(url=self.osa_reports_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=osa_reports_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:
             a_dict = r.json()

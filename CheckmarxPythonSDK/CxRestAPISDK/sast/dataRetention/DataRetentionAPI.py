@@ -3,7 +3,6 @@
 import requests
 import http
 
-
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -25,12 +24,6 @@ class DataRetentionAPI(object):
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
 
-    stop_data_retention_url = base_url + "/sast/dataRetention/stop"
-    define_data_retention_date_range_url = base_url + "/sast/dataRetention/byDateRange"
-    define_data_retention_number_of_scans_url = base_url + "/sast/dataRetention/byNumberOfScans"
-
-    data_retention_request_status_url = base_url + "/sast/dataRetention/{requestId}/status"
-
     def __init__(self):
         self.retry = 0
 
@@ -47,7 +40,10 @@ class DataRetentionAPI(object):
             CxError
         """
         is_successful = False
-        r = requests.post(url=self.stop_data_retention_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+
+        stop_data_retention_url = self.base_url + "/sast/dataRetention/stop"
+
+        r = requests.post(url=stop_data_retention_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 202:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -91,7 +87,9 @@ class DataRetentionAPI(object):
             duration_limit_in_hours=duration_limit_in_hours
         ).get_post_data()
 
-        r = requests.post(url=self.define_data_retention_date_range_url, data=post_body_data,
+        define_data_retention_date_range_url = self.base_url + "/sast/dataRetention/byDateRange"
+
+        r = requests.post(url=define_data_retention_date_range_url, data=post_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 202:
@@ -142,7 +140,9 @@ class DataRetentionAPI(object):
             duration_limit_in_hours=duration_limit_in_hours
         ).get_post_data()
 
-        r = requests.post(self.define_data_retention_number_of_scans_url, data=post_body_data,
+        define_data_retention_number_of_scans_url = self.base_url + "/sast/dataRetention/byNumberOfScans"
+
+        r = requests.post(define_data_retention_number_of_scans_url, data=post_body_data,
                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 202:
@@ -189,8 +189,12 @@ class DataRetentionAPI(object):
             CxError
         """
         data_detention_request_status = None
-        self.data_retention_request_status_url = self.data_retention_request_status_url.format(requestId=request_id)
-        r = requests.get(url=self.data_retention_request_status_url,
+
+        data_retention_request_status_url = self.base_url + "/sast/dataRetention/{requestId}/status".format(
+            requestId=request_id
+        )
+
+        r = requests.get(url=data_retention_request_status_url,
                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         if r.status_code == 200:

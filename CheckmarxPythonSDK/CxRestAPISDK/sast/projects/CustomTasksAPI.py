@@ -16,8 +16,7 @@ class CustomTasksAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
-    custom_tasks_url = base_url + "/customTasks"
-    custom_task_url = base_url + "/customTasks/{id}"
+
     custom_tasks = []
 
     def __init__(self):
@@ -38,8 +37,10 @@ class CustomTasksAPI(object):
         """
         custom_tasks = []
 
+        custom_tasks_url = self.base_url + "/customTasks"
+
         r = requests.get(
-            url=CustomTasksAPI.custom_tasks_url,
+            url=custom_tasks_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers
         )
         if r.status_code == http.HTTPStatus.OK:
@@ -102,7 +103,9 @@ class CustomTasksAPI(object):
             CxError
         """
         custom_task = None
-        custom_task_url = self.custom_task_url.format(id=task_id)
+
+        custom_task_url = self.base_url + "/customTasks/{id}".format(id=task_id)
+
         r = requests.get(
             url=custom_task_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers

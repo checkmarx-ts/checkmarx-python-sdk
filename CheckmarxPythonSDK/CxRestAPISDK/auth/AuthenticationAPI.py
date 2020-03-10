@@ -11,7 +11,7 @@ class AuthenticationAPI(object):
     """
     Token-based Authentication
     """
-    token_url = CxConfig.CxConfig.config.config.url + "/auth/identity/connect/token"
+    base_url = CxConfig.CxConfig.config.config.url
     auth_headers = None
 
     def __init__(self):
@@ -36,7 +36,10 @@ class AuthenticationAPI(object):
             grant_type=config_info.grant_type, scope=config_info.scope,
             client_id=config_info.client_id, client_secret=config_info.client_secret
         ).get_post_data()
-        r = requests.post(url=AuthenticationAPI.token_url, data=req_data)
+
+        token_url = AuthenticationAPI.base_url + "/auth/identity/connect/token"
+
+        r = requests.post(url=token_url, data=req_data)
         if r.status_code == http.HTTPStatus.OK:
             d = r.json()
             auth_response = CxAuthResponse.CxAuthResponse(
