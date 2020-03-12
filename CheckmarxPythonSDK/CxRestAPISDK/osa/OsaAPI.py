@@ -27,13 +27,15 @@ class OsaAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def get_all_osa_scan_details_for_project(self, project_id):
+    def get_all_osa_scan_details_for_project(self, project_id=None, page=None, items_per_page=None):
         """
         Get basic scan details for all CxOSA scans associated with a specified project Id.
         v8.4.2 and up
 
         Args:
             project_id (int): Unique Id of the project
+            page (int, optional): (Number of pages (default 1)
+            items_per_page (int, optional): Number of items per page (default 100)
 
         Returns:
             list: :obj:`list` of :obj:`CxOsaScanDetail`
@@ -45,7 +47,15 @@ class OsaAPI(object):
         """
         osa_scan_details = None
 
-        osa_scans_url = self.base_url + "/osa/scans" + "?projectId=" + str(project_id)
+        osa_scans_url = self.base_url + "/osa/scans?projectId=" + str(project_id)
+
+        optionals = []
+        if page:
+            optionals.append("page=" + str(page))
+        if items_per_page:
+            optionals.append("items_per_page=" + str(items_per_page))
+        if optionals:
+            osa_scans_url += "&".join(optionals)
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -285,13 +295,15 @@ class OsaAPI(object):
 
         return licenses
 
-    def get_osa_scan_libraries(self, scan_id):
+    def get_osa_scan_libraries(self, scan_id, page=None, items_per_page=None):
         """
         Get all the used libraries details for the specified CxOSA scan Id.
         Supported v8.6.0 and up
 
         Args:
-            scan_id （str): Unique Id of the OSA scan
+            scan_id (str): Unique Id of the OSA scan
+            page (int, optional): (Number of pages (default 1)
+            items_per_page (int, optional): Number of items per page (default 100)
 
         Returns:
             :obj:`list` of :obj:`CxOsaLibrary`
@@ -304,6 +316,14 @@ class OsaAPI(object):
         libraries = None
 
         osa_libraries_url = self.base_url + "/osa/libraries" + "?scanId=" + str(scan_id)
+
+        optionals = []
+        if page:
+            optionals.append("page=" + str(page))
+        if items_per_page:
+            optionals.append("items_per_page=" + str(items_per_page))
+        if optionals:
+            osa_libraries_url += "&".join(optionals)
 
         r = requests.get(url=osa_libraries_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
 
@@ -363,14 +383,16 @@ class OsaAPI(object):
 
         return libraries
 
-    def get_osa_scan_vulnerabilities_by_id(self, scan_id, library_id=None, state_id=None, comment=None, since=None,
-                                           until=None):
+    def get_osa_scan_vulnerabilities_by_id(self, scan_id, page=None, items_per_page=None, library_id=None,
+                                           state_id=None, comment=None, since=None, until=None):
         """
         Get all the vulnerabilities for the specified CxOSA scan Id.
         v8.4.2 and up
 
         Args:
             scan_id (str): Unique Id of the OSA scan
+            page (int, optional): (Number of pages (default 1)
+            items_per_page (int, optional): Number of items per page (default 100)
             library_id (str, optional): Filter by Library Id(s)
             state_id (int, optional):  Filter by State Id(s)
             comment (str, optional): Filter by Comment text
@@ -392,16 +414,24 @@ class OsaAPI(object):
 
         if scan_id:
             osa_vulnerabilities_url += "?scanId=" + str(scan_id)
+
+            optionals = []
+            if page:
+                optionals.append("page=" + str(page))
+            if items_per_page:
+                optionals.append("items_per_page=" + str(items_per_page))
             if library_id:
-                osa_vulnerabilities_url += "&libraryId=" + library_id
+                optionals.append("libraryId=" + library_id)
             if state_id:
-                osa_vulnerabilities_url += "&stateId=" + str(state_id)
+                optionals.append("stateId=" + str(state_id))
             if comment:
-                osa_vulnerabilities_url += "&comment=" + comment
+                optionals.append("comment=" + comment)
             if since:
-                osa_vulnerabilities_url += "&since=" + str(since)
+                optionals.append("since=" + str(since))
             if until:
-                osa_vulnerabilities_url += "&until=" + str(until)
+                optionals.append("until=" + str(until))
+            if optionals:
+                osa_vulnerabilities_url += "&".join(optionals)
 
         r = requests.get(url=osa_vulnerabilities_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
