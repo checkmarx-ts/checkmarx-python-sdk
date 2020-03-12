@@ -58,8 +58,13 @@ class ProjectsAPI(object):
 
         projects_url = self.base_url + "/projects"
 
-        if project_name and team_id:
-            projects_url += "?projectName=" + str(project_name) + "&teamId=" + str(team_id)
+        optionals = []
+        if project_name:
+            optionals.append("projectName=" + str(project_name))
+        if team_id:
+            optionals.append("teamId=" + str(team_id))
+        if optionals:
+            projects_url += "?" + "&".join(optionals)
 
         r = requests.get(projects_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == http.HTTPStatus.OK:

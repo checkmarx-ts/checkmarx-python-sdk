@@ -129,18 +129,15 @@ class ScansAPI(object):
 
         all_scans_url = self.base_url + "/sast/scans"
 
+        optionals = []
         if project_id:
-            if "?" not in all_scans_url:
-                all_scans_url += "?"
-            all_scans_url += "projectId={}".format(project_id)
+            optionals.append("projectId={}".format(project_id))
         if scan_status:
-            if "?" not in all_scans_url:
-                all_scans_url += "?"
-            all_scans_url += "scanStatus={}".format(scan_status)
+            optionals.append("scanStatus={}".format(scan_status))
         if last:
-            if "?" not in all_scans_url:
-                all_scans_url += "?"
-            all_scans_url += "last={}".format(last)
+            optionals.append("last={}".format(last))
+        if optionals:
+            all_scans_url += "?" + "&".join(optionals)
 
         r = requests.get(all_scans_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
         if r.status_code == 200:
