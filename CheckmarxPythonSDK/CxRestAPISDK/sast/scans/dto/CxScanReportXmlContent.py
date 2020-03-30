@@ -12,7 +12,7 @@ class CxScanReportXmlContent(object):
         self.tree = eT.parse(report_file_path)
         self.root = self.tree.getroot()
 
-    def filter_to_keep_xml_result_by_severity(self, high=True, medium=True, low=True, info=True):
+    def filter_by_severity(self, high=False, medium=False, low=False, info=False):
         """
         filter at Query level
 
@@ -30,8 +30,8 @@ class CxScanReportXmlContent(object):
                     or ((severity == "Information") and (not info)):
                 self.root.remove(query)
 
-    def filter_to_keep_xml_result_by_state(self, to_verify=True, not_exploitable=True, confirmed=True, urgent=True,
-                                           proposed_not_exploitable=True):
+    def filter_by_state(self, to_verify=False, not_exploitable=False, confirmed=False, urgent=False,
+                        proposed_not_exploitable=False):
         """
         filter at Path level
 
@@ -43,23 +43,23 @@ class CxScanReportXmlContent(object):
             proposed_not_exploitable (boolean): True means keep, False means remove
 
         """
-        a_dict = {
-            0: to_verify,
-            1: not_exploitable,
-            2: confirmed,
-            3: urgent,
-            4: proposed_not_exploitable
-        }
+        states_list = [
+            to_verify,
+            not_exploitable,
+            confirmed,
+            urgent,
+            proposed_not_exploitable
+        ]
         for query in self.root.findall("Query"):
             for result in query.findall("Result"):
-                state = result.attrib.get("state")
-                if state and (not a_dict.get(int(state))):
+                state_index = result.attrib.get("state")
+                if state_index and (not states_list[int(state_index)]):
                     query.remove(result)
             # remove the parent Result tag if it has no child element
             if query.find("Result") is None:
                 self.root.remove(query)
 
-    def filter_to_keep_xml_result_by_assign_to_user(self, user_list=None):
+    def filter_by_assign_to_user(self, user_list=None):
         """
 
         Args:
@@ -70,20 +70,16 @@ class CxScanReportXmlContent(object):
                 for result in query.findall("Result"):
                     assign_to_user = result.attrib.get("AssignToUser")
                     if assign_to_user:
-                        user_not_in_assigned_user = True
                         for user in user_list:
-                            if user in assign_to_user:
-                                user_not_in_assigned_user = False
-                                break
-                        if user_not_in_assigned_user:
-                            query.remove(result)
+                            if user not in assign_to_user:
+                                query.remove(result)
                     else:
                         query.remove(result)
                 # remove the parent Result tag if it has no child element
                 if query.find("Result") is None:
                     self.root.remove(query)
 
-    def filter_to_keep_xml_result_by_categories(self, categories_list=None):
+    def filter_by_categories(self, categories_list=None):
         """
 
         Args:
@@ -102,12 +98,12 @@ class CxScanReportXmlContent(object):
                 categories = query.attrib.get("categories")
                 if categories:
                     ca = [item.split(";")[0] for item in categories.split(",")]
-                    if len(set(ca).intersection(set(categories_list))) == 0:
+                    if not set(ca).intersection(set(categories_list)):
                         self.root.remove(query)
                 else:
                     self.root.remove(query)
 
-    def filter_to_keep_xml_result_by_query_names(self, query_names=None):
+    def filter_by_query_names(self, query_names=None):
         """
 
         Args:
