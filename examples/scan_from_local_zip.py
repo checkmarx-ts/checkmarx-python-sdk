@@ -16,12 +16,13 @@
 """
 
 import time
-
+import io
 from pathlib import Path
 
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
+from CheckmarxPythonSDK.CxRestAPISDK.sast.scans.dto.CxScanReportXmlContent import CxScanReportXmlContent
 
 
 def scan_from_local():
@@ -30,6 +31,7 @@ def scan_from_local():
     project_name = "jvl_local"
     zip_file_path = Path(__file__).parent.absolute() / "JavaVulnerableLab-master.zip"
     report_name = "local_report.xml"
+    filter_xml = True
 
     team_api = TeamAPI()
     projects_api = ProjectsAPI()
@@ -58,6 +60,7 @@ def scan_from_local():
     # 8. create new scan, will get a scan id
     scan = scan_api.create_new_scan(project_id=project_id)
     scan_id = scan.id
+    print("scan_id: {}".format(scan_id))
 
     # 9. get scan details by scan id
     while True:
@@ -74,9 +77,11 @@ def scan_from_local():
     if statistics:
         print(statistics)
 
+    # scan_id = 1000003
     # 12. register scan report
     report = scan_api.register_scan_report(scan_id=scan_id, report_type="XML")
     report_id = report.report_id
+    print("report_id: {}".format(report_id))
 
     # 13. get report status by id
     while not scan_api.is_report_generation_finished(report_id):
@@ -85,8 +90,16 @@ def scan_from_local():
     # 14. get report by id
     report_content = scan_api.get_report_by_id(report_id)
 
-    file_name = Path(__file__).parent.absolute() / report_name
-    with open(str(file_name), "wb") as file:
+    # optional, filter XML report data
+    file_name = Path(__file__).parent.absolute() / "filter_by_severity.xml"
+    if "xml" in report_name and filter_xml:
+        f = io.BytesIO(report_content)
+        xml_report = CxScanReportXmlContent(f)
+        xml_report.filter_by_severity(high=True, medium=True)
+        xml_report.write_new_xml(str(file_name))
+
+    report_path = Path(__file__).parent.absolute() / report_name
+    with open(str(report_path), "wb") as file:
         file.write(report_content)
 
 
