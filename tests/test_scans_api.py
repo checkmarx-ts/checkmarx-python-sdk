@@ -6,7 +6,7 @@ from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAP
 from CheckmarxPythonSDK.CxRestAPISDK.sast.scans.ScansAPI import ScansAPI
 
 
-def get_project_id(project_name="dd"):
+def get_project_id(project_name="jvl_git"):
     projects_api = ProjectsAPI()
     project_name = project_name
     project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
@@ -100,7 +100,7 @@ def test_get_all_scan_details_in_queue():
     # scan = scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
     #                                 comment="scan from REST API")
     time.sleep(4)
-    all_scan_details_in_queue = scan_api.get_all_scan_details_in_queue(project_id)
+    all_scan_details_in_queue = scan_api.get_all_scan_details_in_queue()
     assert all_scan_details_in_queue is not None
 
 
