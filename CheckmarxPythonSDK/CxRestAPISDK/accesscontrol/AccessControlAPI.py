@@ -2956,6 +2956,25 @@ class AccessControlAPI(object):
 
         return all_teams
 
+    def get_team_id_by_full_name(self, full_name):
+        """
+
+        Args:
+            full_name (str):
+
+        Returns:
+            int
+        """
+        team_id = None
+
+        all_teams = self.get_all_teams()
+
+        team = [item for item in all_teams if item.full_name == full_name]
+        if team:
+            team_id = team[0].id
+
+        return team_id
+
     def create_new_team(self, name, parent_id):
         """
 
