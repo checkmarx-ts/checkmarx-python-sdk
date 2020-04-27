@@ -11,7 +11,7 @@ class WindowsDomain(object):
             name (str):
             full_qualified_name (str):
         """
-        self.id = windows_domain_id
+        self.id = int(windows_domain_id)
         self.name = name
         self.full_qualified_name = full_qualified_name
 

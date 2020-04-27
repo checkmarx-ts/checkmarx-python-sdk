@@ -14,9 +14,9 @@ class AuthenticationProvider(object):
             is_external (bool):
             active (bool):
         """
-        self.id = authentication_provider_id
+        self.id = int(authentication_provider_id)
         self.name = name
-        self.provider_id = provider_id
+        self.provider_id = int(provider_id)
         self.provider_type = provider_type
         self.is_external = is_external
         self.active = active

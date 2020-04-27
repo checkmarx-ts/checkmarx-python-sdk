@@ -45,17 +45,17 @@ class LDAPServer(object):
             group_members_attribute (str):
             user_membership_attribute (str):
         """
-        self.id = ldap_server_id
+        self.id = int(ldap_server_id)
         self.active = active
         self.name = name
         self.host = host
-        self.port = port
+        self.port = int(port)
         self.username = username
         self.use_ssl = use_ssl
         self.verify_ssl_certificate = verify_ssl_certificate
         self.ldap_directory_type = ldap_directory_type
         self.sso_enabled = sso_enabled
-        self.mapped_domain_id = mapped_domain_id
+        self.mapped_domain_id = int(mapped_domain_id)
         self.based_dn = based_dn
         self.additional_user_dn = additional_user_dn
         self.user_object_filter = user_object_filter
@@ -65,8 +65,8 @@ class LDAPServer(object):
         self.last_name_attribute = last_name_attribute
         self.email_attribute = email_attribute
         self.synchronization_enabled = synchronization_enabled
-        self.default_team_id = default_team_id
-        self.default_role_id = default_role_id
+        self.default_team_id = int(default_team_id)
+        self.default_role_id = int(default_role_id)
         self.update_team_and_role_upon_login_enabled = update_team_and_role_upon_login_enabled
         self.periodical_synchronization_enabled = periodical_synchronization_enabled
         self.advanced_team_and_role_mapping_enabled = advanced_team_and_role_mapping_enabled

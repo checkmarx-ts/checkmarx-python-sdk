@@ -12,9 +12,9 @@ class LDAPRoleMapping(object):
             ldap_group_dn (str):
             ldap_group_display_name (str):
         """
-        self.id = ldap_role_mapping_id,
-        self.ldap_server_id = ldap_server_id,
-        self.role_id = role_id,
+        self.id = int(ldap_role_mapping_id),
+        self.ldap_server_id = int(ldap_server_id),
+        self.role_id = int(role_id),
         self.ldap_group_dn = ldap_group_dn,
         self.ldap_group_display_name = ldap_group_display_name
 

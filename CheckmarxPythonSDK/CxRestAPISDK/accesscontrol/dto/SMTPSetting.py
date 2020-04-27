@@ -16,9 +16,9 @@ class SMTPSetting(object):
             username (str):
         """
 
-        self.id = smtp_settings_id
+        self.id = int(smtp_settings_id)
         self.host = host
-        self.port = port
+        self.port = int(port)
         self.encryption_type = encryption_type
         self.from_address = from_address
         self.use_default_credentials = use_default_credentials
