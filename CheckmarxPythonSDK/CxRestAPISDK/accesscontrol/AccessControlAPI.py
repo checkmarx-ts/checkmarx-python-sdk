@@ -2924,7 +2924,7 @@ class AccessControlAPI(object):
         all_teams = False
 
         url = AccessControlAPI.base_url + "/auth/Teams"
-        r = requests.delete(
+        r = requests.get(
             url=url,
             headers=AuthenticationAPI.auth_headers
         )
