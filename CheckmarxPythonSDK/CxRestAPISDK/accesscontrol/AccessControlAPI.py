@@ -3199,28 +3199,46 @@ class AccessControlAPI(object):
 
         return all_users
 
+    def get_user_id_by_name(self, username):
+        """
+
+        Args:
+            username (str):
+
+        Returns:
+            int
+        """
+        user_id = None
+
+        all_users = self.get_all_users()
+        user = [item for item in all_users if item.username == username]
+        if user:
+            user_id = user[0].id
+
+        return user_id
+
     def create_new_user(self, username, password, role_ids, team_ids, authentication_provider_id, first_name,
                         last_name, email, phone_number, cell_phone_number, job_title, other, country, active,
                         expiration_date, allowed_ip_list, locale_id):
         """
 
         Args:
-            username (str):
-            password (str):
-            role_ids (list[int]):
-            team_ids (list[int]):
-            authentication_provider_id (int):
-            first_name (str):
-            last_name (str):
-            email (str):
-            phone_number (str):
-            cell_phone_number (str):
-            job_title (str):
-            other (str):
-            country (str):
+            username (str): required
+            password (str): required
+            role_ids (list[int], None):
+            team_ids (list[int]): required.   user must be a member of at least one team
+            authentication_provider_id (int):  1, application
+            first_name (str): required
+            last_name (str): required
+            email (str): required
+            phone_number (str, None):
+            cell_phone_number (str, None):
+            job_title (str, None):
+            other (str, None):
+            country (str, None):
             active (str): true/false
             expiration_date (str):
-            allowed_ip_list (str):
+            allowed_ip_list (str, None):
             locale_id (int):
 
         Returns:
@@ -3347,14 +3365,14 @@ class AccessControlAPI(object):
             first_name (str):
             last_name (str):
             email (str):
-            phone_number (str):
-            cell_phone_number (str):
-            job_title (str):
-            other (str):
-            country (str):
-            active (str):
+            phone_number (str, None):
+            cell_phone_number (str, None):
+            job_title (str, None):
+            other (str, None):
+            country (str, None):
+            active (str): true/false
             expiration_date (str):
-            allowed_ip_list (str):
+            allowed_ip_list (str, None):
             locale_id (int):
 
         Returns:
@@ -3545,11 +3563,30 @@ class AccessControlAPI(object):
 
         return all_windows_domains
 
-    def create_a_new_windows_domain(self, name):
+    def get_windows_domain_id_by_name(self, name):
         """
 
         Args:
             name (str):
+
+        Returns:
+            int
+        """
+        windows_domain_id = None
+
+        windows_domains = self.get_all_windows_domains()
+        domains = [item for item in windows_domains if item.name == name]
+        if domains:
+            windows_domain_id = domains[0].id
+
+        return windows_domain_id
+
+    def create_a_new_windows_domain(self, name, full_qualified_name):
+        """
+
+        Args:
+            name (str):
+            full_qualified_name (str):
 
         Returns:
             bool
@@ -3558,7 +3595,8 @@ class AccessControlAPI(object):
 
         post_data = json.dumps(
             {
-                "name": name
+                "name": name,
+                "FullyQualifiedName": full_qualified_name
             }
         )
 
@@ -3580,7 +3618,7 @@ class AccessControlAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.create_a_new_windows_domain(name)
+            self.create_a_new_windows_domain(name, full_qualified_name)
         else:
             raise CxError(r.text, r.status_code)
 
