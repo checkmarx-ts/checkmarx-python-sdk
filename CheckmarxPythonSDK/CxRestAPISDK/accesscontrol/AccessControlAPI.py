@@ -2812,7 +2812,9 @@ class AccessControlAPI(object):
         """
         is_successful = False
 
-        put_data = json.dumps(user_ids)
+        put_data = json.dumps(
+            {"userIds": user_ids}
+        )
 
         url = AccessControlAPI.base_url + "/auth/Teams/{teamId}/Users".format(teamId=team_id)
         r = requests.put(
