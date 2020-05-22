@@ -40,29 +40,35 @@ def scan_from_local():
     projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name, team_full_name)
 
     # 2. get team id
+    print("2. get team id")
     team_id = team_api.get_team_id_by_team_full_name(team_full_name)
 
     # 3. create project with default configuration, will get project id
+    print("3. create project with default configuration, will get project id")
     project = projects_api.create_project_with_default_configuration(project_name=project_name, team_id=team_id)
     project_id = project.id
 
     # 4. upload source code zip file
-
+    print("4. upload source code zip file")
     projects_api.upload_source_code_zip_file(project_id, str(zip_file_path))
 
     # 6. set data retention settings by project id
+    print("6. set data retention settings by project id")
     projects_api.set_data_retention_settings_by_project_id(project_id=project_id, scans_to_keep=3)
 
     # 7. define SAST scan settings
+    print("7. define SAST scan settings")
     preset_id = projects_api.get_preset_id_by_name()
     scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 
     # 8. create new scan, will get a scan id
+    print("8. create new scan, will get a scan id")
     scan = scan_api.create_new_scan(project_id=project_id)
     scan_id = scan.id
     print("scan_id: {}".format(scan_id))
 
     # 9. get scan details by scan id
+    print("9. get scan details by scan id")
     while True:
         scan_detail = scan_api.get_sast_scan_details_by_scan_id(scan_id=scan_id)
         scan_status = scan_detail.status.name
@@ -73,21 +79,24 @@ def scan_from_local():
         time.sleep(1)
 
     # 11[optional]. get statistics results by scan id
+    print("11[optional]. get statistics results by scan id")
     statistics = scan_api.get_statistics_results_by_scan_id(scan_id=scan_id)
     if statistics:
         print(statistics)
 
-    # scan_id = 1000003
     # 12. register scan report
+    print("12. register scan report")
     report = scan_api.register_scan_report(scan_id=scan_id, report_type="XML")
     report_id = report.report_id
     print("report_id: {}".format(report_id))
 
     # 13. get report status by id
+    print("13. get report status by id")
     while not scan_api.is_report_generation_finished(report_id):
         time.sleep(1)
 
     # 14. get report by id
+    print("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
 
     # optional, filter XML report data
