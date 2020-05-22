@@ -5,6 +5,9 @@ import json
 
 from copy import copy
 
+from requests_toolbelt import MultipartEncoder
+from pathlib import Path
+
 from ..auth.AuthenticationAPI import AuthenticationAPI
 from ..config.CxConfig import CxConfig
 from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -19,6 +22,7 @@ class AccessControlAPI(object):
 
     max_try = CxConfig.config.max_try
     base_url = CxConfig.config.url
+    verify = CxConfig.config.verify
 
     def __init__(self):
         self.retry = 0
@@ -36,7 +40,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
@@ -79,7 +84,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -136,7 +142,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -165,7 +172,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Users/FirstAdminExistence"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -207,7 +215,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -265,7 +274,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -302,7 +312,8 @@ class AccessControlAPI(object):
 
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -391,7 +402,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -438,7 +450,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -486,7 +499,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -526,7 +540,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -673,7 +688,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -721,7 +737,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/LDAPServers/{id}".format(id=ldap_server_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -867,7 +884,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -917,7 +935,8 @@ class AccessControlAPI(object):
 
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -963,7 +982,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1021,7 +1041,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -1058,7 +1079,8 @@ class AccessControlAPI(object):
 
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -1092,7 +1114,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/MyProfile"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1166,7 +1189,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -1201,7 +1225,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
@@ -1344,7 +1369,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
         if r.status_code == http.HTTPStatus.CREATED:
             is_successful = True
@@ -1393,7 +1419,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
         if r.status_code == http.HTTPStatus.OK:
             item = r.json()
@@ -1536,7 +1563,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
         if r.status_code == http.HTTPStatus.NO_CONTENT:
             is_successful = True
@@ -1586,7 +1614,8 @@ class AccessControlAPI(object):
 
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
         if r.status_code == http.HTTPStatus.NO_CONTENT:
             is_successful = True
@@ -1614,7 +1643,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Permissions"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1658,7 +1688,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Permissions/{id}".format(id=permission_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1693,7 +1724,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Roles"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1750,7 +1782,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -1787,7 +1820,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Roles/{id}".format(id=role_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1843,7 +1877,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -1879,7 +1914,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Roles/{id}".format(id=role_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -1913,7 +1949,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SamlIdentityProviders"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -1953,19 +1990,19 @@ class AccessControlAPI(object):
 
         return all_saml_identity_providers
 
-    def create_new_saml_identity_provider(self, certificate_file, active, name, issuer, login_url, logout_url,
+    def create_new_saml_identity_provider(self, certificate_file_path, active, name, issuer, login_url, logout_url,
                                           error_url, sign_authn_request, authn_request_binding, is_manual_management,
                                           default_team_id, default_role_id):
         """
 
         Args:
-            certificate_file (file):
+            certificate_file_path (str):
             active (bool):
             name (str):
             issuer (str):
             login_url (str):
-            logout_url (str):
-            error_url (str):
+            logout_url (str, None):
+            error_url (str, None):
             sign_authn_request (bool):
             authn_request_binding (str):
             is_manual_management (bool):
@@ -1977,34 +2014,33 @@ class AccessControlAPI(object):
         """
         is_successful = False
 
-        post_data = {
-            "CertificateFile": open(certificate_file, 'rb'),
-            "Active": active,
-            "Name": name,
-            "Issuer": issuer,
-            "LoginUrl": login_url,
-            "LogoutUrl": logout_url,
-            "ErrorUrl": error_url,
-            "SignAuthnRequest": sign_authn_request,
-            "AuthnRequestBinding": authn_request_binding,
-            "IsManualManagement": is_manual_management,
-            "DefaultTeamId": default_team_id,
-            "DefaultRoleId": default_role_id
-        }
-
         headers = copy(AuthenticationAPI.auth_headers)
 
-        headers.update(
-            {
-                "Content-Type": "multipart/form-data;v=1.0",
+        file_name = Path(certificate_file_path).name
+        m = MultipartEncoder(
+            fields={
+                "CertificateFile": (file_name, open(certificate_file_path, 'r')),
+                "Active": active,
+                "Name": name,
+                "Issuer": issuer,
+                "LoginUrl": login_url,
+                "LogoutUrl": logout_url,
+                "ErrorUrl": error_url,
+                "SignAuthnRequest": sign_authn_request,
+                "AuthnRequestBinding": authn_request_binding,
+                "IsManualManagement": is_manual_management,
+                "DefaultTeamId": default_team_id,
+                "DefaultRoleId": default_role_id
             }
         )
+        headers.update({"Content-Type": m.content_type})
 
         url = AccessControlAPI.base_url + "/auth/SamlIdentityProviders"
         r = requests.post(
             url=url,
-            files=post_data,
-            headers=headers
+            files=m,
+            headers=headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -2018,7 +2054,7 @@ class AccessControlAPI(object):
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
-            self.create_new_saml_identity_provider(certificate_file, active, name, issuer, login_url, logout_url,
+            self.create_new_saml_identity_provider(certificate_file_path, active, name, issuer, login_url, logout_url,
                                                    error_url, sign_authn_request, authn_request_binding,
                                                    is_manual_management, default_team_id, default_role_id)
         else:
@@ -2042,7 +2078,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2132,7 +2169,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             files=put_data,
-            headers=headers
+            headers=headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2171,7 +2209,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2204,7 +2243,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SamlServiceProvider/metadata"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2237,7 +2277,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SamlServiceProvider"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2297,7 +2338,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             files=put_data,
-            headers=headers
+            headers=headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2321,7 +2363,7 @@ class AccessControlAPI(object):
 
     def get_all_service_providers(self):
         """
-
+        access control 2.0
         Returns:
             list[ServiceProvider]
         """
@@ -2330,7 +2372,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/ServiceProviders"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2372,7 +2415,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/ServiceProviders/{id}".format(id=service_provider_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2410,7 +2454,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SMTPSettings"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2477,7 +2522,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -2514,7 +2560,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2581,7 +2628,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2618,7 +2666,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2677,7 +2726,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2712,7 +2762,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/SystemLocales"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2756,7 +2807,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Teams/{id}/Users".format(id=team_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -2820,7 +2872,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2857,7 +2910,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Teams/{teamId}/Users/{userId}".format(teamId=team_id, userId=user_id)
         r = requests.post(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2894,7 +2948,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Teams/{teamId}/Users/{userId}".format(teamId=team_id, userId=user_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -2928,7 +2983,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Teams"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -3000,7 +3056,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -3036,7 +3093,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Teams/{id}".format(id=team_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -3088,7 +3146,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -3124,7 +3183,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Teams/{id}".format(id=team_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -3146,6 +3206,87 @@ class AccessControlAPI(object):
 
         return is_successful
 
+    def generate_a_new_token_signing_certificate(self):
+        """
+
+        Returns:
+            bool
+        """
+        is_successful = False
+
+        url = AccessControlAPI.base_url + "/auth/TokenSigningCertificateGeneration"
+
+        r = requests.post(
+            url=url,
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
+        )
+
+        if r.status_code == http.HTTPStatus.CREATED:
+            is_successful = True
+        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+            raise CxError("Forbidden to access", r.status_code)
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.generate_a_new_token_signing_certificate()
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
+
+    def upload_a_new_token_signing_certificate(self, certificate_file_path, certificate_password):
+        """
+
+        Args:
+            certificate_file_path (str):
+            certificate_password (str):
+
+        Returns:
+            bool
+        """
+        is_successful = False
+
+        url = AccessControlAPI.base_url + "/auth/TokenSigningCertificate"
+
+        headers = copy(AuthenticationAPI.auth_headers)
+
+        file_name = Path(certificate_file_path).name
+        m = MultipartEncoder(
+            fields={
+                "CertificateFile": (file_name, open(certificate_file_path, 'rb'), "application/zip"),
+                "CertificatePassword": str(certificate_password)
+            }
+        )
+        headers.update({"Content-Type": m.content_type})
+
+        r = requests.post(url=url, headers=headers, data=m, verify=AccessControlAPI.verify)
+
+        if r.status_code == http.HTTPStatus.CREATED:
+            is_successful = True
+        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+            raise CxError("Forbidden to access", r.status_code)
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.upload_a_new_token_signing_certificate(certificate_file_path, certificate_password)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
+
     def get_all_users(self):
         """
 
@@ -3157,7 +3298,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Users"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -3274,7 +3416,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -3314,7 +3457,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Users/{id}".format(id=user_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -3405,7 +3549,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -3444,7 +3589,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/Users/{id}".format(id=user_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -3499,7 +3645,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -3536,7 +3683,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/WindowsDomains"
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -3606,7 +3754,8 @@ class AccessControlAPI(object):
         r = requests.post(
             url=url,
             data=post_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.CREATED:
@@ -3642,7 +3791,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:
@@ -3693,7 +3843,8 @@ class AccessControlAPI(object):
         r = requests.put(
             url=url,
             data=put_data,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -3729,7 +3880,8 @@ class AccessControlAPI(object):
         url = AccessControlAPI.base_url + "/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         r = requests.delete(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.NO_CONTENT:
@@ -3769,7 +3921,8 @@ class AccessControlAPI(object):
 
         r = requests.get(
             url=url,
-            headers=AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.auth_headers,
+            verify=AccessControlAPI.verify
         )
 
         if r.status_code == http.HTTPStatus.OK:

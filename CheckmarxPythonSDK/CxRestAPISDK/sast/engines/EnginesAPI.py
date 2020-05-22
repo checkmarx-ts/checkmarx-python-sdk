@@ -17,6 +17,7 @@ class EnginesAPI(object):
 
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
+    verify = CxConfig.CxConfig.config.verify
 
     def __init__(self):
         self.retry = 0
@@ -36,8 +37,11 @@ class EnginesAPI(object):
 
         engine_servers_url = self.base_url + "/sast/engineServers"
 
-        r = requests.get(url=engine_servers_url,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=engine_servers_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
         if r.status_code == 200:
             a_list = r.json()
             all_engine_server_details = [
@@ -117,8 +121,12 @@ class EnginesAPI(object):
 
         engine_servers_url = self.base_url + "/sast/engineServers"
 
-        r = requests.post(engine_servers_url, data=post_request_body,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            engine_servers_url,
+            data=post_request_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
 
         if r.status_code == 201:
             a_dict = r.json()
@@ -163,7 +171,11 @@ class EnginesAPI(object):
 
         engine_server_url = self.base_url + "/sast/engineServers/{id}".format(id=engine_id)
 
-        r = requests.delete(url=engine_server_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.delete(
+            url=engine_server_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
 
         if r.status_code == 204:
             is_successful = True
@@ -201,7 +213,11 @@ class EnginesAPI(object):
 
         engine_server_url = self.base_url + "/sast/engineServers/{id}".format(id=engine_id)
 
-        r = requests.get(url=engine_server_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=engine_server_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
         if r.status_code == 200:
             item = r.json()
             engine_server = CxEngineServer.CxEngineServer(
@@ -269,8 +285,12 @@ class EnginesAPI(object):
             is_blocked=is_blocked
         ).get_post_data()
 
-        r = requests.put(engine_server_url, data=post_request_body,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.put(
+            url=engine_server_url,
+            data=post_request_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -313,8 +333,11 @@ class EnginesAPI(object):
 
         engine_configurations_url = self.base_url + "/sast/engineConfigurations"
 
-        r = requests.get(url=engine_configurations_url,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=engine_configurations_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
         if r.status_code == 200:
             a_list = r.json()
             all_engine_configurations = [
@@ -370,7 +393,11 @@ class EnginesAPI(object):
 
         engine_configuration_url = self.base_url + "/sast/engineConfigurations/{id}".format(id=configuration_id)
 
-        r = requests.get(url=engine_configuration_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=engine_configuration_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=EnginesAPI.verify
+        )
         if r.status_code == 200:
             a_dict = r.json()
             engine_configuration = CxEngineConfiguration.CxEngineConfiguration(

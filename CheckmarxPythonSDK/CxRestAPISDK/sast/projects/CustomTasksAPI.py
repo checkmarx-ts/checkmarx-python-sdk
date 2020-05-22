@@ -16,6 +16,7 @@ class CustomTasksAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
+    verify = CxConfig.CxConfig.config.verify
 
     custom_tasks = []
 
@@ -41,7 +42,8 @@ class CustomTasksAPI(object):
 
         r = requests.get(
             url=custom_tasks_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=CustomTasksAPI.verify
         )
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
@@ -108,7 +110,8 @@ class CustomTasksAPI(object):
 
         r = requests.get(
             url=custom_task_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=CustomTasksAPI.verify
         )
         if r.status_code == http.HTTPStatus.OK:
             a_dict = r.json()

@@ -144,7 +144,21 @@ class CxConfig(object):
 
     @property
     def max_try(self):
+        """
+        number of max try for each HTTP request
+        Returns:
+
+        """
         return int(self.cx_config.get("max_try", 3))
+
+    @property
+    def verify(self):
+        """
+        ver
+        Returns:
+
+        """
+        return self.cx_config.get("verify", False)
 
 
 # construct an CxConfig object when import this module, so that the file config.ini will only be read once.

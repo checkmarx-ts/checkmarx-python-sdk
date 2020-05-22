@@ -29,6 +29,7 @@ class ProjectsAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
+    verify = CxConfig.CxConfig.config.verify
 
     def __init__(self):
         """
@@ -66,7 +67,11 @@ class ProjectsAPI(object):
         if optionals:
             projects_url += "?" + "&".join(optionals)
 
-        r = requests.get(projects_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=projects_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
             all_projects = [
@@ -89,7 +94,8 @@ class ProjectsAPI(object):
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
             raise BadRequestError(r.text)
         elif r.status_code == http.HTTPStatus.NOT_FOUND:
-            raise NotFoundError()
+            if not (project_name or team_id):
+                raise NotFoundError()
         elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
@@ -128,7 +134,8 @@ class ProjectsAPI(object):
         r = requests.post(
             url=projects_url,
             data=req_data,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
         )
         if r.status_code == http.HTTPStatus.CREATED:
             d = r.json()
@@ -166,15 +173,17 @@ class ProjectsAPI(object):
         Returns:
             int: project id
         """
-        all_projects = self.get_all_project_details()
 
-        # a_dict, key is {project_name}&{team_id}, value is project_id
-        a_dict = {(project.name + "&" + str(project.team_id)): project.project_id for project in all_projects}
+        project_id = None
 
         team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name=team_full_name)
-        the_key = project_name + "&" + str(team_id)
 
-        return a_dict.get(the_key)
+        all_projects = self.get_all_project_details(project_name=project_name, team_id=team_id)
+
+        if all_projects and len(all_projects) == 1:
+            project_id = all_projects[0].project_id
+
+        return project_id
 
     def get_project_details_by_id(self, project_id):
         """
@@ -196,7 +205,11 @@ class ProjectsAPI(object):
 
         project_url = self.base_url + "/projects/{id}".format(id=project_id)
 
-        r = requests.get(project_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=project_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == http.HTTPStatus.OK:
             a_dict = r.json()
             project = CxProject.CxProject(
@@ -257,8 +270,12 @@ class ProjectsAPI(object):
             custom_fields=custom_fields
         ).get_post_data()
 
-        r = requests.put(url=project_url, data=request_body,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.put(
+            url=project_url,
+            data=request_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         # In Python http module, HTTP status ACCEPTED is 202
         if r.status_code == 204:
@@ -305,8 +322,12 @@ class ProjectsAPI(object):
             owning_team=team_id
         ).get_post_data()
 
-        r = requests.patch(url=project_url, data=request_body,
-                           headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.patch(
+            url=project_url,
+            data=request_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         # In Python http module, HTTP status ACCEPTED is 202
         if r.status_code == 204:
@@ -349,8 +370,12 @@ class ProjectsAPI(object):
 
         request_body = json.dumps({"deleteRunningScans": delete_running_scans})
 
-        r = requests.delete(url=project_url, data=request_body,
-                            headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.delete(
+            url=project_url,
+            data=request_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         # In Python http module, HTTP status ACCEPTED is 202
         if r.status_code == 202:
@@ -437,8 +462,12 @@ class ProjectsAPI(object):
 
         request_body = json.dumps({"name": branched_project_name})
 
-        r = requests.post(url=project_branch_url, data=request_body,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=project_branch_url,
+            data=request_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 201:
             a_dict = r.json()
@@ -481,7 +510,11 @@ class ProjectsAPI(object):
 
         issue_tracking_systems_url = self.base_url + "/issueTrackingSystems"
 
-        r = requests.get(url=issue_tracking_systems_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=issue_tracking_systems_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_list = r.json()
@@ -543,8 +576,11 @@ class ProjectsAPI(object):
                 id=issue_tracking_system_id
             )
 
-        r = requests.get(url=issue_tracking_systems_metadata_url,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=issue_tracking_systems_metadata_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_list = r.json().get("projects")
@@ -623,7 +659,11 @@ class ProjectsAPI(object):
 
         exclude_settings_url = self.base_url + "/projects/{id}/sourceCode/excludeSettings".format(id=project_id)
 
-        r = requests.get(url=exclude_settings_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=exclude_settings_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -681,8 +721,12 @@ class ProjectsAPI(object):
                 "excludeFilesPattern": exclude_files_pattern
             }
         )
-        r = requests.put(url=exclude_settings_url, data=body_data,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.put(
+            url=exclude_settings_url,
+            data=body_data,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 200:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -719,7 +763,11 @@ class ProjectsAPI(object):
 
         remote_settings_git_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/git".format(id=project_id)
 
-        r = requests.get(url=remote_settings_git_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=remote_settings_git_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -779,8 +827,12 @@ class ProjectsAPI(object):
             url=url, branch=branch, private_key=private_key
         ).get_post_data()
 
-        r = requests.post(url=remote_settings_git_url, data=post_body,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=remote_settings_git_url,
+            data=post_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 204:
             is_successful = True
@@ -819,7 +871,11 @@ class ProjectsAPI(object):
 
         remote_settings_svn_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/svn".format(id=project_id)
 
-        r = requests.get(url=remote_settings_svn_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=remote_settings_svn_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -894,9 +950,12 @@ class ProjectsAPI(object):
             private_key=private_key
         ).get_post_data()
 
-        r = requests.post(url=remote_settings_svn_url,
-                          data=post_body_data,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=remote_settings_svn_url,
+            data=post_body_data,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 204:
             is_successful = True
@@ -936,7 +995,11 @@ class ProjectsAPI(object):
 
         remote_settings_tfs_url = self.base_url + "/projects/{id}/sourceCode/remoteSettings/tfs".format(id=project_id)
 
-        r = requests.get(url=remote_settings_tfs_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=remote_settings_tfs_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 200:
             a_dict = r.json()
             tfs_settings = CxTFSSettings.CxTFSSettings(
@@ -1005,7 +1068,8 @@ class ProjectsAPI(object):
         r = requests.post(
             url=remote_settings_tfs_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            data=post_data
+            data=post_data,
+            verify=ProjectsAPI.verify
         )
         if r.status_code == 204:
             is_successful = True
@@ -1048,7 +1112,11 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        r = requests.get(url=remote_settings_custom_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=remote_settings_custom_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -1112,8 +1180,12 @@ class ProjectsAPI(object):
             )
         ).get_post_data()
 
-        r = requests.post(url=remote_settings_custom_url, data=request_body_data,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=remote_settings_custom_url,
+            data=request_body_data,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1153,8 +1225,11 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        r = requests.get(url=remote_settings_shared_url,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=remote_settings_shared_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 200:
             a_dict = r.json()
             shared_source_setting = CxSharedRemoteSourceSettingsResponse.CxSharedRemoteSourceSettingsResponse(
@@ -1212,8 +1287,12 @@ class ProjectsAPI(object):
             )
         ).get_post_data()
 
-        r = requests.post(url=remote_settings_shared_url, data=post_body_data,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=remote_settings_shared_url,
+            data=post_body_data,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 204:
             is_successful = True
@@ -1255,7 +1334,8 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_perforce_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
         )
 
         if r.status_code == 200:
@@ -1334,7 +1414,8 @@ class ProjectsAPI(object):
         r = requests.post(
             url=remote_settings_perforce_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            data=post_data
+            data=post_data,
+            verify=ProjectsAPI.verify
         )
         if r.status_code == 204:
             is_successful = True
@@ -1395,7 +1476,12 @@ class ProjectsAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=remote_settings_git_ssh_url, headers=headers, data=m)
+        r = requests.post(
+            url=remote_settings_git_ssh_url,
+            headers=headers,
+            data=m,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1453,7 +1539,12 @@ class ProjectsAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=remote_settings_svn_ssh_url, headers=headers, data=m)
+        r = requests.post(
+            url=remote_settings_svn_ssh_url,
+            headers=headers,
+            data=m,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1502,7 +1593,12 @@ class ProjectsAPI(object):
         )
         headers.update({"Content-Type": m.content_type})
 
-        r = requests.post(url=attachments_url, headers=headers, data=m)
+        r = requests.post(
+            url=attachments_url,
+            headers=headers,
+            data=m,
+            verify=ProjectsAPI.verify
+        )
         if r.status_code == 204:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -1546,8 +1642,12 @@ class ProjectsAPI(object):
             }
         )
 
-        r = requests.post(url=data_retention_settings_url, data=post_body,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=data_retention_settings_url,
+            data=post_body,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 204:
             is_successful = True
@@ -1603,7 +1703,8 @@ class ProjectsAPI(object):
         r = requests.post(
             url=jira_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            data=post_data
+            data=post_data,
+            verify=ProjectsAPI.verify
         )
 
         if r.status_code == 204:
@@ -1641,7 +1742,11 @@ class ProjectsAPI(object):
 
         presets_url = self.base_url + "/sast/presets"
 
-        r = requests.get(url=presets_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=presets_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_list = r.json()
@@ -1703,7 +1808,11 @@ class ProjectsAPI(object):
 
         preset_url = self.base_url + "/sast/presets/{id}".format(id=preset_id)
 
-        r = requests.get(url=preset_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=preset_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ProjectsAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()

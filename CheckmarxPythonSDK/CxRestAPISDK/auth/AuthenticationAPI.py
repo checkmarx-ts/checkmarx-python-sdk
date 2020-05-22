@@ -1,10 +1,14 @@
 # encoding: utf-8
 import http
 import requests
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
 
 from ..config import CxConfig
 from ..exceptions.CxError import BadRequestError, CxError
 from .dto import (CxAuthRequest, CxAuthResponse)
+
+disable_warnings(InsecureRequestWarning)
 
 
 class AuthenticationAPI(object):
@@ -13,6 +17,7 @@ class AuthenticationAPI(object):
     """
     base_url = CxConfig.CxConfig.config.config.url
     auth_headers = None
+    verify = CxConfig.CxConfig.config.verify
 
     def __init__(self):
         """
@@ -39,7 +44,7 @@ class AuthenticationAPI(object):
 
         token_url = AuthenticationAPI.base_url + "/auth/identity/connect/token"
 
-        r = requests.post(url=token_url, data=req_data)
+        r = requests.post(url=token_url, data=req_data, verify=AuthenticationAPI.verify)
         if r.status_code == http.HTTPStatus.OK:
             d = r.json()
             auth_response = CxAuthResponse.CxAuthResponse(

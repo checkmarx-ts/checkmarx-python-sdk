@@ -16,6 +16,7 @@ class TeamAPI(object):
     the team api
     """
     max_try = CxConfig.CxConfig.config.max_try
+    verify = CxConfig.CxConfig.config.verify
     teams = []
 
     default_team_id = None
@@ -41,7 +42,11 @@ class TeamAPI(object):
 
         teams_url = CxConfig.CxConfig.config.url + "/auth/teams"
 
-        r = requests.get(teams_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=teams_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=TeamAPI.verify
+        )
         if r.status_code == http.HTTPStatus.OK:
             a_list = r.json()
             teams = [

@@ -23,6 +23,7 @@ class OsaAPI(object):
     """
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
+    verify = CxConfig.CxConfig.config.verify
 
     def __init__(self):
         self.retry = 0
@@ -59,7 +60,7 @@ class OsaAPI(object):
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        r = requests.get(url=osa_scans_url, headers=headers)
+        r = requests.get(url=osa_scans_url, headers=headers, verify=OsaAPI.verify)
         if r.status_code == 200:
             a_list = r.json()
             osa_scan_details = [
@@ -129,7 +130,8 @@ class OsaAPI(object):
 
         osa_scan_by_scan_id_url = self.base_url + "/osa/scans/{scanId}".format(scanId=scan_id)
 
-        r = requests.get(url=osa_scan_by_scan_id_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=osa_scan_by_scan_id_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+                         verify=OsaAPI.verify)
 
         if r.status_code == 200:
             a_dict = r.json()
@@ -194,7 +196,7 @@ class OsaAPI(object):
 
         osa_scans_url = self.base_url + "/osa/scans" + "?projectId=" + str(project_id)
 
-        r = requests.post(url=osa_scans_url, headers=headers, data=m)
+        r = requests.post(url=osa_scans_url, headers=headers, data=m, verify=OsaAPI.verify)
         if r.status_code == 202:
             scan_id = r.json().get("scanId")
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -228,7 +230,8 @@ class OsaAPI(object):
 
         osa_file_extensions_url = self.base_url + "/osa/fileextensions"
 
-        r = requests.get(url=osa_file_extensions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(url=osa_file_extensions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+                         verify=OsaAPI.verify)
         if r.status_code == 200:
             file_extensions = r.text
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -264,7 +267,11 @@ class OsaAPI(object):
 
         osa_licenses_url = self.base_url + "/osa/licenses" + "?scanId=" + str(scan_id)
 
-        r = requests.get(url=osa_licenses_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=osa_licenses_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=OsaAPI.verify
+        )
         if r.status_code == 200:
             a_list = r.json()
             licenses = [
@@ -325,7 +332,11 @@ class OsaAPI(object):
         if optionals:
             osa_libraries_url += "&".join(optionals)
 
-        r = requests.get(url=osa_libraries_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=osa_libraries_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=OsaAPI.verify
+        )
 
         if r.status_code == 200:
             a_list = r.json()
@@ -433,7 +444,11 @@ class OsaAPI(object):
             if optionals:
                 osa_vulnerabilities_url += "&".join(optionals)
 
-        r = requests.get(url=osa_vulnerabilities_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=osa_vulnerabilities_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=OsaAPI.verify
+        )
         if r.status_code == 200:
             a_list = r.json()
             vulnerabilities = [
@@ -515,8 +530,11 @@ class OsaAPI(object):
 
         osa_vulnerability_comment_url += "?projectId=" + str(project_id)
 
-        r = requests.get(url=osa_vulnerability_comment_url,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=osa_vulnerability_comment_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=OsaAPI.verify
+        )
 
         if r.status_code == 200:
             a_list = r.json()
@@ -560,7 +578,11 @@ class OsaAPI(object):
 
         osa_reports_url = self.base_url + "/osa/reports" + "?scanId=" + str(scan_id)
 
-        r = requests.get(url=osa_reports_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=osa_reports_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=OsaAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()

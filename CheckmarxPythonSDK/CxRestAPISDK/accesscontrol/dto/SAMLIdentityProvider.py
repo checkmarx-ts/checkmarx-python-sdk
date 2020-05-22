@@ -21,8 +21,8 @@ class SAMLIdentityProvider(object):
             sign_authn_request (bool):
             authn_request_binding (str):
             is_manual_management (bool):
-            default_team_id (int):
-            default_role_id (int):
+            default_team_id (int, None):
+            default_role_id (int, None):
         """
         self.id = int(saml_identity_provider_id)
         self.certificate_file_name = certificate_file_name
@@ -36,8 +36,8 @@ class SAMLIdentityProvider(object):
         self.sign_authn_request = sign_authn_request
         self.authn_request_binding = authn_request_binding
         self.is_manual_management = is_manual_management
-        self.default_team_id = int(default_team_id)
-        self.default_role_id = int(default_role_id)
+        self.default_team_id = default_team_id
+        self.default_role_id = default_role_id
 
     def __str__(self):
         return """SAMLIdentityProvider(id={}, certificate_file_name={}, certificate_subject={}, active={}, name={}, 

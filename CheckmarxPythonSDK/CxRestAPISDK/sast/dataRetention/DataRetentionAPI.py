@@ -23,6 +23,7 @@ class DataRetentionAPI(object):
     
     max_try = CxConfig.CxConfig.config.max_try
     base_url = CxConfig.CxConfig.config.url
+    verify = CxConfig.CxConfig.config.verify
 
     def __init__(self):
         self.retry = 0
@@ -43,7 +44,11 @@ class DataRetentionAPI(object):
 
         stop_data_retention_url = self.base_url + "/sast/dataRetention/stop"
 
-        r = requests.post(url=stop_data_retention_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=stop_data_retention_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=DataRetentionAPI.verify
+        )
         if r.status_code == 202:
             is_successful = True
         elif r.status_code == http.HTTPStatus.BAD_REQUEST:
@@ -89,8 +94,12 @@ class DataRetentionAPI(object):
 
         define_data_retention_date_range_url = self.base_url + "/sast/dataRetention/byDateRange"
 
-        r = requests.post(url=define_data_retention_date_range_url, data=post_body_data,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            url=define_data_retention_date_range_url,
+            data=post_body_data,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=DataRetentionAPI.verify
+        )
 
         if r.status_code == 202:
             if r.text:
@@ -142,8 +151,12 @@ class DataRetentionAPI(object):
 
         define_data_retention_number_of_scans_url = self.base_url + "/sast/dataRetention/byNumberOfScans"
 
-        r = requests.post(define_data_retention_number_of_scans_url, data=post_body_data,
-                          headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.post(
+            define_data_retention_number_of_scans_url,
+            data=post_body_data,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=DataRetentionAPI.verify
+        )
 
         if r.status_code == 202:
             if r.text:
@@ -194,8 +207,11 @@ class DataRetentionAPI(object):
             requestId=request_id
         )
 
-        r = requests.get(url=data_retention_request_status_url,
-                         headers=AuthenticationAPI.AuthenticationAPI.auth_headers)
+        r = requests.get(
+            url=data_retention_request_status_url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=DataRetentionAPI.verify
+        )
 
         if r.status_code == 200:
             a_dict = r.json()
