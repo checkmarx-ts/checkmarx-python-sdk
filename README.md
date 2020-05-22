@@ -7,7 +7,7 @@ Started from CxSAST 9.0, Access Control REST API is available.
 # REST API Official Documents
 For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center：  
 CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
-CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
+CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide 
 Access Control (REST) API Summary: https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary
 
 # Notice
@@ -41,7 +41,7 @@ team_full_name = /CxServer
 max_try = 3
 ```
 
-If using both SAST REST API and access control REST API, please change scope in config.ini into `sast_rest_api access_control_api`
+If using both SAST REST API and access control REST API, please change `scope` in config.ini into `sast_rest_api access_control_api`
 
 # Examples
  
