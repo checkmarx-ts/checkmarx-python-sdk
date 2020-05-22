@@ -1,13 +1,17 @@
 # Checkmarx Python SDK
 This is a Checkmarx Python SDK. By using this SDK, Checkmarx users will be able to do automatic scanning with CxSAST and CxOSA.
+
 This SDK uses Python requests package to initiate HTTP requests to do related CxSAST and CxOSA scanning, and reports generation.
+
 Started from CxSAST 9.0, Access Control REST API is available.
 
 
 # REST API Official Documents
 For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center：  
 CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
-CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide 
+
+CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide     
+  
 Access Control (REST) API Summary: https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary
 
 # Notice
