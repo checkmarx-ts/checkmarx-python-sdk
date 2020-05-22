@@ -1,12 +1,14 @@
 # Checkmarx Python SDK
 This is a Checkmarx Python SDK. By using this SDK, Checkmarx users will be able to do automatic scanning with CxSAST and CxOSA.
 This SDK uses Python requests package to initiate HTTP requests to do related CxSAST and CxOSA scanning, and reports generation.
+Started from CxSAST 9.0, Access Control REST API is available.
 
 
 # REST API Official Documents
 For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center：  
 CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
 CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide
+Access Control (REST) API Summary: https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary
 
 # Notice
 Please use Python3
@@ -38,6 +40,8 @@ configuration = Default Configuration
 team_full_name = /CxServer
 max_try = 3
 ```
+
+If using both SAST REST API and access control REST API, please change scope in config.ini into `sast_rest_api access_control_api`
 
 # Examples
  
@@ -162,4 +166,79 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - BadRequestError                                                          **(provided by SDK)**
     - NotFoundError                                                            **(provided by SDK)**
     - CxError                                                   **(provided by SDK)**
-
+11. AccessControlAPI
+    - get_all_assignable_users
+    - get_all_authentication_providers
+    - submit_first_admin_user
+    - get_admin_user_exists_confirmation
+    - get_all_ldap_role_mapping
+    - update_ldap_role_mapping
+    - delete_ldap_role_mapping
+    - test_ldap_server_connection
+    - get_user_entries_by_search_criteria
+    - get_group_entries_by_search_criteria
+    - get_all_ldap_servers
+    - create_new_ldap_server
+    - get_ldap_server_by_id
+    - update_ldap_server
+    - delete_ldap_server
+    - get_ldap_team_mapping
+    - update_ldap_team_mapping
+    - delete_ldap_team_mapping
+    - get_my_profile
+    - update_my_profile
+    - get_all_oidc_clients
+    - create_new_oidc_client
+    - get_oidc_client_by_id
+    - update_an_oidc_client
+    - delete_an_oidc_client
+    - get_all_permissions
+    - get_permission_by_id
+    - get_all_roles
+    - create_new_role
+    - get_role_by_id
+    - update_a_role
+    - delete_a_role
+    - get_all_saml_identity_providers
+    - create_new_saml_identity_provider
+    - get_saml_identity_provider_by_id
+    - update_new_saml_identity_provider
+    - delete_a_saml_identity_provider
+    - get_saml_service_provider_metadata
+    - get_saml_service_provider
+    - update_a_saml_service_provider
+    - get_all_service_providers
+    - get_service_provider_by_id
+    - get_all_smtp_settings
+    - create_smtp_settings
+    - get_smtp_settings_by_id
+    - update_smtp_settings
+    - delete_smtp_settings
+    - test_smtp_connection
+    - get_all_system_locales
+    - get_members_by_team_id
+    - update_members_by_team_id
+    - add_a_user_to_a_team
+    - delete_a_member_from_a_team
+    - get_all_teams
+    - get_team_id_by_full_name
+    - create_new_team
+    - get_team_by_id
+    - update_a_team
+    - delete_a_team
+    - generate_a_new_token_signing_certificate
+    - upload_a_new_token_signing_certificate
+    - get_all_users
+    - get_user_id_by_name
+    - create_new_user
+    - get_user_by_id
+    - update_a_user
+    - delete_a_user
+    - migrate_existing_user
+    - get_all_windows_domains
+    - get_windows_domain_id_by_name
+    - create_a_new_windows_domain
+    - get_windows_domain_by_id
+    - update_a_windows_domain
+    - delete_a_windows_domain
+    - get_windows_domain_user_entries_by_search_criteria
