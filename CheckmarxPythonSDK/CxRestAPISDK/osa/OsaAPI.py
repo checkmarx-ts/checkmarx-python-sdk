@@ -56,6 +56,7 @@ class OsaAPI(object):
         if items_per_page:
             optionals.append("items_per_page=" + str(items_per_page))
         if optionals:
+            osa_scans_url += "&"
             osa_scans_url += "&".join(optionals)
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
@@ -330,6 +331,7 @@ class OsaAPI(object):
         if items_per_page:
             optionals.append("items_per_page=" + str(items_per_page))
         if optionals:
+            osa_libraries_url += "&"
             osa_libraries_url += "&".join(optionals)
 
         r = requests.get(
@@ -442,6 +444,7 @@ class OsaAPI(object):
             if until:
                 optionals.append("until=" + str(until))
             if optionals:
+                osa_vulnerabilities_url += "&"
                 osa_vulnerabilities_url += "&".join(optionals)
 
         r = requests.get(
