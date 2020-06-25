@@ -28,7 +28,7 @@ class OsaAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def get_all_osa_scan_details_for_project(self, project_id=None, page=None, items_per_page=None):
+    def get_all_osa_scan_details_for_project(self, project_id=None, page=1, items_per_page=100):
         """
         Get basic scan details for all CxOSA scans associated with a specified project Id.
         v8.4.2 and up
@@ -303,7 +303,7 @@ class OsaAPI(object):
 
         return licenses
 
-    def get_osa_scan_libraries(self, scan_id, page=None, items_per_page=None):
+    def get_osa_scan_libraries(self, scan_id, page=1, items_per_page=100):
         """
         Get all the used libraries details for the specified CxOSA scan Id.
         Supported v8.6.0 and up
@@ -396,7 +396,7 @@ class OsaAPI(object):
 
         return libraries
 
-    def get_osa_scan_vulnerabilities_by_id(self, scan_id, page=None, items_per_page=None, library_id=None,
+    def get_osa_scan_vulnerabilities_by_id(self, scan_id, page=1, items_per_page=100, library_id=None,
                                            state_id=None, comment=None, since=None, until=None):
         """
         Get all the vulnerabilities for the specified CxOSA scan Id.
