@@ -37,7 +37,7 @@ class ProjectsAPI(object):
         """
         self.retry = 0
 
-    def get_all_project_details(self, project_name=None, team_id=TeamAPI.default_team_id):
+    def get_all_project_details(self, project_name=None, team_id=None):
         """
         REST API: get all project details.
         For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
@@ -107,7 +107,7 @@ class ProjectsAPI(object):
 
         return all_projects
 
-    def create_project_with_default_configuration(self, project_name, team_id=TeamAPI.default_team_id, is_public=True):
+    def create_project_with_default_configuration(self, project_name, team_id=None, is_public=True):
         """
         REST API: create project
 
@@ -242,7 +242,7 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, project_name, team_id=TeamAPI.default_team_id, custom_fields=None):
+    def update_project_by_id(self, project_id, project_name, team_id=None, custom_fields=None):
         """
         update project info by project id
 
@@ -295,7 +295,7 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def update_project_name_team_id(self, project_id, project_name, team_id=TeamAPI.default_team_id):
+    def update_project_name_team_id(self, project_id, project_name, team_id=None):
         """
         REST API: update project name, team id
 
