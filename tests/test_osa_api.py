@@ -15,7 +15,7 @@ def get_project_id():
 def test_get_all_osa_scan_details():
     project_id = get_project_id()
     osa_api = OsaAPI()
-    all_osa_scan = osa_api.get_all_osa_scan_details_for_project(project_id)
+    all_osa_scan = osa_api.get_all_osa_scan_details_for_project(project_id, page=1, items_per_page=1)
     assert all_osa_scan is not None
 
 
@@ -61,7 +61,7 @@ def test_get_osa_scan_libraries():
     project_id = get_project_id()
     osa_api = OsaAPI()
     scan_id = osa_api.get_last_osa_scan_id_of_a_project(project_id)
-    libraries = osa_api.get_osa_scan_libraries(scan_id)
+    libraries = osa_api.get_osa_scan_libraries(scan_id, page=1, items_per_page=10)
     assert libraries is not None
 
 
@@ -69,7 +69,7 @@ def test_get_osa_scan_vulnerabilities_by_id():
     project_id = get_project_id()
     osa_api = OsaAPI()
     scan_id = osa_api.get_last_osa_scan_id_of_a_project(project_id)
-    vulnerabilities = osa_api.get_osa_scan_vulnerabilities_by_id(scan_id)
+    vulnerabilities = osa_api.get_osa_scan_vulnerabilities_by_id(scan_id, page=1, items_per_page=10)
     assert vulnerabilities is not None
 
 
