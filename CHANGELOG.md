@@ -12,3 +12,6 @@ All notable changes to this project will be documented in  this file.
 
 0.0.4 - 2020-05-22
 * Add a verify CA certificate option for each HTTP request, default to False
+
+0.0.5 - 2020-06-25
+* Fix OSA API URL optional parameters bug

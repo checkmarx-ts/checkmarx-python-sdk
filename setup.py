@@ -7,7 +7,7 @@ with open("README.md", "r", encoding='UTF-8') as fh:
 
 setup(
     name="CheckmarxPythonSDK",
-    version="0.0.4",
+    version="0.0.5",
     author="Happy Yang",
     author_email="happy.yang@checkmarx.com",
     description="Checkmarx Python SDK",
