@@ -19,8 +19,6 @@ class TeamAPI(object):
     verify = CxConfig.CxConfig.config.verify
     teams = []
 
-    default_team_id = None
-
     def __init__(self):
         self.retry = 0
         self.get_all_teams()
@@ -87,7 +85,6 @@ class TeamAPI(object):
         team_full_name_id_dict = {item.full_name: item.team_id for item in all_teams}
 
         team_id = team_full_name_id_dict.get(Path(team_full_name.replace("\\", "/")))
-        TeamAPI.default_team_id = team_id
 
         return team_id
 
