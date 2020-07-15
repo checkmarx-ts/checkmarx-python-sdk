@@ -54,7 +54,7 @@ class OsaAPI(object):
         if page:
             optionals.append("page=" + str(page))
         if items_per_page:
-            optionals.append("items_per_page=" + str(items_per_page))
+            optionals.append("itemsPerPage=" + str(items_per_page))
         if optionals:
             osa_scans_url += "&"
             osa_scans_url += "&".join(optionals)
@@ -329,7 +329,7 @@ class OsaAPI(object):
         if page:
             optionals.append("page=" + str(page))
         if items_per_page:
-            optionals.append("items_per_page=" + str(items_per_page))
+            optionals.append("itemsPerPage=" + str(items_per_page))
         if optionals:
             osa_libraries_url += "&"
             osa_libraries_url += "&".join(optionals)
@@ -432,7 +432,7 @@ class OsaAPI(object):
             if page:
                 optionals.append("page=" + str(page))
             if items_per_page:
-                optionals.append("items_per_page=" + str(items_per_page))
+                optionals.append("itemsPerPage=" + str(items_per_page))
             if library_id:
                 optionals.append("libraryId=" + library_id)
             if state_id:
