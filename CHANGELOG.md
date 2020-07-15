@@ -15,3 +15,6 @@ All notable changes to this project will be documented in  this file.
 
 0.0.5 - 2020-06-25
 * Fix OSA API URL optional parameters bug
+
+0.0.6 - 2020-07-15
+* Fix OSA API URL optional itemsPerPage bug
