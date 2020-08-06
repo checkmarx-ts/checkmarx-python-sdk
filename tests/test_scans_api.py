@@ -182,6 +182,15 @@ def test_get_the_publish_last_scan_results_to_management_and_orchestration_statu
     assert policy_finding_status is not None
 
 
+def test_get_short_vulnerability_description_for_a_scan_result():
+    scan_id = 1000006
+    path_id = 1
+    scan_api = ScansAPI()
+
+    short_description = scan_api.get_short_vulnerability_description_for_a_scan_result(scan_id=scan_id, path_id=path_id)
+    assert short_description is not None
+
+
 def test_register_scan_report():
     project_id = get_project_id()
 
