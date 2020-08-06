@@ -134,6 +134,7 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - assign_ticket_to_scan_results
     - publish_last_scan_results_to_management_and_orchestration_by_project_id
     - get_the_publish_last_scan_results_to_management_and_orchestration_status
+    - get_short_vulnerability_description_for_a_scan_result
     - register_scan_report
     - get_report_status_by_id
     - get_report_by_id

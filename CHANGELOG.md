@@ -18,3 +18,6 @@ All notable changes to this project will be documented in  this file.
 
 0.0.6 - 2020-07-15
 * Fix OSA API URL optional itemsPerPage bug
+
+0.0.7 - 2020-08-06
+* Add SAST REST API for Get Short Vulnerability Description for a Scan Result
