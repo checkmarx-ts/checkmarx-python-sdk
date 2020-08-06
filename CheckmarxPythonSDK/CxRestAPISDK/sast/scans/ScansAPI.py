@@ -1025,6 +1025,44 @@ class ScansAPI(object):
 
         return policy_finding_status
 
+    def get_short_vulnerability_description_for_a_scan_result(self, scan_id, path_id):
+        """
+        Get the short version of a vulnerability description for a specific scan result.
+        Args:
+            scan_id (int): Unique Id of the scan
+            path_id (int): Unique Id of the result path
+
+        Returns:
+            str
+        """
+        short_description = None
+
+        url = self.base_url + "/sast/scans/{id}/results/{pathId}/shortDescription".format(id=scan_id, pathId=path_id)
+
+        r = requests.get(
+            url=url,
+            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            verify=ScansAPI.verify
+        )
+
+        if r.status_code == 200:
+            a_dict = r.json()
+            short_description = a_dict.get("shortDescription")
+        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            self.retry += 1
+            self.get_short_vulnerability_description_for_a_scan_result(scan_id, path_id)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return short_description
+
     def register_scan_report(self, scan_id, report_type):
         """
         Generate a new CxSAST scan report.
