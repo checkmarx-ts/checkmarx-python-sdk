@@ -25,6 +25,7 @@ setup(
     install_requires=[
         "requests>=2.22.0",
         "requests-toolbelt>=0.9.1",
+        "zeep>=3.4.0",
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
