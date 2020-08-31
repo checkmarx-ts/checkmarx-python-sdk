@@ -21,3 +21,7 @@ All notable changes to this project will be documented in  this file.
 
 0.0.7 - 2020-08-06
 * Add SAST REST API for Get Short Vulnerability Description for a Scan Result
+
+0.0.8 - 2020-08-31
+* Add support for get configuration information from environment variables and command line arguments
+* Add Portal SOAP APIs: create_new_preset, delete_preset, delete_project, delete_projects, get_preset_list, get_server_license_data, get_server_license_summary
