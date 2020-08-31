@@ -6,9 +6,9 @@ from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAP
 
 
 def get_project_id():
-    project_name = "JVL-local"
+    project_name = "BookStore %2B OSA"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name, "/CxServer")
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, "/CxServer")
     return project_id
 
 
@@ -61,7 +61,7 @@ def test_get_osa_scan_libraries():
     project_id = get_project_id()
     osa_api = OsaAPI()
     scan_id = osa_api.get_last_osa_scan_id_of_a_project(project_id)
-    libraries = osa_api.get_osa_scan_libraries(scan_id, page=1, items_per_page=10)
+    libraries = osa_api.get_osa_scan_libraries(scan_id, page=1, items_per_page=2)
     assert libraries is not None
 
 
