@@ -254,7 +254,7 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_windows_domain_user_entries_by_search_criteria
 
 # The CxSAST Portal SOAP API list
-cx portal web service
+1. cx portal web service
     - create_new_preset
     - delete_preset
     - delete_project
