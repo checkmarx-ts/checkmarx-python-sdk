@@ -2,10 +2,10 @@
 import http
 import requests
 
-from .config import config_data
+from CheckmarxPythonSDK.config import get_config_info
 
 
-def get_new_token(username=config_data.get("username"), password=config_data.get("password")):
+def get_new_token(username=get_config_info().get("username"), password=get_config_info().get("password")):
     """
 
     Args:
@@ -16,7 +16,7 @@ def get_new_token(username=config_data.get("username"), password=config_data.get
         Bear Token (str)
     """
 
-    token_url = config_data.get("base_url") + "/cxrestapi/auth/identity/connect/token"
+    token_url = get_config_info().get("base_url") + "/cxrestapi/auth/identity/connect/token"
 
     req_data = {
         "username": username,
@@ -34,6 +34,3 @@ def get_new_token(username=config_data.get("username"), password=config_data.get
 
     content = response.json()
     return content.get("token_type") + " " + content.get("access_token")
-
-
-bear_token = get_new_token()
