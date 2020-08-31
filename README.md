@@ -45,6 +45,11 @@ team_full_name = /CxServer
 max_try = 3
 ```
 
+Or you can get configuration information by using environment variables "cxsast_base_url", "cxsast_username", "cxsast_password", this will override the earlier one.
+
+Or you can get configuration information by passing command line arguments "--cxsast_base_url", "--cxsast_username", "--cxsast_password", 
+for example run `Python <your_script>.py --cxsast_base_url=http://localhost:80 --cxsast_username=**** --cxsast_password=****` this will override the earlier one.
+
 If using both SAST REST API and access control REST API, please change `scope` in config.ini into `sast_rest_api access_control_api`
 
 # Examples

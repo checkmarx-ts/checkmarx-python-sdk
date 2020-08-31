@@ -2,34 +2,21 @@
 """
 Configuration of Checkmarx
 """
-
-import configparser
-import pathlib
-
-config_folder = pathlib.Path(__file__).parent.absolute()
-# config_file_path = config_folder / "config.ini"
-config_file_path = pathlib.Path.home() / ".Checkmarx/config.ini"
+from CheckmarxPythonSDK.config import get_config_info
 
 
 class CxConfig(object):
     """
-    get configuration information from config.ini
+    get configuration information from config.ini, or environment variables, or command line arguments
     """
     config = None
 
-    def __init__(self, config_file=config_file_path):
+    def __init__(self, ):
         """
-        :param config_file: pathlib.Path
-            the absolute path of the file config.ini
+        init config
         """
-        try:
-            config_file = config_file.resolve()
-        except FileNotFoundError:
-            print("config.ini not found under config directory.")
 
-        parser_obj = configparser.ConfigParser(interpolation=configparser.BasicInterpolation())
-        parser_obj.read(config_file)
-        self.cx_config = parser_obj["checkmarx"]
+        self.cx_config = get_config_info()
         CxConfig.config = self
 
     @property
