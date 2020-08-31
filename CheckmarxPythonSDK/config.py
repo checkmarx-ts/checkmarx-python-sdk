@@ -42,6 +42,18 @@ def get_config_info_from_environment_variables():
     if os.getenv("cxsast_password"):
         config_info.update({"password": os.getenv("cxsast_password")})
 
+    if os.getenv("cxsast_grant_type"):
+        config_info.update({"grant_type": os.getenv("cxsast_grant_type")})
+
+    if os.getenv("cxsast_scope"):
+        config_info.update({"scope": os.getenv("cxsast_scope")})
+
+    if os.getenv("cxsast_client_id"):
+        config_info.update({"client_id": os.getenv("cxsast_client_id")})
+
+    if os.getenv("cxsast_client_secret"):
+        config_info.update({"client_secret": os.getenv("cxsast_client_secret")})
+
     return config_info
 
 
@@ -56,6 +68,10 @@ def get_config_info_from_command_line_arguments():
     parser.add_option("--cxsast_base_url", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_username", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_password", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_grant_type", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_scope", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_client_id", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_client_secret", help=SUPPRESS_HELP)
 
     (options, args) = parser.parse_args()
 
@@ -67,6 +83,18 @@ def get_config_info_from_command_line_arguments():
 
     if options.cxsast_password:
         config_info.update({"password": options.cxsast_password})
+
+    if options.cxsast_grant_type:
+        config_info.update({"grant_type": options.cxsast_grant_type})
+
+    if options.cxsast_scope:
+        config_info.update({"scope": options.cxsast_scope})
+
+    if options.cxsast_client_id:
+        config_info.update({"client_id": options.cxsast_client_id})
+
+    if options.cxsast_client_secret:
+        config_info.update({"client_secret": options.cxsast_client_secret})
 
     return config_info
 
