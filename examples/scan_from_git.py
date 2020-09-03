@@ -78,7 +78,7 @@ def scan_from_git():
             break
         elif scan_status == "Failed":
             return
-        time.sleep(1)
+        time.sleep(10)
 
     # 11[optional]. get statistics results by scan id
     print("11[optional]. get statistics results by scan id")
@@ -95,7 +95,7 @@ def scan_from_git():
     # 13. get report status by id
     print("13. get report status by id")
     while not scan_api.is_report_generation_finished(report_id):
-        time.sleep(1)
+        time.sleep(10)
 
     # 14. get report by id
     print("14. get report by id")
