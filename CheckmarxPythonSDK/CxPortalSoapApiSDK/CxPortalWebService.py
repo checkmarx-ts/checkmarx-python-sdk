@@ -26,6 +26,67 @@ def retry_if_token_is_invalid(response, execute_func, retry_times):
         execute_func()
 
 
+def activate_saas_user(user_token):
+    """
+    This action is no longer supported in CxSAST 9.2.
+    Args:
+        user_token (str):
+
+    Returns:
+
+    """
+    retry_times = [0]
+
+    def execute():
+        nonlocal retry_times
+        nonlocal user_token
+
+        response = ZeepClient.client.service.ActivateSaasUser(userToken=user_token)
+        retry_if_token_is_invalid(response, execute, retry_times)
+        return response
+
+    r = execute()
+
+    return {
+        "IsSuccesfull": r["IsSuccesfull"],
+        "ErrorMessage": r["ErrorMessage"],
+        "IsAllowedToUseSourceControl": r["IsAllowedToUseSourceControl"],
+        "isAllowedToCreatePDF": r["isAllowedToCreatePDF"],
+        "IsAllowedToUseOnlineViewer": r["IsAllowedToUseOnlineViewer"],
+        "IsAllowedToUsePlugins": r["IsAllowedToUsePlugins"],
+        "IsAllowedToViewResultState": r["IsAllowedToViewResultState"],
+        "IsAllowedToEditResultState": r["IsAllowedToEditResultState"],
+        "IsAllowedToViewResultSeverity": r["IsAllowedToViewResultSeverity"],
+        "IsAllowedToEditResultSeverity": r["IsAllowedToEditResultSeverity"],
+        "IsAllowedToViewAssignTo": r["IsAllowedToViewAssignTo"],
+        "IsAllowedToEditAssignTo": r["IsAllowedToEditAssignTo"],
+        "IsAllowedToViewComments": r["IsAllowedToViewComments"],
+        "IsAllowedToEditComments": r["IsAllowedToEditComments"]
+    }
+
+
+def add_license_expiration_notification():
+    """
+
+    Returns:
+
+    """
+    retry_times = [0]
+
+    def execute():
+        nonlocal retry_times
+        response = ZeepClient.client.service.AddLicenseExpirationNotification(sessionID="0")
+        retry_if_token_is_invalid(response, execute, retry_times)
+        return response
+
+    r = execute()
+
+    return {
+        "IsSuccesfull": r["IsSuccesfull"],
+        "ErrorMessage": r["ErrorMessage"]
+    }
+
+
 def create_new_preset(query_ids, name):
     """
 
@@ -139,7 +200,7 @@ def delete_project(project_id):
     }
 
 
-def delete_projects(project_ids, flag):
+def delete_projects(project_ids, flag="None"):
     """
 
     Args:
