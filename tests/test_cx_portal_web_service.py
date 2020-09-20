@@ -1,9 +1,20 @@
 # encoding: utf-8
 
 from CheckmarxPythonSDK.CxPortalSoapApiSDK.CxPortalWebService import (
+    activate_saas_user, add_license_expiration_notification,
     create_new_preset, delete_preset, get_preset_list, get_server_license_data, get_server_license_summary,
     delete_project, delete_projects
 )
+
+
+def test_activate_saas_user():
+    response = activate_saas_user(user_token="dd")
+    assert response is not None
+
+
+def test_add_license_expiration_notification():
+    response = add_license_expiration_notification()
+    assert response is not None
 
 
 def test_create_new_preset():
