@@ -34,7 +34,10 @@ def get_config_info_from_environment_variables():
     config_info = {}
 
     if os.getenv("cxsast_base_url"):
-        config_info.update({"base_url": os.getenv("cxsast_base_url")})
+        config_info.update({
+            "base_url": os.getenv("cxsast_base_url"),
+            "url":  os.getenv("cxsast_base_url") + "/cxrestapi"
+        })
 
     if os.getenv("cxsast_username"):
         config_info.update({"username": os.getenv("cxsast_username")})
@@ -76,7 +79,10 @@ def get_config_info_from_command_line_arguments():
     (options, args) = parser.parse_args()
 
     if options.cxsast_base_url:
-        config_info.update({"base_url": options.cxsast_base_url})
+        config_info.update({
+            "base_url": options.cxsast_base_url,
+            "url": options.cxsast_base_url + "/cxrestapi"
+        })
 
     if options.cxsast_username:
         config_info.update({"username": options.cxsast_username})
