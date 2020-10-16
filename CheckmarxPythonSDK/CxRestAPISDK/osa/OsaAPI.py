@@ -352,7 +352,7 @@ class OsaAPI(object):
                     medium_unique_vulnerability_count=item.get("mediumUniqueVulnerabilityCount"),
                     low_unique_vulnerability_count=item.get("lowUniqueVulnerabilityCount"),
                     not_exploitable_vulnerability_count=item.get("notExploitableVulnerabilityCount"),
-                    newest_version=item.get("notExploitableVulnerabilityCount"),
+                    newest_version=item.get("newestVersion"),
                     newest_version_release_date=item.get("newestVersionReleaseDate"),
                     number_of_versions_since_last_update=item.get("numberOfVersionsSinceLastUpdate"),
                     confidence_level=item.get("confidenceLevel"),
