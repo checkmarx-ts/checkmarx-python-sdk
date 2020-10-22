@@ -1,8 +1,7 @@
 # encoding: utf-8
 from zeep import Client, Settings
 
-from CheckmarxPythonSDK.config import get_config_info
-from .auth import get_new_token
+from .auth import config_info, get_new_token
 
 
 class ZeepClient(object):
@@ -27,7 +26,7 @@ class ZeepClient(object):
         settings = Settings(strict=False, force_https=False, extra_http_headers={"Authorization": token})
 
         client = Client(
-            wsdl=get_config_info().get("base_url") + "/CxWebInterface/Portal/CxWebService.asmx?wsdl",
+            wsdl=config_info.get("base_url") + "/CxWebInterface/Portal/CxWebService.asmx?wsdl",
             settings=settings
         )
 
