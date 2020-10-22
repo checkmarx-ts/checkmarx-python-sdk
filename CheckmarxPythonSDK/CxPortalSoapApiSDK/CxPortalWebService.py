@@ -38,8 +38,6 @@ def activate_saas_user(user_token):
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
-        nonlocal user_token
 
         response = ZeepClient.client.service.ActivateSaasUser(userToken=user_token)
         retry_if_token_is_invalid(response, execute, retry_times)
@@ -74,7 +72,6 @@ def add_license_expiration_notification():
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
         response = ZeepClient.client.service.AddLicenseExpirationNotification(sessionID="0")
         retry_if_token_is_invalid(response, execute, retry_times)
         return response
@@ -115,10 +112,6 @@ def create_new_preset(query_ids, name):
     retry_times = [0]
 
     def execute():
-
-        nonlocal query_ids
-        nonlocal name
-        nonlocal retry_times
 
         query_id_list = ZeepClient.factory.ArrayOfLong(query_ids)
         cx_preset_detail = ZeepClient.factory.CxPresetDetails(
@@ -162,8 +155,6 @@ def delete_preset(preset_id):
     retry_times = [0]
 
     def execute():
-        nonlocal preset_id
-        nonlocal retry_times
 
         response = ZeepClient.client.service.DeletePreset(sessionId="0", id=preset_id)
         retry_if_token_is_invalid(response, execute, retry_times)
@@ -187,8 +178,6 @@ def delete_project(project_id):
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
-        nonlocal project_id
         response = ZeepClient.client.service.DeleteProject(sessionID="0", projectID=project_id)
         retry_if_token_is_invalid(response, execute, retry_times)
         return response
@@ -213,9 +202,6 @@ def delete_projects(project_ids, flag="None"):
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
-        nonlocal project_ids
-        nonlocal flag
 
         cx_ws_request_delete_projects = ZeepClient.factory.CxWSRequestDeleteProjects(
             SessionID="0",
@@ -246,7 +232,6 @@ def get_preset_list():
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
 
         response = ZeepClient.client.service.GetPresetList(SessionID="0")
         retry_if_token_is_invalid(response, execute, retry_times)
@@ -277,7 +262,6 @@ def get_server_license_data():
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
         response = ZeepClient.client.service.GetServerLicenseData(sessionID="0")
         retry_if_token_is_invalid(response, execute, retry_times)
         return response
@@ -310,7 +294,6 @@ def get_server_license_summary():
     retry_times = [0]
 
     def execute():
-        nonlocal retry_times
         response = ZeepClient.client.service.GetServerLicenseSummary(sessionID="0")
         retry_if_token_is_invalid(response, execute, retry_times)
         return response
