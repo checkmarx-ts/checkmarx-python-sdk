@@ -1,8 +1,9 @@
 # encoding: utf-8
-import http
 import requests
 
 from CheckmarxPythonSDK.config import get_config_info
+
+from ..compat import OK
 
 
 def get_new_token(username=get_config_info().get("username"), password=get_config_info().get("password")):
@@ -29,7 +30,7 @@ def get_new_token(username=get_config_info().get("username"), password=get_confi
 
     response = requests.post(url=token_url, data=req_data, verify=False)
 
-    if response.status_code != http.HTTPStatus.OK:
+    if response.status_code != OK:
         raise ValueError(response.text, response.status_code)
 
     content = response.json()
