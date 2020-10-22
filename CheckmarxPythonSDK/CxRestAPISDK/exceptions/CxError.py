@@ -28,12 +28,10 @@ class BadRequestError(CxError):
     """
 
     def __init__(self, msg):
-        super().__init__(msg, 400)
+        super(BadRequestError, self).__init__(msg, 400)
 
     def __str__(self):
-        return "BadRequestError(http_code={}, msg={})".format(
-            self.code, self.msg
-        )
+        return "BadRequestError(http_code=400, msg={})".format(self.msg)
 
 
 class NotFoundError(CxError):
@@ -42,7 +40,7 @@ class NotFoundError(CxError):
     """
 
     def __init__(self):
-        super().__init__("Not Found", 404)
+        super(NotFoundError, self).__init__("Not Found", 404)
 
     def __str__(self):
-        super().__str__()
+        return "NotFoundError(http_code=404, msg={}).".format(self.msg)
