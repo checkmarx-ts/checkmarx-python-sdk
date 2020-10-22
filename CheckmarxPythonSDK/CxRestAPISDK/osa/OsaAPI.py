@@ -1,12 +1,11 @@
 # encoding: utf-8
-
-import http
+import os
 import requests
 import copy
 
-from pathlib import Path
 from requests_toolbelt import MultipartEncoder
 
+from ...compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, ACCEPTED
 from ..auth import AuthenticationAPI
 from ..config import CxConfig
 from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -62,7 +61,7 @@ class OsaAPI(object):
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
         r = requests.get(url=osa_scans_url, headers=headers, verify=OsaAPI.verify)
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             osa_scan_details = [
                 CxOsaScanDetail.CxOsaScanDetail(
@@ -80,11 +79,11 @@ class OsaAPI(object):
                     shared_source_location_paths=list(item.get("sharedSourceLocationPaths", "") or "")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_osa_scan_details_for_project(project_id)
@@ -134,7 +133,7 @@ class OsaAPI(object):
         r = requests.get(url=osa_scan_by_scan_id_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
                          verify=OsaAPI.verify)
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             osa_scan_detail = CxOsaScanDetail.CxOsaScanDetail(
                 findings_status=a_dict.get("findingsStatus"),
@@ -150,11 +149,11 @@ class OsaAPI(object):
                 ),
                 shared_source_location_paths=list(a_dict.get("sharedSourceLocationPaths", "") or "")
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_osa_scan_by_scan_id(scan_id)
@@ -185,7 +184,7 @@ class OsaAPI(object):
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        file_name = Path(zipped_source_path).name
+        file_name = os.path.basename(zipped_source_path)
         m = MultipartEncoder(
             fields={
                 "projectId": str(project_id),
@@ -198,13 +197,13 @@ class OsaAPI(object):
         osa_scans_url = self.base_url + "/osa/scans" + "?projectId=" + str(project_id)
 
         r = requests.post(url=osa_scans_url, headers=headers, data=m, verify=OsaAPI.verify)
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             scan_id = r.json().get("scanId")
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_an_osa_scan_request(project_id, zipped_source_path, origin)
@@ -233,13 +232,13 @@ class OsaAPI(object):
 
         r = requests.get(url=osa_file_extensions_url, headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
                          verify=OsaAPI.verify)
-        if r.status_code == 200:
+        if r.status_code == OK:
             file_extensions = r.text
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_osa_file_extensions()
@@ -273,7 +272,7 @@ class OsaAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=OsaAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             licenses = [
                 CxOsaLicense.CxOsaLicense(
@@ -290,11 +289,11 @@ class OsaAPI(object):
                     url=item.get("url")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_osa_licenses_by_id(scan_id)
@@ -340,7 +339,7 @@ class OsaAPI(object):
             verify=OsaAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             libraries = [
                 CxOsaLibrary.CxOsaLibrary(
@@ -352,7 +351,7 @@ class OsaAPI(object):
                     medium_unique_vulnerability_count=item.get("mediumUniqueVulnerabilityCount"),
                     low_unique_vulnerability_count=item.get("lowUniqueVulnerabilityCount"),
                     not_exploitable_vulnerability_count=item.get("notExploitableVulnerabilityCount"),
-                    newest_version=item.get("notExploitableVulnerabilityCount"),
+                    newest_version=item.get("newestVersion"),
                     newest_version_release_date=item.get("newestVersionReleaseDate"),
                     number_of_versions_since_last_update=item.get("numberOfVersionsSinceLastUpdate"),
                     confidence_level=item.get("confidenceLevel"),
@@ -383,11 +382,11 @@ class OsaAPI(object):
                     code_reference_count=item.get("codeReferenceCount")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_osa_scan_libraries(scan_id)
@@ -452,7 +451,7 @@ class OsaAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=OsaAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             vulnerabilities = [
                 CxOsaVulnerability.CxOsaVulnerability(
@@ -479,11 +478,11 @@ class OsaAPI(object):
                     fix_url=item.get("fixUrl")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_osa_scan_vulnerabilities_by_id(scan_id, library_id, state_id, comment, since, until)
@@ -539,7 +538,7 @@ class OsaAPI(object):
             verify=OsaAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             comment = [
                 CxOsaVulnerabilityComment.CxOsaVulnerabilityComment(
@@ -548,11 +547,11 @@ class OsaAPI(object):
                     content=item.get("content")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id)
@@ -587,7 +586,7 @@ class OsaAPI(object):
             verify=OsaAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             report = CxOsaSummaryReport.CxOsaSummaryReport(
                 total_libraries=a_dict.get("totalLibraries"),
@@ -602,11 +601,11 @@ class OsaAPI(object):
                 total_medium_vulnerabilities=a_dict.get("totalMediumVulnerabilities"),
                 total_low_vulnerabilities=a_dict.get("totalLowVulnerabilities")
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_osa_scan_summary_report(scan_id)
