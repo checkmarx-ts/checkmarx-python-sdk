@@ -1,8 +1,15 @@
 import os
-import configparser
-import pathlib
+from os.path import normpath, join, exists
+from requests.compat import is_py2
 
-from optparse import OptionParser, SUPPRESS_HELP
+if is_py2:
+    import ConfigParser
+    configparser = ConfigParser
+else:
+    import configparser
+    configparser = configparser
+
+from optparse import OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError
 
 
 def get_config_info_from_config_file():
@@ -12,15 +19,24 @@ def get_config_info_from_config_file():
         dictionary
     """
     config_info = {}
+
+    home_directory = os.path.expanduser("~")
     # the absolute path of the file config.ini
-    config_file_path = pathlib.Path.home() / ".Checkmarx/config.ini"
-    try:
-        config_file = config_file_path.resolve(strict=True)
-        parser_obj = configparser.ConfigParser(interpolation=configparser.BasicInterpolation())
-        parser_obj.read(config_file)
-        config_info = dict(parser_obj["checkmarx"])
-    except FileNotFoundError:
+    config_file_path = normpath(join(home_directory, ".Checkmarx/config.ini"))
+    if not exists(config_file_path):
         print("config.ini not found under ~/.Checkmarx/ directory.")
+    else:
+        parser_obj = configparser.ConfigParser()
+        parser_obj.read(config_file_path)
+        config_info = {
+            "base_url": parser_obj.get("checkmarx", "base_url"),
+            "username": parser_obj.get("checkmarx", "username"),
+            "password": parser_obj.get("checkmarx", "password"),
+            "grant_type": "password",
+            "scope": parser_obj.get("checkmarx", "scope"),
+            "client_id": "resource_owner_client",
+            "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C"
+        }
 
     return config_info
 
@@ -34,10 +50,7 @@ def get_config_info_from_environment_variables():
     config_info = {}
 
     if os.getenv("cxsast_base_url"):
-        config_info.update({
-            "base_url": os.getenv("cxsast_base_url"),
-            "url":  os.getenv("cxsast_base_url") + "/cxrestapi"
-        })
+        config_info.update({"base_url": os.getenv("cxsast_base_url")})
 
     if os.getenv("cxsast_username"):
         config_info.update({"username": os.getenv("cxsast_username")})
@@ -60,6 +73,24 @@ def get_config_info_from_environment_variables():
     return config_info
 
 
+class PassThroughOptionParser(OptionParser):
+    """
+    An unknown option pass-through implementation of OptionParser.
+
+    When unknown arguments are encountered, bundle with largs and try again,
+    until rargs is depleted.
+
+    sys.exit(status) will still be called if a known argument is passed
+    incorrectly (e.g. missing arguments or bad argument types, etc.)
+    """
+    def _process_args(self, largs, rargs, values):
+        while rargs:
+            try:
+                OptionParser._process_args(self, largs, rargs, values)
+            except (BadOptionError, AmbiguousOptionError) as e:
+                largs.append(e.opt_str)
+
+
 def get_config_info_from_command_line_arguments():
     """
 
@@ -67,7 +98,7 @@ def get_config_info_from_command_line_arguments():
         dictionary
     """
     config_info = {}
-    parser = OptionParser()
+    parser = PassThroughOptionParser()
     parser.add_option("--cxsast_base_url", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_username", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_password", help=SUPPRESS_HELP)
@@ -79,10 +110,7 @@ def get_config_info_from_command_line_arguments():
     (options, args) = parser.parse_args()
 
     if options.cxsast_base_url:
-        config_info.update({
-            "base_url": options.cxsast_base_url,
-            "url": options.cxsast_base_url + "/cxrestapi"
-        })
+        config_info.update({"base_url": options.cxsast_base_url})
 
     if options.cxsast_username:
         config_info.update({"username": options.cxsast_username})
@@ -105,31 +133,26 @@ def get_config_info_from_command_line_arguments():
     return config_info
 
 
-def get_config_info():
-    config_info = {}
+config = {
+    "base_url": "http://localhost:80",
+    "username": "Admin",
+    "password": "Password",
+    "grant_type": "password",
+    "scope": "sast_rest_api",
+    "client_id": "resource_owner_client",
+    "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
+    "scan_preset": "Checkmarx Default",
+    "configuration": "Default Configuration",
+    "team_full_name": "/CxServer",
+    "max_try": 3,
+    "verify": False
+}
 
-    def get():
-        nonlocal config_info
-        if not config_info:
-            # first, try to get config info from config.ini file in the ~/.Checkmarx folder
-            config_info = get_config_info_from_config_file()
+# first, try to get config info from config.ini file in the ~/.Checkmarx folder
+config.update(get_config_info_from_config_file())
 
-            # second, try to get config info from environment variables
-            config_info.update(get_config_info_from_environment_variables())
+# second, try to get config info from environment variables
+config.update(get_config_info_from_environment_variables())
 
-            # third, try to get config info from command line arguments
-            config_info.update(get_config_info_from_command_line_arguments())
-
-            # if any one of the 3 variables are not set, we will raise an error
-            if not config_info.get("base_url"):
-                raise NameError("Checkmarx CxSAST Server base_url not set")
-            if not config_info.get("username"):
-                raise NameError("Checkmarx CxSAST Server username not set")
-            if not config_info.get("password"):
-                raise NameError("Checkmarx CxSAST Server password not set")
-        return config_info
-
-    return get()
-
-
-max_try = 3
+# third, try to get config info from command line arguments
+config.update(get_config_info_from_command_line_arguments())

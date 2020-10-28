@@ -1,8 +1,13 @@
 # encoding: utf-8
 import requests
 
-from ..config import config
-from ..compat import OK
+from .config import config
+from .compat import OK
+
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
+
+disable_warnings(InsecureRequestWarning)
 
 
 def get_new_token(username=config.get("username"), password=config.get("password")):
