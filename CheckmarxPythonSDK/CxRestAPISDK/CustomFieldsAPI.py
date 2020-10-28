@@ -1,20 +1,18 @@
 # encoding: utf-8
 import requests
 
-from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
-from ...config import CxConfig
-from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
-from .dto.customFields import CxCustomField
+from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
+from ..config import config
+
+from . import authHeaders
+from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .sast.projects.dto.customFields import CxCustomField
 
 
 class CustomFieldsAPI(object):
     """
 
     """
-    max_try = CxConfig.CxConfig.config.max_try
-    verify = CxConfig.CxConfig.config.verify
-    custom_fields = []
 
     def __init__(self):
         """
@@ -36,12 +34,12 @@ class CustomFieldsAPI(object):
         """
         custom_fields = []
 
-        custom_fields_url = CxConfig.CxConfig.config.url + "/customFields"
+        custom_fields_url = config.get("base_url") + "/cxrestapi/customFields"
 
         r = requests.get(
             url=custom_fields_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=CustomFieldsAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
 
         if r.status_code == OK:
@@ -57,8 +55,8 @@ class CustomFieldsAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_custom_fields()
         else:

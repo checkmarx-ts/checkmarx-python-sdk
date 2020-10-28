@@ -1,12 +1,13 @@
 # encoding: utf-8
 import requests
 
-from ...compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
 
-from ..auth import AuthenticationAPI
-from ...config import config
-from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
-from .dto import CxTeam
+from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
+from ..config import config
+
+from . import authHeaders
+from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .team.dto import CxTeam
 
 
 class TeamAPI(object):
@@ -14,12 +15,8 @@ class TeamAPI(object):
     the team api
     """
 
-    teams = []
-
     def __init__(self):
         self.retry = 0
-        self.get_all_teams()
-        self.get_team_id_by_team_full_name()
 
     def get_all_teams(self):
         """
@@ -39,7 +36,7 @@ class TeamAPI(object):
 
         r = requests.get(
             url=teams_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
+            headers=authHeaders.auth_headers,
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -55,7 +52,7 @@ class TeamAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_teams()
         else:

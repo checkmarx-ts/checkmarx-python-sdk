@@ -1,13 +1,13 @@
 # encoding: utf-8
-
 import requests
 
-from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, ACCEPTED
-from ...config import CxConfig
-from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
-from ..projects.dto import CxLink
-from .dto import (
+from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, ACCEPTED
+from ..config import config
+
+from . import authHeaders
+from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .sast.projects.dto import CxLink
+from .sast.dataRetention.dto import (
     CxDefineDataRetentionNumberOfScansRequest,
     CxDefineDataRetentionResponse,
     CxDefineDataRetentionDateRangeRequest,
@@ -20,10 +20,6 @@ class DataRetentionAPI(object):
     """
     data retention API
     """
-    
-    max_try = CxConfig.CxConfig.config.max_try
-    base_url = CxConfig.CxConfig.config.url
-    verify = CxConfig.CxConfig.config.verify
 
     def __init__(self):
         self.retry = 0
@@ -42,12 +38,12 @@ class DataRetentionAPI(object):
         """
         is_successful = False
 
-        stop_data_retention_url = self.base_url + "/sast/dataRetention/stop"
+        stop_data_retention_url = config.get("base_url") + "/cxrestapi/sast/dataRetention/stop"
 
         r = requests.post(
             url=stop_data_retention_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=DataRetentionAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
         if r.status_code == ACCEPTED:
             is_successful = True
@@ -55,8 +51,8 @@ class DataRetentionAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.stop_data_retention()
         else:
@@ -92,13 +88,13 @@ class DataRetentionAPI(object):
             duration_limit_in_hours=duration_limit_in_hours
         ).get_post_data()
 
-        define_data_retention_date_range_url = self.base_url + "/sast/dataRetention/byDateRange"
+        define_data_retention_date_range_url = config.get("base_url") + "/cxrestapi/sast/dataRetention/byDateRange"
 
         r = requests.post(
             url=define_data_retention_date_range_url,
             data=post_body_data,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=DataRetentionAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
 
         if r.status_code == ACCEPTED:
@@ -115,8 +111,8 @@ class DataRetentionAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
         else:
@@ -149,13 +145,14 @@ class DataRetentionAPI(object):
             duration_limit_in_hours=duration_limit_in_hours
         ).get_post_data()
 
-        define_data_retention_number_of_scans_url = self.base_url + "/sast/dataRetention/byNumberOfScans"
+        define_data_retention_number_of_scans_url = config.get(
+            "base_url") + "/cxrestapi/sast/dataRetention/byNumberOfScans"
 
         r = requests.post(
             define_data_retention_number_of_scans_url,
             data=post_body_data,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=DataRetentionAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
 
         if r.status_code == ACCEPTED:
@@ -172,8 +169,8 @@ class DataRetentionAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
                                                           duration_limit_in_hours)
@@ -186,16 +183,17 @@ class DataRetentionAPI(object):
 
     def get_data_retention_request_status(self, request_id):
         """
+        This one does not work!!!
         Get status details of a specific data retention request.
         :param request_id: int
         :return:
 
         Args:
             request_id (int): Unique Id of the data retention request.
-        
+
         Returns:
             CxDataRetentionRequestStatus
-        
+
         Raises:
             BadRequestError
             NotFoundError
@@ -203,14 +201,15 @@ class DataRetentionAPI(object):
         """
         data_detention_request_status = None
 
-        data_retention_request_status_url = self.base_url + "/sast/dataRetention/{requestId}/status".format(
+        data_retention_request_status_url = config.get(
+            "base_url") + "/cxrestapi/sast/dataRetention/{requestId}/status".format(
             requestId=request_id
         )
 
         r = requests.get(
             url=data_retention_request_status_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=DataRetentionAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
 
         if r.status_code == OK:
@@ -230,8 +229,8 @@ class DataRetentionAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_data_retention_request_status(request_id)
         else:

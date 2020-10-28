@@ -1,23 +1,19 @@
 # encoding: utf-8
 import requests
 
-from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
-from ...config import CxConfig
-from ...auth import AuthenticationAPI
-from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
-from .dto.customTasks import CxCustomTask
-from .dto import CxLink
+from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
+from ..config import config
+
+from . import authHeaders
+from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .sast.projects.dto.customTasks import CxCustomTask
+from .sast.projects.dto import CxLink
 
 
 class CustomTasksAPI(object):
     """
     REST API: custom tasks
     """
-    max_try = CxConfig.CxConfig.config.max_try
-    base_url = CxConfig.CxConfig.config.url
-    verify = CxConfig.CxConfig.config.verify
-
-    custom_tasks = []
 
     def __init__(self):
         self.retry = 0
@@ -37,12 +33,12 @@ class CustomTasksAPI(object):
         """
         custom_tasks = []
 
-        custom_tasks_url = self.base_url + "/customTasks"
+        custom_tasks_url = config.get("base_url") + "/cxrestapi/customTasks"
 
         r = requests.get(
             url=custom_tasks_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=CustomTasksAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
         if r.status_code == OK:
             a_list = r.json()
@@ -63,8 +59,8 @@ class CustomTasksAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < 3):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_custom_tasks()
         else:
@@ -105,12 +101,12 @@ class CustomTasksAPI(object):
         """
         custom_task = None
 
-        custom_task_url = self.base_url + "/customTasks/{id}".format(id=task_id)
+        custom_task_url = config.get("base_url") + "/cxrestapi/customTasks/{id}".format(id=task_id)
 
         r = requests.get(
             url=custom_task_url,
-            headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=CustomTasksAPI.verify
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
         )
         if r.status_code == OK:
             a_dict = r.json()
@@ -128,8 +124,8 @@ class CustomTasksAPI(object):
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
-            AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_custom_task_by_id(task_id)
         else:

@@ -39,8 +39,8 @@ class NotFoundError(CxError):
     http 404, not found
     """
 
-    def __init__(self):
-        super(NotFoundError, self).__init__("Not Found", 404)
+    def __init__(self, msg=None):
+        super(NotFoundError, self).__init__(msg, 404)
 
     def __str__(self):
         return "NotFoundError(http_code=404, msg={}).".format(self.msg)
