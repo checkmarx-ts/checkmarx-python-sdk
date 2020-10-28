@@ -1,12 +1,10 @@
 # encoding: utf-8
-import http
-
 import requests
 
-from pathlib import Path
+from ...compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
 
 from ..auth import AuthenticationAPI
-from ..config import CxConfig
+from ...config import config
 from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto import CxTeam
 
@@ -15,8 +13,7 @@ class TeamAPI(object):
     """
     the team api
     """
-    max_try = CxConfig.CxConfig.config.max_try
-    verify = CxConfig.CxConfig.config.verify
+
     teams = []
 
     def __init__(self):
@@ -38,14 +35,14 @@ class TeamAPI(object):
         """
         teams = []
 
-        teams_url = CxConfig.CxConfig.config.url + "/auth/teams"
+        teams_url = config.get("base_url") + "/cxrestapi/auth/teams"
 
         r = requests.get(
             url=teams_url,
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
-            verify=TeamAPI.verify
+            verify=config.get("verify")
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             teams = [
                 CxTeam.CxTeam(
@@ -53,11 +50,11 @@ class TeamAPI(object):
                 ) for item in a_list
             ]
             TeamAPI.teams = teams
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_teams()
@@ -68,7 +65,7 @@ class TeamAPI(object):
 
         return teams
 
-    def get_team_id_by_team_full_name(self, team_full_name=CxConfig.CxConfig.config.team_full_name):
+    def get_team_id_by_team_full_name(self, team_full_name=config.get("team_full_name")):
         """
         utility provided by SDK: get team id by team full name
 
@@ -84,7 +81,7 @@ class TeamAPI(object):
         # construct a dict of {team_full_name: team_id}
         team_full_name_id_dict = {item.full_name: item.team_id for item in all_teams}
 
-        team_id = team_full_name_id_dict.get(Path(team_full_name.replace("\\", "/")))
+        team_id = team_full_name_id_dict.get(team_full_name.replace("\\", "/"))
 
         return team_id
 

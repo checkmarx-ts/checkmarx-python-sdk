@@ -1,15 +1,15 @@
 # encoding: utf-8
-import http
+import os
 import requests
 import json
 
 from copy import copy
 
 from requests_toolbelt import MultipartEncoder
-from pathlib import Path
 
+from ...compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED
 from ..auth.AuthenticationAPI import AuthenticationAPI
-from ..config.CxConfig import CxConfig
+from ...config import config
 from ..exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .dto import (
     User, AuthenticationProvider, MyProfile, Permission, Role, ServiceProvider, SMTPSetting, SystemLocale, Team,
@@ -19,10 +19,6 @@ from .dto import (
 
 
 class AccessControlAPI(object):
-
-    max_try = CxConfig.config.max_try
-    base_url = CxConfig.config.url
-    verify = CxConfig.config.verify
 
     def __init__(self):
         self.retry = 0
@@ -36,14 +32,14 @@ class AccessControlAPI(object):
 
         assignable_users = None
 
-        url = AccessControlAPI.base_url + "/auth/AssignableUsers"
+        url = config.get("base_url") + "/cxrestapi/auth/AssignableUsers"
 
         r = requests.get(
             url=url,
             headers=AuthenticationAPI.auth_headers,
-            verify=AccessControlAPI.verify
+            verify=config.get("verify")
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             assignable_users = [
                 User.User(
@@ -54,13 +50,13 @@ class AccessControlAPI(object):
                     email=item.get("email")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_assignable_users()
@@ -88,7 +84,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             authentication_providers = [
                 AuthenticationProvider.AuthenticationProvider(
@@ -100,11 +96,11 @@ class AccessControlAPI(object):
                     active=item.get("active")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_authentication_providers()
@@ -146,15 +142,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.submit_first_admin_user(username, password, first_name, last_name, email)
@@ -176,17 +172,17 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             if item.get("firstAdminExists"):
                 first_admin_exists = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_admin_user_exists_confirmation()
@@ -219,7 +215,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             ldap_role_mapping = [
                 LDAPRoleMapping.LDAPRoleMapping(
@@ -230,13 +226,13 @@ class AccessControlAPI(object):
                     ldap_group_display_name=item.get("ldapGroupDisplayName")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_ldap_role_mapping()
@@ -278,15 +274,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_ldap_role_mapping(ldap_server_id, role_id, ldap_group_dn, ldap_group_display_name)
@@ -316,15 +312,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_ldap_role_mapping(ldap_role_mapping_id)
@@ -406,15 +402,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.test_ldap_server_connection(host, port, username, password, use_ssl, verify_ssl_certificate, base_dn,
@@ -454,7 +450,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             user_entries = [
                 User.User(
@@ -464,13 +460,13 @@ class AccessControlAPI(object):
                     email=item.get("email")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_user_entries_by_search_criteria(ldap_server_id, username_contains_pattern)
@@ -503,7 +499,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             ldap_groups = [
                 LDAPGroup.LDAPGroup(
@@ -511,13 +507,13 @@ class AccessControlAPI(object):
                     dn=item.get("dn")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_group_entries_by_search_criteria(ldap_server_id, name_contains_pattern)
@@ -544,7 +540,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             ldap_servers = [
                 LDAPServer.LDAPServer(
@@ -581,13 +577,13 @@ class AccessControlAPI(object):
                     user_membership_attribute=item.get("userMembershipAttribute")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_ldap_servers()
@@ -692,15 +688,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_ldap_server(password, active, name, host, port, username, use_ssl, verify_ssl_certificate,
@@ -741,7 +737,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             ldap_server = LDAPServer.LDAPServer(
                 ldap_server_id=item.get("id"),
@@ -776,13 +772,13 @@ class AccessControlAPI(object):
                 group_members_attribute=item.get("groupMembersAttribute"),
                 user_membership_attribute=item.get("userMembershipAttribute")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_ldap_server_by_id(ldap_server_id)
@@ -888,15 +884,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_ldap_server(ldap_server_id, password, active, name, host, port, username, use_ssl,
@@ -939,15 +935,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_ldap_server(ldap_server_id)
@@ -986,7 +982,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             ldap_team_mapping = [
                 LDAPTeamMapping.LDAPTeamMapping(
@@ -997,13 +993,13 @@ class AccessControlAPI(object):
                     ldap_group_display_name=item.get("ldapGroupDisplayName")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_ldap_team_mapping(ldap_server_id, team_id)
@@ -1045,15 +1041,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_ldap_team_mapping(ldap_server_id, team_id, ldap_group_dn, ldap_group_display_name)
@@ -1083,15 +1079,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_ldap_team_mapping(ldap_team_mapping_id)
@@ -1118,7 +1114,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             my_profile = MyProfile.MyProfile(
                 profile_id=item.get("id"),
@@ -1135,13 +1131,13 @@ class AccessControlAPI(object):
                 teams=item.get("teams"),
                 authentication_provider_id=item.get("authenticationProviderId")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_my_profile()
@@ -1193,15 +1189,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_my_profile(first_name, last_name, email, phone_number, cell_phone_number, job_title, other,
@@ -1228,7 +1224,7 @@ class AccessControlAPI(object):
             headers=AuthenticationAPI.auth_headers,
             verify=AccessControlAPI.verify
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             oidc_clients = [
                 OIDCClient.OIDCClient(
@@ -1264,13 +1260,13 @@ class AccessControlAPI(object):
                     client_claims_prefix=item.get("clientClaimsPrefix")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_oidc_clients()
@@ -1372,15 +1368,15 @@ class AccessControlAPI(object):
             headers=AuthenticationAPI.auth_headers,
             verify=AccessControlAPI.verify
         )
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_oidc_client(update_access_token_claims_on_refresh, access_token_type, include_jwt_id,
@@ -1422,7 +1418,7 @@ class AccessControlAPI(object):
             headers=AuthenticationAPI.auth_headers,
             verify=AccessControlAPI.verify
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             oidc_client = OIDCClient.OIDCClient(
                     oidc_client_id=item.get("id"),
@@ -1456,13 +1452,13 @@ class AccessControlAPI(object):
                     claims=item.get("claims"),
                     client_claims_prefix=item.get("clientClaimsPrefix")
                 )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_oidc_client_by_id(oidc_client_id)
@@ -1566,15 +1562,15 @@ class AccessControlAPI(object):
             headers=AuthenticationAPI.auth_headers,
             verify=AccessControlAPI.verify
         )
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_an_oidc_client(oidc_client_id, update_access_token_claims_on_refresh, access_token_type,
@@ -1617,15 +1613,15 @@ class AccessControlAPI(object):
             headers=AuthenticationAPI.auth_headers,
             verify=AccessControlAPI.verify
         )
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_an_oidc_client(oidc_client_id)
@@ -1647,7 +1643,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_permissions = [
                 Permission.Permission(
@@ -1657,13 +1653,13 @@ class AccessControlAPI(object):
                     category=item.get("category"),
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_permissions()
@@ -1692,7 +1688,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             permission = Permission.Permission(
                 permission_id=item.get("id"),
@@ -1700,13 +1696,13 @@ class AccessControlAPI(object):
                 name=item.get("name"),
                 category=item.get("category")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_permission_by_id(permission_id)
@@ -1728,7 +1724,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_roles = [
                 Role.Role(
@@ -1739,13 +1735,13 @@ class AccessControlAPI(object):
                     permission_ids=item.get("permission_ids")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_roles()
@@ -1786,15 +1782,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_role(name, description, permission_ids)
@@ -1824,7 +1820,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             role = Role.Role(
                 role_id=item.get("id"),
@@ -1833,13 +1829,13 @@ class AccessControlAPI(object):
                 description=item.get("description"),
                 permission_ids=item.get("permissionIds")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_role_by_id(role_id)
@@ -1881,15 +1877,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_a_role(role_id, name, description, permission_ids)
@@ -1918,15 +1914,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_a_role(role_id)
@@ -1953,7 +1949,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_saml_identity_providers = [
                 SAMLIdentityProvider.SAMLIdentityProvider(
@@ -1973,13 +1969,13 @@ class AccessControlAPI(object):
                     default_role_id=item.get("defaultRoleId")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_saml_identity_providers()
@@ -2016,7 +2012,7 @@ class AccessControlAPI(object):
 
         headers = copy(AuthenticationAPI.auth_headers)
 
-        file_name = Path(certificate_file_path).name
+        file_name = os.path.basename(certificate_file_path)
         m = MultipartEncoder(
             fields={
                 "CertificateFile": (file_name, open(certificate_file_path, 'r')),
@@ -2043,15 +2039,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_saml_identity_provider(certificate_file_path, active, name, issuer, login_url, logout_url,
@@ -2082,7 +2078,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             saml_identity_provider = SAMLIdentityProvider.SAMLIdentityProvider(
                     saml_identity_provider_id=item.get("id"),
@@ -2100,13 +2096,13 @@ class AccessControlAPI(object):
                     default_team_id=item.get("defaultTeamId"),
                     default_role_id=item.get("defaultRoleId")
                 )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_saml_identity_provider_by_id(saml_identity_provider_id)
@@ -2124,7 +2120,7 @@ class AccessControlAPI(object):
 
         Args:
             saml_identity_provider_id (int):
-            certificate_file (file):
+            certificate_file (str):
             active (bool):
             name (str):
             issuer (str):
@@ -2173,15 +2169,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_new_saml_identity_provider(saml_identity_provider_id, certificate_file, active, name, issuer,
@@ -2213,15 +2209,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_a_saml_identity_provider(saml_identity_provider_id)
@@ -2247,15 +2243,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             saml_service_provider_metadata = r.content
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_saml_service_provider_metadata()
@@ -2281,7 +2277,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             saml_service_provider = SAMLServiceProvider.SAMLServiceProvider(
                 assertion_consumer_service_url=item.get("assertionConsumerServiceUrl"),
@@ -2289,13 +2285,13 @@ class AccessControlAPI(object):
                 certificate_subject=item.get("certificateSubject"),
                 issuer=item.get("issuer")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_saml_service_provider()
@@ -2311,7 +2307,7 @@ class AccessControlAPI(object):
 
         Args:
 
-            certificate_file (file):
+            certificate_file (str):
             certificate_password (str):
             issuer (str):
 
@@ -2342,15 +2338,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_a_saml_service_provider(certificate_file, certificate_password, issuer)
@@ -2376,7 +2372,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             service_providers = [
                 ServiceProvider.ServiceProvider(
@@ -2384,13 +2380,13 @@ class AccessControlAPI(object):
                     name=item.get("name")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_service_providers()
@@ -2419,19 +2415,19 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             service_provider = ServiceProvider.ServiceProvider(
                 service_provider_id=item.get("id"),
                 name=item.get("name")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_service_provider_by_id(service_provider_id)
@@ -2458,7 +2454,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             smtp_settings = [
                 SMTPSetting.SMTPSetting(
@@ -2471,13 +2467,13 @@ class AccessControlAPI(object):
                     username=item.get("username")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_smtp_settings()
@@ -2526,15 +2522,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_smtp_settings(password, host, port, encryption_type, from_address, use_default_credentials,
@@ -2564,7 +2560,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             smtp_setting = SMTPSetting.SMTPSetting(
                 smtp_settings_id=item.get("id"),
@@ -2575,13 +2571,13 @@ class AccessControlAPI(object):
                 use_default_credentials=item.get("useDefaultCredentials"),
                 username=item.get("username")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_smtp_settings_by_id(smtp_settings_id)
@@ -2632,15 +2628,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_smtp_settings(smtp_settings_id, password, host, port, encryption_type, from_address,
@@ -2670,15 +2666,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_smtp_settings(smtp_settings_id)
@@ -2730,15 +2726,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.test_smtp_connection(receiver_email, password, host, port, encryption_type, from_address,
@@ -2766,7 +2762,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_system_locales = [
                 SystemLocale.SystemLocale(
@@ -2776,13 +2772,13 @@ class AccessControlAPI(object):
                     display_name=item.get("displayName")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_system_locales()
@@ -2811,7 +2807,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             team_members = [
                 User.User(
@@ -2835,13 +2831,13 @@ class AccessControlAPI(object):
                     locale_id=item.get("localeId")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_members_by_team_id(team_id)
@@ -2876,15 +2872,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_members_by_team_id(team_id, user_ids)
@@ -2914,15 +2910,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.add_a_user_to_a_team(team_id, user_id)
@@ -2952,15 +2948,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_a_member_from_a_team(team_id, user_id)
@@ -2987,7 +2983,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_teams = [
                 Team.Team(
@@ -2997,13 +2993,13 @@ class AccessControlAPI(object):
                     parent_id=item.get("parentId")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_teams()
@@ -3060,15 +3056,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_team(name, parent_id)
@@ -3097,7 +3093,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             team = Team.Team(
                 team_id=item.get("id"),
@@ -3105,13 +3101,13 @@ class AccessControlAPI(object):
                 full_name=item.get("fullName"),
                 parent_id=item.get("parentId")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_team_by_id(team_id)
@@ -3150,15 +3146,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_a_team(team_id, name, parent_id)
@@ -3187,15 +3183,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_a_team(team_id)
@@ -3222,15 +3218,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.generate_a_new_token_signing_certificate()
@@ -3257,7 +3253,7 @@ class AccessControlAPI(object):
 
         headers = copy(AuthenticationAPI.auth_headers)
 
-        file_name = Path(certificate_file_path).name
+        file_name = os.path.basename(certificate_file_path)
         m = MultipartEncoder(
             fields={
                 "CertificateFile": (file_name, open(certificate_file_path, 'rb'), "application/zip"),
@@ -3268,15 +3264,15 @@ class AccessControlAPI(object):
 
         r = requests.post(url=url, headers=headers, data=m, verify=AccessControlAPI.verify)
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.upload_a_new_token_signing_certificate(certificate_file_path, certificate_password)
@@ -3302,7 +3298,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_users = [
                 User.User(
@@ -3326,13 +3322,13 @@ class AccessControlAPI(object):
                     locale_id=item.get("localeId")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_users()
@@ -3420,15 +3416,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_user(
@@ -3461,7 +3457,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             user = User.User(
                 user_id=item.get("id"),
@@ -3483,13 +3479,13 @@ class AccessControlAPI(object):
                 allowed_ip_list=item.get("allowedIpList"),
                 locale_id=item.get("localeId")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_user_by_id(user_id)
@@ -3553,15 +3549,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_a_user(
@@ -3593,15 +3589,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_a_user(user_id)
@@ -3649,15 +3645,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.migrate_existing_user(
@@ -3687,7 +3683,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_windows_domains = [
                 WindowsDomain.WindowsDomain(
@@ -3696,13 +3692,13 @@ class AccessControlAPI(object):
                     full_qualified_name=item.get("fullyQualifiedName")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_windows_domains()
@@ -3758,15 +3754,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_a_new_windows_domain(name, full_qualified_name)
@@ -3795,20 +3791,20 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             item = r.json()
             windows_domain = WindowsDomain.WindowsDomain(
                 windows_domain_id=item.get("id"),
                 name=item.get("name"),
                 full_qualified_name=item.get("fullyQualifiedName")
             )
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_windows_domain_by_id(windows_domain_id)
@@ -3847,15 +3843,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_a_windows_domain(windows_domain_id, name, full_qualified_name)
@@ -3884,15 +3880,15 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.NO_CONTENT:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_a_windows_domain(windows_domain_id)
@@ -3925,7 +3921,7 @@ class AccessControlAPI(object):
             verify=AccessControlAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             users = [
                 User.User(
@@ -3935,13 +3931,13 @@ class AccessControlAPI(object):
                     email=item.get("email")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.FORBIDDEN:
+        elif r.status_code == FORBIDDEN:
             raise CxError("Forbidden to access", r.status_code)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_windows_domain_user_entries_by_search_criteria(windows_domain_id, contains_pattern)

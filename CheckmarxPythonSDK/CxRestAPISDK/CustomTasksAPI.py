@@ -1,8 +1,7 @@
 # encoding: utf-8
-import http
-
 import requests
 
+from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -45,7 +44,7 @@ class CustomTasksAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=CustomTasksAPI.verify
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             custom_tasks = [
                 CxCustomTask.CxCustomTask(
@@ -60,11 +59,11 @@ class CustomTasksAPI(object):
                 ) for item in a_list
             ]
             CustomTasksAPI.custom_tasks = custom_tasks
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < 3):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < 3):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_custom_tasks()
@@ -113,7 +112,7 @@ class CustomTasksAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=CustomTasksAPI.verify
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_dict = r.json()
             custom_task = CxCustomTask.CxCustomTask(
                 custom_task_id=a_dict.get("id"),
@@ -125,11 +124,11 @@ class CustomTasksAPI(object):
                     (a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_custom_task_by_id(task_id)

@@ -1,9 +1,10 @@
 # encoding: utf-8
 
 import requests
-import http
 import json
 
+
+from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, CREATED, NO_CONTENT, ACCEPTED
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -145,16 +146,16 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             all_scans = [
                 self.__construct_scan(item) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_scans_for_project(project_id, scan_status, last)
@@ -219,7 +220,7 @@ class ScansAPI(object):
             verify=ScansAPI.verify
         )
 
-        if r.status_code == 201:
+        if r.status_code == CREATED:
             a_dict = r.json()
             scan = CxCreateNewScanResponse.CxCreateNewScanResponse(
                 scan_id=a_dict.get("id"),
@@ -228,11 +229,11 @@ class ScansAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_new_scan(project_id, is_incremental, is_public, force_scan, comment)
@@ -267,14 +268,14 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             item = r.json()
             scan_detail = self.__construct_scan(item)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_sast_scan_details_by_scan_id(scan_id)
@@ -316,13 +317,13 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.add_or_update_a_comment_by_scan_id(scan_id, comment)
@@ -357,13 +358,13 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_scan_by_scan_id(scan_id)
@@ -398,7 +399,7 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             item = r.json()
             statistics = CxStatisticsResult.CxStatisticsResult(
                 high_severity=item.get("highSeverity"),
@@ -407,11 +408,11 @@ class ScansAPI(object):
                 info_severity=item.get("infoSeverity"),
                 statistics_calculation_date=item.get("statisticsCalculationDate")
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_statistics_results_by_scan_id(scan_id)
@@ -492,14 +493,14 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             item = r.json()
             scan_queue_details = self.__construct_scan_queue_detail(item)
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_scan_queue_details_by_scan_id(scan_id)
@@ -510,7 +511,7 @@ class ScansAPI(object):
 
         return scan_queue_details
 
-    def update_queued_scan_status_by_scan_id(self, scan_id, status_id, status_value):
+    def update_queued_scan_status_by_scan_id(self, scan_id, status_id=None, status_value=None):
         """
         Update (Cancel) a running scan in the queue according to the scan Id.
 
@@ -543,13 +544,13 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_queued_scan_status_by_scan_id(scan_id, status_id, status_value)
@@ -588,14 +589,14 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             all_scan_details_in_queue = [self.__construct_scan_queue_detail(item) for item in a_list]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_scan_details_in_queue(project_id)
@@ -627,7 +628,7 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             scan_settings = CxScanSettings.CxScanSettings(
                 project=CxProject.CxProject(
@@ -658,11 +659,11 @@ class ScansAPI(object):
                     after_scan=(a_dict.get("emailNotifications", {}) or {}).get("afterScan"),
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_scan_settings_by_project_id(project_id)
@@ -715,7 +716,7 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             sast_scan_settings = CxCreateScanSettingsResponse.CxCreateScanSettingsResponse(
                 scan_setting_response_id=a_dict.get("id"),
@@ -724,11 +725,11 @@ class ScansAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.define_sast_scan_settings(project_id, preset_id, engine_configuration_id, post_scan_action_id,
@@ -785,7 +786,7 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             sast_scan_settings = CxCreateScanSettingsResponse.CxCreateScanSettingsResponse(
                 scan_setting_response_id=a_dict.get("id"),
@@ -794,11 +795,11 @@ class ScansAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_sast_scan_settings(project_id, preset_id, engine_configuration_id, post_scan_action_id,
@@ -847,13 +848,13 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.define_sast_scan_scheduling_settings(project_id, schedule_type, schedule_days, schedule_time)
@@ -896,13 +897,13 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.assign_ticket_to_scan_results(results_id, ticket_id)
@@ -938,7 +939,7 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 201:
+        if r.status_code == CREATED:
             a_dict = r.json()
             policy_finding_response = CxPolicyFindingResponse.CxPolicyFindingResponse(
                 policy_finding_id=a_dict.get("id"),
@@ -947,11 +948,11 @@ class ScansAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.publish_last_scan_results_to_management_and_orchestration_by_project_id(project_id)
@@ -990,7 +991,7 @@ class ScansAPI(object):
             verify=ScansAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             policy_finding_status = CxPolicyFindingsStatus.CxPolicyFindingsStatus(
                 project=CxProject.CxProject(
@@ -1010,11 +1011,11 @@ class ScansAPI(object):
                 status=a_dict.get("status"),
                 last_sync=a_dict.get("lastSync"),
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_the_publish_last_scan_results_to_management_and_orchestration_status(project_id)
@@ -1045,14 +1046,14 @@ class ScansAPI(object):
             verify=ScansAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             short_description = a_dict.get("shortDescription")
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_short_vulnerability_description_for_a_scan_result(scan_id, path_id)
@@ -1096,7 +1097,7 @@ class ScansAPI(object):
             verify=ScansAPI.verify
         )
 
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             a_dict = r.json()
             scan_report = CxRegisterScanReportResponse.CxRegisterScanReportResponse(
                 report_id=a_dict.get("reportId"),
@@ -1111,11 +1112,11 @@ class ScansAPI(object):
                     )
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.register_scan_report(scan_id, report_type)
@@ -1151,7 +1152,7 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             report_status = CxScanReportStatus.CxScanReportStatus(
                 link=CxLink.CxLink(
@@ -1164,11 +1165,11 @@ class ScansAPI(object):
                     value=(a_dict.get("status", {}) or {}).get("value")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_report_status_by_id(report_id)
@@ -1204,16 +1205,16 @@ class ScansAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ScansAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             # write r.content to file with "wb" mode
             report_content = r.content
-        elif r.status_code == 204:
+        elif r.status_code == NO_CONTENT:
             pass
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_report_by_id(report_id)

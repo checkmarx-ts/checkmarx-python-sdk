@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import requests
-import http
 
+from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, NO_CONTENT, CREATED
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -42,7 +42,7 @@ class EnginesAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=EnginesAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             all_engine_server_details = [
                 CxEngineServer.CxEngineServer(
@@ -63,11 +63,11 @@ class EnginesAPI(object):
                     )
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_engine_server_details()
@@ -128,7 +128,7 @@ class EnginesAPI(object):
             verify=EnginesAPI.verify
         )
 
-        if r.status_code == 201:
+        if r.status_code == CREATED:
             a_dict = r.json()
             engine_server = CxEngineServer.CxEngineServer(
                 engine_server_id=a_dict.get("id"),
@@ -137,11 +137,11 @@ class EnginesAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.register_engine(name, uri, min_loc, max_loc, is_blocked)
@@ -177,13 +177,13 @@ class EnginesAPI(object):
             verify=EnginesAPI.verify
         )
 
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.unregister_engine_by_engine_id(engine_id)
@@ -218,7 +218,7 @@ class EnginesAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=EnginesAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             item = r.json()
             engine_server = CxEngineServer.CxEngineServer(
                     engine_server_id=item.get("id"),
@@ -237,11 +237,11 @@ class EnginesAPI(object):
                         uri=(item.get("link", {}) or {}).get("uri")
                     )
                 )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_engine_details(engine_id)
@@ -292,7 +292,7 @@ class EnginesAPI(object):
             verify=EnginesAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             engine_server = CxEngineServer.CxEngineServer(
                 engine_server_id=a_dict.get("id"),
@@ -301,11 +301,11 @@ class EnginesAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked)
@@ -338,7 +338,7 @@ class EnginesAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=EnginesAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             all_engine_configurations = [
                 CxEngineConfiguration.CxEngineConfiguration(
@@ -346,11 +346,11 @@ class EnginesAPI(object):
                     name=item.get("name")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_engine_configurations()
@@ -398,17 +398,17 @@ class EnginesAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=EnginesAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             engine_configuration = CxEngineConfiguration.CxEngineConfiguration(
                     engine_configuration_id=a_dict.get("id"),
                     name=a_dict.get("name")
                 )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_engine_configuration_by_id(configuration_id)

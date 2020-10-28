@@ -1,15 +1,14 @@
 # encoding: utf-8
-import http
+import os
 import json
 import copy
-
 
 import requests
 
 from requests_toolbelt import MultipartEncoder
-from pathlib import Path
 
-from ...config import CxConfig
+from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, CREATED, ACCEPTED, NO_CONTENT
+from ....config import config
 from ...auth import AuthenticationAPI
 from ...team.TeamAPI import TeamAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -72,7 +71,7 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             all_projects = [
                 CxProject.CxProject(
@@ -91,12 +90,12 @@ class ProjectsAPI(object):
                     )
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             if not (project_name or team_id):
                 raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_project_details()
@@ -137,7 +136,7 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == CREATED:
             d = r.json()
             project = CxCreateProjectResponse.CxCreateProjectResponse(
                 d.get("id"),
@@ -146,11 +145,11 @@ class ProjectsAPI(object):
                     uri=(d.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_project_with_default_configuration(project_name, team_id, is_public)
@@ -210,7 +209,7 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_dict = r.json()
             project = CxProject.CxProject(
                 project_id=a_dict.get("id"),
@@ -227,11 +226,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri"),
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_project_details_by_id(project_id)
@@ -278,13 +277,13 @@ class ProjectsAPI(object):
         )
 
         # In Python http module, HTTP status ACCEPTED is 202
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_project_by_id(project_id, project_name, team_id, custom_fields)
@@ -330,13 +329,13 @@ class ProjectsAPI(object):
         )
 
         # In Python http module, HTTP status ACCEPTED is 202
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.update_project_name_team_id(project_id, project_name, team_id)
@@ -378,13 +377,13 @@ class ProjectsAPI(object):
         )
 
         # In Python http module, HTTP status ACCEPTED is 202
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.delete_project_by_id(project_id, delete_running_scans)
@@ -469,7 +468,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 201:
+        if r.status_code == CREATED:
             a_dict = r.json()
             project = CxCreateProjectResponse.CxCreateProjectResponse(
                 project_id=a_dict.get("id"),
@@ -478,11 +477,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.create_branched_project(project_id, branched_project_name)
@@ -516,7 +515,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             issue_tracking_systems = [
                 CxIssueTrackingSystem.CxIssueTrackingSystem(
@@ -526,11 +525,11 @@ class ProjectsAPI(object):
                     url=item.get("url")
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_issue_tracking_systems()
@@ -582,7 +581,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json().get("projects")
             if a_list:
                 a_dict = a_list[0]
@@ -624,11 +623,11 @@ class ProjectsAPI(object):
                         )
                     ]
                 }
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_issue_tracking_system_details_by_id(issue_tracking_system_id)
@@ -665,7 +664,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             project_exclude_settings = CxProjectExcludeSettings.CxProjectExcludeSettings(
                 project_id=a_dict.get("projectId"),
@@ -676,11 +675,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_project_exclude_settings_by_project_id(project_id)
@@ -727,13 +726,13 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern, exclude_files_pattern)
@@ -769,7 +768,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             git_settings = CxGitSettings.CxGitSettings(
                 url=a_dict.get("url"),
@@ -780,11 +779,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_git_by_project_id(project_id)
@@ -834,13 +833,13 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_to_git(project_id, url, branch, private_key)
@@ -877,7 +876,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             svn_settings = CxSVNSettings.CxSVNSettings(
                 uri=CxURI.CxURI(
@@ -891,11 +890,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_svn_by_project_id(project_id)
@@ -957,13 +956,13 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_settings_to_svn(project_id, absolute_url, port, paths, username, password,
@@ -1000,7 +999,7 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             tfs_settings = CxTFSSettings.CxTFSSettings(
                 uri=CxURI.CxURI(
@@ -1013,11 +1012,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_tfs_by_project_id(project_id)
@@ -1071,13 +1070,13 @@ class ProjectsAPI(object):
             data=post_data,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_settings_to_tfs(project_id, username, password, absolute_url, port, paths)
@@ -1118,7 +1117,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             custom_remote_setting = CxCustomRemoteSourceSettings.CxCustomRemoteSourceSettings(
                 path=a_dict.get("path"),
@@ -1128,11 +1127,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_custom_by_project_id(project_id)
@@ -1186,13 +1185,13 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_for_custom_by_project_id(project_id, path,
@@ -1230,7 +1229,7 @@ class ProjectsAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             shared_source_setting = CxSharedRemoteSourceSettingsResponse.CxSharedRemoteSourceSettingsResponse(
                 paths=a_dict.get("paths"),
@@ -1239,11 +1238,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_shared_by_project_id(project_id)
@@ -1294,13 +1293,13 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_settings_to_shared(project_id, paths, username, password)
@@ -1338,7 +1337,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             perforce_settings = CxPerforceSettings.CxPerforceSettings(
                 uri=CxURI.CxURI(
@@ -1352,11 +1351,11 @@ class ProjectsAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_remote_source_settings_for_perforce_by_project_id(project_id)
@@ -1417,13 +1416,13 @@ class ProjectsAPI(object):
             data=post_data,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_settings_to_perforce(project_id, username, password, absolute_url, port, paths,
@@ -1462,7 +1461,7 @@ class ProjectsAPI(object):
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        file_name = Path(private_key_file_path).name
+        file_name = os.path.basename(private_key_file_path)
 
         with open(private_key_file_path, "rb") as a_file:
             file_content = a_file.read()
@@ -1482,13 +1481,13 @@ class ProjectsAPI(object):
             data=m,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_to_git_using_ssh(project_id, url, branch, private_key_file_path)
@@ -1528,7 +1527,7 @@ class ProjectsAPI(object):
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        file_name = Path(private_key_file_path).name
+        file_name = os.path.basename(private_key_file_path)
         m = MultipartEncoder(
             fields={
                 "absoluteUrl": absolute_url,
@@ -1545,13 +1544,13 @@ class ProjectsAPI(object):
             data=m,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_remote_source_setting_to_svn_using_ssh(project_id, absolute_url, port, paths,
@@ -1585,7 +1584,7 @@ class ProjectsAPI(object):
 
         headers = copy.deepcopy(AuthenticationAPI.AuthenticationAPI.auth_headers)
 
-        file_name = Path(zip_file_path).name
+        file_name = os.path.basename(zip_file_path)
         m = MultipartEncoder(
             fields={
                 "zippedSource": (file_name, open(zip_file_path, 'rb'), "application/zip")
@@ -1599,13 +1598,13 @@ class ProjectsAPI(object):
             data=m,
             verify=ProjectsAPI.verify
         )
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.upload_source_code_zip_file(project_id, zip_file_path)
@@ -1649,13 +1648,13 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_data_retention_settings_by_project_id(project_id, scans_to_keep)
@@ -1707,13 +1706,13 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 204:
+        if r.status_code == NO_CONTENT:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.set_issue_tracking_system_as_jira_by_id(project_id, issue_tracking_system_id, jira_project_id,
@@ -1748,7 +1747,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_list = r.json()
             all_preset_details = [
                 CxPreset.CxPreset(
@@ -1761,11 +1760,11 @@ class ProjectsAPI(object):
                     )
                 ) for item in a_list
             ]
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_preset_details()
@@ -1814,7 +1813,7 @@ class ProjectsAPI(object):
             verify=ProjectsAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             preset = CxPreset.CxPreset(
                 preset_id=a_dict.get("id"),
@@ -1826,11 +1825,11 @@ class ProjectsAPI(object):
                 ),
                 query_ids=a_dict.get("queryIds")
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_preset_details_by_preset_id(preset_id)

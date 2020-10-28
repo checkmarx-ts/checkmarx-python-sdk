@@ -1,8 +1,7 @@
 # encoding: utf-8
-import http
-
 import requests
 
+from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -45,7 +44,7 @@ class CustomFieldsAPI(object):
             verify=CustomFieldsAPI.verify
         )
 
-        if r.status_code == http.HTTPStatus.OK:
+        if r.status_code == OK:
             a_list = r.json()
             custom_fields = [
                 CxCustomField.CxCustomField(
@@ -54,11 +53,11 @@ class CustomFieldsAPI(object):
                 ) for item in a_list
             ]
             CustomFieldsAPI.custom_fields = custom_fields
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_all_custom_fields()

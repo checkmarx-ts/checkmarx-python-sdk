@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import requests
-import http
 
+from ....compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, ACCEPTED
 from ...config import CxConfig
 from ...auth import AuthenticationAPI
 from ...exceptions.CxError import BadRequestError, NotFoundError, CxError
@@ -49,13 +49,13 @@ class DataRetentionAPI(object):
             headers=AuthenticationAPI.AuthenticationAPI.auth_headers,
             verify=DataRetentionAPI.verify
         )
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             is_successful = True
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.stop_data_retention()
@@ -101,7 +101,7 @@ class DataRetentionAPI(object):
             verify=DataRetentionAPI.verify
         )
 
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             if r.text:
                 a_dict = r.json()
                 data_retention = CxDefineDataRetentionResponse.CxDefineDataRetentionResponse(
@@ -111,11 +111,11 @@ class DataRetentionAPI(object):
                         uri=(a_dict.get("link", {}) or {}).get("uri")
                     )
                 )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
@@ -158,7 +158,7 @@ class DataRetentionAPI(object):
             verify=DataRetentionAPI.verify
         )
 
-        if r.status_code == 202:
+        if r.status_code == ACCEPTED:
             if r.text:
                 a_dict = r.json()
                 data_retention = CxDefineDataRetentionResponse.CxDefineDataRetentionResponse(
@@ -168,11 +168,11 @@ class DataRetentionAPI(object):
                         uri=(a_dict.get("link", {}) or {}).get("uri")
                     )
                 )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
@@ -213,7 +213,7 @@ class DataRetentionAPI(object):
             verify=DataRetentionAPI.verify
         )
 
-        if r.status_code == 200:
+        if r.status_code == OK:
             a_dict = r.json()
             data_detention_request_status = CxDataRetentionRequestStatus.CxDataRetentionRequestStatus(
                 status_id=a_dict.get("id"),
@@ -226,11 +226,11 @@ class DataRetentionAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == http.HTTPStatus.BAD_REQUEST:
+        elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
-        elif r.status_code == http.HTTPStatus.NOT_FOUND:
+        elif r.status_code == NOT_FOUND:
             raise NotFoundError()
-        elif (r.status_code == http.HTTPStatus.UNAUTHORIZED) and (self.retry < self.max_try):
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < self.max_try):
             AuthenticationAPI.AuthenticationAPI.reset_auth_headers()
             self.retry += 1
             self.get_data_retention_request_status(request_id)
