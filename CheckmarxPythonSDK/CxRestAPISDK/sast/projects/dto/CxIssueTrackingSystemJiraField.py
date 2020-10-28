@@ -16,6 +16,6 @@ class CxIssueTrackingSystemJiraField(object):
         self.values = values
 
     def __str__(self):
-        return "CxIssueTrackingSystemJiraField(field_id={}, values={})".format(
+        return "CxIssueTrackingSystemJiraField(id={}, values={})".format(
             self.id, self.values
         )

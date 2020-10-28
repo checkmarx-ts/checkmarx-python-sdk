@@ -17,6 +17,6 @@ class CxCustomField(object):
         self.name = name
 
     def __str__(self):
-        return "custom_fields(custom_field_id={}, name={})".format(
+        return "custom_fields(id={}, name={})".format(
             self.id, self.name
         )

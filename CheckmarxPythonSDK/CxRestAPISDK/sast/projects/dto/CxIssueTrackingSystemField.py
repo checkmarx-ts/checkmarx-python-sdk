@@ -24,7 +24,7 @@ class CxIssueTrackingSystemField(object):
         self.allowed_values = allowed_values
 
     def __str__(self):
-        return """CxIssueTrackingSystemField(tracking_system_field_id={}, name={], multiple={], required={], 
+        return """CxIssueTrackingSystemField(id={}, name={], multiple={], required={], 
                 supported={], allowed_values={})""".format(
             self.id, self.name, self.multiple, self.required, self.supported, self.allowed_values
         )

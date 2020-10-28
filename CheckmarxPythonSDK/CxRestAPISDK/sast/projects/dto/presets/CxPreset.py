@@ -23,6 +23,6 @@ class CxPreset(object):
         self.query_ids = query_ids
 
     def __str__(self):
-        return "CxPreset(preset_id={}, name={}, owner_name={}, link={}, query_ids={})".format(
+        return "CxPreset(id={}, name={}, owner_name={}, link={}, query_ids={})".format(
             self.id, self.name, self.owner_name, self.link, self.query_ids
         )

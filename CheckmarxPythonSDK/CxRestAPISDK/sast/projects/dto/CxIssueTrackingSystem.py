@@ -20,6 +20,6 @@ class CxIssueTrackingSystem(object):
         self.url = url
 
     def __str__(self):
-        return "CxIssueTrackingSystem(tracking_system_id={}, name={}, tracking_system_type={}, url={})".format(
+        return "CxIssueTrackingSystem(id={}, name={}, tracking_system_type={}, url={})".format(
             self.id, self.name, self.type, self.url
         )

@@ -20,6 +20,6 @@ class CxIssueTrackingSystemType(object):
         self.fields = fields
 
     def __str__(self):
-        return "CxIssueTrackingSystemType(issue_tracking_system_type_id={}, name={}, sub_task={}, fields={})".format(
+        return "CxIssueTrackingSystemType(id={}, name={}, sub_task={}, fields={})".format(
             self.id, self.name, self.sub_task, self.fields
         )

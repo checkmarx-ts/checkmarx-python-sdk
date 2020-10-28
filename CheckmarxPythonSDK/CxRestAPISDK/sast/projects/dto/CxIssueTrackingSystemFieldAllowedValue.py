@@ -17,6 +17,6 @@ class CxIssueTrackingSystemFieldAllowedValue(object):
         self.name = name
 
     def __str__(self):
-        return "CxIssueTrackingSystemFieldAllowedValue(allowed_value_id={}, name={})".format(
+        return "CxIssueTrackingSystemFieldAllowedValue(id={}, name={})".format(
             self.id, self.name
         )

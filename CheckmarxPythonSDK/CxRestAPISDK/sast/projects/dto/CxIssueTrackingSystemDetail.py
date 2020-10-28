@@ -19,6 +19,6 @@ class CxIssueTrackingSystemDetail(object):
         self.issue_types = issue_types
 
     def __str__(self):
-        return "CxIssueTrackingSystemDetail(tracking_system_detail_id={}, name={}, issue_types={})".format(
+        return "CxIssueTrackingSystemDetail(id={}, name={}, issue_types={})".format(
             self.id, self.name, self.issue_types
         )

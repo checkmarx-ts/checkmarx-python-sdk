@@ -23,6 +23,6 @@ class CxCustomTask(object):
         self.link = link
 
     def __str__(self):
-        return "CxCustomTask(custom_task_id={], name={}, type={}, data={}, link={})".format(
+        return "CxCustomTask(id={], name={}, type={}, data={}, link={})".format(
             self.id, self.name, self.type, self.data, self.link
         )
