@@ -1,44 +1,29 @@
 # encoding: utf-8
 from zeep import Client, Settings
 
-from .auth import config_info, get_new_token
+from ..auth import config, get_new_token
 
 
-class ZeepClient(object):
+def get_client_and_factory():
     """
-    python zeep client
+
+    Returns:
+
     """
-    client = None
-    factory = None
+    token = get_new_token()
 
-    def __init__(self):
-        self.get_client_and_factory()
+    settings = Settings(strict=False, force_https=False, extra_http_headers={"Authorization": token})
 
-    @classmethod
-    def get_client_and_factory(cls):
-        """
+    c = Client(
+        wsdl=config.get("base_url") + "/CxWebInterface/Portal/CxWebService.asmx?wsdl",
+        settings=settings
+    )
 
-        Returns:
+    c.transport.session.verify = False
 
-        """
-        token = get_new_token()
+    f = c.type_factory("ns0")
 
-        settings = Settings(strict=False, force_https=False, extra_http_headers={"Authorization": token})
-
-        client = Client(
-            wsdl=config_info.get("base_url") + "/CxWebInterface/Portal/CxWebService.asmx?wsdl",
-            settings=settings
-        )
-
-        client.transport.session.verify = False
-
-        factory = client.type_factory("ns0")
-
-        ZeepClient.client = client
-
-        ZeepClient.factory = factory
-
-        return ZeepClient.client, ZeepClient.factory
+    return c, f
 
 
-ZeepClient()
+client, factory = get_client_and_factory()
