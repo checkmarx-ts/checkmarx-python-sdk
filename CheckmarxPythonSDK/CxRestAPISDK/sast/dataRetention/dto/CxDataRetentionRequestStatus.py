@@ -19,6 +19,6 @@ class CxDataRetentionRequestStatus(object):
         self.link = link
 
     def __str__(self):
-        return "CxDataRetentionRequestStatus(status_id={}, stage={}, link={})".format(
+        return "CxDataRetentionRequestStatus(id={}, stage={}, link={})".format(
             self.id, self.stage, self.link
         )

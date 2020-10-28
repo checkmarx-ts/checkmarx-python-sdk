@@ -16,6 +16,6 @@ class CxDataRetentionRequestStatusStage(object):
         self.value = value
 
     def __str__(self):
-        return "CxDataRetentionRequestStatusStage(stage_id={}, value={})".format(
+        return "CxDataRetentionRequestStatusStage(id={}, value={})".format(
             self.id, self.value
         )

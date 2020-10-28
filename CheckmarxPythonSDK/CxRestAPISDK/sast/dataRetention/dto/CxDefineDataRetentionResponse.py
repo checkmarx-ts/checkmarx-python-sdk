@@ -16,6 +16,6 @@ class CxDefineDataRetentionResponse(object):
         self.link = link
 
     def __str__(self):
-        return "CxDefineDataRetentionResponse(data_retention_response_id={}, link={})".format(
+        return "CxDefineDataRetentionResponse(id={}, link={})".format(
             self.id, self.link
         )
