@@ -16,8 +16,7 @@
 15[optional]. filter report results
 """
 import time
-
-from pathlib import Path
+from os.path import normpath, join, dirname
 
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
@@ -28,6 +27,8 @@ def scan_from_git():
     team_full_name = "/CxServer"
     project_name = "jvl_git"
     report_name = "report.pdf"
+    file_name = normpath(join(dirname(__file__), report_name))
+    print(file_name)
 
     url = "https://github.com/CSPF-Founder/JavaVulnerableLab.git"
     branch = "refs/heads/master"
@@ -101,9 +102,8 @@ def scan_from_git():
     print("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
 
-    file_name = Path(__file__).parent.absolute() / report_name
-    with open(str(file_name), "wb") as file:
-        file.write(report_content)
+    with open(str(file_name), "wb") as f_out:
+        f_out.write(report_content)
 
 
 if __name__ == "__main__":

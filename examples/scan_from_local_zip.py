@@ -17,7 +17,9 @@
 
 import time
 import io
-from pathlib import Path
+import os
+
+from os.path import normpath, join, exists
 
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
@@ -29,7 +31,13 @@ def scan_from_local():
 
     team_full_name = "/CxServer"
     project_name = "jvl_local"
-    zip_file_path = Path(__file__).parent.absolute() / "JavaVulnerableLab-master.zip"
+
+    directory = os.path.dirname(__file__)
+    # the absolute path of the file config.ini
+    zip_file_path = normpath(join(directory, "JavaVulnerableLab-master.zip"))
+    if not exists(zip_file_path):
+        print("JavaVulnerableLab-master.zip not found under current directory.")
+
     report_name = "local_report.xml"
     filter_xml = True
 
@@ -99,17 +107,17 @@ def scan_from_local():
     print("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
 
-    # optional, filter XML report data
-    file_name = Path(__file__).parent.absolute() / "filter_by_severity.xml"
-    if "xml" in report_name and filter_xml:
-        f = io.BytesIO(report_content)
-        xml_report = CxScanReportXmlContent(f)
-        xml_report.filter_by_severity(high=True, medium=True)
-        xml_report.write_new_xml(str(file_name))
+    # # optional, filter XML report data
+    #  file_name = Path(__file__).parent.absolute() / "filter_by_severity.xml"
+    # if "xml" in report_name and filter_xml:
+    #     f = io.BytesIO(report_content)
+    #     xml_report = CxScanReportXmlContent(f)
+    #     xml_report.filter_by_severity(high=True, medium=True)
+    #     xml_report.write_new_xml(str(file_name))
 
-    report_path = Path(__file__).parent.absolute() / report_name
-    with open(str(report_path), "wb") as file:
-        file.write(report_content)
+    report_path = normpath(join(directory, report_name))
+    with open(str(report_path), "wb") as f:
+        f.write(report_content)
 
 
 if __name__ == "__main__":
