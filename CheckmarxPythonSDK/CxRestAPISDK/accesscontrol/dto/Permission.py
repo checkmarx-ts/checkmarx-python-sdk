@@ -12,8 +12,8 @@ class Permission(object):
             name (str):
             category (str):
         """
-        self.id = int(permission_id)
-        self.service_provider_id = int(service_provider_id)
+        self.id = permission_id
+        self.service_provider_id = service_provider_id
         self.name = name
         self.category = category
 

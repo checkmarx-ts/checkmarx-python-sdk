@@ -45,9 +45,9 @@ class OIDCClient(object):
             claims (list):
             client_claims_prefix (str):
         """
-        self.oidc_client_id = int(oidc_client_id)
+        self.oidc_client_id = oidc_client_id
         self.update_access_token_claims_on_refresh = update_access_token_claims_on_refresh
-        self.access_token_type = int(access_token_type)
+        self.access_token_type = access_token_type
         self.include_jwt_id = include_jwt_id
         self.always_include_user_claims_in_id_token = always_include_user_claims_in_id_token
         self.client_id = client_id
@@ -64,13 +64,13 @@ class OIDCClient(object):
         self.front_channel_logout_session_required = front_channel_logout_session_required
         self.back_channel_logout_uri = back_channel_logout_uri
         self.back_channel_logout_session_required = back_channel_logout_session_required
-        self.identity_token_life_time = int(identity_token_life_time)
-        self.access_token_life_time = int(access_token_life_time)
-        self.authorization_code_life_time = int(authorization_code_life_time)
+        self.identity_token_life_time = identity_token_life_time
+        self.access_token_life_time = access_token_life_time
+        self.authorization_code_life_time = authorization_code_life_time
         self.absolute_refresh_token_life_time = absolute_refresh_token_life_time
-        self.sliding_refresh_token_life_time = int(sliding_refresh_token_life_time)
-        self.refresh_token_usage = int(refresh_token_usage)
-        self.refresh_token_expiration = int(refresh_token_expiration)
+        self.sliding_refresh_token_life_time = sliding_refresh_token_life_time
+        self.refresh_token_usage = refresh_token_usage
+        self.refresh_token_expiration = refresh_token_expiration
         self.allowed_cors_origins = allowed_cors_origins
         self.allowed_access_tokens_via_browser = allowed_access_tokens_via_browser
         self.claims = claims

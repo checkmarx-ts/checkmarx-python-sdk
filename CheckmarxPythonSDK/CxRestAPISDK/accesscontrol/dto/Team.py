@@ -13,12 +13,12 @@ class Team(object):
             parent_id (int):
         """
 
-        self.id = int(team_id)
+        self.id = team_id
         self.name = name
         self.full_name = full_name
-        self.parent_id = int(parent_id)
+        self.parent_id = parent_id
 
     def __str__(self):
-        return """Team(team_id={}, name={}, full_name={}, parent_id={})""".format(
+        return """Team(id={}, name={}, full_name={}, parent_id={})""".format(
             self.id, self.name, self.full_name, self.parent_id
         )

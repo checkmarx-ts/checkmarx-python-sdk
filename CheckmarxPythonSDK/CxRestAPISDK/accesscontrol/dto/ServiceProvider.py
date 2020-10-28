@@ -10,7 +10,7 @@ class ServiceProvider(object):
             service_provider_id (int):
             name (str):
         """
-        self.id = int(service_provider_id)
+        self.id = service_provider_id
         self.name = name
 
     def __str__(self):

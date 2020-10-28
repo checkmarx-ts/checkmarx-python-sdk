@@ -29,12 +29,12 @@ class User(object):
             allowed_ip_list (list[str]):
             locale_id (int):
         """
-        self.id = int(user_id)
+        self.id = user_id
         self.username = username
         self.last_login_date = last_login_date
         self.role_ids = role_ids
         self.team_ids = team_ids
-        self.authentication_provider_id = int(authentication_provider_id)
+        self.authentication_provider_id = authentication_provider_id
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -46,7 +46,7 @@ class User(object):
         self.active = active
         self.expiration_date = expiration_date
         self.allowed_ip_list = allowed_ip_list
-        self.locale_id = int(locale_id)
+        self.locale_id = locale_id
 
     def __str__(self):
         return """User(id={}, username={}, last_login_date={}, role_ids={}, team_ids={}, 

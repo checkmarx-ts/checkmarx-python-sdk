@@ -12,8 +12,8 @@ class SystemLocale(object):
             code (str):
             display_name (str):
         """
-        self.id = int(system_locale_id)
-        self.lcid = int(lcid)
+        self.id = system_locale_id
+        self.lcid = lcid
         self.code = code
         self.display_name = display_name
 

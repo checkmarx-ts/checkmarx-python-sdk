@@ -24,7 +24,7 @@ class SAMLIdentityProvider(object):
             default_team_id (int, None):
             default_role_id (int, None):
         """
-        self.id = int(saml_identity_provider_id)
+        self.id = saml_identity_provider_id
         self.certificate_file_name = certificate_file_name
         self.certificate_subject = certificate_subject
         self.active = active

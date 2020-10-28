@@ -22,7 +22,7 @@ class MyProfile(object):
             teams (str):
             authentication_provider_id (int):
         """
-        self.id = int(profile_id)
+        self.id = profile_id
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
@@ -32,9 +32,9 @@ class MyProfile(object):
         self.job_title = job_title
         self.other = other
         self.country = country
-        self.locale_id = int(locale_id)
+        self.locale_id = locale_id
         self.teams = teams
-        self.authentication_provider_id = int(authentication_provider_id)
+        self.authentication_provider_id = authentication_provider_id
 
     def __str__(self):
         return """MyProfile(id={}, username={}, first_name={}, last_name={}, email={}, phone_number={}, 

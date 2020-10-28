@@ -13,7 +13,7 @@ class Role(object):
             description (str):
             permission_ids (list of int):
         """
-        self.id = int(role_id)
+        self.id = role_id
         self.is_system_role = is_system_role
         self.name = name
         self.description = description
