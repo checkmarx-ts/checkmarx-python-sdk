@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-from pathlib import Path
-
 
 class CxTeam(object):
     """
@@ -27,7 +25,7 @@ class CxTeam(object):
         """
         self.team_id = team_id
         self.name = name
-        self.full_name = Path(full_name.replace("\\", "/"))
+        self.full_name = full_name.replace("\\", "/")
         self.parent_id = parent_id
 
     def __str__(self):
