@@ -1,6 +1,6 @@
 
 
-from CheckmarxPythonSDK.CxRestAPISDK.accesscontrol.AccessControlAPI import AccessControlAPI
+from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
 
 
 def test_get_all_assignable_users():

@@ -8,7 +8,9 @@
 
 """
 
-from CheckmarxPythonSDK.CxRestAPISDK.sast.engines.EnginesAPI import EnginesAPI
+from CheckmarxPythonSDK.CxRestAPISDK import EnginesAPI
+
+another_engine_ip = '172.35.0.37'
 
 
 def test_get_all_engine_server_details():
@@ -27,7 +29,10 @@ def test_get_engine_id_by_name():
 def test_register_engine():
     engine_api = EnginesAPI()
     name = "engine virtual"
-    uri = "http://192.168.43.113/CxSourceAnalyzerEngineWCF/CxEngineWebServices.svc"
+    engine_id = engine_api.get_engine_id_by_name(name)
+    if engine_id:
+        engine_api.unregister_engine_by_engine_id(engine_id)
+    uri = "http://{ip}/CxSourceAnalyzerEngineWCF/CxEngineWebServices.svc".format(ip=another_engine_ip)
     min_loc = 0
     max_loc = 999999999
     is_blocked = False
@@ -52,11 +57,12 @@ def test_get_engine_details():
 
 
 def test_update_engine_server():
-    engine_name = "engine2"
+    test_register_engine()
+    engine_name = "engine virtual"
     engine_api = EnginesAPI()
     engine_id = engine_api.get_engine_id_by_name(engine_name)
     name = "engine2"
-    uri = "http://192.168.43.113/CxSourceAnalyzerEngineWCF/CxEngineWebServices.svc"
+    uri = "http://{ip}/CxSourceAnalyzerEngineWCF/CxEngineWebServices.svc".format(ip=another_engine_ip)
     min_loc = 0
     max_loc = 999999999
     is_blocked = False

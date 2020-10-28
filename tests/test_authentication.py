@@ -8,12 +8,11 @@
 
 """
 
-from CheckmarxPythonSDK.CxRestAPISDK.auth import AuthenticationAPI
+from CheckmarxPythonSDK.CxRestAPISDK.authHeaders import auth_headers
 
 
 def test_auth():
-    auth = AuthenticationAPI.AuthenticationAPI()
-    assert "Bearer" in auth.auth_headers.get("Authorization")
-    assert auth.auth_headers.get("Accept") == "application/json;v=1.0"
-    assert auth.auth_headers.get("Content-Type") == "application/json;v=1.0"
-    assert auth.auth_headers.get("cxOrigin") == "REST API"
+    assert "Bearer" in auth_headers.get("Authorization")
+    assert auth_headers.get("Accept") == "application/json;v=1.0"
+    assert auth_headers.get("Content-Type") == "application/json;v=1.0"
+    assert auth_headers.get("cxOrigin") == "REST API"

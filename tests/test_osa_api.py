@@ -1,12 +1,13 @@
 # encoding: utf-8
-from pathlib import Path
+from os.path import normpath, join, dirname
 
-from CheckmarxPythonSDK.CxRestAPISDK.osa.OsaAPI import OsaAPI
-from CheckmarxPythonSDK.CxRestAPISDK.sast.projects.ProjectsAPI import ProjectsAPI
+from CheckmarxPythonSDK.CxRestAPISDK import OsaAPI
+from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 
 
 def get_project_id():
-    project_name = "BookStore %2B OSA"
+    # project_name = "BookStore %2B OSA"
+    project_name = "jvl_git"
     projects_api = ProjectsAPI()
     project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, "/CxServer")
     return project_id
@@ -37,8 +38,8 @@ def test_get_osa_scan_by_scan_id():
 def test_create_an_osa_scan_request():
     project_id = get_project_id()
     osa_api = OsaAPI()
-    parent_folder = Path(__file__).parent.absolute()
-    path = parent_folder / "JavaVulnerableLab-master.zip"
+    parent_folder = dirname(__file__)
+    path = normpath(join(parent_folder, "JavaVulnerableLab-master.zip"))
     scan_id = osa_api.create_an_osa_scan_request(project_id, zipped_source_path=str(path))
     assert scan_id is not None
 
