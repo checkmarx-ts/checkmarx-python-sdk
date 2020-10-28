@@ -4,14 +4,13 @@
 from codecs import open
 
 from setuptools import setup, find_packages
-from .CheckmarxPythonSDK import __version__
 
 with open("README.md", "r", 'UTF-8') as fh:
     long_description = fh.read()
 
 setup(
     name="CheckmarxPythonSDK",
-    version=__version__,
+    version="0.0.9",
     author="Happy Yang",
     author_email="happy.yang@checkmarx.com",
     description="Checkmarx Python SDK",
