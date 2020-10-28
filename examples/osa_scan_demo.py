@@ -2,13 +2,18 @@
 This is a CxOSA scan demo
 """
 import time
-from pathlib import Path
+
+from os.path import dirname, normpath, join, exists
 
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import OsaAPI
 
-zip_file_path = Path(__file__).parent.absolute() / "JavaVulnerableLab-master.zip"
+directory = dirname(__file__)
+# the absolute path of the file config.ini
+zip_file_path = normpath(join(directory, "JavaVulnerableLab-master.zip"))
+if not exists(zip_file_path):
+    print("JavaVulnerableLab-master.zip not found under current directory.")
 
 
 def osa_scan():
@@ -30,8 +35,7 @@ def osa_scan():
     project_id = project.id
 
     # 4. create an OSA scan
-    scan_id = osa_api.create_an_osa_scan_request(project_id=project_id, zipped_source_path=zip_file_path,
-                                                 origin="REST API")
+    scan_id = osa_api.create_an_osa_scan_request(project_id=project_id, zipped_source_path=zip_file_path)
 
     # 5. check scan status
     while True:
