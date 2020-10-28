@@ -32,7 +32,7 @@ class CxEngineServer(object):
         self.link = link
 
     def __str__(self):
-        return """CxEngineServer(engine_server_id={}, name={}, uri={}, min_loc={}, max_loc={}, max_scans={}, 
+        return """CxEngineServer(id={}, name={}, uri={}, min_loc={}, max_loc={}, max_scans={}, 
                  cx_version={}, status={}, link={})""".format(
             self.id, self.name, self.uri, self.min_loc, self.max_loc, self.max_scans,
             self.cx_version, self.status, self.link

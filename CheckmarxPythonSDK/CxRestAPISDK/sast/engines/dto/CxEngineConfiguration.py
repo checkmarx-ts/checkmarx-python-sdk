@@ -18,6 +18,6 @@ class CxEngineConfiguration(object):
         self.name = name
 
     def __str__(self):
-        return "CxEngineConfiguration(engine_configuration_id={}, link={}, name={})".format(
+        return "CxEngineConfiguration(id={}, link={}, name={})".format(
             self.id, self.link, self.name
         )

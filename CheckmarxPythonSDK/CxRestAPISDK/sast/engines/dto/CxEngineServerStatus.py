@@ -17,6 +17,6 @@ class CxEngineServerStatus(object):
         self.value = value
 
     def __str__(self):
-        return "CxEngineServerStatus(status_id={}, value={})".format(
+        return "CxEngineServerStatus(id={}, value={})".format(
             self.id, self.value
         )
