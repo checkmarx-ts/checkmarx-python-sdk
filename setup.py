@@ -1,13 +1,17 @@
 #!/usr/bin/env python
+# encoding: utf-8
+
+from codecs import open
 
 from setuptools import setup, find_packages
+from .CheckmarxPythonSDK import __version__
 
-with open("README.md", "r", encoding='UTF-8') as fh:
+with open("README.md", "r", 'UTF-8') as fh:
     long_description = fh.read()
 
 setup(
     name="CheckmarxPythonSDK",
-    version="0.0.8",
+    version=__version__,
     author="Happy Yang",
     author_email="happy.yang@checkmarx.com",
     description="Checkmarx Python SDK",
@@ -17,11 +21,15 @@ setup(
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     classifiers=[
+        'Programming Language :: Python :: 2.7',
         "Programming Language :: Python :: 3",
+        'Programming Language :: Python :: 3.7',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy'
     ],
-    python_requires='>=3.6',
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
     install_requires=[
         "requests>=2.22.0",
         "requests-toolbelt>=0.9.1",
@@ -31,7 +39,7 @@ setup(
         "dotenv": ["python-dotenv"],
         "dev": [
             "pytest",
-            "coverage",
+            "coverage"
         ],
     },
 )
