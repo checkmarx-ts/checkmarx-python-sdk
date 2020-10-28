@@ -55,7 +55,7 @@ class CxScanQueueDetail(object):
         self.initiator = initiator
 
     def __str__(self):
-        return """CxScanQueueDetail(scan_queue_detail_id={}, stage={}, stage_details={}, step_details={}, project={}, engine={},
+        return """CxScanQueueDetail(id={}, stage={}, stage_details={}, step_details={}, project={}, engine={},
                  languages={}, team_id={}, date_created={}, queued_on={}, engine_started_on={},
                  completed_on={}, loc={}, is_incremental={}, is_public={}, origin={}, queue_position={},
                  total_percent={}, stage_percent={}, initiator={})""".format(

@@ -56,7 +56,7 @@ class CxScanDetail(object):
         self.partial_scan_reasons = partial_scan_reasons
 
     def __str__(self):
-        return """CxScan(scan_id={}, project={}, status={}, scan_type={}, comment={}, date_and_time={},
+        return """CxScan(id={}, project={}, status={}, scan_type={}, comment={}, date_and_time={},
                  results_statistics={}, scan_state={}, owner={}, origin={}, initiator_name={},
                  owning_team_id={}, is_public={}, is_locked={}, is_incremental={}, scan_risk={},
                  scan_risk_severity={}, engine_server={}, finished_scan_status={}, partial_scan_reasons={})""".format(

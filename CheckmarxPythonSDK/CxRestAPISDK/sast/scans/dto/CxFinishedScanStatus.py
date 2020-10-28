@@ -16,6 +16,6 @@ class CxFinishedScanStatus(object):
         self.value = value
 
     def __str__(self):
-        return "CxFinishedScanStatus(scan_status_id={}, value={}))".format(
+        return "CxFinishedScanStatus(id={}, value={}))".format(
             self.id, self.value
         )

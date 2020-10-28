@@ -19,6 +19,6 @@ class CxStatus(object):
         self.details = details
 
     def __str__(self):
-        return "CxStatus(status_id={}, name={}, details={})".format(
+        return "CxStatus(id={}, name={}, details={})".format(
             self.id, self.name, self.details
         )

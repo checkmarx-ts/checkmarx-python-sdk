@@ -16,6 +16,6 @@ class CxPolicyFindingResponse(object):
         self.link = link
 
     def __str__(self):
-        return "CxPolicyFindingResponse(policy_finding_id={}, link={})".format(
+        return "CxPolicyFindingResponse(id={}, link={})".format(
             self.id, self.link
         )
