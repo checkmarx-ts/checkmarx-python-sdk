@@ -1,7 +1,8 @@
 # encoding: utf-8
 from zeep import Client, Settings
 
-from ..auth import config, get_new_token
+from ..config import config
+from ..auth import get_new_token
 
 
 def get_client_and_factory():
@@ -10,7 +11,15 @@ def get_client_and_factory():
     Returns:
 
     """
-    token = get_new_token()
+    token = get_new_token(
+        base_url=config.get("base_url"),
+        username=config.get("username"),
+        password=config.get("password"),
+        grant_type="password",
+        scope="sast_api",
+        client_id="resource_owner_sast_client",
+        client_secret="014DF517-39D1-4453-B7B3-9930C563627C"
+    )
 
     settings = Settings(strict=False, force_https=False, extra_http_headers={"Authorization": token})
 
