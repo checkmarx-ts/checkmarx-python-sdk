@@ -72,8 +72,8 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
 
 # The CxSAST and CxOSA REST API list
 
-1. AuthenticationAPI
-    - auth_headers (This is a class variable that stored token)
+1. For REST API, use Bear Token for authentication
+    - auth_headers (This is a global variable that stored token)
 2. TeamAPI
     - get_all_teams
     - get_team_id_by_team_full_name                                         **(provided by SDK)**
@@ -262,3 +262,4 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_preset_list
     - get_server_license_data
     - get_server_license_summary
+    - get_version_number

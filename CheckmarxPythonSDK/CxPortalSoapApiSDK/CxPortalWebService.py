@@ -319,3 +319,19 @@ def get_server_license_summary():
         "ProjectsAllowed": p["ProjectsAllowed"],
         "CurrentProjectsCount": p["CurrentProjectsCount"]
     }
+
+
+def get_version_number():
+    retry_times = [0]
+
+    def execute():
+        response = zeepClient.client.service.GetVersionNumber()
+        retry_if_token_is_invalid(response, execute, retry_times)
+        return response
+
+    p = execute()
+    return {
+        "IsSuccesfull": p["IsSuccesfull"],
+        "ErrorMessage": p["ErrorMessage"],
+        "Version": p["Version"]
+    }
