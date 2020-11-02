@@ -1,10 +1,13 @@
 # encoding: utf-8
 """
     Portal SOAP API
+    Only support 9.x version.
+    Start from 9.0, Portal SOAP API needs Bear Token for authentication
 """
 
 from . import zeepClient
 from ..config import config
+from . import authHeaders
 
 
 def retry_if_token_is_invalid(response, execute_func, retry_times):
@@ -22,6 +25,7 @@ def retry_if_token_is_invalid(response, execute_func, retry_times):
     if not response.IsSuccesfull and '12563' in response.ErrorMessage and retry_times[0] < config.get("max_try"):
         retry_times[0] += 1
         # get new token and create new client and factory
+        authHeaders.update_auth_headers()
         zeepClient.client, zeepClient.factory = zeepClient.get_client_and_factory()
         execute_func()
 
