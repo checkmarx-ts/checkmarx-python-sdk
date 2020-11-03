@@ -6,9 +6,9 @@ This SDK uses Python requests package to initiate HTTP requests to do related Cx
 Started from CxSAST 9.0, Access Control REST API is available.
 
 
-# REST API Official Documents
-For more information about Checkmarx REST API, please refer to Checkmarx knowledge Center：  
-CxSAST (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/KC/pages/131039271/CxSAST+REST+API  
+# Checkmarx API Official Documents
+For more information about Checkmarx API, please refer to Checkmarx knowledge Center：
+https://checkmarx.atlassian.net/wiki/spaces/KC/pages/5767170/CxSAST+API+Guide  
 
 CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide     
   
@@ -263,3 +263,14 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_server_license_data
     - get_server_license_summary
     - get_version_number
+    
+ # The CxSAST OData API list
+ 1. ProjectsODataAPI
+    - top_n_projects_by_risk_score
+    - top_n_projects_by_last_scan_duration
+ 
+ 2. ResultsODataAPI
+ 
+ 3. ScansODataAPI
+    - retrieve_all_data_for_a_specific_scan_id
+    - retrieve_number_of_loc_scanned_for_a_specific_scan

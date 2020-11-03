@@ -1,30 +1,144 @@
+import requests
+
+from ..config import config
+from . import authHeaders
+from ..compat import (OK, UNAUTHORIZED)
+
 
 class ProjectsODataAPI(object):
 
     def __init__(self):
         self.retry = 0
 
-    def top_5_projects_by_risk_score(self):
+    def top_n_projects_by_risk_score(self, number_of_projects):
         """
         Requested result: list the 5 Projects whose most recent scans yielded the highest Risk Score
         Query used for retrieving the data:
         http://localhost/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan/RiskScore%20desc&$top=5
 
+        Args:
+            number_of_projects (int):
+
         Returns:
-
+            `list` of `dict`
+            sample
+            [
+             {
+             'Id': 5, 'Name': 'jvl_local', 'IsPublic': True, 'Description': '',
+             'CreatedDate': '2020-11-01T15:14:27.907Z', 'OwnerId': 2,
+             'OwningTeamId': '00000000-1111-1111-b111-989c9070eb11',
+              'EngineConfigurationId': 1, 'IssueTrackingSettings': None,
+              'SourcePath': '', 'SourceProviderCredentials': '',
+              'ExcludedFiles': '', 'ExcludedFolders': '', 'OriginClientTypeId': 0, 'PresetId': 36,
+              'LastScanId': 1000005, 'TotalProjectScanCount': 1, 'SchedulingExpression': None
+              }
+            ]
         """
-        pass
+        n_projects = None
 
-    def top_5_projects_by_last_scan_duration(self):
+        url = config.get("base_url") + """/Cxwebinterface/odata/v1/Projects?
+        $expand=LastScan&$orderby=LastScan/RiskScore%20desc&$top={n}""".format(n=number_of_projects)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+            n_projects = [
+                {
+                    "Id": item.get("Id"),
+                    "Name": item.get("Name"),
+                    "IsPublic": item.get("IsPublic"),
+                    "Description": item.get("Description"),
+                    "CreatedDate": item.get("CreatedDate"),
+                    "OwnerId": item.get("OwnerId"),
+                    "OwningTeamId": item.get("OwningTeamId"),
+                    "EngineConfigurationId": item.get("EngineConfigurationId"),
+                    "IssueTrackingSettings": item.get("IssueTrackingSettings"),
+                    "SourcePath": item.get("SourcePath"),
+                    "SourceProviderCredentials": item.get("SourceProviderCredentials"),
+                    "ExcludedFiles": item.get("ExcludedFiles"),
+                    "ExcludedFolders": item.get("ExcludedFolders"),
+                    "OriginClientTypeId": item.get("OriginClientTypeId"),
+                    "PresetId": item.get("PresetId"),
+                    "LastScanId": item.get("LastScanId"),
+                    "TotalProjectScanCount": item.get("TotalProjectScanCount"),
+                    "SchedulingExpression": item.get("SchedulingExpression"),
+                } for item in item_list
+            ]
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.top_n_projects_by_risk_score(number_of_projects)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return n_projects
+
+    def top_n_projects_by_last_scan_duration(self, number_of_projects):
         """
         Requested result: list the 5 Projects whose most recent scan had the longest duration
         Query used for retrieving the data:
         http://localhost/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan/ScanDuration%20desc&$top=5
 
-        Returns:
+        Args:
+            number_of_projects (int):
 
+        Returns:
+             `list` of `dict`
         """
-        pass
+        n_projects = None
+
+        url = config.get("base_url") + """/Cxwebinterface/odata/v1/Projects?
+        $expand=LastScan&$orderby=LastScan/ScanDuration%20desc&$top={n}""".format(n=number_of_projects)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+            n_projects = [
+                {
+                    "Id": item.get("Id"),
+                    "Name": item.get("Name"),
+                    "IsPublic": item.get("IsPublic"),
+                    "Description": item.get("Description"),
+                    "CreatedDate": item.get("CreatedDate"),
+                    "OwnerId": item.get("OwnerId"),
+                    "OwningTeamId": item.get("OwningTeamId"),
+                    "EngineConfigurationId": item.get("EngineConfigurationId"),
+                    "IssueTrackingSettings": item.get("IssueTrackingSettings"),
+                    "SourcePath": item.get("SourcePath"),
+                    "SourceProviderCredentials": item.get("SourceProviderCredentials"),
+                    "ExcludedFiles": item.get("ExcludedFiles"),
+                    "ExcludedFolders": item.get("ExcludedFolders"),
+                    "OriginClientTypeId": item.get("OriginClientTypeId"),
+                    "PresetId": item.get("PresetId"),
+                    "LastScanId": item.get("LastScanId"),
+                    "TotalProjectScanCount": item.get("TotalProjectScanCount"),
+                    "SchedulingExpression": item.get("SchedulingExpression"),
+                } for item in item_list
+            ]
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.top_n_projects_by_last_scan_duration(number_of_projects)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return n_projects
 
     def all_projects_with_their_last_scan_and_the_high_vulnerabilities(self):
         """
