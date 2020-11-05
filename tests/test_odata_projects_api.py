@@ -23,3 +23,9 @@ def test_top_n_projects_by_last_scan_duration():
     r = project_odata_api.top_n_projects_by_last_scan_duration(number_of_projects=number_of_projects)
 
     assert r is not None
+
+
+def test_all_projects_with_their_last_scan_and_the_high_vulnerabilities():
+    project_odata_api = ProjectsODataAPI()
+    r = project_odata_api.all_projects_with_their_last_scan_and_the_high_vulnerabilities()
+    assert r is not None

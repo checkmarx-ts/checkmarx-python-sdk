@@ -19,7 +19,7 @@ class ScansODataAPI(object):
             scan_id (int):
 
         Returns:
-            dict
+            dict or None
         """
         scan_data = None
 
@@ -95,7 +95,7 @@ class ScansODataAPI(object):
             scan_id:
 
         Returns:
-
+            int or None
         """
         number_of_loc = None
 

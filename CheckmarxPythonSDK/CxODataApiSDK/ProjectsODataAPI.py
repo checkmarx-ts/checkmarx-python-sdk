@@ -149,9 +149,55 @@ class ProjectsODataAPI(object):
         ($expand=Results($filter=Severity%20eq%20CxDataRepository.Severity%27High%27))
 
         Returns:
-
+            `list` of `dict`
         """
-        pass
+        n_projects = None
+
+        url = config.get("base_url") + """/Cxwebinterface/odata/v1/Projects?$expand=LastScan
+        ($expand=Results($filter=Severity%20eq%20CxDataRepository.Severity%27High%27))"""
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+            n_projects = [
+                {
+                    "Id": item.get("Id"),
+                    "Name": item.get("Name"),
+                    "IsPublic": item.get("IsPublic"),
+                    "Description": item.get("Description"),
+                    "CreatedDate": item.get("CreatedDate"),
+                    "OwnerId": item.get("OwnerId"),
+                    "OwningTeamId": item.get("OwningTeamId"),
+                    "EngineConfigurationId": item.get("EngineConfigurationId"),
+                    "IssueTrackingSettings": item.get("IssueTrackingSettings"),
+                    "SourcePath": item.get("SourcePath"),
+                    "SourceProviderCredentials": item.get("SourceProviderCredentials"),
+                    "ExcludedFiles": item.get("ExcludedFiles"),
+                    "ExcludedFolders": item.get("ExcludedFolders"),
+                    "OriginClientTypeId": item.get("OriginClientTypeId"),
+                    "PresetId": item.get("PresetId"),
+                    "LastScanId": item.get("LastScanId"),
+                    "TotalProjectScanCount": item.get("TotalProjectScanCount"),
+                    "SchedulingExpression": item.get("SchedulingExpression"),
+                    "LastScan": item.get("LastScan")
+                } for item in item_list
+            ]
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.all_projects_with_their_last_scan_and_the_high_vulnerabilities()
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return n_projects
 
     def only_projects_that_have_high_vulnerabilities_in_the_last_scan(self):
         """
