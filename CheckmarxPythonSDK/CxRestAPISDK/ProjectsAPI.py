@@ -569,7 +569,8 @@ class ProjectsAPI(object):
         """
         issue_tracking_system = None
 
-        issue_tracking_systems_metadata_url = config.get("base_url") + "/cxrestapi/issueTrackingSystems/{id}/metadata".format(
+        issue_tracking_systems_metadata_url = config.get(
+            "base_url") + "/cxrestapi/issueTrackingSystems/{id}/metadata".format(
             id=issue_tracking_system_id
         )
 
