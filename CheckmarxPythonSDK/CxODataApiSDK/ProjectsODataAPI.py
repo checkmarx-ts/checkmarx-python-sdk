@@ -36,8 +36,8 @@ class ProjectsODataAPI(object):
         """
         n_projects = None
 
-        url = config.get("base_url") + """/Cxwebinterface/odata/v1/Projects?
-        $expand=LastScan&$orderby=LastScan/RiskScore%20desc&$top={n}""".format(n=number_of_projects)
+        url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan"
+                                        "/RiskScore%20desc&$top={n}").format(n=number_of_projects)
 
         r = requests.get(
             url=url,
@@ -95,8 +95,8 @@ class ProjectsODataAPI(object):
         """
         n_projects = None
 
-        url = config.get("base_url") + """/Cxwebinterface/odata/v1/Projects?
-        $expand=LastScan&$orderby=LastScan/ScanDuration%20desc&$top={n}""".format(n=number_of_projects)
+        url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan"
+                                        "/ScanDuration%20desc&$top={n}").format(n=number_of_projects)
 
         r = requests.get(
             url=url,
@@ -153,8 +153,8 @@ class ProjectsODataAPI(object):
         """
         n_projects = None
 
-        url = config.get("base_url") + """/Cxwebinterface/odata/v1/Projects?$expand=LastScan
-        ($expand=Results($filter=Severity%20eq%20CxDataRepository.Severity%27High%27))"""
+        url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Projects?$expand=LastScan($expand=Results($filter="
+                                        "Severity%20eq%20CxDataRepository.Severity%27High%27))")
 
         r = requests.get(
             url=url,
@@ -283,3 +283,39 @@ class ProjectsODataAPI(object):
         Returns:
 
         """
+
+    def get_all_projects_id_name(self):
+        """
+
+        Returns:
+            `list` of int
+        """
+        project_id_name_list = []
+
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Projects?$select=Id,Name"
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+            project_id_name_list = [
+                {
+                    "ProjectId": item.get("Id"),
+                    "ProjectName": item.get("Name")
+                } for item in item_list
+            ]
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_all_projects_id_name()
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return project_id_name_list

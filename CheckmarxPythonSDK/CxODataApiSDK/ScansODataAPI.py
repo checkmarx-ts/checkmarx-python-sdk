@@ -178,3 +178,36 @@ class ScansODataAPI(object):
         Returns:
 
         """
+
+    def get_scan_id_list_for_one_project(self, project_id):
+        """
+
+        Args:
+            project_id:
+
+        Returns:
+            `list` of int
+        """
+        scan_id_list = []
+
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Projects({id})/Scans?$select=Id".format(id=project_id)
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+            scan_id_list = [item.get('Id') for item in item_list]
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_scan_id_list_for_one_project(project_id)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return scan_id_list
