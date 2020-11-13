@@ -29,3 +29,9 @@ def test_all_projects_with_their_last_scan_and_the_high_vulnerabilities():
     project_odata_api = ProjectsODataAPI()
     r = project_odata_api.all_projects_with_their_last_scan_and_the_high_vulnerabilities()
     assert r is not None
+
+
+def test_get_all_projects_id_name():
+    project_odata_api = ProjectsODataAPI()
+    r = project_odata_api.get_all_projects_id_name()
+    assert r is not None

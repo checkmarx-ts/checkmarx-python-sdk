@@ -135,9 +135,13 @@ def test_set_remote_source_setting_to_git():
     projects_api = ProjectsAPI()
     project_name = "jvl_git"
     project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
-    url = "https://github.com/CSPF-Founder/JavaVulnerableLab.git"
+    url = "https://github.com/HappyY19/Cx-REST-API-SDK-Python.git"
     branch = "refs/heads/master"
-    result = projects_api.set_remote_source_setting_to_git(project_id, url, branch)
+    private_key_content = None
+    private_key_file_path = r"C:\Users\HappyY\.ssh\id_rsa"
+    with open(private_key_file_path, 'r') as f:
+        private_key_content = f.read()
+    result = projects_api.set_remote_source_setting_to_git(project_id, url, branch, private_key=private_key_content)
     assert result is True
 
 
