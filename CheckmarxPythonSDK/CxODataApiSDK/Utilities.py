@@ -1,3 +1,7 @@
+import csv
+from itertools import groupby
+from copy import deepcopy
+
 from .ProjectsODataAPI import ProjectsODataAPI
 from .ScansODataAPI import ScansODataAPI
 from .ResultsODataAPI import ResultsODataAPI
@@ -33,7 +37,29 @@ def get_project_id_name_and_scan_id_list():
     return project_id_name_and_scan_id_list
 
 
-def get_all_results_with_count_for_each_project(filter_false_positive=False, threshold=0):
+def scan_results_group_by_query_id(original_results):
+    """
+
+    Returns:
+
+    """
+    results = []
+    original_results = sorted(original_results, key=lambda r: r.get("QueryId"))
+    for _, query_id_group in groupby(original_results, lambda r: r.get("QueryId")):
+        list_of_result_with_same_query_id = list(query_id_group)
+        count = len(list_of_result_with_same_query_id)
+
+        first_dict = deepcopy(list_of_result_with_same_query_id[0])
+        first_dict.pop("ResultId")
+        first_dict.pop("ResultState")
+        first_dict.update({"Count": count})
+
+        results.append(first_dict)
+
+    return results
+
+
+def get_all_results_with_count_for_each_project_json_format(filter_false_positive=False, threshold=0):
     """
     Warnings: this function put all data in one big dict, if you have a lot of projects in your
     Checkmarx system, this function may fail.
@@ -71,3 +97,69 @@ def get_all_results_with_count_for_each_project(filter_false_positive=False, thr
         )
 
     return project_id_name_and_scan_id_list
+
+
+def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, threshold=0):
+    """
+    Args:
+        file_path (str):
+        filter_false_positive (bool): True if get only [Proposed] Not Exploitable results,
+                                        otherwise get all result state
+        threshold (int): minimum number of count for results
+
+    Returns:
+
+    """
+    common_field_names = ['ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup', 'QueryId', 'Query']
+
+    all_results_field_names = common_field_names[:]
+    all_results_field_names.extend(['ResultId', 'ResultState'])
+
+    group_by_query_field_names = common_field_names[:]
+    group_by_query_field_names.extend(['Count'])
+
+    with open(file_path, 'w', newline='') as csv_file:
+
+        is_for_all_results = True if filter_false_positive is False and threshold == 0 else False
+
+        field_names = all_results_field_names if is_for_all_results else group_by_query_field_names
+
+        writer = csv.DictWriter(csv_file, fieldnames=field_names)
+        writer.writeheader()
+
+        project_id_name_and_scan_id_list = get_project_id_name_and_scan_id_list()
+        for project in project_id_name_and_scan_id_list:
+            project_id = project.get("ProjectId")
+            project_name = project.get("ProjectName")
+            scan_id_list = project.get("ScanIdList")
+
+            for scan_id in scan_id_list:
+                try:
+                    result_list = ResultsODataAPI().get_results_for_a_specific_scan_id_with_query_language_state(
+                        scan_id=scan_id, filter_false_positive=filter_false_positive
+                    )
+
+                    if is_for_all_results:
+                        result_list = sorted(
+                            result_list, key=lambda r: (r.get("ResultId"), r.get("Language"),
+                                                        r.get("QueryGroup"), r.get("QueryId"))
+                            )
+                    else:
+                        result_list = scan_results_group_by_query_id(result_list)
+                        result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
+                                                                         r.get("QueryId"),))
+
+                        if threshold > 1:
+                            result_list = list(filter(lambda r: r.get("Count") >= threshold, result_list))
+
+                    for result in result_list:
+                        result.update(
+                            {
+                                "ProjectId": project_id,
+                                "ProjectName": project_name,
+                                "ScanId": scan_id
+                            }
+                        )
+                    writer.writerows(result_list)
+                except Exception:
+                    print("Fail to get scan result for scan id: {id}".format(id=scan_id))

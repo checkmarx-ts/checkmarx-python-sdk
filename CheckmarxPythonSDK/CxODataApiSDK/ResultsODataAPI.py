@@ -1,6 +1,5 @@
 import requests
 
-from itertools import groupby
 from ..config import config
 from . import authHeaders
 from ..compat import (OK, UNAUTHORIZED)
@@ -106,12 +105,12 @@ class ResultsODataAPI(object):
             example:
             [
             {
-            'ResultId': 2, 'QueryId': 589, 'QueryName': 'Connection_String_Injection', 'QueryGroupName': 'Java_High_Risk',
-            'LanguageName': 'Java', 'StateName': 'Not Exploitable'
+            'ResultId': 2, 'QueryId': 589, 'QueryName': 'Connection_String_Injection',
+            'QueryGroupName': 'Java_High_Risk', 'LanguageName': 'Java', 'StateName': 'Not Exploitable'
             },
             {
-            'ResultId': 73, 'QueryId': 591, 'QueryName': 'Reflected_XSS_All_Clients', 'QueryGroupName': 'Java_High_Risk',
-            'LanguageName': 'Java', 'StateName': 'To Verify'
+            'ResultId': 73, 'QueryId': 591, 'QueryName': 'Reflected_XSS_All_Clients',
+            'QueryGroupName': 'Java_High_Risk', 'LanguageName': 'Java', 'StateName': 'To Verify'
             }
             ]
         """
@@ -158,7 +157,8 @@ class ResultsODataAPI(object):
                                                   re.get("QueryId")))
         return results
 
-    def get_results_group_by_query_id(self, scan_id, filter_false_positive=False, threshold=0):
+    def get_results_group_by_query_id_and_add_count_json_format(self, scan_id, filter_false_positive=False,
+                                                                threshold=0):
         """
 
         Args:
@@ -175,42 +175,9 @@ class ResultsODataAPI(object):
 
         results = []
 
-        for _, query_id_group in groupby(re, lambda r: r.get("QueryId")):
-            list_of_result_with_same_query_id = list(query_id_group)
-            count = len(list_of_result_with_same_query_id)
-            # ignore those queries that count smaller than threshold
-            if count < threshold:
-                continue
-
-            first_dict = list_of_result_with_same_query_id[0]
-            first_dict.pop("ResultId")
-            first_dict.pop("ResultState")
-            first_dict.update({"Count": count})
-
-            results.append(first_dict)
-
-        results = sorted(results, key=lambda r: (r.get("Language"), r.get("QueryGroup"), r.get("QueryId")))
-
-        return results
-
-    def get_results_group_by_query_id_and_add_count_json_format(self, scan_id, filter_false_positive=False, threshold=0):
-        """
-
-        Args:
-            scan_id (int):
-            filter_false_positive (bool):
-            threshold (int): minimum value of Count
-
-        Returns:
-
-        """
-        re = self.get_results_for_a_specific_scan_id_with_query_language_state(
-            scan_id=scan_id, filter_false_positive=filter_false_positive
-        )
-
-        results = []
-
+        from itertools import groupby
         # first group by LanguageName
+        re = sorted(re, key=lambda result: result.get("Language"))
         for _, language_group in groupby(re, lambda result: result.get("Language")):
             l_list = list(language_group)
             language_name = l_list[0].get("Language")
@@ -223,6 +190,7 @@ class ResultsODataAPI(object):
             )
 
             # second group by QueryGroupName
+            l_list = sorted(l_list, key=lambda result: result.get("QueryGroup"))
             for _, query_group_group in groupby(l_list, lambda result: result.get("QueryGroup")):
                 l_query_group = list(query_group_group)
                 query_group_name = l_query_group[0].get("QueryGroup")
@@ -235,7 +203,8 @@ class ResultsODataAPI(object):
                 )
 
                 # third group by QueryName/QueryId
-                for _, query_group in groupby(l_query_group, lambda r: r.get("Query")):
+                l_query_group = sorted(l_query_group, key=lambda r: r.get("QueryId") )
+                for _, query_group in groupby(l_query_group, lambda r: r.get("QueryId")):
                     l_query_name = list(query_group)
                     query_name = l_query_name[0].get("Query")
 
