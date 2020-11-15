@@ -1,4 +1,4 @@
-from CheckmarxPythonSDK.CxODataApiSDK import ResultsODataAPI
+from CheckmarxPythonSDK.CxODataApiSDK import ResultsODataAPI, scan_results_group_by_query_id
 
 
 def test_get_results_for_a_specific_scan_id():
@@ -27,20 +27,18 @@ def test_get_results_for_a_specific_scan_id_with_query_language_state():
 
 def test_get_results_group_by_query_id():
     results_odata_api = ResultsODataAPI()
-    r = results_odata_api.get_results_group_by_query_id(
+    r = results_odata_api.get_results_for_a_specific_scan_id_with_query_language_state(
         scan_id=1000012,
         filter_false_positive=False
     )
-    assert r is not None
 
-
-def test_get_results_group_by_query_id_and_add_count():
-    results_odata_api = ResultsODataAPI()
-    r = results_odata_api.get_results_group_by_query_id_and_add_count(scan_id=1000012, filter_false_positive=False)
+    r = scan_results_group_by_query_id(r)
     assert r is not None
 
 
 def test_get_results_group_by_query_id_and_add_count_filter_false_positive():
     results_odata_api = ResultsODataAPI()
-    r = results_odata_api.get_results_group_by_query_id_and_add_count(scan_id=1000012, filter_false_positive=True)
+    r = results_odata_api.get_results_for_a_specific_scan_id_with_query_language_state(scan_id=1000012,
+                                                                                       filter_false_positive=True)
+    r = scan_results_group_by_query_id(r)
     assert r is not None
