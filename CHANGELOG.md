@@ -28,3 +28,6 @@ All notable changes to this project will be documented in  this file.
 
 0.1.1 - 2020-11-15
 * Add a few support for OData API
+
+0.1.2 - 2020-11-15
+* Change get_results_and_write_to_csv_file to use only last scan of a project, instead of iterate through every scan
