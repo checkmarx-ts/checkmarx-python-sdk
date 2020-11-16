@@ -146,28 +146,29 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
                 result_list = results_odata_api.get_results_for_a_specific_scan_id_with_query_language_state(
                     scan_id=last_scan_id, filter_false_positive=filter_false_positive
                 )
-
-                if is_for_all_results:
-                    result_list = sorted(
-                        result_list, key=lambda r: (r.get("Language"),
-                                                    r.get("QueryGroup"), r.get("QueryId"), r.get("ResultId"))
-                        )
-                else:
-                    result_list = scan_results_group_by_query_id(result_list)
-                    result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
-                                                                     r.get("QueryId"),))
-
-                    if threshold > 1:
-                        result_list = list(filter(lambda r: r.get("Count") >= threshold, result_list))
-
-                for result in result_list:
-                    result.update(
-                        {
-                            "ProjectId": project_id,
-                            "ProjectName": project_name,
-                            "ScanId": last_scan_id
-                        }
-                    )
-                writer.writerows(result_list)
             except Exception:
                 print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
+                continue
+
+            if is_for_all_results:
+                result_list = sorted(
+                    result_list, key=lambda r: (r.get("Language"),
+                                                r.get("QueryGroup"), r.get("QueryId"), r.get("ResultId"))
+                    )
+            else:
+                result_list = scan_results_group_by_query_id(result_list)
+                result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
+                                                                 r.get("QueryId"),))
+
+                if threshold > 1:
+                    result_list = list(filter(lambda r: r.get("Count") >= threshold, result_list))
+
+            for result in result_list:
+                result.update(
+                    {
+                        "ProjectId": project_id,
+                        "ProjectName": project_name,
+                        "ScanId": last_scan_id
+                    }
+                )
+            writer.writerows(result_list)
