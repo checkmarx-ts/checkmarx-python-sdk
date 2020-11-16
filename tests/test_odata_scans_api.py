@@ -27,6 +27,14 @@ def test_retrieve_number_of_loc_scanned_for_a_specific_scan():
     assert r > 1
 
 
+def test_get_the_scan_id_of_last_scan():
+    scans_odata_api = ScansODataAPI()
+
+    r = scans_odata_api.get_the_scan_id_of_last_scan(project_id=project_id)
+
+    assert r is not None
+
+
 def test_get_scan_id_list_for_one_project():
     scans_odata_api = ScansODataAPI()
 

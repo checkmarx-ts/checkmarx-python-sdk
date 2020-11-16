@@ -110,6 +110,10 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
     Returns:
 
     """
+    projects_odata_api = ProjectsODataAPI()
+    scans_odata_api = ScansODataAPI()
+    results_odata_api = ResultsODataAPI()
+
     common_field_names = ['ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup', 'QueryId', 'Query']
 
     all_results_field_names = common_field_names[:]
@@ -127,39 +131,43 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
         writer = csv.DictWriter(csv_file, fieldnames=field_names)
         writer.writeheader()
 
-        project_id_name_and_scan_id_list = get_project_id_name_and_scan_id_list()
-        for project in project_id_name_and_scan_id_list:
+        project_id_name_list = projects_odata_api.get_all_projects_id_name()
+        for project in project_id_name_list:
             project_id = project.get("ProjectId")
             project_name = project.get("ProjectName")
-            scan_id_list = project.get("ScanIdList")
 
-            for scan_id in scan_id_list:
-                try:
-                    result_list = ResultsODataAPI().get_results_for_a_specific_scan_id_with_query_language_state(
-                        scan_id=scan_id, filter_false_positive=filter_false_positive
-                    )
+            try:
+                last_scan_id = scans_odata_api.get_the_scan_id_of_last_scan(project_id=project_id)
+            except Exception:
+                print("Project name: {name}, id : {id} has no scans".format(name=project_name, id=project_id))
+                continue
 
-                    if is_for_all_results:
-                        result_list = sorted(
-                            result_list, key=lambda r: (r.get("ResultId"), r.get("Language"),
-                                                        r.get("QueryGroup"), r.get("QueryId"))
-                            )
-                    else:
-                        result_list = scan_results_group_by_query_id(result_list)
-                        result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
-                                                                         r.get("QueryId"),))
+            try:
+                result_list = results_odata_api.get_results_for_a_specific_scan_id_with_query_language_state(
+                    scan_id=last_scan_id, filter_false_positive=filter_false_positive
+                )
 
-                        if threshold > 1:
-                            result_list = list(filter(lambda r: r.get("Count") >= threshold, result_list))
-
-                    for result in result_list:
-                        result.update(
-                            {
-                                "ProjectId": project_id,
-                                "ProjectName": project_name,
-                                "ScanId": scan_id
-                            }
+                if is_for_all_results:
+                    result_list = sorted(
+                        result_list, key=lambda r: (r.get("ResultId"), r.get("Language"),
+                                                    r.get("QueryGroup"), r.get("QueryId"))
                         )
-                    writer.writerows(result_list)
-                except Exception:
-                    print("Fail to get scan result for scan id: {id}".format(id=scan_id))
+                else:
+                    result_list = scan_results_group_by_query_id(result_list)
+                    result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
+                                                                     r.get("QueryId"),))
+
+                    if threshold > 1:
+                        result_list = list(filter(lambda r: r.get("Count") >= threshold, result_list))
+
+                for result in result_list:
+                    result.update(
+                        {
+                            "ProjectId": project_id,
+                            "ProjectName": project_name,
+                            "ScanId": last_scan_id
+                        }
+                    )
+                writer.writerows(result_list)
+            except Exception:
+                print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))

@@ -138,9 +138,34 @@ class ScansODataAPI(object):
             project_id (int):
 
         Returns:
-
+            int
         """
-        pass
+        scan_id = None
+
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Projects({id})/LastScan?$select=Id".format(
+            id=project_id
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item = r.json().get('value')[0]
+            scan_id = item.get("Id")
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_the_scan_id_of_last_scan(project_id)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return scan_id
 
     def for_a_specific_project_retrieve_all_scans_within_a_predefined_time_range_and_their_h_m_l_values(
             self,
