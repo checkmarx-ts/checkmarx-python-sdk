@@ -149,8 +149,8 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
 
                 if is_for_all_results:
                     result_list = sorted(
-                        result_list, key=lambda r: (r.get("ResultId"), r.get("Language"),
-                                                    r.get("QueryGroup"), r.get("QueryId"))
+                        result_list, key=lambda r: (r.get("Language"),
+                                                    r.get("QueryGroup"), r.get("QueryId"), r.get("ResultId"))
                         )
                 else:
                     result_list = scan_results_group_by_query_id(result_list)
