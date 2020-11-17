@@ -5,6 +5,59 @@ from . import authHeaders
 from ..compat import (OK, UNAUTHORIZED)
 
 
+def construct_scan_data(item):
+    """
+
+    Args:
+        item (dict):
+
+    Returns:
+        dict
+    """
+    return {
+        "Id": item.get("Id"),
+        "SourceId": item.get("SourceId"),
+        "Comment": item.get("Comment"),
+        "IsIncremental": item.get("IsIncremental"),
+        "ScanType": item.get("ScanType"),
+        "Origin": item.get("Origin"),
+        "OwnerId": item.get("OwnerId"),
+        "OwningTeamId": item.get("OwningTeamId"),
+        "InitiatorName": item.get("InitiatorName"),
+        "ProjectName": item.get("ProjectName"),
+        "PresetName": item.get("PresetName"),
+        "TeamName": item.get("TeamName"),
+        "Path": item.get("Path"),
+        "FileCount": item.get("FileCount"),
+        "LOC": item.get("LOC"),
+        "FailedLOC": item.get("FailedLOC"),
+        "ProductVersion": item.get("ProductVersion"),
+        "IsForcedScan": item.get("IsForcedScan"),
+        "ScanRequestedOn": item.get("ScanRequestedOn"),
+        "QueuedOn": item.get("QueuedOn"),
+        "EngineStartedOn": item.get("EngineStartedOn"),
+        "EngineFinishedOn": item.get("EngineFinishedOn"),
+        "ScanCompletedOn": item.get("ScanCompletedOn"),
+        "ScanDuration": item.get("ScanDuration"),
+        "ProjectId": item.get("ProjectId"),
+        "EngineServerId": item.get("EngineServerId"),
+        "PresetId": item.get("PresetId"),
+        "QueryLanguageVersionId": item.get("QueryLanguageVersionId"),
+        "ScannedLanguageIds": item.get("ScannedLanguageIds"),
+        "TotalVulnerabilities": item.get("TotalVulnerabilities"),
+        "High": item.get("High"),
+        "Medium": item.get("Medium"),
+        "Low": item.get("Low"),
+        "Info": item.get("Info"),
+        "RiskScore": item.get("RiskScore"),
+        "QuantityLevel": item.get("QuantityLevel"),
+        "StatisticsUpdateDate": item.get("StatisticsUpdateDate"),
+        "StatisticsUpToDate": item.get("StatisticsUpToDate"),
+        "IsPublic": item.get("IsPublic"),
+        "IsLocked": item.get("IsLocked"),
+    }
+
+
 class ScansODataAPI(object):
 
     def __init__(self):
@@ -33,48 +86,7 @@ class ScansODataAPI(object):
 
         if r.status_code == OK:
             item = r.json().get('value')[0]
-            scan_data = {
-                "Id": item.get("Id"),
-                "SourceId": item.get("SourceId"),
-                "Comment": item.get("Comment"),
-                "IsIncremental": item.get("IsIncremental"),
-                "ScanType": item.get("ScanType"),
-                "Origin": item.get("Origin"),
-                "OwnerId": item.get("OwnerId"),
-                "OwningTeamId": item.get("OwningTeamId"),
-                "InitiatorName": item.get("InitiatorName"),
-                "ProjectName": item.get("ProjectName"),
-                "PresetName": item.get("PresetName"),
-                "TeamName": item.get("TeamName"),
-                "Path": item.get("Path"),
-                "FileCount": item.get("FileCount"),
-                "LOC": item.get("LOC"),
-                "FailedLOC": item.get("FailedLOC"),
-                "ProductVersion": item.get("ProductVersion"),
-                "IsForcedScan": item.get("IsForcedScan"),
-                "ScanRequestedOn": item.get("ScanRequestedOn"),
-                "QueuedOn": item.get("QueuedOn"),
-                "EngineStartedOn": item.get("EngineStartedOn"),
-                "EngineFinishedOn": item.get("EngineFinishedOn"),
-                "ScanCompletedOn": item.get("ScanCompletedOn"),
-                "ScanDuration": item.get("ScanDuration"),
-                "ProjectId": item.get("ProjectId"),
-                "EngineServerId": item.get("EngineServerId"),
-                "PresetId": item.get("PresetId"),
-                "QueryLanguageVersionId": item.get("QueryLanguageVersionId"),
-                "ScannedLanguageIds": item.get("ScannedLanguageIds"),
-                "TotalVulnerabilities": item.get("TotalVulnerabilities"),
-                "High": item.get("High"),
-                "Medium": item.get("Medium"),
-                "Low": item.get("Low"),
-                "Info": item.get("Info"),
-                "RiskScore": item.get("RiskScore"),
-                "QuantityLevel": item.get("QuantityLevel"),
-                "StatisticsUpdateDate": item.get("StatisticsUpdateDate"),
-                "StatisticsUpToDate": item.get("StatisticsUpToDate"),
-                "IsPublic": item.get("IsPublic"),
-                "IsLocked": item.get("IsLocked"),
-            }
+            scan_data = construct_scan_data(item)
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
@@ -260,7 +272,7 @@ class ScansODataAPI(object):
 
         return scan_list
 
-    def get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(self, project_id):
+    def get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(self, project_id, start_date):
         """
         Requested result: for a specific project, list all the scans starting from a specific date, and for each scan
         retrieve three parameters (Id, ScanId, and StateId) as well as the state of each of the scan's vulnerabilities
@@ -270,10 +282,79 @@ class ScansODataAPI(object):
         http://localhost/Cxwebinterface/odata/v1/Scans?
         $filter=ProjectId%20eq%2011%20and%20ScanRequestedOn%20gt%202014-12-31&
         $expand=Results($expand=State;$select=Id,ScanId,StateId)
+        Args:
+            project_id (int):
+            start_date (str): example: '2015-07-23'
 
         Returns:
+            list of dict
 
+            example:
+            [{
+            'Id': 1000019, 'SourceId': '0000000069_001929049475_0-1940062284',
+            'Comment': '', 'IsIncremental': False, 'ScanType': 1, 'Origin': 'Web Portal', 'OwnerId': None,
+            'OwningTeamId': 1, 'InitiatorName': 'happy yang', 'ProjectName': 'jvl_git',
+            'PresetName': 'Checkmarx Default', 'TeamName': 'CxServer',
+            'Path': 'https://github.com/CSPF-Founder/JavaVulnerableLab.git',
+            'FileCount': 69, 'LOC': 6912, 'FailedLOC': 0, 'ProductVersion': '9.2.0.41015 HF6',
+            'IsForcedScan': False, 'ScanRequestedOn': '2020-11-17T14:10:48.877+08:00',
+            'QueuedOn': '2020-11-17T14:11:07.187+08:00', 'EngineStartedOn': '2020-11-17T14:11:23.837+08:00',
+            'EngineFinishedOn': '2020-11-17T14:12:38.007+08:00', 'ScanCompletedOn': '2020-11-17T14:12:38.06+08:00',
+            'ScanDuration': '1900-01-01T00:01:14.223+08:00', 'ProjectId': 15, 'EngineServerId': 1, 'PresetId': 36,
+            'QueryLanguageVersionId': 3, 'ScannedLanguageIds': 1073741834, 'TotalVulnerabilities': 901,
+            'High': 278, 'Medium': 193, 'Low': 422, 'Info': 8, 'RiskScore': 100, 'QuantityLevel': 100,
+            'StatisticsUpdateDate': '2020-11-17T14:12:38.153+08:00', 'StatisticsUpToDate': 1, 'IsPublic': True,
+            'IsLocked': False,
+            'Results': [{'Id': 86, 'State': 'To Verify'}, {'Id': 826, 'State': 'To Verify'}]
+            }]
         """
+
+        scan_list = []
+
+        url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Scans?"
+                                        "$filter=ProjectId%20eq%20{id}%20and"
+                                        "%20ScanRequestedOn%20gt%20{start_date}"
+                                        "&$expand=Results($expand=State;$select=Id,ScanId,StateId)").format(
+            id=project_id, start_date=start_date
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+
+            for item in item_list:
+                scan_data = construct_scan_data(item)
+                results = [
+                    {
+                        "Id":  result.get("Id"),
+                        "State": result.get("State").get("Name")
+                     } for result in item.get("Results")
+                ]
+                scan_data.update(
+                    {
+                        "Results": results
+                    }
+                )
+
+                scan_list.append(scan_data)
+
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(
+                project_id, start_date)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return scan_list
 
     def get_all_scan_id_of_a_project(self, project_id):
         """
