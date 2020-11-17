@@ -11,7 +11,7 @@ def test_top_n_projects_by_risk_score():
     project_odata_api = ProjectsODataAPI()
 
     number_of_projects = 10
-    r = project_odata_api.top_n_projects_by_risk_score(number_of_projects=number_of_projects)
+    r = project_odata_api.get_top_n_projects_by_risk_score(number_of_projects=number_of_projects)
 
     assert r is not None
 

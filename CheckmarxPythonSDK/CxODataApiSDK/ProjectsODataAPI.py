@@ -5,12 +5,43 @@ from . import authHeaders
 from ..compat import (OK, UNAUTHORIZED)
 
 
+def construct_project_data(item):
+    """
+
+    Args:
+        item (dict):
+
+    Returns:
+        dict
+    """
+    return {
+            "Id": item.get("Id"),
+            "Name": item.get("Name"),
+            "IsPublic": item.get("IsPublic"),
+            "Description": item.get("Description"),
+            "CreatedDate": item.get("CreatedDate"),
+            "OwnerId": item.get("OwnerId"),
+            "OwningTeamId": item.get("OwningTeamId"),
+            "EngineConfigurationId": item.get("EngineConfigurationId"),
+            "IssueTrackingSettings": item.get("IssueTrackingSettings"),
+            "SourcePath": item.get("SourcePath"),
+            "SourceProviderCredentials": item.get("SourceProviderCredentials"),
+            "ExcludedFiles": item.get("ExcludedFiles"),
+            "ExcludedFolders": item.get("ExcludedFolders"),
+            "OriginClientTypeId": item.get("OriginClientTypeId"),
+            "PresetId": item.get("PresetId"),
+            "LastScanId": item.get("LastScanId"),
+            "TotalProjectScanCount": item.get("TotalProjectScanCount"),
+            "SchedulingExpression": item.get("SchedulingExpression"),
+        }
+
+
 class ProjectsODataAPI(object):
 
     def __init__(self):
         self.retry = 0
 
-    def top_n_projects_by_risk_score(self, number_of_projects):
+    def get_top_n_projects_by_risk_score(self, number_of_projects):
         """
         Requested result: list the 5 Projects whose most recent scans yielded the highest Risk Score
         Query used for retrieving the data:
@@ -49,31 +80,12 @@ class ProjectsODataAPI(object):
         if r.status_code == OK:
             item_list = r.json().get('value')
             n_projects = [
-                {
-                    "Id": item.get("Id"),
-                    "Name": item.get("Name"),
-                    "IsPublic": item.get("IsPublic"),
-                    "Description": item.get("Description"),
-                    "CreatedDate": item.get("CreatedDate"),
-                    "OwnerId": item.get("OwnerId"),
-                    "OwningTeamId": item.get("OwningTeamId"),
-                    "EngineConfigurationId": item.get("EngineConfigurationId"),
-                    "IssueTrackingSettings": item.get("IssueTrackingSettings"),
-                    "SourcePath": item.get("SourcePath"),
-                    "SourceProviderCredentials": item.get("SourceProviderCredentials"),
-                    "ExcludedFiles": item.get("ExcludedFiles"),
-                    "ExcludedFolders": item.get("ExcludedFolders"),
-                    "OriginClientTypeId": item.get("OriginClientTypeId"),
-                    "PresetId": item.get("PresetId"),
-                    "LastScanId": item.get("LastScanId"),
-                    "TotalProjectScanCount": item.get("TotalProjectScanCount"),
-                    "SchedulingExpression": item.get("SchedulingExpression"),
-                } for item in item_list
+                construct_project_data(item) for item in item_list
             ]
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.top_n_projects_by_risk_score(number_of_projects)
+            self.get_top_n_projects_by_risk_score(number_of_projects)
         else:
             raise ValueError(r.text)
 
@@ -108,26 +120,7 @@ class ProjectsODataAPI(object):
         if r.status_code == OK:
             item_list = r.json().get('value')
             n_projects = [
-                {
-                    "Id": item.get("Id"),
-                    "Name": item.get("Name"),
-                    "IsPublic": item.get("IsPublic"),
-                    "Description": item.get("Description"),
-                    "CreatedDate": item.get("CreatedDate"),
-                    "OwnerId": item.get("OwnerId"),
-                    "OwningTeamId": item.get("OwningTeamId"),
-                    "EngineConfigurationId": item.get("EngineConfigurationId"),
-                    "IssueTrackingSettings": item.get("IssueTrackingSettings"),
-                    "SourcePath": item.get("SourcePath"),
-                    "SourceProviderCredentials": item.get("SourceProviderCredentials"),
-                    "ExcludedFiles": item.get("ExcludedFiles"),
-                    "ExcludedFolders": item.get("ExcludedFolders"),
-                    "OriginClientTypeId": item.get("OriginClientTypeId"),
-                    "PresetId": item.get("PresetId"),
-                    "LastScanId": item.get("LastScanId"),
-                    "TotalProjectScanCount": item.get("TotalProjectScanCount"),
-                    "SchedulingExpression": item.get("SchedulingExpression"),
-                } for item in item_list
+                construct_project_data(item) for item in item_list
             ]
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
