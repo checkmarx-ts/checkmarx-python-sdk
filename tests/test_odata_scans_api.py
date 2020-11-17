@@ -27,6 +27,14 @@ def test_retrieve_number_of_loc_scanned_for_a_specific_scan():
     assert r > 1
 
 
+def test_retrieve_number_of_loc_scanned_for_all_scan():
+    scans_odata_api = ScansODataAPI()
+
+    loc_id_pair_list = scans_odata_api.retrieve_number_of_loc_scanned_for_all_scan()
+
+    assert len(loc_id_pair_list) > 0
+
+
 def test_get_the_scan_id_of_last_scan():
     scans_odata_api = ScansODataAPI()
 
@@ -38,6 +46,6 @@ def test_get_the_scan_id_of_last_scan():
 def test_get_scan_id_list_for_one_project():
     scans_odata_api = ScansODataAPI()
 
-    scan_id_list = scans_odata_api.get_scan_id_list_for_one_project(project_id=project_id)
+    scan_id_list = scans_odata_api.get_all_scan_id_of_a_project(project_id=project_id)
 
     assert len(scan_id_list) > 0

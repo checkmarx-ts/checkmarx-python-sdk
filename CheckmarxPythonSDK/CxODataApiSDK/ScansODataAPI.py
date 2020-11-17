@@ -125,10 +125,40 @@ class ScansODataAPI(object):
         """
         Request result: retrieve LOC scanned value for all scans
         Query used for retrieving the data: http://localhost/Cxwebinterface/odata/v1/Scans?$select=LOC,Id
-        Returns:
 
+        Returns:
+            list of dict
+
+            example:
+            [
+             {'LOC': 6907, 'Id': 1000008}, {'LOC': 6912, 'Id': 1000012}, {'LOC': 6907, 'Id': 1000016},
+             {'LOC': 6907, 'Id': 1000017}, {'LOC': 6912, 'Id': 1000014}, {'LOC': 2161, 'Id': 1000015},
+             {'LOC': 6907, 'Id': 1000018}
+            ]
         """
-        pass
+        loc_id_pair_list = []
+
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Scans?$select=LOC,Id"
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item_list = r.json().get('value')
+            loc_id_pair_list = item_list
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.retrieve_number_of_loc_scanned_for_all_scan()
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return loc_id_pair_list
 
     def get_the_scan_id_of_last_scan(self, project_id):
         """
