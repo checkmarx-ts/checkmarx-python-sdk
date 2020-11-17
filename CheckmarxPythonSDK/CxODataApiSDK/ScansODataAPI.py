@@ -197,9 +197,8 @@ class ScansODataAPI(object):
 
         return scan_id
 
-    def for_a_specific_project_retrieve_all_scans_within_a_predefined_time_range_and_their_h_m_l_values(
-            self,
-            project_id
+    def get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_project(
+            self, project_id, start_date, end_date
     ):
         """
         Requested result:list all scans carried out in a specific project within a predefined time range,
@@ -212,14 +211,56 @@ class ScansODataAPI(object):
         $select=Id,ScanRequestedOn,High,Medium,Low&$orderby=ScanRequestedOn%20desc
 
         Args:
-            project_id:
+            project_id (int):
+            start_date (str): example: '2015-07-23'
+            end_date (str): example: '2015-08-23'
 
         Returns:
+            list of dict
 
+            Example:
+                [
+                {
+                    'Id': 1000014,
+                    'ScanRequestedOn': '2020-11-10T10:36:17.34+08:00',
+                    'High': 278,
+                    'Medium': 193,
+                    'Low': 422
+                 }
+                ]
         """
-        pass
+        scan_list = []
 
-    def for_a_specific_project_the_state_of_each_scan_result_for_a_specific_project_since_a_specific_date(self):
+        url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Projects({id})/Scans?"
+                                        "$filter=ScanRequestedOn%20gt%20{start_date}%20and"
+                                        "%20ScanRequestedOn%20lt%20{end_date}"
+                                        "&$select=Id,ScanRequestedOn,High,Medium,Low"
+                                        "&$orderby=ScanRequestedOn%20desc").format(
+            id=project_id, start_date=start_date, end_date=end_date
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            scan_list = r.json().get('value')
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_project(
+                project_id, start_date, end_date)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return scan_list
+
+    def get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(self, project_id):
         """
         Requested result: for a specific project, list all the scans starting from a specific date, and for each scan
         retrieve three parameters (Id, ScanId, and StateId) as well as the state of each of the scan's vulnerabilities
