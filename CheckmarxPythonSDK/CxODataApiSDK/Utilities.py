@@ -25,7 +25,7 @@ def get_project_id_name_and_scan_id_list():
     project_id_name_list = projects_odata_api.get_all_projects_id_name()
     for project_id_name in project_id_name_list:
         project_id = project_id_name.get("ProjectId")
-        scan_id_list = scans_odata_api.get_scan_id_list_for_one_project(project_id=project_id)
+        scan_id_list = scans_odata_api.get_all_scan_id_of_a_project(project_id=project_id)
         project_id_name.update(
             {
                 "ScanIdList": list(scan_id_list)

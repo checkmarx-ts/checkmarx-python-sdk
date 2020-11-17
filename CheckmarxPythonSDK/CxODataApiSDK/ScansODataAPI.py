@@ -204,7 +204,7 @@ class ScansODataAPI(object):
 
         """
 
-    def get_scan_id_list_for_one_project(self, project_id):
+    def get_all_scan_id_of_a_project(self, project_id):
         """
 
         Args:
@@ -229,7 +229,7 @@ class ScansODataAPI(object):
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_scan_id_list_for_one_project(project_id)
+            self.get_all_scan_id_of_a_project(project_id)
         else:
             raise ValueError(r.text)
 
