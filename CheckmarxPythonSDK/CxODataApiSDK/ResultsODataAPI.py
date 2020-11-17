@@ -203,7 +203,7 @@ class ResultsODataAPI(object):
                 )
 
                 # third group by QueryName/QueryId
-                l_query_group = sorted(l_query_group, key=lambda r: r.get("QueryId") )
+                l_query_group = sorted(l_query_group, key=lambda r: r.get("QueryId"))
                 for _, query_group in groupby(l_query_group, lambda r: r.get("QueryId")):
                     l_query_name = list(query_group)
                     query_name = l_query_name[0].get("Query")
