@@ -4,16 +4,16 @@ from CheckmarxPythonSDK.CxODataApiSDK import ResultsODataAPI, scan_results_group
 def test_get_results_for_a_specific_scan_id():
     results_odata_api = ResultsODataAPI()
     scan_id = 1000012
-    r = results_odata_api.get_results_for_a_specific_scan_id(scan_id=scan_id)
-    assert r is not None
+    results = results_odata_api.get_results_for_a_specific_scan_id(scan_id=scan_id)
+    assert results is not None
 
 
-def test_retrieve_the_query_that_was_run_for_a_particular_unique_scan_result():
+def test_get_the_query_that_was_run_for_a_particular_unique_scan_result():
     results_odata_api = ResultsODataAPI()
     scan_id = 1000012
-    r = results_odata_api.retrieve_the_query_that_was_run_for_a_particular_unique_scan_result(result_id=1,
-                                                                                              scan_id=scan_id)
-    assert r is not None
+    query_name = results_odata_api.get_the_query_that_was_run_for_a_particular_unique_scan_result(result_id=1,
+                                                                                                  scan_id=scan_id)
+    assert query_name is not None
 
 
 def test_get_results_for_a_specific_scan_id_with_query_language_state():

@@ -3,14 +3,13 @@ import requests
 from ..config import config
 from . import authHeaders
 from ..compat import (OK, UNAUTHORIZED)
+from .dto import construct_result_data
 
 
 class ResultsODataAPI(object):
 
     def __init__(self):
         self.retry = 0
-
-    # def get_results_for_a_specific_scan_id_by_page(self, page_size=1000,):
 
     def get_results_for_a_specific_scan_id(self, scan_id):
         """
@@ -24,7 +23,7 @@ class ResultsODataAPI(object):
             `list` of `dict`
         """
         results = None
-        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Scans({ScanId})/Results?$top=100".format(
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Scans({ScanId})/Results".format(
             ScanId=scan_id
         )
 
@@ -36,7 +35,8 @@ class ResultsODataAPI(object):
         )
 
         if r.status_code == OK:
-            results = r.json().get('value')
+            item_list = r.json().get('value')
+            results = [construct_result_data(item) for item in item_list]
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
@@ -48,7 +48,7 @@ class ResultsODataAPI(object):
 
         return results
 
-    def retrieve_the_query_that_was_run_for_a_particular_unique_scan_result(self, result_id, scan_id):
+    def get_the_query_that_was_run_for_a_particular_unique_scan_result(self, result_id, scan_id):
         """
         Requested result: selects a particular unique scan result and lists the query (SQL Injection, etc.) that was run
 
@@ -60,9 +60,10 @@ class ResultsODataAPI(object):
             scan_id (int):
 
         Returns:
-
+            str
         """
-        results = None
+        query_name = None
+
         url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Results(Id={id},ScanId={ScanId})"
                                         "?$expand=Query($select=Name)").format(
             id=result_id,
@@ -77,18 +78,17 @@ class ResultsODataAPI(object):
         )
 
         if r.status_code == OK:
-            item = r.json().get('value')[0]
-            results = item
+            query_name = r.json().get('value')[0].get("Query").get("Name")
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.retrieve_the_query_that_was_run_for_a_particular_unique_scan_result(result_id, scan_id)
+            self.get_the_query_that_was_run_for_a_particular_unique_scan_result(result_id, scan_id)
         else:
             raise ValueError(r.text)
 
         self.retry = 0
 
-        return results
+        return query_name
 
     def get_results_for_a_specific_scan_id_with_query_language_state(self, scan_id, filter_false_positive=False):
         """
