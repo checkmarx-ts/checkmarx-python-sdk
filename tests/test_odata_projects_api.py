@@ -60,6 +60,15 @@ def test_get_all_projects_with_a_custom_field_that_has_a_specific_value():
     assert len(projects) > 0
 
 
+def test_get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information():
+    project_odata_api = ProjectsODataAPI()
+
+    projects = project_odata_api.get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(
+        field_name='projectManager')
+
+    assert len(projects) > 0
+
+
 def test_get_all_projects_id_name():
     project_odata_api = ProjectsODataAPI()
     r = project_odata_api.get_all_projects_id_name()

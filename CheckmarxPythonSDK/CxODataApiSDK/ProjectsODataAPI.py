@@ -466,7 +466,7 @@ class ProjectsODataAPI(object):
 
         return projects
 
-    def retrieve_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(self):
+    def get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(self, field_name):
         """
         Requested result: retrieve all projects that contain a custom field (for example, ProjManager, indicating the
         project manager's name), as well as the custom field's information.
@@ -476,8 +476,51 @@ class ProjectsODataAPI(object):
         (f: f/FieldName eq 'Field1')
 
         Returns:
+            list of dict
 
+            example:
+                [
+                    {
+                    'Id': 10, 'Name': 'jvl_local', 'IsPublic': True, 'Description': '',
+                    'CreatedDate': '2020-11-02T04:48:19.783+08:00', 'OwnerId': None, 'OwningTeamId': 1,
+                    'EngineConfigurationId': 1, 'IssueTrackingSettings': None, 'SourcePath': '',
+                    'SourceProviderCredentials': '', 'ExcludedFiles': '', 'ExcludedFolders': '',
+                    'OriginClientTypeId': 0, 'PresetId': 36, 'LastScanId': 1000017, 'TotalProjectScanCount': 4,
+                    'SchedulingExpression': None,
+                    'CustomFields': [
+                            {'ProjectId': 10, 'FieldName': 'projectManager', 'FieldValue': 'Alex'}
+                        ]
+                    }
+                ]
         """
+        projects = []
+
+        url = config.get("base_url") + ("/cxwebinterface/odata/v1/Projects?$expand=CustomFields"
+                                        "&$filter=CustomFields/any(f: f/FieldName eq '{field_name}')").format(
+            field_name=field_name
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            projects = r.json().get("value")
+            for project in projects:
+                project.pop('CustomFields@odata.context')
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(field_name=field_name)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return projects
 
     def retrieve_a_list_of_presets_associated_with_each_project(self):
         """
