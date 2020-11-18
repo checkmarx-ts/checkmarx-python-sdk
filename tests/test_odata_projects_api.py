@@ -51,6 +51,15 @@ def test_get_count_of_the_projects_in_the_system():
     assert count >= 0
 
 
+def test_get_all_projects_with_a_custom_field_that_has_a_specific_value():
+    project_odata_api = ProjectsODataAPI()
+    project_manager = 'Joe'
+    projects = project_odata_api.get_all_projects_with_a_custom_field_that_has_a_specific_value(
+        field_name='projectManager', field_value=project_manager)
+
+    assert len(projects) > 0
+
+
 def test_get_all_projects_id_name():
     project_odata_api = ProjectsODataAPI()
     r = project_odata_api.get_all_projects_id_name()

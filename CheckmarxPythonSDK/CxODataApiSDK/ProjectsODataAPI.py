@@ -414,7 +414,7 @@ class ProjectsODataAPI(object):
 
         return count
 
-    def retrieve_all_projects_with_a_custom_field_that_has_a_specific_value(self):
+    def get_all_projects_with_a_custom_field_that_has_a_specific_value(self, field_name, field_value):
         """
         Requested result: retrieve all projects that contain a custom filed (for example, ProjManager, indicating the
         project manager's name) with a specific value (for example, Joe).
@@ -424,8 +424,47 @@ class ProjectsODataAPI(object):
         (f: f/FieldName eq 'ProjManager' and f/FieldValue eq 'Joe')
 
         Returns:
+            list of dict
 
+            example:
+            [
+                {
+                'Id': 15, 'Name': 'jvl_git', 'IsPublic': True, 'Description': '',
+                'CreatedDate': '2020-11-10T02:36:15.42+08:00', 'OwnerId': None, 'OwningTeamId': 1,
+                'EngineConfigurationId': 1, 'IssueTrackingSettings': None, 'SourcePath': '',
+                'SourceProviderCredentials': '', 'ExcludedFiles': '', 'ExcludedFolders': '', 'OriginClientTypeId': 7,
+                'PresetId': 36, 'LastScanId': 1000019, 'TotalProjectScanCount': 2, 'SchedulingExpression': None
+                }
+            ]
         """
+        projects = []
+
+        url = config.get("base_url") + ("/Cxwebinterface/odata/v1/Projects?$filter=CustomFields/"
+                                        "any(f: f/FieldName eq '{field_name}' and f/FieldValue eq '{field_value}')"
+                                        ).format(
+            field_name=field_name, field_value=field_value
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            projects = r.json().get("value")
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_all_projects_with_a_custom_field_that_has_a_specific_value(field_name=field_name,
+                                                                                field_value=field_value)
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return projects
 
     def retrieve_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(self):
         """
