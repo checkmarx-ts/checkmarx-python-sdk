@@ -7,7 +7,7 @@ projects_api = ProjectsAPI()
 project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name=project_name)
 
 
-def test_top_n_projects_by_risk_score():
+def test_get_top_n_projects_by_risk_score():
     project_odata_api = ProjectsODataAPI()
 
     number_of_projects = 10
@@ -16,19 +16,39 @@ def test_top_n_projects_by_risk_score():
     assert r is not None
 
 
-def test_top_n_projects_by_last_scan_duration():
+def test_get_top_n_projects_by_last_scan_duration():
     project_odata_api = ProjectsODataAPI()
 
     number_of_projects = 10
-    r = project_odata_api.top_n_projects_by_last_scan_duration(number_of_projects=number_of_projects)
+    r = project_odata_api.get_top_n_projects_by_last_scan_duration(number_of_projects=number_of_projects)
 
     assert r is not None
 
 
-def test_all_projects_with_their_last_scan_and_the_high_vulnerabilities():
+def test_get_all_projects_with_their_last_scan_and_the_high_vulnerabilities():
     project_odata_api = ProjectsODataAPI()
-    r = project_odata_api.all_projects_with_their_last_scan_and_the_high_vulnerabilities()
+    r = project_odata_api.get_all_projects_with_their_last_scan_and_the_high_vulnerabilities()
     assert r is not None
+
+
+def test_get_projects_that_have_high_vulnerabilities_in_the_last_scan():
+    project_odata_api = ProjectsODataAPI()
+    r = project_odata_api.get_projects_that_have_high_vulnerabilities_in_the_last_scan()
+    assert r is not None
+
+
+def test_get_the_number_of_issues_vulnerabilities_within_a_predefined_time_range_for_all_projects_in_a_team():
+    p = ProjectsODataAPI()
+    r = p.get_the_number_of_issues_vulnerabilities_within_a_predefined_time_range_for_all_projects_in_a_team(
+        team_id=1, start_date='2001-01-01', end_date='2020-11-18'
+    )
+    assert r is not None
+
+
+def test_get_count_of_the_projects_in_the_system():
+    project_odata_api = ProjectsODataAPI()
+    count = project_odata_api.get_count_of_the_projects_in_the_system()
+    assert count >= 0
 
 
 def test_get_all_projects_id_name():
