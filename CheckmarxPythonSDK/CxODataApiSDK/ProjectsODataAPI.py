@@ -522,17 +522,58 @@ class ProjectsODataAPI(object):
 
         return projects
 
-    def retrieve_a_list_of_presets_associated_with_each_project(self):
+    def get_presets_associated_with_each_project(self):
         """
         Requested result: retrieves a list of presets associated with each project
 
         Query used for retrieving the data: http://localhost/Cxwebinterface/odata/v1/Projects?$expand=Preset
 
         Returns:
+            list of dict
 
+            example:
+                [
+                    {
+                    'Id': 10, 'Name': 'jvl_local', 'IsPublic': True, 'Description': '',
+                    'CreatedDate': '2020-11-02T04:48:19.783+08:00', 'OwnerId': None, 'OwningTeamId': 1,
+                    'EngineConfigurationId': 1, 'IssueTrackingSettings': None, 'SourcePath': '',
+                    'SourceProviderCredentials': '', 'ExcludedFiles': '', 'ExcludedFolders': '',
+                    'OriginClientTypeId': 0, 'PresetId': 36, 'LastScanId': 1000017, 'TotalProjectScanCount': 4,
+                    'SchedulingExpression': None,
+                    'Preset': {
+                                'Id': 36, 'Name': 'Checkmarx Default', 'IsSystemPreset': True
+                            }
+                    }
+                ]
         """
 
-    def retrieve_all_projects_that_are_set_up_with_a_non_standard_configuration(self):
+        projects = []
+
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Projects?$expand=Preset"
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            projects = r.json().get("value")
+            for project in projects:
+                project.pop('Preset@odata.context')
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_presets_associated_with_each_project()
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return projects
+
+    def get_all_projects_that_are_set_up_with_a_non_standard_configuration(self):
         """
         Requested result: retrieve all projects that are set up with a non-standard configuration,
         such as “Multi-Lanaguage Scan (v8.4.2 and up)".
