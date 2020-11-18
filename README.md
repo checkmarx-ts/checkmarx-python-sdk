@@ -266,11 +266,29 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     
  # The CxSAST OData API list
  1. ProjectsODataAPI
-    - top_n_projects_by_risk_score
-    - top_n_projects_by_last_scan_duration
+    - get_top_n_projects_by_risk_score
+    - get_top_n_projects_by_last_scan_duration
+    - get_all_projects_with_their_last_scan_and_the_high_vulnerabilities
+    - get_projects_that_have_high_vulnerabilities_in_the_last_scan
+    - get_the_number_of_issues_vulnerabilities_within_a_predefined_time_range_for_all_projects_in_a_team
+    - get_count_of_the_projects_in_the_system
+    - get_all_projects_with_a_custom_field_that_has_a_specific_value
+    - get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information
+    - get_presets_associated_with_each_project
+    - get_all_projects_that_are_set_up_with_a_non_standard_configuration
+    - get_all_projects_id_name
  
  2. ResultsODataAPI
- 
+    - get_results_for_a_specific_scan_id
+    - get_the_query_that_was_run_for_a_particular_unique_scan_result
+    - get_results_for_a_specific_scan_id_with_query_language_state
+    - get_results_group_by_query_id_and_add_count_json_format
+
  3. ScansODataAPI
-    - retrieve_all_data_for_a_specific_scan_id
-    - retrieve_number_of_loc_scanned_for_a_specific_scan
+    - get_all_data_for_a_specific_scan_id
+    - get_number_of_loc_scanned_for_a_specific_scan
+    - get_number_of_loc_scanned_for_all_scan
+    - get_the_scan_id_of_last_scan
+    - get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_project
+    - get_the_state_of_each_scan_result_since_a_specific_date_for_a_project
+    - get_all_scan_id_of_a_project
