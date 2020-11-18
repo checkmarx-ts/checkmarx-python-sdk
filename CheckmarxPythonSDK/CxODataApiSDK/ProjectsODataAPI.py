@@ -583,8 +583,44 @@ class ProjectsODataAPI(object):
         or http://localhost/Cxwebinterface/odata/v1/Projects?$filter=EngineConfigurationId%20gt%201
 
         Returns:
+            list of dict
 
+            example:
+                [
+                    {
+                    'Id': 14, 'Name': 'git-ssh', 'IsPublic': True, 'Description': '',
+                    'CreatedDate': '2020-11-10T00:47:26.97+08:00', 'OwnerId': None, 'OwningTeamId': 1,
+                    'EngineConfigurationId': 5, 'IssueTrackingSettings': None, 'SourcePath': '',
+                    'SourceProviderCredentials': '', 'ExcludedFiles': '', 'ExcludedFolders': '',
+                    'OriginClientTypeId': 7, 'PresetId': 36, 'LastScanId': None, 'TotalProjectScanCount': 0,
+                    'SchedulingExpression': None
+                    }
+                ]
         """
+
+        projects = []
+
+        url = config.get("base_url") + "/Cxwebinterface/odata/v1/Projects?$filter=EngineConfigurationId%20gt%201"
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            auth=authHeaders.basic_auth,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            projects = r.json().get("value")
+        elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_all_projects_that_are_set_up_with_a_non_standard_configuration()
+        else:
+            raise ValueError(r.text)
+
+        self.retry = 0
+
+        return projects
 
     def get_all_projects_id_name(self):
         """

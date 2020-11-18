@@ -77,6 +77,14 @@ def test_get_presets_associated_with_each_project():
     assert len(projects) > 0
 
 
+def test_get_all_projects_that_are_set_up_with_a_non_standard_configuration():
+    project_odata_api = ProjectsODataAPI()
+
+    projects = project_odata_api.get_all_projects_that_are_set_up_with_a_non_standard_configuration()
+
+    assert len(projects) >= 0
+
+
 def test_get_all_projects_id_name():
     project_odata_api = ProjectsODataAPI()
     r = project_odata_api.get_all_projects_id_name()
