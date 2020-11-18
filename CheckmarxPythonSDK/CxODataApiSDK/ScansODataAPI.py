@@ -3,59 +3,7 @@ import requests
 from ..config import config
 from . import authHeaders
 from ..compat import (OK, UNAUTHORIZED)
-
-
-def construct_scan_data(item):
-    """
-
-    Args:
-        item (dict):
-
-    Returns:
-        dict
-    """
-    return {
-        "Id": item.get("Id"),
-        "SourceId": item.get("SourceId"),
-        "Comment": item.get("Comment"),
-        "IsIncremental": item.get("IsIncremental"),
-        "ScanType": item.get("ScanType"),
-        "Origin": item.get("Origin"),
-        "OwnerId": item.get("OwnerId"),
-        "OwningTeamId": item.get("OwningTeamId"),
-        "InitiatorName": item.get("InitiatorName"),
-        "ProjectName": item.get("ProjectName"),
-        "PresetName": item.get("PresetName"),
-        "TeamName": item.get("TeamName"),
-        "Path": item.get("Path"),
-        "FileCount": item.get("FileCount"),
-        "LOC": item.get("LOC"),
-        "FailedLOC": item.get("FailedLOC"),
-        "ProductVersion": item.get("ProductVersion"),
-        "IsForcedScan": item.get("IsForcedScan"),
-        "ScanRequestedOn": item.get("ScanRequestedOn"),
-        "QueuedOn": item.get("QueuedOn"),
-        "EngineStartedOn": item.get("EngineStartedOn"),
-        "EngineFinishedOn": item.get("EngineFinishedOn"),
-        "ScanCompletedOn": item.get("ScanCompletedOn"),
-        "ScanDuration": item.get("ScanDuration"),
-        "ProjectId": item.get("ProjectId"),
-        "EngineServerId": item.get("EngineServerId"),
-        "PresetId": item.get("PresetId"),
-        "QueryLanguageVersionId": item.get("QueryLanguageVersionId"),
-        "ScannedLanguageIds": item.get("ScannedLanguageIds"),
-        "TotalVulnerabilities": item.get("TotalVulnerabilities"),
-        "High": item.get("High"),
-        "Medium": item.get("Medium"),
-        "Low": item.get("Low"),
-        "Info": item.get("Info"),
-        "RiskScore": item.get("RiskScore"),
-        "QuantityLevel": item.get("QuantityLevel"),
-        "StatisticsUpdateDate": item.get("StatisticsUpdateDate"),
-        "StatisticsUpToDate": item.get("StatisticsUpToDate"),
-        "IsPublic": item.get("IsPublic"),
-        "IsLocked": item.get("IsLocked"),
-    }
+from .dto import construct_scan_data
 
 
 class ScansODataAPI(object):
@@ -63,7 +11,7 @@ class ScansODataAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def retrieve_all_data_for_a_specific_scan_id(self, scan_id):
+    def get_all_data_for_a_specific_scan_id(self, scan_id):
         """
         Request result: retrieve all data for a specific scan Id:
         Query used for retrieving the data: http://localhost/Cxwebinterface/odata/v1/Scans(1000005)
@@ -73,6 +21,22 @@ class ScansODataAPI(object):
 
         Returns:
             dict or None
+
+            example:
+            {
+            'Id': 1000019, 'SourceId': '0000000069_001929049475_0-1940062284', 'Comment': '', 'IsIncremental': False,
+            'ScanType': 1, 'Origin': 'Web Portal', 'OwnerId': None, 'OwningTeamId': 1, 'InitiatorName': 'happy yang',
+            'ProjectName': 'jvl_git', 'PresetName': 'Checkmarx Default', 'TeamName': 'CxServer',
+            'Path': 'https://github.com/CSPF-Founder/JavaVulnerableLab.git', 'FileCount': 69, 'LOC': 6912,
+            'FailedLOC': 0, 'ProductVersion': '9.2.0.41015 HF6', 'IsForcedScan': False,
+            'ScanRequestedOn': '2020-11-17T14:10:48.877+08:00', 'QueuedOn': '2020-11-17T14:11:07.187+08:00',
+            'EngineStartedOn': '2020-11-17T14:11:23.837+08:00', 'EngineFinishedOn': '2020-11-17T14:12:38.007+08:00',
+            'ScanCompletedOn': '2020-11-17T14:12:38.06+08:00', 'ScanDuration': '1900-01-01T00:01:14.223+08:00',
+            'ProjectId': 15, 'EngineServerId': 1, 'PresetId': 36, 'QueryLanguageVersionId': 3,
+            'ScannedLanguageIds': 1073741834, 'TotalVulnerabilities': 901, 'High': 278, 'Medium': 193, 'Low': 422,
+            'Info': 8, 'RiskScore': 100, 'QuantityLevel': 100, 'StatisticsUpdateDate': '2020-11-17T14:12:38.153+08:00',
+            'StatisticsUpToDate': 1, 'IsPublic': True, 'IsLocked': False
+            }
         """
         scan_data = None
 
@@ -90,7 +54,7 @@ class ScansODataAPI(object):
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.retrieve_all_data_for_a_specific_scan_id(scan_id)
+            self.get_all_data_for_a_specific_scan_id(scan_id)
         else:
             raise ValueError(r.text)
 
@@ -98,7 +62,7 @@ class ScansODataAPI(object):
 
         return scan_data
 
-    def retrieve_number_of_loc_scanned_for_a_specific_scan(self, scan_id):
+    def get_number_of_loc_scanned_for_a_specific_scan(self, scan_id):
         """
         Request result: retrieve LOC scanned value for a specific scan Id
         Query used for retrieving the data: http://localhost/Cxwebinterface/odata/v1/Scans(1000005)?$select=LOC
@@ -107,7 +71,7 @@ class ScansODataAPI(object):
             scan_id:
 
         Returns:
-            int or None
+            number_of_loc (int)
         """
         number_of_loc = None
 
@@ -125,7 +89,7 @@ class ScansODataAPI(object):
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.retrieve_number_of_loc_scanned_for_a_specific_scan(scan_id)
+            self.get_number_of_loc_scanned_for_a_specific_scan(scan_id)
         else:
             raise ValueError(r.text)
 
@@ -133,7 +97,7 @@ class ScansODataAPI(object):
 
         return number_of_loc
 
-    def retrieve_number_of_loc_scanned_for_all_scan(self):
+    def get_number_of_loc_scanned_for_all_scan(self):
         """
         Request result: retrieve LOC scanned value for all scans
         Query used for retrieving the data: http://localhost/Cxwebinterface/odata/v1/Scans?$select=LOC,Id
@@ -164,7 +128,7 @@ class ScansODataAPI(object):
         elif r.status_code == UNAUTHORIZED and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.retrieve_number_of_loc_scanned_for_all_scan()
+            self.get_number_of_loc_scanned_for_all_scan()
         else:
             raise ValueError(r.text)
 
@@ -180,7 +144,7 @@ class ScansODataAPI(object):
             project_id (int):
 
         Returns:
-            int
+            scan_id (int)
         """
         scan_id = None
 
@@ -231,15 +195,13 @@ class ScansODataAPI(object):
             list of dict
 
             Example:
-                [
-                {
+                [{
                     'Id': 1000014,
                     'ScanRequestedOn': '2020-11-10T10:36:17.34+08:00',
                     'High': 278,
                     'Medium': 193,
                     'Low': 422
-                 }
-                ]
+                 }]
         """
         scan_list = []
 
