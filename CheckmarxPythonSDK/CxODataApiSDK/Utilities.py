@@ -2,9 +2,16 @@ import csv
 from itertools import groupby
 from copy import deepcopy
 
-from .ProjectsODataAPI import ProjectsODataAPI
-from .ScansODataAPI import ScansODataAPI
-from .ResultsODataAPI import ResultsODataAPI
+from .ProjectsODataAPI import (get_all_projects_id_name)
+from .ScansODataAPI import (
+    get_all_scan_id_of_a_project,
+    get_last_scan_id_of_a_project,
+    get_last_full_scan_id_of_a_project
+)
+from .ResultsODataAPI import (
+    get_results_group_by_query_id_and_add_count_json_format,
+    get_results_for_a_specific_scan_id_with_query_language_state,
+)
 
 
 def get_project_id_name_and_scan_id_list():
@@ -19,13 +26,10 @@ def get_project_id_name_and_scan_id_list():
         {'ProjectId': 16, 'ProjectName': 'mybatis-test', 'ScanIdList': [1000015]}
         ]
     """
-    projects_odata_api = ProjectsODataAPI()
-    scans_odata_api = ScansODataAPI()
-
-    project_id_name_list = projects_odata_api.get_all_projects_id_name()
+    project_id_name_list = get_all_projects_id_name()
     for project_id_name in project_id_name_list:
         project_id = project_id_name.get("ProjectId")
-        scan_id_list = scans_odata_api.get_all_scan_id_of_a_project(project_id=project_id)
+        scan_id_list = get_all_scan_id_of_a_project(project_id=project_id)
         project_id_name.update(
             {
                 "ScanIdList": list(scan_id_list)
@@ -50,6 +54,7 @@ def scan_results_group_by_query_id(original_results):
         count = len(list_of_result_with_same_query_id)
 
         first_dict = deepcopy(list_of_result_with_same_query_id[0])
+        first_dict.pop('SimilarityId')
         first_dict.pop("ResultId")
         first_dict.pop("ResultState")
         first_dict.update({"Count": count})
@@ -67,7 +72,6 @@ def get_all_results_with_count_for_each_project_json_format(filter_false_positiv
     Returns:
 
     """
-    results_odata_api = ResultsODataAPI()
     project_id_name_and_scan_id_list = get_project_id_name_and_scan_id_list()
 
     for project in project_id_name_and_scan_id_list:
@@ -77,7 +81,7 @@ def get_all_results_with_count_for_each_project_json_format(filter_false_positiv
         for scan_id in scan_id_list:
 
             try:
-                results_with_query = results_odata_api.get_results_group_by_query_id_and_add_count_json_format(
+                results_with_query = get_results_group_by_query_id_and_add_count_json_format(
                     scan_id=scan_id, filter_false_positive=filter_false_positive, threshold=threshold
                 )
 
@@ -99,6 +103,45 @@ def get_all_results_with_count_for_each_project_json_format(filter_false_positiv
     return project_id_name_and_scan_id_list
 
 
+def merge_results_by_similarity_id(first_result_list, second_result_list):
+    """
+
+    use first as base, merge the second into the first one.
+
+    Args:
+        first_result_list (list of dict): example
+         [
+          {'SimilarityId': 614020830, 'Language': 'Java', 'QueryGroup': 'Java_Best_Coding_Practice',
+          'Query': 'Portability_Flaw_In_File_Separator', 'QueryId': 3591, 'ResultId': 908, 'ResultState': 'To Verify'},
+          {'SimilarityId': 994470032, 'Language': 'Java', 'QueryGroup': 'Java_High_Risk',
+          'Query': 'Connection_String_Injection', 'QueryId': 589, 'ResultId': 4,
+          'ResultState': 'Proposed Not Exploitable'},
+          {'SimilarityId': -1538906028, 'Language': 'Java', 'QueryGroup': 'Java_High_Risk',
+          'Query': 'Connection_String_Injection', 'QueryId': 589, 'ResultId': 5, 'ResultState': 'Not Exploitable'},
+         ]
+        second_result_list (list of dict):
+        [
+        {'SimilarityId': 994470032, 'Language': 'Java', 'QueryGroup': 'Java_High_Risk',
+        'Query': 'Connection_String_Injection', 'QueryId': 589, 'ResultId': 16,
+        'ResultState': 'Proposed Not Exploitable'},
+        {'SimilarityId': 1937265109, 'Language': 'Java', 'QueryGroup': 'Java_High_Risk',
+        'Query': 'Connection_String_Injection', 'QueryId': 589, 'ResultId': 17, 'ResultState': 'To Verify'},
+        {'SimilarityId': 646035161, 'Language': 'Java', 'QueryGroup': 'Java_High_Risk',
+        'Query': 'Connection_String_Injection', 'QueryId': 589, 'ResultId': 18, 'ResultState': 'To Verify'},
+        ]
+    Returns:
+        list of dict
+    """
+    similarity_id_list_of_first = [item.get('SimilarityId') for item in first_result_list]
+
+    for item in second_result_list:
+        if item.get('SimilarityId') in similarity_id_list_of_first:
+            continue
+        first_result_list.append(item)
+
+    return first_result_list
+
+
 def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, threshold=0):
     """
     Args:
@@ -110,14 +153,11 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
     Returns:
 
     """
-    projects_odata_api = ProjectsODataAPI()
-    scans_odata_api = ScansODataAPI()
-    results_odata_api = ResultsODataAPI()
 
     common_field_names = ['ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup', 'QueryId', 'Query']
 
     all_results_field_names = common_field_names[:]
-    all_results_field_names.extend(['ResultId', 'ResultState'])
+    all_results_field_names.extend(['SimilarityId', 'ResultId', 'ResultState'])
 
     group_by_query_field_names = common_field_names[:]
     group_by_query_field_names.extend(['Count'])
@@ -131,24 +171,38 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
         writer = csv.DictWriter(csv_file, fieldnames=field_names)
         writer.writeheader()
 
-        project_id_name_list = projects_odata_api.get_all_projects_id_name()
+        project_id_name_list = get_all_projects_id_name()
         for project in project_id_name_list:
             project_id = project.get("ProjectId")
             project_name = project.get("ProjectName")
 
             try:
-                last_scan_id = scans_odata_api.get_the_scan_id_of_last_scan(project_id=project_id)
-            except Exception:
+                last_scan_id = get_last_scan_id_of_a_project(project_id=project_id)
+                last_full_scan_id = get_last_full_scan_id_of_a_project(project_id=project_id)
+            except Exception as e:
                 print("Project name: {name}, id : {id} has no scans".format(name=project_name, id=project_id))
                 continue
 
             try:
-                result_list = results_odata_api.get_results_for_a_specific_scan_id_with_query_language_state(
+                result_list = get_results_for_a_specific_scan_id_with_query_language_state(
                     scan_id=last_scan_id, filter_false_positive=filter_false_positive
                 )
-            except Exception:
+            except Exception as e:
                 print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
+                print("Exception: {error} ".format(error=e))
                 continue
+
+            if last_scan_id != last_full_scan_id:
+                try:
+                    last_full_scan_result = get_results_for_a_specific_scan_id_with_query_language_state(
+                        scan_id=last_full_scan_id, filter_false_positive=filter_false_positive
+                    )
+                except Exception as e:
+                    print("Fail to get scan result for scan id: {id}".format(id=last_full_scan_id))
+                    print("Exception: {error} ".format(error=e))
+                    continue
+
+                result_list = merge_results_by_similarity_id(result_list, last_full_scan_result)
 
             if is_for_all_results:
                 result_list = sorted(
