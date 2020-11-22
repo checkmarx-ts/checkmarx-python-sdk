@@ -294,4 +294,4 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_last_full_scan_of_a_project
     - get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_project
     - get_the_state_of_each_scan_result_since_a_specific_date_for_a_project
-    -get_all_scan_id_of_a_project
+    - get_all_scan_id_of_a_project
