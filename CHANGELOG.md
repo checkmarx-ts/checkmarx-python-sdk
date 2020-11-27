@@ -31,3 +31,7 @@ All notable changes to this project will be documented in  this file.
 
 0.1.2 - 2020-11-15
 * Change get_results_and_write_to_csv_file to use only last scan of a project, instead of iterate through every scan
+
+0.1.4 - 2020-11-27
+* Fix portal soap api with retry_when_unauthorized, when have invalid token
+* Refactor OData API
