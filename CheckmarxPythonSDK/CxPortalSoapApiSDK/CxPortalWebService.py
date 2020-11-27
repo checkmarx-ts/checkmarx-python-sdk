@@ -10,60 +10,33 @@ from ..config import config
 from . import authHeaders
 
 
-def retry_if_token_is_invalid(response, execute_func, retry_times):
+def retry_when_unauthorized(func):
     """
 
     Args:
-        response ():
-        execute_func (func):
-        retry_times (list of int):
+        func (function)
 
     Returns:
-
+        function
     """
-    # message id "12563" means invalid token
-    if not response.IsSuccesfull and '12563' in response.ErrorMessage and retry_times[0] < config.get("max_try"):
-        retry_times[0] += 1
-        # get new token and create new client and factory
-        authHeaders.update_auth_headers()
-        zeepClient.client, zeepClient.factory = zeepClient.get_client_and_factory()
-        execute_func()
+    def retry(*args, **kwargs):
+        max_try = config.get('max_try')
 
+        response = func(*args, **kwargs)
 
-def activate_saas_user(user_token):
-    """
-    This action is no longer supported in CxSAST 9.2.
-    Args:
-        user_token (str):
+        while max_try > 0:
+            if response.IsSuccesfull:
+                break
 
-    Returns:
+            # message id "12563" means invalid token
+            if not response.IsSuccesfull and '12563' in response.ErrorMessage:
+                authHeaders.update_auth_headers()
+                zeepClient.client, zeepClient.factory = zeepClient.get_client_and_factory()
+                response = func(*args, **kwargs)
+            max_try -= 1
 
-    """
-    retry_times = [0]
-
-    def execute():
-        response = zeepClient.client.service.ActivateSaasUser(userToken=user_token)
-        retry_if_token_is_invalid(response, execute, retry_times)
         return response
-
-    r = execute()
-
-    return {
-        "IsSuccesfull": r["IsSuccesfull"],
-        "ErrorMessage": r["ErrorMessage"],
-        "IsAllowedToUseSourceControl": r["IsAllowedToUseSourceControl"],
-        "isAllowedToCreatePDF": r["isAllowedToCreatePDF"],
-        "IsAllowedToUseOnlineViewer": r["IsAllowedToUseOnlineViewer"],
-        "IsAllowedToUsePlugins": r["IsAllowedToUsePlugins"],
-        "IsAllowedToViewResultState": r["IsAllowedToViewResultState"],
-        "IsAllowedToEditResultState": r["IsAllowedToEditResultState"],
-        "IsAllowedToViewResultSeverity": r["IsAllowedToViewResultSeverity"],
-        "IsAllowedToEditResultSeverity": r["IsAllowedToEditResultSeverity"],
-        "IsAllowedToViewAssignTo": r["IsAllowedToViewAssignTo"],
-        "IsAllowedToEditAssignTo": r["IsAllowedToEditAssignTo"],
-        "IsAllowedToViewComments": r["IsAllowedToViewComments"],
-        "IsAllowedToEditComments": r["IsAllowedToEditComments"]
-    }
+    return retry
 
 
 def add_license_expiration_notification():
@@ -72,12 +45,9 @@ def add_license_expiration_notification():
     Returns:
 
     """
-    retry_times = [0]
-
+    @retry_when_unauthorized
     def execute():
-        response = zeepClient.client.service.AddLicenseExpirationNotification(sessionID="0")
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.AddLicenseExpirationNotification(sessionID="0")
 
     r = execute()
 
@@ -112,23 +82,20 @@ def create_new_preset(query_ids, name):
             'IsDuplicate': False
         }
     """
-    retry_times = [0]
-
+    @retry_when_unauthorized
     def execute():
 
         query_id_list = zeepClient.factory.ArrayOfLong(query_ids)
+
         cx_preset_detail = zeepClient.factory.CxPresetDetails(
             queryIds=query_id_list, id=0, name=name, owningteam=1, isPublic=True,
             isUserAllowToUpdate=True, isUserAllowToDelete=True, IsDuplicate=False
         )
 
-        response = zeepClient.client.service.CreateNewPreset(sessionId="0", presrt=cx_preset_detail)
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.CreateNewPreset(sessionId="0", presrt=cx_preset_detail)
 
     r = execute()
     preset = r.preset
-
     return {
         "IsSuccesfull": r["IsSuccesfull"],
         "ErrorMessage": r["ErrorMessage"],
@@ -155,13 +122,10 @@ def delete_preset(preset_id):
     Returns:
 
     """
-    retry_times = [0]
-
+    @retry_when_unauthorized
     def execute():
+        return zeepClient.client.service.DeletePreset(sessionId="0", id=preset_id)
 
-        response = zeepClient.client.service.DeletePreset(sessionId="0", id=preset_id)
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
     p = execute()
     return {
         "IsSuccesfull": p["IsSuccesfull"],
@@ -178,12 +142,9 @@ def delete_project(project_id):
     Returns:
 
     """
-    retry_times = [0]
-
+    @retry_when_unauthorized
     def execute():
-        response = zeepClient.client.service.DeleteProject(sessionID="0", projectID=project_id)
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.DeleteProject(sessionID="0", projectID=project_id)
 
     p = execute()
     return {
@@ -202,18 +163,15 @@ def delete_projects(project_ids, flag="None"):
     Returns:
         bool
     """
-    retry_times = [0]
 
+    @retry_when_unauthorized
     def execute():
-
         cx_ws_request_delete_projects = zeepClient.factory.CxWSRequestDeleteProjects(
             SessionID="0",
             ProjectIDs=zeepClient.factory.ArrayOfLong(project_ids),
             Flags=zeepClient.factory.DeleteFlags([flag])
         )
-        response = zeepClient.client.service.DeleteProjects(request=cx_ws_request_delete_projects)
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.DeleteProjects(request=cx_ws_request_delete_projects)
 
     p = execute()
     return {
@@ -226,21 +184,68 @@ def delete_projects(project_ids, flag="None"):
     }
 
 
+def get_path_comments_history(scan_id, path_id, label_type):
+    """
+
+    Args:
+        scan_id:
+        path_id:
+        label_type:
+
+    Returns:
+        dict
+
+        example:
+        {
+            'IsSuccesfull': True,
+            'ErrorMessage': None,
+            'Path': {
+                'SimilarityId': 0,
+                'PathId': 0,
+                'Comment': 'happy yang jvl_local, [2020年11月12日 16:57]: Changed status to Not Exploitable
+                            happy yang jvl_local, [2020年11月12日 16:57]: Changed status to Proposed Not Exploitable ÿ',
+                'State': 0,
+                'Severity': 0,
+                'AssignedUser': None,
+                'Nodes': None
+            }
+        }
+    """
+    @retry_when_unauthorized
+    def execute():
+        return zeepClient.client.service.GetPathCommentsHistory(sessionId="0", scanId=scan_id, pathId=path_id,
+                                                                labelType=label_type)
+
+    r = execute()
+    path = r.Path
+    return {
+        "IsSuccesfull": r["IsSuccesfull"],
+        "ErrorMessage": r["ErrorMessage"],
+        "Path": {
+            "AssignedUser": path["AssignedUser"],
+            "Comment": path["Comment"],
+            "Nodes": path["Nodes"],
+            "PathId": path["PathId"],
+            "Severity": path["Severity"],
+            "SimilarityId": path["SimilarityId"],
+            "State": path["State"]
+        } if path else None
+    }
+
+
 def get_preset_list():
     """
 
     Returns:
         list of dict
     """
-    retry_times = [0]
 
+    @retry_when_unauthorized
     def execute():
-
-        response = zeepClient.client.service.GetPresetList(SessionID="0")
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.GetPresetList(SessionID="0")
 
     r = execute()
+    preset_list = r.PresetList
     return {
         "IsSuccesfull": r["IsSuccesfull"],
         "ErrorMessage": r["ErrorMessage"],
@@ -251,8 +256,8 @@ def get_preset_list():
                 "owningUser": item["owningUser"],
                 "isUserAllowToUpdate": item["isUserAllowToUpdate"],
                 "isUserAllowToDelete": item["isUserAllowToDelete"]
-            } for item in r["PresetList"]["Preset"]
-        ] if r["PresetList"] else None
+            } for item in preset_list["Preset"]
+        ] if preset_list else None
     }
 
 
@@ -262,14 +267,12 @@ def get_server_license_data():
     Returns:
 
     """
-    retry_times = [0]
-
+    @retry_when_unauthorized
     def execute():
-        response = zeepClient.client.service.GetServerLicenseData(sessionID="0")
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.GetServerLicenseData(sessionID="0")
 
     p = execute()
+    supported_languages = p.SupportedLanguages
     return {
         "ExpirationDate": p["ExpirationDate"],
         "MaxConcurrentScans": p["MaxConcurrentScans"],
@@ -278,9 +281,8 @@ def get_server_license_data():
         "SupportedLanguages": [{
             "isSupported": item["isSupported"],
             "language": item["language"]
-        }
-            for item in p["SupportedLanguages"]["SupportedLanguage"]
-        ],
+            } for item in supported_languages["SupportedLanguage"]
+        ] if supported_languages else None,
         "MaxUsers": p["MaxUsers"],
         "CurrentUsers": p["CurrentUsers"],
         "MaxAuditUsers": p["MaxAuditUsers"],
@@ -294,14 +296,17 @@ def get_server_license_data():
 
 
 def get_server_license_summary():
-    retry_times = [0]
+    """
 
+    Returns:
+
+    """
+    @retry_when_unauthorized
     def execute():
-        response = zeepClient.client.service.GetServerLicenseSummary(sessionID="0")
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.GetServerLicenseSummary(sessionID="0")
 
     p = execute()
+    supported_languages = p.SupportedLanguages
     return {
         "ExpirationDate": p["ExpirationDate"],
         "MaxConcurrentScans": p["MaxConcurrentScans"],
@@ -310,9 +315,8 @@ def get_server_license_summary():
         "SupportedLanguages": [{
             "isSupported": item["isSupported"],
             "language": item["language"]
-        }
-            for item in p["SupportedLanguages"]["SupportedLanguage"]
-        ],
+            } for item in supported_languages["SupportedLanguage"]
+        ] if supported_languages else None,
         "MaxUsers": p["MaxUsers"],
         "CurrentUsers": p["CurrentUsers"],
         "MaxAuditUsers": p["MaxAuditUsers"],
@@ -326,12 +330,14 @@ def get_server_license_summary():
 
 
 def get_version_number():
-    retry_times = [0]
+    """
 
+    Returns:
+
+    """
+    @retry_when_unauthorized
     def execute():
-        response = zeepClient.client.service.GetVersionNumber()
-        retry_if_token_is_invalid(response, execute, retry_times)
-        return response
+        return zeepClient.client.service.GetVersionNumber()
 
     p = execute()
     return {
