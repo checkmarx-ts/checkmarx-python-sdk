@@ -255,10 +255,12 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
 
 # The CxSAST Portal SOAP API list
 1. cx portal web service
+    - add_license_expiration_notification
     - create_new_preset
     - delete_preset
     - delete_project
     - delete_projects
+    - get_path_comments_history
     - get_preset_list
     - get_server_license_data
     - get_server_license_summary
