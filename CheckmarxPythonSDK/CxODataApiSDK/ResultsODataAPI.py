@@ -11,6 +11,15 @@ def get_results_for_a_specific_scan_id(scan_id):
 
     Returns:
         `list` of `dict`
+
+        example:
+        [
+        {
+        'Id': 4, 'ResultId': '1000012-4', 'ScanId': 1000012, 'SimilarityId': 1937265109, 'RawPriority': None,
+        'PathId': 4, 'ConfidenceLevel': 95, 'Date': '2020-11-06T16:32:07.603+08:00', 'Severity': 'High', 'StateId': 0,
+        'AssignedToUserId': None, 'AssignedTo': None, 'Comment': None, 'QueryId': 589, 'QueryVersionId': 56089346
+        }
+        ]
     """
 
     url = "/Cxwebinterface/odata/v1/Scans({ScanId})/Results".format(
