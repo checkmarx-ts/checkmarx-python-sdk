@@ -20,12 +20,11 @@ def retry_when_unauthorized(func):
         response = func(*args, **kwargs)
 
         while max_try > 0:
-            max_try -= 1
-            if response.status_code == UNAUTHORIZED:
-                authHeaders.update_auth_headers()
-                response = func(*args, **kwargs)
-            else:
+            if response.status_code != UNAUTHORIZED:
                 break
+            authHeaders.update_auth_headers()
+            response = func(*args, **kwargs)
+            max_try -= 1
 
         if response.status_code != OK:
             raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
