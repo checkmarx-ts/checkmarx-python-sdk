@@ -2,7 +2,7 @@ import csv
 from itertools import groupby
 from copy import deepcopy
 
-from .ProjectsODataAPI import (get_all_projects_id_name)
+from .ProjectsODataAPI import (get_all_projects_id_name_and_team_id_name)
 from .ScansODataAPI import (
     get_all_scan_id_of_a_project,
     get_last_scan_id_of_a_project,
@@ -154,7 +154,8 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
 
     """
 
-    common_field_names = ['ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup', 'QueryId', 'Query']
+    common_field_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
+                          'QueryId', 'Query']
 
     all_results_field_names = common_field_names[:]
     all_results_field_names.extend(['SimilarityId', 'ResultId', 'ResultState'])
@@ -171,8 +172,10 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
         writer = csv.DictWriter(csv_file, fieldnames=field_names)
         writer.writeheader()
 
-        project_id_name_list = get_all_projects_id_name()
+        project_id_name_list = get_all_projects_id_name_and_team_id_name()
         for project in project_id_name_list:
+            team_id = project.get("TeamId")
+            team_name = project.get("TeamName")
             project_id = project.get("ProjectId")
             project_name = project.get("ProjectName")
 
@@ -220,6 +223,8 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
             for result in result_list:
                 result.update(
                     {
+                        "TeamName": team_name,
+                        "TeamId": team_id,
                         "ProjectId": project_id,
                         "ProjectName": project_name,
                         "ScanId": last_scan_id

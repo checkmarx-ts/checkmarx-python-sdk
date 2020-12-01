@@ -10,6 +10,7 @@ from .ProjectsODataAPI import (
     get_presets_associated_with_each_project,
     get_all_projects_that_are_set_up_with_a_non_standard_configuration,
     get_all_projects_id_name,
+    get_all_projects_id_name_and_team_id_name,
 )
 from .ResultsODataAPI import (
     get_results_for_a_specific_scan_id,

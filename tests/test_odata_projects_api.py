@@ -11,6 +11,7 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
     get_presets_associated_with_each_project,
     get_all_projects_that_are_set_up_with_a_non_standard_configuration,
     get_all_projects_id_name,
+    get_all_projects_id_name_and_team_id_name,
 )
 
 project_name = "jvl_git"
@@ -85,3 +86,9 @@ def test_get_all_projects_that_are_set_up_with_a_non_standard_configuration():
 def test_get_all_projects_id_name():
     r = get_all_projects_id_name()
     assert r is not None
+
+
+def test_get_all_projects_id_name_and_team_id_name():
+    r = get_all_projects_id_name_and_team_id_name()
+    assert r is not None
+

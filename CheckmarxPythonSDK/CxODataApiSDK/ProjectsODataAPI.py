@@ -440,7 +440,13 @@ def get_all_projects_id_name():
     """
 
     Returns:
-        list of int
+        list of dict
+        [
+            {
+            "ProjectId": item.get("Id"),
+            "ProjectName": item.get("Name")
+            }
+        ]
     """
 
     url = "/Cxwebinterface/odata/v1/Projects?$select=Id,Name"
@@ -455,3 +461,23 @@ def get_all_projects_id_name():
     ]
 
     return project_id_name_list
+
+
+def get_all_projects_id_name_and_team_id_name():
+    """
+
+    Returns:
+
+    """
+    url = "/Cxwebinterface/odata/v1/Projects?$select=Id,Name,OwningTeamId&$expand=OwningTeam($select=FullName)"
+
+    item_list = get_request(relative_url=url)
+
+    return [
+        {
+            "TeamId": item.get('OwningTeamId'),
+            "TeamName": item.get('OwningTeam').get('FullName'),
+            "ProjectId": item.get("Id"),
+            "ProjectName": item.get("Name")
+        } for item in item_list
+    ]
