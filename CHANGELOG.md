@@ -35,3 +35,7 @@ All notable changes to this project will be documented in  this file.
 0.1.4 - 2020-11-27
 * Fix portal soap api with retry_when_unauthorized, when have invalid token
 * Refactor OData API
+
+0.1.5 - 2020-12-02
+* Add get_path_comments_history for portal soap api
+* Add TeamName, TeamId for get_results_and_write_to_csv_file
