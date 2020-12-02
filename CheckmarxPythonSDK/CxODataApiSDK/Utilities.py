@@ -2,7 +2,7 @@ import csv
 from itertools import groupby
 from copy import deepcopy
 
-from .ProjectsODataAPI import (get_all_projects_id_name_and_team_id_name)
+from .ProjectsODataAPI import (get_all_projects_id_name, get_all_projects_id_name_and_team_id_name)
 from .ScansODataAPI import (
     get_all_scan_id_of_a_project,
     get_last_scan_id_of_a_project,
