@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import os
 
 from codecs import open
 
 from setuptools import setup, find_packages
 
-with open("README.md", "r", 'UTF-8') as fh:
+here = os.path.abspath(os.path.dirname(__file__))
+
+about = {}
+with open(os.path.join(here, 'CheckmarxPythonSDK', '__version__.py'), 'r', 'utf-8') as f:
+    exec(f.read(), about)
+
+with open("README.md", "r", 'utf-8') as fh:
     long_description = fh.read()
 
 setup(
     name="CheckmarxPythonSDK",
-    version="0.1.5",
+    version=about['__version__'],
     author="Happy Yang",
     author_email="happy.yang@checkmarx.com",
     description="Checkmarx Python SDK",

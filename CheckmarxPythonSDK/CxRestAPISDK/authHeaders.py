@@ -1,6 +1,6 @@
 from ..config import config
 from ..auth import get_new_token
-from .. import __version__
+from ..__version__ import __version__
 
 
 def get_token():
