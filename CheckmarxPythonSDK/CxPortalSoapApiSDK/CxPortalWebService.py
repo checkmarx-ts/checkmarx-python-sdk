@@ -188,9 +188,9 @@ def get_path_comments_history(scan_id, path_id, label_type):
     """
 
     Args:
-        scan_id:
-        path_id:
-        label_type:
+        scan_id (int):
+        path_id (int):
+        label_type (str):
 
     Returns:
         dict
@@ -231,6 +231,31 @@ def get_path_comments_history(scan_id, path_id, label_type):
             "State": path["State"]
         } if path else None
     }
+
+
+def get_name_of_user_who_marked_false_positive_from_comments_history(scan_id, path_id):
+    """
+
+    Args:
+        scan_id (int):
+        path_id (int):
+
+    Returns:
+        first_and_last_name (str)
+        example:
+         "happy yang"
+    """
+    comments_history = get_path_comments_history(scan_id, path_id, label_type="Remark").get("Path").get("Comment")
+
+    if "ÿ" not in comments_history:
+        return None
+
+    a_list = comments_history.split('ÿ')[0:-1]
+    second_list = [item.split(',')[0] for item in a_list if 'Not Exploitable' in item]
+    name_and_project = second_list[0]
+    d_list = name_and_project.split(" ")
+    e_list = d_list[0:2]
+    return " ".join(e_list)
 
 
 def get_preset_list():
