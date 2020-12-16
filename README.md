@@ -257,10 +257,13 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
 1. cx portal web service
     - add_license_expiration_notification
     - create_new_preset
+    - create_scan_report
     - delete_preset
     - delete_project
     - delete_projects
     - get_path_comments_history
+    - get_queries_categories
+    - get_name_of_user_who_marked_false_positive_from_comments_history
     - get_preset_list
     - get_server_license_data
     - get_server_license_summary
