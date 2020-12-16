@@ -10,7 +10,7 @@
 
 from CheckmarxPythonSDK.CxRestAPISDK import EnginesAPI
 
-another_engine_ip = '172.35.0.37'
+another_engine_ip = 'happyy-laptop:8088'
 
 
 def test_get_all_engine_server_details():
@@ -57,17 +57,19 @@ def test_get_engine_details():
 
 
 def test_update_engine_server():
-    test_register_engine()
-    engine_name = "engine virtual"
+    # test_register_engine()
+    engine_name = "engine2"
     engine_api = EnginesAPI()
     engine_id = engine_api.get_engine_id_by_name(engine_name)
     name = "engine2"
-    uri = "http://{ip}/CxSourceAnalyzerEngineWCF/CxEngineWebServices.svc".format(ip=another_engine_ip)
+    uri = "http://{ip}/d".format(ip=another_engine_ip)
     min_loc = 0
     max_loc = 999999999
     is_blocked = False
-    engine_server = engine_api.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked)
-    assert engine_server is not None
+    max_scans = 1
+    engine_server = engine_api.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked,
+                                                    max_scans=max_scans)
+    assert engine_server.id > 1
 
 
 def test_get_all_engine_configurations():

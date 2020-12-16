@@ -249,7 +249,7 @@ class EnginesAPI(object):
 
         return engine_server
 
-    def update_engine_server(self, engine_id, name, uri, min_loc, max_loc, is_blocked):
+    def update_engine_server(self, engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None):
         """
         Update an existing engine server's configuration and enables to change certain parameters.
 
@@ -261,6 +261,7 @@ class EnginesAPI(object):
             min_loc (int): Specifies the minimum number of lines of code to scan
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
+            max_scans (int): Specifies the maximum number of concurrent scans to perform
 
         Returns:
             CxEngineServer
@@ -274,17 +275,18 @@ class EnginesAPI(object):
 
         engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
 
-        post_request_body = CxRegisterEngineRequestBody.CxRegisterEngineRequestBody(
+        data = CxRegisterEngineRequestBody.CxRegisterEngineRequestBody(
             name=name,
             uri=uri,
             min_loc=min_loc,
             max_loc=max_loc,
-            is_blocked=is_blocked
+            is_blocked=is_blocked,
+            max_scans=max_scans
         ).get_post_data()
 
         r = requests.put(
             url=engine_server_url,
-            data=post_request_body,
+            data=data,
             headers=authHeaders.auth_headers,
             verify=config.get("verify")
         )
@@ -305,7 +307,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked)
+            self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans)
         else:
             raise CxError(r.text, r.status_code)
 

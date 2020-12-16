@@ -8,7 +8,7 @@ class CxRegisterEngineRequestBody(object):
     the request body to register engine
     """
 
-    def __init__(self, name, uri, min_loc, max_loc, is_blocked):
+    def __init__(self, name, uri, min_loc, max_loc, is_blocked, max_scans=None):
         """
 
         Args:
@@ -23,17 +23,19 @@ class CxRegisterEngineRequestBody(object):
         self.min_loc = min_loc
         self.max_loc = max_loc
         self.is_blocked = is_blocked
+        self.max_scans = max_scans
 
     def get_post_data(self):
-        return json.dumps(
-            {
-                "name": self.name,
-                "uri": self.uri,
-                "minLoc": self.min_loc,
-                "maxLoc": self.max_loc,
-                "isBlocked": self.is_blocked
-            }
-        )
+        d = {
+            "name": self.name,
+            "uri": self.uri,
+            "minLoc": self.min_loc,
+            "maxLoc": self.max_loc,
+            "isBlocked": self.is_blocked
+        }
+        if self.max_scans:
+            d.update({"maxScans": self.max_scans})
+        return json.dumps(d)
 
     def __str__(self):
         return "CxRegisterEngineRequestBody(name={}, uri={}, min_loc={}, max_loc={}, is_blocked={})".format(
