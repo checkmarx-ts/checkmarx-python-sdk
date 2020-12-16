@@ -117,10 +117,10 @@ def create_new_preset(query_ids, name):
 
 def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None, results_severity_all=True,
                        results_severity_high=True, results_severity_medium=True, results_severity_low=True,
-                       results_severity_info=True, results_state_all=True, results_state_ids=None,
+                       results_severity_info=False, results_state_all=True, results_state_ids=None,
                        display_categories_all=True, display_categories_ids=None, results_assigned_to_all=True,
                        results_assigned_to_ids=None, results_assigned_to_usernames=None,
-                       results_per_vulnerability_all=True, results_per_vulnerability_maximum=500,
+                       results_per_vulnerability_all=True, results_per_vulnerability_maximum=50,
                        header_options_link_to_online_results=True, header_options_team=True,
                        header_options_checkmarx_version=True, header_options_comments=False,
                        header_options_scan_type=True, header_options_source_origin=True, header_options_density=True,
