@@ -91,7 +91,8 @@ def get_all_results_with_count_for_each_project_json_format(filter_false_positiv
                         "ResultsWithQuery": results_with_query
                     }
                 )
-            except Exception:
+            except ValueError as e:
+                print(e)
                 print("Fail to fetch data for scan id: {id} ".format(id=scan_id))
 
         project.update(
@@ -179,18 +180,17 @@ def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, th
             project_id = project.get("ProjectId")
             project_name = project.get("ProjectName")
 
-            try:
-                last_scan_id = get_last_scan_id_of_a_project(project_id=project_id)
-                last_full_scan_id = get_last_full_scan_id_of_a_project(project_id=project_id)
-            except Exception as e:
+            last_scan_id = get_last_scan_id_of_a_project(project_id=project_id)
+            if not last_scan_id:
                 print("Project name: {name}, id : {id} has no scans".format(name=project_name, id=project_id))
                 continue
+            last_full_scan_id = get_last_full_scan_id_of_a_project(project_id=project_id)
 
             try:
                 result_list = get_results_for_a_specific_scan_id_with_query_language_state(
                     scan_id=last_scan_id, filter_false_positive=filter_false_positive
                 )
-            except Exception as e:
+            except ValueError as e:
                 print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
                 print("Exception: {error} ".format(error=e))
                 continue

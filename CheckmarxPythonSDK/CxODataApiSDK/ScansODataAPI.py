@@ -31,7 +31,12 @@ def get_all_data_for_a_specific_scan_id(scan_id):
 
     url = "/Cxwebinterface/odata/v1/Scans({id})".format(id=scan_id)
 
-    return get_request(relative_url=url)[0]
+    scan_data_list = get_request(relative_url=url)
+
+    if not scan_data_list:
+        return None
+
+    return scan_data_list[0]
 
 
 def get_number_of_loc_scanned_for_a_specific_scan(scan_id):
@@ -48,7 +53,12 @@ def get_number_of_loc_scanned_for_a_specific_scan(scan_id):
 
     url = "/Cxwebinterface/odata/v1/Scans({id})?$select=LOC".format(id=scan_id)
 
-    return get_request(relative_url=url)[0].get('LOC')
+    loc_list = get_request(relative_url=url)
+
+    if not loc_list:
+        return None
+
+    return loc_list[0].get('LOC')
 
 
 def get_number_of_loc_scanned_for_all_scan():
@@ -85,7 +95,12 @@ def get_last_scan_id_of_a_project(project_id):
 
     url = "/Cxwebinterface/odata/v1/Projects({id})//Scans?$orderby=Id%20desc&$top=1&$select=Id".format(id=project_id)
 
-    return get_request(relative_url=url)[0].get("Id")
+    ids = get_request(relative_url=url)
+
+    if not ids:
+        return None
+
+    return ids[0].get("Id")
 
 
 def get_last_scan_of_a_project(project_id):
@@ -117,7 +132,12 @@ def get_last_scan_of_a_project(project_id):
     """
     url = "/Cxwebinterface/odata/v1/Projects({id})/Scans?$orderby=Id%20desc&$top=1".format(id=project_id)
 
-    return get_request(relative_url=url)[0]
+    scan_data_list = get_request(relative_url=url)
+
+    if not scan_data_list:
+        return None
+
+    return scan_data_list[0]
 
 
 def get_last_full_scan_id_of_a_project(project_id):
@@ -132,7 +152,12 @@ def get_last_full_scan_id_of_a_project(project_id):
     url = ("/Cxwebinterface/odata/v1/Projects({id})/Scans"
            "?$filter=IsIncremental%20eq%20false&$orderby=Id%20desc&$top=1&select=Id").format(id=project_id)
 
-    return get_request(relative_url=url)[0].get("Id")
+    ids = get_request(relative_url=url)
+
+    if not ids:
+        return None
+
+    return ids[0].get("Id")
 
 
 def get_last_full_scan_of_a_project(project_id):
@@ -163,7 +188,12 @@ def get_last_full_scan_of_a_project(project_id):
     url = ("/Cxwebinterface/odata/v1/Projects({id})/Scans"
            "?$filter=IsIncremental%20eq%20false&$orderby=Id%20desc&$top=1").format(id=project_id)
     
-    return get_request(relative_url=url)[0]
+    scan_data_list = get_request(relative_url=url)
+
+    if not scan_data_list:
+        return None
+
+    return scan_data_list[0]
 
 
 def get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_project(

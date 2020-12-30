@@ -48,7 +48,13 @@ def get_the_query_that_was_run_for_a_particular_unique_scan_result(result_id, sc
         id=result_id,
         ScanId=scan_id
     )
-    return get_request(relative_url=url)[0].get("Query").get("Name")
+
+    query_list = get_request(relative_url=url)
+
+    if not query_list:
+        return None
+
+    return query_list[0].get("Query").get("Name")
 
 
 def get_results_for_a_specific_scan_id_with_query_language_state(scan_id, filter_false_positive=False):
