@@ -16,11 +16,11 @@ from .exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .sast.projects.dto import CxUpdateProjectNameTeamIdRequest, CxCreateProjectResponse, \
     CxIssueTrackingSystemDetail, CxSharedRemoteSourceSettingsRequest, CxIssueTrackingSystemField, \
     CxSharedRemoteSourceSettingsResponse, CxGitSettings, \
-    CxIssueTrackingSystemType, CxIssueTrackingSystemFieldAllowedValue, CxSourceSettingsLink, \
-    CxCreateProjectRequest, CxIssueTrackingSystem, CxLink, CxProject, CxCustomRemoteSourceSettings, \
+    CxIssueTrackingSystemType, CxIssueTrackingSystemFieldAllowedValue, \
+    CxCreateProjectRequest, CxIssueTrackingSystem, CxLink, CxCustomRemoteSourceSettings, \
     CxUpdateProjectRequest, CxProjectExcludeSettings, CxCredential, CxSVNSettings, CxURI, CxPerforceSettings, \
-    CxTFSSettings, CxIssueTrackingSystemJira
-from .sast.projects.dto.presets import CxPreset
+    CxTFSSettings, CxIssueTrackingSystemJira, CxPreset
+from .sast.projects.dto import construct_cx_project
 
 
 class ProjectsAPI(object):
@@ -64,34 +64,15 @@ class ProjectsAPI(object):
         if optionals:
             projects_url += "?" + "&".join(optionals)
 
-        headers = authHeaders.auth_headers.copy()
-        headers["Accept"] = "application/json;v=2.0"
-        headers["Content-Type"] = "application/json;v=2.0"
-
         r = requests.get(
             url=projects_url,
-            headers=headers,
+            headers=authHeaders.get_v2_headers(),
             verify=config.get("verify")
         )
         if r.status_code == OK:
             a_list = r.json()
             all_projects = [
-                CxProject.CxProject(
-                    project_id=item.get("id"),
-                    team_id=item.get("teamId"),
-                    name=item.get("name"),
-                    is_public=item.get("isPublic"),
-                    source_settings_link=CxSourceSettingsLink.CxSourceSettingsLink(
-                        (item.get("sourceSettingsLink", {}) or {}).get("type"),
-                        (item.get("sourceSettingsLink", {}) or {}).get("rel"),
-                        (item.get("sourceSettingsLink", {}) or {}).get("uri")
-                    ),
-                    link=CxLink.CxLink(
-                        (item.get("link", {}) or {}).get("rel"),
-                        (item.get("link", {}) or {}).get("uri")
-                    ),
-                    customFields=item.get("customFields")
-                ) for item in a_list
+                construct_cx_project(item) for item in a_list
             ]
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
@@ -132,7 +113,7 @@ class ProjectsAPI(object):
 
         projects_url = config.get("base_url") + "/cxrestapi/projects"
 
-        req_data = CxCreateProjectRequest.CxCreateProjectRequest(project_name, team_id, is_public).get_post_data()
+        req_data = CxCreateProjectRequest(project_name, team_id, is_public).get_post_data()
         r = requests.post(
             url=projects_url,
             data=req_data,
@@ -141,9 +122,9 @@ class ProjectsAPI(object):
         )
         if r.status_code == CREATED:
             d = r.json()
-            project = CxCreateProjectResponse.CxCreateProjectResponse(
+            project = CxCreateProjectResponse(
                 d.get("id"),
-                CxLink.CxLink(
+                CxLink(
                     rel=(d.get("link", {}) or {}).get("rel"),
                     uri=(d.get("link", {}) or {}).get("uri")
                 )
@@ -209,26 +190,12 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=project_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_v2_headers(),
             verify=config.get("verify")
         )
         if r.status_code == OK:
             a_dict = r.json()
-            project = CxProject.CxProject(
-                project_id=a_dict.get("id"),
-                team_id=a_dict.get("teamId"),
-                name=a_dict.get("name"),
-                is_public=a_dict.get("isPublic"),
-                source_settings_link=CxSourceSettingsLink.CxSourceSettingsLink(
-                    source_settings_link_type=(a_dict.get("sourceSettingsLink", {}) or {}).get("type"),
-                    rel=(a_dict.get("sourceSettingsLink", {}) or {}).get("rel"),
-                    uri=(a_dict.get("sourceSettingsLink", {}) or {}).get("uri")
-                ),
-                link=CxLink.CxLink(
-                    rel=(a_dict.get("link", {}) or {}).get("rel"),
-                    uri=(a_dict.get("link", {}) or {}).get("uri"),
-                )
-            )
+            project = construct_cx_project(a_dict)
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
@@ -266,7 +233,7 @@ class ProjectsAPI(object):
 
         project_url = config.get("base_url") + "/cxrestapi/projects/{id}".format(id=project_id)
 
-        request_body = CxUpdateProjectRequest.CxUpdateProjectRequest(
+        request_body = CxUpdateProjectRequest(
             name=project_name,
             team_id=team_id,
             custom_fields=custom_fields
@@ -319,7 +286,7 @@ class ProjectsAPI(object):
 
         project_url = config.get("base_url") + "/cxrestapi/projects/{id}".format(id=project_id)
 
-        request_body = CxUpdateProjectNameTeamIdRequest.CxUpdateProjectNameTeamIdRequest(
+        request_body = CxUpdateProjectNameTeamIdRequest(
             project_name=project_name,
             owning_team=team_id
         ).get_post_data()
@@ -473,9 +440,9 @@ class ProjectsAPI(object):
 
         if r.status_code == CREATED:
             a_dict = r.json()
-            project = CxCreateProjectResponse.CxCreateProjectResponse(
+            project = CxCreateProjectResponse(
                 project_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -521,7 +488,7 @@ class ProjectsAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             issue_tracking_systems = [
-                CxIssueTrackingSystem.CxIssueTrackingSystem(
+                CxIssueTrackingSystem(
                     tracking_system_id=item.get("id"),
                     name=item.get("name"),
                     tracking_system_type=item.get("type"),
@@ -595,27 +562,25 @@ class ProjectsAPI(object):
                 field = fields[0] if fields else {}
                 allowed_values = field.get("allowedValues", []) or []
 
-                c = CxIssueTrackingSystemFieldAllowedValue
-
                 issue_tracking_system = {
                     "projects": [
-                        CxIssueTrackingSystemDetail.CxIssueTrackingSystemDetail(
+                        CxIssueTrackingSystemDetail(
                             tracking_system_detail_id=a_dict.get("id"),
                             name=a_dict.get("name"),
                             issue_types=[
-                                CxIssueTrackingSystemType.CxIssueTrackingSystemType(
+                                CxIssueTrackingSystemType(
                                     issue_tracking_system_type_id=issue_type.get("id"),
                                     name=issue_type.get("name"),
                                     sub_task=issue_type.get("subtask"),
                                     fields=[
-                                        CxIssueTrackingSystemField.CxIssueTrackingSystemField(
+                                        CxIssueTrackingSystemField(
                                             tracking_system_field_id=field.get("id"),
                                             name=field.get("name"),
                                             multiple=field.get("multiple"),
                                             required=field.get("required"),
                                             supported=field.get("supported"),
                                             allowed_values=[
-                                                c.CxIssueTrackingSystemFieldAllowedValue(
+                                                CxIssueTrackingSystemFieldAllowedValue(
                                                     allowed_value_id=item.get("id"),
                                                     name=item.get("name")
                                                 ) for item in allowed_values
@@ -671,11 +636,11 @@ class ProjectsAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            project_exclude_settings = CxProjectExcludeSettings.CxProjectExcludeSettings(
+            project_exclude_settings = CxProjectExcludeSettings(
                 project_id=a_dict.get("projectId"),
                 exclude_folders_pattern=a_dict.get("excludeFoldersPattern"),
                 exclude_files_pattern=a_dict.get("excludeFilesPattern"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -778,11 +743,11 @@ class ProjectsAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            git_settings = CxGitSettings.CxGitSettings(
+            git_settings = CxGitSettings(
                 url=a_dict.get("url"),
                 branch=a_dict.get("branch"),
                 use_ssh=a_dict.get("useSsh"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -832,7 +797,7 @@ class ProjectsAPI(object):
             "base_url") + "/cxrestapi/projects/{id}/sourceCode/remoteSettings/git".format(
             id=project_id)
 
-        post_body = CxGitSettings.CxGitSettings(
+        post_body = CxGitSettings(
             url=url, branch=branch, private_key=private_key
         ).get_post_data()
 
@@ -890,14 +855,14 @@ class ProjectsAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            svn_settings = CxSVNSettings.CxSVNSettings(
-                uri=CxURI.CxURI(
+            svn_settings = CxSVNSettings(
+                uri=CxURI(
                     absolute_url=(a_dict.get("uri", {}) or {}).get("absoluteUrl"),
                     port=(a_dict.get("uri", {}) or {}).get("port")
                 ),
                 paths=a_dict.get("paths", []),
                 use_ssh=a_dict.get("useSsh", False),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -950,13 +915,13 @@ class ProjectsAPI(object):
             "base_url") + "/cxrestapi/projects/{id}/sourceCode/remoteSettings/svn".format(
             id=project_id)
 
-        post_body_data = CxSVNSettings.CxSVNSettings(
-            uri=CxURI.CxURI(
+        post_body_data = CxSVNSettings(
+            uri=CxURI(
                 absolute_url=absolute_url,
                 port=port
             ),
             paths=paths,
-            credentials=CxCredential.CxCredential(
+            credentials=CxCredential(
                 username=username,
                 password=password
             ),
@@ -1017,13 +982,13 @@ class ProjectsAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            tfs_settings = CxTFSSettings.CxTFSSettings(
-                uri=CxURI.CxURI(
+            tfs_settings = CxTFSSettings(
+                uri=CxURI(
                     absolute_url=(a_dict.get("uri", {}) or {}).get("absoluteUrl"),
                     port=(a_dict.get("uri", {}) or {}).get("port"),
                 ),
                 paths=a_dict.get("paths"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -1070,12 +1035,12 @@ class ProjectsAPI(object):
             "base_url") + "/cxrestapi/projects/{id}/sourceCode/remoteSettings/tfs".format(
             id=project_id)
 
-        post_data = CxTFSSettings.CxTFSSettings(
-            credentials=CxCredential.CxCredential(
+        post_data = CxTFSSettings(
+            credentials=CxCredential(
                 username=username,
                 password=password
             ),
-            uri=CxURI.CxURI(
+            uri=CxURI(
                 absolute_url=absolute_url,
                 port=port
             ),
@@ -1138,10 +1103,10 @@ class ProjectsAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            custom_remote_setting = CxCustomRemoteSourceSettings.CxCustomRemoteSourceSettings(
+            custom_remote_setting = CxCustomRemoteSourceSettings(
                 path=a_dict.get("path"),
                 pulling_command_id=a_dict.get("pullingCommandId"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -1190,10 +1155,10 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        request_body_data = CxCustomRemoteSourceSettings.CxCustomRemoteSourceSettings(
+        request_body_data = CxCustomRemoteSourceSettings(
             path=path,
             pulling_command_id=pre_scan_command_id,
-            credentials=CxCredential.CxCredential(
+            credentials=CxCredential(
                 username=username,
                 password=password
             )
@@ -1252,9 +1217,9 @@ class ProjectsAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            shared_source_setting = CxSharedRemoteSourceSettingsResponse.CxSharedRemoteSourceSettingsResponse(
+            shared_source_setting = CxSharedRemoteSourceSettingsResponse(
                 paths=a_dict.get("paths"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -1300,9 +1265,9 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        post_body_data = CxSharedRemoteSourceSettingsRequest.CxSharedRemoteSourceSettingsRequest(
+        post_body_data = CxSharedRemoteSourceSettingsRequest(
             paths=paths,
-            credentials=CxCredential.CxCredential(
+            credentials=CxCredential(
                 username=username,
                 password=password
             )
@@ -1362,14 +1327,14 @@ class ProjectsAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            perforce_settings = CxPerforceSettings.CxPerforceSettings(
-                uri=CxURI.CxURI(
+            perforce_settings = CxPerforceSettings(
+                uri=CxURI(
                     absolute_url=(a_dict.get("uri", {}) or {}).get("absoluteUrl"),
                     port=(a_dict.get("uri", {}) or {}).get("port")
                 ),
                 paths=a_dict.get("paths"),
                 browse_mode=a_dict.get("browseMode"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -1421,12 +1386,12 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        post_data = CxPerforceSettings.CxPerforceSettings(
-            credentials=CxCredential.CxCredential(
+        post_data = CxPerforceSettings(
+            credentials=CxCredential(
                 username=username,
                 password=password,
             ),
-            uri=CxURI.CxURI(
+            uri=CxURI(
                 absolute_url=absolute_url,
                 port=port
             ),
@@ -1720,7 +1685,7 @@ class ProjectsAPI(object):
 
         jira_url = config.get("base_url") + "/cxrestapi/projects/{id}/issueTrackingSettings/jira".format(id=project_id)
 
-        post_data = CxIssueTrackingSystemJira.CxIssueTrackingSystemJira(
+        post_data = CxIssueTrackingSystemJira(
             issue_tracking_system_id=issue_tracking_system_id,
             jira_project_id=jira_project_id,
             issue_type_id=issue_type_id,
@@ -1778,11 +1743,11 @@ class ProjectsAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             all_preset_details = [
-                CxPreset.CxPreset(
+                CxPreset(
                     preset_id=item.get("id"),
                     name=item.get("name"),
                     owner_name=item.get("ownerName"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(item.get("link", {}) or {}).get("rel"),
                         uri=(item.get("link", {}) or {}).get("uri")
                     )
@@ -1843,11 +1808,11 @@ class ProjectsAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            preset = CxPreset.CxPreset(
+            preset = CxPreset(
                 preset_id=a_dict.get("id"),
                 name=a_dict.get("name"),
                 owner_name=a_dict.get("ownerName"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 ),
