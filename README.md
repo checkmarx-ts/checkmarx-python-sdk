@@ -252,6 +252,9 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - update_a_windows_domain
     - delete_a_windows_domain
     - get_windows_domain_user_entries_by_search_criteria
+12. Configuration API
+    - get_cx_component_configuration_settings
+    - update_cx_component_configuration_settings
 
 # The CxSAST Portal SOAP API list
 1. cx portal web service
