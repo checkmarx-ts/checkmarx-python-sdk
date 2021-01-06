@@ -8,15 +8,13 @@ from ..config import config
 
 from . import authHeaders
 from .exceptions.CxError import BadRequestError, NotFoundError, CxError
-from .sast.projects.dto import CxLink, CxProject
-from .sast.projects.dto.presets import CxPreset
+from .sast.projects.dto import CxLink, CxProject, CxPreset
 from .sast.engines.dto import CxEngineServer, CxEngineConfiguration
 from .sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsStatus, \
     CxResultsStatistics, CxPolicyFindingResponse, CxStatus, CxFinishedScanStatus, CxStatisticsResult, \
     CxCreateNewScanResponse, CxCreateScan, CxRegisterScanReportResponse, CxScanType, CxScanDetail, CxScanReportStatus, \
-    CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail
-from .sast.scans.dto.scanSettings import CxScanSettings, CxCreateScanSettingsResponse, \
-    CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage
+    CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail, CxScanSettings, \
+    CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage
 
 
 class ScansAPI(object):
@@ -40,34 +38,34 @@ class ScansAPI(object):
         """
         return CxScanDetail.CxScanDetail(
             scan_id=item.get("id"),
-            project=CxProject.CxProject(
+            project=CxProject(
                 project_id=item.get("project", {}).get("id"),
                 name=item.get("project", {}).get("name"),
                 link=item.get("project", {}).get("link")
             ),
-            status=CxStatus.CxStatus(
+            status=CxStatus(
                 status_id=item.get("status", {}).get("id"),
                 name=item.get("status", {}).get("name"),
-                details=CxStatusDetail.CxStatusDetail(
+                details=CxStatusDetail(
                     stage=item.get("status", {}).get("details", {}).get("stage"),
                     step=item.get("status", {}).get("details", {}).get("step")
                 )
             ),
-            scan_type=CxScanType.CxScanType(
+            scan_type=CxScanType(
                 scan_type_id=item.get("scanType", {}).get("id"),
                 value=item.get("scanType", {}).get("value")
             ),
             comment=item.get("comment"),
-            date_and_time=CxDateAndTime.CxDateAndTime(
+            date_and_time=CxDateAndTime(
                 started_on=(item.get("dateAndTime", {}) or {}).get("startedOn"),
                 finished_on=(item.get("dateAndTime", {}) or {}).get("finishedOn"),
                 engine_started_on=(item.get("dateAndTime", {}) or {}).get("engineStartedOn"),
                 engine_finished_on=(item.get("dateAndTime", {}) or {}).get("engineFinishedOn")
             ),
-            results_statistics=CxResultsStatistics.CxResultsStatistics(
+            results_statistics=CxResultsStatistics(
                 link=(item.get("resultsStatistics", {}) or {}).get("link")
             ),
-            scan_state=CxScanState.CxScanState(
+            scan_state=CxScanState(
                 path=(item.get("scanState", {}) or {}).get("path"),
                 source_id=(item.get("scanState", {}) or {}).get("sourceId"),
                 files_count=(item.get("scanState", {}) or {}).get("filesCount"),
@@ -75,7 +73,7 @@ class ScansAPI(object):
                 failed_lines_of_code=(item.get("scanState", {}) or {}).get("failedLinesOfCode"),
                 cx_version=(item.get("scanState", {}) or {}).get("cxVersion"),
                 language_state_collection=[
-                    CxLanguageState.CxLanguageState(
+                    CxLanguageState(
                         language_id=language_state.get("languageID"),
                         language_name=language_state.get("languageName"),
                         language_hash=language_state.get("languageHash"),
@@ -92,12 +90,12 @@ class ScansAPI(object):
             is_incremental=item.get("isIncremental"),
             scan_risk=item.get("scanRisk"),
             scan_risk_severity=item.get("scanRiskSeverity"),
-            engine_server=CxEngineServer.CxEngineServer(
+            engine_server=CxEngineServer(
                 engine_server_id=(item.get("engineServer", {}) or {}).get("id"),
                 name=(item.get("engineServer", {}) or {}).get("name"),
                 link=(item.get("engineServer", {}) or {}).get("link"),
             ),
-            finished_scan_status=CxFinishedScanStatus.CxFinishedScanStatus(
+            finished_scan_status=CxFinishedScanStatus(
                 scan_status_id=(item.get("finishedScanStatus", {}) or {}).get("id"),
                 value=(item.get("finishedScanStatus", {}) or {}).get("value")
             ),
@@ -215,7 +213,7 @@ class ScansAPI(object):
 
         all_scans_url = config.get("base_url") + "/cxrestapi/sast/scans"
 
-        post_body = CxCreateScan.CxCreateScan(
+        post_body = CxCreateScan(
             project_id, is_incremental, is_public, force_scan, comment
         ).get_post_data()
 
@@ -228,9 +226,9 @@ class ScansAPI(object):
 
         if r.status_code == CREATED:
             a_dict = r.json()
-            scan = CxCreateNewScanResponse.CxCreateNewScanResponse(
+            scan = CxCreateNewScanResponse(
                 scan_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -411,7 +409,7 @@ class ScansAPI(object):
         )
         if r.status_code == OK:
             item = r.json()
-            statistics = CxStatisticsResult.CxStatisticsResult(
+            statistics = CxStatisticsResult(
                 high_severity=item.get("highSeverity"),
                 medium_severity=item.get("mediumSeverity"),
                 low_severity=item.get("lowSeverity"),
@@ -435,31 +433,31 @@ class ScansAPI(object):
 
     @staticmethod
     def __construct_scan_queue_detail(item):
-        return CxScanQueueDetail.CxScanQueueDetail(
+        return CxScanQueueDetail(
             scan_queue_detail_id=item.get("id"),
-            stage=CxScanStage.CxScanStage(
+            stage=CxScanStage(
                 scan_stage_id=(item.get("stage", {}) or {}).get("id"),
                 value=(item.get("stage", {}) or {}).get("value")
             ),
             stage_details=item.get("stageDetails"),
             step_details=item.get("stepDetails"),
-            project=CxProject.CxProject(
+            project=CxProject(
                 project_id=(item.get("project", {}) or {}).get("id"),
                 name=(item.get("project", {}) or {}).get("name"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=((item.get("project", {}) or {}).get("link", {}) or {}).get("rel"),
                     uri=((item.get("project", {}) or {}).get("link", {}) or {}).get("uri")
                 )
             ),
-            engine=CxEngineServer.CxEngineServer(
+            engine=CxEngineServer(
                 engine_server_id=(item.get("engine", {}) or {}).get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=((item.get("engine", {}) or {}).get("link", {}) or {}).get("rel"),
                     uri=((item.get("engine", {}) or {}).get("link", {}) or {}).get("uri")
                 )
             ),
             languages=[
-                CxLanguage.CxLanguage(
+                CxLanguage(
                     language_id=language.get("id"),
                     name=language.get("name")
                 ) for language in (item.get("languages", []) or [])
@@ -641,30 +639,30 @@ class ScansAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            scan_settings = CxScanSettings.CxScanSettings(
-                project=CxProject.CxProject(
+            scan_settings = CxScanSettings(
+                project=CxProject(
                     project_id=(a_dict.get("project", {}) or {}).get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(a_dict.get("project", {}) or {}).get("link", {}).get("rel"),
                         uri=(a_dict.get("project", {}) or {}).get("link", {}).get("uri")
                     )
                 ),
-                preset=CxPreset.CxPreset(
+                preset=CxPreset(
                     preset_id=(a_dict.get("preset", {}) or {}).get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(a_dict.get("preset", {}) or {}).get("link", {}).get("rel"),
                         uri=(a_dict.get("preset", {}) or {}).get("link", {}).get("uri")
                     )
                 ),
-                engine_configuration=CxEngineConfiguration.CxEngineConfiguration(
+                engine_configuration=CxEngineConfiguration(
                     engine_configuration_id=(a_dict.get("engineConfiguration", {}) or {}).get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(a_dict.get("engineConfiguration", {}) or {}).get("link", {}).get("rel"),
                         uri=(a_dict.get("engineConfiguration", {}) or {}).get("link", {}).get("uri")
                     )
                 ),
                 post_scan_action=a_dict.get("postScanAction"),
-                email_notifications=CxEmailNotification.CxEmailNotification(
+                email_notifications=CxEmailNotification(
                     failed_scan=(a_dict.get("emailNotifications", {}) or {}).get("failedScan"),
                     before_scan=(a_dict.get("emailNotifications", {}) or {}).get("beforeScan"),
                     after_scan=(a_dict.get("emailNotifications", {}) or {}).get("afterScan"),
@@ -712,7 +710,7 @@ class ScansAPI(object):
 
         all_scan_settings_url = config.get("base_url") + "/cxrestapi/sast/scanSettings"
 
-        post_body_data = CxCreateScanSettingsRequestBody.CxCreateScanSettingsRequestBody(
+        post_body_data = CxCreateScanSettingsRequestBody(
             project_id=project_id,
             preset_id=preset_id,
             engine_configuration_id=engine_configuration_id,
@@ -729,9 +727,9 @@ class ScansAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            sast_scan_settings = CxCreateScanSettingsResponse.CxCreateScanSettingsResponse(
+            sast_scan_settings = CxCreateScanSettingsResponse(
                 scan_setting_response_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -782,7 +780,7 @@ class ScansAPI(object):
 
         all_scan_settings_url = config.get("base_url") + "/cxrestapi/sast/scanSettings"
 
-        post_body_data = CxCreateScanSettingsRequestBody.CxCreateScanSettingsRequestBody(
+        post_body_data = CxCreateScanSettingsRequestBody(
             project_id=project_id,
             preset_id=preset_id,
             engine_configuration_id=engine_configuration_id,
@@ -799,9 +797,9 @@ class ScansAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            sast_scan_settings = CxCreateScanSettingsResponse.CxCreateScanSettingsResponse(
+            sast_scan_settings = CxCreateScanSettingsResponse(
                 scan_setting_response_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -848,7 +846,7 @@ class ScansAPI(object):
         schedule_settings_url = config.get("base_url") + "/cxrestapi/sast/project/{projectId}/scheduling".format(
             projectId=project_id)
 
-        post_body_data = CxSchedulingSettings.CxSchedulingSettings(
+        post_body_data = CxSchedulingSettings(
             schedule_type=schedule_type,
             schedule_days=schedule_days,
             schedule_time=schedule_time
@@ -954,9 +952,9 @@ class ScansAPI(object):
         )
         if r.status_code == CREATED:
             a_dict = r.json()
-            policy_finding_response = CxPolicyFindingResponse.CxPolicyFindingResponse(
+            policy_finding_response = CxPolicyFindingResponse(
                 policy_finding_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -1007,17 +1005,17 @@ class ScansAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            policy_finding_status = CxPolicyFindingsStatus.CxPolicyFindingsStatus(
-                project=CxProject.CxProject(
+            policy_finding_status = CxPolicyFindingsStatus(
+                project=CxProject(
                     project_id=(a_dict.get("project", {}) or {}).get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=((a_dict.get("project", {}) or {}).get("link", {}) or {}).get("rel"),
                         uri=((a_dict.get("project", {}) or {}).get("link", {}) or {}).get("uri")
                     )
                 ),
-                scan=CxCreateNewScanResponse.CxCreateNewScanResponse(
+                scan=CxCreateNewScanResponse(
                     scan_id=(a_dict.get("scan", {}) or {}).get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=((a_dict.get("scan", {}) or {}).get("link", {}) or {}).get("rel"),
                         uri=((a_dict.get("scan", {}) or {}).get("link", {}) or {}).get("uri")
                     )
@@ -1118,14 +1116,14 @@ class ScansAPI(object):
 
         if r.status_code == ACCEPTED:
             a_dict = r.json()
-            scan_report = CxRegisterScanReportResponse.CxRegisterScanReportResponse(
+            scan_report = CxRegisterScanReportResponse(
                 report_id=a_dict.get("reportId"),
-                links=CxRegisterScanReportResponse.CxRegisterScanReportResponse.Links(
-                    report=CxLink.CxLink(
+                links=CxRegisterScanReportResponse.Links(
+                    report=CxLink(
                         rel=((a_dict.get("links", {}) or {}).get("report", {}) or {}).get("rel"),
                         uri=((a_dict.get("links", {}) or {}).get("report", {}) or {}).get("uri")
                     ),
-                    status=CxLink.CxLink(
+                    status=CxLink(
                         rel=((a_dict.get("links", {}) or {}).get("status", {}) or {}).get("rel"),
                         uri=((a_dict.get("links", {}) or {}).get("status", {}) or {}).get("uri")
                     )
@@ -1173,13 +1171,13 @@ class ScansAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            report_status = CxScanReportStatus.CxScanReportStatus(
-                link=CxLink.CxLink(
+            report_status = CxScanReportStatus(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 ),
                 content_type=a_dict.get("contentType"),
-                status=CxScanReportStatus.CxScanReportStatus.Status(
+                status=CxScanReportStatus.Status(
                     status_id=(a_dict.get("status", {}) or {}).get("id"),
                     value=(a_dict.get("status", {}) or {}).get("value")
                 )

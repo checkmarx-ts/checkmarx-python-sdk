@@ -6,7 +6,7 @@ from ..config import config
 
 from . import authHeaders
 from .exceptions.CxError import BadRequestError, NotFoundError, CxError
-from .sast.projects.dto.customFields import CxCustomField
+from .sast.projects.dto import CxCustomField
 
 
 class CustomFieldsAPI(object):
@@ -45,7 +45,7 @@ class CustomFieldsAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             custom_fields = [
-                CxCustomField.CxCustomField(
+                CxCustomField(
                     custom_field_id=item.get("id"),
                     name=item.get("name")
                 ) for item in a_list

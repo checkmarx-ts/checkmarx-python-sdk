@@ -42,7 +42,7 @@ class TeamAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             teams = [
-                CxTeam.CxTeam(
+                CxTeam(
                     item.get("id"), item.get("name"), item.get("fullName"), item.get("parentId")
                 ) for item in a_list
             ]

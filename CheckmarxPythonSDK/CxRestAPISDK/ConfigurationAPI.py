@@ -39,6 +39,14 @@ class ConfigurationAPI(object):
             10 Reports                    Reports settings
         Returns:
             list of dict
+
+            [
+              {
+                "key": "string",
+                "value": "string",
+                "description": "string"
+              }
+            ]
         """
         configurations = []
 
@@ -82,7 +90,7 @@ class ConfigurationAPI(object):
                 ]
 
         Returns:
-
+            bool
         """
         is_successful = False
 

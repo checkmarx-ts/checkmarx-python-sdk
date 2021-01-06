@@ -62,14 +62,14 @@ class OsaAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             osa_scan_details = [
-                CxOsaScanDetail.CxOsaScanDetail(
+                CxOsaScanDetail(
                     findings_status=item.get("findingsStatus"),
                     scan_detail_id=item.get("id"),
                     start_analyze_time=item.get("startAnalyzeTime"),
                     end_analyze_time=item.get("endAnalyzeTime"),
                     origin=item.get("origin"),
                     source_code_origin=item.get("sourceCodeOrigin"),
-                    state=CxOsaState.CxOsaState(
+                    state=CxOsaState(
                         state_id=(item.get("state", {}) or {}).get("id"),
                         name=(item.get("state", {}) or {}).get("name"),
                         failure_reason=(item.get("state", {}) or {}).get("failureReason")
@@ -140,14 +140,14 @@ class OsaAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            osa_scan_detail = CxOsaScanDetail.CxOsaScanDetail(
+            osa_scan_detail = CxOsaScanDetail(
                 findings_status=a_dict.get("findingsStatus"),
                 scan_detail_id=a_dict.get("id"),
                 start_analyze_time=a_dict.get("startAnalyzeTime"),
                 end_analyze_time=a_dict.get("endAnalyzeTime"),
                 origin=a_dict.get("origin"),
                 source_code_origin=a_dict.get("sourceCodeOrigin"),
-                state=CxOsaState.CxOsaState(
+                state=CxOsaState(
                     state_id=(a_dict.get("state", {}) or {}).get("id"),
                     name=(a_dict.get("state", {}) or {}).get("name"),
                     failure_reason=(a_dict.get("state", {}) or {}).get("failureReason")
@@ -280,7 +280,7 @@ class OsaAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             licenses = [
-                CxOsaLicense.CxOsaLicense(
+                CxOsaLicense(
                     license_id=item.get("id"),
                     name=item.get("name"),
                     risk_level=item.get("riskLevel"),
@@ -347,7 +347,7 @@ class OsaAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             libraries = [
-                CxOsaLibrary.CxOsaLibrary(
+                CxOsaLibrary(
                     library_id=item.get("id"),
                     name=item.get("name"),
                     version=item.get("version"),
@@ -360,22 +360,22 @@ class OsaAPI(object):
                     newest_version_release_date=item.get("newestVersionReleaseDate"),
                     number_of_versions_since_last_update=item.get("numberOfVersionsSinceLastUpdate"),
                     confidence_level=item.get("confidenceLevel"),
-                    match_type=CxOsaMatchType.CxOsaMatchType(
+                    match_type=CxOsaMatchType(
                         match_type_id=(item.get("matchType", {}) or {}).get("id"),
                         name=(item.get("matchType", {}) or {}).get("name"),
                         description=(item.get("matchType", {}) or {}).get("description"),
                     ),
                     licenses=item.get("licenses"),
                     outdated=item.get("outdated"),
-                    severity=CxOsaSeverity.CxOsaSeverity(
+                    severity=CxOsaSeverity(
                         severity_id=(item.get("severity", {}) or {}).get("id"),
                         name=(item.get("severity", {}) or {}).get("name")
                     ),
                     risk_score=item.get("riskScore"),
                     locations=[
-                        CxOsaLocation.CxOsaLocation(
+                        CxOsaLocation(
                             path=location.get("path"),
-                            match_type=CxOsaMatchType.CxOsaMatchType(
+                            match_type=CxOsaMatchType(
                                 match_type_id=(location.get("matchType", {}) or {}).get("id"),
                                 name=(location.get("matchType", {}) or {}).get("name"),
                                 description=(location.get("matchType", {}) or {}).get("description")
@@ -459,11 +459,11 @@ class OsaAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             vulnerabilities = [
-                CxOsaVulnerability.CxOsaVulnerability(
+                CxOsaVulnerability(
                     vulnerability_id=item.get("id"),
                     cve_name=item.get("cveName"),
                     score=item.get("score"),
-                    severity=CxOsaSeverity.CxOsaSeverity(
+                    severity=CxOsaSeverity(
                         severity_id=(item.get("severity", {}) or {}).get("id"),
                         name=(item.get("severity", {}) or {}).get("name"),
                     ),
@@ -473,7 +473,7 @@ class OsaAPI(object):
                     recommendations=item.get("recommendations"),
                     source_file_name=item.get("sourceFileName"),
                     library_id=item.get("libraryId"),
-                    state=CxOsaVulnerabilityState.CxOsaVulnerabilityState(
+                    state=CxOsaVulnerabilityState(
                         vulnerability_state_id=(item.get("state", {}) or {}).get("id"),
                         action_type=(item.get("state", {}) or {}).get("actionType"),
                         name=(item.get("state", {}) or {}).get("name")
@@ -547,7 +547,7 @@ class OsaAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             comment = [
-                CxOsaVulnerabilityComment.CxOsaVulnerabilityComment(
+                CxOsaVulnerabilityComment(
                     user_name=item.get("userName"),
                     time_stamp=item.get("timeStamp"),
                     content=item.get("content")
@@ -594,7 +594,7 @@ class OsaAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            report = CxOsaSummaryReport.CxOsaSummaryReport(
+            report = CxOsaSummaryReport(
                 total_libraries=a_dict.get("totalLibraries"),
                 high_vulnerability_libraries=a_dict.get("highVulnerabilityLibraries"),
                 medium_vulnerability_libraries=a_dict.get("mediumVulnerabilityLibraries"),

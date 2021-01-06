@@ -410,7 +410,7 @@ def get_presets_associated_with_each_project():
 def get_all_projects_that_are_set_up_with_a_non_standard_configuration():
     """
     Requested result: retrieve all projects that are set up with a non-standard configuration,
-    such as “Multi-Lanaguage Scan (v8.4.2 and up)".
+    such as "Multi-Lanaguage Scan (v8.4.2 and up)".
 
     Query used for retrieving the data:
     http://localhost/Cxwebinterface/odata/v1/Projects?$filter=EngineConfigurationId

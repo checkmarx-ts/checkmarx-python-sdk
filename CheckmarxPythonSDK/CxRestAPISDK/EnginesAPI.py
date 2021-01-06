@@ -42,7 +42,7 @@ class EnginesAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             all_engine_server_details = [
-                CxEngineServer.CxEngineServer(
+                CxEngineServer(
                     engine_server_id=item.get("id"),
                     name=item.get("name"),
                     uri=item.get("uri"),
@@ -50,11 +50,11 @@ class EnginesAPI(object):
                     max_loc=item.get("maxLoc"),
                     max_scans=item.get("maxScans"),
                     cx_version=item.get("cxVersion"),
-                    status=CxEngineServerStatus.CxEngineServerStatus(
+                    status=CxEngineServerStatus(
                         status_id=(item.get("status", {}) or {}).get("id"),
                         value=(item.get("status", {}) or {}).get("value"),
                     ),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(item.get("link", {}) or {}).get("rel"),
                         uri=(item.get("link", {}) or {}).get("uri")
                     )
@@ -108,7 +108,7 @@ class EnginesAPI(object):
         """
         engine_server = None
 
-        post_request_body = CxRegisterEngineRequestBody.CxRegisterEngineRequestBody(
+        post_request_body = CxRegisterEngineRequestBody(
             name=name,
             uri=uri,
             min_loc=min_loc,
@@ -127,9 +127,9 @@ class EnginesAPI(object):
 
         if r.status_code == CREATED:
             a_dict = r.json()
-            engine_server = CxEngineServer.CxEngineServer(
+            engine_server = CxEngineServer(
                 engine_server_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -217,7 +217,7 @@ class EnginesAPI(object):
         )
         if r.status_code == OK:
             item = r.json()
-            engine_server = CxEngineServer.CxEngineServer(
+            engine_server = CxEngineServer(
                 engine_server_id=item.get("id"),
                 name=item.get("name"),
                 uri=item.get("uri"),
@@ -225,11 +225,11 @@ class EnginesAPI(object):
                 max_loc=item.get("maxLoc"),
                 max_scans=item.get("maxScans"),
                 cx_version=item.get("cxVersion"),
-                status=CxEngineServerStatus.CxEngineServerStatus(
+                status=CxEngineServerStatus(
                     status_id=(item.get("status", {}) or {}).get("id"),
                     value=(item.get("status", {}) or {}).get("value"),
                 ),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(item.get("link", {}) or {}).get("rel"),
                     uri=(item.get("link", {}) or {}).get("uri")
                 )
@@ -275,7 +275,7 @@ class EnginesAPI(object):
 
         engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
 
-        data = CxRegisterEngineRequestBody.CxRegisterEngineRequestBody(
+        data = CxRegisterEngineRequestBody(
             name=name,
             uri=uri,
             min_loc=min_loc,
@@ -293,9 +293,9 @@ class EnginesAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            engine_server = CxEngineServer.CxEngineServer(
+            engine_server = CxEngineServer(
                 engine_server_id=a_dict.get("id"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
@@ -340,7 +340,7 @@ class EnginesAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             all_engine_configurations = [
-                CxEngineConfiguration.CxEngineConfiguration(
+                CxEngineConfiguration(
                     engine_configuration_id=item.get("id"),
                     name=item.get("name")
                 ) for item in a_list
@@ -401,7 +401,7 @@ class EnginesAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            engine_configuration = CxEngineConfiguration.CxEngineConfiguration(
+            engine_configuration = CxEngineConfiguration(
                 engine_configuration_id=a_dict.get("id"),
                 name=a_dict.get("name")
             )

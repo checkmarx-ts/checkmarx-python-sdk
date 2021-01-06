@@ -82,7 +82,7 @@ class DataRetentionAPI(object):
         # TODO, check why response content is empty byte
         data_retention = None
 
-        post_body_data = CxDefineDataRetentionDateRangeRequest.CxDefineDataRetentionDateRangeRequest(
+        post_body_data = CxDefineDataRetentionDateRangeRequest(
             start_date=start_date,
             end_date=end_date,
             duration_limit_in_hours=duration_limit_in_hours
@@ -100,9 +100,9 @@ class DataRetentionAPI(object):
         if r.status_code == ACCEPTED:
             if r.text:
                 a_dict = r.json()
-                data_retention = CxDefineDataRetentionResponse.CxDefineDataRetentionResponse(
+                data_retention = CxDefineDataRetentionResponse(
                     data_retention_response_id=a_dict.get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(a_dict.get("link", {}) or {}).get("rel"),
                         uri=(a_dict.get("link", {}) or {}).get("uri")
                     )
@@ -140,7 +140,7 @@ class DataRetentionAPI(object):
         """
         # TODO, check why response content is empty byte
         data_retention = None
-        post_body_data = CxDefineDataRetentionNumberOfScansRequest.CxDefineDataRetentionNumberOfScansRequest(
+        post_body_data = CxDefineDataRetentionNumberOfScansRequest(
             number_of_successful_scans_to_preserve=number_of_successful_scans_to_preserve,
             duration_limit_in_hours=duration_limit_in_hours
         ).get_post_data()
@@ -158,9 +158,9 @@ class DataRetentionAPI(object):
         if r.status_code == ACCEPTED:
             if r.text:
                 a_dict = r.json()
-                data_retention = CxDefineDataRetentionResponse.CxDefineDataRetentionResponse(
+                data_retention = CxDefineDataRetentionResponse(
                     data_retention_response_id=a_dict.get("id"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         rel=(a_dict.get("link", {}) or {}).get("rel"),
                         uri=(a_dict.get("link", {}) or {}).get("uri")
                     )
@@ -214,13 +214,13 @@ class DataRetentionAPI(object):
 
         if r.status_code == OK:
             a_dict = r.json()
-            data_detention_request_status = CxDataRetentionRequestStatus.CxDataRetentionRequestStatus(
+            data_detention_request_status = CxDataRetentionRequestStatus(
                 status_id=a_dict.get("id"),
-                stage=CxDataRetentionRequestStatusStage.CxDataRetentionRequestStatusStage(
+                stage=CxDataRetentionRequestStatusStage(
                     stage_id=(a_dict.get("stage", {}) or {}).get("id"),
                     value=(a_dict.get("stage", {}) or {}).get("value")
                 ),
-                link=CxLink.CxLink(
+                link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )

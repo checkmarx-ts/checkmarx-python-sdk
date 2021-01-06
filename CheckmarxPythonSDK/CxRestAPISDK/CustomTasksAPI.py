@@ -6,7 +6,7 @@ from ..config import config
 
 from . import authHeaders
 from .exceptions.CxError import BadRequestError, NotFoundError, CxError
-from .sast.projects.dto.customTasks import CxCustomTask
+from .sast.projects.dto import CxCustomTask
 from .sast.projects.dto import CxLink
 
 
@@ -43,12 +43,12 @@ class CustomTasksAPI(object):
         if r.status_code == OK:
             a_list = r.json()
             custom_tasks = [
-                CxCustomTask.CxCustomTask(
+                CxCustomTask(
                     custom_task_id=item.get("id"),
                     name=item.get("name"),
                     custom_task_type=item.get("type"),
                     data=item.get("data"),
-                    link=CxLink.CxLink(
+                    link=CxLink(
                         (item.get("link", {}) or {}).get("rel"),
                         (item.get("link", {}) or {}).get("uri")
                     )
@@ -110,12 +110,12 @@ class CustomTasksAPI(object):
         )
         if r.status_code == OK:
             a_dict = r.json()
-            custom_task = CxCustomTask.CxCustomTask(
+            custom_task = CxCustomTask(
                 custom_task_id=a_dict.get("id"),
                 name=a_dict.get("name"),
                 custom_task_type=a_dict.get("type"),
                 data=a_dict.get("data"),
-                link=CxLink.CxLink(
+                link=CxLink(
                     (a_dict.get("link", {}) or {}).get("rel"),
                     (a_dict.get("link", {}) or {}).get("uri")
                 )
