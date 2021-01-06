@@ -64,9 +64,13 @@ class ProjectsAPI(object):
         if optionals:
             projects_url += "?" + "&".join(optionals)
 
+        headers = authHeaders.auth_headers.copy()
+        headers["Accept"] = "application/json;v=2.0"
+        headers["Content-Type"] = "application/json;v=2.0"
+
         r = requests.get(
             url=projects_url,
-            headers=authHeaders.auth_headers,
+            headers=headers,
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -85,7 +89,8 @@ class ProjectsAPI(object):
                     link=CxLink.CxLink(
                         (item.get("link", {}) or {}).get("rel"),
                         (item.get("link", {}) or {}).get("uri")
-                    )
+                    ),
+                    customFields=item.get("customFields")
                 ) for item in a_list
             ]
         elif r.status_code == BAD_REQUEST:
