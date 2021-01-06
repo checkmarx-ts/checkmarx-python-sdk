@@ -39,3 +39,7 @@ All notable changes to this project will be documented in  this file.
 0.1.5 - 2020-12-02
 * Add get_path_comments_history for portal soap api
 * Add TeamName, TeamId for get_results_and_write_to_csv_file
+
+0.1.6 - 2021-01-06
+* Add configuration API
+* Refactor Projects API get_all_project_details, get_project_details_by_id to use API v2, add custom fields into project detail
