@@ -1,9 +1,12 @@
-import pathlib
+from os.path import normpath, join, dirname
 
 from CheckmarxPythonSDK.CxRestAPISDK.sast.scans.dto.CxScanReportXmlContent import CxScanReportXmlContent
 
-current_folder = pathlib.Path(__file__).parent.absolute()
-xml_path = current_folder / "jvl_local.xml"
+
+xml_path = normpath(join(dirname(__file__), "jvl_local.xml"))
+
+# current_folder = pathlib.Path(__file__).parent.absolute()
+# xml_path = current_folder / "jvl_local.xml"
 
 
 def test_filter_by_severity():
