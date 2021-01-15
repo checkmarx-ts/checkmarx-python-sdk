@@ -18,15 +18,17 @@ Access Control (REST) API Summary: https://checkmarx.atlassian.net/wiki/spaces/K
 Please use Python3
 
 # Quick Start
-First, Download and unzip this repository or clone this repository to your local drive.  
+The easiest way to begin using the SDK is to install it using the **pip** command.
+```
+$ pip install CheckmarxPythonSDK
+```
+
+Alternatively, either download and unzip this repository, or clone it to your local drive.
 ```
 $ git clone https://github.com/checkmarx-ts/checkmarx-python-sdk.git
 ```
 
-Next, install the library
-```
-$ pip install CheckmarxPythonSDK
-```
+Even if you install the SDK using **pip**, you might still want to download or clone this repository for the sample scripts.
 
 Next, set up configuration (in e.g. ~/.Checkmarx/config.ini, or C:\\Users\\Administrator\\.Checkmarx\\config.ini)
 ```buildoutcfg
@@ -72,7 +74,7 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
 
 # The CxSAST and CxOSA REST API list
 
-1. For REST API, use Bear Token for authentication
+1. For REST API, use Bearer Token for authentication
     - auth_headers (This is a global variable that stored token)
 2. TeamAPI
     - get_all_teams
