@@ -23,9 +23,10 @@ The easiest way to begin using the SDK is to install it using the **pip** comman
 $ pip install CheckmarxPythonSDK
 ```
 
-Alternatively, either download and unzip this repository, or clone it to your local drive.
+Alternatively, either download and unzip this repository, or clone it to your local drive, and install using the `setup.py` script.
 ```
 $ git clone https://github.com/checkmarx-ts/checkmarx-python-sdk.git
+$ python setup.py install
 ```
 
 Even if you install the SDK using **pip**, you might still want to download or clone this repository for the sample scripts.
