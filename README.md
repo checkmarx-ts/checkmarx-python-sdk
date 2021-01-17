@@ -9,6 +9,7 @@ For more information about Checkmarx API, please refer to Checkmarx knowledge Ce
 - [CxSAST API](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/5767170/CxSAST+API+Guide)  
 - [CxOSA API](https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide)
 - [Access Control API](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary)
+- [CxSCA API](https://checkmarx.atlassian.net/wiki/spaces/CD/pages/1782087905/CxSCA+APIs)
 
 # Notice
 Please use Python3
@@ -74,7 +75,7 @@ For CxSCA
     - cxsca_password
 
 # Examples
- Please find example scripts from https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples.
+ Please find example scripts from [here](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
 
 # The CxSAST and CxOSA REST API list
 
