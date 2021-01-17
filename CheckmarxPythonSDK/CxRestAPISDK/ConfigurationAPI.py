@@ -7,6 +7,7 @@ from ..config import config
 
 from . import authHeaders
 from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .sast.configuration.dto import CxSASTConfig
 
 
 class ConfigurationAPI(object):
@@ -38,15 +39,7 @@ class ConfigurationAPI(object):
             9  DataRetention              Data retention related settings
             10 Reports                    Reports settings
         Returns:
-            list of dict
-
-            [
-              {
-                "key": "string",
-                "value": "string",
-                "description": "string"
-              }
-            ]
+            list of `CxSASTConfig`
         """
         configurations = []
 
@@ -58,7 +51,14 @@ class ConfigurationAPI(object):
             verify=config.get("verify")
         )
         if r.status_code == OK:
-            configurations = r.json()
+            a_list = r.json()
+            configurations = [
+                CxSASTConfig(
+                    key=item.get("key"),
+                    value=item.get("value"),
+                    description=item.get("description")
+                ) for item in a_list
+            ]
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
