@@ -1,10 +1,7 @@
 # Checkmarx Python SDK
-This is a Checkmarx Python SDK. By using this SDK, Checkmarx users will be able to do automatic scanning with CxSAST and CxOSA.
+This is wrapper using Python for CxSAST and CxOSA REST API, Portal SOAP API, CxSAST ODATA API, CxSCA REST API. 
 
-This SDK uses Python requests package to initiate HTTP requests to do related CxSAST and CxOSA scanning, and reports generation.
-
-Started from CxSAST 9.0, Access Control REST API is available.
-
+By using this SDK, Checkmarx users will be able to do automatic scanning with CxSAST, CxOSA, and CxSCA.
 
 # Checkmarx API Official Documents
 For more information about Checkmarx API, please refer to Checkmarx knowledge Center：
@@ -18,17 +15,13 @@ Access Control (REST) API Summary: https://checkmarx.atlassian.net/wiki/spaces/K
 Please use Python3
 
 # Quick Start
-First, Download and unzip this repository or clone this repository to your local drive.  
-```
-$ git clone https://github.com/checkmarx-ts/checkmarx-python-sdk.git
-```
-
-Next, install the library
+##Install the library
 ```
 $ pip install CheckmarxPythonSDK
 ```
 
-Next, set up configuration (in e.g. ~/.Checkmarx/config.ini, or C:\\Users\\Administrator\\.Checkmarx\\config.ini)
+##Set up configuration
+###Option 1, using config.ini file: 
 ```buildoutcfg
 [checkmarx]
 base_url = http://localhost:80
@@ -43,36 +36,45 @@ scan_preset = Checkmarx Default
 configuration = Default Configuration
 team_full_name = /CxServer
 max_try = 3
+
+[CxSCA]
+server = https://api-sca.checkmarx.net
+account = ***
+username = ***
+password = ***
 ```
 
-Or you can get configuration information by using environment variables "cxsast_base_url", "cxsast_username", "cxsast_password", "cxsast_grant_type", "cxsast_scope", "cxsast_client_id", "cxsast_client_secret" this will override the earlier one.
+configuration file path:
 
-Or you can get configuration information by passing command line arguments "--cxsast_base_url", "--cxsast_username", "--cxsast_password", "--cxsast_grant_type", "--cxsast_scope", "--cxsast_client_id", "--cxsast_client_secret"
-for example run `Python <your_script>.py --cxsast_base_url=http://localhost:80 --cxsast_username=**** --cxsast_password=****` this will override the earlier one.
+By default, Checkmarx Python SDK looks for `config.ini` file in a `.Checkmarx` folder in your home directory. 
+- For windows, it should be like `C:\\Users\\<UserName>\\.Checkmarx\\config.ini`
+- For linux and MacOS, it should be like `/home/<UserName>/.Checkmarx/config.ini` 
 
-If using both SAST REST API and access control REST API, please change `scope` in config.ini into `sast_rest_api access_control_api`
+###Option 2, using environment variables or command line arguments
+
+For CxSAST:
+
+    - cxsast_base_url
+    - cxsast_username
+    - cxsast_password
+    - cxsast_grant_type
+    - cxsast_scope
+    - cxsast_client_id
+    - cxsast_client_secret
+
+For CxSCA
+
+    - cxsca_server
+    - cxsca_account
+    - cxsca_username
+    - cxsca_password
 
 # Examples
- 
- Example 1: Scan from local zip file:
-```Shell
-python <Path to checkmarx-python-sdk>/examples/scan_from_local_zip.py
-``` 
-
-Example 2: Scan from git:
-```Shell
-python <Path to checkmarx-python-sdk>/examples/scan_from_git.py
-``` 
-
-Example 3: OSA scan demo:
-```Shell
-python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
-``` 
-
+ Please find example scripts from `https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples`.
 
 # The CxSAST and CxOSA REST API list
 
-1. For REST API, use Bear Token for authentication
+1. For REST API, use Bearer Token for authentication
     - auth_headers (This is a global variable that stored token)
 2. TeamAPI
     - get_all_teams
@@ -173,8 +175,8 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_osa_scan_vulnerability_comments_by_id
     - get_osa_scan_summary_report
 10. possible Exceptions
-    - BadRequestError                                                          **(provided by SDK)**
-    - NotFoundError                                                            **(provided by SDK)**
+    - BadRequestError                                           **(provided by SDK)**
+    - NotFoundError                                             **(provided by SDK)**
     - CxError                                                   **(provided by SDK)**
 11. AccessControlAPI
     - get_all_assignable_users
@@ -272,8 +274,8 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_server_license_summary
     - get_version_number
     
- # The CxSAST OData API list
- 1. ProjectsODataAPI
+ # The CxSAST OData API List
+ 1. Projects
     - get_top_n_projects_by_risk_score
     - get_top_n_projects_by_last_scan_duration
     - get_all_projects_with_their_last_scan_and_the_high_vulnerabilities
@@ -286,13 +288,13 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_all_projects_that_are_set_up_with_a_non_standard_configuration
     - get_all_projects_id_name
  
- 2. ResultsODataAPI
+ 2. Results
     - get_results_for_a_specific_scan_id
     - get_the_query_that_was_run_for_a_particular_unique_scan_result
     - get_results_for_a_specific_scan_id_with_query_language_state
     - get_results_group_by_query_id_and_add_count_json_format
 
- 3. ScansODataAPI
+ 3. Scans
     - get_all_data_for_a_specific_scan_id
     - get_number_of_loc_scanned_for_a_specific_scan
     - get_number_of_loc_scanned_for_all_scan
@@ -303,3 +305,36 @@ python <Path to checkmarx-python-sdk>/examples/osa_scan_demo.py
     - get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_project
     - get_the_state_of_each_scan_result_since_a_specific_date_for_a_project
     - get_all_scan_id_of_a_project
+ 
+ # The CxSCA REST API List
+1. Projects
+    - get_all_projects
+    - create_a_new_project
+    - get_project_id_by_name
+    - get_project_by_id
+    - update_project
+    - delete_project
+
+2. Scans
+    - get_all_scans_associated_with_a_project
+    - get_latest_can_id_of_a_project
+    - get_scan_by_id
+    - get_scan_status
+    - get_scan_settings
+    
+3. Risk Reports
+    - get_risk_report_summary
+    - get_packages_of_a_scan
+    - get_vulnerabilities_of_a_scan
+    - get_licenses_of_a_scan
+    - ignore_a_vulnerability_for_a_specific_package_and_project
+    - undo_the_ignore_state_of_an_ignored_vulnerability
+
+4. Settings    
+    - get_settings_for_a_specific_project
+    - update_settings_for_a_specific_project
+    
+5. Scan Upload
+    - generate_upload_link_for_scanning
+    - upload_zip_content_for_scanning
+    - scan_previously_uploaded_zip
