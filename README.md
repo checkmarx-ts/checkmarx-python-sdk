@@ -50,6 +50,8 @@ By default, Checkmarx Python SDK looks for `config.ini` file in a `.Checkmarx` f
 - For windows, it should be like `C:\\Users\\<UserName>\\.Checkmarx\\config.ini`
 - For linux and MacOS, it should be like `/home/<UserName>/.Checkmarx/config.ini` 
 
+You can also use `checkmarx_config_path` as environment variable  or command line argument to set up configuration file path.
+
 ###Option 2, using environment variables or command line arguments
 
 For CxSAST:
