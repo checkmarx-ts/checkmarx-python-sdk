@@ -5,26 +5,24 @@ By using this SDK, Checkmarx users will be able to do automatic scanning with Cx
 
 # Checkmarx API Official Documents
 For more information about Checkmarx API, please refer to Checkmarx knowledge Center：
-https://checkmarx.atlassian.net/wiki/spaces/KC/pages/5767170/CxSAST+API+Guide  
 
-CxOSA  (REST) API Summary:   https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide     
-  
-Access Control (REST) API Summary: https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary
+- [CxSAST API](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/5767170/CxSAST+API+Guide)  
+- [CxOSA API](https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide)
+- [Access Control API](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary)
 
 # Notice
 Please use Python3
 
 # Quick Start
 
-##Install the library
+## Install the library
 ```
 $ pip install CheckmarxPythonSDK
 ```
 
-##Set up configuration
+## Set up configuration
 
-
-###Option 1, using config.ini file: 
+### Option 1, using config.ini file: 
 ```buildoutcfg
 [checkmarx]
 base_url = http://localhost:80
@@ -56,7 +54,7 @@ By default, Checkmarx Python SDK looks for `config.ini` file in a `.Checkmarx` f
 You can also use `checkmarx_config_path` as environment variable  or command line argument to set up configuration file path.
 
 
-###Option 2, using environment variables or command line arguments
+### Option 2, using environment variables or command line arguments
 
 For CxSAST:
 
@@ -76,7 +74,7 @@ For CxSCA
     - cxsca_password
 
 # Examples
- Please find example scripts from `https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples`.
+ Please find example scripts from https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples.
 
 # The CxSAST and CxOSA REST API list
 
