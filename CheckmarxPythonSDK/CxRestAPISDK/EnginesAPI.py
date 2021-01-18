@@ -315,6 +315,64 @@ class EnginesAPI(object):
 
         return engine_server
 
+    def update_an_engine_server_by_edit_single_field(self, engine_id, name, uri, min_loc, max_loc, is_blocked,
+                                                     max_scans):
+        """
+        Args:
+            engine_id (int): Unique Id of the engine server
+            name (str): Name of the engine server
+            uri (str): Specifies the url of the engine server
+            min_loc (int): Specifies the minimum number of lines of code to scan
+            max_loc (int): Specifies the maximum number of lines of code to scan
+            is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
+            max_scans (int): Specifies the maximum number of concurrent scans to perform
+
+        Returns:
+            is_successful (bool)
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            CxError
+        """
+        is_successful = False
+
+        engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
+
+        data = CxRegisterEngineRequestBody(
+            name=name,
+            uri=uri,
+            min_loc=min_loc,
+            max_loc=max_loc,
+            is_blocked=is_blocked,
+            max_scans=max_scans
+        ).get_post_data()
+
+        r = requests.patch(
+            url=engine_server_url,
+            data=data,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == NO_CONTENT:
+            is_successful = True
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc, is_blocked,
+                                                              max_scans)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
+
     def get_all_engine_configurations(self):
         """
         Get the engine servers configuration list.

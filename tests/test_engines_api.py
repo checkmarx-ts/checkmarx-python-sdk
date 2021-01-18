@@ -72,6 +72,21 @@ def test_update_engine_server():
     assert engine_server.id > 1
 
 
+def test_update_an_engine_server_by_edit_single_field():
+    engine_name = "engine2"
+    engine_api = EnginesAPI()
+    engine_id = engine_api.get_engine_id_by_name(engine_name)
+    name = "engine2"
+    uri = "http://{ip}/d".format(ip=another_engine_ip)
+    min_loc = 0
+    max_loc = 999999999
+    is_blocked = False
+    max_scans = 1
+    is_successful = engine_api.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc,
+                                                                            is_blocked, max_scans=max_scans)
+    assert is_successful is True
+
+
 def test_get_all_engine_configurations():
     engine_api = EnginesAPI()
     engine_configurations = engine_api.get_all_engine_configurations()

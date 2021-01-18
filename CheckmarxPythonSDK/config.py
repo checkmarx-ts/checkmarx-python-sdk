@@ -12,33 +12,68 @@ else:
 from optparse import OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError
 
 
+def get_config_path():
+    """
+
+    By default, the configuration file path is "~/.Checkmarx/config.ini".
+    otherwise, check environment variable "checkmarx_config_path", if exists, override the previous one
+    finally, check command line option "--checkmarx_config_path", if exists, override the previous one
+
+    Returns:
+        config_file_path (str)
+    """
+
+    home_directory = os.path.expanduser("~")
+    # the absolute path of the file config.ini
+    config_file_path = normpath(join(home_directory, ".Checkmarx/config.ini"))
+
+    # check environment variable "checkmarx_config_path", if exists, override the previous one
+    config_path_from_env = os.getenv("checkmarx_config_path")
+    if config_path_from_env:
+        config_file_path = config_path_from_env
+
+    # check command line option "--checkmarx_config_path", if exists, override the previous one
+    parser = PassThroughOptionParser()
+    parser.add_option("--checkmarx_config_path", help=SUPPRESS_HELP)
+    (options, args) = parser.parse_args()
+    config_path_from_command_line = options.checkmarx_config_path
+    if config_path_from_command_line:
+        config_file_path = config_path_from_command_line
+
+    return config_file_path
+
+
 def get_config_info_from_config_file():
     """
 
     Returns:
         dictionary
     """
-    config_info = {}
+    config_file_path = get_config_path()
 
-    home_directory = os.path.expanduser("~")
-    # the absolute path of the file config.ini
-    config_file_path = normpath(join(home_directory, ".Checkmarx/config.ini"))
     if not exists(config_file_path):
-        print("config.ini not found under ~/.Checkmarx/ directory.")
-    else:
-        parser_obj = configparser.ConfigParser()
-        parser_obj.read(config_file_path)
-        config_info = {
+        print("config file path not found: {path} ".format(path=config_file_path))
+        return {}
+
+    parser_obj = configparser.ConfigParser()
+    parser_obj.read(config_file_path)
+    return {
+        "CxSAST": {
             "base_url": parser_obj.get("checkmarx", "base_url"),
             "username": parser_obj.get("checkmarx", "username"),
             "password": parser_obj.get("checkmarx", "password"),
-            "grant_type": "password",
+            "grant_type": parser_obj.get("checkmarx", "grant_type"),
             "scope": parser_obj.get("checkmarx", "scope"),
-            "client_id": "resource_owner_client",
-            "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C"
+            "client_id": parser_obj.get("checkmarx", "client_id"),
+            "client_secret": parser_obj.get("checkmarx", "client_secret")
+        },
+        "CxSCA": {
+            "server": parser_obj.get("CxSCA", "server"),
+            "account": parser_obj.get("CxSCA", "account"),
+            "username": parser_obj.get("CxSCA", "username"),
+            "password": parser_obj.get("CxSCA", "password"),
         }
-
-    return config_info
+    }
 
 
 def get_config_info_from_environment_variables():
@@ -47,30 +82,24 @@ def get_config_info_from_environment_variables():
     Returns:
         dictionary
     """
-    config_info = {}
 
-    if os.getenv("cxsast_base_url"):
-        config_info.update({"base_url": os.getenv("cxsast_base_url")})
-
-    if os.getenv("cxsast_username"):
-        config_info.update({"username": os.getenv("cxsast_username")})
-
-    if os.getenv("cxsast_password"):
-        config_info.update({"password": os.getenv("cxsast_password")})
-
-    if os.getenv("cxsast_grant_type"):
-        config_info.update({"grant_type": os.getenv("cxsast_grant_type")})
-
-    if os.getenv("cxsast_scope"):
-        config_info.update({"scope": os.getenv("cxsast_scope")})
-
-    if os.getenv("cxsast_client_id"):
-        config_info.update({"client_id": os.getenv("cxsast_client_id")})
-
-    if os.getenv("cxsast_client_secret"):
-        config_info.update({"client_secret": os.getenv("cxsast_client_secret")})
-
-    return config_info
+    return {
+        "CxSAST": {
+            "base_url": os.getenv("cxsast_base_url"),
+            "username": os.getenv("cxsast_username"),
+            "password": os.getenv("cxsast_password"),
+            "grant_type": os.getenv("cxsast_grant_type"),
+            "scope": os.getenv("cxsast_scope"),
+            "client_id": os.getenv("cxsast_client_id"),
+            "client_secret": os.getenv("cxsast_client_secret")
+        },
+        "CxSCA": {
+            "server": os.getenv("cxsca_server"),
+            "account":  os.getenv("cxsca_account"),
+            "username": os.getenv("cxsca_username"),
+            "password": os.getenv("cxsca_password"),
+        }
+    }
 
 
 class PassThroughOptionParser(OptionParser):
@@ -97,7 +126,6 @@ def get_config_info_from_command_line_arguments():
     Returns:
         dictionary
     """
-    config_info = {}
     parser = PassThroughOptionParser()
     parser.add_option("--cxsast_base_url", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_username", help=SUPPRESS_HELP)
@@ -106,53 +134,100 @@ def get_config_info_from_command_line_arguments():
     parser.add_option("--cxsast_scope", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_client_id", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_client_secret", help=SUPPRESS_HELP)
+    parser.add_option("--cxsca_server", help=SUPPRESS_HELP)
+    parser.add_option("--cxsca_account", help=SUPPRESS_HELP)
+    parser.add_option("--cxsca_username", help=SUPPRESS_HELP)
+    parser.add_option("--cxsca_password", help=SUPPRESS_HELP)
 
     (options, args) = parser.parse_args()
 
-    if options.cxsast_base_url:
-        config_info.update({"base_url": options.cxsast_base_url})
-
-    if options.cxsast_username:
-        config_info.update({"username": options.cxsast_username})
-
-    if options.cxsast_password:
-        config_info.update({"password": options.cxsast_password})
-
-    if options.cxsast_grant_type:
-        config_info.update({"grant_type": options.cxsast_grant_type})
-
-    if options.cxsast_scope:
-        config_info.update({"scope": options.cxsast_scope})
-
-    if options.cxsast_client_id:
-        config_info.update({"client_id": options.cxsast_client_id})
-
-    if options.cxsast_client_secret:
-        config_info.update({"client_secret": options.cxsast_client_secret})
-
-    return config_info
+    return {
+        "CxSAST": {
+            "base_url": options.cxsast_base_url,
+            "username": options.cxsast_username,
+            "password": options.cxsast_password,
+            "grant_type": options.cxsast_grant_type,
+            "scope": options.cxsast_scope,
+            "client_id": options.cxsast_client_id,
+            "client_secret": options.cxsast_client_secret
+        },
+        "CxSCA": {
+            "server": options.cxsca_server,
+            "account": options.cxsca_account,
+            "username": options.cxsca_username,
+            "password": options.cxsca_password,
+        }
+    }
 
 
-config = {
-    "base_url": "http://localhost:80",
-    "username": "Admin",
-    "password": "Password",
-    "grant_type": "password",
-    "scope": "sast_rest_api",
-    "client_id": "resource_owner_client",
-    "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
-    "scan_preset": "Checkmarx Default",
-    "configuration": "Default Configuration",
-    "team_full_name": "/CxServer",
-    "max_try": 3,
-    "verify": False
+global_config = {
+    "CxSAST": {
+        "base_url": "http://localhost:80",
+        "username": "Admin",
+        "password": "Password",
+        "grant_type": "password",
+        "scope": "sast_rest_api",
+        "client_id": "resource_owner_client",
+        "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
+        "scan_preset": "Checkmarx Default",
+        "configuration": "Default Configuration",
+        "team_full_name": "/CxServer",
+        "max_try": 3,
+        "verify": False
+    },
+    "CxSCA": {
+        "server": "https://api-sca.checkmarx.net",
+        "account": None,
+        "username": None,
+        "password": None,
+    }
 }
 
-# first, try to get config info from config.ini file in the ~/.Checkmarx folder
-config.update(get_config_info_from_config_file())
 
-# second, try to get config info from environment variables
-config.update(get_config_info_from_environment_variables())
+def clean_null_terms(d):
+    clean = {}
+    for k, v in d.items():
+        if isinstance(v, dict):
+            nested = clean_null_terms(v)
+            if len(nested.keys()) > 0:
+                clean[k] = nested
+        elif v is not None:
+            clean[k] = v
+    return clean
 
-# third, try to get config info from command line arguments
-config.update(get_config_info_from_command_line_arguments())
+
+def update_config(all_config, config_by_user):
+    user_sast_config = config_by_user.get("CxSAST")
+    if user_sast_config:
+        all_config["CxSAST"].update(user_sast_config)
+
+    user_sca_config = config_by_user.get("CxSCA")
+    if user_sca_config:
+        all_config["CxSCA"].update(user_sca_config)
+
+    return all_config
+
+
+def update_global_config(all_config):
+    # first, try to get config info from config.ini file in the ~/.Checkmarx folder
+    config_1 = get_config_info_from_config_file()
+    config_1 = clean_null_terms(config_1)
+
+    # second, try to get config info from environment variables
+    config_2 = get_config_info_from_environment_variables()
+    config_2 = clean_null_terms(config_2)
+
+    # third, try to get config info from command line arguments
+    config_3 = get_config_info_from_command_line_arguments()
+    config_3 = clean_null_terms(config_3)
+
+    all_config = update_config(all_config, config_1)
+    all_config = update_config(all_config, config_2)
+    all_config = update_config(all_config, config_3)
+    return all_config
+
+
+global_config = update_global_config(global_config)
+
+config = global_config.get("CxSAST")
+sca_config = global_config.get("CxSCA")
