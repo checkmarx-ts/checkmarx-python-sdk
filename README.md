@@ -15,7 +15,9 @@ For more information about Checkmarx API, please refer to Checkmarx knowledge Ce
 Please use Python3
 
 # Quick Start
-## Installation
+
+## Install the library
+
 The easiest way to begin using the SDK is to install it using the **pip** command.
 
 ```
