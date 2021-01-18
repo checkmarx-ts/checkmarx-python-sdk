@@ -1,5 +1,6 @@
 from .api import (
     get_all_projects,
+    check_if_project_already_exists,
     create_a_new_project,
     get_project_id_by_name,
     get_project_by_id,

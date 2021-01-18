@@ -1,5 +1,6 @@
 from CheckmarxPythonSDK.CxScaApiSDK import (
     get_all_projects,
+    check_if_project_already_exists,
     create_a_new_project,
     get_project_id_by_name,
     get_project_by_id,
@@ -29,6 +30,12 @@ project_name = "happy_test_2021_01_15"
 def test_get_all_projects():
     all_projects = get_all_projects()
     assert len(all_projects) > 0
+
+
+def test_check_if_project_already_exists():
+    another_project_name = "happy_test_2021_01_15_not_exist"
+    exist_status = check_if_project_already_exists(another_project_name)
+    assert exist_status is False
 
 
 def test_get_project_by_name():

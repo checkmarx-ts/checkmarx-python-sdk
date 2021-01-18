@@ -46,6 +46,25 @@ def get_all_projects(project_name=None):
     return get_request(url)
 
 
+def check_if_project_already_exists(project_name):
+    """
+
+    Args:
+        project_name (str):
+
+    Returns:
+        exists (bool)
+    """
+    all_projects = get_all_projects()
+
+    project_name_list = [project.get("name") for project in all_projects]
+
+    if project_name in project_name_list:
+        return True
+
+    return False
+
+
 def create_a_new_project(project_name, assigned_teams=None):
     """
 
