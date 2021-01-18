@@ -355,6 +355,7 @@ def test_get_preset_id_by_name():
 
 def test_get_preset_details_by_preset_id():
     projects_api = ProjectsAPI()
-    preset_id = 36
+    preset_name = "Checkmarx Default"
+    preset_id = projects_api.get_preset_id_by_name(preset_name)
     preset = projects_api.get_preset_details_by_preset_id(preset_id)
     assert preset is not None
