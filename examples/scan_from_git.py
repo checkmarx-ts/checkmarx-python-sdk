@@ -17,7 +17,7 @@
 """
 import time
 from os.path import normpath, join, dirname
-
+from datetime import datetime
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
@@ -26,10 +26,7 @@ from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
 def scan_from_git():
     team_full_name = "/CxServer"
     project_name = "jvl_git"
-    report_name = "report.pdf"
-    file_name = normpath(join(dirname(__file__), report_name))
-    print(file_name)
-
+    report_type = "PDF"
     url = "https://github.com/CSPF-Founder/JavaVulnerableLab.git"
     branch = "refs/heads/master"
 
@@ -37,16 +34,22 @@ def scan_from_git():
     team_api = TeamAPI()
     scan_api = ScansAPI()
 
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name, team_full_name)
-
     # 2. get team id
     print("2. get team id")
     team_id = team_api.get_team_id_by_team_full_name(team_full_name)
+    if not team_id:
+        print("team: {} not exist".format(team_full_name))
+        return
+
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name=project_name,
+                                                                                team_full_name=team_full_name)
 
     # 3. create project with default configuration, will get project id
     print("3. create project with default configuration, will get project id")
-    project = projects_api.create_project_with_default_configuration(project_name=project_name, team_id=team_id)
-    project_id = project.id
+    if not project_id:
+        project = projects_api.create_project_with_default_configuration(project_name=project_name, team_id=team_id)
+        project_id = project.id
+    print("project_id: {}".format(project_id))
 
     # 4. set remote source setting to git
     print("4. set remote source setting to git")
@@ -59,6 +62,7 @@ def scan_from_git():
     # 7. define SAST scan settings
     print("7. define SAST scan settings")
     preset_id = projects_api.get_preset_id_by_name()
+    print("preset id: {}".format(preset_id))
     scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 
     projects_api.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern="",
@@ -75,6 +79,7 @@ def scan_from_git():
     while True:
         scan_detail = scan_api.get_sast_scan_details_by_scan_id(scan_id=scan_id)
         scan_status = scan_detail.status.name
+        print("scan_status: {}".format(scan_status))
         if scan_status == "Finished":
             break
         elif scan_status == "Failed":
@@ -89,7 +94,7 @@ def scan_from_git():
 
     # 12. register scan report
     print("12. register scan report")
-    report = scan_api.register_scan_report(scan_id=scan_id, report_type="PDF")
+    report = scan_api.register_scan_report(scan_id=scan_id, report_type=report_type)
     report_id = report.report_id
     print("report_id : {}".format(report_id))
 
@@ -101,7 +106,8 @@ def scan_from_git():
     # 14. get report by id
     print("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
-
+    time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
+    file_name = normpath(join(dirname(__file__), project_name + time_stamp + "." + report_type))
     with open(str(file_name), "wb") as f_out:
         f_out.write(report_content)
 
