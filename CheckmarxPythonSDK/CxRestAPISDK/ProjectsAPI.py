@@ -77,8 +77,8 @@ class ProjectsAPI(object):
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
-            if not (project_name or team_id):
-                raise NotFoundError()
+            response = r.json()
+            raise CxError(response.get("messageDetails"), response.get("messageCode"))
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
@@ -154,17 +154,21 @@ class ProjectsAPI(object):
             team_full_name (str): for example "/CxServer/SP/Company/Users"
 
         Returns:
-            int: project id
+            int: project id， if project not exists, return None
         """
 
         project_id = None
 
         team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name=team_full_name)
 
-        all_projects = self.get_all_project_details(project_name=project_name, team_id=team_id)
+        try:
+            all_projects = self.get_all_project_details(project_name=project_name, team_id=team_id)
 
-        if all_projects and len(all_projects) == 1:
-            project_id = all_projects[0].project_id
+            if all_projects and len(all_projects) == 1:
+                project_id = all_projects[0].project_id
+
+        except CxError:
+            pass
 
         return project_id
 
