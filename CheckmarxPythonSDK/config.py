@@ -61,22 +61,27 @@ def get_config_info_from_config_file():
     cxsast_config = None
     if parser_obj.has_section("checkmarx"):
         cxsast_config = {
-            "base_url": parser_obj.get("checkmarx", "base_url"),
-            "username": parser_obj.get("checkmarx", "username"),
-            "password": parser_obj.get("checkmarx", "password"),
-            "grant_type": parser_obj.get("checkmarx", "grant_type"),
-            "scope": parser_obj.get("checkmarx", "scope"),
-            "client_id": parser_obj.get("checkmarx", "client_id"),
-            "client_secret": parser_obj.get("checkmarx", "client_secret")
+            "base_url": parser_obj.get("checkmarx", "base_url", fallback=None),
+            "username": parser_obj.get("checkmarx", "username", fallback=None),
+            "password": parser_obj.get("checkmarx", "password", fallback=None),
+            "grant_type": parser_obj.get("checkmarx", "grant_type", fallback=None),
+            "scope": parser_obj.get("checkmarx", "scope", fallback=None),
+            "client_id": parser_obj.get("checkmarx", "client_id", fallback=None),
+            "client_secret": parser_obj.get("checkmarx", "client_secret", fallback=None),
+            "scan_preset": parser_obj.get("checkmarx", "scan_preset", fallback=None),
+            "configuration": parser_obj.get("checkmarx", "configuration", fallback=None),
+            "team_full_name": parser_obj.get("checkmarx", "team_full_name", fallback=None),
+            "max_try": parser_obj.get("checkmarx", "max_try", fallback=None),
+            "report_folder": parser_obj.get("checkmarx", "report_folder", fallback=None),
         }
 
     cxsca_config = None
     if parser_obj.has_section("CxSCA"):
         cxsca_config = {
-            "server": parser_obj.get("CxSCA", "server"),
-            "account": parser_obj.get("CxSCA", "account"),
-            "username": parser_obj.get("CxSCA", "username"),
-            "password": parser_obj.get("CxSCA", "password"),
+            "server": parser_obj.get("CxSCA", "server", fallback=None),
+            "account": parser_obj.get("CxSCA", "account", fallback=None),
+            "username": parser_obj.get("CxSCA", "username", fallback=None),
+            "password": parser_obj.get("CxSCA", "password", fallback=None),
         }
 
     return {
@@ -100,7 +105,12 @@ def get_config_info_from_environment_variables():
             "grant_type": os.getenv("cxsast_grant_type"),
             "scope": os.getenv("cxsast_scope"),
             "client_id": os.getenv("cxsast_client_id"),
-            "client_secret": os.getenv("cxsast_client_secret")
+            "client_secret": os.getenv("cxsast_client_secret"),
+            "scan_preset": os.getenv("cxsast_scan_preset"),
+            "configuration": os.getenv("cxsast_configuration"),
+            "team_full_name": os.getenv("cxsast_team_full_name"),
+            "max_try": os.getenv("cxsast_max_try"),
+            "report_folder": os.getenv("cxsast_report_folder"),
         },
         "CxSCA": {
             "server": os.getenv("cxsca_server"),
@@ -143,6 +153,12 @@ def get_config_info_from_command_line_arguments():
     parser.add_option("--cxsast_scope", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_client_id", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_client_secret", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_scan_preset", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_configuration", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_team_full_name", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_max_try", help=SUPPRESS_HELP)
+    parser.add_option("--cxsast_report_folder", help=SUPPRESS_HELP)
+
     parser.add_option("--cxsca_server", help=SUPPRESS_HELP)
     parser.add_option("--cxsca_account", help=SUPPRESS_HELP)
     parser.add_option("--cxsca_username", help=SUPPRESS_HELP)
@@ -158,7 +174,12 @@ def get_config_info_from_command_line_arguments():
             "grant_type": options.cxsast_grant_type,
             "scope": options.cxsast_scope,
             "client_id": options.cxsast_client_id,
-            "client_secret": options.cxsast_client_secret
+            "client_secret": options.cxsast_client_secret,
+            "scan_preset": options.cxsast_scan_preset,
+            "configuration": options.cxsast_configuration,
+            "team_full_name": options.cxsast_team_full_name,
+            "max_try": options.cxsast_max_try,
+            "report_folder": options.cxsast_report_folder,
         },
         "CxSCA": {
             "server": options.cxsca_server,
@@ -182,7 +203,8 @@ global_config = {
         "configuration": "Default Configuration",
         "team_full_name": "/CxServer",
         "max_try": 3,
-        "verify": False
+        "verify": False,
+        "report_folder": None
     },
     "CxSCA": {
         "server": "https://api-sca.checkmarx.net",
