@@ -57,8 +57,10 @@ def get_config_info_from_config_file():
 
     parser_obj = configparser.ConfigParser()
     parser_obj.read(config_file_path)
-    return {
-        "CxSAST": {
+
+    cxsast_config = None
+    if parser_obj.has_section("checkmarx"):
+        cxsast_config = {
             "base_url": parser_obj.get("checkmarx", "base_url"),
             "username": parser_obj.get("checkmarx", "username"),
             "password": parser_obj.get("checkmarx", "password"),
@@ -66,13 +68,20 @@ def get_config_info_from_config_file():
             "scope": parser_obj.get("checkmarx", "scope"),
             "client_id": parser_obj.get("checkmarx", "client_id"),
             "client_secret": parser_obj.get("checkmarx", "client_secret")
-        },
-        "CxSCA": {
+        }
+
+    cxsca_config = None
+    if parser_obj.has_section("CxSCA"):
+        cxsca_config = {
             "server": parser_obj.get("CxSCA", "server"),
             "account": parser_obj.get("CxSCA", "account"),
             "username": parser_obj.get("CxSCA", "username"),
             "password": parser_obj.get("CxSCA", "password"),
         }
+
+    return {
+        "CxSAST": cxsast_config,
+        "CxSCA": cxsca_config
     }
 
 
