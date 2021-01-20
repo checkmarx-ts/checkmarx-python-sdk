@@ -24,25 +24,40 @@ from os.path import normpath, join, dirname, exists
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
+from CheckmarxPythonSDK.config import config
 
 
-def scan_from_local():
+def scan_from_local(team_full_name, project_name, report_type, zip_file_path, report_folder=None):
+    """
 
-    team_full_name = "/CxServer"
-    project_name = "jvl_local"
-    report_type = "XML"
+    Args:
+        team_full_name (str):
+        project_name (str):
+        report_type (str):
+        zip_file_path (str)
+        report_folder (str):
 
-    directory = os.path.dirname(__file__)
-    # the absolute path of the file config.ini
-    zip_file_path = normpath(join(directory, "JavaVulnerableLab-master.zip"))
+    Returns:
+
+    """
+
+    if not exists(report_folder):
+        report_folder = dirname(__file__)
+
     if not exists(zip_file_path):
-        print("JavaVulnerableLab-master.zip not found under current directory.")
+        print("zip file not found. \n abort scan.")
+        return
+
+    print(("team_full_name: {}, \n"
+           "project_name: {}, \n"
+           "report_type: {}, \n"
+           "zip_file_path: {}, \n"
+           "report_folder: {}").format(team_full_name, project_name, report_type,
+                                       zip_file_path, report_folder))
 
     team_api = TeamAPI()
     projects_api = ProjectsAPI()
     scan_api = ScansAPI()
-
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name, team_full_name)
 
     # 2. get team id
     print("2. get team id")
@@ -116,11 +131,16 @@ def scan_from_local():
     # 14. get report by id
     print("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
+
     time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
-    file_name = normpath(join(dirname(__file__), project_name + time_stamp + "." + report_type))
+    file_name = normpath(join(report_folder, project_name + time_stamp + "." + report_type))
     with open(str(file_name), "wb") as f_out:
         f_out.write(report_content)
 
 
 if __name__ == "__main__":
-    scan_from_local()
+    scan_from_local(team_full_name="/CxServer",
+                    project_name="jvl_local",
+                    report_type="XML",
+                    zip_file_path=normpath(join(os.path.dirname(__file__), "JavaVulnerableLab-master.zip")),
+                    report_folder=config.get("report_folder"))
