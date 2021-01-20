@@ -16,19 +16,37 @@
 15[optional]. filter report results
 """
 import time
-from os.path import normpath, join, dirname
+from os.path import normpath, join, dirname, exists
 from datetime import datetime
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
+from CheckmarxPythonSDK.config import config
 
 
-def scan_from_git():
-    team_full_name = "/CxServer"
-    project_name = "jvl_git"
-    report_type = "PDF"
-    url = "https://github.com/CSPF-Founder/JavaVulnerableLab.git"
-    branch = "refs/heads/master"
+def scan_from_git(team_full_name, project_name, report_type, git_repo_url, branch, report_folder=None):
+    """
+
+    Args:
+        team_full_name (str):
+        project_name (str):
+        report_type (str): "PDF", "XML"
+        git_repo_url (str):
+        branch (str):
+        report_folder (str):
+
+    Returns:
+
+    """
+    if not exists(report_folder):
+        report_folder = dirname(__file__)
+    print(("team_full_name: {}, \n"
+           "project_name: {}, \n"
+           "report_type: {}, \n"
+           "git_repo_url: {}, \n"
+           "branch: {}, \n"
+           "report_folder: {}").format(team_full_name, project_name, report_type,
+                                                                     git_repo_url, branch, report_folder))
 
     projects_api = ProjectsAPI()
     team_api = TeamAPI()
@@ -53,7 +71,7 @@ def scan_from_git():
 
     # 4. set remote source setting to git
     print("4. set remote source setting to git")
-    projects_api.set_remote_source_setting_to_git(project_id=project_id, url=url, branch=branch)
+    projects_api.set_remote_source_setting_to_git(project_id=project_id, url=git_repo_url, branch=branch)
 
     # 6. set data retention settings by project id
     print("6. set data retention settings by project id")
@@ -106,11 +124,19 @@ def scan_from_git():
     # 14. get report by id
     print("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
+
     time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
-    file_name = normpath(join(dirname(__file__), project_name + time_stamp + "." + report_type))
+
+    file_name = normpath(join(report_folder, project_name + time_stamp + "." + report_type))
     with open(str(file_name), "wb") as f_out:
         f_out.write(report_content)
 
 
 if __name__ == "__main__":
-    scan_from_git()
+    scan_from_git(team_full_name="/CxServer",
+                  project_name="jvl_git",
+                  report_type="PDF",
+                  git_repo_url="https://github.com/CSPF-Founder/JavaVulnerableLab.git",
+                  branch="refs/heads/master",
+                  report_folder=config.get("report_folder")
+                  )
