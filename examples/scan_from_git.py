@@ -46,7 +46,7 @@ def scan_from_git(team_full_name, project_name, report_type, git_repo_url, branc
            "git_repo_url: {}, \n"
            "branch: {}, \n"
            "report_folder: {}").format(team_full_name, project_name, report_type,
-                                                                     git_repo_url, branch, report_folder))
+                                       git_repo_url, branch, report_folder))
 
     projects_api = ProjectsAPI()
     team_api = TeamAPI()
