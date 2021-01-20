@@ -47,3 +47,7 @@ All notable changes to this project will be documented in  this file.
 0.1.8 - 2021-01-20
 * Add support for CxSCA API
 * Add example scripts, cxsca_scan.py
+
+0.1.9 - 2021-01-20
+* Fix missing section CxSCA if not provided
+* Add support for report folder in config
