@@ -43,3 +43,7 @@ All notable changes to this project will be documented in  this file.
 0.1.6 - 2021-01-06
 * Add configuration API
 * Refactor Projects API get_all_project_details, get_project_details_by_id to use API v2, add custom fields into project detail
+
+0.1.8 - 2021-01-20
+* Add support for CxSCA API
+* Add example scripts, cxsca_scan.py
