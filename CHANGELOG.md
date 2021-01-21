@@ -51,3 +51,6 @@ All notable changes to this project will be documented in  this file.
 0.1.9 - 2021-01-20
 * Fix missing section CxSCA if not provided
 * Add support for report folder in config
+
+0.2.0 - 2021-01-21
+* Fix forbidden issue for access control
