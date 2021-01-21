@@ -272,7 +272,7 @@ def test_get_all_system_locales():
 
 def test_get_members_by_team_id():
     ac = AccessControlAPI()
-    team_id = ac.get_team_id_by_full_name("/CxServer/SP/Company/AllStarTeam")
+    team_id = ac.get_team_id_by_full_name("/CxServer")
     resp = ac.get_members_by_team_id(team_id=team_id)
     assert resp is not None
 
@@ -280,7 +280,7 @@ def test_get_members_by_team_id():
 def test_update_members_by_team_id():
     ac = AccessControlAPI()
 
-    team_id = ac.get_team_id_by_full_name("/CxServer/SP/Company/AllStarTeam")
+    team_id = ac.get_team_id_by_full_name("/CxServer")
     user_ids = [1008, 1007]
     is_successful = ac.update_members_by_team_id(team_id=team_id, user_ids=user_ids)
     assert is_successful is True
@@ -288,7 +288,7 @@ def test_update_members_by_team_id():
 
 def test_add_a_user_to_a_team():
     ac = AccessControlAPI()
-    team_id = ac.get_team_id_by_full_name("/CxServer/SP/Company/AllStarTeam")
+    team_id = ac.get_team_id_by_full_name("/CxServer")
 
     user_id = 7
 
@@ -299,7 +299,7 @@ def test_add_a_user_to_a_team():
 
 def test_delete_a_member_from_a_team():
     ac = AccessControlAPI()
-    team_id = ac.get_team_id_by_full_name("/CxServer/SP/Company/AllStarTeam")
+    team_id = ac.get_team_id_by_full_name("/CxServer")
     user_id = 7
 
     is_successful = ac.delete_a_member_from_a_team(team_id=team_id, user_id=user_id)
@@ -314,14 +314,14 @@ def test_get_all_teams():
 
 def test_get_team_id_by_full_name():
     ac = AccessControlAPI()
-    team_id = ac.get_team_id_by_full_name("/CxServer/SP/Company/AllStarTeam")
+    team_id = ac.get_team_id_by_full_name("/CxServer")
     assert team_id is not None
 
 
 def test_create_new_team():
     ac = AccessControlAPI()
 
-    parent_team_full_name = "/CxServer/SP/Company"
+    parent_team_full_name = "/CxServer"
     team_name = "avengers_team"
     team_id = ac.get_team_id_by_full_name(full_name=parent_team_full_name + "/" + team_name)
     parent_id = ac.get_team_id_by_full_name(full_name=parent_team_full_name)
@@ -334,7 +334,7 @@ def test_create_new_team():
 def test_get_team_by_id():
     ac = AccessControlAPI()
 
-    team_id = ac.get_team_id_by_full_name("/CxServer/SP/Company/AllStarTeam")
+    team_id = ac.get_team_id_by_full_name("/CxServer")
 
     team = ac.get_team_by_id(team_id=team_id)
 
@@ -344,7 +344,7 @@ def test_get_team_by_id():
 def test_update_a_team():
     ac = AccessControlAPI()
 
-    parent_team_full_name = "/CxServer/SP/Company"
+    parent_team_full_name = "/CxServer"
     team_name = "avengers_team"
     team_id = ac.get_team_id_by_full_name(full_name=parent_team_full_name + "/" + team_name)
     parent_id = ac.get_team_id_by_full_name(full_name=parent_team_full_name)
@@ -357,7 +357,7 @@ def test_update_a_team():
 def test_delete_a_team():
     ac = AccessControlAPI()
 
-    parent_team_full_name = "/CxServer/SP/Company"
+    parent_team_full_name = "/CxServer"
     team_name = "avengers_team"
     team_id = ac.get_team_id_by_full_name(full_name=parent_team_full_name + "/" + team_name)
 

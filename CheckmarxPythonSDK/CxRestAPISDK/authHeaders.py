@@ -3,27 +3,22 @@ from ..auth import get_new_token
 from ..__version__ import __version__
 
 
-def get_token(with_ac=False):
+def get_token():
     """
 
     Args:
-        with_ac (bool): with access control or not
 
     Returns:
 
     """
-    scope = "sast_rest_api"
-    if with_ac:
-        scope = "sast_rest_api access_control_api"
-
     return get_new_token(
         base_url=config.get("base_url"),
         username=config.get("username"),
         password=config.get("password"),
-        grant_type="password",
-        scope=scope,
-        client_id="resource_owner_client",
-        client_secret="014DF517-39D1-4453-B7B3-9930C563627C"
+        grant_type=config.get("grant_type"),
+        scope=config.get("scope"),
+        client_id=config.get("client_id"),
+        client_secret=config.get("client_secret")
     )
 
 
@@ -35,8 +30,8 @@ auth_headers = {
 }
 
 
-def update_auth_headers(with_ac=False):
-    auth_headers.update({"Authorization": get_token(with_ac)})
+def update_auth_headers():
+    auth_headers.update({"Authorization": get_token()})
 
 
 def get_v2_headers():

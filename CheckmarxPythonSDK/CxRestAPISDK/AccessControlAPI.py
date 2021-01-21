@@ -58,7 +58,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_assignable_users()
         else:
@@ -102,7 +102,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_authentication_providers()
         else:
@@ -152,7 +152,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.submit_first_admin_user(username, password, first_name, last_name, email)
         else:
@@ -184,7 +184,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_admin_user_exists_confirmation()
         else:
@@ -234,7 +234,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_ldap_role_mapping()
         else:
@@ -284,7 +284,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_ldap_role_mapping(ldap_server_id, role_id, ldap_group_dn, ldap_group_display_name)
         else:
@@ -322,7 +322,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_ldap_role_mapping(ldap_role_mapping_id)
         else:
@@ -412,7 +412,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.test_ldap_server_connection(host, port, username, password, use_ssl, verify_ssl_certificate, base_dn,
                                              user_object_filter, user_object_class, username_attribute,
@@ -468,7 +468,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_user_entries_by_search_criteria(ldap_server_id, username_contains_pattern)
         else:
@@ -515,7 +515,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_group_entries_by_search_criteria(ldap_server_id, name_contains_pattern)
         else:
@@ -585,7 +585,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_ldap_servers()
         else:
@@ -698,7 +698,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_new_ldap_server(password, active, name, host, port, username, use_ssl, verify_ssl_certificate,
                                         based_dn, additional_user_dn, user_object_filter,
@@ -780,7 +780,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_ldap_server_by_id(ldap_server_id)
         else:
@@ -894,7 +894,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_ldap_server(ldap_server_id, password, active, name, host, port, username, use_ssl,
                                     verify_ssl_certificate,
@@ -945,7 +945,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_ldap_server(ldap_server_id)
         else:
@@ -1001,7 +1001,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_ldap_team_mapping(ldap_server_id, team_id)
         else:
@@ -1051,7 +1051,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_ldap_team_mapping(ldap_server_id, team_id, ldap_group_dn, ldap_group_display_name)
         else:
@@ -1089,7 +1089,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_ldap_team_mapping(ldap_team_mapping_id)
         else:
@@ -1139,7 +1139,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_my_profile()
         else:
@@ -1199,7 +1199,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_my_profile(first_name, last_name, email, phone_number, cell_phone_number, job_title, other,
                                    country, locale_id)
@@ -1268,7 +1268,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_oidc_clients()
         else:
@@ -1378,7 +1378,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_new_oidc_client(update_access_token_claims_on_refresh, access_token_type, include_jwt_id,
                                         always_include_user_claims_in_id_token, client_id, client_name,
@@ -1460,7 +1460,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_oidc_client_by_id(oidc_client_id)
         else:
@@ -1572,7 +1572,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_an_oidc_client(oidc_client_id, update_access_token_claims_on_refresh, access_token_type,
                                        include_jwt_id,
@@ -1623,7 +1623,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_an_oidc_client(oidc_client_id)
         else:
@@ -1661,7 +1661,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_permissions()
         else:
@@ -1704,7 +1704,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_permission_by_id(permission_id)
         else:
@@ -1743,7 +1743,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_roles()
         else:
@@ -1792,7 +1792,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_new_role(name, description, permission_ids)
         else:
@@ -1837,7 +1837,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_role_by_id(role_id)
         else:
@@ -1887,7 +1887,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_a_role(role_id, name, description, permission_ids)
         else:
@@ -1924,7 +1924,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_a_role(role_id)
         else:
@@ -1977,7 +1977,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_saml_identity_providers()
         else:
@@ -2049,7 +2049,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_new_saml_identity_provider(certificate_file_path, active, name, issuer, login_url, logout_url,
                                                    error_url, sign_authn_request, authn_request_binding,
@@ -2104,7 +2104,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_saml_identity_provider_by_id(saml_identity_provider_id)
         else:
@@ -2179,7 +2179,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_new_saml_identity_provider(saml_identity_provider_id, certificate_file, active, name, issuer,
                                                    login_url, logout_url, error_url, sign_authn_request,
@@ -2219,7 +2219,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_a_saml_identity_provider(saml_identity_provider_id)
         else:
@@ -2253,7 +2253,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_saml_service_provider_metadata()
         else:
@@ -2293,7 +2293,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_saml_service_provider()
         else:
@@ -2348,7 +2348,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_a_saml_service_provider(certificate_file, certificate_password, issuer)
         else:
@@ -2388,7 +2388,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_service_providers()
         else:
@@ -2429,7 +2429,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_service_provider_by_id(service_provider_id)
         else:
@@ -2475,7 +2475,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_smtp_settings()
         else:
@@ -2532,7 +2532,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_smtp_settings(password, host, port, encryption_type, from_address, use_default_credentials,
                                       username)
@@ -2579,7 +2579,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_smtp_settings_by_id(smtp_settings_id)
         else:
@@ -2638,7 +2638,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_smtp_settings(smtp_settings_id, password, host, port, encryption_type, from_address,
                                       use_default_credentials, username)
@@ -2676,7 +2676,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_smtp_settings(smtp_settings_id)
         else:
@@ -2736,7 +2736,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.test_smtp_connection(receiver_email, password, host, port, encryption_type, from_address,
                                       use_default_credentials, username)
@@ -2780,7 +2780,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_system_locales()
         else:
@@ -2839,7 +2839,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_members_by_team_id(team_id)
         else:
@@ -2882,7 +2882,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_members_by_team_id(team_id, user_ids)
         else:
@@ -2923,7 +2923,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.add_a_user_to_a_team(team_id, user_id)
         else:
@@ -2962,7 +2962,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_a_member_from_a_team(team_id, user_id)
         else:
@@ -3005,7 +3005,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_teams()
         else:
@@ -3070,7 +3070,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_new_team(name, parent_id)
         else:
@@ -3113,7 +3113,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_team_by_id(team_id)
         else:
@@ -3160,7 +3160,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_a_team(team_id, name, parent_id)
         else:
@@ -3197,7 +3197,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_a_team(team_id)
         else:
@@ -3232,7 +3232,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.generate_a_new_token_signing_certificate()
         else:
@@ -3278,7 +3278,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.upload_a_new_token_signing_certificate(certificate_file_path, certificate_password)
         else:
@@ -3334,7 +3334,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_users()
         else:
@@ -3430,7 +3430,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_new_user(
                 username, password, role_ids, team_ids, authentication_provider_id, first_name,
@@ -3491,7 +3491,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_user_by_id(user_id)
         else:
@@ -3563,7 +3563,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_a_user(
                 user_id, role_ids, team_ids, first_name, last_name, email, phone_number, cell_phone_number,
@@ -3603,7 +3603,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_a_user(user_id)
         else:
@@ -3659,7 +3659,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.migrate_existing_user(
                 creation_date, username, password, role_ids, team_ids, authentication_provider_id,
@@ -3704,7 +3704,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_all_windows_domains()
         else:
@@ -3768,7 +3768,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.create_a_new_windows_domain(name, full_qualified_name)
         else:
@@ -3810,7 +3810,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_windows_domain_by_id(windows_domain_id)
         else:
@@ -3857,7 +3857,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.update_a_windows_domain(windows_domain_id, name, full_qualified_name)
         else:
@@ -3894,7 +3894,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.delete_a_windows_domain(windows_domain_id)
         else:
@@ -3943,7 +3943,7 @@ class AccessControlAPI(object):
         elif r.status_code == NOT_FOUND:
             raise NotFoundError()
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers(with_ac=True)
+            authHeaders.update_auth_headers()
             self.retry += 1
             self.get_windows_domain_user_entries_by_search_criteria(windows_domain_id, contains_pattern)
         else:
