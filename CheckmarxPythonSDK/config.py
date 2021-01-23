@@ -71,7 +71,7 @@ def get_config_info_from_config_file():
             "scan_preset": parser_obj.get("checkmarx", "scan_preset", fallback=None),
             "configuration": parser_obj.get("checkmarx", "configuration", fallback=None),
             "team_full_name": parser_obj.get("checkmarx", "team_full_name", fallback=None),
-            "max_try": parser_obj.get("checkmarx", "max_try", fallback=None),
+            "max_try": parser_obj.getint("checkmarx", "max_try", fallback=3),
             "report_folder": parser_obj.get("checkmarx", "report_folder", fallback=None),
         }
 
@@ -97,6 +97,10 @@ def get_config_info_from_environment_variables():
         dictionary
     """
 
+    max_try = os.getenv("cxsast_max_try")
+    if max_try:
+        max_try = int(max_try)
+
     return {
         "CxSAST": {
             "base_url": os.getenv("cxsast_base_url"),
@@ -109,7 +113,7 @@ def get_config_info_from_environment_variables():
             "scan_preset": os.getenv("cxsast_scan_preset"),
             "configuration": os.getenv("cxsast_configuration"),
             "team_full_name": os.getenv("cxsast_team_full_name"),
-            "max_try": os.getenv("cxsast_max_try"),
+            "max_try": max_try,
             "report_folder": os.getenv("cxsast_report_folder"),
         },
         "CxSCA": {
@@ -166,6 +170,10 @@ def get_config_info_from_command_line_arguments():
 
     (options, args) = parser.parse_args()
 
+    max_try = options.cxsast_max_try
+    if max_try:
+        max_try = int(max_try)
+
     return {
         "CxSAST": {
             "base_url": options.cxsast_base_url,
@@ -178,7 +186,7 @@ def get_config_info_from_command_line_arguments():
             "scan_preset": options.cxsast_scan_preset,
             "configuration": options.cxsast_configuration,
             "team_full_name": options.cxsast_team_full_name,
-            "max_try": options.cxsast_max_try,
+            "max_try": max_try,
             "report_folder": options.cxsast_report_folder,
         },
         "CxSCA": {
