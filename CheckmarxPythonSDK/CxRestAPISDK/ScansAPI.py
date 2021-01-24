@@ -14,7 +14,8 @@ from .sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsS
     CxResultsStatistics, CxPolicyFindingResponse, CxStatus, CxFinishedScanStatus, CxStatisticsResult, \
     CxCreateNewScanResponse, CxCreateScan, CxRegisterScanReportResponse, CxScanType, CxScanDetail, CxScanReportStatus, \
     CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail, CxScanSettings, \
-    CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage
+    CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage, \
+    CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node
 
 
 class ScansAPI(object):
@@ -1277,3 +1278,153 @@ class ScansAPI(object):
             is_finished = True
 
         return is_finished
+
+    def get_scan_results_of_a_specific_query(self, scan_id, query_version_code):
+        """
+        Get the scan results for a specific query in Attack Vector format. This format includes all nodes.
+
+        Args:
+            scan_id (int):
+            query_version_code (int):
+
+        Returns:
+            attack_vectors (`list` of `CxScanResultAttackVector`)
+        """
+        attack_vectors = []
+        url = config.get("base_url") + ("/cxrestapi/sast/results/attack-vectors"
+                                        "?scanId={scanId}&queryVersion={queryVersion}").format(
+            scanId=scan_id, queryVersion=query_version_code
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+        if r.status_code == OK:
+            attack_vectors = r.json().get('attackVectors')
+            attack_vectors = [
+                construct_attack_vector(ac) for ac in attack_vectors
+            ]
+        elif r.status_code == NO_CONTENT:
+            pass
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_scan_results_of_a_specific_query(scan_id, query_version_code)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return attack_vectors
+
+    def get_scan_results_for_a_specific_query_group_by_best_fix_location(self, scan_id, query_version_code):
+        """
+
+        Args:
+            scan_id (int):
+            query_version_code (int):
+
+        Returns:
+           attack_vectors_by_bfl  (`list` of `CxScanResultAttackVectorByBFL`)
+        """
+        attack_vectors_by_bfl = []
+        url = config.get("base_url") + ("/cxrestapi/sast/results/attack-vectors-by-bfl"
+                                        "?scanId={scanId}&queryVersion={queryVersion}").format(
+            scanId=scan_id, queryVersion=query_version_code
+        )
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+        if r.status_code == OK:
+            attack_vectors_by_bfl = r.json().get("attackVectorsByBFL")
+            attack_vectors_by_bfl = [
+                CxScanResultAttackVectorByBFL(
+                    scan_id=ac_bfl.get("scanId"),
+                    query_version_code=ac_bfl.get("queryVersion"),
+                    best_fix_location_node=construct_scan_result_node(ac_bfl.get("bestFixLocationNode")),
+                    attack_vectors=[construct_attack_vector(ac) for ac in ac_bfl.get("attackVectors")]
+                ) for ac_bfl in attack_vectors_by_bfl
+            ]
+        elif r.status_code == NO_CONTENT:
+            pass
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.get_scan_results_for_a_specific_query_group_by_best_fix_location(scan_id, query_version_code)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return attack_vectors_by_bfl
+
+    # def update_the_last_correlation_score_between_iast_and_sast_scan_results(self, iast_results_correlation_data):
+    #     # scan_id, path_id,
+    #     # iast_correlation_score
+    #     url = config.get("base_url") + "/cxrestapi/sast/results"
+    #     data = json.dumps({
+    #
+    #     })
+
+    def update_scan_result_labels_fields(self, scan_id, result_id, state, severity, user_assignment, comment):
+        """
+
+        Args:
+            scan_id (int):
+            result_id (int):
+            state (int, optional):  0 (To Verify), 1 (Not Exploitable), 2 (Confirmed), 3 (Urgent), 4 (Proposed Not Exploitable)
+            severity (int, optional): 1 (Low, optional), 2 (Medium), 3 (High)
+            user_assignment (str, optional):
+            comment (str, optional):
+
+        Returns:
+            is_successful (bool)
+        """
+        is_successful = False
+
+        url = config.get("base_url") + "/cxrestapi/sast/scans/{scanId}/results/{resultId}".format(
+            scanId=scan_id, resultId=result_id)
+
+        data = json.dumps({
+            "state": state,
+            "severity": severity,
+            "userAssignment": user_assignment,
+            "comment": comment,
+        })
+
+        r = requests.patch(
+            url=url,
+            data=data,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            is_successful = True
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            self.update_scan_result_labels_fields(scan_id, result_id, state, severity, user_assignment, comment)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful

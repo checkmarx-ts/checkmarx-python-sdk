@@ -216,3 +216,35 @@ def test_register_scan_report():
     time.sleep(30)
     report_content = scan_api.get_report_by_id(report_id)
     assert report_content is not None
+
+
+def test_get_scan_results_of_a_specific_query():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+    query_version_code = 56089346
+    response = scan_api.get_scan_results_of_a_specific_query(scan_id, query_version_code)
+    pass
+
+
+def test_get_scan_results_for_a_specific_query_group_by_best_fix_location():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+    query_version_code = 56110529
+    response = scan_api.get_scan_results_for_a_specific_query_group_by_best_fix_location(scan_id, query_version_code)
+    pass
+
+
+def test_update_scan_result_labels_fields():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+
+    is_successful = scan_api.update_scan_result_labels_fields(scan_id=scan_id,
+                                                              result_id=1,
+                                                              state=1,
+                                                              severity=None,
+                                                              user_assignment=None,
+                                                              comment=None)
+    assert is_successful is True
