@@ -54,3 +54,8 @@ All notable changes to this project will be documented in  this file.
 
 0.2.0 - 2021-01-21
 * Fix forbidden issue for access control
+
+0.2.1 - 2021-01-25
+* Fix config max_try issue
+* Add 3 new REST API for scan results
+* Add 1 portal soap api get_query_collection
