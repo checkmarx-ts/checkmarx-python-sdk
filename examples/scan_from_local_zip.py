@@ -41,7 +41,7 @@ def scan_from_local(team_full_name, project_name, report_type, zip_file_path, re
 
     """
 
-    if not exists(report_folder):
+    if not report_folder or not exists(report_folder):
         report_folder = dirname(__file__)
 
     if not exists(zip_file_path):

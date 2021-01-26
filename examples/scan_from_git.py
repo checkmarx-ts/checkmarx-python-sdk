@@ -38,7 +38,7 @@ def scan_from_git(team_full_name, project_name, report_type, git_repo_url, branc
     Returns:
 
     """
-    if not exists(report_folder):
+    if not report_folder or not exists(report_folder):
         report_folder = dirname(__file__)
     print(("team_full_name: {}, \n"
            "project_name: {}, \n"
