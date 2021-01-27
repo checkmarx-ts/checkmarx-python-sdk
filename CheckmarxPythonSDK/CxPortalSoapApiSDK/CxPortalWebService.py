@@ -16,10 +16,10 @@ def add_license_expiration_notification():
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.AddLicenseExpirationNotification(sessionID="0")
 
     response = execute()
@@ -55,10 +55,10 @@ def create_new_preset(query_ids, name):
             'IsDuplicate': False
         }
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         query_id_list = factory.ArrayOfLong(query_ids)
 
         cx_preset_detail = factory.CxPresetDetails(
@@ -149,10 +149,10 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         query_ids = queries_ids
         if queries_ids:
             query_ids = factory.ArrayOfLong(queries_ids)
@@ -247,10 +247,10 @@ def delete_preset(preset_id):
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.DeletePreset(sessionId="0", id=preset_id)
 
     response = execute()
@@ -269,10 +269,10 @@ def delete_project(project_id):
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.DeleteProject(sessionID="0", projectID=project_id)
 
     response = execute()
@@ -292,10 +292,10 @@ def delete_projects(project_ids, flag="None"):
     Returns:
         bool
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         cx_ws_request_delete_projects = factory.CxWSRequestDeleteProjects(
             SessionID="0",
             ProjectIDs=factory.ArrayOfLong(project_ids),
@@ -341,10 +341,10 @@ def get_path_comments_history(scan_id, path_id, label_type):
             }
         }
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetPathCommentsHistory(sessionId="0", scanId=scan_id, pathId=path_id,
                                                      labelType=label_type)
 
@@ -371,10 +371,10 @@ def get_queries_categories():
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetQueriesCategories(sessionId="0")
 
     response = execute()
@@ -397,10 +397,10 @@ def get_queries_categories():
 
 
 def get_query_collection():
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetQueryCollection(sessionId="0")
 
     response = execute()
@@ -489,10 +489,10 @@ def get_preset_list():
     Returns:
         list of dict
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetPresetList(SessionID="0")
 
     response = execute()
@@ -518,10 +518,10 @@ def get_server_license_data():
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetServerLicenseData(sessionID="0")
 
     response = execute()
@@ -554,10 +554,10 @@ def get_server_license_summary():
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetServerLicenseSummary(sessionID="0")
 
     response = execute()
@@ -590,10 +590,10 @@ def get_version_number():
     Returns:
 
     """
-    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
         return client.service.GetVersionNumber()
 
     response = execute()
