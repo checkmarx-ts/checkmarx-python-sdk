@@ -12,5 +12,9 @@ from .CxPortalWebService import (
     get_server_license_summary,
     delete_project,
     delete_projects,
-    get_version_number
+    get_version_number,
+)
+
+from .CxAuditWebService import (
+    get_source_code_for_scan,
 )

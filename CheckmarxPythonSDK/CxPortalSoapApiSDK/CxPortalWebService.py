@@ -5,40 +5,9 @@
     Start from 9.0, Portal SOAP API needs Bear Token for authentication
 """
 
-from . import zeepClient
-from ..config import config
-from . import authHeaders
+from .zeepClient import get_client_and_factory, retry_when_unauthorized
 
-
-def retry_when_unauthorized(func):
-    """
-
-    Args:
-        func (function)
-
-    Returns:
-        function
-    """
-    def retry(*args, **kwargs):
-        max_try = config.get('max_try')
-
-        response = func(*args, **kwargs)
-
-        while max_try > 0:
-            if response.IsSuccesfull:
-                break
-
-            # in 9.2 and previous version message id "12563" means invalid token,
-            # from 9.3, it says Invalid_Token in error message
-            if not response.IsSuccesfull and \
-                    ('12563' in response.ErrorMessage or 'Invalid_Token' in response.ErrorMessage):
-                authHeaders.update_auth_headers()
-                zeepClient.client, zeepClient.factory = zeepClient.get_client_and_factory()
-                response = func(*args, **kwargs)
-            max_try -= 1
-
-        return response
-    return retry
+relative_web_interface_url = "/CxWebInterface/Portal/CxWebService.asmx?wsdl"
 
 
 def add_license_expiration_notification():
@@ -47,9 +16,11 @@ def add_license_expiration_notification():
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.AddLicenseExpirationNotification(sessionID="0")
+        return client.service.AddLicenseExpirationNotification(sessionID="0")
 
     response = execute()
 
@@ -84,17 +55,18 @@ def create_new_preset(query_ids, name):
             'IsDuplicate': False
         }
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
+        query_id_list = factory.ArrayOfLong(query_ids)
 
-        query_id_list = zeepClient.factory.ArrayOfLong(query_ids)
-
-        cx_preset_detail = zeepClient.factory.CxPresetDetails(
+        cx_preset_detail = factory.CxPresetDetails(
             queryIds=query_id_list, id=0, name=name, owningteam=1, isPublic=True,
             isUserAllowToUpdate=True, isUserAllowToDelete=True, IsDuplicate=False
         )
 
-        return zeepClient.client.service.CreateNewPreset(sessionId="0", presrt=cx_preset_detail)
+        return client.service.CreateNewPreset(sessionId="0", presrt=cx_preset_detail)
 
     response = execute()
     preset = response.preset
@@ -102,7 +74,7 @@ def create_new_preset(query_ids, name):
         "IsSuccesfull": response["IsSuccesfull"],
         "ErrorMessage": response["ErrorMessage"],
         "preset": {
-            'queryIds':  preset["queryIds"]["long"],
+            'queryIds': preset["queryIds"]["long"],
             'id': preset["id"],
             'name': preset["name"],
             'owningteam': preset["owningteam"],
@@ -177,47 +149,48 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
         query_ids = queries_ids
         if queries_ids:
-            query_ids = zeepClient.factory.ArrayOfLong(queries_ids)
-        queries = zeepClient.factory.CxWSQueriesFilter(All=queries_all, IDs=query_ids)
+            query_ids = factory.ArrayOfLong(queries_ids)
+        queries = factory.CxWSQueriesFilter(All=queries_all, IDs=query_ids)
 
-        results_severity = zeepClient.factory.CxWSResultsSeverityFilter(
+        results_severity = factory.CxWSResultsSeverityFilter(
             All=results_severity_all, High=results_severity_high, Medium=results_severity_medium,
             Low=results_severity_low, Info=results_severity_info
         )
 
         results_state_id_list = results_state_ids
         if results_state_id_list:
-            results_state_id_list = zeepClient.factory.ArrayOfLong(results_state_id_list)
-        results_state = zeepClient.factory.CxWSResultsStateFilter(All=results_state_all, IDs=results_state_id_list)
+            results_state_id_list = factory.ArrayOfLong(results_state_id_list)
+        results_state = factory.CxWSResultsStateFilter(All=results_state_all, IDs=results_state_id_list)
 
         display_categories_id_list = display_categories_ids
         if display_categories_id_list:
-            display_categories_id_list = zeepClient.factory.ArrayOfLong(display_categories_id_list)
-        display_categories = zeepClient.factory.CxWSDisplayCategoriesFilter(
+            display_categories_id_list = factory.ArrayOfLong(display_categories_id_list)
+        display_categories = factory.CxWSDisplayCategoriesFilter(
             All=display_categories_all, IDs=display_categories_id_list
         )
 
         results_assigned_to_id_list = results_assigned_to_ids
         if results_assigned_to_id_list:
-            results_assigned_to_id_list = zeepClient.factory.ArrayOfLong(results_assigned_to_id_list)
+            results_assigned_to_id_list = factory.ArrayOfLong(results_assigned_to_id_list)
         results_assigned_to_username_list = results_assigned_to_usernames
         if results_assigned_to_username_list:
-            results_assigned_to_username_list = zeepClient.factory.ArrayOfString(results_assigned_to_username_list)
+            results_assigned_to_username_list = factory.ArrayOfString(results_assigned_to_username_list)
 
-        results_assigned_to = zeepClient.factory.CxWSResultsAssignedToFilter(
+        results_assigned_to = factory.CxWSResultsAssignedToFilter(
             All=results_assigned_to_all, IDs=results_assigned_to_id_list, Usernames=results_assigned_to_username_list
         )
 
-        results_per_vulnerability = zeepClient.factory.CxWSResultsPerVulnerabilityFilter(
+        results_per_vulnerability = factory.CxWSResultsPerVulnerabilityFilter(
             All=results_per_vulnerability_all, Maximimum=results_per_vulnerability_maximum
         )
 
-        header_options = zeepClient.factory.CxWSHeaderDisplayOptions(
+        header_options = factory.CxWSHeaderDisplayOptions(
             Link2OnlineResults=header_options_link_to_online_results,
             Team=header_options_team,
             CheckmarxVersion=header_options_checkmarx_version,
@@ -227,7 +200,7 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
             ScanDensity=header_options_density
         )
 
-        general_option = zeepClient.factory.CxWSGeneralDisplayOptions(
+        general_option = factory.CxWSGeneralDisplayOptions(
             OnlyExecutiveSummary=general_options_only_executive_summary,
             TableOfContents=general_options_table_of_contents,
             ExecutiveSummary=general_options_executive_summary,
@@ -238,7 +211,7 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
             VulnerabilitiesDescription=general_options_vulnerabilities_description
         )
 
-        results_display_option = zeepClient.factory.CxWSResultDisplayOptions(
+        results_display_option = factory.CxWSResultDisplayOptions(
             AssignedTo=results_display_option_assigned_to,
             Comments=results_display_option_comments,
             Link2Online=results_display_option_link_to_online,
@@ -246,15 +219,15 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
             SnippetsMode=results_display_option_snippets_mode
         )
 
-        display_data = zeepClient.factory.CxWSReportDisplayData(
+        display_data = factory.CxWSReportDisplayData(
             Queries=queries, ResultsSeverity=results_severity, ResultsState=results_state,
             DisplayCategories=display_categories, ResultsAssigedTo=results_assigned_to,
             ResultsPerVulnerability=results_per_vulnerability, HeaderOptions=header_options,
             GeneralOption=general_option, ResultsDisplayOption=results_display_option
         )
-        filtered_report_request = zeepClient.factory.CxWSFilteredReportRequest(Type=report_type, ScanID=scan_id,
-                                                                               DisplayData=display_data)
-        return zeepClient.client.service.CreateScanReport(SessionID="0", Report=filtered_report_request)
+        filtered_report_request = factory.CxWSFilteredReportRequest(Type=report_type, ScanID=scan_id,
+                                                                    DisplayData=display_data)
+        return client.service.CreateScanReport(SessionID="0", Report=filtered_report_request)
 
     response = execute()
 
@@ -274,9 +247,11 @@ def delete_preset(preset_id):
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.DeletePreset(sessionId="0", id=preset_id)
+        return client.service.DeletePreset(sessionId="0", id=preset_id)
 
     response = execute()
     return {
@@ -294,9 +269,11 @@ def delete_project(project_id):
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.DeleteProject(sessionID="0", projectID=project_id)
+        return client.service.DeleteProject(sessionID="0", projectID=project_id)
 
     response = execute()
     return {
@@ -315,15 +292,16 @@ def delete_projects(project_ids, flag="None"):
     Returns:
         bool
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
-        cx_ws_request_delete_projects = zeepClient.factory.CxWSRequestDeleteProjects(
+        cx_ws_request_delete_projects = factory.CxWSRequestDeleteProjects(
             SessionID="0",
-            ProjectIDs=zeepClient.factory.ArrayOfLong(project_ids),
-            Flags=zeepClient.factory.DeleteFlags([flag])
+            ProjectIDs=factory.ArrayOfLong(project_ids),
+            Flags=factory.DeleteFlags([flag])
         )
-        return zeepClient.client.service.DeleteProjects(request=cx_ws_request_delete_projects)
+        return client.service.DeleteProjects(request=cx_ws_request_delete_projects)
 
     response = execute()
     return {
@@ -363,10 +341,12 @@ def get_path_comments_history(scan_id, path_id, label_type):
             }
         }
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetPathCommentsHistory(sessionId="0", scanId=scan_id, pathId=path_id,
-                                                                labelType=label_type)
+        return client.service.GetPathCommentsHistory(sessionId="0", scanId=scan_id, pathId=path_id,
+                                                     labelType=label_type)
 
     response = execute()
     path = response.Path
@@ -391,10 +371,11 @@ def get_queries_categories():
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetQueriesCategories(sessionId="0")
+        return client.service.GetQueriesCategories(sessionId="0")
 
     response = execute()
     categories = response.QueriesCategories.CxQueryCategory
@@ -416,9 +397,11 @@ def get_queries_categories():
 
 
 def get_query_collection():
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetQueryCollection(sessionId="0")
+        return client.service.GetQueryCollection(sessionId="0")
 
     response = execute()
     return {
@@ -506,10 +489,11 @@ def get_preset_list():
     Returns:
         list of dict
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
 
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetPresetList(SessionID="0")
+        return client.service.GetPresetList(SessionID="0")
 
     response = execute()
     preset_list = response.PresetList
@@ -534,9 +518,11 @@ def get_server_license_data():
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetServerLicenseData(sessionID="0")
+        return client.service.GetServerLicenseData(sessionID="0")
 
     response = execute()
     supported_languages = response.SupportedLanguages
@@ -548,7 +534,7 @@ def get_server_license_data():
         "SupportedLanguages": [{
             "isSupported": item["isSupported"],
             "language": item["language"]
-            } for item in supported_languages["SupportedLanguage"]
+        } for item in supported_languages["SupportedLanguage"]
         ] if supported_languages else None,
         "MaxUsers": response["MaxUsers"],
         "CurrentUsers": response["CurrentUsers"],
@@ -568,9 +554,11 @@ def get_server_license_summary():
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetServerLicenseSummary(sessionID="0")
+        return client.service.GetServerLicenseSummary(sessionID="0")
 
     response = execute()
     supported_languages = response.SupportedLanguages
@@ -582,7 +570,7 @@ def get_server_license_summary():
         "SupportedLanguages": [{
             "isSupported": item["isSupported"],
             "language": item["language"]
-            } for item in supported_languages["SupportedLanguage"]
+        } for item in supported_languages["SupportedLanguage"]
         ] if supported_languages else None,
         "MaxUsers": response["MaxUsers"],
         "CurrentUsers": response["CurrentUsers"],
@@ -602,9 +590,11 @@ def get_version_number():
     Returns:
 
     """
+    client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+
     @retry_when_unauthorized
     def execute():
-        return zeepClient.client.service.GetVersionNumber()
+        return client.service.GetVersionNumber()
 
     response = execute()
     return {
