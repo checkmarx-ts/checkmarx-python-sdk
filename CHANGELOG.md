@@ -59,3 +59,6 @@ All notable changes to this project will be documented in  this file.
 * Fix config max_try issue
 * Add 3 new REST API for scan results
 * Add 1 portal soap api get_query_collection
+
+0.2.2 - 2021-02-07
+* Refactor false positive scan results statistics logic
