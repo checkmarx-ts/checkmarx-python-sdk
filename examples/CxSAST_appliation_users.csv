@@ -1,0 +1,3 @@
+FirstName,LastName,Username,Email,JobTitle,Phone,MobilePhone,Country,Other,LocaleCode,Password,ExpirationDate,ActiveUser,Teams,Roles
+John,Smith,john,john.smith@sleep.net,Manager,021-10010,333 666 111,China,other,zh-CN,Test123@cx,5/22/2023,TRUE,/CxServer/SP/Company/Users;/CxServer/SP/Checkmarx,Admin;SAST Admin
+Bob,Han,bob,bob.han@dd.com,,,,,,en-US,Test123@cx,1/23/2023,FALSE,/CxServer;/CxServer/SP,SAST Reviewer;SAST Scanner
