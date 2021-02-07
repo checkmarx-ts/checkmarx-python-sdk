@@ -51,13 +51,17 @@ def scan_results_group_by_query_id(original_results):
     original_results = sorted(original_results, key=lambda r: r.get("QueryId"))
     for _, query_id_group in groupby(original_results, lambda r: r.get("QueryId")):
         list_of_result_with_same_query_id = list(query_id_group)
-        count = len(list_of_result_with_same_query_id)
+        total_number_of_same_query_result = len(list_of_result_with_same_query_id)
+        false_positive_number = len(
+            list(filter(lambda r: r.get("ResultState") in ["Not Exploitable", "Proposed Not Exploitable"],
+                        list_of_result_with_same_query_id)))
 
         first_dict = deepcopy(list_of_result_with_same_query_id[0])
         first_dict.pop('SimilarityId')
         first_dict.pop("ResultId")
         first_dict.pop("ResultState")
-        first_dict.update({"Count": count})
+        first_dict.update({"TotalNumber": total_number_of_same_query_result})
+        first_dict.update({"FalsePositiveNumber": false_positive_number})
 
         results.append(first_dict)
 
@@ -143,91 +147,99 @@ def merge_results_by_similarity_id(first_result_list, second_result_list):
     return first_result_list
 
 
-def get_results_and_write_to_csv_file(file_path, filter_false_positive=False, threshold=0):
+def get_result(project, filter_false_positive=False, threshold=0):
+    
+    is_for_all_raw_results = True if filter_false_positive is False and threshold == 0 else False
+
+    team_id = project.get("TeamId")
+    team_name = project.get("TeamName")
+    project_id = project.get("ProjectId")
+    project_name = project.get("ProjectName")
+
+    last_scan_id = get_last_scan_id_of_a_project(project_id=project_id)
+    if not last_scan_id:
+        print("Project name: {name}, id : {id} has no scans".format(name=project_name, id=project_id))
+        return None
+    
+    last_full_scan_id = get_last_full_scan_id_of_a_project(project_id=project_id)
+
+    try:
+        result_list = get_results_for_a_specific_scan_id_with_query_language_state(scan_id=last_scan_id)
+    except ValueError as e:
+        print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
+        print("Exception: {error} ".format(error=e))
+        return None
+
+    if last_scan_id != last_full_scan_id:
+        try:
+            last_full_scan_result = get_results_for_a_specific_scan_id_with_query_language_state(
+                scan_id=last_full_scan_id
+            )
+        except Exception as e:
+            print("Fail to get scan result for scan id: {id}".format(id=last_full_scan_id))
+            print("Exception: {error} ".format(error=e))
+            return None
+
+        result_list = merge_results_by_similarity_id(result_list, last_full_scan_result)
+
+    if is_for_all_raw_results:
+        result_list = sorted(
+            result_list, key=lambda r: (r.get("Language"),
+                                        r.get("QueryGroup"), r.get("QueryId"), r.get("ResultId"))
+        )
+    else:
+        result_list = scan_results_group_by_query_id(result_list)
+        result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
+                                                         r.get("QueryId"),))
+
+        if threshold > 1:
+            result_list = list(filter(lambda r: r.get("TotalNumber") >= threshold, result_list))
+
+    for result in result_list:
+        result.update(
+            {
+                "TeamName": team_name,
+                "TeamId": team_id,
+                "ProjectId": project_id,
+                "ProjectName": project_name,
+                "ScanId": last_scan_id
+            }
+        )
+
+    return result_list
+
+
+def get_results_and_write_to_csv_file(file_path, field_names, filter_false_positive=False, threshold=0):
     """
     Args:
         file_path (str):
+        field_names (list of str):
         filter_false_positive (bool): True if get only [Proposed] Not Exploitable results,
                                         otherwise get all result state
-        threshold (int): minimum number of count for results
+        threshold (int): minimum number for results
 
     Returns:
 
     """
 
-    common_field_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
-                          'QueryId', 'Query']
-
-    all_results_field_names = common_field_names[:]
-    all_results_field_names.extend(['SimilarityId', 'ResultId', 'ResultState'])
-
-    group_by_query_field_names = common_field_names[:]
-    group_by_query_field_names.extend(['Count'])
-
     with open(file_path, 'w', newline='') as csv_file:
-
-        is_for_all_results = True if filter_false_positive is False and threshold == 0 else False
-
-        field_names = all_results_field_names if is_for_all_results else group_by_query_field_names
-
         writer = csv.DictWriter(csv_file, fieldnames=field_names)
         writer.writeheader()
-
-        project_id_name_list = get_all_projects_id_name_and_team_id_name()
-        for project in project_id_name_list:
-            team_id = project.get("TeamId")
-            team_name = project.get("TeamName")
-            project_id = project.get("ProjectId")
-            project_name = project.get("ProjectName")
-
-            last_scan_id = get_last_scan_id_of_a_project(project_id=project_id)
-            if not last_scan_id:
-                print("Project name: {name}, id : {id} has no scans".format(name=project_name, id=project_id))
+        for project in get_all_projects_id_name_and_team_id_name():
+            results = get_result(project, filter_false_positive, threshold)
+            if not results:
                 continue
-            last_full_scan_id = get_last_full_scan_id_of_a_project(project_id=project_id)
+            writer.writerows(results)
 
-            try:
-                result_list = get_results_for_a_specific_scan_id_with_query_language_state(
-                    scan_id=last_scan_id, filter_false_positive=filter_false_positive
-                )
-            except ValueError as e:
-                print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
-                print("Exception: {error} ".format(error=e))
-                continue
 
-            if last_scan_id != last_full_scan_id:
-                try:
-                    last_full_scan_result = get_results_for_a_specific_scan_id_with_query_language_state(
-                        scan_id=last_full_scan_id, filter_false_positive=filter_false_positive
-                    )
-                except Exception as e:
-                    print("Fail to get scan result for scan id: {id}".format(id=last_full_scan_id))
-                    print("Exception: {error} ".format(error=e))
-                    continue
+def dump_last_scan_results_of_each_project_into_csv_file(file_path):
+    filed_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
+                   'QueryId', 'Query', 'SimilarityId', 'ResultId', 'ResultState']
+    get_results_and_write_to_csv_file(file_path=file_path, field_names=filed_names)
 
-                result_list = merge_results_by_similarity_id(result_list, last_full_scan_result)
 
-            if is_for_all_results:
-                result_list = sorted(
-                    result_list, key=lambda r: (r.get("Language"),
-                                                r.get("QueryGroup"), r.get("QueryId"), r.get("ResultId"))
-                    )
-            else:
-                result_list = scan_results_group_by_query_id(result_list)
-                result_list = sorted(result_list, key=lambda r: (r.get("Language"), r.get("QueryGroup"),
-                                                                 r.get("QueryId"),))
-
-                if threshold > 1:
-                    result_list = list(filter(lambda r: r.get("Count") >= threshold, result_list))
-
-            for result in result_list:
-                result.update(
-                    {
-                        "TeamName": team_name,
-                        "TeamId": team_id,
-                        "ProjectId": project_id,
-                        "ProjectName": project_name,
-                        "ScanId": last_scan_id
-                    }
-                )
-            writer.writerows(result_list)
+def dump_last_scan_results_statistics_of_each_project_into_csv_file(file_path, threshold=0):
+    filed_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
+                   'QueryId', 'Query', 'TotalNumber', 'FalsePositiveNumber']
+    get_results_and_write_to_csv_file(file_path=file_path, field_names=filed_names, filter_false_positive=True,
+                                      threshold=threshold)

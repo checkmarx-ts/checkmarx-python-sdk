@@ -35,5 +35,6 @@ from .Utilities import (
     scan_results_group_by_query_id,
     get_all_results_with_count_for_each_project_json_format,
     merge_results_by_similarity_id,
-    get_results_and_write_to_csv_file
+    dump_last_scan_results_of_each_project_into_csv_file,
+    dump_last_scan_results_statistics_of_each_project_into_csv_file,
 )
