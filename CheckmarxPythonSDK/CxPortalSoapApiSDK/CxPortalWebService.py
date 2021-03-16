@@ -110,19 +110,19 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
         scan_id (int):
         report_type (str): 'PDF', 'RTF', 'CSV', 'XML'
         queries_all (bool):
-        queries_ids (list):
+        queries_ids (list, None):
         results_severity_all (bool):
         results_severity_high (bool):
         results_severity_medium (bool):
         results_severity_low (bool):
         results_severity_info (bool):
         results_state_all (bool):
-        results_state_ids (list):
+        results_state_ids (list, None):
         display_categories_all (bool):
-        display_categories_ids (list):
+        display_categories_ids (list, None):
         results_assigned_to_all (bool):
-        results_assigned_to_ids (list):
-        results_assigned_to_usernames (list):
+        results_assigned_to_ids (list, None):
+        results_assigned_to_usernames (list, None):
         results_per_vulnerability_all (bool):
         results_per_vulnerability_maximum (int):
         header_options_link_to_online_results (bool):
