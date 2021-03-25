@@ -10,10 +10,12 @@ from urllib3.exceptions import InsecureRequestWarning
 disable_warnings(InsecureRequestWarning)
 
 
-def get_new_token(username, password, account):
+def get_new_token(token_url, username, password, account):
     """
 
     Args:
+        token_url (str): US: https://platform.checkmarx.net/identity/connect/token
+                         EU: https://eu.platform.checkmarx.netidentity/connect/token
         username (str): ***
         password (str): ***
         account (str): ***
@@ -21,8 +23,6 @@ def get_new_token(username, password, account):
     Returns:
         Bear Token (str)
     """
-
-    token_url = "https://platform.checkmarx.net/identity/connect/token"
 
     req_data = {
         "username": username,
@@ -51,6 +51,7 @@ def get_token():
 
     """
     return get_new_token(
+        token_url=sca_config.get("access_control_url") + "/identity/connect/token",
         username=sca_config.get("username"),
         password=sca_config.get("password"),
         account=sca_config.get("account"),
