@@ -896,7 +896,7 @@ class ScansAPI(object):
         is_successful = False
         post_body_data = json.dumps(
             {
-                "resultsId": list(results_id),
+                "resultsId": [results_id],
                 "ticketId": ticket_id
             }
         )

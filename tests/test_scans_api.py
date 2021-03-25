@@ -160,15 +160,14 @@ def test_define_sast_scan_scheduling_settings():
     assert result is True
 
 
-# def test_assign_ticket_to_scan_results():
-#     scan_api = ScansAPI()
-#
-#     results_id = None
-#     ticket_id = None
-#     is_successful = scan_api.assign_ticket_to_scan_results(results_id, ticket_id)
-#     assert is_successful is True
-#     pass
-#     # TODO, need to parse XML file to get resultId
+def test_assign_ticket_to_scan_results():
+    scan_api = ScansAPI()
+
+    results_id = "1000004-5"
+    ticket_id = "10060"
+    is_successful = scan_api.assign_ticket_to_scan_results(results_id, ticket_id)
+    assert is_successful is True
+
 #
 #
 # def test_publish_last_scan_results_to_management_and_orchestration_by_project_id():
