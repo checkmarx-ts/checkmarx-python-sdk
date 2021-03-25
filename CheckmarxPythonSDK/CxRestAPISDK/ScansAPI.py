@@ -881,7 +881,8 @@ class ScansAPI(object):
         Assign ticket to scan results according to scan results and ticket Id.
 
         Args:
-            results_id (str): Unique Id of the result
+            results_id (str): Unique Id of the result. ResultsId is made up of the Scan Id and Path Id (example:
+                                    ScanId = 1000025, PathId = 12, therefore ResultsId = 1000025-12)
             ticket_id (str): Unique Id of the ticket.
 
         Returns:
@@ -908,7 +909,7 @@ class ScansAPI(object):
             headers=authHeaders.auth_headers,
             verify=config.get("verify")
         )
-        if r.status_code == OK:
+        if r.status_code == NO_CONTENT:
             is_successful = True
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
