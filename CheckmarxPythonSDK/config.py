@@ -78,6 +78,7 @@ def get_config_info_from_config_file():
     cxsca_config = None
     if parser_obj.has_section("CxSCA"):
         cxsca_config = {
+            "access_control_url": parser_obj.get("CxSCA", "access_control_url", fallback=None),
             "server": parser_obj.get("CxSCA", "server", fallback=None),
             "account": parser_obj.get("CxSCA", "account", fallback=None),
             "username": parser_obj.get("CxSCA", "username", fallback=None),
@@ -117,6 +118,7 @@ def get_config_info_from_environment_variables():
             "report_folder": os.getenv("cxsast_report_folder"),
         },
         "CxSCA": {
+            "access_control_url": os.getenv("cxsca_access_control_url"),
             "server": os.getenv("cxsca_server"),
             "account":  os.getenv("cxsca_account"),
             "username": os.getenv("cxsca_username"),
@@ -163,6 +165,7 @@ def get_config_info_from_command_line_arguments():
     parser.add_option("--cxsast_max_try", help=SUPPRESS_HELP)
     parser.add_option("--cxsast_report_folder", help=SUPPRESS_HELP)
 
+    parser.add_option("--cxsca_access_control_url", help=SUPPRESS_HELP)
     parser.add_option("--cxsca_server", help=SUPPRESS_HELP)
     parser.add_option("--cxsca_account", help=SUPPRESS_HELP)
     parser.add_option("--cxsca_username", help=SUPPRESS_HELP)
@@ -190,6 +193,7 @@ def get_config_info_from_command_line_arguments():
             "report_folder": options.cxsast_report_folder,
         },
         "CxSCA": {
+            "access_control_url": options.cxsca_access_control_url,
             "server": options.cxsca_server,
             "account": options.cxsca_account,
             "username": options.cxsca_username,
@@ -215,6 +219,7 @@ global_config = {
         "report_folder": None
     },
     "CxSCA": {
+        "access_control_url": "https://platform.checkmarx.net",
         "server": "https://api-sca.checkmarx.net",
         "account": None,
         "username": None,
