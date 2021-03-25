@@ -52,6 +52,7 @@ team_full_name = /CxServer
 max_try = 3
 
 [CxSCA]
+access_control_url = https://platform.checkmarx.net
 server = https://api-sca.checkmarx.net
 account = ***
 username = ***
@@ -81,6 +82,7 @@ For CxSAST:
 
 For CxSCA
 
+    - cxsca_access_control_url
     - cxsca_server
     - cxsca_account
     - cxsca_username
