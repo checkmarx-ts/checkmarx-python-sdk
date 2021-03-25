@@ -62,3 +62,7 @@ All notable changes to this project will be documented in  this file.
 
 0.2.2 - 2021-02-07
 * Refactor false positive scan results statistics logic
+
+0.2.3 - 2021-03-25
+* Fix bug for API POST /sast/results/tickets
+* Make SCA access control url configurable
