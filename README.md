@@ -226,6 +226,7 @@ For CxSCA
     - get_all_permissions
     - get_permission_by_id
     - get_all_roles
+    - get_role_id_by_name
     - create_new_role
     - get_role_by_id
     - update_a_role
