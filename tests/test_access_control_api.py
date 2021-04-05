@@ -81,6 +81,15 @@ def test_get_all_roles():
     assert resp is not None
 
 
+def test_get_role_id_by_name():
+    ac = AccessControlAPI()
+    resp = ac.get_role_id_by_name("Admin")
+    assert isinstance(resp, int)
+
+    resp = ac.get_role_id_by_name(["Admin", "SAST Admin"])
+    assert isinstance(resp, list)
+
+
 def test_create_new_role():
     ac = AccessControlAPI()
     name = "commonAuditor"
@@ -432,7 +441,7 @@ def test_create_new_user():
 def test_get_user_by_id():
     ac = AccessControlAPI()
 
-    username = "test3"
+    username = "test"
     user_id = ac.get_user_id_by_name(username=username)
 
     user = ac.get_user_by_id(user_id=user_id)

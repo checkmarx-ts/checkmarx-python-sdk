@@ -1753,6 +1753,38 @@ class AccessControlAPI(object):
 
         return all_roles
 
+    def get_role_id_by_name(self, name):
+        """
+
+        Args:
+            name (str, list of str):
+
+        Returns:
+            int, list of int
+        """
+
+        all_roles = self.get_all_roles()
+
+        names = []
+
+        if isinstance(name, str):
+            names = [name]
+        elif isinstance(name, list):
+            names = name
+        else:
+            return None
+
+        roles = [item for item in all_roles if item.name in names]
+
+        if not roles:
+            return None
+
+        if len(roles) == 1:
+            return roles[0].id
+
+        if len(roles) > 1:
+            return [role.id for role in roles]
+
     def create_new_role(self, name, description, permission_ids):
         """
 
@@ -2976,7 +3008,7 @@ class AccessControlAPI(object):
         """
 
         Returns:
-            list[Team]
+            list[`Team`]
         """
 
         all_teams = False
