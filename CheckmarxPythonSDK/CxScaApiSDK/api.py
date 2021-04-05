@@ -105,14 +105,17 @@ def get_project_id_by_name(project_name):
     """
 
     Args:
-        project_name (str):
+        project_name (str, list of str):
 
     Returns:
-        project_id (str)
+        project_id (str, list of str)
     """
-    project = get_all_projects(project_name=project_name)
-
-    return project.get("id")
+    if isinstance(project_name, str):
+        project = get_all_projects(project_name=project_name)
+        return project.get("id")
+    elif isinstance(project_name, list):
+        projects = get_all_projects()
+        return [project.get("id") for project in projects if project.get("name") in project_name]
 
 
 def get_project_by_id(project_id):

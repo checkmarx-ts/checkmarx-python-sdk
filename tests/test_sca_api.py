@@ -50,7 +50,9 @@ def test_create_a_new_project():
 
 def test_get_project_id_by_name():
     project_id = get_project_id_by_name(project_name)
-    assert project_id is not None
+    assert isinstance(project_id, str)
+    project_id = get_project_id_by_name(['Sample App', 'Test Project'])
+    assert isinstance(project_id, list)
 
 
 def test_get_project_by_id():
