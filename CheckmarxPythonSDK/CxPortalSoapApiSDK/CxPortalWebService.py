@@ -314,6 +314,58 @@ def delete_projects(project_ids, flag="None"):
     }
 
 
+def export_preset(preset_id):
+    """
+
+    Args:
+        preset_id (int):
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.ExportPreset(sessionId="0", presetId=preset_id)
+
+    response = execute()
+
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "OverridenCorpQueryNames": response["OverridenCorpQueryNames"]["string"],
+        "Preset": response["Preset"]
+    }
+
+
+def export_queries(queries_ids):
+    """
+
+    Args:
+        queries_ids:
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        query_ids = queries_ids
+        if queries_ids:
+            query_ids = factory.ArrayOfLong(queries_ids)
+        return client.service.ExportQueries(sessionId="0", queryIds=query_ids)
+
+    response = execute()
+
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "Queries": response["Queries"]
+    }
+
+
 def get_path_comments_history(scan_id, path_id, label_type):
     """
 
@@ -397,7 +449,6 @@ def get_queries_categories():
 
 
 def get_query_collection():
-
     @retry_when_unauthorized
     def execute():
         client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
@@ -456,6 +507,56 @@ def get_query_collection():
             } for query_group in response.QueryGroups.CxWSQueryGroup
         ]
     }
+
+
+def get_query_id_by_language_group_and_query_name(
+        language=None, package_type_name=None, package_name=None, query_name=None
+):
+    """
+
+    Args:
+        language (str, list, tuple, None):
+        package_type_name (str, list, tuple, None): ["Cx", "Corp"]
+        package_name (str, list, tuple, None):
+        query_name (str, list, tuple, None):
+
+    Returns:
+        int, list of int, None
+    """
+    query_id_list = []
+    response = get_query_collection()
+    if not response.get("IsSuccesfull"):
+        return None
+
+    query_collection = response.get("QueryGroups")
+
+    if isinstance(language, str):
+        query_collection = [item for item in query_collection if item.get("LanguageName") == language]
+    elif isinstance(language, (list, tuple)):
+        query_collection = [item for item in query_collection if item.get("LanguageName") in language]
+
+    if isinstance(package_type_name, str):
+        assert package_type_name in ["Cx", "Corp"]
+        query_collection = [item for item in query_collection if item.get("PackageTypeName") == package_type_name]
+    elif isinstance(package_type_name, (list, tuple)):
+        query_collection = [item for item in query_collection if item.get("PackageTypeName") in package_type_name]
+
+    if isinstance(package_name, str):
+        query_collection = [item for item in query_collection if item.get("Name") == package_name]
+    elif isinstance(package_name, (list, tuple)):
+        query_collection = [item for item in query_collection if item.get("Name") in package_name]
+
+    for item in query_collection:
+        for query in item.get("Queries"):
+            if isinstance(query_name, (str, list, tuple)) and query.get("Name") not in [query_name]:
+                continue
+            query_id = query.get("QueryId")
+            query_id_list.append(query_id)
+
+    if len(query_id_list) == 1:
+        query_id_list = query_id_list[0]
+
+    return query_id_list
 
 
 def get_name_of_user_who_marked_false_positive_from_comments_history(scan_id, path_id):

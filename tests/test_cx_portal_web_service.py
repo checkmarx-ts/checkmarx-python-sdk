@@ -4,7 +4,10 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     add_license_expiration_notification,
     create_new_preset, create_scan_report,
     delete_preset,
+    export_preset,
+    export_queries,
     get_query_collection,
+    get_query_id_by_language_group_and_query_name,
     get_preset_list, get_server_license_data, get_server_license_summary,
     delete_project, delete_projects, get_version_number, get_path_comments_history,
     get_queries_categories,
@@ -49,6 +52,16 @@ def test_delete_projects():
     assert response["IsSuccesfull"] is True
 
 
+def test_export_preset():
+    response = export_preset(preset_id=100000)
+    assert response.get("Preset") is not None
+
+
+def test_export_queries():
+    response = export_queries(queries_ids=[100000, 100001, 100002, 100003, 100004])
+    assert response is not None
+
+
 def test_get_path_comments_history():
     scan_id = 1000022
     path_id = 5
@@ -65,6 +78,17 @@ def test_get_queries_categories():
 def test_get_query_collection():
     response = get_query_collection()
     assert response is not None
+
+
+def test_get_query_id_by_language_group_and_query_name():
+    response = get_query_id_by_language_group_and_query_name(query_name="Find_URL_Query_String_Creating_URI")
+    assert isinstance(response, int)
+
+    response = get_query_id_by_language_group_and_query_name()
+    assert isinstance(response, list)
+
+    response = get_query_id_by_language_group_and_query_name(package_type_name="Corp")
+    assert isinstance(response, list)
 
 
 def test_get_name_of_user_who_marked_false_positive_from_comments_history():
