@@ -4,6 +4,8 @@
     Only support 9.x version.
     Start from 9.0, Portal SOAP API needs Bear Token for authentication
 """
+import base64
+from os.path import exists
 
 from .zeepClient import get_client_and_factory, retry_when_unauthorized
 
@@ -366,6 +368,29 @@ def export_queries(queries_ids):
     }
 
 
+def get_import_queries_status(request_id):
+    """
+
+    Args:
+        request_id (int):
+
+    Returns:
+
+    """
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetImportQueriesStatus(sessionId="0", requestId=request_id)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "requestId": response["requestId"],
+        "importQueryStatus": response["importQueryStatus"]
+    }
+
+
 def get_path_comments_history(scan_id, path_id, label_type):
     """
 
@@ -702,4 +727,64 @@ def get_version_number():
         "IsSuccesfull": response["IsSuccesfull"],
         "ErrorMessage": response["ErrorMessage"],
         "Version": response["Version"]
+    }
+
+
+def import_preset(imported_file_path):
+    """
+
+    Args:
+        imported_file_path (str):
+
+    Returns:
+
+    """
+    if not exists(imported_file_path):
+        print("Error, the imported file {} not exist".format(imported_file_path))
+        return
+
+    with open(imported_file_path, "rb") as xml_file:
+        imported_file = xml_file.read()
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.ImportPreset(sessionId="0", importedFile=imported_file)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "requestId": response["requestId"],
+        "importQueryStatus": response["importQueryStatus"]
+    }
+
+
+def import_queries(imported_file_path):
+    """
+
+        Args:
+            imported_file_path (str):
+
+        Returns:
+
+        """
+    if not exists(imported_file_path):
+        print("Error, the imported file {} not exist".format(imported_file_path))
+        return
+
+    with open(imported_file_path, "rb") as xml_file:
+        imported_file = xml_file.read()
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.ImportQueries(sessionId="0", importedFile=imported_file)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "requestId": response["requestId"],
+        "importQueryStatus": response["importQueryStatus"]
     }

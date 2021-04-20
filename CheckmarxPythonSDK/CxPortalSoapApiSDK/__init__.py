@@ -5,6 +5,7 @@ from .CxPortalWebService import (
     delete_preset,
     export_preset,
     export_queries,
+    get_import_queries_status,
     get_path_comments_history,
     get_queries_categories,
     get_query_collection,
@@ -16,6 +17,8 @@ from .CxPortalWebService import (
     delete_project,
     delete_projects,
     get_version_number,
+    import_preset,
+    import_queries,
 )
 
 from .CxAuditWebService import (
