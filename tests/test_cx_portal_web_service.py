@@ -31,14 +31,14 @@ def test_create_new_preset():
 
 def test_create_scan_report():
     response = create_scan_report(
-        scan_id=1010002,
+        scan_id=1000005,
         report_type='PDF',
         results_per_vulnerability_maximum=500,
         display_categories_all=False,
         display_categories_ids=list(range(30, 62))
     )
     assert response["IsSuccesfull"] is True
-    assert response["Id"] > 0
+    assert response["ID"] > 0
 
 
 def test_delete_preset():

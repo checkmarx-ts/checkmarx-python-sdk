@@ -97,6 +97,7 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
                        results_per_vulnerability_all=True, results_per_vulnerability_maximum=50,
                        header_options_link_to_online_results=True, header_options_team=True,
                        header_options_checkmarx_version=True, header_options_comments=False,
+                       header_options_scan_custom_fields=True,
                        header_options_scan_type=True, header_options_source_origin=True, header_options_density=True,
                        general_options_only_executive_summary=False, general_options_table_of_contents=True,
                        general_options_executive_summary=True, general_options_display_categories=True,
@@ -131,6 +132,7 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
         header_options_team (bool):
         header_options_checkmarx_version (bool):
         header_options_comments (bool):
+        header_options_scan_custom_fields (bool):
         header_options_scan_type (bool):
         header_options_source_origin (bool):
         header_options_density (bool):
@@ -192,15 +194,31 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
             All=results_per_vulnerability_all, Maximimum=results_per_vulnerability_maximum
         )
 
-        header_options = factory.CxWSHeaderDisplayOptions(
-            Link2OnlineResults=header_options_link_to_online_results,
-            Team=header_options_team,
-            CheckmarxVersion=header_options_checkmarx_version,
-            ScanComments=header_options_comments,
-            ScanType=header_options_scan_type,
-            SourceOrigin=header_options_source_origin,
-            ScanDensity=header_options_density
-        )
+        version = get_version_number().get("Version").split(" ")[1]
+        version = "".join(version.split("."))
+        version = int(version)
+
+        if version < 940:
+            header_options = factory.CxWSHeaderDisplayOptions(
+                Link2OnlineResults=header_options_link_to_online_results,
+                Team=header_options_team,
+                CheckmarxVersion=header_options_checkmarx_version,
+                ScanComments=header_options_comments,
+                ScanType=header_options_scan_type,
+                SourceOrigin=header_options_source_origin,
+                ScanDensity=header_options_density
+            )
+        else:
+            header_options = factory.CxWSHeaderDisplayOptions(
+                Link2OnlineResults=header_options_link_to_online_results,
+                Team=header_options_team,
+                CheckmarxVersion=header_options_checkmarx_version,
+                ScanComments=header_options_comments,
+                ScanCustomFields=header_options_scan_custom_fields,
+                ScanType=header_options_scan_type,
+                SourceOrigin=header_options_source_origin,
+                ScanDensity=header_options_density
+            )
 
         general_option = factory.CxWSGeneralDisplayOptions(
             OnlyExecutiveSummary=general_options_only_executive_summary,
