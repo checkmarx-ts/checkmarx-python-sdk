@@ -96,6 +96,7 @@ For CxSCA
 1. For REST API, use Bearer Token for authentication
     - auth_headers (This is a global variable that stored token)
 2. TeamAPI
+    - create_team
     - get_all_teams
     - get_team_id_by_team_full_name                                         **(provided by SDK)**
     - get_team_full_name_by_team_id                                         **(provided by SDK)**
