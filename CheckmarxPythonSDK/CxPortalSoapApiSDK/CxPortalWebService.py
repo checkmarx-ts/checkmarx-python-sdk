@@ -728,6 +728,27 @@ def get_server_license_summary():
     }
 
 
+def get_user_profile_data():
+    """
+    Notice: This method is not implemented by Portal SOAP API.
+    The response IsSuccesfull is always False
+
+    Returns:
+
+    """
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetUserProfileData(sessionID="0")
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "ProfileData": response["ProfileData"],
+    }
+
+
 def get_version_number():
     """
 

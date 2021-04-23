@@ -7,6 +7,7 @@ from .CxPortalWebService import (
     export_queries,
     get_import_queries_status,
     get_path_comments_history,
+    get_user_profile_data,
     get_queries_categories,
     get_query_collection,
     get_query_id_by_language_group_and_query_name,
