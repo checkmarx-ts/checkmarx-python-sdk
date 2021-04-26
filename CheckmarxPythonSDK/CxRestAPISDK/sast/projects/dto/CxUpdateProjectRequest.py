@@ -26,16 +26,15 @@ class CxUpdateProjectRequest(object):
         dict
 
         """
+        if self.custom_fields:
+            custom_fields = [{'id': cf.id, 'value': cf.value} for cf in self.custom_fields]
+        else:
+            custom_fields = []
         return json.dumps(
             {
                 "name": self.name,
                 "owningTeam": self.owning_team,
-                "customFields": [
-                    {
-                        "id": self.custom_fields.id,
-                        "value": self.custom_fields.name
-                    }
-                ] if self.custom_fields else []
+                "customFields": custom_fields
             }
         )
 
