@@ -30,8 +30,6 @@ class TeamAPI(object):
             notFoundError
             CxError
         """
-        teams = []
-
         teams_url = config.get("base_url") + "/cxrestapi/auth/teams"
 
         r = requests.get(
@@ -46,7 +44,6 @@ class TeamAPI(object):
                     item.get("id"), item.get("name"), item.get("fullName"), item.get("parentId")
                 ) for item in a_list
             ]
-            TeamAPI.teams = teams
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
         elif r.status_code == NOT_FOUND:
@@ -54,7 +51,7 @@ class TeamAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_teams()
+            teams = self.get_all_teams()
         else:
             raise CxError(r.text, r.status_code)
 

@@ -32,8 +32,6 @@ class CustomFieldsAPI(object):
             NotFoundError
             CxError
         """
-        custom_fields = []
-
         custom_fields_url = config.get("base_url") + "/cxrestapi/customFields"
 
         r = requests.get(
@@ -58,7 +56,7 @@ class CustomFieldsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_custom_fields()
+            custom_fields = self.get_all_custom_fields()
         else:
             raise CxError(r.text, r.status_code)
 

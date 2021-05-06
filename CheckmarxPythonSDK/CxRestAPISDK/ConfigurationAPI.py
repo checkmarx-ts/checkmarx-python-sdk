@@ -41,8 +41,6 @@ class ConfigurationAPI(object):
         Returns:
             list of `CxSASTConfig`
         """
-        configurations = []
-
         url = config.get("base_url") + "/cxrestapi/configurationsExtended/{group}".format(group=group)
 
         r = requests.get(
@@ -66,7 +64,7 @@ class ConfigurationAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_cx_component_configuration_settings(group)
+            configurations = self.get_cx_component_configuration_settings(group)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -92,8 +90,6 @@ class ConfigurationAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/configurationsExtended/{group}".format(group=group)
 
         data = json.dumps(key_value_list)
@@ -114,7 +110,7 @@ class ConfigurationAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_cx_component_configuration_settings(group, key_value_list)
+            is_successful = self.update_cx_component_configuration_settings(group, key_value_list)
         else:
             raise CxError(r.text, r.status_code)
 

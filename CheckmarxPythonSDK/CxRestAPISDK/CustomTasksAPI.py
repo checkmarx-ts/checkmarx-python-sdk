@@ -31,8 +31,6 @@ class CustomTasksAPI(object):
             CxError
 
         """
-        custom_tasks = []
-
         custom_tasks_url = config.get("base_url") + "/cxrestapi/customTasks"
 
         r = requests.get(
@@ -62,7 +60,7 @@ class CustomTasksAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_custom_tasks()
+            custom_tasks = self.get_all_custom_tasks()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -99,8 +97,6 @@ class CustomTasksAPI(object):
             NotFoundError
             CxError
         """
-        custom_task = None
-
         custom_task_url = config.get("base_url") + "/cxrestapi/customTasks/{id}".format(id=task_id)
 
         r = requests.get(
@@ -127,7 +123,7 @@ class CustomTasksAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_custom_task_by_id(task_id)
+            custom_task = self.get_custom_task_by_id(task_id)
         else:
             raise CxError(r.text, r.status_code)
 

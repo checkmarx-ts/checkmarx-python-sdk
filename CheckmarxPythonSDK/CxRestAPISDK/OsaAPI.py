@@ -43,8 +43,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        osa_scan_details = []
-
         osa_scans_url = config.get("base_url") + "/cxrestapi/osa/scans?projectId=" + str(project_id)
 
         optionals = []
@@ -84,7 +82,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_osa_scan_details_for_project(project_id)
+            osa_scan_details = self.get_all_osa_scan_details_for_project(project_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -131,8 +129,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        osa_scan_detail = None
-
         osa_scan_by_scan_id_url = config.get("base_url") + "/cxrestapi/osa/scans/{scanId}".format(scanId=scan_id)
 
         r = requests.get(url=osa_scan_by_scan_id_url, headers=authHeaders.auth_headers,
@@ -161,7 +157,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_osa_scan_by_scan_id(scan_id)
+            osa_scan_detail = self.get_osa_scan_by_scan_id(scan_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -185,8 +181,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        scan_id = None
-
         headers = copy.deepcopy(authHeaders.auth_headers)
 
         file_name = os.path.basename(zipped_source_path)
@@ -211,7 +205,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_an_osa_scan_request(project_id, zipped_source_path, origin)
+            scan_id = self.create_an_osa_scan_request(project_id, zipped_source_path, origin)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -231,8 +225,6 @@ class OsaAPI(object):
             CxError:
 
         """
-        file_extensions = None
-
         osa_file_extensions_url = config.get("base_url") + "/cxrestapi/osa/fileextensions"
 
         r = requests.get(url=osa_file_extensions_url, headers=authHeaders.auth_headers,
@@ -246,7 +238,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_osa_file_extensions()
+            file_extensions = self.get_all_osa_file_extensions()
         else:
             raise NotFoundError()
 
@@ -268,8 +260,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        licenses = None
-
         osa_licenses_url = config.get("base_url") + "/cxrestapi/osa/licenses" + "?scanId=" + str(scan_id)
 
         r = requests.get(
@@ -301,7 +291,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_osa_licenses_by_id(scan_id)
+            licenses = self.get_osa_licenses_by_id(scan_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -325,8 +315,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        libraries = None
-
         osa_libraries_url = config.get("base_url") + "/cxrestapi/osa/libraries" + "?scanId=" + str(scan_id)
 
         optionals = []
@@ -394,7 +382,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_osa_scan_libraries(scan_id)
+            libraries = self.get_osa_scan_libraries(scan_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -425,8 +413,6 @@ class OsaAPI(object):
             CxError:
 
         """
-        vulnerabilities = None
-
         osa_vulnerabilities_url = config.get("base_url") + "/cxrestapi/osa/vulnerabilities"
 
         if scan_id:
@@ -490,7 +476,8 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_osa_scan_vulnerabilities_by_id(scan_id, library_id, state_id, comment, since, until)
+            vulnerabilities = self.get_osa_scan_vulnerabilities_by_id(scan_id, library_id, state_id, comment, since,
+                                                                      until)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -529,8 +516,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        comment = None
-
         osa_vulnerability_comment_url = config.get(
             "base_url") + "/cxrestapi/osa/vulnerabilities/{vulnerabilityId}/comments".format(
             vulnerabilityId=vulnerability_id
@@ -560,7 +545,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id)
+            comment = self.get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -582,8 +567,6 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        report = None
-
         osa_reports_url = config.get("base_url") + "/cxrestapi/osa/reports" + "?scanId=" + str(scan_id)
 
         r = requests.get(
@@ -614,7 +597,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_osa_scan_summary_report(scan_id)
+            report = self.get_osa_scan_summary_report(scan_id)
         else:
             raise CxError(r.text, r.status_code)
 

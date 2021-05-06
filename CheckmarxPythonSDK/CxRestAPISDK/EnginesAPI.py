@@ -30,8 +30,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        all_engine_server_details = None
-
         engine_servers_url = config.get("base_url") + "/cxrestapi/sast/engineServers"
 
         r = requests.get(
@@ -67,7 +65,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_engine_server_details()
+            all_engine_server_details = self.get_all_engine_server_details()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -106,8 +104,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server = None
-
         post_request_body = CxRegisterEngineRequestBody(
             name=name,
             uri=uri,
@@ -141,7 +137,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.register_engine(name, uri, min_loc, max_loc, is_blocked)
+            engine_server = self.register_engine(name, uri, min_loc, max_loc, is_blocked)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -164,8 +160,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        is_successful = False
-
         engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
 
         r = requests.delete(
@@ -183,7 +177,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.unregister_engine_by_engine_id(engine_id)
+            is_successful = self.unregister_engine_by_engine_id(engine_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -206,8 +200,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server = None
-
         engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
 
         r = requests.get(
@@ -241,7 +233,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_engine_details(engine_id)
+            engine_server = self.get_engine_details(engine_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -271,8 +263,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server = None
-
         engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
 
         data = CxRegisterEngineRequestBody(
@@ -307,7 +297,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans)
+            engine_server = self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -335,8 +325,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        is_successful = False
-
         engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
 
         data = CxRegisterEngineRequestBody(
@@ -364,8 +352,9 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc, is_blocked,
-                                                              max_scans)
+            is_successful = self.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc,
+                                                                              is_blocked,
+                                                                              max_scans)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -386,8 +375,6 @@ class EnginesAPI(object):
             CxError
 
         """
-        all_engine_configurations = None
-
         engine_configurations_url = config.get("base_url") + "/cxrestapi/sast/engineConfigurations"
 
         r = requests.get(
@@ -410,7 +397,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_engine_configurations()
+            all_engine_configurations = self.get_all_engine_configurations()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -446,8 +433,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_configuration = None
-
         engine_configuration_url = config.get("base_url") + "/cxrestapi/sast/engineConfigurations/{id}".format(
             id=configuration_id
         )
@@ -470,7 +455,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_engine_configuration_by_id(configuration_id)
+            engine_configuration = self.get_engine_configuration_by_id(configuration_id)
         else:
             raise CxError(r.text, r.status_code)
 

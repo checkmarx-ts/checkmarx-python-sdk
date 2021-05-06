@@ -31,8 +31,6 @@ class AccessControlAPI(object):
             list[User]
         """
 
-        assignable_users = None
-
         url = config.get("base_url") + "/cxrestapi/auth/AssignableUsers"
 
         r = requests.get(
@@ -60,7 +58,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_assignable_users()
+            assignable_users = self.get_all_assignable_users()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -74,9 +72,6 @@ class AccessControlAPI(object):
         Returns:
             list[AuthenticationProvider]
         """
-
-        authentication_providers = None
-
         url = config.get("base_url") + "/cxrestapi/auth/AuthenticationProviders"
 
         r = requests.get(
@@ -104,7 +99,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_authentication_providers()
+            authentication_providers = self.get_all_authentication_providers()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -125,8 +120,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         post_data = json.dumps({
             "username": username,
             "password": password,
@@ -154,7 +147,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.submit_first_admin_user(username, password, first_name, last_name, email)
+            is_successful = self.submit_first_admin_user(username, password, first_name, last_name, email)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -186,7 +179,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_admin_user_exists_confirmation()
+            first_admin_exists = self.get_admin_user_exists_confirmation()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -203,9 +196,6 @@ class AccessControlAPI(object):
         Returns:
             list[LDAPRoleMapping]
         """
-
-        ldap_role_mapping = None
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPRoleMappings"
         if ldap_server_id:
             url += "?ldapServerId={id}".format(id=ldap_server_id)
@@ -236,7 +226,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_ldap_role_mapping()
+            ldap_role_mapping = self.get_all_ldap_role_mapping()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -256,8 +246,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}/RoleMappings".format(id=ldap_server_id)
 
         put_data = json.dumps(
@@ -286,7 +274,8 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_ldap_role_mapping(ldap_server_id, role_id, ldap_group_dn, ldap_group_display_name)
+            is_successful = self.update_ldap_role_mapping(ldap_server_id, role_id, ldap_group_dn,
+                                                          ldap_group_display_name)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -303,8 +292,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPRoleMappings/{id}".format(id=ldap_role_mapping_id)
 
         r = requests.delete(
@@ -324,7 +311,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_ldap_role_mapping(ldap_role_mapping_id)
+            is_successful = self.delete_ldap_role_mapping(ldap_role_mapping_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -366,8 +353,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "host": host,
@@ -414,14 +399,18 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.test_ldap_server_connection(host, port, username, password, use_ssl, verify_ssl_certificate, base_dn,
-                                             user_object_filter, user_object_class, username_attribute,
-                                             first_name_attribute,
-                                             last_name_attribute, email_attribute, synchronization_enabled,
-                                             advanced_team_and_role_mapping_enabled, additional_group_dn,
-                                             group_object_class,
-                                             group_object_filter, group_name_attribute, group_members_attribute,
-                                             user_membership_attribute)
+            is_successful = self.test_ldap_server_connection(host, port, username, password, use_ssl,
+                                                             verify_ssl_certificate, base_dn,
+                                                             user_object_filter, user_object_class, username_attribute,
+                                                             first_name_attribute,
+                                                             last_name_attribute, email_attribute,
+                                                             synchronization_enabled,
+                                                             advanced_team_and_role_mapping_enabled,
+                                                             additional_group_dn,
+                                                             group_object_class,
+                                                             group_object_filter, group_name_attribute,
+                                                             group_members_attribute,
+                                                             user_membership_attribute)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -439,8 +428,6 @@ class AccessControlAPI(object):
         Returns:
             list[User]
         """
-        user_entries = None
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}/UserEntries".format(id=ldap_server_id)
         if username_contains_pattern:
             url += "?userNameContainsPattern={}".format(username_contains_pattern)
@@ -470,7 +457,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_user_entries_by_search_criteria(ldap_server_id, username_contains_pattern)
+            user_entries = self.get_user_entries_by_search_criteria(ldap_server_id, username_contains_pattern)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -488,8 +475,6 @@ class AccessControlAPI(object):
         Returns:
             list[LDAPGroup]
         """
-        ldap_groups = None
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}/GroupEntries".format(id=ldap_server_id)
         if name_contains_pattern:
             url += "?nameContainsPattern={}".format(name_contains_pattern)
@@ -517,7 +502,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_group_entries_by_search_criteria(ldap_server_id, name_contains_pattern)
+            ldap_groups = self.get_group_entries_by_search_criteria(ldap_server_id, name_contains_pattern)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -531,8 +516,6 @@ class AccessControlAPI(object):
         Returns:
             list[LDAPServer]
         """
-        ldap_servers = None
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers"
 
         r = requests.get(
@@ -587,7 +570,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_ldap_servers()
+            ldap_servers = self.get_all_ldap_servers()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -643,8 +626,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers"
 
         post_data = json.dumps(
@@ -700,19 +681,21 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_new_ldap_server(password, active, name, host, port, username, use_ssl, verify_ssl_certificate,
-                                        based_dn, additional_user_dn, user_object_filter,
-                                        user_object_class, username_attribute, first_name_attribute,
-                                        last_name_attribute,
-                                        email_attribute,
-                                        ldap_directory_type, sso_enabled,
-                                        synchronization_enabled, default_team_id, default_role_id,
-                                        update_team_and_role_upon_login_enabled,
-                                        periodical_synchronization_enabled, advanced_team_and_role_mapping_enabled,
-                                        additional_group_dn,
-                                        group_object_class, group_object_filter, group_name_attribute,
-                                        group_members_attribute,
-                                        user_membership_attribute)
+            is_successful = self.create_new_ldap_server(password, active, name, host, port, username, use_ssl,
+                                                        verify_ssl_certificate,
+                                                        based_dn, additional_user_dn, user_object_filter,
+                                                        user_object_class, username_attribute, first_name_attribute,
+                                                        last_name_attribute,
+                                                        email_attribute,
+                                                        ldap_directory_type, sso_enabled,
+                                                        synchronization_enabled, default_team_id, default_role_id,
+                                                        update_team_and_role_upon_login_enabled,
+                                                        periodical_synchronization_enabled,
+                                                        advanced_team_and_role_mapping_enabled,
+                                                        additional_group_dn,
+                                                        group_object_class, group_object_filter, group_name_attribute,
+                                                        group_members_attribute,
+                                                        user_membership_attribute)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -729,8 +712,6 @@ class AccessControlAPI(object):
         Returns:
             LDAPServer
         """
-        ldap_server = None
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}".format(id=ldap_server_id)
         r = requests.get(
             url=url,
@@ -782,7 +763,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_ldap_server_by_id(ldap_server_id)
+            ldap_server = self.get_ldap_server_by_id(ldap_server_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -839,8 +820,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}".format(id=ldap_server_id)
 
         put_data = json.dumps(
@@ -896,20 +875,22 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_ldap_server(ldap_server_id, password, active, name, host, port, username, use_ssl,
-                                    verify_ssl_certificate,
-                                    based_dn, additional_user_dn, user_object_filter,
-                                    user_object_class, username_attribute, first_name_attribute,
-                                    last_name_attribute,
-                                    email_attribute,
-                                    ldap_directory_type, sso_enabled,
-                                    synchronization_enabled, default_team_id, default_role_id,
-                                    update_team_and_role_upon_login_enabled,
-                                    periodical_synchronization_enabled, advanced_team_and_role_mapping_enabled,
-                                    additional_group_dn,
-                                    group_object_class, group_object_filter, group_name_attribute,
-                                    group_members_attribute,
-                                    user_membership_attribute)
+            is_successful = self.update_ldap_server(ldap_server_id, password, active, name, host, port, username,
+                                                    use_ssl,
+                                                    verify_ssl_certificate,
+                                                    based_dn, additional_user_dn, user_object_filter,
+                                                    user_object_class, username_attribute, first_name_attribute,
+                                                    last_name_attribute,
+                                                    email_attribute,
+                                                    ldap_directory_type, sso_enabled,
+                                                    synchronization_enabled, default_team_id, default_role_id,
+                                                    update_team_and_role_upon_login_enabled,
+                                                    periodical_synchronization_enabled,
+                                                    advanced_team_and_role_mapping_enabled,
+                                                    additional_group_dn,
+                                                    group_object_class, group_object_filter, group_name_attribute,
+                                                    group_members_attribute,
+                                                    user_membership_attribute)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -926,8 +907,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}".format(id=ldap_server_id)
 
         r = requests.delete(
@@ -947,7 +926,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_ldap_server(ldap_server_id)
+            is_successful = self.delete_ldap_server(ldap_server_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -965,8 +944,6 @@ class AccessControlAPI(object):
         Returns:
             list[LDAPTeamMapping]
         """
-        ldap_team_mapping = None
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPTeamMappings"
 
         optionals = []
@@ -1003,7 +980,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_ldap_team_mapping(ldap_server_id, team_id)
+            ldap_team_mapping = self.get_ldap_team_mapping(ldap_server_id, team_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1023,8 +1000,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPServers/{id}/TeamMappings".format(id=ldap_server_id)
 
         put_data = json.dumps(
@@ -1053,7 +1028,8 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_ldap_team_mapping(ldap_server_id, team_id, ldap_group_dn, ldap_group_display_name)
+            is_successful = self.update_ldap_team_mapping(ldap_server_id, team_id, ldap_group_dn,
+                                                          ldap_group_display_name)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1070,8 +1046,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/LDAPTeamMappings/{id}".format(id=ldap_team_mapping_id)
 
         r = requests.delete(
@@ -1091,7 +1065,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_ldap_team_mapping(ldap_team_mapping_id)
+            is_successful = self.delete_ldap_team_mapping(ldap_team_mapping_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1105,9 +1079,6 @@ class AccessControlAPI(object):
         Returns:
             MyProfile
         """
-
-        my_profile = None
-
         url = config.get("base_url") + "/cxrestapi/auth/MyProfile"
         r = requests.get(
             url=url,
@@ -1141,7 +1112,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_my_profile()
+            my_profile = self.get_my_profile()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1167,9 +1138,6 @@ class AccessControlAPI(object):
         Returns:
             boolean
         """
-
-        is_successful = False
-
         put_data = json.dumps({
             "firstName": first_name,
             "lastName": last_name,
@@ -1201,8 +1169,9 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_my_profile(first_name, last_name, email, phone_number, cell_phone_number, job_title, other,
-                                   country, locale_id)
+            is_successful = self.update_my_profile(first_name, last_name, email, phone_number, cell_phone_number,
+                                                   job_title, other,
+                                                   country, locale_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1216,8 +1185,6 @@ class AccessControlAPI(object):
         Returns:
             list[OIDCClient]
         """
-        oidc_clients = None
-
         url = config.get("base_url") + "/cxrestapi/auth/OIDCClients"
 
         r = requests.get(
@@ -1270,7 +1237,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_oidc_clients()
+            oidc_clients = self.get_all_oidc_clients()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1325,8 +1292,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "updateAccessTokenClaimsOnRefresh": update_access_token_claims_on_refresh,
@@ -1380,20 +1345,22 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_new_oidc_client(update_access_token_claims_on_refresh, access_token_type, include_jwt_id,
-                                        always_include_user_claims_in_id_token, client_id, client_name,
-                                        allow_offline_access,
-                                        client_secrets, allow_grant_types, allowed_scopes, enabled,
-                                        require_client_secret, redirect_uris,
-                                        post_logout_redrect_uris, front_channel_logout_uri,
-                                        front_channel_logout_session_required,
-                                        back_channel_logout_uri, back_channel_logout_session_required,
-                                        identity_token_life_time,
-                                        access_token_life_time, authorization_code_life_time,
-                                        absolute_refresh_token_life_time,
-                                        sliding_refresh_token_life_time, refresh_token_usage, refresh_token_expiration,
-                                        allowed_cors_origins,
-                                        allowed_access_tokens_via_browser, claims, client_claims_prefix)
+            is_successful = self.create_new_oidc_client(update_access_token_claims_on_refresh, access_token_type,
+                                                        include_jwt_id,
+                                                        always_include_user_claims_in_id_token, client_id, client_name,
+                                                        allow_offline_access,
+                                                        client_secrets, allow_grant_types, allowed_scopes, enabled,
+                                                        require_client_secret, redirect_uris,
+                                                        post_logout_redrect_uris, front_channel_logout_uri,
+                                                        front_channel_logout_session_required,
+                                                        back_channel_logout_uri, back_channel_logout_session_required,
+                                                        identity_token_life_time,
+                                                        access_token_life_time, authorization_code_life_time,
+                                                        absolute_refresh_token_life_time,
+                                                        sliding_refresh_token_life_time, refresh_token_usage,
+                                                        refresh_token_expiration,
+                                                        allowed_cors_origins,
+                                                        allowed_access_tokens_via_browser, claims, client_claims_prefix)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1410,8 +1377,6 @@ class AccessControlAPI(object):
         Returns:
             OIDCClient
         """
-        oidc_client = None
-
         url = config.get("base_url") + "/cxrestapi/auth/OIDCClients/{id}".format(id=oidc_client_id)
 
         r = requests.get(
@@ -1462,7 +1427,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_oidc_client_by_id(oidc_client_id)
+            oidc_client = self.get_oidc_client_by_id(oidc_client_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1519,8 +1484,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = json.dumps(
             {
                 "updateAccessTokenClaimsOnRefresh": update_access_token_claims_on_refresh,
@@ -1574,21 +1537,23 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_an_oidc_client(oidc_client_id, update_access_token_claims_on_refresh, access_token_type,
-                                       include_jwt_id,
-                                       always_include_user_claims_in_id_token, client_id, client_name,
-                                       allow_offline_access,
-                                       client_secrets, allow_grant_types, allowed_scopes, enabled,
-                                       require_client_secret, redirect_uris,
-                                       post_logout_redrect_uris, front_channel_logout_uri,
-                                       front_channel_logout_session_required,
-                                       back_channel_logout_uri, back_channel_logout_session_required,
-                                       identity_token_life_time,
-                                       access_token_life_time, authorization_code_life_time,
-                                       absolute_refresh_token_life_time,
-                                       sliding_refresh_token_life_time, refresh_token_usage, refresh_token_expiration,
-                                       allowed_cors_origins,
-                                       allowed_access_tokens_via_browser, claims, client_claims_prefix)
+            is_successful = self.update_an_oidc_client(oidc_client_id, update_access_token_claims_on_refresh,
+                                                       access_token_type,
+                                                       include_jwt_id,
+                                                       always_include_user_claims_in_id_token, client_id, client_name,
+                                                       allow_offline_access,
+                                                       client_secrets, allow_grant_types, allowed_scopes, enabled,
+                                                       require_client_secret, redirect_uris,
+                                                       post_logout_redrect_uris, front_channel_logout_uri,
+                                                       front_channel_logout_session_required,
+                                                       back_channel_logout_uri, back_channel_logout_session_required,
+                                                       identity_token_life_time,
+                                                       access_token_life_time, authorization_code_life_time,
+                                                       absolute_refresh_token_life_time,
+                                                       sliding_refresh_token_life_time, refresh_token_usage,
+                                                       refresh_token_expiration,
+                                                       allowed_cors_origins,
+                                                       allowed_access_tokens_via_browser, claims, client_claims_prefix)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1605,8 +1570,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/OIDCClients/{id}".format(id=oidc_client_id)
 
         r = requests.delete(
@@ -1625,7 +1588,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_an_oidc_client(oidc_client_id)
+            is_successful = self.delete_an_oidc_client(oidc_client_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1634,8 +1597,6 @@ class AccessControlAPI(object):
         return is_successful
 
     def get_all_permissions(self):
-
-        all_permissions = None
 
         url = config.get("base_url") + "/cxrestapi/auth/Permissions"
         r = requests.get(
@@ -1663,7 +1624,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_permissions()
+            all_permissions = self.get_all_permissions()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1680,8 +1641,6 @@ class AccessControlAPI(object):
         Returns:
 
         """
-        permission = None
-
         url = config.get("base_url") + "/cxrestapi/auth/Permissions/{id}".format(id=permission_id)
         r = requests.get(
             url=url,
@@ -1706,7 +1665,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_permission_by_id(permission_id)
+            permission = self.get_permission_by_id(permission_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1715,8 +1674,6 @@ class AccessControlAPI(object):
         return permission
 
     def get_all_roles(self):
-
-        all_roles = None
 
         url = config.get("base_url") + "/cxrestapi/auth/Roles"
         r = requests.get(
@@ -1745,7 +1702,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_roles()
+            all_roles = self.get_all_roles()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1764,8 +1721,6 @@ class AccessControlAPI(object):
         """
 
         all_roles = self.get_all_roles()
-
-        names = []
 
         if isinstance(name, str):
             names = [name]
@@ -1796,9 +1751,6 @@ class AccessControlAPI(object):
         Returns:
             boolean
         """
-
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "name": name,
@@ -1826,7 +1778,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_new_role(name, description, permission_ids)
+            is_successful = self.create_new_role(name, description, permission_ids)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1843,9 +1795,6 @@ class AccessControlAPI(object):
         Returns:
             Role
         """
-
-        role = None
-
         url = config.get("base_url") + "/cxrestapi/auth/Roles/{id}".format(id=role_id)
         r = requests.get(
             url=url,
@@ -1871,7 +1820,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_role_by_id(role_id)
+            role = self.get_role_by_id(role_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1891,9 +1840,6 @@ class AccessControlAPI(object):
         Returns:
             Boolean
         """
-
-        is_successful = False
-
         put_data = json.dumps(
             {
                 "name": name,
@@ -1921,7 +1867,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_a_role(role_id, name, description, permission_ids)
+            is_successful = self.update_a_role(role_id, name, description, permission_ids)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1938,8 +1884,6 @@ class AccessControlAPI(object):
         Returns:
             Boolean
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/Roles/{id}".format(id=role_id)
         r = requests.delete(
             url=url,
@@ -1958,7 +1902,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_a_role(role_id)
+            is_successful = self.delete_a_role(role_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1972,9 +1916,6 @@ class AccessControlAPI(object):
         Returns:
             list[SAMLIdentityProvider]
         """
-
-        all_saml_identity_providers = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SamlIdentityProviders"
         r = requests.get(
             url=url,
@@ -2011,7 +1952,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_saml_identity_providers()
+            all_saml_identity_providers = self.get_all_saml_identity_providers()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2041,8 +1982,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         headers = copy(authHeaders.auth_headers)
 
         file_name = os.path.basename(certificate_file_path)
@@ -2083,9 +2022,11 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_new_saml_identity_provider(certificate_file_path, active, name, issuer, login_url, logout_url,
-                                                   error_url, sign_authn_request, authn_request_binding,
-                                                   is_manual_management, default_team_id, default_role_id)
+            is_successful = self.create_new_saml_identity_provider(certificate_file_path, active, name, issuer,
+                                                                   login_url, logout_url,
+                                                                   error_url, sign_authn_request, authn_request_binding,
+                                                                   is_manual_management, default_team_id,
+                                                                   default_role_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2102,8 +2043,6 @@ class AccessControlAPI(object):
         Returns:
             SAMLIdentityProvider
         """
-        saml_identity_provider = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         r = requests.get(
             url=url,
@@ -2138,7 +2077,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_saml_identity_provider_by_id(saml_identity_provider_id)
+            saml_identity_provider = self.get_saml_identity_provider_by_id(saml_identity_provider_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2169,8 +2108,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = {
             "CertificateFile": open(certificate_file, 'rb'),
             "Active": active,
@@ -2213,10 +2150,12 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_new_saml_identity_provider(saml_identity_provider_id, certificate_file, active, name, issuer,
-                                                   login_url, logout_url, error_url, sign_authn_request,
-                                                   authn_request_binding, is_manual_management, default_team_id,
-                                                   default_role_id)
+            is_successful = self.update_new_saml_identity_provider(saml_identity_provider_id, certificate_file, active,
+                                                                   name, issuer,
+                                                                   login_url, logout_url, error_url, sign_authn_request,
+                                                                   authn_request_binding, is_manual_management,
+                                                                   default_team_id,
+                                                                   default_role_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2233,8 +2172,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         r = requests.delete(
             url=url,
@@ -2253,7 +2190,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_a_saml_identity_provider(saml_identity_provider_id)
+            is_successful = self.delete_a_saml_identity_provider(saml_identity_provider_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2267,8 +2204,6 @@ class AccessControlAPI(object):
         Returns:
             byte
         """
-        saml_service_provider_metadata = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SamlServiceProvider/metadata"
         r = requests.get(
             url=url,
@@ -2287,7 +2222,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_saml_service_provider_metadata()
+            saml_service_provider_metadata = self.get_saml_service_provider_metadata()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2301,8 +2236,6 @@ class AccessControlAPI(object):
         Returns:
             SAMLServiceProvider
         """
-        saml_service_provider = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SamlServiceProvider"
         r = requests.get(
             url=url,
@@ -2327,7 +2260,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_saml_service_provider()
+            saml_service_provider = self.get_saml_service_provider()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2347,8 +2280,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = {
             "CertificateFile": open(certificate_file, 'rb'),
             "CertificatePassword": certificate_password,
@@ -2382,7 +2313,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_a_saml_service_provider(certificate_file, certificate_password, issuer)
+            is_successful = self.update_a_saml_service_provider(certificate_file, certificate_password, issuer)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2396,8 +2327,6 @@ class AccessControlAPI(object):
         Returns:
             list[ServiceProvider]
         """
-        service_providers = None
-
         url = config.get("base_url") + "/cxrestapi/auth/ServiceProviders"
         r = requests.get(
             url=url,
@@ -2422,7 +2351,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_service_providers()
+            service_providers = self.get_all_service_providers()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2439,8 +2368,6 @@ class AccessControlAPI(object):
         Returns:
             ServiceProvider
         """
-        service_provider = None
-
         url = config.get("base_url") + "/cxrestapi/auth/ServiceProviders/{id}".format(id=service_provider_id)
         r = requests.get(
             url=url,
@@ -2463,7 +2390,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_service_provider_by_id(service_provider_id)
+            service_provider = self.get_service_provider_by_id(service_provider_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2477,9 +2404,6 @@ class AccessControlAPI(object):
         Returns:
             list[SMTPSetting]
         """
-
-        smtp_settings = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SMTPSettings"
         r = requests.get(
             url=url,
@@ -2509,7 +2433,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_smtp_settings()
+            smtp_settings = self.get_all_smtp_settings()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2533,8 +2457,6 @@ class AccessControlAPI(object):
         Returns:
             Boolean
         """
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "password": password,
@@ -2566,8 +2488,9 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_smtp_settings(password, host, port, encryption_type, from_address, use_default_credentials,
-                                      username)
+            is_successful = self.create_smtp_settings(password, host, port, encryption_type, from_address,
+                                                      use_default_credentials,
+                                                      username)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2584,8 +2507,6 @@ class AccessControlAPI(object):
         Returns:
             SMTPSetting
         """
-        smtp_setting = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         r = requests.get(
             url=url,
@@ -2613,7 +2534,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_smtp_settings_by_id(smtp_settings_id)
+            smtp_setting = self.get_smtp_settings_by_id(smtp_settings_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2638,9 +2559,6 @@ class AccessControlAPI(object):
         Returns:
             Boolean
         """
-
-        is_successful = False
-
         put_data = json.dumps(
             {
                 "password": password,
@@ -2672,8 +2590,9 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_smtp_settings(smtp_settings_id, password, host, port, encryption_type, from_address,
-                                      use_default_credentials, username)
+            is_successful = self.update_smtp_settings(smtp_settings_id, password, host, port, encryption_type,
+                                                      from_address,
+                                                      use_default_credentials, username)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2690,7 +2609,6 @@ class AccessControlAPI(object):
         Returns:
             Boolean
         """
-        is_successful = False
 
         url = config.get("base_url") + "/cxrestapi/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         r = requests.delete(
@@ -2710,7 +2628,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_smtp_settings(smtp_settings_id)
+            is_successful = self.delete_smtp_settings(smtp_settings_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2735,9 +2653,6 @@ class AccessControlAPI(object):
         Returns:
             Boolean
         """
-
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "recieverEmail": receiver_email,
@@ -2770,8 +2685,9 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.test_smtp_connection(receiver_email, password, host, port, encryption_type, from_address,
-                                      use_default_credentials, username)
+            is_successful = self.test_smtp_connection(receiver_email, password, host, port, encryption_type,
+                                                      from_address,
+                                                      use_default_credentials, username)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2785,9 +2701,6 @@ class AccessControlAPI(object):
         Returns:
             list[SystemLocale]
         """
-
-        all_system_locales = None
-
         url = config.get("base_url") + "/cxrestapi/auth/SystemLocales"
         r = requests.get(
             url=url,
@@ -2814,7 +2727,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_system_locales()
+            all_system_locales = self.get_all_system_locales()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2831,8 +2744,6 @@ class AccessControlAPI(object):
         Returns:
             list[User]
         """
-        team_members = None
-
         url = config.get("base_url") + "/cxrestapi/auth/Teams/{id}/Users".format(id=team_id)
         r = requests.get(
             url=url,
@@ -2873,7 +2784,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_members_by_team_id(team_id)
+            team_members = self.get_members_by_team_id(team_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2891,8 +2802,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = json.dumps(
             {"userIds": user_ids}
         )
@@ -2916,7 +2825,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_members_by_team_id(team_id, user_ids)
+            is_successful = self.update_members_by_team_id(team_id, user_ids)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2934,8 +2843,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/Teams/{teamId}/Users/{userId}".format(
             teamId=team_id, userId=user_id
         )
@@ -2957,7 +2864,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.add_a_user_to_a_team(team_id, user_id)
+            is_successful = self.add_a_user_to_a_team(team_id, user_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -2975,8 +2882,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/Teams/{teamId}/Users/{userId}".format(teamId=team_id,
                                                                                               userId=user_id)
         r = requests.delete(
@@ -2996,7 +2901,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_a_member_from_a_team(team_id, user_id)
+            is_successful = self.delete_a_member_from_a_team(team_id, user_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3010,9 +2915,6 @@ class AccessControlAPI(object):
         Returns:
             list[`Team`]
         """
-
-        all_teams = False
-
         url = config.get("base_url") + "/cxrestapi/auth/Teams"
         r = requests.get(
             url=url,
@@ -3039,7 +2941,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_teams()
+            all_teams = self.get_all_teams()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3076,8 +2978,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "name": name,
@@ -3104,7 +3004,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_new_team(name, parent_id)
+            is_successful = self.create_new_team(name, parent_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3121,7 +3021,6 @@ class AccessControlAPI(object):
         Returns:
             Team
         """
-        team = None
 
         url = config.get("base_url") + "/cxrestapi/auth/Teams/{id}".format(id=team_id)
         r = requests.get(
@@ -3147,7 +3046,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_team_by_id(team_id)
+            team = self.get_team_by_id(team_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3166,8 +3065,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = json.dumps(
             {
                 "name": name,
@@ -3194,7 +3091,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_a_team(team_id, name, parent_id)
+            is_successful = self.update_a_team(team_id, name, parent_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3211,7 +3108,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
 
         url = config.get("base_url") + "/cxrestapi/auth/Teams/{id}".format(id=team_id)
         r = requests.delete(
@@ -3231,7 +3127,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_a_team(team_id)
+            is_successful = self.delete_a_team(team_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3245,8 +3141,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/TokenSigningCertificateGeneration"
 
         r = requests.post(
@@ -3266,7 +3160,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.generate_a_new_token_signing_certificate()
+            is_successful = self.generate_a_new_token_signing_certificate()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3284,8 +3178,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         url = config.get("base_url") + "/cxrestapi/auth/TokenSigningCertificate"
 
         headers = copy(authHeaders.auth_headers)
@@ -3312,7 +3204,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.upload_a_new_token_signing_certificate(certificate_file_path, certificate_password)
+            is_successful = self.upload_a_new_token_signing_certificate(certificate_file_path, certificate_password)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3326,7 +3218,6 @@ class AccessControlAPI(object):
         Returns:
             list[User]
         """
-        all_users = None
 
         url = config.get("base_url") + "/cxrestapi/auth/Users"
         r = requests.get(
@@ -3368,7 +3259,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_users()
+            all_users = self.get_all_users()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3421,8 +3312,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         post_data = json.dumps(
             {
                 "username": username,
@@ -3464,7 +3353,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_new_user(
+            is_successful = self.create_new_user(
                 username, password, role_ids, team_ids, authentication_provider_id, first_name,
                 last_name, email, phone_number, cell_phone_number, job_title, other, country, active,
                 expiration_date, allowed_ip_list, locale_id
@@ -3485,8 +3374,6 @@ class AccessControlAPI(object):
         Returns:
             User
         """
-        user = None
-
         url = config.get("base_url") + "/cxrestapi/auth/Users/{id}".format(id=user_id)
         r = requests.get(
             url=url,
@@ -3525,7 +3412,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_user_by_id(user_id)
+            user = self.get_user_by_id(user_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3557,8 +3444,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = json.dumps(
             {
                 "roleIds": role_ids,
@@ -3597,7 +3482,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_a_user(
+            is_successful = self.update_a_user(
                 user_id, role_ids, team_ids, first_name, last_name, email, phone_number, cell_phone_number,
                 job_title, other, country, active, expiration_date, allowed_ip_list, locale_id
             )
@@ -3617,7 +3502,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
 
         url = config.get("base_url") + "/cxrestapi/auth/Users/{id}".format(id=user_id)
         r = requests.delete(
@@ -3637,7 +3521,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_a_user(user_id)
+            is_successful = self.delete_a_user(user_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3648,8 +3532,6 @@ class AccessControlAPI(object):
     def migrate_existing_user(self, creation_date, username, password, role_ids, team_ids, authentication_provider_id,
                               first_name, last_name, email, phone_number, cell_phone_number, job_title, other, country,
                               active, expiration_date, allowed_ip_list, locale_id):
-
-        is_successful = False
 
         post_data = json.dumps(
             {
@@ -3693,7 +3575,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.migrate_existing_user(
+            is_successful = self.migrate_existing_user(
                 creation_date, username, password, role_ids, team_ids, authentication_provider_id,
                 first_name, last_name, email, phone_number, cell_phone_number, job_title, other, country,
                 active, expiration_date, allowed_ip_list, locale_id
@@ -3711,7 +3593,6 @@ class AccessControlAPI(object):
         Returns:
             list[WindowsDomain]
         """
-        all_windows_domains = None
 
         url = config.get("base_url") + "/cxrestapi/auth/WindowsDomains"
         r = requests.get(
@@ -3738,7 +3619,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_all_windows_domains()
+            all_windows_domains = self.get_all_windows_domains()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3774,8 +3655,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = None
-
         post_data = json.dumps(
             {
                 "name": name,
@@ -3802,7 +3681,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.create_a_new_windows_domain(name, full_qualified_name)
+            is_successful = self.create_a_new_windows_domain(name, full_qualified_name)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3819,8 +3698,6 @@ class AccessControlAPI(object):
         Returns:
             WindowsDomain
         """
-        windows_domain = None
-
         url = config.get("base_url") + "/cxrestapi/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         r = requests.get(
             url=url,
@@ -3844,7 +3721,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_windows_domain_by_id(windows_domain_id)
+            windows_domain = self.get_windows_domain_by_id(windows_domain_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3863,8 +3740,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
-
         put_data = json.dumps(
             {
                 "name": name,
@@ -3891,7 +3766,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.update_a_windows_domain(windows_domain_id, name, full_qualified_name)
+            is_successful = self.update_a_windows_domain(windows_domain_id, name, full_qualified_name)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3908,7 +3783,6 @@ class AccessControlAPI(object):
         Returns:
             bool
         """
-        is_successful = False
 
         url = config.get("base_url") + "/cxrestapi/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         r = requests.delete(
@@ -3928,7 +3802,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.delete_a_windows_domain(windows_domain_id)
+            is_successful = self.delete_a_windows_domain(windows_domain_id)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -3946,7 +3820,6 @@ class AccessControlAPI(object):
         Returns:
             list[User]
         """
-        users = None
 
         url = config.get("base_url") + "/cxrestapi/auth/WindowsDomains/{id}/UserEntries".format(id=windows_domain_id)
         if contains_pattern:
@@ -3977,7 +3850,7 @@ class AccessControlAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_windows_domain_user_entries_by_search_criteria(windows_domain_id, contains_pattern)
+            users = self.get_windows_domain_user_entries_by_search_criteria(windows_domain_id, contains_pattern)
         else:
             raise CxError(r.text, r.status_code)
 

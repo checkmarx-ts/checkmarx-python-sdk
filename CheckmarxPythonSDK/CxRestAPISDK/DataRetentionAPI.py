@@ -36,8 +36,6 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        is_successful = False
-
         stop_data_retention_url = config.get("base_url") + "/cxrestapi/sast/dataRetention/stop"
 
         r = requests.post(
@@ -54,7 +52,7 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.stop_data_retention()
+            is_successful = self.stop_data_retention()
         else:
             raise CxError(r.text, r.status_code)
 
@@ -114,7 +112,7 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
+            data_retention = self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -172,8 +170,8 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
-                                                          duration_limit_in_hours)
+            data_retention = self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
+                                                                           duration_limit_in_hours)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -199,8 +197,6 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        data_detention_request_status = None
-
         data_retention_request_status_url = config.get(
             "base_url") + "/cxrestapi/sast/dataRetention/{requestId}/status".format(
             requestId=request_id
@@ -232,7 +228,7 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            self.get_data_retention_request_status(request_id)
+            data_detention_request_status = self.get_data_retention_request_status(request_id)
         else:
             raise CxError(r.text, r.status_code)
 
