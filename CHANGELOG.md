@@ -74,3 +74,6 @@ All notable changes to this project will be documented in  this file.
 * Add support for Portal SOAP API: import_preset, import_queries, get_import_queries_status
 * Add support for Portal SOAP API: export_preset, export_queries, get_query_id_by_language_group_and_query_name
 * Modify support for Portal SOAP API create_scan_report
+
+0.2.6 - 2021-05-06
+* Fix bug when reponse status code is UNAUTHORIZED
