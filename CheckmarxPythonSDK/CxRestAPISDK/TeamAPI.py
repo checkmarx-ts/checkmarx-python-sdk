@@ -106,7 +106,7 @@ class TeamAPI(object):
             parent_id (int): specifies the identifier of the parent team
 
         Returns:
-            None
+            The id of the new team
 
         Raises:
             BadRequestError
@@ -123,8 +123,12 @@ class TeamAPI(object):
             verify=config.get("verify")
         )
         if r.status_code == CREATED:
-            # The create team API does not return a body
-            pass
+            # The create team API returns the location of the new team
+            # in the Location header. E.g.: /cxrestapi/auth/Teams/8
+            location = r.headers['Location']
+            parts = location.split('/')
+            team_id = int(parts[-1])
+            return team_id
         elif r.status_code == BAD_REQUEST:
             raise BadRequestError(r.text)
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
