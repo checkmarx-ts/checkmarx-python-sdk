@@ -25,4 +25,5 @@ from .CxPortalWebService import (
 from .CxAuditWebService import (
     get_files_extensions,
     get_source_code_for_scan,
+    upload_queries,
 )
