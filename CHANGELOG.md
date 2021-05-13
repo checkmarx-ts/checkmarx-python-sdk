@@ -77,3 +77,6 @@ All notable changes to this project will be documented in  this file.
 
 0.2.6 - 2021-05-06
 * Fix bug when reponse status code is UNAUTHORIZED
+
+0.2.7 - 2021-05-13
+* Add support for the UploadQueries operation (CxAudit SOAP API)
