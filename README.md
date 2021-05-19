@@ -140,6 +140,7 @@ For CxSCA
     - get_all_custom_tasks
     - get_custom_task_id_by_name
     - get_custom_task_by_id
+    - get_custom_task_by_name
 5. CustomFieldsAPI
     - get_all_custom_fields
     - get_custom_field_id_by_name
@@ -167,6 +168,10 @@ For CxSCA
     - get_report_by_id
     - is_scanning_finished                                                      **(provided by SDK)**
     - is_report_generation_finished                                             **(provided by SDK)**
+    - get_scan_results_of_a_specific_query
+    - get_scan_results_for_a_specific_query_group_by_best_fix_location
+    - update_scan_result_labels_fields
+    - create_new_scan_with_settings
 7. DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
