@@ -1,7 +1,10 @@
 # encoding: utf-8
-
+import os
+import copy
 import requests
 import json
+
+from requests_toolbelt import MultipartEncoder
 
 from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, CREATED, NO_CONTENT, ACCEPTED
 from ..config import config
@@ -1397,3 +1400,83 @@ class ScansAPI(object):
         self.retry = 0
 
         return is_successful
+
+    def create_new_scan_with_settings(self, project_id, preset_id, zipped_source_file_path,
+                                      override_project_setting=False,
+                                      is_incremental=False,
+                                      is_public=False, force_scan=True, comment="", engine_configuration_id=0):
+        """
+
+        Args:
+            project_id (int):
+            preset_id (int):
+            zipped_source_file_path (str):
+            override_project_setting (booL):
+            is_incremental (bool):
+            is_public (bool):
+            force_scan (bool):
+            comment (str):
+            engine_configuration_id (int):
+
+        Returns:
+
+
+
+        """
+        attachments_url = config.get("base_url") + "/cxrestapi/sast/scanWithSettings"
+
+        headers = copy.deepcopy(authHeaders.auth_headers)
+
+        file_name = os.path.basename(zipped_source_file_path)
+
+        if not os.path.exists(zipped_source_file_path):
+            print("zipped_source_file_path not exist: {}".format(zipped_source_file_path))
+            return None
+
+        m = MultipartEncoder(
+            fields={
+                "projectId": str(project_id),
+                "overrideProjectSetting": str(override_project_setting),
+                "isIncremental": str(is_incremental),
+                "isPublic": str(is_public),
+                "forceScan": str(force_scan),
+                "comment": str(comment),
+                "presetId": str(preset_id),
+                "engineConfigurationId": str(engine_configuration_id),
+                "zippedSource": (file_name, open(zipped_source_file_path, 'rb'), "application/zip")
+            }
+        )
+        headers.update({"Content-Type": m.content_type})
+
+        r = requests.post(
+            url=attachments_url,
+            headers=headers,
+            data=m,
+            verify=config.get("verify")
+        )
+        if r.status_code == CREATED:
+            a_dict = r.json()
+            scan = CxCreateNewScanResponse(
+                scan_id=a_dict.get("id"),
+                link=CxLink(
+                    rel=(a_dict.get("link", {}) or {}).get("rel"),
+                    uri=(a_dict.get("link", {}) or {}).get("uri")
+                )
+            )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            scan = self.create_new_scan_with_settings(project_id, preset_id, zipped_source_file_path,
+                                                      override_project_setting,
+                                                      is_incremental,
+                                                      is_public, force_scan, comment, engine_configuration_id)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return scan
