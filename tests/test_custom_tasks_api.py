@@ -30,3 +30,10 @@ def test_get_custom_task_by_id():
     task_id = custom_tasks_api.get_custom_task_id_by_name(custom_task_name)
     custom_task = custom_tasks_api.get_custom_task_by_id(task_id)
     assert custom_task is not None
+
+
+def test_get_custom_task_by_name():
+    custom_task_name = "git"
+    custom_tasks_api = CustomTasksAPI()
+    custom_task = custom_tasks_api.get_custom_task_by_name(custom_task_name)
+    assert custom_task is not None

@@ -130,3 +130,54 @@ class CustomTasksAPI(object):
         self.retry = 0
 
         return custom_task
+
+    def get_custom_task_by_name(self, task_name):
+        """
+
+        Args:
+            task_name (str):
+
+        Returns:
+            :obj:`CxCustomTask`
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            CxError
+        """
+        custom_task = None
+        custom_task_url = config.get("base_url") + "/cxrestapi/customTasks/name/{name}".format(name=task_name)
+
+        r = requests.get(
+            url=custom_task_url,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+        if r.status_code == OK:
+            a_list = r.json()
+            if a_list:
+                a_dict = a_list[0]
+                custom_task = CxCustomTask(
+                    custom_task_id=a_dict.get("id"),
+                    name=a_dict.get("name"),
+                    custom_task_type=a_dict.get("type"),
+                    data=a_dict.get("data"),
+                    link=CxLink(
+                        (a_dict.get("link", {}) or {}).get("rel"),
+                        (a_dict.get("link", {}) or {}).get("uri")
+                    )
+                )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            custom_task = self.get_custom_task_by_name(task_name)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return custom_task
