@@ -300,6 +300,10 @@ For CxSCA
     - get_server_license_data
     - get_server_license_summary
     - get_version_number
+    - get_version_number_as_int
+    - import_preset
+    - import_queries
+    
     
  # The CxSAST OData API List
  1. Projects
