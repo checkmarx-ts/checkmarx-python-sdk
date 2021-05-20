@@ -18,7 +18,7 @@ from .sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsS
     CxCreateNewScanResponse, CxCreateScan, CxRegisterScanReportResponse, CxScanType, CxScanDetail, CxScanReportStatus, \
     CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail, CxScanSettings, \
     CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage, \
-    CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node
+    CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields
 
 
 class ScansAPI(object):
@@ -1366,7 +1366,14 @@ class ScansAPI(object):
         Returns:
             is_successful (bool)
         """
-        url = config.get("base_url") + "/cxrestapi/sast/scans/{scanId}/results/{resultId}".format(
+        from CheckmarxPythonSDK.CxPortalSoapApiSDK import get_version_number_as_int
+        version = get_version_number_as_int()
+
+        label_url = "/cxrestapi/sast/scans/{scanId}/results/{resultId}"
+        if version >= 940:
+            label_url = "/cxrestapi//sast/scans/{scanId}/results/{resultId}/labels"
+
+        url = config.get("base_url") + label_url.format(
             scanId=scan_id, resultId=result_id)
 
         data = json.dumps({
@@ -1480,3 +1487,47 @@ class ScansAPI(object):
         self.retry = 0
 
         return scan
+
+    def get_scan_result_labels_fields(self, scan_id, result_id):
+        """
+
+        Args:
+            scan_id (int): Unique Id of a scan
+            result_id (int): Unique Id of the result path
+
+        Returns:
+
+        """
+        label_url = "/cxrestapi//sast/scans/{scanId}/results/{resultId}/labels"
+
+        url = config.get("base_url") + label_url.format(
+            scanId=scan_id, resultId=result_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            a_dict = r.json()
+            fields = CxScanResultLabelsFields(
+                state=a_dict.get("state"),
+                severity=a_dict.get("severity"),
+                user_assignment=a_dict.get("userAssignment"),
+                comment=a_dict.get("comment")
+            )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            fields = self.get_scan_result_labels_fields(scan_id, result_id)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return fields

@@ -245,7 +245,7 @@ def test_update_scan_result_labels_fields():
                                                               state=1,
                                                               severity=None,
                                                               user_assignment=None,
-                                                              comment=None)
+                                                              comment="This is a test comment")
     assert is_successful is True
 
 
@@ -257,3 +257,13 @@ def test_create_new_scan_with_settings():
     scan = scan_api.create_new_scan_with_settings(project_id=project_id, preset_id=preset_id,
                                                   zipped_source_file_path="JavaVulnerableLab-master.zip")
     assert scan is not None
+
+
+def test_get_scan_result_labels_fields():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+
+    fields = scan_api.get_scan_result_labels_fields(scan_id=scan_id, result_id=1)
+
+    assert fields is not None
