@@ -1,6 +1,6 @@
 from ..config import config
 from ..auth import get_new_token
-from ..CxPortalSoapApiSDK import get_version_number
+from ..CxPortalSoapApiSDK import get_version_number_as_int
 
 
 def get_token():
@@ -20,9 +20,8 @@ def update_auth_headers():
 
 
 is_version_bigger_than_9 = True
-version_str = get_version_number().get("Version")
-version_main_number = int(version_str.split()[1][0])
-if version_main_number < 9:
+version_main_number = get_version_number_as_int()
+if version_main_number < 900:
     is_version_bigger_than_9 = False
 
 auth_headers = {}

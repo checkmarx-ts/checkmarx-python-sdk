@@ -18,6 +18,7 @@ from .CxPortalWebService import (
     delete_project,
     delete_projects,
     get_version_number,
+    get_version_number_as_int,
     import_preset,
     import_queries,
 )

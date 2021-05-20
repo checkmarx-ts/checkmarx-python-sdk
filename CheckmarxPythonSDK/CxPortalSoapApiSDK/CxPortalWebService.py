@@ -194,9 +194,7 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
             All=results_per_vulnerability_all, Maximimum=results_per_vulnerability_maximum
         )
 
-        version = get_version_number().get("Version").split(" ")[1]
-        version = "".join(version.split("."))
-        version = int(version)
+        version = get_version_number_as_int()
 
         if version < 940:
             header_options = factory.CxWSHeaderDisplayOptions(
@@ -767,6 +765,22 @@ def get_version_number():
         "ErrorMessage": response["ErrorMessage"],
         "Version": response["Version"]
     }
+
+
+def get_version_number_as_int():
+    """
+    8.9.0 -> 890
+    9.2.0 -> 920
+    9.3.0 -> 930
+    9.4.0 -> 940
+    9.4.1 -> 941
+    Returns:
+        int
+    """
+    version = get_version_number().get("Version").split(" ")[1]
+    version = "".join(version.split("."))
+    version = int(version)
+    return version
 
 
 def import_preset(imported_file_path):

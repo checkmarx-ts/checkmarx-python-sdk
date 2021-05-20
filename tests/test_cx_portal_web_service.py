@@ -10,8 +10,15 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     get_import_queries_status,
     get_query_collection,
     get_query_id_by_language_group_and_query_name,
-    get_preset_list, get_server_license_data, get_server_license_summary,
-    delete_project, delete_projects, get_version_number, get_path_comments_history,
+    get_preset_list,
+    get_server_license_data,
+    get_server_license_summary,
+    delete_project,
+    delete_projects,
+    get_version_number,
+    get_version_number_as_int,
+    get_path_comments_history,
+    get_user_profile_data,
     get_queries_categories,
     get_name_of_user_who_marked_false_positive_from_comments_history,
     import_preset,
@@ -78,6 +85,11 @@ def test_get_path_comments_history():
     assert response.get("IsSuccesfull") is True
 
 
+def test_get_user_profile_data():
+    response = get_user_profile_data()
+    assert response.get("ProfileData") is not None
+
+
 def test_get_queries_categories():
     response = get_queries_categories()
     assert len(response["QueriesCategories"]) > 1
@@ -124,6 +136,11 @@ def test_get_server_license_summary():
 def test_get_version_number():
     version = get_version_number()
     assert version is not None
+
+
+def test_get_version_number_as_int():
+    version = get_version_number_as_int()
+    assert version > 800
 
 
 def test_import_preset():
