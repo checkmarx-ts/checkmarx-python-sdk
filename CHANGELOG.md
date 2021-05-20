@@ -80,3 +80,9 @@ All notable changes to this project will be documented in  this file.
 
 0.2.7 - 2021-05-13
 * Add support for the UploadQueries operation (CxAudit SOAP API)
+
+0.2.8 - 2021-05-20
+* Add support for CustomTaskAPI get_custom_task_by_name
+* Add support for ScansAPI create_new_scan_with_settings
+* Add support for Portal SOAP API get_version_number_as_int
+* Add support for ScansAPI update_scan_result_labels_fields, get_scan_result_labels_fields
