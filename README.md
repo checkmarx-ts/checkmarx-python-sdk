@@ -172,6 +172,7 @@ For CxSCA
     - get_scan_results_for_a_specific_query_group_by_best_fix_location
     - update_scan_result_labels_fields
     - create_new_scan_with_settings
+    - get_scan_result_labels_fields
 7. DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
