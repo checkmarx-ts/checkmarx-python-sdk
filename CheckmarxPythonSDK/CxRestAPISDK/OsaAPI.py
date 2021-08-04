@@ -25,7 +25,7 @@ class OsaAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def get_all_osa_scan_details_for_project(self, project_id=None, page=1, items_per_page=100):
+    def get_all_osa_scan_details_for_project(self, project_id=None, page=1, items_per_page=100, api_version="1.0"):
         """
         Get basic scan details for all CxOSA scans associated with a specified project Id.
         v8.4.2 and up
@@ -34,6 +34,7 @@ class OsaAPI(object):
             project_id (int): Unique Id of the project
             page (int, optional): (Number of pages (default 1)
             items_per_page (int, optional): Number of items per page (default 100)
+            api_version (str, optional):
 
         Returns:
             list: :obj:`list` of :obj:`CxOsaScanDetail`
@@ -54,7 +55,7 @@ class OsaAPI(object):
             osa_scans_url += "&"
             osa_scans_url += "&".join(optionals)
 
-        headers = copy.deepcopy(authHeaders.auth_headers)
+        headers = copy.deepcopy(authHeaders.get_headers(api_version=api_version))
 
         r = requests.get(url=osa_scans_url, headers=headers, verify=config.get("verify"))
         if r.status_code == OK:
@@ -82,7 +83,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            osa_scan_details = self.get_all_osa_scan_details_for_project(project_id)
+            osa_scan_details = self.get_all_osa_scan_details_for_project(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -113,13 +114,14 @@ class OsaAPI(object):
 
         return osa_scan_id
 
-    def get_osa_scan_by_scan_id(self, scan_id):
+    def get_osa_scan_by_scan_id(self, scan_id, api_version="1.0"):
         """
         Get CxOSA scan details for the specified CxOSA scan Id.
         v8.4.2 and up
 
         Args:
             scan_id (str): Unique Id of the OSA scan
+            api_version (str, optional):
 
         Returns:
            :obj:`CxOsaScanDetail`
@@ -131,7 +133,8 @@ class OsaAPI(object):
         """
         osa_scan_by_scan_id_url = config.get("base_url") + "/cxrestapi/osa/scans/{scanId}".format(scanId=scan_id)
 
-        r = requests.get(url=osa_scan_by_scan_id_url, headers=authHeaders.auth_headers,
+        r = requests.get(url=osa_scan_by_scan_id_url,
+                         headers=authHeaders.get_headers(api_version=api_version),
                          verify=config.get("verify"))
 
         if r.status_code == OK:
@@ -157,13 +160,13 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            osa_scan_detail = self.get_osa_scan_by_scan_id(scan_id)
+            osa_scan_detail = self.get_osa_scan_by_scan_id(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
         return osa_scan_detail
 
-    def create_an_osa_scan_request(self, project_id, zipped_source_path, origin="REST API"):
+    def create_an_osa_scan_request(self, project_id, zipped_source_path, origin="REST API", api_version="1.0"):
         """
         Create a new OSA scan request.
         v8.4.2 and up
@@ -172,6 +175,7 @@ class OsaAPI(object):
             project_id (int): The Project Id associated with requested OSA scan
             zipped_source_path (str): the file path of Zipped Open Source code to scan.
             origin (str):The location from which OSA scan was requested. Portal=Default.
+            api_version (str, optional):
 
         Returns:
             str: the osa scan id
@@ -181,7 +185,10 @@ class OsaAPI(object):
             NotFoundError:
             CxError:
         """
-        headers = copy.deepcopy(authHeaders.auth_headers)
+        headers = copy.deepcopy(authHeaders.get_headers(api_version=api_version))
+
+        if headers.get("cxOrigin"):
+            origin = headers.get("cxOrigin")
 
         file_name = os.path.basename(zipped_source_path)
         m = MultipartEncoder(
@@ -205,16 +212,19 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            scan_id = self.create_an_osa_scan_request(project_id, zipped_source_path, origin)
+            scan_id = self.create_an_osa_scan_request(project_id, zipped_source_path, origin, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
         return scan_id
 
-    def get_all_osa_file_extensions(self):
+    def get_all_osa_file_extensions(self, api_version="1.0"):
         """
         Get all CxOSA file extension information.
         v8.6.0 and up
+
+        Args:
+            api_version (str, optional):
 
         Returns:
             str: the osa file extensions, separated by semicolon
@@ -227,7 +237,8 @@ class OsaAPI(object):
         """
         osa_file_extensions_url = config.get("base_url") + "/cxrestapi/osa/fileextensions"
 
-        r = requests.get(url=osa_file_extensions_url, headers=authHeaders.auth_headers,
+        r = requests.get(url=osa_file_extensions_url,
+                         headers=authHeaders.get_headers(api_version=api_version),
                          verify=config.get("verify"))
         if r.status_code == OK:
             file_extensions = r.text
@@ -238,19 +249,21 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            file_extensions = self.get_all_osa_file_extensions()
+            file_extensions = self.get_all_osa_file_extensions(api_version=api_version)
         else:
             raise NotFoundError()
 
         return file_extensions
 
-    def get_osa_licenses_by_id(self, scan_id):
+    def get_osa_licenses_by_id(self, scan_id, api_version="1.0"):
         """
         Get all OSA license details for the specified OSA scan Id.
         v8.6.0 and up
 
         Args:
             scan_id (str): Unique Id of the OSA scan
+            api_version (str, optional):
+
 
         Returns:
             :obj:`list` of :obj:`CxOsaLicense`
@@ -264,7 +277,7 @@ class OsaAPI(object):
 
         r = requests.get(
             url=osa_licenses_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -291,13 +304,13 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            licenses = self.get_osa_licenses_by_id(scan_id)
+            licenses = self.get_osa_licenses_by_id(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
         return licenses
 
-    def get_osa_scan_libraries(self, scan_id, page=1, items_per_page=100):
+    def get_osa_scan_libraries(self, scan_id, page=1, items_per_page=100, api_version="1.0"):
         """
         Get all the used libraries details for the specified CxOSA scan Id.
         Supported v8.6.0 and up
@@ -306,6 +319,7 @@ class OsaAPI(object):
             scan_id (str): Unique Id of the OSA scan
             page (int, optional): (Number of pages (default 1)
             items_per_page (int, optional): Number of items per page (default 100)
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxOsaLibrary`
@@ -328,7 +342,7 @@ class OsaAPI(object):
 
         r = requests.get(
             url=osa_libraries_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -382,14 +396,14 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            libraries = self.get_osa_scan_libraries(scan_id)
+            libraries = self.get_osa_scan_libraries(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
         return libraries
 
     def get_osa_scan_vulnerabilities_by_id(self, scan_id, page=1, items_per_page=100, library_id=None,
-                                           state_id=None, comment=None, since=None, until=None):
+                                           state_id=None, comment=None, since=None, until=None, api_version="1.0"):
         """
         Get all the vulnerabilities for the specified CxOSA scan Id.
         v8.4.2 and up
@@ -403,6 +417,7 @@ class OsaAPI(object):
             comment (str, optional): Filter by Comment text
             since (long, optional): Filter by start time (not earlier than timestamp value)
             until (long, optional): Filter by end time (not later than timestamp value)
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxOsaVulnerability`
@@ -439,7 +454,7 @@ class OsaAPI(object):
 
         r = requests.get(
             url=osa_vulnerabilities_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -477,7 +492,7 @@ class OsaAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             vulnerabilities = self.get_osa_scan_vulnerabilities_by_id(scan_id, library_id, state_id, comment, since,
-                                                                      until)
+                                                                      until, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -498,7 +513,7 @@ class OsaAPI(object):
             vulnerability_id = vulnerabilities[0].id
         return vulnerability_id
 
-    def get_osa_scan_vulnerability_comments_by_id(self, vulnerability_id, project_id):
+    def get_osa_scan_vulnerability_comments_by_id(self, vulnerability_id, project_id, api_version="1.0"):
         """
         Get existing comments for vulnerabilities according to Vulnerability Id and Project Id.
         v9.0 and up
@@ -507,6 +522,7 @@ class OsaAPI(object):
         Args:
             vulnerability_id (str): Unique Id of the vulnerability
             project_id (long): Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxOsaVulnerabilityComment`
@@ -525,7 +541,7 @@ class OsaAPI(object):
 
         r = requests.get(
             url=osa_vulnerability_comment_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -545,19 +561,21 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            comment = self.get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id)
+            comment = self.get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id,
+                                                                     api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
         return comment
 
-    def get_osa_scan_summary_report(self, scan_id):
+    def get_osa_scan_summary_report(self, scan_id, api_version="1.0"):
         """
         Generate a new summary report (.json) for the specified OSA scan Id.
         v8.4.2 and up
 
         Args:
             scan_id (str): Unique Id of the OSA scan
+            api_version (str, optional):
 
         Returns:
              :obj:`CxOsaSummaryReport`
@@ -571,7 +589,7 @@ class OsaAPI(object):
 
         r = requests.get(
             url=osa_reports_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -597,7 +615,7 @@ class OsaAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            report = self.get_osa_scan_summary_report(scan_id)
+            report = self.get_osa_scan_summary_report(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
