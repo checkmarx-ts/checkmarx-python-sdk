@@ -10,6 +10,7 @@ if is_py2:
     FORBIDDEN = httplib.FORBIDDEN
     NO_CONTENT = httplib.NO_CONTENT
     ACCEPTED = httplib.ACCEPTED
+    CONFLICT = httplib.CONFLICT
 else:
     import http
     OK = http.HTTPStatus.OK
@@ -20,3 +21,4 @@ else:
     FORBIDDEN = http.HTTPStatus.FORBIDDEN
     NO_CONTENT = http.HTTPStatus.NO_CONTENT
     ACCEPTED = http.HTTPStatus.ACCEPTED
+    CONFLICT = http.HTTPStatus.CONFLICT
