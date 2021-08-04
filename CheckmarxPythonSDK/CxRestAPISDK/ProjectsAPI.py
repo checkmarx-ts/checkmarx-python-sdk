@@ -82,7 +82,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            all_projects = self.get_all_project_details()
+            all_projects = self.get_all_project_details(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -90,7 +90,7 @@ class ProjectsAPI(object):
 
         return all_projects
 
-    def create_project_with_default_configuration(self, project_name, team_id=None, is_public=True):
+    def create_project_with_default_configuration(self, project_name, team_id=None, is_public=True, api_version="1.0"):
         """
         REST API: create project
 
@@ -100,6 +100,7 @@ class ProjectsAPI(object):
                                 default to the id of the team full name in config.ini
             is_public (boolean): Specifies whether the project is public or not
                                 default True
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCreateProjectResponse`
@@ -116,7 +117,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=projects_url,
             data=req_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == CREATED:
@@ -135,7 +136,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            project = self.create_project_with_default_configuration(project_name, team_id, is_public)
+            project = self.create_project_with_default_configuration(project_name, team_id, is_public,
+                                                                     api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -205,7 +207,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            project = self.get_project_details_by_id(project_id)
+            project = self.get_project_details_by_id(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -213,7 +215,7 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, project_name, team_id=None, custom_fields=None):
+    def update_project_by_id(self, project_id, project_name, team_id=None, custom_fields=None, api_version="1.0"):
         """
         update project info by project id
 
@@ -222,6 +224,7 @@ class ProjectsAPI(object):
             project_name (str, optional): Specifies the name of the project
             team_id (int, str, optional): Specifies the Id of the team that owns the project
             custom_fields (:obj:`list` of :obj:`CxCustomField`, optional):  specifies the custom field details
+            api_version (str, optional):
 
         Returns:
             boolean: True means successful, False means not successful
@@ -242,7 +245,7 @@ class ProjectsAPI(object):
         r = requests.put(
             url=project_url,
             data=request_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -256,7 +259,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.update_project_by_id(project_id, project_name, team_id, custom_fields)
+            is_successful = self.update_project_by_id(project_id, project_name, team_id, custom_fields,
+                                                      api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -264,7 +268,7 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def update_project_name_team_id(self, project_id, project_name, team_id=None):
+    def update_project_name_team_id(self, project_id, project_name, team_id=None, api_version="1.0"):
         """
         REST API: update project name, team id
 
@@ -272,6 +276,7 @@ class ProjectsAPI(object):
             project_id (int):  consider using ProjectsAPI.get_project_id_by_name
             project_name (str, optional): Specifies the name of the project
             team_id (int, str, optional): Specifies the Id of the team that owns the project
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -292,7 +297,7 @@ class ProjectsAPI(object):
         r = requests.patch(
             url=project_url,
             data=request_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -306,7 +311,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.update_project_name_team_id(project_id, project_name, team_id)
+            is_successful = self.update_project_name_team_id(project_id, project_name, team_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -314,7 +319,7 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def delete_project_by_id(self, project_id, delete_running_scans=False):
+    def delete_project_by_id(self, project_id, delete_running_scans=False, api_version="1.0"):
         """
         REST API: delete project by id
 
@@ -322,6 +327,7 @@ class ProjectsAPI(object):
             project_id (int):  Unique Id of the project
             delete_running_scans (boolean): Specifies whether running scans are to be deleted. Options are false/true.
                                 Default=False, if not specified.
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -339,7 +345,7 @@ class ProjectsAPI(object):
         r = requests.delete(
             url=project_url,
             data=request_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -353,7 +359,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.delete_project_by_id(project_id, delete_running_scans)
+            is_successful = self.delete_project_by_id(project_id, delete_running_scans, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -406,13 +412,15 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def create_branched_project(self, project_id, branched_project_name):
+    def create_branched_project(self, project_id, branched_project_name, api_version="1.0"):
         """
         Create a branch of an existing project.
 
         Args:
             project_id (int): Unique Id of the project
             branched_project_name (str): specifies the name of the branched project
+            api_version (str, optional):
+
         Returns:
             :obj:`CxCreateProjectResponse`
 
@@ -430,7 +438,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=project_branch_url,
             data=request_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -450,7 +458,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            project = self.create_branched_project(project_id, branched_project_name)
+            project = self.create_branched_project(project_id, branched_project_name, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -458,9 +466,12 @@ class ProjectsAPI(object):
 
         return project
 
-    def get_all_issue_tracking_systems(self):
+    def get_all_issue_tracking_systems(self, api_version="1.0"):
         """
         Get details of all issue tracking systems (e.g. Jira) currently registered to CxSAST.
+
+        Args:
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxIssueTrackingSystem`
@@ -476,7 +487,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=issue_tracking_systems_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -497,7 +508,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            issue_tracking_systems = self.get_all_issue_tracking_systems()
+            issue_tracking_systems = self.get_all_issue_tracking_systems(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -519,12 +530,13 @@ class ProjectsAPI(object):
         a_dict = {item.name: item.id for item in issue_tracking_systems}
         return a_dict.get(name)
 
-    def get_issue_tracking_system_details_by_id(self, issue_tracking_system_id):
+    def get_issue_tracking_system_details_by_id(self, issue_tracking_system_id, api_version="1.0"):
         """
         Get metadata for a specific issue tracking system (e.g. Jira) according to the Issue Tracking System Id.
 
         Args:
             issue_tracking_system_id (int):  Unique Id of the issue tracking system
+            api_version (str, optional):
 
         Returns:
             dict
@@ -543,7 +555,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=issue_tracking_systems_metadata_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -594,7 +606,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            issue_tracking_system = self.get_issue_tracking_system_details_by_id(issue_tracking_system_id)
+            issue_tracking_system = self.get_issue_tracking_system_details_by_id(issue_tracking_system_id,
+                                                                                 api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -602,12 +615,13 @@ class ProjectsAPI(object):
 
         return issue_tracking_system
 
-    def get_project_exclude_settings_by_project_id(self, project_id):
+    def get_project_exclude_settings_by_project_id(self, project_id, api_version="1.0"):
         """
         get details of a project's exclude folders/files settings according to the project Id.
 
         Args:
             project_id (int): Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxProjectExcludeSettings`
@@ -622,7 +636,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=exclude_settings_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -644,7 +658,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            project_exclude_settings = self.get_project_exclude_settings_by_project_id(project_id)
+            project_exclude_settings = self.get_project_exclude_settings_by_project_id(project_id,
+                                                                                       api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -652,7 +667,8 @@ class ProjectsAPI(object):
 
         return project_exclude_settings
 
-    def set_project_exclude_settings_by_project_id(self, project_id, exclude_folders_pattern, exclude_files_pattern):
+    def set_project_exclude_settings_by_project_id(self, project_id, exclude_folders_pattern, exclude_files_pattern,
+                                                   api_version="1.0"):
         """
         set a project's exclude folders/files settings according to the project Id.
 
@@ -663,6 +679,8 @@ class ProjectsAPI(object):
             exclude_files_pattern (str, optional): comma separated list of files,
                         including wildcard patterns to exclude (e.g. cvc3.js, spass.js, z3.js, readme.txt,
                         smt_solver.js, readme.txt, find_sql_injections.js, jquery.js, logic.js)
+            api_version (str, optional):
+
 
         Returns:
             boolean
@@ -684,7 +702,7 @@ class ProjectsAPI(object):
         r = requests.put(
             url=exclude_settings_url,
             data=body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -697,7 +715,8 @@ class ProjectsAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern,
-                                                                            exclude_files_pattern)
+                                                                            exclude_files_pattern,
+                                                                            api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -705,12 +724,13 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_remote_source_settings_for_git_by_project_id(self, project_id):
+    def get_remote_source_settings_for_git_by_project_id(self, project_id, api_version="1.0"):
         """
         Get a specific project's remote source settings for a GIT repository according to the Project Id.
 
         Args:
             project_id (int): Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxGitSettings`
@@ -726,7 +746,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_git_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -748,7 +768,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            git_settings = self.get_remote_source_settings_for_git_by_project_id(project_id)
+            git_settings = self.get_remote_source_settings_for_git_by_project_id(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -756,7 +776,7 @@ class ProjectsAPI(object):
 
         return git_settings
 
-    def set_remote_source_setting_to_git(self, project_id, url, branch, private_key=None):
+    def set_remote_source_setting_to_git(self, project_id, url, branch, private_key=None, api_version="1.0"):
         """
         Set a specific project's remote source location to a GIT repository using SSH protocol.
 
@@ -770,6 +790,7 @@ class ProjectsAPI(object):
                                 MIIJKgIBAAKCAgEahM6IR0lb4Rag4s5JM+xyEfKiUotGlHx
                                 SkeRjzXyWwjX5dAfR3K7pzHzn0rSMN7yUYlhZDLKff6R
                                       -----END RSA PRIVATE KEY-----)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -790,7 +811,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=remote_settings_git_url,
             data=post_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -803,7 +824,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.set_remote_source_setting_to_git(project_id, url, branch, private_key)
+            is_successful = self.set_remote_source_setting_to_git(project_id, url, branch, private_key,
+                                                                  api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -811,12 +833,13 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_remote_source_settings_for_svn_by_project_id(self, project_id):
+    def get_remote_source_settings_for_svn_by_project_id(self, project_id, api_version="1.0"):
         """
         get a specific project's remote source location settings for SVN repository according to the Project Id.
 
         Args:
             project_id (int):  Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxSVNSettings`
@@ -832,7 +855,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_svn_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -857,7 +880,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            svn_settings = self.get_remote_source_settings_for_svn_by_project_id(project_id)
+            svn_settings = self.get_remote_source_settings_for_svn_by_project_id(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -866,7 +889,7 @@ class ProjectsAPI(object):
         return svn_settings
 
     def set_remote_source_settings_to_svn(self, project_id, absolute_url, port, paths, username, password,
-                                          private_key=None):
+                                          private_key=None, api_version="1.0"):
         """
         set a specific project's remote source location to a SVN repository using SSH protocol.
 
@@ -883,6 +906,7 @@ class ProjectsAPI(object):
                 MIIJKgIBAAKCAgEahM6IR0lb4Rag4s5JM+xyEfKiUotGlHx
                 SkeRjzXyWwjX5dAfR3K7pzHzn0rSMN7yUYlhZDLKff6R
                      -----END RSA PRIVATE KEY-----)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -912,7 +936,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=remote_settings_svn_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -927,7 +951,7 @@ class ProjectsAPI(object):
             self.retry += 1
             is_successful = self.set_remote_source_settings_to_svn(project_id, absolute_url, port, paths, username,
                                                                    password,
-                                                                   private_key)
+                                                                   private_key, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -935,12 +959,13 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_remote_source_settings_for_tfs_by_project_id(self, project_id):
+    def get_remote_source_settings_for_tfs_by_project_id(self, project_id, api_version="1.0"):
         """
         Get a specific project's remote source location settings for TFS repository according to the Project Id.
 
         Args:
             project_id (int):  Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxTFSSettings`
@@ -956,7 +981,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_tfs_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -979,7 +1004,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            tfs_settings = self.get_remote_source_settings_for_tfs_by_project_id(project_id)
+            tfs_settings = self.get_remote_source_settings_for_tfs_by_project_id(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -987,7 +1012,8 @@ class ProjectsAPI(object):
 
         return tfs_settings
 
-    def set_remote_source_settings_to_tfs(self, project_id, username, password, absolute_url, port, paths):
+    def set_remote_source_settings_to_tfs(self, project_id, username, password, absolute_url, port, paths,
+                                          api_version="1.0"):
         """
         Set a specific project's remote source location to a TFS repository.
 
@@ -999,6 +1025,7 @@ class ProjectsAPI(object):
             port (int):  Specifies the port number of the uri (e.g. 8080)
             paths (:obj:`list` of :obj:`str`): Specifies the list of paths to scan at TFS repository
                                     (e.g. /Root/Optimization/V6.2.2.9-branch/CSharp/Graph, /Root/test)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1026,7 +1053,7 @@ class ProjectsAPI(object):
 
         r = requests.post(
             url=remote_settings_tfs_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             data=post_data,
             verify=config.get("verify")
         )
@@ -1040,7 +1067,7 @@ class ProjectsAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.set_remote_source_settings_to_tfs(project_id, username, password, absolute_url, port,
-                                                                   paths)
+                                                                   paths, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1048,15 +1075,14 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_remote_source_settings_for_custom_by_project_id(self, project_id):
+    def get_remote_source_settings_for_custom_by_project_id(self, project_id, api_version="1.0"):
         """
         Get a specific project's remote source location settings for custom repository (e.g. source pulling)
          according to the Project Id.
-        :param project_id:
-        :return:
 
         Args:
             project_id (int):  Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCustomRemoteSourceSettings`
@@ -1073,7 +1099,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_custom_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1094,7 +1120,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            custom_remote_setting = self.get_remote_source_settings_for_custom_by_project_id(project_id)
+            custom_remote_setting = self.get_remote_source_settings_for_custom_by_project_id(project_id,
+                                                                                             api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1103,7 +1130,7 @@ class ProjectsAPI(object):
         return custom_remote_setting
 
     def set_remote_source_setting_for_custom_by_project_id(self, project_id, path,
-                                                           pre_scan_command_id, username, password):
+                                                           pre_scan_command_id, username, password, api_version="1.0"):
         """
         Set a specific project's remote source location settings for custom repository
         (e.g. source pulling) according to the Project Id.
@@ -1115,6 +1142,7 @@ class ProjectsAPI(object):
             pre_scan_command_id (int): Unique Id of script that pulls the source code
             username (str):
             password (str):
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1141,7 +1169,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=remote_settings_custom_url,
             data=request_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == NO_CONTENT:
@@ -1155,7 +1183,7 @@ class ProjectsAPI(object):
             self.retry += 1
             is_successful = self.set_remote_source_setting_for_custom_by_project_id(project_id, path,
                                                                                     pre_scan_command_id, username,
-                                                                                    password)
+                                                                                    password, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1163,12 +1191,13 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_remote_source_settings_for_shared_by_project_id(self, project_id):
+    def get_remote_source_settings_for_shared_by_project_id(self, project_id, api_version="1.0"):
         """
         Get a specific project's remote source location settings for shared repository according to the Project Id.
 
         Args:
             project_id (int):  Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxSharedRemoteSourceSettingsResponse`
@@ -1185,7 +1214,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_shared_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -1204,7 +1233,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            shared_source_setting = self.get_remote_source_settings_for_shared_by_project_id(project_id)
+            shared_source_setting = self.get_remote_source_settings_for_shared_by_project_id(project_id,
+                                                                                             api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1212,7 +1242,7 @@ class ProjectsAPI(object):
 
         return shared_source_setting
 
-    def set_remote_source_settings_to_shared(self, project_id, paths, username, password):
+    def set_remote_source_settings_to_shared(self, project_id, paths, username, password, api_version="1.0"):
         """
         Set a specific project's remote source location to a shared repository.
 
@@ -1222,6 +1252,7 @@ class ProjectsAPI(object):
                             (e.g. \\\\storage\\qa\\projects_new\\CPP\\1_Under_70k\\cpp_22_LOC)
             username (str):
             password (sr):
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1247,7 +1278,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=remote_settings_shared_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1260,7 +1291,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.set_remote_source_settings_to_shared(project_id, paths, username, password)
+            is_successful = self.set_remote_source_settings_to_shared(project_id, paths, username, password,
+                                                                      api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1268,12 +1300,13 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_remote_source_settings_for_perforce_by_project_id(self, project_id):
+    def get_remote_source_settings_for_perforce_by_project_id(self, project_id, api_version="1.0"):
         """
         Get a specific project's remote source location settings for Perforce repository according to the Project Id.
 
         Args:
             project_id (int):  Unique Id of the specific project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxPerforceSettings`
@@ -1290,7 +1323,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=remote_settings_perforce_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1315,7 +1348,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            perforce_settings = self.get_remote_source_settings_for_perforce_by_project_id(project_id)
+            perforce_settings = self.get_remote_source_settings_for_perforce_by_project_id(project_id,
+                                                                                           api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1324,7 +1358,7 @@ class ProjectsAPI(object):
         return perforce_settings
 
     def set_remote_source_settings_to_perforce(self, project_id, username, password, absolute_url, port, paths,
-                                               browse_mode):
+                                               browse_mode, api_version="1.0"):
         """
         Set a specific project's remote source location to a Perforce repository.
 
@@ -1338,6 +1372,7 @@ class ProjectsAPI(object):
                                                 (e.g. ////depot)
             browse_mode (str):  Specifies the browsing mode of the Perforce repository
                                 (depot for shared or workspace for grouped).
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1367,7 +1402,7 @@ class ProjectsAPI(object):
 
         r = requests.post(
             url=remote_settings_perforce_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             data=post_data,
             verify=config.get("verify")
         )
@@ -1382,7 +1417,7 @@ class ProjectsAPI(object):
             self.retry += 1
             is_successful = self.set_remote_source_settings_to_perforce(project_id, username, password, absolute_url,
                                                                         port, paths,
-                                                                        browse_mode)
+                                                                        browse_mode, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1390,7 +1425,8 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def set_remote_source_setting_to_git_using_ssh(self, project_id, url, branch, private_key_file_path):
+    def set_remote_source_setting_to_git_using_ssh(self, project_id, url, branch, private_key_file_path,
+                                                   api_version="1.0"):
         """
         Set a specific project's remote source location to a GIT repository using the SSH protocol
 
@@ -1400,6 +1436,7 @@ class ProjectsAPI(object):
             branch (str): The branch of a GIT repository (e.g. refs/heads/master)
             private_key_file_path (str): The SSH certificate which is used to connect to the GIT repository
                                     using SSH protocol (multipart/form-data)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1414,7 +1451,7 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        headers = copy.deepcopy(authHeaders.auth_headers)
+        headers = copy.deepcopy(authHeaders.get_headers(api_version=api_version))
 
         file_name = os.path.basename(private_key_file_path)
 
@@ -1446,7 +1483,8 @@ class ProjectsAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.set_remote_source_setting_to_git_using_ssh(project_id, url, branch,
-                                                                            private_key_file_path)
+                                                                            private_key_file_path,
+                                                                            api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1454,7 +1492,8 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def set_remote_source_setting_to_svn_using_ssh(self, project_id, absolute_url, port, paths, private_key_file_path):
+    def set_remote_source_setting_to_svn_using_ssh(self, project_id, absolute_url, port, paths, private_key_file_path,
+                                                   api_version="1.0"):
         """
         Set a specific project's remote source location to a SVN repository which uses the SSH protocol
 
@@ -1466,6 +1505,7 @@ class ProjectsAPI(object):
             paths (:obj:`list` of :obj:`str`): Specifies the paths of the SVN repository (e.g. /trunk)
             private_key_file_path (str): The SSH certificate which is used to connect to the SVN repository
                                          using SSH protocol (multipart/form-data)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1481,7 +1521,7 @@ class ProjectsAPI(object):
             id=project_id
         )
 
-        headers = copy.deepcopy(authHeaders.auth_headers)
+        headers = copy.deepcopy(authHeaders.get_headers(api_version=api_version))
 
         file_name = os.path.basename(private_key_file_path)
         m = MultipartEncoder(
@@ -1510,7 +1550,8 @@ class ProjectsAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.set_remote_source_setting_to_svn_using_ssh(project_id, absolute_url, port, paths,
-                                                                            private_key_file_path)
+                                                                            private_key_file_path,
+                                                                            api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1518,13 +1559,14 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def upload_source_code_zip_file(self, project_id, zip_file_path):
+    def upload_source_code_zip_file(self, project_id, zip_file_path, api_version="1.0"):
         """
         Upload a zip file that contains the source code for scanning.
 
         Args:
             project_id (int):  Unique Id of the project
             zip_file_path (str): absolute file path
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1537,7 +1579,7 @@ class ProjectsAPI(object):
         attachments_url = config.get("base_url") + "/cxrestapi/projects/{id}/sourceCode/attachments".format(
             id=project_id)
 
-        headers = copy.deepcopy(authHeaders.auth_headers)
+        headers = copy.deepcopy(authHeaders.get_headers(api_version=api_version))
 
         file_name = os.path.basename(zip_file_path)
         m = MultipartEncoder(
@@ -1562,7 +1604,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.upload_source_code_zip_file(project_id, zip_file_path)
+            is_successful = self.upload_source_code_zip_file(project_id, zip_file_path, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1570,13 +1612,14 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def set_data_retention_settings_by_project_id(self, project_id, scans_to_keep=10):
+    def set_data_retention_settings_by_project_id(self, project_id, scans_to_keep=10, api_version="1.0"):
         """
         Set the data retention settings according to Project Id.
 
         Args:
             project_id (int):  Unique Id of the project
             scans_to_keep (int): The amount of scans to keep before they are deleted (1-1000 or null)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1598,7 +1641,7 @@ class ProjectsAPI(object):
         r = requests.post(
             url=data_retention_settings_url,
             data=post_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1611,7 +1654,8 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.set_data_retention_settings_by_project_id(project_id, scans_to_keep)
+            is_successful = self.set_data_retention_settings_by_project_id(project_id, scans_to_keep,
+                                                                           api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1620,7 +1664,7 @@ class ProjectsAPI(object):
         return is_successful
 
     def set_issue_tracking_system_as_jira_by_id(self, project_id, issue_tracking_system_id, jira_project_id,
-                                                issue_type_id, jira_fields):
+                                                issue_type_id, jira_fields, api_version="1.0"):
         """
         Set a specific issue tracking system as Jira according to Project Id.
 
@@ -1631,6 +1675,7 @@ class ProjectsAPI(object):
             issue_type_id (str): Specifies the Id of issue type
             jira_fields (:obj:`list` of :obj:`CxIssueTrackingSystemJiraField`) Specifies the list of fields associated
                                                         with the issue type
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -1652,7 +1697,7 @@ class ProjectsAPI(object):
 
         r = requests.post(
             url=jira_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             data=post_data,
             verify=config.get("verify")
         )
@@ -1668,7 +1713,8 @@ class ProjectsAPI(object):
             self.retry += 1
             is_successful = self.set_issue_tracking_system_as_jira_by_id(project_id, issue_tracking_system_id,
                                                                          jira_project_id,
-                                                                         issue_type_id, jira_fields)
+                                                                         issue_type_id, jira_fields,
+                                                                         api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1676,9 +1722,12 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def get_all_preset_details(self):
+    def get_all_preset_details(self, api_version="1.0"):
         """
         get details of all presets
+
+        Args:
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxPreset`
@@ -1693,7 +1742,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=presets_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1717,7 +1766,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            all_preset_details = self.get_all_preset_details()
+            all_preset_details = self.get_all_preset_details(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1738,12 +1787,13 @@ class ProjectsAPI(object):
         a_dict_preset_name_id = {item.name: item.id for item in all_presets}
         return a_dict_preset_name_id.get(preset_name)
 
-    def get_preset_details_by_preset_id(self, preset_id):
+    def get_preset_details_by_preset_id(self, preset_id, api_version="1.0"):
         """
         Get details of a specified preset by Id.
 
         Args:
             preset_id (int): Unique Id of the preset
+            api_version (str, optional):
 
         Returns:
             :obj:`CxPreset`
@@ -1757,7 +1807,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=preset_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1780,7 +1830,7 @@ class ProjectsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            preset = self.get_preset_details_by_preset_id(preset_id)
+            preset = self.get_preset_details_by_preset_id(preset_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
