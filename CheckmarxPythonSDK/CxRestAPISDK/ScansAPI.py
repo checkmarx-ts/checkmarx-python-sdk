@@ -103,10 +103,11 @@ class ScansAPI(object):
                 scan_status_id=(item.get("finishedScanStatus", {}) or {}).get("id"),
                 value=(item.get("finishedScanStatus", {}) or {}).get("value")
             ),
-            partial_scan_reasons=item.get("partialScanReasons")
+            partial_scan_reasons=item.get("partialScanReasons"),
+            custom_fields=item.get("customFields")
         )
 
-    def get_all_scans_for_project(self, project_id=None, scan_status=None, last=None):
+    def get_all_scans_for_project(self, project_id=None, scan_status=None, last=None, api_version="1.0"):
         """
         Get details of all SAST scans for a specific project.
 
@@ -117,6 +118,8 @@ class ScansAPI(object):
                         (1="New", 2="PreScan", 3="Queued", 4="Scanning", 6="PostScan", 7="Finished", 8="Canceled",
                         9="Failed", 10="SourcePullingAndDeployment", 1001="None").
             last (int):  Number of last scans to include.
+            api_version (str, optional):
+
         Returns:
             :obj:`list` of :obj:`CxScanDetail`
 
@@ -140,7 +143,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=all_scans_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -155,7 +158,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            all_scans = self.get_all_scans_for_project(project_id, scan_status, last)
+            all_scans = self.get_all_scans_for_project(project_id, scan_status, last, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -191,7 +194,8 @@ class ScansAPI(object):
 
         return scan_id
 
-    def create_new_scan(self, project_id, is_incremental=False, is_public=True, force_scan=True, comment=""):
+    def create_new_scan(self, project_id, is_incremental=False, is_public=True, force_scan=True, comment="",
+                        custom_fields=None, api_version="1.0"):
         """
         Create a new SAST scan and assign it to a project.
 
@@ -202,6 +206,11 @@ class ScansAPI(object):
             force_scan (boolean): Specifies whether the code should be scanned or not, regardless of whether changes
                                 were made to the code since the last scan.
             comment (str): Specifies the scan comment.
+            custom_fields (dict, optional): dict with key-value pairs,
+                            e.g. {
+                                    "key": "value"
+                                 }
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCreateNewScanResponse`
@@ -215,13 +224,13 @@ class ScansAPI(object):
         all_scans_url = config.get("base_url") + "/cxrestapi/sast/scans"
 
         post_body = CxCreateScan(
-            project_id, is_incremental, is_public, force_scan, comment
+            project_id, is_incremental, is_public, force_scan, comment, custom_fields=custom_fields
         ).get_post_data()
 
         r = requests.post(
             url=all_scans_url,
             data=post_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -241,7 +250,9 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            scan = self.create_new_scan(project_id, is_incremental, is_public, force_scan, comment)
+            scan = self.create_new_scan(project_id, is_incremental, is_public, force_scan, comment,
+                                        custom_fields=custom_fields,
+                                        api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -249,12 +260,13 @@ class ScansAPI(object):
 
         return scan
 
-    def get_sast_scan_details_by_scan_id(self, scan_id):
+    def get_sast_scan_details_by_scan_id(self, scan_id, api_version="1.0"):
         """
         Get details of a specific SAST scan.
 
         Args:
             scan_id (int): Unique Id of the scan
+            api_version (str, optional):
 
         Returns:
             :obj:`CxScanDetail`
@@ -268,7 +280,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=sast_scan_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -281,7 +293,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            scan_detail = self.get_sast_scan_details_by_scan_id(scan_id)
+            scan_detail = self.get_sast_scan_details_by_scan_id(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -289,7 +301,7 @@ class ScansAPI(object):
 
         return scan_detail
 
-    def add_or_update_a_comment_by_scan_id(self, scan_id, comment):
+    def add_or_update_a_comment_by_scan_id(self, scan_id, comment, api_version="1.0"):
         """
         Add a new comment or update an existing comment according to the scan Id.
         This action can only be applied to finished scans.
@@ -297,6 +309,7 @@ class ScansAPI(object):
         Args:
             scan_id (int): Unique Id of a specific scan
             comment (str): Specifies the comment content
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -317,7 +330,7 @@ class ScansAPI(object):
         r = requests.patch(
             url=sast_scan_url,
             data=patch_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == NO_CONTENT:
@@ -329,7 +342,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.add_or_update_a_comment_by_scan_id(scan_id, comment)
+            is_successful = self.add_or_update_a_comment_by_scan_id(scan_id, comment, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -337,13 +350,14 @@ class ScansAPI(object):
 
         return is_successful
 
-    def delete_scan_by_scan_id(self, scan_id):
+    def delete_scan_by_scan_id(self, scan_id, api_version="1.0"):
         """
         Delete specific SAST scan according to scan Id.
         This action can only be applied to finished scans.
 
         Args:
             scan_id (int): Unique Id of the scan
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -358,7 +372,7 @@ class ScansAPI(object):
 
         r = requests.delete(
             url=sast_scan_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == ACCEPTED:
@@ -370,7 +384,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.delete_scan_by_scan_id(scan_id)
+            is_successful = self.delete_scan_by_scan_id(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -378,13 +392,14 @@ class ScansAPI(object):
 
         return is_successful
 
-    def get_statistics_results_by_scan_id(self, scan_id):
+    def get_statistics_results_by_scan_id(self, scan_id, api_version="1.0"):
         """
         Get statistic results for a specific scan.
         This action can only be applied to finished scans.
 
         Args:
             scan_id (int): Unique Id of the scan
+            api_version (str, optional):
 
         Returns:
             :obj:`CxStatisticsResult`
@@ -400,7 +415,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=statistics_results_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -419,7 +434,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            statistics = self.get_statistics_results_by_scan_id(scan_id)
+            statistics = self.get_statistics_results_by_scan_id(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -473,12 +488,13 @@ class ScansAPI(object):
             initiator=item.get("initiator")
         )
 
-    def get_scan_queue_details_by_scan_id(self, scan_id):
+    def get_scan_queue_details_by_scan_id(self, scan_id, api_version="1.0"):
         """
         Get details of a specific CxSAST scan in the scan queue according to the scan Id.
 
         Args:
             scan_id (int): Unique Id of the scan
+            api_version (str, optional):
 
         Returns:
             :obj:`CxScanQueueDetail`
@@ -493,7 +509,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=scans_queue_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -506,7 +522,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            scan_queue_details = self.get_scan_queue_details_by_scan_id(scan_id)
+            scan_queue_details = self.get_scan_queue_details_by_scan_id(scan_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -514,7 +530,7 @@ class ScansAPI(object):
 
         return scan_queue_details
 
-    def update_queued_scan_status_by_scan_id(self, scan_id, status_id=None, status_value=None):
+    def update_queued_scan_status_by_scan_id(self, scan_id, status_id=None, status_value=None, api_version="1.0"):
         """
         Update (Cancel) a running scan in the queue according to the scan Id.
 
@@ -523,6 +539,7 @@ class ScansAPI(object):
             scan_id (int):  Unique Id of a specific scan in the queue
             status_id (int): Unique Id of the status
             status_value (str): Requested scan status in the queue. Status option include Cancelled.
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -542,7 +559,7 @@ class ScansAPI(object):
         r = requests.patch(
             url=scans_queue_url,
             data=patch_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -554,7 +571,8 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.update_queued_scan_status_by_scan_id(scan_id, status_id, status_value)
+            is_successful = self.update_queued_scan_status_by_scan_id(scan_id, status_id, status_value,
+                                                                      api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -562,12 +580,13 @@ class ScansAPI(object):
 
         return is_successful
 
-    def get_all_scan_details_in_queue(self, project_id=None):
+    def get_all_scan_details_in_queue(self, project_id=None, api_version="1.0"):
         """
-        Get details of all SAST scans in the scans queue.
+        GET /sast/scansQueue Get details of all SAST scans in the scans queue.
 
         Args:
-            project_id （int): Unique Id of the project
+            project_id (int): Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxScanQueueDetail`
@@ -585,7 +604,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=all_scan_queue_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -598,7 +617,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            all_scan_details_in_queue = self.get_all_scan_details_in_queue(project_id)
+            all_scan_details_in_queue = self.get_all_scan_details_in_queue(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -606,12 +625,13 @@ class ScansAPI(object):
 
         return all_scan_details_in_queue
 
-    def get_scan_settings_by_project_id(self, project_id):
+    def get_scan_settings_by_project_id(self, project_id, api_version="1.0"):
         """
         Get scan settings by project Id.
 
         Args:
             project_id (int): Unique Id of the project
+            api_version (str, optional):
 
         Raises:
             BadRequestError
@@ -624,7 +644,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=scan_settings_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -665,7 +685,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            scan_settings = self.get_scan_settings_by_project_id(project_id)
+            scan_settings = self.get_scan_settings_by_project_id(project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -674,7 +694,8 @@ class ScansAPI(object):
         return scan_settings
 
     def define_sast_scan_settings(self, project_id, preset_id, engine_configuration_id=1, post_scan_action_id=None,
-                                  failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None):
+                                  failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None,
+                                  api_version="1.0"):
         """
         Define the SAST scan settings according to a project (preset and engine configuration).
 
@@ -687,6 +708,7 @@ class ScansAPI(object):
             failed_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the scan failure
                                                                         message
             after_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the post-scan message
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCreateScanSettingsResponse`
@@ -710,7 +732,7 @@ class ScansAPI(object):
         r = requests.post(
             url=all_scan_settings_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -732,7 +754,7 @@ class ScansAPI(object):
             sast_scan_settings = self.define_sast_scan_settings(project_id, preset_id, engine_configuration_id,
                                                                 post_scan_action_id,
                                                                 failed_scan_emails, before_scan_emails,
-                                                                after_scan_emails)
+                                                                after_scan_emails, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -741,7 +763,8 @@ class ScansAPI(object):
         return sast_scan_settings
 
     def update_sast_scan_settings(self, project_id, preset_id=1, engine_configuration_id=1, post_scan_action_id=None,
-                                  failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None):
+                                  failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None,
+                                  api_version="1.0"):
         """
         Update the SAST scan settings for a project
         (preset, engine configuration, custom actions and email notifications).
@@ -757,6 +780,7 @@ class ScansAPI(object):
                                                                     notification
             after_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the post-scan
                                                                     notification
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCreateScanSettingsResponse`
@@ -780,7 +804,7 @@ class ScansAPI(object):
         r = requests.put(
             url=all_scan_settings_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -802,7 +826,7 @@ class ScansAPI(object):
             sast_scan_settings = self.update_sast_scan_settings(project_id, preset_id, engine_configuration_id,
                                                                 post_scan_action_id,
                                                                 failed_scan_emails, before_scan_emails,
-                                                                after_scan_emails)
+                                                                after_scan_emails, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -810,7 +834,8 @@ class ScansAPI(object):
 
         return sast_scan_settings
 
-    def define_sast_scan_scheduling_settings(self, project_id, schedule_type, schedule_days, schedule_time):
+    def define_sast_scan_scheduling_settings(self, project_id, schedule_type, schedule_days, schedule_time,
+                                             api_version="1.0"):
         """
         Define SAST scan scheduling settings for a project.
 
@@ -822,6 +847,7 @@ class ScansAPI(object):
                                     (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday).
                                     Comma separate days can also be defined
             schedule_time (str): Specifies the time(s) to perform the scan (hh:mm)
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -844,7 +870,7 @@ class ScansAPI(object):
         r = requests.put(
             url=schedule_settings_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == NO_CONTENT:
@@ -857,7 +883,7 @@ class ScansAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.define_sast_scan_scheduling_settings(project_id, schedule_type, schedule_days,
-                                                                      schedule_time)
+                                                                      schedule_time, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -865,7 +891,7 @@ class ScansAPI(object):
 
         return is_successful
 
-    def assign_ticket_to_scan_results(self, results_id, ticket_id):
+    def assign_ticket_to_scan_results(self, results_id, ticket_id, api_version="1.0"):
         """
         Assign ticket to scan results according to scan results and ticket Id.
 
@@ -873,6 +899,7 @@ class ScansAPI(object):
             results_id (str): Unique Id of the result. ResultsId is made up of the Scan Id and Path Id (example:
                                     ScanId = 1000025, PathId = 12, therefore ResultsId = 1000025-12)
             ticket_id (str): Unique Id of the ticket.
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -894,7 +921,7 @@ class ScansAPI(object):
         r = requests.post(
             url=scan_results_ticket_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == NO_CONTENT:
@@ -906,7 +933,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.assign_ticket_to_scan_results(results_id, ticket_id)
+            is_successful = self.assign_ticket_to_scan_results(results_id, ticket_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -914,13 +941,14 @@ class ScansAPI(object):
 
         return is_successful
 
-    def publish_last_scan_results_to_management_and_orchestration_by_project_id(self, project_id):
+    def publish_last_scan_results_to_management_and_orchestration_by_project_id(self, project_id, api_version="1.0"):
         """
         Publish last scan results to Management and Orchestration for a specific project
         (only for policy management evaluation in v8.9.0).
 
         Args:
             project_id (int):  Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxPolicyFindingResponse`
@@ -935,7 +963,7 @@ class ScansAPI(object):
 
         r = requests.post(
             url=policy_findings_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == CREATED:
@@ -955,7 +983,7 @@ class ScansAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             policy_finding_response = self.publish_last_scan_results_to_management_and_orchestration_by_project_id(
-                project_id)
+                project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -963,12 +991,13 @@ class ScansAPI(object):
 
         return policy_finding_response
 
-    def get_the_publish_last_scan_results_to_management_and_orchestration_status(self, project_id):
+    def get_the_publish_last_scan_results_to_management_and_orchestration_status(self, project_id, api_version="1.0"):
         """
         Get the status of publish last scan results to Management and Orchestration layer for a specific project.
 
         Args:
             project_id (int): Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxPolicyFindingsStatus`
@@ -986,7 +1015,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=policy_findings_status_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1018,7 +1047,7 @@ class ScansAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             policy_finding_status = self.get_the_publish_last_scan_results_to_management_and_orchestration_status(
-                project_id)
+                project_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1026,7 +1055,7 @@ class ScansAPI(object):
 
         return policy_finding_status
 
-    def get_short_vulnerability_description_for_a_scan_result(self, scan_id, path_id):
+    def get_short_vulnerability_description_for_a_scan_result(self, scan_id, path_id, api_version="1.0"):
         """
         Get the short version of a vulnerability description for a specific scan result.
         This action can only be applied to finished scans.
@@ -1034,6 +1063,7 @@ class ScansAPI(object):
         Args:
             scan_id (int): Unique Id of the scan
             path_id (int): Unique Id of the result path
+            api_version (str, optional):
 
         Returns:
             str
@@ -1044,7 +1074,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1058,7 +1088,8 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            short_description = self.get_short_vulnerability_description_for_a_scan_result(scan_id, path_id)
+            short_description = self.get_short_vulnerability_description_for_a_scan_result(scan_id, path_id,
+                                                                                           api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1066,7 +1097,7 @@ class ScansAPI(object):
 
         return short_description
 
-    def register_scan_report(self, scan_id, report_type):
+    def register_scan_report(self, scan_id, report_type, api_version="1.0"):
         """
         Generate a new CxSAST scan report.
         This action can only be applied to finish scans.
@@ -1074,6 +1105,7 @@ class ScansAPI(object):
         Args:
             scan_id (int): Unique Id of the scan
             report_type (str): Report type options are: PDF, RTF, CSV or XML
+            api_version (str, optional):
 
         Returns:
             :obj:`CxRegisterScanReportResponse`
@@ -1095,7 +1127,7 @@ class ScansAPI(object):
         r = requests.post(
             url=register_scan_report_url,
             data=post_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1121,7 +1153,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            scan_report = self.register_scan_report(scan_id, report_type)
+            scan_report = self.register_scan_report(scan_id, report_type, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1129,13 +1161,14 @@ class ScansAPI(object):
 
         return scan_report
 
-    def get_report_status_by_id(self, report_id):
+    def get_report_status_by_id(self, report_id, api_version="1.0"):
         """
         Get the status of a generated report.
 
 
         Args:
             report_id (int): Unique Id of the report
+            api_version (str, optional):
 
         Returns:
             :obj:`CxScanReportStatus`
@@ -1150,7 +1183,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=report_status_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -1173,7 +1206,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            report_status = self.get_report_status_by_id(report_id)
+            report_status = self.get_report_status_by_id(report_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1181,12 +1214,13 @@ class ScansAPI(object):
 
         return report_status
 
-    def get_report_by_id(self, report_id):
+    def get_report_by_id(self, report_id, api_version="1.0"):
         """
         Get the specified report once generated.
 
         Args:
             report_id (int): Unique Id of the report
+            api_version (str, optional):
 
         Returns:
             byte
@@ -1201,7 +1235,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=report_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -1214,7 +1248,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            report_content = self.get_report_by_id(report_id)
+            report_content = self.get_report_by_id(report_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1258,13 +1292,14 @@ class ScansAPI(object):
 
         return is_finished
 
-    def get_scan_results_of_a_specific_query(self, scan_id, query_version_code):
+    def get_scan_results_of_a_specific_query(self, scan_id, query_version_code, api_version="1.0"):
         """
         Get the scan results for a specific query in Attack Vector format. This format includes all nodes.
 
         Args:
             scan_id (int):
             query_version_code (int):
+            api_version (str, optional):
 
         Returns:
             attack_vectors (`list` of `CxScanResultAttackVector`)
@@ -1277,7 +1312,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -1292,7 +1327,8 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            attack_vectors = self.get_scan_results_of_a_specific_query(scan_id, query_version_code)
+            attack_vectors = self.get_scan_results_of_a_specific_query(scan_id, query_version_code,
+                                                                       api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1300,12 +1336,14 @@ class ScansAPI(object):
 
         return attack_vectors
 
-    def get_scan_results_for_a_specific_query_group_by_best_fix_location(self, scan_id, query_version_code):
+    def get_scan_results_for_a_specific_query_group_by_best_fix_location(self, scan_id, query_version_code,
+                                                                         api_version="1.0"):
         """
 
         Args:
             scan_id (int):
             query_version_code (int):
+            api_version (str, optional):
 
         Returns:
            attack_vectors_by_bfl  (`list` of `CxScanResultAttackVectorByBFL`)
@@ -1318,7 +1356,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -1339,7 +1377,7 @@ class ScansAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             attack_vectors_by_bfl = self.get_scan_results_for_a_specific_query_group_by_best_fix_location(
-                scan_id, query_version_code
+                scan_id, query_version_code, api_version=api_version
             )
         else:
             raise CxError(r.text, r.status_code)
@@ -1348,7 +1386,8 @@ class ScansAPI(object):
 
         return attack_vectors_by_bfl
 
-    def update_scan_result_labels_fields(self, scan_id, result_id, state, severity, user_assignment, comment):
+    def update_scan_result_labels_fields(self, scan_id, result_id, state, severity, user_assignment, comment,
+                                         api_version="1.0"):
         """
 
         Args:
@@ -1362,6 +1401,7 @@ class ScansAPI(object):
             severity (int, optional): 1 (Low, optional), 2 (Medium), 3 (High)
             user_assignment (str, optional):
             comment (str, optional):
+            api_version (str, optional):
 
         Returns:
             is_successful (bool)
@@ -1386,7 +1426,7 @@ class ScansAPI(object):
         r = requests.patch(
             url=url,
             data=data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1400,7 +1440,7 @@ class ScansAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.update_scan_result_labels_fields(scan_id, result_id, state, severity, user_assignment,
-                                                                  comment)
+                                                                  comment, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1411,7 +1451,9 @@ class ScansAPI(object):
     def create_new_scan_with_settings(self, project_id, preset_id, zipped_source_file_path,
                                       override_project_setting=False,
                                       is_incremental=False,
-                                      is_public=False, force_scan=True, comment="", engine_configuration_id=0):
+                                      is_public=False, force_scan=True, comment="", engine_configuration_id=0,
+                                      custom_fields=None, post_scan_action_id=None,
+                                      api_version="1.0"):
         """
 
         Args:
@@ -1424,6 +1466,9 @@ class ScansAPI(object):
             force_scan (bool):
             comment (str):
             engine_configuration_id (int):
+            custom_fields (dict, optional):
+            post_scan_action_id (int, optional):
+            api_version (str, optional):
 
         Returns:
 
@@ -1432,7 +1477,7 @@ class ScansAPI(object):
         """
         attachments_url = config.get("base_url") + "/cxrestapi/sast/scanWithSettings"
 
-        headers = copy.deepcopy(authHeaders.auth_headers)
+        headers = copy.deepcopy(authHeaders.get_headers(api_version=api_version))
 
         file_name = os.path.basename(zipped_source_file_path)
 
@@ -1440,18 +1485,26 @@ class ScansAPI(object):
             print("zipped_source_file_path not exist: {}".format(zipped_source_file_path))
             return None
 
+        fields = {
+            "projectId": str(project_id),
+            "overrideProjectSetting": str(override_project_setting),
+            "isIncremental": str(is_incremental),
+            "isPublic": str(is_public),
+            "forceScan": str(force_scan),
+            "comment": str(comment),
+            "presetId": str(preset_id),
+            "engineConfigurationId": str(engine_configuration_id),
+            "zippedSource": (file_name, open(zipped_source_file_path, 'rb'), "application/zip")
+        }
+
+        if custom_fields:
+            fields.update({"customFields": json.dumps(custom_fields)})
+
+        if post_scan_action_id:
+            fields.update({"postScanActionId": str(post_scan_action_id)})
+
         m = MultipartEncoder(
-            fields={
-                "projectId": str(project_id),
-                "overrideProjectSetting": str(override_project_setting),
-                "isIncremental": str(is_incremental),
-                "isPublic": str(is_public),
-                "forceScan": str(force_scan),
-                "comment": str(comment),
-                "presetId": str(preset_id),
-                "engineConfigurationId": str(engine_configuration_id),
-                "zippedSource": (file_name, open(zipped_source_file_path, 'rb'), "application/zip")
-            }
+            fields=fields
         )
         headers.update({"Content-Type": m.content_type})
 
@@ -1480,7 +1533,10 @@ class ScansAPI(object):
             scan = self.create_new_scan_with_settings(project_id, preset_id, zipped_source_file_path,
                                                       override_project_setting,
                                                       is_incremental,
-                                                      is_public, force_scan, comment, engine_configuration_id)
+                                                      is_public, force_scan, comment, engine_configuration_id,
+                                                      custom_fields=custom_fields,
+                                                      post_scan_action_id=post_scan_action_id,
+                                                      api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -1488,12 +1544,13 @@ class ScansAPI(object):
 
         return scan
 
-    def get_scan_result_labels_fields(self, scan_id, result_id):
+    def get_scan_result_labels_fields(self, scan_id, result_id, api_version="1.0"):
         """
 
         Args:
             scan_id (int): Unique Id of a scan
             result_id (int): Unique Id of the result path
+            api_version (str, optional):
 
         Returns:
 
@@ -1505,7 +1562,7 @@ class ScansAPI(object):
 
         r = requests.get(
             url=url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -1524,7 +1581,7 @@ class ScansAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            fields = self.get_scan_result_labels_fields(scan_id, result_id)
+            fields = self.get_scan_result_labels_fields(scan_id, result_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
