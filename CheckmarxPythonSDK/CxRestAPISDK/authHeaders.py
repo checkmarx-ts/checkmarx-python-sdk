@@ -24,7 +24,7 @@ def get_token():
 
 auth_headers = {
     "Authorization": get_token(),
-    "Accept": "application/json;v=1.0",
+    "Accept": "application/json",
     "Content-Type": "application/json;v=1.0",
     "cxOrigin": "Checkmarx Python SDK " + __version__
 }
@@ -34,8 +34,7 @@ def update_auth_headers():
     auth_headers.update({"Authorization": get_token()})
 
 
-def get_v2_headers():
+def get_headers(api_version="1.0"):
     headers = auth_headers.copy()
-    headers["Accept"] = "application/json;v=2.0"
-    headers["Content-Type"] = "application/json;v=2.0"
+    headers["Content-Type"] = "application/json;v={}".format(api_version)
     return headers
