@@ -34,7 +34,7 @@ class ProjectsAPI(object):
         """
         self.retry = 0
 
-    def get_all_project_details(self, project_name=None, team_id=None):
+    def get_all_project_details(self, project_name=None, team_id=None, api_version="2.0"):
         """
         REST API: get all project details.
         For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
@@ -43,6 +43,7 @@ class ProjectsAPI(object):
             project_name (str, optional): Unique name of a specific project or projects
             team_id (int, str, optional): Unique Id of a specific team or teams.
                             default to id of the corresponding team full name in config.ini
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxProject`
@@ -65,7 +66,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=projects_url,
-            headers=authHeaders.get_v2_headers(),
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -170,12 +171,13 @@ class ProjectsAPI(object):
 
         return project_id
 
-    def get_project_details_by_id(self, project_id):
+    def get_project_details_by_id(self, project_id, api_version="2.0"):
         """
         REST API: get project details by project id
 
         Args:
             project_id (int):  Unique Id of the project
+            api_version (str, optional):
 
         Returns:
             :obj:`CxProject`
@@ -190,7 +192,7 @@ class ProjectsAPI(object):
 
         r = requests.get(
             url=project_url,
-            headers=authHeaders.get_v2_headers(),
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
