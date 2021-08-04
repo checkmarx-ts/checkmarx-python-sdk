@@ -19,8 +19,11 @@ class EnginesAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def get_all_engine_server_details(self):
+    def get_all_engine_server_details(self, api_version="1.0"):
         """
+        GET /sast/engineServers Gets details of all Engine Servers
+        Args:
+            api_version (str, optional):
 
         Returns:
             :obj:`CxEngineServer`
@@ -34,7 +37,7 @@ class EnginesAPI(object):
 
         r = requests.get(
             url=engine_servers_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -65,7 +68,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            all_engine_server_details = self.get_all_engine_server_details()
+            all_engine_server_details = self.get_all_engine_server_details(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -86,15 +89,16 @@ class EnginesAPI(object):
         a_dict = {item.name: item.id for item in all_engine_servers}
         return a_dict.get(engine_name)
 
-    def register_engine(self, name, uri, min_loc, max_loc, is_blocked):
+    def register_engine(self, name, uri, min_loc, max_loc, is_blocked, api_version="1.0"):
         """
-
+        POST  /sast/engineServers  Registers an Engine Server
         Args:
             name (str): Name of the engine server
             uri (str): Specifies the url of the engine server
             min_loc (int): Specifies the minimum number of lines of code to scan
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
+            api_version (str, optional):
 
         Returns:
             CxEngineServer
@@ -117,7 +121,7 @@ class EnginesAPI(object):
         r = requests.post(
             engine_servers_url,
             data=post_request_body,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -137,7 +141,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            engine_server = self.register_engine(name, uri, min_loc, max_loc, is_blocked)
+            engine_server = self.register_engine(name, uri, min_loc, max_loc, is_blocked, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -145,12 +149,13 @@ class EnginesAPI(object):
 
         return engine_server
 
-    def unregister_engine_by_engine_id(self, engine_id):
+    def unregister_engine_by_engine_id(self, engine_id, api_version="1.0"):
         """
-        Unregister an existing engine server.
+        DELETE /sast/engineServers/{id} Unregister an existing engine server.
 
         Args:
             engine_id (int): Unique Id of the engine server
+            api_version (str, optional):
 
         Returns:
             boolean
@@ -164,7 +169,7 @@ class EnginesAPI(object):
 
         r = requests.delete(
             url=engine_server_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -177,7 +182,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.unregister_engine_by_engine_id(engine_id)
+            is_successful = self.unregister_engine_by_engine_id(engine_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -185,12 +190,13 @@ class EnginesAPI(object):
 
         return is_successful
 
-    def get_engine_details(self, engine_id):
+    def get_engine_details(self, engine_id, api_version="1.0"):
         """
-        Get details of a specific engine server by Id.
+        GET /sast/engineServers/{id} Get details of a specific engine server by Id.
 
         Args:
             engine_id (int): Unique Id of the engine server
+            api_version (str, optional):
 
         Returns:
             :obj:`CxEngineServer`
@@ -204,7 +210,7 @@ class EnginesAPI(object):
 
         r = requests.get(
             url=engine_server_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -233,7 +239,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            engine_server = self.get_engine_details(engine_id)
+            engine_server = self.get_engine_details(engine_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -241,9 +247,11 @@ class EnginesAPI(object):
 
         return engine_server
 
-    def update_engine_server(self, engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None):
+    def update_engine_server(self, engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None,
+                             api_version="1.0"):
         """
-        Update an existing engine server's configuration and enables to change certain parameters.
+        PUT /sast/engineServers/{id}  Update an existing engine server's configuration
+                                        and enables to change certain parameters.
 
 
         Args:
@@ -254,6 +262,7 @@ class EnginesAPI(object):
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
             max_scans (int): Specifies the maximum number of concurrent scans to perform
+            api_version (str, optional):
 
         Returns:
             CxEngineServer
@@ -277,7 +286,7 @@ class EnginesAPI(object):
         r = requests.put(
             url=engine_server_url,
             data=data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -297,7 +306,8 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            engine_server = self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans)
+            engine_server = self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans,
+                                                      api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -306,8 +316,9 @@ class EnginesAPI(object):
         return engine_server
 
     def update_an_engine_server_by_edit_single_field(self, engine_id, name, uri, min_loc, max_loc, is_blocked,
-                                                     max_scans):
+                                                     max_scans, api_version="1.0"):
         """
+        PATCH  sast/engineServers/{id}
         Args:
             engine_id (int): Unique Id of the engine server
             name (str): Name of the engine server
@@ -316,6 +327,7 @@ class EnginesAPI(object):
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
             max_scans (int): Specifies the maximum number of concurrent scans to perform
+            api_version (str, optional):
 
         Returns:
             is_successful (bool)
@@ -339,7 +351,7 @@ class EnginesAPI(object):
         r = requests.patch(
             url=engine_server_url,
             data=data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -354,7 +366,7 @@ class EnginesAPI(object):
             self.retry += 1
             is_successful = self.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc,
                                                                               is_blocked,
-                                                                              max_scans)
+                                                                              max_scans, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -362,9 +374,12 @@ class EnginesAPI(object):
 
         return is_successful
 
-    def get_all_engine_configurations(self):
+    def get_all_engine_configurations(self, api_version="1.0"):
         """
-        Get the engine servers configuration list.
+        GET /sast/engineConfigurations Get the engine servers configuration list.
+
+        Args:
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxEngineConfiguration`
@@ -379,7 +394,7 @@ class EnginesAPI(object):
 
         r = requests.get(
             url=engine_configurations_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -397,7 +412,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            all_engine_configurations = self.get_all_engine_configurations()
+            all_engine_configurations = self.get_all_engine_configurations(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -418,12 +433,13 @@ class EnginesAPI(object):
         a_dict = {item.name: item.id for item in all_engine_configurations}
         return a_dict.get(engine_configuration_name)
 
-    def get_engine_configuration_by_id(self, configuration_id):
+    def get_engine_configuration_by_id(self, configuration_id, api_version="1.0"):
         """
-        Get a specific engine configuration by configuration Id.
+        GET /sast/engineConfigurations/{id} Get a specific engine configuration by configuration Id.
 
         Args:
             configuration_id (int): Unique Id of the engine configuration
+            api_version (str, optional):
 
         Returns:
             :obj:`CxEngineConfiguration`
@@ -439,7 +455,7 @@ class EnginesAPI(object):
 
         r = requests.get(
             url=engine_configuration_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -455,7 +471,7 @@ class EnginesAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            engine_configuration = self.get_engine_configuration_by_id(configuration_id)
+            engine_configuration = self.get_engine_configuration_by_id(configuration_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
