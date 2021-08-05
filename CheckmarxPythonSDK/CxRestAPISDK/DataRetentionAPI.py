@@ -24,9 +24,11 @@ class DataRetentionAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def stop_data_retention(self):
+    def stop_data_retention(self, api_version="1.0"):
         """
         Stop the data retention (global)
+        Args:
+            api_version (str, optional):
 
         Returns:
             boolean: False
@@ -40,7 +42,7 @@ class DataRetentionAPI(object):
 
         r = requests.post(
             url=stop_data_retention_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == ACCEPTED:
@@ -52,7 +54,7 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.stop_data_retention()
+            is_successful = self.stop_data_retention(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -60,7 +62,7 @@ class DataRetentionAPI(object):
 
         return is_successful
 
-    def define_data_retention_date_range(self, start_date, end_date, duration_limit_in_hours):
+    def define_data_retention_date_range(self, start_date, end_date, duration_limit_in_hours, api_version="1.0"):
         """
         Define the global setting for data retention by date range
 
@@ -68,6 +70,7 @@ class DataRetentionAPI(object):
             start_date (str): Data retention start date eg. "2019-06-17"
             end_date (str): Data retention end date eg. "2019-06-18"
             duration_limit_in_hours (int): Duration limit (in hours)
+            api_version (str, optional):
 
         Returns:
             CxDefineDataRetentionResponse
@@ -91,7 +94,7 @@ class DataRetentionAPI(object):
         r = requests.post(
             url=define_data_retention_date_range_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -112,7 +115,8 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            data_retention = self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours)
+            data_retention = self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
+                                                                   api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -120,13 +124,15 @@ class DataRetentionAPI(object):
 
         return data_retention
 
-    def define_data_retention_by_number_of_scans(self, number_of_successful_scans_to_preserve, duration_limit_in_hours):
+    def define_data_retention_by_number_of_scans(self, number_of_successful_scans_to_preserve, duration_limit_in_hours,
+                                                 api_version="1.0"):
         """
         Define the global setting for the data retention by number of scans.
 
         Args:
             number_of_successful_scans_to_preserve (int): Number of successful scans to keep
             duration_limit_in_hours (int): Duration limit (in hours)
+            api_version (str, optional):
         
         Returns:
             CxDefineDataRetentionResponse：
@@ -149,7 +155,7 @@ class DataRetentionAPI(object):
         r = requests.post(
             define_data_retention_number_of_scans_url,
             data=post_body_data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -171,7 +177,8 @@ class DataRetentionAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             data_retention = self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
-                                                                           duration_limit_in_hours)
+                                                                           duration_limit_in_hours,
+                                                                           api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -179,7 +186,7 @@ class DataRetentionAPI(object):
 
         return data_retention
 
-    def get_data_retention_request_status(self, request_id):
+    def get_data_retention_request_status(self, request_id, api_version="1.0"):
         """
         This one does not work!!!
         Get status details of a specific data retention request.
@@ -188,6 +195,7 @@ class DataRetentionAPI(object):
 
         Args:
             request_id (int): Unique Id of the data retention request.
+            api_version (str, optional):
 
         Returns:
             CxDataRetentionRequestStatus
@@ -204,7 +212,7 @@ class DataRetentionAPI(object):
 
         r = requests.get(
             url=data_retention_request_status_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -228,7 +236,7 @@ class DataRetentionAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            data_detention_request_status = self.get_data_retention_request_status(request_id)
+            data_detention_request_status = self.get_data_retention_request_status(request_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
