@@ -190,8 +190,6 @@ class DataRetentionAPI(object):
         """
         This one does not work!!!
         Get status details of a specific data retention request.
-        :param request_id: int
-        :return:
 
         Args:
             request_id (int): Unique Id of the data retention request.
