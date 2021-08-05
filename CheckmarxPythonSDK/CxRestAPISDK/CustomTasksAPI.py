@@ -18,9 +18,12 @@ class CustomTasksAPI(object):
     def __init__(self):
         self.retry = 0
 
-    def get_all_custom_tasks(self):
+    def get_all_custom_tasks(self, api_version="1.0"):
         """
         REST API: get all custom tasks
+
+        Args:
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxCustomTask`
@@ -35,7 +38,7 @@ class CustomTasksAPI(object):
 
         r = requests.get(
             url=custom_tasks_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -60,7 +63,7 @@ class CustomTasksAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            custom_tasks = self.get_all_custom_tasks()
+            custom_tasks = self.get_all_custom_tasks(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -83,11 +86,12 @@ class CustomTasksAPI(object):
         }
         return a_dict.get(task_name)
 
-    def get_custom_task_by_id(self, task_id):
+    def get_custom_task_by_id(self, task_id, api_version="1.0"):
         """
 
         Args:
             task_id (int):  Unique Id of the custom task
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCustomTask`
@@ -101,7 +105,7 @@ class CustomTasksAPI(object):
 
         r = requests.get(
             url=custom_task_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -123,7 +127,7 @@ class CustomTasksAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            custom_task = self.get_custom_task_by_id(task_id)
+            custom_task = self.get_custom_task_by_id(task_id, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -131,11 +135,12 @@ class CustomTasksAPI(object):
 
         return custom_task
 
-    def get_custom_task_by_name(self, task_name):
+    def get_custom_task_by_name(self, task_name, api_version="1.0"):
         """
 
         Args:
             task_name (str):
+            api_version (str, optional):
 
         Returns:
             :obj:`CxCustomTask`
@@ -150,7 +155,7 @@ class CustomTasksAPI(object):
 
         r = requests.get(
             url=custom_task_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -174,7 +179,7 @@ class CustomTasksAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            custom_task = self.get_custom_task_by_name(task_name)
+            custom_task = self.get_custom_task_by_name(task_name, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 

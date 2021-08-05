@@ -20,9 +20,12 @@ class CustomFieldsAPI(object):
         """
         self.retry = 0
 
-    def get_all_custom_fields(self):
+    def get_all_custom_fields(self, api_version="1.0"):
         """
         REST API: get all custom fields
+
+        Args:
+            api_version (str, optional):
 
         Returns:
             :obj:`list` of :obj:`CxTeam` :
@@ -36,7 +39,7 @@ class CustomFieldsAPI(object):
 
         r = requests.get(
             url=custom_fields_url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -56,7 +59,7 @@ class CustomFieldsAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            custom_fields = self.get_all_custom_fields()
+            custom_fields = self.get_all_custom_fields(api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 

@@ -20,11 +20,12 @@ class ConfigurationAPI(object):
         """
         self.retry = 0
 
-    def get_cx_component_configuration_settings(self, group):
+    def get_cx_component_configuration_settings(self, group, api_version="1.0"):
         """
 
         Args:
             group (str):
+            api_version (str, optional):
 
             ID Name                       Description
             0  None                       N/A
@@ -45,7 +46,7 @@ class ConfigurationAPI(object):
 
         r = requests.get(
             url=url,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
         if r.status_code == OK:
@@ -64,7 +65,7 @@ class ConfigurationAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            configurations = self.get_cx_component_configuration_settings(group)
+            configurations = self.get_cx_component_configuration_settings(group, api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
@@ -72,7 +73,7 @@ class ConfigurationAPI(object):
 
         return configurations
 
-    def update_cx_component_configuration_settings(self, group, key_value_list):
+    def update_cx_component_configuration_settings(self, group, key_value_list, api_version="1.0"):
         """
 
         Warnings: Depending on the changed settings, in order to take effect,
@@ -86,6 +87,7 @@ class ConfigurationAPI(object):
                     "value": "2"
                   }
                 ]
+            api_version (str, optional):
 
         Returns:
             bool
@@ -97,7 +99,7 @@ class ConfigurationAPI(object):
         r = requests.put(
             url=url,
             data=data,
-            headers=authHeaders.auth_headers,
+            headers=authHeaders.get_headers(api_version=api_version),
             verify=config.get("verify")
         )
 
@@ -110,7 +112,8 @@ class ConfigurationAPI(object):
         elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
             authHeaders.update_auth_headers()
             self.retry += 1
-            is_successful = self.update_cx_component_configuration_settings(group, key_value_list)
+            is_successful = self.update_cx_component_configuration_settings(group, key_value_list,
+                                                                            api_version=api_version)
         else:
             raise CxError(r.text, r.status_code)
 
