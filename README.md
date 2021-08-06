@@ -183,6 +183,7 @@ For CxSCA
     - get_scan_logs
     - get_basic_metrics_of_a_scan
     - get_parsed_files_metrics_of_a_scan
+    - get_failed_queries_metrics_of_a_scan
 7. DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range

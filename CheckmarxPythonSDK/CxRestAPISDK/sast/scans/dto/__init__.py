@@ -31,6 +31,7 @@ from .CxScanFileCountOfLanguage import CxScanFileCountOfLanguage
 from .CxScanStatistics import CxScanStatistics
 from .CxScanParsedFiles import CxScanParsedFiles
 from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
+from .CxScanFailedQueries import CxScanFailedQueries
 
 
 def construct_scan_result_node(item):
