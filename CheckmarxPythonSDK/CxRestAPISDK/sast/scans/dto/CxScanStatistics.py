@@ -10,7 +10,7 @@ class CxScanStatistics(object):
 
         Args:
             statistics_id (int):
-            scan_id (str):
+            scan_id (int):
             scan_status (str, optional):
             product_version (str):
             engine_version (str):

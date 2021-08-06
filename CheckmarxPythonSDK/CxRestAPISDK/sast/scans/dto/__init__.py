@@ -29,6 +29,8 @@ from .CxStatusDetail import CxStatusDetail
 from .CxLanguageStatistic import CxLanguageStatistic
 from .CxScanFileCountOfLanguage import CxScanFileCountOfLanguage
 from .CxScanStatistics import CxScanStatistics
+from .CxScanParsedFiles import CxScanParsedFiles
+from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
 
 
 def construct_scan_result_node(item):

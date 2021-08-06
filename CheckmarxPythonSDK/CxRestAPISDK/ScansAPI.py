@@ -19,7 +19,7 @@ from .sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsS
     CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail, CxScanSettings, \
     CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage, \
     CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields, \
-    CxScanStatistics, CxScanFileCountOfLanguage, CxLanguageStatistic
+    CxScanStatistics, CxScanFileCountOfLanguage, CxLanguageStatistic, CxScanParsedFiles, CxScanParsedFilesMetric
 
 
 class ScansAPI(object):
@@ -1702,3 +1702,50 @@ class ScansAPI(object):
         self.retry = 0
 
         return statistics
+
+    def get_parsed_files_metrics_of_a_scan(self, scan_id, api_version="3.0"):
+        """
+
+        Args:
+            scan_id (int):
+            api_version (str):
+
+        Returns:
+
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/parsedFiles".format(id=scan_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item = r.json()
+            parsed_files = CxScanParsedFiles(
+                scan_id=item.get("id"),
+                scanned_files_per_language=[
+                    CxScanParsedFilesMetric(
+                        language=key,
+                        parsed_successfully=value.get("parsedSuccessfully"),
+                        parsed_unsuccessfully=value.get("parsedUnsuccessfully"),
+                        parsed_partially=value.get("parsedPartially")
+                    )
+                    for key, value in item.get("scannedFilesPerLanguage").items()
+                ]
+            )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            parsed_files = self.get_parsed_files_metrics_of_a_scan(scan_id, api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return parsed_files
