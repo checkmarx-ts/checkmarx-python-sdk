@@ -18,9 +18,12 @@ def test_create_new_scan():
     project_id = get_project_id()
 
     scan_api = ScansAPI()
+    # scan = scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
+    #                                 comment="scan from REST API")
+    # time.sleep(30)
     scan = scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
-                                    comment="scan from REST API")
-    time.sleep(300)
+                                    custom_fields={"key1": "value1", "key2": "value2"},
+                                    comment="scan from Python SDK", api_version="1.2")
     assert scan is not None
 
 
@@ -28,7 +31,7 @@ def test_get_all_scans_for_project():
     project_id = get_project_id()
 
     scan_api = ScansAPI()
-    all_scans = scan_api.get_all_scans_for_project(project_id)
+    all_scans = scan_api.get_all_scans_for_project(project_id, api_version="1.2")
     assert all_scans is not None
 
 
@@ -255,7 +258,9 @@ def test_create_new_scan_with_settings():
     scan_api = ScansAPI()
     preset_id = projects_api.get_preset_id_by_name("All")
     scan = scan_api.create_new_scan_with_settings(project_id=project_id, preset_id=preset_id,
-                                                  zipped_source_file_path="JavaVulnerableLab-master.zip")
+                                                  zipped_source_file_path="JavaVulnerableLab-master.zip",
+                                                  custom_fields={"some1": "baby2"},
+                                                  api_version="1.2")
     assert scan is not None
 
 
@@ -267,3 +272,13 @@ def test_get_scan_result_labels_fields():
     fields = scan_api.get_scan_result_labels_fields(scan_id=scan_id, result_id=1)
 
     assert fields is not None
+
+
+def test_get_scan_logs():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+
+    logs = scan_api.get_scan_logs(scan_id=scan_id)
+
+    assert logs is not None

@@ -1555,7 +1555,7 @@ class ScansAPI(object):
         Returns:
 
         """
-        label_url = "/cxrestapi//sast/scans/{scanId}/results/{resultId}/labels"
+        label_url = "/cxrestapi/sast/scans/{scanId}/results/{resultId}/labels"
 
         url = config.get("base_url") + label_url.format(
             scanId=scan_id, resultId=result_id)
@@ -1588,3 +1588,38 @@ class ScansAPI(object):
         self.retry = 0
 
         return fields
+
+    def get_scan_logs(self, scan_id, api_version="3.0"):
+        """
+
+        Args:
+            scan_id (int):
+            api_version (str):
+
+        Returns:
+
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/logs".format(id=scan_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            logs = r.content
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            logs = self.get_scan_logs(scan_id, api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return logs
