@@ -291,6 +291,8 @@ For CxSCA
 12. Configuration API
     - get_cx_component_configuration_settings
     - update_cx_component_configuration_settings
+13 . Queries API
+    - get_the_full_description_of_the_query
 
 # The CxSAST Portal SOAP API list
 1. cx portal web service
