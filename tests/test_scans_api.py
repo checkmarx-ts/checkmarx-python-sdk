@@ -309,3 +309,21 @@ def test_get_failed_queries_metrics_of_a_scan():
 
     failed_queries = scan_api.get_failed_queries_metrics_of_a_scan(scan_id=scan_id)
     assert failed_queries is not None
+
+
+def test_get_failed_general_queries_metrics_of_a_scan():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+
+    failed_general_queries = scan_api.get_failed_general_queries_metrics_of_a_scan(scan_id=scan_id)
+    assert failed_general_queries is not None
+
+
+def test_get_succeeded_general_queries_metrics_of_a_scan():
+    project_id = get_project_id()
+    scan_api = ScansAPI()
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+
+    succeeded_general_queries = scan_api.get_succeeded_general_queries_metrics_of_a_scan(scan_id=scan_id)
+    assert succeeded_general_queries is not None

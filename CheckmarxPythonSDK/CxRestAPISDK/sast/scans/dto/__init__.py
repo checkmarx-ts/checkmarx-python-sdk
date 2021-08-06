@@ -32,6 +32,8 @@ from .CxScanStatistics import CxScanStatistics
 from .CxScanParsedFiles import CxScanParsedFiles
 from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
 from .CxScanFailedQueries import CxScanFailedQueries
+from .CxScanFailedGeneralQueries import CxScanFailedGeneralQueries
+from .CxScanSucceededGeneralQueries import CxScanSucceededGeneralQueries
 
 
 def construct_scan_result_node(item):

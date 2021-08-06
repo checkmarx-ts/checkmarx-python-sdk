@@ -20,7 +20,7 @@ from .sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsS
     CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage, \
     CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields, \
     CxScanStatistics, CxScanFileCountOfLanguage, CxLanguageStatistic, CxScanParsedFiles, CxScanParsedFilesMetric, \
-    CxScanFailedQueries
+    CxScanFailedQueries, CxScanFailedGeneralQueries, CxScanSucceededGeneralQueries
 
 
 class ScansAPI(object):
@@ -1634,7 +1634,7 @@ class ScansAPI(object):
             api_version (str):
 
         Returns:
-
+            `CxScanStatistics`
         """
         url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/statistics".format(id=scan_id)
 
@@ -1712,7 +1712,7 @@ class ScansAPI(object):
             api_version (str):
 
         Returns:
-
+            `CxScanParsedFiles`
         """
         url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/parsedFiles".format(id=scan_id)
 
@@ -1759,7 +1759,7 @@ class ScansAPI(object):
             api_version (str):
 
         Returns:
-
+            `CxScanFailedQueries`
         """
         url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/failedQueries".format(id=scan_id)
 
@@ -1790,3 +1790,81 @@ class ScansAPI(object):
 
         return failed_queries
 
+    def get_failed_general_queries_metrics_of_a_scan(self, scan_id, api_version="3.0"):
+        """
+
+        Args:
+            scan_id (int):
+            api_version (str):
+
+        Returns:
+            `CxScanFailedGeneralQueries`
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/failedGeneralQueries".format(id=scan_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item = r.json()
+            failed_general_queries = CxScanFailedGeneralQueries(
+                scan_id=item.get("id"),
+                failed_general_queries=item.get("failedGeneralQueries")
+            )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            failed_general_queries = self.get_failed_general_queries_metrics_of_a_scan(scan_id, api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return failed_general_queries
+
+    def get_succeeded_general_queries_metrics_of_a_scan(self, scan_id, api_version="3.0"):
+        """
+
+        Args:
+            scan_id (int):
+            api_version (str):
+
+        Returns:
+            `CxScanSucceededGeneralQueries`
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/succeededGeneralQueries".format(id=scan_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item = r.json()
+            succeeded_general_queries = CxScanSucceededGeneralQueries(
+                scan_id=item.get("id"),
+                general_queries_result_count=item.get("generalQueriesResultCount")
+            )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            succeeded_general_queries = self.get_succeeded_general_queries_metrics_of_a_scan(scan_id,
+                                                                                             api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return succeeded_general_queries
