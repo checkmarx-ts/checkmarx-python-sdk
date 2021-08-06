@@ -26,6 +26,9 @@ from .CxSchedulingSettings import CxSchedulingSettings
 from .CxStatisticsResult import CxStatisticsResult
 from .CxStatus import CxStatus
 from .CxStatusDetail import CxStatusDetail
+from .CxLanguageStatistic import CxLanguageStatistic
+from .CxScanFileCountOfLanguage import CxScanFileCountOfLanguage
+from .CxScanStatistics import CxScanStatistics
 
 
 def construct_scan_result_node(item):

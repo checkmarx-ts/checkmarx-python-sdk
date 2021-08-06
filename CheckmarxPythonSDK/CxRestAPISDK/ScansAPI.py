@@ -18,7 +18,8 @@ from .sast.scans.dto import CxSchedulingSettings, CxScanState, CxPolicyFindingsS
     CxCreateNewScanResponse, CxCreateScan, CxRegisterScanReportResponse, CxScanType, CxScanDetail, CxScanReportStatus, \
     CxDateAndTime, CxScanQueueDetail, CxScanStage, CxLanguageState, CxStatusDetail, CxScanSettings, \
     CxCreateScanSettingsResponse, CxEmailNotification, CxCreateScanSettingsRequestBody, CxLanguage, \
-    CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields
+    CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields, \
+    CxScanStatistics, CxScanFileCountOfLanguage, CxLanguageStatistic
 
 
 class ScansAPI(object):
@@ -1597,7 +1598,7 @@ class ScansAPI(object):
             api_version (str):
 
         Returns:
-
+            binary string, contains zip file content
         """
         url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/logs".format(id=scan_id)
 
@@ -1623,3 +1624,81 @@ class ScansAPI(object):
         self.retry = 0
 
         return logs
+
+    def get_basic_metrics_of_a_scan(self, scan_id, api_version="3.0"):
+        """
+
+        Args:
+            scan_id (int):
+            api_version (str):
+
+        Returns:
+
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/scans/{id}/statistics".format(id=scan_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            item = r.json()
+            statistics = CxScanStatistics(
+                statistics_id=item.get("id"),
+                scan_id=item.get("scanId"),
+                scan_status=item.get("scanStatus"),
+                product_version=item.get("productVersion"),
+                engine_version=item.get("engineVersion"),
+                memory_peak_in_mb=item.get("memoryPeakInMB"),
+                virtual_memory_peak_in_mb=item.get("virtualMemoryPeakInMB"),
+                is_incremental_scan=item.get("isIncrementalScan"),
+                results_count=item.get("resultsCount"),
+                total_unscanned_files_count=item.get("totalUnScannedFilesCount"),
+                file_count_of_detected_but_not_scanned_languages=[
+                    CxScanFileCountOfLanguage(
+                        language=key,
+                        file_count=value,
+                    )
+                    for key, value in item.get("fileCountOfDetectedButNotScannedLanguages", {}).items()
+                ],
+                total_filtered_parsed_loc=item.get("totalFilteredParsedLOC"),
+                total_unfiltered_parsed_loc=item.get("totalUnFilteredParsedLOC"),
+                language_statistics=[
+                    CxLanguageStatistic(
+                        language=key,
+                        parsed_successfully_count=value.get("parsedFiles", {}).get("parsedSuccessfullyCount"),
+                        parsed_unsuccessfully_count=value.get("parsedFiles", {}).get("parsedUnsuccessfullyCount"),
+                        parsed_partially_count=value.get("parsedFiles", {}).get("parsedPartiallyCount"),
+                        successful_loc=value.get("scannedLOCPerLanguage", {}).get("successfulLOC"),
+                        unsuccessful_loc=value.get("scannedLOCPerLanguage", {}).get("unsuccessfulLOC"),
+                        scanned_successfully_loc_percentage=value.get("scannedLOCPerLanguage",
+                                                                      {}).get("scannedSuccessfullyLOCPercentage"),
+                        count_of_dom_objects=value.get("countOfDomObjects")
+                    )
+                    for key, value in item.get("languageStatistics").items()
+                ],
+                exclusion_folders_pattern=item.get("exclusionFoldersPattern"),
+                exclusion_files_pattern=item.get("exclusionFilesPattern"),
+                failed_queries_count=item.get("failedQueriesCount"),
+                succeeded_general_queries_count=item.get("generalQueries", {}).get("succeededGeneralQueriesCount"),
+                failed_general_queries_count=item.get("generalQueries", {}).get("failedGeneralQueriesCount"),
+                failed_stages=item.get("failedStages"),
+                engine_operating_system=item.get("engineOperatingSystem"),
+                engine_pack_version=item.get("enginePackVersion"),
+            )
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            statistics = self.get_basic_metrics_of_a_scan(scan_id, api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return statistics

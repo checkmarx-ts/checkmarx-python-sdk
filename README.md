@@ -180,6 +180,8 @@ For CxSCA
     - update_scan_result_labels_fields
     - create_new_scan_with_settings
     - get_scan_result_labels_fields
+    - get_scan_logs
+    - get_basic_metrics_of_a_scan
 7. DataRetentionAPI
     - stop_data_retention
     - define_data_retention_date_range
