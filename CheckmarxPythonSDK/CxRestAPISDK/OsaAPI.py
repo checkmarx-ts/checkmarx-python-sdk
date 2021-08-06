@@ -315,6 +315,8 @@ class OsaAPI(object):
         Get all the used libraries details for the specified CxOSA scan Id.
         Supported v8.6.0 and up
 
+        Started from 9.4, api version 3.0, add field "packageRepository"
+
         Args:
             scan_id (str): Unique Id of the OSA scan
             page (int, optional): (Number of pages (default 1)
@@ -386,7 +388,8 @@ class OsaAPI(object):
                         ) for location in (item.get("locations", []) or [])
                     ],
                     code_usage_status=item.get("codeUsageStatus"),
-                    code_reference_count=item.get("codeReferenceCount")
+                    code_reference_count=item.get("codeReferenceCount"),
+                    package_repository=item.get("packageRepository"),
                 ) for item in a_list
             ]
         elif r.status_code == BAD_REQUEST:

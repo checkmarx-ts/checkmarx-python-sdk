@@ -62,7 +62,7 @@ def test_get_osa_scan_libraries():
     project_id = get_project_id()
     osa_api = OsaAPI()
     scan_id = osa_api.get_last_osa_scan_id_of_a_project(project_id)
-    libraries = osa_api.get_osa_scan_libraries(scan_id, page=1, items_per_page=2)
+    libraries = osa_api.get_osa_scan_libraries(scan_id, page=1, items_per_page=2, api_version="3.0")
     assert libraries is not None
 
 
