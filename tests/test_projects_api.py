@@ -348,7 +348,7 @@ def test_get_all_preset_details():
 
 def test_get_preset_id_by_name():
     projects_api = ProjectsAPI()
-    preset_name = "Checkmarx Default"
+    preset_name = "TestJava"
     preset_id = projects_api.get_preset_id_by_name(preset_name)
     assert preset_id is not None
 
@@ -359,3 +359,23 @@ def test_get_preset_details_by_preset_id():
     preset_id = projects_api.get_preset_id_by_name(preset_name)
     preset = projects_api.get_preset_details_by_preset_id(preset_id)
     assert preset is not None
+
+
+def test_set_project_queue_setting():
+    project_name = "jvl_git"
+    projects_api = ProjectsAPI()
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    is_successful = projects_api.set_project_queue_setting(
+        project_id=project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
+        include_scans_in_process=False, identical_code_only=False)
+    assert is_successful is True
+
+
+def test_update_project_queue_setting():
+    project_name = "jvl_git"
+    projects_api = ProjectsAPI()
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    is_successful = projects_api.update_project_queue_setting(
+        project_id=project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
+        include_scans_in_process=False, identical_code_only=False)
+    assert is_successful is True

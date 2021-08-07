@@ -143,6 +143,8 @@ For CxSCA
     - get_all_preset_details
     - get_preset_id_by_name
     - get_preset_details_by_preset_id
+    - set_project_queue_setting
+    - update_project_queue_setting
 4. CustomTasksAPI
     - get_all_custom_tasks
     - get_custom_task_id_by_name

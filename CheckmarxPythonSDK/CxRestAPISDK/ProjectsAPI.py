@@ -1837,3 +1837,125 @@ class ProjectsAPI(object):
         self.retry = 0
 
         return preset
+
+    def set_project_queue_setting(self, project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
+                                  include_scans_in_process=False, identical_code_only=False,
+                                  api_version="2.1"):
+        """
+
+        Args:
+            project_id (int):
+            queue_keep_mode (str): Options: KeepAll, KeepNew, KeepOld.
+            scans_type (str): Options: All, OnlyIncremental, OnlyFull
+                        Note: • The automatic cancellation of parallel scans affects only public scans
+                        and the selected scan type (Full / Incremental / All).
+            include_scans_in_process (bool):
+            identical_code_only (bool):
+            api_version (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            CxError
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/project/{id}/queueSettings".format(id=project_id)
+        post_data = json.dumps(
+            {
+                "queueKeepMode": queue_keep_mode,
+                "scansType": scans_type,
+                "includeScansInProcess": include_scans_in_process,
+                "identicalCodeOnly": identical_code_only
+            }
+        )
+
+        r = requests.post(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            data=post_data,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == NO_CONTENT:
+            is_successful = True
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            is_successful = self.set_project_queue_setting(project_id, queue_keep_mode=queue_keep_mode,
+                                                           scans_type=scans_type,
+                                                           include_scans_in_process=include_scans_in_process,
+                                                           identical_code_only=identical_code_only,
+                                                           api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
+
+    def update_project_queue_setting(self, project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
+                                     include_scans_in_process=False, identical_code_only=False,
+                                     api_version="2.1"):
+        """
+
+        Args:
+            project_id (int):
+            queue_keep_mode (str): Options: KeepAll, KeepNew, KeepOld.
+            scans_type (str): Options: All, OnlyIncremental, OnlyFull
+                        Note: • The automatic cancellation of parallel scans affects only public scans
+                        and the selected scan type (Full / Incremental / All).
+            include_scans_in_process (bool):
+            identical_code_only (bool):
+            api_version (str):
+
+        Returns:
+            bool
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            CxError
+        """
+        url = config.get("base_url") + "/cxrestapi/sast/project/{id}/queueSettings".format(id=project_id)
+        post_data = json.dumps(
+            {
+                "queueKeepMode": queue_keep_mode,
+                "scansType": scans_type,
+                "includeScansInProcess": include_scans_in_process,
+                "identicalCodeOnly": identical_code_only
+            }
+        )
+
+        r = requests.put(
+            url=url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            data=post_data,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == NO_CONTENT:
+            is_successful = True
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            is_successful = self.set_project_queue_setting(project_id, queue_keep_mode=queue_keep_mode,
+                                                           scans_type=scans_type,
+                                                           include_scans_in_process=include_scans_in_process,
+                                                           identical_code_only=identical_code_only,
+                                                           api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
