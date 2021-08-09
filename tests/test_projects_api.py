@@ -16,11 +16,12 @@ from CheckmarxPythonSDK.CxRestAPISDK import CustomTasksAPI
 
 def test_get_all_project_details():
     projects_api = ProjectsAPI()
-    all_projects = projects_api.get_all_project_details()
+    all_projects = projects_api.get_all_project_details(api_version="2.1")
     assert all_projects is not None
     if len(all_projects) > 0:
         first_project = all_projects[0]
-        project_detail = projects_api.get_all_project_details(first_project.name, first_project.team_id)
+        project_detail = projects_api.get_all_project_details(first_project.name, first_project.team_id,
+                                                              api_version="2.1")
         assert project_detail is not None
 
 
