@@ -86,3 +86,11 @@ All notable changes to this project will be documented in  this file.
 * Add support for ScansAPI create_new_scan_with_settings
 * Add support for Portal SOAP API get_version_number_as_int
 * Add support for ScansAPI update_scan_result_labels_fields, get_scan_result_labels_fields
+
+0.2.9 - 2021-08-09
+* Add support for QueriesAPI get_the_full_description_of_the_query
+* Update support for OsaAPI  get_osa_scan_libraries
+* Add support for ScansAPI get_scan_logs, get_basic_metrics_of_a_scan, 
+* get_parsed_files_metrics_of_a_scan, get_failed_queries_metrics_of_a_scan, 
+* get_failed_general_queries_metrics_of_a_scan, get_succeeded_general_queries_metrics_of_a_scan
+* Add support for ProjectsAPI set_project_queue_setting, update_project_queue_setting
