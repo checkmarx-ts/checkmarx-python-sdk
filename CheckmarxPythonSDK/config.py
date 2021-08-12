@@ -63,28 +63,46 @@ def get_config_info_from_config_file():
     cxsast_config = None
     if parser_obj.has_section("checkmarx"):
         cxsast_config = {
-            "base_url": parser_obj.get("checkmarx", "base_url"),
-            "username": parser_obj.get("checkmarx", "username"),
-            "password": parser_obj.get("checkmarx", "password"),
-            "grant_type": parser_obj.get("checkmarx", "grant_type"),
-            "scope": parser_obj.get("checkmarx", "scope"),
-            "client_id": parser_obj.get("checkmarx", "client_id"),
-            "client_secret": parser_obj.get("checkmarx", "client_secret"),
-            "scan_preset": parser_obj.get("checkmarx", "scan_preset"),
-            "configuration": parser_obj.get("checkmarx", "configuration"),
-            "team_full_name": parser_obj.get("checkmarx", "team_full_name"),
-            "max_try": parser_obj.getint("checkmarx", "max_try"),
-            "report_folder": parser_obj.get("checkmarx", "report_folder"),
+            "base_url": parser_obj.get("checkmarx",
+                                       "base_url") if parser_obj.has_option("checkmarx", "base_url") else None,
+            "username": parser_obj.get("checkmarx",
+                                       "username") if parser_obj.has_option("checkmarx", "username") else None,
+            "password": parser_obj.get("checkmarx",
+                                       "password") if parser_obj.has_option("checkmarx", "password") else None,
+            "grant_type": parser_obj.get("checkmarx",
+                                         "grant_type") if parser_obj.has_option("checkmarx", "grant_type") else None,
+            "scope": parser_obj.get("checkmarx",
+                                    "scope") if parser_obj.has_option("checkmarx", "scope") else None,
+            "client_id": parser_obj.get("checkmarx",
+                                        "client_id") if parser_obj.has_option("checkmarx", "client_id") else None,
+            "client_secret": parser_obj.get("checkmarx",
+                                            "client_secret") if parser_obj.has_option("checkmarx",
+                                                                                      "client_secret") else None,
+            "scan_preset": parser_obj.get("checkmarx",
+                                          "scan_preset") if parser_obj.has_option("checkmarx",
+                                                                                  "scan_preset") else None,
+            "configuration": parser_obj.get("checkmarx",
+                                            "configuration") if parser_obj.has_option("checkmarx",
+                                                                                      "configuration") else None,
+            "team_full_name": parser_obj.get("checkmarx",
+                                             "team_full_name") if parser_obj.has_option("checkmarx",
+                                                                                        "team_full_name") else None,
+            "max_try": parser_obj.getint("checkmarx",
+                                         "max_try") if parser_obj.has_option("checkmarx",
+                                                                             "max_try") else None,
+            "report_folder": parser_obj.get("checkmarx",
+                                            "report_folder") if parser_obj.has_option("checkmarx",
+                                                                                      "report_folder") else None,
         }
 
     cxsca_config = None
     if parser_obj.has_section("CxSCA"):
         cxsca_config = {
             "access_control_url": parser_obj.get("CxSCA", "access_control_url"),
-            "server": parser_obj.get("CxSCA", "server"),
-            "account": parser_obj.get("CxSCA", "account"),
-            "username": parser_obj.get("CxSCA", "username"),
-            "password": parser_obj.get("CxSCA", "password"),
+            "server": parser_obj.get("CxSCA", "server") if parser_obj.has_option("CxSCA", "server") else None,
+            "account": parser_obj.get("CxSCA", "account") if parser_obj.has_option("CxSCA", "account") else None,
+            "username": parser_obj.get("CxSCA", "username") if parser_obj.has_option("CxSCA", "username") else None,
+            "password": parser_obj.get("CxSCA", "password") if parser_obj.has_option("CxSCA", "password") else None,
         }
 
     return {
