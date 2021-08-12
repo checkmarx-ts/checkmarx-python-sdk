@@ -94,3 +94,6 @@ All notable changes to this project will be documented in  this file.
 * get_parsed_files_metrics_of_a_scan, get_failed_queries_metrics_of_a_scan, 
 * get_failed_general_queries_metrics_of_a_scan, get_succeeded_general_queries_metrics_of_a_scan
 * Add support for ProjectsAPI set_project_queue_setting, update_project_queue_setting
+
+0.3.0 - 2021-08-12
+* Change config.py to be compatible with python 2.7
