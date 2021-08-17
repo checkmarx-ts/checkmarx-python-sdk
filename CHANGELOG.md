@@ -97,3 +97,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.0 - 2021-08-12
 * Change config.py to be compatible with python 2.7
+
+0.3.2 - 2021-08-17
+* Fix EnginesAPI register_engine
