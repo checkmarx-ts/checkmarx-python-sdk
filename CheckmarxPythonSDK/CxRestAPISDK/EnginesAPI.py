@@ -98,6 +98,7 @@ class EnginesAPI(object):
             min_loc (int): Specifies the minimum number of lines of code to scan
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
+            max_scans (int):
             api_version (str, optional):
 
         Returns:

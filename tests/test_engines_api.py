@@ -32,11 +32,11 @@ def test_register_engine():
     engine_id = engine_api.get_engine_id_by_name(name)
     if engine_id:
         engine_api.unregister_engine_by_engine_id(engine_id)
-    uri = "http://{ip}/CxSourceAnalyzerEngineWCF/CxEngineWebServices.svc".format(ip=another_engine_ip)
+    uri = "http://{ip}".format(ip=another_engine_ip)
     min_loc = 0
     max_loc = 999999999
     is_blocked = False
-    engine_server = engine_api.register_engine(name, uri, min_loc, max_loc, is_blocked)
+    engine_server = engine_api.register_engine(name, uri, min_loc, max_loc, is_blocked, max_scans=1)
     assert engine_server is not None
 
 
