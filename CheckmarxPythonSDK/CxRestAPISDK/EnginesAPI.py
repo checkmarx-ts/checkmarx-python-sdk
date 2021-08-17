@@ -89,7 +89,7 @@ class EnginesAPI(object):
         a_dict = {item.name: item.id for item in all_engine_servers}
         return a_dict.get(engine_name)
 
-    def register_engine(self, name, uri, min_loc, max_loc, is_blocked, api_version="1.0"):
+    def register_engine(self, name, uri, min_loc, max_loc, is_blocked, max_scans, api_version="1.0"):
         """
         POST  /sast/engineServers  Registers an Engine Server
         Args:
@@ -113,7 +113,8 @@ class EnginesAPI(object):
             uri=uri,
             min_loc=min_loc,
             max_loc=max_loc,
-            is_blocked=is_blocked
+            is_blocked=is_blocked,
+            max_scans=max_scans
         ).get_post_data()
 
         engine_servers_url = config.get("base_url") + "/cxrestapi/sast/engineServers"
