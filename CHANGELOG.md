@@ -100,3 +100,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.2 - 2021-08-17
 * Fix EnginesAPI register_engine
+
+0.3.3 - 2021-08-19
+* Add field origin for csv report
