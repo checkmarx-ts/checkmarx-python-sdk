@@ -84,7 +84,7 @@ def get_results_for_a_specific_scan_id_with_query_language_state(scan_id, filter
     # have to put ScanId in url, otherwise would have deserialization error
     url = ("/Cxwebinterface/odata/v1/Scans({id})/Results?$select=Id,ScanId,QueryId,SimilarityId"
            "&$expand=Query($select=Name;$expand=QueryGroup($select=Name,"
-           "LanguageName)),State($select=Name)").format(
+           "LanguageName)),State($select=Name),Scan($select=Origin)").format(
         id=scan_id
     )
 
@@ -101,7 +101,8 @@ def get_results_for_a_specific_scan_id_with_query_language_state(scan_id, filter
             "Query": item.get("Query").get("Name"),
             "QueryId": item.get("QueryId"),
             "ResultId": item.get("Id"),
-            "ResultState": item.get("State").get("Name")
+            "ResultState": item.get("State").get("Name"),
+            "Origin": item.get("Scan").get("Origin"),
         } for item in item_list
     ]
 
