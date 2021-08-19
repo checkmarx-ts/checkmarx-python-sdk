@@ -208,7 +208,7 @@ class ScansAPI(object):
             force_scan (boolean): Specifies whether the code should be scanned or not, regardless of whether changes
                                 were made to the code since the last scan.
             comment (str): Specifies the scan comment.
-            custom_fields (dict, optional): dict with key-value pairs,
+            custom_fields (dict, optional): dict with key-value pairs, api_version must be "1.2"
                             e.g. {
                                     "key": "value"
                                  }
@@ -1468,7 +1468,10 @@ class ScansAPI(object):
             force_scan (bool):
             comment (str):
             engine_configuration_id (int):
-            custom_fields (dict, optional):
+            custom_fields (dict, optional):   api_version must be "1.2"
+                            e.g. {
+                                    "key": "value"
+                                 }
             post_scan_action_id (int, optional):
             api_version (str, optional):
 
