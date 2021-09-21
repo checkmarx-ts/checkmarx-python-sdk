@@ -841,3 +841,47 @@ def import_queries(imported_file_path):
         "requestId": response["requestId"],
         "importQueryStatus": response["importQueryStatus"]
     }
+
+
+def lock_scan(scan_id):
+    """
+
+    Args:
+        scan_id (int):
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.LockScan(i_SessionID="0", i_ScanID=scan_id)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+    }
+
+
+def unlock_scan(scan_id):
+    """
+
+        Args:
+            scan_id (int):
+
+        Returns:
+
+        """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.UnlockScan(i_SessionID="0", i_ScanID=scan_id)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+    }

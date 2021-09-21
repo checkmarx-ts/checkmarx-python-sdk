@@ -23,6 +23,8 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     get_name_of_user_who_marked_false_positive_from_comments_history,
     import_preset,
     import_queries,
+    lock_scan,
+    unlock_scan,
 )
 
 
@@ -171,3 +173,15 @@ def test_import_queries():
         time.sleep(1)
     print("importQueryStatus: {}".format(import_query_status))
     assert import_query_status == "Succeeded"
+
+
+def test_lock_scan():
+    scan_id = 1040138
+    response = lock_scan(scan_id=scan_id)
+    assert response.get("IsSuccesfull") is True
+
+
+def test_unlock_scan():
+    scan_id = 1040138
+    response = unlock_scan(scan_id=scan_id)
+    assert response.get("IsSuccesfull") is True

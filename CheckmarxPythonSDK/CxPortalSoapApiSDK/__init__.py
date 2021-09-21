@@ -21,6 +21,8 @@ from .CxPortalWebService import (
     get_version_number_as_int,
     import_preset,
     import_queries,
+    lock_scan,
+    unlock_scan,
 )
 
 from .CxAuditWebService import (

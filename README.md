@@ -321,6 +321,12 @@ For CxSCA
     - get_version_number_as_int
     - import_preset
     - import_queries
+    - lock_scan
+    - unlock_scan
+2. cx Audit web service
+    - get_files_extensions
+    - get_source_code_for_scan
+    - upload_queries
     
     
  # The CxSAST OData API List
