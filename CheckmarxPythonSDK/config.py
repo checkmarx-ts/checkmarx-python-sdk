@@ -122,6 +122,9 @@ def get_config_info_from_environment_variables():
     if max_try:
         max_try = int(max_try)
 
+    verify = os.getenv("cxsast_verify")
+    verify = bool(verify) and verify.lower() == 'true'
+
     cxsast_config = {
         "base_url": os.getenv("cxsast_base_url"),
         "username": os.getenv("cxsast_username"),
@@ -134,6 +137,7 @@ def get_config_info_from_environment_variables():
         "configuration": os.getenv("cxsast_configuration"),
         "team_full_name": os.getenv("cxsast_team_full_name"),
         "max_try": max_try,
+        "verify": verify,
         "report_folder": os.getenv("cxsast_report_folder"),
     }
 
