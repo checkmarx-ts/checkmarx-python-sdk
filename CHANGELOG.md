@@ -103,3 +103,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.3 - 2021-08-19
 * Add field origin for csv report
+
+0.3.5 - 2021-09-30
+* Add field LOC for csv report
