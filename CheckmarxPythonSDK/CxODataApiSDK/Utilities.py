@@ -234,12 +234,12 @@ def get_results_and_write_to_csv_file(file_path, field_names, filter_false_posit
 
 def dump_last_scan_results_of_each_project_into_csv_file(file_path):
     filed_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
-                   'QueryId', 'Query', 'SimilarityId', 'ResultId', 'ResultState', "Origin"]
+                   'QueryId', 'Query', 'SimilarityId', 'ResultId', 'ResultState', "Origin", "LOC"]
     get_results_and_write_to_csv_file(file_path=file_path, field_names=filed_names)
 
 
 def dump_last_scan_results_statistics_of_each_project_into_csv_file(file_path, threshold=0):
     filed_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
-                   'QueryId', 'Query', 'TotalNumber', 'FalsePositiveNumber', "Origin"]
+                   'QueryId', 'Query', 'TotalNumber', 'FalsePositiveNumber', "Origin", "LOC"]
     get_results_and_write_to_csv_file(file_path=file_path, field_names=filed_names, filter_false_positive=True,
                                       threshold=threshold)
