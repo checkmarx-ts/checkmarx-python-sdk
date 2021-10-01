@@ -7,7 +7,7 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     update_project,
     delete_project,
     get_all_scans_associated_with_a_project,
-    get_latest_can_id_of_a_project,
+    get_latest_scan_id_of_a_project,
     get_scan_by_id,
     get_scan_status,
     get_scan_settings,
@@ -80,29 +80,29 @@ def test_get_all_scans_associated_with_a_project():
     assert len(scans) == 0
 
 
-def test_get_latest_can_id_of_a_project():
+def test_get_latest_scan_id_of_a_project():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     assert scan_id is not None
 
 
 def test_get_scan_by_id():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     scan = get_scan_by_id(scan_id=scan_id)
     assert scan is not None
 
 
 def test_get_scan_status():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     scan_status = get_scan_status(scan_id=scan_id)
     assert scan_status is not None
 
 
 def test_get_scan_settings():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     scan_settings = get_scan_settings(scan_id=scan_id)
     assert scan_settings is not None
 
@@ -115,28 +115,28 @@ def test_get_risk_report_summary():
 
 def test_get_packages_of_a_scan():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     packages = get_packages_of_a_scan(scan_id=scan_id)
     assert len(packages) > 0
 
 
 def test_get_vulnerabilities_of_a_scan():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     vulnerabilities = get_vulnerabilities_of_a_scan(scan_id=scan_id)
     assert len(vulnerabilities) > 0
 
 
 def test_get_licenses_of_a_scan():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     licenses = get_licenses_of_a_scan(scan_id=scan_id)
     assert len(licenses) > 0
 
 
 def test_ignore_a_vulnerability_for_a_specific_package_and_project():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     vulnerabilities = get_vulnerabilities_of_a_scan(scan_id=scan_id)
     vulnerability_id = vulnerabilities[0].get("id")
     packages = get_packages_of_a_scan(scan_id=scan_id)
@@ -152,7 +152,7 @@ def test_ignore_a_vulnerability_for_a_specific_package_and_project():
 
 def test_undo_the_ignore_state_of_an_ignored_vulnerability():
     project_id = get_project_id_by_name(project_name)
-    scan_id = get_latest_can_id_of_a_project(project_id=project_id)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     vulnerabilities = get_vulnerabilities_of_a_scan(scan_id=scan_id)
     vulnerability_id = vulnerabilities[0].get("id")
     packages = get_packages_of_a_scan(scan_id=scan_id)

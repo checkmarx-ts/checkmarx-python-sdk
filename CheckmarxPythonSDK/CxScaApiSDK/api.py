@@ -253,7 +253,7 @@ def get_all_scans_associated_with_a_project(project_id):
     return get_request(relative_url=url)
 
 
-def get_latest_can_id_of_a_project(project_id):
+def get_latest_scan_id_of_a_project(project_id):
     """
 
     Returns:
