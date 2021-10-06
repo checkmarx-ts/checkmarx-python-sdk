@@ -7,7 +7,7 @@ from .api import (
     update_project,
     delete_project,
     get_all_scans_associated_with_a_project,
-    get_latest_can_id_of_a_project,
+    get_latest_scan_id_of_a_project,
     get_scan_by_id,
     get_scan_status,
     get_scan_settings,
