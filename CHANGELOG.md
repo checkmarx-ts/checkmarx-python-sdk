@@ -106,3 +106,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.5 - 2021-09-30
 * Add field LOC for csv report
+
+0.3.7 - 2022-01-04
+* Add field PathId, DirectLink for csv report
