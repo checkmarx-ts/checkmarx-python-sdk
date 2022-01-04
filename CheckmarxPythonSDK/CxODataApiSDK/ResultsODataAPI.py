@@ -82,7 +82,7 @@ def get_results_for_a_specific_scan_id_with_query_language_state(scan_id, filter
         ]
     """
     # have to put ScanId in url, otherwise would have deserialization error
-    url = ("/Cxwebinterface/odata/v1/Scans({id})/Results?$select=Id,ScanId,QueryId,SimilarityId"
+    url = ("/Cxwebinterface/odata/v1/Scans({id})/Results?$select=Id,ScanId,QueryId,SimilarityId,PathId"
            "&$expand=Query($select=Name;$expand=QueryGroup($select=Name,"
            "LanguageName)),State($select=Name),Scan($select=Origin,LOC)").format(
         id=scan_id
@@ -104,6 +104,7 @@ def get_results_for_a_specific_scan_id_with_query_language_state(scan_id, filter
             "ResultState": item.get("State").get("Name"),
             "Origin": item.get("Scan").get("Origin"),
             "LOC": item.get("Scan").get("LOC"),
+            "PathId": item.get("PathId"),
         } for item in item_list
     ]
 

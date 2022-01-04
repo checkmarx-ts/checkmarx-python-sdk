@@ -2,6 +2,7 @@ import csv
 from itertools import groupby
 from copy import deepcopy
 
+from ..config import config
 from .ProjectsODataAPI import (get_all_projects_id_name, get_all_projects_id_name_and_team_id_name)
 from .ScansODataAPI import (
     get_all_scan_id_of_a_project,
@@ -202,7 +203,13 @@ def get_result(project, filter_false_positive=False, threshold=0):
                 "TeamId": team_id,
                 "ProjectId": project_id,
                 "ProjectName": project_name,
-                "ScanId": last_scan_id
+                "ScanId": last_scan_id,
+                "DirectLink": config.get("base_url") + """/cxwebclient/ViewerMain.aspx"""
+                """?scanid={scanId}&projectid={projectId}&pathid={pathId}""".format(
+                    scanId=last_scan_id,
+                    projectId=project_id,
+                    pathId=result.get("PathId"),
+                )
             }
         )
 
@@ -234,12 +241,14 @@ def get_results_and_write_to_csv_file(file_path, field_names, filter_false_posit
 
 def dump_last_scan_results_of_each_project_into_csv_file(file_path):
     filed_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
-                   'QueryId', 'Query', 'SimilarityId', 'ResultId', 'ResultState', "Origin", "LOC"]
+                   'QueryId', 'Query', 'SimilarityId', 'ResultId', 'ResultState', "Origin", "LOC", "PathId",
+                   "DirectLink"]
     get_results_and_write_to_csv_file(file_path=file_path, field_names=filed_names)
 
 
 def dump_last_scan_results_statistics_of_each_project_into_csv_file(file_path, threshold=0):
     filed_names = ['TeamName', 'TeamId', 'ProjectId', 'ProjectName', 'ScanId', 'Language', 'QueryGroup',
-                   'QueryId', 'Query', 'TotalNumber', 'FalsePositiveNumber', "Origin", "LOC"]
+                   'QueryId', 'Query', 'TotalNumber', 'FalsePositiveNumber', "Origin", "LOC", "PathId",
+                   "DirectLink"]
     get_results_and_write_to_csv_file(file_path=file_path, field_names=filed_names, filter_false_positive=True,
                                       threshold=threshold)
