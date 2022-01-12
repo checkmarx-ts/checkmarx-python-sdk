@@ -5,6 +5,7 @@ from .CxPortalWebService import (
     delete_preset,
     export_preset,
     export_queries,
+    get_compare_scan_results,
     get_import_queries_status,
     get_path_comments_history,
     get_user_profile_data,

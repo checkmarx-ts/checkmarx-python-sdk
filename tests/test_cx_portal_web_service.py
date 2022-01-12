@@ -7,6 +7,7 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     delete_preset,
     export_preset,
     export_queries,
+    get_compare_scan_results,
     get_import_queries_status,
     get_query_collection,
     get_query_id_by_language_group_and_query_name,
@@ -78,6 +79,12 @@ def test_export_queries():
     # with open("query.xml", "wb") as out_file:
     #     out_file.write(response.get("Queries"))
 
+
+def test_get_compare_scan_results():
+    old_scan_id = 1050162
+    new_scan_id = 1050164
+    response = get_compare_scan_results(old_scan_id=old_scan_id, new_scan_id=new_scan_id)
+    assert response is not None
 
 def test_get_path_comments_history():
     scan_id = 1000022

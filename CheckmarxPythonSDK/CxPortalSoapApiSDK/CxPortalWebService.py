@@ -384,6 +384,56 @@ def export_queries(queries_ids):
     }
 
 
+def get_compare_scan_results(old_scan_id, new_scan_id):
+    """
+
+    Args:
+        old_scan_id (int):
+        new_scan_id (int):
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, _ = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetCompareScanResults(sessionId="0", oldScanId=old_scan_id, newScanId=new_scan_id)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "Results": [
+            {
+                'QueryId': item.QueryId,
+                'PathId': item.PathId,
+                'SourceFolder': item.SourceFolder,
+                'SourceFile': item.SourceFile,
+                'SourceLine': item.SourceLine,
+                'SourceObject': item.SourceObject,
+                'DestFolder': item.DestFolder,
+                'DestFile': item.DestFile,
+                'DestLine': item.DestLine,
+                'NumberOfNodes': item.NumberOfNodes,
+                'DestObject': item.DestObject,
+                'Comment': item.Comment,
+                'State': item.State,
+                'Severity': item.Severity,
+                'AssignedUser': item.AssignedUser,
+                'ConfidenceLevel': item.ConfidenceLevel,
+                'ResultStatus': item.ResultStatus,
+                'IssueTicketID': item.IssueTicketID,
+                'QueryVersionCode': item.QueryVersionCode,
+                'ScanId': item.ScanId,
+                'ComparedToScanId': item.ComparedToScanId,
+                'ComparedToScanPathId': item.ComparedToScanPathId,
+                'QueryName': item.QueryName,
+            } for item in response["Results"]["CxWSSingleResultCompareData"]
+        ]
+    }
+
+
 def get_import_queries_status(request_id):
     """
 
