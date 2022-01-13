@@ -75,6 +75,9 @@ class TeamAPI(object):
         # construct a dict of {team_full_name: team_id}
         team_full_name_id_dict = {item.full_name: item.team_id for item in all_teams}
 
+        if team_full_name.startswith("CxServer"):
+            team_full_name = "/" + team_full_name.replace("\\", "/")
+
         team_id = team_full_name_id_dict.get(team_full_name.replace("\\", "/"))
 
         return team_id
