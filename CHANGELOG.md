@@ -109,3 +109,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.7 - 2022-01-04
 * Add field PathId, DirectLink for csv report
+
+0.3.8 - 2022-01-13
+* Fix TeamAPI get_team_id_by_team_full_name if using "CxServer\SP\Company"
