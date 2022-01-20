@@ -258,9 +258,13 @@ For CxSCA
     - get_saml_identity_provider_by_id
     - update_new_saml_identity_provider
     - delete_a_saml_identity_provider
+    - get_details_of_saml_role_mappings
+    - set_saml_group_and_role_mapping_details
     - get_saml_service_provider_metadata
     - get_saml_service_provider
     - update_a_saml_service_provider
+    - get_details_of_saml_team_mappings
+    - set_saml_group_and_team_mapping_details
     - get_all_service_providers
     - get_service_provider_by_id
     - get_all_smtp_settings
