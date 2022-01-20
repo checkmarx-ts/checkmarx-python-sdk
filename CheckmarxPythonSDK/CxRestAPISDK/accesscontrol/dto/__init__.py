@@ -8,7 +8,9 @@ from .OIDCClient import OIDCClient
 from .Permission import Permission
 from .Role import Role
 from .SAMLIdentityProvider import SAMLIdentityProvider
+from .SAMLRoleMapping import SAMLRoleMapping
 from .SAMLServiceProvider import SAMLServiceProvider
+from .SAMLTeamMapping import SAMLTeamMapping
 from .ServiceProvider import ServiceProvider
 from .SMTPSetting import SMTPSetting
 from .SystemLocale import SystemLocale

@@ -171,6 +171,25 @@ def test_delete_a_saml_identity_provider():
     ac = AccessControlAPI()
 
 
+def test_get_details_of_saml_role_mappings():
+    ac = AccessControlAPI()
+    saml_role_mapping = ac.get_details_of_saml_role_mappings(saml_identity_provider_id=1)
+    assert saml_role_mapping is not None
+
+
+def test_set_saml_group_and_role_mapping_details():
+    ac = AccessControlAPI()
+    sample_role_mapping_details = [
+              {
+                "roleName": "SAST Scanner",
+                "samlAttributeValue": "IT"
+              }
+            ]
+    is_successful = ac.set_saml_group_and_role_mapping_details(
+        saml_identity_provider_id=1,
+        sample_role_mapping_details=sample_role_mapping_details
+    )
+    assert is_successful is True
 
 def test_get_saml_service_provider_metadata():
     ac = AccessControlAPI()
@@ -193,6 +212,33 @@ def test_update_a_saml_service_provider():
     is_successful = ac.update_a_saml_service_provider(certificate_file_path, certificate_password, issuer)
     assert is_successful is True
 
+
+def test_get_details_of_saml_team_mappings():
+    ac = AccessControlAPI()
+    saml_team_mapping = ac.get_details_of_saml_team_mappings(saml_identity_provider_id=1)
+    assert saml_team_mapping is not None
+
+
+def test_set_saml_group_and_team_mapping_details():
+    ac = AccessControlAPI()
+    saml_team_mapping_details = [
+         {
+            "teamFullPath": "/CxServer/CompanyOne/AC_TEAM_ONE",
+            "samlAttributeValue": "IT"
+         },
+         {
+            "teamFullPath": "/CxServer/CompanyOne/AC_TEAM_TWO",
+            "samlAttributeValue": "Sales"
+         },
+         {
+            "teamFullPath": "/CxServer/CompanyTwo/AC_Dev_Team",
+            "samlAttributeValue": "IT"
+         }
+        ]
+    is_successful = ac.set_saml_group_and_team_mapping_details(
+        saml_identity_provider_id=1, saml_team_mapping_details=saml_team_mapping_details
+    )
+    assert is_successful is True
 
 def test_get_all_service_providers():
     ac = AccessControlAPI()

@@ -15,7 +15,7 @@ from .exceptions.CxError import BadRequestError, NotFoundError, CxError
 from .accesscontrol.dto import (
     User, AuthenticationProvider, MyProfile, Permission, Role, ServiceProvider, SMTPSetting, SystemLocale, Team,
     WindowsDomain, SAMLIdentityProvider, SAMLServiceProvider, OIDCClient, LDAPRoleMapping, LDAPGroup, LDAPServer,
-    LDAPTeamMapping
+    LDAPTeamMapping, SAMLRoleMapping, SAMLTeamMapping
 )
 
 
@@ -2198,6 +2198,111 @@ class AccessControlAPI(object):
 
         return is_successful
 
+    def get_details_of_saml_role_mappings(self, saml_identity_provider_id=None):
+        """
+
+        Args:
+            saml_identity_provider_id (int):
+
+        Returns:
+            `list` of `SAMLRoleMapping`
+        """
+        url = config.get("base_url") + "/cxrestapi/auth/SamlRoleMappings"
+        if saml_identity_provider_id:
+            url += "?samlProviderId={}".format(saml_identity_provider_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            a_list = r.json()
+            saml_role_mapping = [
+                SAMLRoleMapping(
+                    saml_role_mapping_id=item.get('id'),
+                    saml_identity_provider_id=item.get('samlIdentityProviderId'),
+                    role_id=item.get('roleId'),
+                    role_name=item.get('roleName'),
+                    saml_attribute_value=item.get('samlAttributeValue')
+                ) for item in a_list
+            ]
+        elif r.status_code == FORBIDDEN:
+            raise CxError("Forbidden to access", r.status_code)
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            saml_role_mapping = self.get_details_of_saml_role_mappings(saml_identity_provider_id)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return saml_role_mapping
+
+    def set_saml_group_and_role_mapping_details(self, saml_identity_provider_id, sample_role_mapping_details=()):
+        """
+
+        Args:
+            saml_identity_provider_id (int):
+            sample_role_mapping_details (`list` of dict):
+            [
+              {
+                "roleName": "string",
+                "samlAttributeValue": "string"
+              }
+            ]
+
+        Returns:
+
+        """
+        put_data = json.dumps(
+            [
+                {
+                    "roleName": item.get("roleName"),
+                    "samlAttributeValue": item.get("samlAttributeValue")
+                }
+                for item in sample_role_mapping_details
+            ]
+        )
+
+        headers = copy(authHeaders.auth_headers)
+
+        url = config.get("base_url") + "/cxrestapi/auth/SamlIdentityProviders/{samlProviderId}/RoleMappings".format(
+            samlProviderId=saml_identity_provider_id)
+        r = requests.put(
+            url=url,
+            data=put_data,
+            headers=headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == NO_CONTENT:
+            is_successful = True
+        elif r.status_code == FORBIDDEN:
+            raise CxError("Forbidden to access", r.status_code)
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            is_successful = self.set_saml_group_and_role_mapping_details(
+                saml_identity_provider_id, sample_role_mapping_details
+            )
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
+
     def get_saml_service_provider_metadata(self):
         """
 
@@ -2314,6 +2419,110 @@ class AccessControlAPI(object):
             authHeaders.update_auth_headers()
             self.retry += 1
             is_successful = self.update_a_saml_service_provider(certificate_file, certificate_password, issuer)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return is_successful
+
+    def get_details_of_saml_team_mappings(self, saml_identity_provider_id=None):
+        """
+
+        Args:
+            saml_identity_provider_id (int):
+
+        Returns:
+
+        """
+        url = config.get("base_url") + "/cxrestapi/auth/SamlTeamMappings"
+        if saml_identity_provider_id:
+            url += "?samlProviderId={}".format(saml_identity_provider_id)
+
+        r = requests.get(
+            url=url,
+            headers=authHeaders.auth_headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == OK:
+            a_list = r.json()
+            saml_team_mapping = [
+                SAMLTeamMapping(
+                    saml_team_mapping_id=item.get("id"),
+                    saml_identity_provider_id=item.get("samlIdentityProviderId"),
+                    team_id=item.get("teamId"),
+                    team_full_path=item.get("teamFullPath"),
+                    saml_attribute_value=item.get("samlAttributeValue")
+                ) for item in a_list
+            ]
+        elif r.status_code == FORBIDDEN:
+            raise CxError("Forbidden to access", r.status_code)
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            saml_team_mapping = self.get_details_of_saml_team_mappings(saml_identity_provider_id)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return saml_team_mapping
+
+    def set_saml_group_and_team_mapping_details(self, saml_identity_provider_id, saml_team_mapping_details=()):
+        """
+
+        Args:
+            saml_identity_provider_id (int):
+            saml_team_mapping_details (`list` of dict):
+                [
+                  {
+                    "teamFullPath": "string",
+                    "samlAttributeValue": "string"
+                  }
+                ]
+        Returns:
+
+        """
+        put_data = json.dumps(
+            [
+                {
+                    "teamFullPath": item.get("teamFullPath"),
+                    "samlAttributeValue": item.get("samlAttributeValue")
+                }
+                for item in saml_team_mapping_details
+            ]
+        )
+
+        headers = copy(authHeaders.auth_headers)
+
+        url = config.get("base_url") + "/cxrestapi/auth/SamlIdentityProviders/{id}/TeamMappings".format(
+            id=saml_identity_provider_id)
+        r = requests.put(
+            url=url,
+            data=put_data,
+            headers=headers,
+            verify=config.get("verify")
+        )
+
+        if r.status_code == NO_CONTENT:
+            is_successful = True
+        elif r.status_code == FORBIDDEN:
+            raise CxError("Forbidden to access", r.status_code)
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            raise NotFoundError()
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            is_successful = self.set_saml_group_and_team_mapping_details(
+                saml_identity_provider_id, saml_team_mapping_details
+            )
         else:
             raise CxError(r.text, r.status_code)
 
