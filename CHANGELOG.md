@@ -112,3 +112,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.8 - 2022-01-13
 * Fix TeamAPI get_team_id_by_team_full_name if using "CxServer\SP\Company"
+
+0.3.9 - 2022-01-20
+* Add roleMapping and teamMapping support for access control api
