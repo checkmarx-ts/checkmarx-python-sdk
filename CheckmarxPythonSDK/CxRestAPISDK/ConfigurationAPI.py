@@ -81,7 +81,7 @@ class ConfigurationAPI(object):
 
         Args:
             group (str): example, SystemSettings
-            key_value_list (list of dict）: example, [
+            key_value_list (`list` of `dict`, `list` of `CxSASTConfig`）: example, [
                   {
                     "key": "MAXIMUM_CONCURRENT_SCAN_EXECUTERS",
                     "value": "2"
@@ -94,7 +94,19 @@ class ConfigurationAPI(object):
         """
         url = config.get("base_url") + "/cxrestapi/configurationsExtended/{group}".format(group=group)
 
-        data = json.dumps(key_value_list)
+        temp_list = []
+        for item in key_value_list:
+            if isinstance(item, dict):
+                temp_list.append(item)
+            elif isinstance(item, CxSASTConfig):
+                temp_list.append(item.get_key_value_dict())
+
+        data = json.dumps([
+            {
+                "key": item.get("key"),
+                "value": item.get("value"),
+            } for item in temp_list
+        ])
 
         r = requests.put(
             url=url,
