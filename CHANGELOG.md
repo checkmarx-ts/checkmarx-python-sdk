@@ -115,3 +115,6 @@ All notable changes to this project will be documented in  this file.
 
 0.3.9 - 2022-01-20
 * Add roleMapping and teamMapping support for access control api
+
+0.4.0 - 2022-01-27
+* Add Portal Soap API get_results_for_scan
