@@ -26,6 +26,7 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     import_queries,
     lock_scan,
     unlock_scan,
+    get_results_for_scan,
 )
 
 
@@ -131,6 +132,10 @@ def test_get_preset_list():
     response = get_preset_list()
     assert response["IsSuccesfull"] is True
 
+
+def test_get_results_for_scan():
+    response = get_results_for_scan(scan_id=1000006)
+    assert response["IsSuccesfull"] is True
 
 def test_get_server_license_data():
     lic = get_server_license_data()

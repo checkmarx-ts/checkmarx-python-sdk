@@ -14,6 +14,7 @@ from .CxPortalWebService import (
     get_query_id_by_language_group_and_query_name,
     get_name_of_user_who_marked_false_positive_from_comments_history,
     get_preset_list,
+    get_results_for_scan,
     get_server_license_data,
     get_server_license_summary,
     delete_project,

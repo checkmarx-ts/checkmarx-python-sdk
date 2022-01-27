@@ -704,6 +704,52 @@ def get_preset_list():
     }
 
 
+def get_results_for_scan(scan_id):
+    """
+
+    Args:
+        scan_id (int):
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetResultsForScan(sessionID="0", scanId=scan_id)
+
+    response = execute()
+    scan_results_list = response.Results.CxWSSingleResultData
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "ScanResults": [
+            {
+                "QueryId": item["QueryId"],
+                "PathId": item["PathId"],
+                "SourceFolder": item["SourceFolder"],
+                "SourceFile": item["SourceFile"],
+                "SourceLine": item["SourceLine"],
+                "SourceObject": item["SourceObject"],
+                "DestFolder": item["DestFolder"],
+                "DestFile": item["DestFile"],
+                "DestLine": item["DestLine"],
+                "NumberOfNodes": item["NumberOfNodes"],
+                "DestObject": item["DestObject"],
+                "Comment": item["Comment"],
+                "State": item["State"],
+                "Severity": item["Severity"],
+                "AssignedUser": item["AssignedUser"],
+                "ConfidenceLevel": item["ConfidenceLevel"],
+                "ResultStatus": item["ResultStatus"],
+                "IssueTicketID": item["IssueTicketID"],
+                "QueryVersionCode": item["QueryVersionCode"],
+            } for item in scan_results_list
+        ] if scan_results_list else None
+    }
+
+
 def get_server_license_data():
     """
 
