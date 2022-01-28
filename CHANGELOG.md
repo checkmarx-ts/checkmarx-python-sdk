@@ -118,3 +118,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.0 - 2022-01-27
 * Add Portal Soap API get_results_for_scan
+
+0.4.1 - 2022-01-28
+* Add Portal SOAP API get_result_path
