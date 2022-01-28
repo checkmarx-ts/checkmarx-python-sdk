@@ -4,7 +4,6 @@
     Only support 9.x version.
     Start from 9.0, Portal SOAP API needs Bear Token for authentication
 """
-import base64
 from os.path import exists
 
 from .zeepClient import get_client_and_factory, retry_when_unauthorized
@@ -701,6 +700,52 @@ def get_preset_list():
                 "isUserAllowToDelete": item["isUserAllowToDelete"]
             } for item in preset_list["Preset"]
         ] if preset_list else None
+    }
+
+
+def get_result_path(scan_id, path_id):
+    """
+
+    Args:
+        scan_id (int):
+        path_id (int):
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetResultPath(sessionId="0", scanId=scan_id, pathId=path_id)
+
+    response = execute()
+    item = response.Path
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "Path": {
+            "AssignedUser": item["AssignedUser"],
+            "Comment": item["Comment"],
+            "PathId": item["PathId"],
+            "Severity": item["Severity"],
+            "SimilarityId": item["SimilarityId"],
+            "State": item["State"],
+            "Nodes": [
+                {
+                    "Column": node["Column"],
+                    "DOM_Id": node["DOM_Id"],
+                    "FileName": node["FileName"],
+                    "FullName": node["FullName"],
+                    "Length": node["Length"],
+                    "Line": node["Line"],
+                    "MethodLine": node["MethodLine"],
+                    "Name": node["Name"],
+                    "PathNodeId": node["PathNodeId"],
+                }
+                for node in item["Nodes"]["CxWSPathNode"]
+            ],
+        }
     }
 
 
