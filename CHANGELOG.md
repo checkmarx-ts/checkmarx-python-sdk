@@ -121,3 +121,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.1 - 2022-01-28
 * Add Portal SOAP API get_result_path
+
+0.4.2 - 2022-02-08
+* fix not did retry_when_unauthorized for sca api
