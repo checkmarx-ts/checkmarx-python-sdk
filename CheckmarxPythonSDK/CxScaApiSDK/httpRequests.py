@@ -43,7 +43,7 @@ def http_get(relative_url):
         verify=False
     )
 
-    if response.status_code != OK:
+    if response.status_code not in [OK, UNAUTHORIZED]:
         raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
                          "ErrorMessage: {msg}".format(msg=response.text))
     return response
@@ -58,7 +58,7 @@ def http_post(relative_url, data):
         verify=False
     )
 
-    if response.status_code not in [OK, CREATED]:
+    if response.status_code not in [OK, CREATED, UNAUTHORIZED]:
         raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
                          "ErrorMessage: {msg}".format(msg=response.text))
 
@@ -77,7 +77,7 @@ def http_put(relative_url, data, headers=None):
         headers=headers,
         verify=False
     )
-    if response.status_code != NO_CONTENT:
+    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
         raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
                          "ErrorMessage: {msg}".format(msg=response.text))
     return response
@@ -91,7 +91,7 @@ def http_delete(relative_url):
         verify=False
     )
 
-    if response.status_code != NO_CONTENT:
+    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
         raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
                          "ErrorMessage: {msg}".format(msg=response.text))
 
