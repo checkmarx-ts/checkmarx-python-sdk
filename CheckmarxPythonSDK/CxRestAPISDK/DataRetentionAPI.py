@@ -262,7 +262,7 @@ class DataRetentionAPI(object):
 
         return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)
 
-    def delete_all_scans_older_than_num_of_months(self, num_months, duration_limit_in_hours, api_version="1.0"):
+    def define_data_retention_by_rolling_months(self, num_months, duration_limit_in_hours, api_version="1.0"):
         """
 
         Args:
