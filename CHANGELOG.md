@@ -124,3 +124,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.2 - 2022-02-08
 * fix not did retry_when_unauthorized for sca api
+
+0.4.3 - 2022-02-09
+* Add method define_data_retention_by_rolling_date, define_data_retention_by_rolling_months for DataRetentionAPI
