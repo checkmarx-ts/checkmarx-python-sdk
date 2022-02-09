@@ -193,6 +193,8 @@ For CxSCA
     - define_data_retention_date_range
     - define_data_retention_by_number_of_scans
     - get_data_retention_request_status
+    - define_data_retention_by_rolling_date
+    - define_data_retention_by_rolling_months
 8. EnginesAPI
     - get_all_engine_server_details
     - get_engine_id_by_name
