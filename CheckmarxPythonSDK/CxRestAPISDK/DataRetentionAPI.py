@@ -1,5 +1,7 @@
 # encoding: utf-8
 import requests
+import datetime
+from dateutil.relativedelta import relativedelta
 
 from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, ACCEPTED
 from ..config import config
@@ -80,7 +82,6 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        # TODO, check why response content is empty byte
         data_retention = None
 
         post_body_data = CxDefineDataRetentionDateRangeRequest(
@@ -142,7 +143,6 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        # TODO, check why response content is empty byte
         data_retention = None
         post_body_data = CxDefineDataRetentionNumberOfScansRequest(
             number_of_successful_scans_to_preserve=number_of_successful_scans_to_preserve,
@@ -241,3 +241,43 @@ class DataRetentionAPI(object):
         self.retry = 0
 
         return data_detention_request_status
+
+    def define_data_retention_by_rolling_date(self, num_days, duration_limit_in_hours, api_version="1.0"):
+        """
+
+        Args:
+            num_days (int):
+            duration_limit_in_hours (int):
+            api_version (str):
+
+        Returns:
+
+        """
+        start_date = datetime.date(1900, 1, 1)
+        start_date = start_date.strftime("%Y-%m-%d")
+
+        time_delta = datetime.timedelta(days=num_days)
+        end_date = datetime.date.today() - time_delta
+        end_date = end_date.strftime("%Y-%m-%d")
+
+        return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)
+
+    def delete_all_scans_older_than_num_of_months(self, num_months, duration_limit_in_hours, api_version="1.0"):
+        """
+
+        Args:
+            num_months (int):
+            duration_limit_in_hours (int):
+            api_version (str):
+
+        Returns:
+
+        """
+        start_date = datetime.date(1900, 1, 1)
+        start_date = start_date.strftime("%Y-%m-%d")
+
+        the_last_day_of_this_month = datetime.date.today() + relativedelta(day=31)
+        end_date = the_last_day_of_this_month - relativedelta(months=num_months) + relativedelta(day=31)
+        end_date = end_date.strftime("%Y-%m-%d")
+
+        return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)
