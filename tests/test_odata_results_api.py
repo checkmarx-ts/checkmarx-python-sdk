@@ -2,7 +2,7 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
     get_results_for_a_specific_scan_id,
     get_the_query_that_was_run_for_a_particular_unique_scan_result,
     get_results_for_a_specific_scan_id_with_query_language_state,
-
+    get_results_for_a_specific_scan_id_with_similarity_ids,
     scan_results_group_by_query_id,
 )
 
@@ -45,4 +45,12 @@ def test_get_results_group_by_query_id_and_add_count_filter_false_positive():
                                                                      filter_false_positive=True)
     r = scan_results_group_by_query_id(r)
 
+    assert r is not None
+
+
+def test_get_results_for_a_specific_scan_id_with_similarity_ids():
+    r = get_results_for_a_specific_scan_id_with_similarity_ids(
+        scan_id=1000008,
+        similarity_ids=[2137433037, -1403228976]
+    )
     assert r is not None

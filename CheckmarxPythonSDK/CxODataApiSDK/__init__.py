@@ -17,6 +17,7 @@ from .ResultsODataAPI import (
     get_the_query_that_was_run_for_a_particular_unique_scan_result,
     get_results_for_a_specific_scan_id_with_query_language_state,
     get_results_group_by_query_id_and_add_count_json_format,
+    get_results_for_a_specific_scan_id_with_similarity_ids,
 )
 from .ScansODataAPI import (
     get_all_data_for_a_specific_scan_id,

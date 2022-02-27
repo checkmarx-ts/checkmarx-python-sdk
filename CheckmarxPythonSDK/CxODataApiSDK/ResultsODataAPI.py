@@ -177,3 +177,70 @@ def get_results_group_by_query_id_and_add_count_json_format(scan_id, filter_fals
                 )
 
     return results
+
+
+def get_results_for_a_specific_scan_id_with_similarity_ids(scan_id, similarity_ids):
+    """
+
+    might need to read in page mode
+
+    Args:
+        scan_id (int):
+        similarity_ids (`list` of int)
+
+
+    Returns:
+        list of dict
+
+        example:
+        [
+        {
+        'ResultId': 66, 'ScanId': 1000008, 'SimilarityId': -1403228976, 'RawPriority': None, 'PathId': 66,
+        'ConfidenceLevel': 96, 'Date': '2022-02-09T10:56:38.433+08:00', 'Severity': 'High', 'StateId': 0,
+        'AssignedToUserId': None, 'AssignedTo': None, 'Comment': None, 'QueryId': 595, 'QueryVersionId': 56163505,
+        'Language': 'Java', 'QueryGroup': 'Java_High_Risk', 'Query': 'Stored_XSS', 'ResultState': 'To Verify',
+         'Origin': 'Checkmarx Python SDK 0.4.2', 'LOC': 6912
+         }
+        ]
+    $select=Id,ScanId,QueryId,SimilarityId,PathId
+    """
+
+    # have to put ScanId in url, otherwise would have deserialization error
+    url = "/Cxwebinterface/odata/v1/Scans({id})/Results?".format(
+        id=scan_id
+    )
+
+    url += "&$expand=Query($select=Name;$expand=QueryGroup($select=Name,"\
+           " LanguageName)),State($select=Name),Scan($select=Origin,LOC)"
+
+    url += "&$filter=SimilarityId in ({similarity_id_list})".format(
+        similarity_id_list=",".join([str(item) for item in similarity_ids])
+    )
+
+    item_list = get_request(relative_url=url)
+
+    results = [
+        {
+            "ResultId": item.get("Id"),
+            'ScanId': item.get("ScanId"),
+            "SimilarityId": item.get("SimilarityId"),
+            'RawPriority': item.get("RawPriority"),
+            "PathId": item.get("PathId"),
+            'ConfidenceLevel': item.get("ConfidenceLevel"),
+            'Date': item.get("Date"),
+            'Severity': item.get("Severity"),
+            'StateId': item.get("StateId"),
+            'AssignedToUserId': item.get("AssignedToUserId"),
+            'AssignedTo': item.get("AssignedTo"),
+            'Comment': item.get("Comment"),
+            "QueryId": item.get("QueryId"),
+            'QueryVersionId': item.get("QueryVersionId"),
+            "Language": item.get("Query").get("QueryGroup").get("LanguageName"),
+            "QueryGroup": item.get("Query").get("QueryGroup").get("Name"),
+            "Query": item.get("Query").get("Name"),
+            "ResultState": item.get("State").get("Name"),
+            "Origin": item.get("Scan").get("Origin"),
+            "LOC": item.get("Scan").get("LOC"),
+        } for item in item_list
+    ]
+    return results
