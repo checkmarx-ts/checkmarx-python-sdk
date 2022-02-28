@@ -64,6 +64,16 @@ server = https://api-sca.checkmarx.net
 account = ***
 username = ***
 password = ***
+
+[CxAST]
+access_control_url = https://iam.checkmarx.net
+server = https://ast.checkmarx.net
+tenant_name  = ***
+grant_type = ***
+username = ***
+password = ***
+client_id = ***
+refresh_token = ***
 ```
 
 configuration file path:
@@ -87,13 +97,25 @@ For CxSAST:
     - cxsast_client_id
     - cxsast_client_secret
 
-For CxSCA
+For CxSCA:
 
     - cxsca_access_control_url
     - cxsca_server
     - cxsca_account
     - cxsca_username
     - cxsca_password
+
+For CxAST:
+    
+    - cxast_access_control_url
+    - cxast_server
+    - cxast_tenant_name
+    - cxast_grant_type
+    - cxast_username
+    - cxast_password
+    - cxast_client_id
+    - cxast_refresh_token
+    
 
 # Examples
  Please find example scripts from [here](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
@@ -362,6 +384,7 @@ For CxSCA
     - get_the_query_that_was_run_for_a_particular_unique_scan_result
     - get_results_for_a_specific_scan_id_with_query_language_state
     - get_results_group_by_query_id_and_add_count_json_format
+    - get_results_for_a_specific_scan_id_with_similarity_ids
 
  3. Scans
     - get_all_data_for_a_specific_scan_id
