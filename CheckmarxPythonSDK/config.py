@@ -105,9 +105,27 @@ def get_config_info_from_config_file():
             "password": parser_obj.get("CxSCA", "password") if parser_obj.has_option("CxSCA", "password") else None,
         }
 
+    cxast_config = None
+    if parser_obj.has_section("CxAST"):
+        cxast_config = {
+            "access_control_url": parser_obj.get(
+                "CxAST", "access_control_url") if parser_obj.has_option("CxAST", "access_control_url") else None,
+            "server": parser_obj.get("CxAST", "server") if parser_obj.has_option("CxAST", "server") else None,
+            "tenant_name": parser_obj.get(
+                "CxAST", "tenant_name") if parser_obj.has_option("CxAST", "tenant_name") else None,
+            "grant_type": parser_obj.get(
+                "CxAST", "grant_type") if parser_obj.has_option("CxAST", "grant_type") else None,
+            "username": parser_obj.get("CxAST", "username") if parser_obj.has_option("CxAST", "username") else None,
+            "password": parser_obj.get("CxAST", "password") if parser_obj.has_option("CxAST", "password") else None,
+            "client_id": parser_obj.get("CxAST", "client_id") if parser_obj.has_option("CxAST", "client_id") else None,
+            "refresh_token": parser_obj.get(
+                "CxAST", "refresh_token") if parser_obj.has_option("CxAST", "refresh_token") else None,
+        }
+
     return {
         "CxSAST": cxsast_config,
         "CxSCA": cxsca_config,
+        "CxAST": cxast_config,
     }
 
 
@@ -149,9 +167,21 @@ def get_config_info_from_environment_variables():
         "password": os.getenv("cxsca_password"),
     }
 
+    cxast_config = {
+        "access_control_url": os.getenv("cxast_access_control_url"),
+        "server": os.getenv("cxast_server"),
+        "tenant_name": os.getenv("cxast_tenant_name"),
+        "grant_type":os.getenv("cxast_grant_type"),
+        "username": os.getenv("cxast_username"),
+        "password": os.getenv("cxast_password"),
+        "client_id": os.getenv("cxast_client_id"),
+        "refresh_token": os.getenv("cxast_refresh_token"),
+    }
+
     return {
         "CxSAST": cxsast_config,
         "CxSCA": cxsca_config,
+        "CxAST": cxast_config,
     }
 
 
@@ -200,6 +230,15 @@ def get_config_info_from_command_line_arguments():
     parser.add_option("--cxsca_username", help=SUPPRESS_HELP)
     parser.add_option("--cxsca_password", help=SUPPRESS_HELP)
 
+    parser.add_option("--cxast_access_control_url", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_server", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_tenant_name", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_grant_type", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_username", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_password", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_client_id", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_refresh_token", help=SUPPRESS_HELP)
+
     (options, args) = parser.parse_args()
 
     max_try = options.cxsast_max_try
@@ -229,9 +268,21 @@ def get_config_info_from_command_line_arguments():
         "password": options.cxsca_password,
     }
 
+    cxast_config = {
+        "access_control_url": options.cxast_access_control_url,
+        "server": options.cxast_server,
+        "tenant_name": options.cxast_tenant_name,
+        "grant_type": options.cxast_grant_type,
+        "username": options.cxast_username,
+        "password": options.cxast_password,
+        "client_id": options.cxast_client_id,
+        "refresh_token": options.cxast_refresh_token,
+    }
+
     return {
         "CxSAST": cxsast_config,
         "CxSCA": cxsca_config,
+        "CxAST": cxast_config,
     }
 
 
@@ -258,6 +309,16 @@ global_config = {
         "username": None,
         "password": None,
     },
+    "CxAST": {
+        "access_control_url": "https://iam.checkmarx.net",
+        "server": "https://ast.checkmarx.net",
+        "tenant_name": None,
+        "grant_type": "password",
+        "username": None,
+        "password": None,
+        "client_id": "ast-app",
+        "refresh_token": None,
+    }
 }
 
 
@@ -281,6 +342,10 @@ def update_config(all_config, config_by_user):
     user_sca_config = config_by_user.get("CxSCA")
     if user_sca_config:
         all_config["CxSCA"].update(user_sca_config)
+
+    user_ast_config = config_by_user.get("CxAST")
+    if user_ast_config:
+        all_config["CxAST"].update(user_ast_config)
 
     return all_config
 
@@ -308,3 +373,4 @@ global_config = update_global_config(global_config)
 
 config = global_config.get("CxSAST")
 sca_config = global_config.get("CxSCA")
+ast_config = global_config.get("CxAST")
