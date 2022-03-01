@@ -16,6 +16,7 @@ For more information about Checkmarx API, please refer to Checkmarx knowledge Ce
 - [CxOSA API](https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide)
 - [Access Control API](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary)
 - [CxSCA API](https://checkmarx.atlassian.net/wiki/spaces/CD/pages/1782087905/CxSCA+APIs)
+- [CxAST API](https://checkmarx.atlassian.net/wiki/spaces/AST/pages/3076063341/CxAST+Platform+API+Documentation)
 
 # Notice
 
