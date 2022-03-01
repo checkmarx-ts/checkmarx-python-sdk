@@ -65,16 +65,13 @@ def http_post(relative_url, data):
     return response
 
 
-def http_put(relative_url, data, headers=None):
-
-    if not headers:
-        headers = authHeaders.auth_headers
+def http_put(relative_url, data):
 
     url = ast_config.get("server") + relative_url
     response = requests.put(
         url=url,
         data=data,
-        headers=headers,
+        headers=authHeaders.auth_headers,
         verify=False
     )
     if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
@@ -110,8 +107,8 @@ def post_request(relative_url, data):
 
 
 @retry_when_unauthorized
-def put_request(relative_url, data, headers=None):
-    return http_put(relative_url, data, headers)
+def put_request(relative_url, data):
+    return http_put(relative_url, data)
 
 
 @retry_when_unauthorized
