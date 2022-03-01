@@ -69,10 +69,11 @@ password = ***
 access_control_url = https://iam.checkmarx.net
 server = https://ast.checkmarx.net
 tenant_name  = ***
-grant_type = ***
+grant_type = refresh_token
+client_id = ast-app
+client_secret = ***
 username = ***
 password = ***
-client_id = ***
 refresh_token = ***
 ```
 
@@ -84,6 +85,10 @@ By default, Checkmarx Python SDK looks for `config.ini` file in a `.Checkmarx` f
 
 You can also use `checkmarx_config_path` as environment variable  or command line argument to set up configuration file path.
 
+For CxAST configuration, if you are going to use refresh_token grant type, you must use client id "ast-app", 
+refresh_token, ignore client_secret, username, password. If you are going to use client_credentials grant type, 
+you must create a client with roles such as ast-scanner, manage-webhook, queries-editor, ast-viewer, manage-application,
+manage-project, then fill in your own client_id, client secret, username, password, ignore the refresh_token.
 
 ### Option 2, using environment variables or command line arguments
 
@@ -111,9 +116,10 @@ For CxAST:
     - cxast_server
     - cxast_tenant_name
     - cxast_grant_type
+    - cxast_client_id
+    - cxast_client_secret
     - cxast_username
     - cxast_password
-    - cxast_client_id
     - cxast_refresh_token
     
 
