@@ -115,9 +115,11 @@ def get_config_info_from_config_file():
                 "CxAST", "tenant_name") if parser_obj.has_option("CxAST", "tenant_name") else None,
             "grant_type": parser_obj.get(
                 "CxAST", "grant_type") if parser_obj.has_option("CxAST", "grant_type") else None,
+            "client_id": parser_obj.get("CxAST", "client_id") if parser_obj.has_option("CxAST", "client_id") else None,
+            "client_secret": parser_obj.get(
+                "CxAST", "client_secret") if parser_obj.has_option("CxAST", "client_secret") else None,
             "username": parser_obj.get("CxAST", "username") if parser_obj.has_option("CxAST", "username") else None,
             "password": parser_obj.get("CxAST", "password") if parser_obj.has_option("CxAST", "password") else None,
-            "client_id": parser_obj.get("CxAST", "client_id") if parser_obj.has_option("CxAST", "client_id") else None,
             "refresh_token": parser_obj.get(
                 "CxAST", "refresh_token") if parser_obj.has_option("CxAST", "refresh_token") else None,
         }
@@ -172,9 +174,10 @@ def get_config_info_from_environment_variables():
         "server": os.getenv("cxast_server"),
         "tenant_name": os.getenv("cxast_tenant_name"),
         "grant_type":os.getenv("cxast_grant_type"),
+        "client_id": os.getenv("cxast_client_id"),
+        "client_secret": os.getenv("cxast_client_secret"),
         "username": os.getenv("cxast_username"),
         "password": os.getenv("cxast_password"),
-        "client_id": os.getenv("cxast_client_id"),
         "refresh_token": os.getenv("cxast_refresh_token"),
     }
 
@@ -234,9 +237,10 @@ def get_config_info_from_command_line_arguments():
     parser.add_option("--cxast_server", help=SUPPRESS_HELP)
     parser.add_option("--cxast_tenant_name", help=SUPPRESS_HELP)
     parser.add_option("--cxast_grant_type", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_client_id", help=SUPPRESS_HELP)
+    parser.add_option("--cxast_client_secret", help=SUPPRESS_HELP)
     parser.add_option("--cxast_username", help=SUPPRESS_HELP)
     parser.add_option("--cxast_password", help=SUPPRESS_HELP)
-    parser.add_option("--cxast_client_id", help=SUPPRESS_HELP)
     parser.add_option("--cxast_refresh_token", help=SUPPRESS_HELP)
 
     (options, args) = parser.parse_args()
@@ -273,9 +277,10 @@ def get_config_info_from_command_line_arguments():
         "server": options.cxast_server,
         "tenant_name": options.cxast_tenant_name,
         "grant_type": options.cxast_grant_type,
+        "client_id": options.cxast_client_id,
+        "client_secret": options.cxast_client_secret,
         "username": options.cxast_username,
         "password": options.cxast_password,
-        "client_id": options.cxast_client_id,
         "refresh_token": options.cxast_refresh_token,
     }
 
@@ -313,10 +318,11 @@ global_config = {
         "access_control_url": "https://iam.checkmarx.net",
         "server": "https://ast.checkmarx.net",
         "tenant_name": None,
-        "grant_type": "password",
+        "grant_type": "refresh_token",
+        "client_id": "ast-app",
+        "client_secret": None,
         "username": None,
         "password": None,
-        "client_id": "ast-app",
         "refresh_token": None,
     }
 }

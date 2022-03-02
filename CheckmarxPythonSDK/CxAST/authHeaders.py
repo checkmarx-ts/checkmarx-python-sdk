@@ -19,14 +19,19 @@ def get_token():
     url = ast_config.get("access_control_url") + "/auth/realms/{TENANT_NAME}/protocol/openid-connect/token".format(
         TENANT_NAME=ast_config.get("tenant_name")
     )
-
     req_data = {
-        "grant_type":  ast_config.get("grant_type"),
+        "grant_type": "client_credentials",
         "username": ast_config.get("username"),
         "password": ast_config.get("password"),
         "client_id": ast_config.get("client_id"),
-        "refresh_token": ast_config.get("refresh_token"),
+        "client_secret": ast_config.get("client_secret"),
     }
+    if ast_config.get("grant_type") == "refresh_token":
+        req_data = {
+            "grant_type": "refresh_token",
+            "client_id": "ast-app",
+            "refresh_token": ast_config.get("refresh_token"),
+        }
 
     response = requests.post(url=url, data=req_data, verify=False)
 
@@ -39,8 +44,8 @@ def get_token():
 
 auth_headers = {
     "Authorization": get_token(),
-    "Accept": "application/json;v=1.0",
-    "Content-Type": "application/json;v=1.0",
+    "Accept": "application/json; version=1.0",
+    "Content-Type": "application/json; version=1.0",
 }
 
 

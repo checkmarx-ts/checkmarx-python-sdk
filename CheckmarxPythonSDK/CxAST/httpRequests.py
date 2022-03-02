@@ -29,13 +29,8 @@ def retry_when_unauthorized(func):
     return retry
 
 
-def get_value_from_response(func):
-    def inner(*args, **kwargs):
-        return func(*args, **kwargs).json()
-    return inner
-
-
-def http_get(relative_url):
+@retry_when_unauthorized
+def get_request(relative_url):
     url = ast_config.get("server") + relative_url
     response = requests.get(
         url=url,
@@ -49,7 +44,8 @@ def http_get(relative_url):
     return response
 
 
-def http_post(relative_url, data):
+@retry_when_unauthorized
+def post_request(relative_url, data):
     url = ast_config.get("server") + relative_url
     response = requests.post(
         url=url,
@@ -65,16 +61,14 @@ def http_post(relative_url, data):
     return response
 
 
-def http_put(relative_url, data, headers=None):
-
-    if not headers:
-        headers = authHeaders.auth_headers
+@retry_when_unauthorized
+def put_request(relative_url, data):
 
     url = ast_config.get("server") + relative_url
     response = requests.put(
         url=url,
         data=data,
-        headers=headers,
+        headers=authHeaders.auth_headers,
         verify=False
     )
     if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
@@ -83,7 +77,8 @@ def http_put(relative_url, data, headers=None):
     return response
 
 
-def http_delete(relative_url):
+@retry_when_unauthorized
+def delete_request(relative_url):
     url = ast_config.get("server") + relative_url
     response = requests.delete(
         url=url,
@@ -96,24 +91,3 @@ def http_delete(relative_url):
                          "ErrorMessage: {msg}".format(msg=response.text))
 
     return response
-
-
-@get_value_from_response
-@retry_when_unauthorized
-def get_request(relative_url):
-    return http_get(relative_url)
-
-
-@retry_when_unauthorized
-def post_request(relative_url, data):
-    return http_post(relative_url, data)
-
-
-@retry_when_unauthorized
-def put_request(relative_url, data, headers=None):
-    return http_put(relative_url, data, headers)
-
-
-@retry_when_unauthorized
-def delete_request(relative_url):
-    return http_delete(relative_url)
