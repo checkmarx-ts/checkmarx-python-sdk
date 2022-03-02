@@ -127,6 +127,7 @@ For CxAST:
 # Examples
  Please find example scripts from [here](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
 
+
 # API List
 
 - [CxAST_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxAST_REST_API_List.md)

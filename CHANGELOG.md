@@ -130,3 +130,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.4 - 2022-02-09
 * Add new dependency in setup.py
+
+0.4.5 - 2022-02-28
+* Add ODATA API get_results_for_a_specific_scan_id_with_similarity_ids
