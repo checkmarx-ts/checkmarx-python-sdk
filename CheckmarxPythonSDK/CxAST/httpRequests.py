@@ -71,7 +71,7 @@ def put_request(relative_url, data):
         headers=authHeaders.auth_headers,
         verify=False
     )
-    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
+    if response.status_code not in [CREATED, NO_CONTENT, UNAUTHORIZED]:
         raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
                          "ErrorMessage: {msg}".format(msg=response.text))
     return response
