@@ -2,7 +2,7 @@ from CheckmarxPythonSDK.CxAST import (
     create_a_project,
     get_a_list_of_projects,
     get_project_id_by_name,
-    get_all_tags,
+    get_all_project_tags,
     get_last_scan_info,
     get_branches,
     get_a_project_by_id,
@@ -50,7 +50,7 @@ def test_get_project_id_by_name():
 
 
 def test_get_all_tags():
-    tags = get_all_tags()
+    tags = get_all_project_tags()
     assert tags is not None
 
 
@@ -91,16 +91,10 @@ def test_get_a_project_by_id():
     assert project is not None
 
 
-def test_get_a_project_by_id_invalid_project_id():
-    project = get_a_project_by_id(project_id="9c784980fb")
-   # will raise ValueError 'HttpStatusCode: 500'
-
-
 def test_update_a_project():
     project_id = '00592ce6-ee7c-4738-aaff-115d1f864970'
     is_successful = update_a_project(
         project_id=project_id,
-        name='happy-test-2022-03-02',
         repo_url="https://github.com/checkmarx-ts/checkmarx-python-sdk.git"
     )
     assert is_successful is True
@@ -108,5 +102,6 @@ def test_update_a_project():
 
 def test_delete_a_project():
     project_id = get_project_id_by_name(name=new_project_name)
-    response = delete_a_project(project_id=project_id)
-    assert response is True
+    if project_id:
+        response = delete_a_project(project_id=project_id)
+        assert response is True
