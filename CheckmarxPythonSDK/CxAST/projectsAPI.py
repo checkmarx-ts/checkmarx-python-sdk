@@ -61,18 +61,7 @@ def create_a_project(name, groups="", repo_url="", main_branch="", origin="", ta
         data.update({"tags": tags})
     data = json.dumps(data)
     response = post_request(relative_url=relative_url, data=data)
-    item = response.json()
-    return {
-        "id": item.get("id"),
-        "name": item.get("name"),
-        "groups": item.get("groups"),
-        "repoUrl": item.get("repoUrl"),
-        "mainBranch": item.get("mainBranch"),
-        "origin": item.get("origin"),
-        "createdAt": item.get("createdAt"),
-        "updatedAt": item.get("updatedAt"),
-        "tags": item.get("tags"),
-    }
+    return response.json()
 
 
 def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, name_regex=None, groups=None,
@@ -152,27 +141,7 @@ def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, 
         relative_url += "&repo-url={repo_url}".format(repo_url=repo_url)
 
     response = get_request(relative_url=relative_url)
-    response = response.json()
-    projects = response.get("projects")
-    if not projects:
-        projects = []
-    return {
-        "totalCount": response.get("totalCount"),
-        "filteredTotalCount": response.get("filteredTotalCount"),
-        "projects": [
-            {
-                "id": item.get("id"),
-                "name": item.get("name"),
-                "groups": item.get("groups"),
-                "repoUrl": item.get("repoUrl"),
-                "mainBranch": item.get("mainBranch"),
-                "origin": item.get("origin"),
-                "createdAt": item.get("createdAt"),
-                "updatedAt": item.get("updatedAt"),
-                "tags": item.get("tags")
-            } for item in projects
-        ]
-    }
+    return response.json()
 
 
 def get_project_id_by_name(name):
@@ -192,7 +161,7 @@ def get_project_id_by_name(name):
     return projects[0].get("id")
 
 
-def get_all_tags():
+def get_all_project_tags():
     """
 
     Returns:
@@ -209,8 +178,7 @@ def get_all_tags():
     """
     relative_url = "/api/projects/tags"
     response = get_request(relative_url=relative_url)
-    item = response.json()
-    return item
+    return response.json()
 
 
 def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None, scan_status=None,
