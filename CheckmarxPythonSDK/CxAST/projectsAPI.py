@@ -24,7 +24,20 @@ def create_a_project(name, groups="", repo_url="", main_branch="", origin="", ta
                     "tags": {"Tag01": "", "Severity": "high"}
 
     Returns:
-
+        dict
+        example: {
+          "name": "string",
+          "groups": [
+            "string"
+          ],
+          "repoUrl": "string",
+          "mainBranch": "string",
+          "origin": "string",
+          "tags": {
+            "test": "",
+            "priority": "high"
+          }
+        }
     """
 
     relative_url = "/api/projects"
@@ -90,21 +103,26 @@ def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, 
 
     Returns:
         dict
-        example:
-        {
-          "totalCount": 79,
-          "filteredTotalCount": 79,
+        example: {
+          "totalCount": 0,
+          "filteredTotalCount": 0,
           "projects": [
             {
-              "id": "a2feaa26-a515-4716-a2c5-b39c784980fb",
-              "name": "JS_courselit",
-              "createdAt": "2022-02-25T07:51:02.013774Z",
-              "updatedAt": "2022-02-25T07:51:02.013774Z",
-              "groups": [],
-              "tags": {},
-              "repoUrl": "",
-              "mainBranch": ""
-            },
+              "id": "string",
+              "name": "string",
+              "groups": [
+                "string"
+              ],
+              "repoUrl": "string",
+              "mainBranch": "string",
+              "origin": "string",
+              "createdAt": "2022-03-02T03:36:17.102Z",
+              "updatedAt": "2022-03-02T03:36:17.102Z",
+              "tags": {
+                "test": "",
+                "priority": "high"
+              }
+            }
           ]
         }
     """
@@ -175,13 +193,184 @@ def get_project_id_by_name(name):
     return projects[0].get("id")
 
 
+def get_all_tags():
+    """
+
+    Returns:
+        dict
+        example: {
+          "test": [
+            ""
+          ],
+          "priority": [
+            "high",
+            "low"
+          ]
+        }
+    """
+    relative_url = "/api/projects/tags"
+    response = get_request(relative_url=relative_url)
+    item = response.json()
+    return item
+
+
+def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None, scan_status=None,
+                                    branch=None, engine=None):
+    """
+    Get a key-value map, key=[project id], value=[last scan (based on the filter)]
+
+    Args:
+        offset (int): The number of items to skip before starting to collect the result set
+                        Default value : 0
+        limit (int): The number of items to return
+                        Default value : 20
+        project_ids (`list` of str): Project ids, filtered by exact match. Mutually exclusive with application-id
+        application_id (str): Application id, filtered by exact match. Mutually exclusive with project-ids.
+        scan_status (str): Scan status, please look at the scans API description for status options
+        branch (str): Git branch of the scan
+        engine (str): Engine type of the scan
+
+    Returns:
+        dict
+        example: {
+          "project-id": {
+            "id": "scan-id",
+            "createdAt": "",
+            "updatedAt": "",
+            "status": "Completed",
+            "userAgent": "user-agent",
+            "initiator": "initiator",
+            "branch": "branch",
+            "engines": "[\"sast\", \"kics\"]",
+            "sourceType": "github",
+            "sourceOrigin": "Jenkins"
+          }
+        }
+    """
+    relative_url = "/api/projects/last-scan?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    if project_ids:
+        for project_id in project_ids:
+            relative_url += "&project-ids={project_id}".format(project_id=project_id)
+    if application_id:
+        relative_url += "&application-id={application_id}".format(application_id=application_id)
+    if scan_status:
+        relative_url += "&scan-status={scan_status}".format(scan_status=scan_status)
+    if branch:
+        relative_url += "&branch={branch}".format(branch=branch)
+    if engine:
+        relative_url += "&engine={engine}".format(engine=engine)
+    response = get_request(relative_url=relative_url)
+    return response.json()
+
+
+def get_branches(offset=0, limit=20, project_id=None, branch_name=None):
+    """
+    Get a list of branches associated to this project sorted by date descended.
+    Args:
+        offset (int): The number of items to skip before starting to collect the result set
+                        Default value : 0
+        limit (int):  The number of items to return
+                    Default value : 20
+        project_id (str): Project id, filtered by exact match
+        branch_name (str): Branch name. filtered by full or partial name
+
+    Returns:
+        list
+        example: [
+          "string"
+        ]
+    """
+    relative_url = "/api/projects/branches?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    if project_id:
+        relative_url += "&project-id={project_id}".format(project_id=project_id)
+    if branch_name:
+        relative_url += "&branch-name={branch_name}".format(branch_name=branch_name)
+    response = get_request(relative_url)
+    return response.json()
+
+
+def get_a_project_by_id(project_id):
+    """
+
+    Args:
+        project_id (str):
+
+    Returns:
+        dict
+        example: {
+          "id": "string",
+          "name": "string",
+          "applicationIds": [
+            "string"
+          ],
+          "groups": [
+            "string"
+          ],
+          "repoUrl": "string",
+          "mainBranch": "string",
+          "origin": "string",
+          "createdAt": "2022-03-02T04:08:44.471Z",
+          "updatedAt": "2022-03-02T04:08:44.471Z",
+          "tags": {
+            "test": "",
+            "priority": "high"
+          }
+        }
+    """
+    relative_url = "/api/projects/{id}".format(id=project_id)
+    response = get_request(relative_url=relative_url)
+    return response.json()
+
+
+def update_a_project(project_id, name=None, groups=None, repo_url=None, main_branch=None, origin=None, tags=None):
+    """
+    Update Project. all parameters are covered by the input sent
+
+    Args:
+        project_id (str):
+        name (str): project name
+        groups (`list` of str): The groups authorized for this project
+        repo_url (str): The reprosentive repository URL
+        main_branch (str): The Git main branch
+        origin (str): The origin of project
+        tags (dict):
+
+    Returns:
+        bool
+    """
+    is_successful = False
+    if not project_id:
+        return False
+    relative_url = "/api/projects/{id}".format(id=project_id)
+
+    data = {}
+    if name:
+        data.update({"name": name})
+    if groups:
+        data.update({"groups": groups})
+    if repo_url:
+        data.update({"repoUrl": repo_url})
+    if main_branch:
+        data.update({"mainBranch": main_branch})
+    if origin:
+        data.update({"origin": origin})
+    if tags:
+        data.update({"tags": tags})
+    data = json.dumps(data)
+    response = put_request(relative_url=relative_url, data=data)
+    if response.status_code == NO_CONTENT:
+        is_successful = True
+
+    return is_successful
+
+
 def delete_a_project(project_id):
     """
 
     Args:
         project_id (str):
     Returns:
-
+        bool
     """
     is_successful = False
 
