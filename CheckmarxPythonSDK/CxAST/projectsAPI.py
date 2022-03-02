@@ -1,9 +1,8 @@
 # encoding: utf-8
 import json
-import requests
 
 from .httpRequests import get_request, post_request, put_request, delete_request
-from ..compat import NO_CONTENT, OK
+from ..compat import NO_CONTENT
 
 
 def create_a_project(name, groups="", repo_url="", main_branch="", origin="", tags=None):
@@ -215,7 +214,7 @@ def get_all_tags():
 
 
 def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None, scan_status=None,
-                                    branch=None, engine=None):
+                       branch=None, engine=None):
     """
     Get a key-value map, key=[project id], value=[last scan (based on the filter)]
 
