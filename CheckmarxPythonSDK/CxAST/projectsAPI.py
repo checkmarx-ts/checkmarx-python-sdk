@@ -25,18 +25,21 @@ def create_a_project(name, groups="", repo_url="", main_branch="", origin="", ta
     Returns:
         dict
         example: {
-          "name": "string",
-          "groups": [
-            "string"
-          ],
-          "repoUrl": "string",
-          "mainBranch": "string",
-          "origin": "string",
-          "tags": {
-            "test": "",
-            "priority": "high"
-          }
-        }
+              "id": "string",
+              "name": "string",
+              "groups": [
+                "string"
+              ],
+              "repoUrl": "string",
+              "mainBranch": "string",
+              "origin": "string",
+              "createdAt": "2022-03-07T12:06:18.427Z",
+              "updatedAt": "2022-03-07T12:06:18.427Z",
+              "tags": {
+                "test": "",
+                "priority": "high"
+              }
+            }
     """
 
     relative_url = "/api/projects"
