@@ -38,12 +38,14 @@ def test_get_all_application_tags():
 
 
 def test_get_an_application_by_id():
-    application = get_an_application_by_id(application_id='8b5cafa7-44fe-4dff-a713-8344f021fdd1')
+    application_id = get_application_id_by_name(name=application_name)
+    application = get_an_application_by_id(application_id=application_id)
     assert application is not None
 
 
 def test_update_an_application():
-    is_successful = update_an_application(application_id='8b5cafa7-44fe-4dff-a713-8344f021fdd1',
+    application_id = get_application_id_by_name(name=application_name)
+    is_successful = update_an_application(application_id=application_id,
                                           description="test description")
     assert is_successful is True
 
@@ -75,7 +77,7 @@ def test_update_an_application_rule():
     application_id = get_application_id_by_name(name=application_name)
     application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
     if application_rules:
-        rule_id = application_rules[0].get("id")
+        rule_id = application_rules[-1].get("id")
         application_rule = update_an_application_rule(application_id=application_id, rule_id=rule_id,
                                                       rule_type="project.name.contains", rule_value="happy")
         assert application_rule is True
