@@ -2,7 +2,7 @@
 import json
 
 from .httpRequests import get_request, post_request, put_request, delete_request
-from ..compat import NO_CONTENT
+from ..compat import NO_CONTENT, CREATED
 
 
 def create_an_application(name, description=None, criticality=None, rules=None, tags=None):
@@ -256,8 +256,8 @@ def create_an_application_rule(application_id, rule_type, rule_value):
 
     Args:
         application_id (str):
-        rule_type (str):
-        rule_value (str):
+        rule_type (str): "project.tag.key-value.exists"
+        rule_value (str): "key;value"
 
     Returns:
         dict
@@ -335,14 +335,18 @@ def update_an_application_rule(application_id, rule_id, rule_type, rule_value):
                   "value": "key;value"
                 }
     """
+    is_successful = False
     relative_url = "/api/applications/{id}/project-rules/{rule_id}".format(id=application_id, rule_id=rule_id)
-    data = {
-        "type": rule_type,
-        "value": rule_value,
-    }
-    data = json.dumps(data)
+    data = json.dumps(
+        {
+            "type": rule_type,
+            "value": rule_value
+        }
+    )
     response = put_request(relative_url=relative_url, data=data)
-    return response.json()
+    if response.status_code in (NO_CONTENT, CREATED):
+        is_successful = True
+    return is_successful
 
 
 def delete_an_application_rule(application_id, rule_id):

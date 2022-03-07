@@ -43,35 +43,54 @@ def test_get_an_application_by_id():
 
 
 def test_update_an_application():
-    is_successful = update_an_application(application_id='8b5cafa7-44fe-4dff-a713-8344f021fdd1')
+    is_successful = update_an_application(application_id='8b5cafa7-44fe-4dff-a713-8344f021fdd1',
+                                          description="test description")
     assert is_successful is True
+
+
+def test_create_an_application_rule():
+    application_id = get_application_id_by_name(name=application_name)
+    rule_type = "project.name.contains"
+    rule_value = "happy"
+    application_rule = create_an_application_rule(application_id, rule_type, rule_value)
+    assert application_rule is not None
+
+
+def test_get_a_list_of_rules_for_a_specific_application():
+    application_id = get_application_id_by_name(name=application_name)
+    application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
+    assert application_rules is not None
+
+
+def test_get_an_application_rule():
+    application_id = get_application_id_by_name(name=application_name)
+    application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
+    if application_rules:
+        rule_id = application_rules[-1].get("id")
+        application_rule = get_an_application_rule(application_id=application_id, rule_id=rule_id)
+        assert application_rule is not None
+
+
+def test_update_an_application_rule():
+    application_id = get_application_id_by_name(name=application_name)
+    application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
+    if application_rules:
+        rule_id = application_rules[0].get("id")
+        application_rule = update_an_application_rule(application_id=application_id, rule_id=rule_id,
+                                                      rule_type="project.name.contains", rule_value="happy")
+        assert application_rule is True
+
+
+def test_delete_an_application_rule():
+    application_id = get_application_id_by_name(name=application_name)
+    application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
+    if application_rules:
+        rule_id = application_rules[0].get("id")
+        is_successful = delete_an_application_rule(application_id=application_id, rule_id=rule_id)
+        assert is_successful is True
 
 
 def test_delete_an_application():
     application_id = get_application_id_by_name(name=application_name)
     is_successful = delete_an_application(application_id=application_id)
     assert is_successful is True
-
-
-def test_create_an_application_rule():
-    application_id = get_application_id_by_name(name=application_name)
-    rule_type = ""
-    rule_value = ""
-    application_rule = create_an_application_rule(application_id, rule_type, rule_value)
-    assert application_rule is not None
-
-
-def test_get_a_list_of_rules_for_a_specific_application():
-    pass
-
-
-def test_get_an_application_rule():
-    pass
-
-
-def test_update_an_application_rule():
-    pass
-
-
-def test_delete_an_application_rule():
-    pass
