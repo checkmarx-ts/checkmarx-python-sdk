@@ -10,8 +10,9 @@ def create_a_pre_signed_url_to_upload_files():
     Create a pre-signed URL to be used with PUT requests to upload files
 
     Args:
-    Returns:
 
+    Returns:
+        url (str)
     """
     url = None
     relative_url = "/api/uploads"
