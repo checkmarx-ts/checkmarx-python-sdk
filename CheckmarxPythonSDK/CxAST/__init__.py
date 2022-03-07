@@ -24,3 +24,7 @@ from .projectsAPI import (
     update_a_project,
     delete_a_project,
 )
+
+from .uploadsAPI import (
+    create_a_pre_signed_url_to_upload_files
+)
