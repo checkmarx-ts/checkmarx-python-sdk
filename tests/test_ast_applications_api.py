@@ -13,18 +13,51 @@ from CheckmarxPythonSDK.CxAST import (
     delete_an_application_rule,
 )
 
+from CheckmarxPythonSDK.CxAST.dto import (
+    ApplicationInput,
+    RuleInput,
+)
+
 application_name = "happy-test-application-2022-03-02"
 
 
 def test_create_an_application():
-    application = create_an_application(name=application_name)
+    application_id = get_application_id_by_name(name=application_name)
+    if application_id:
+        return
+    application_input = ApplicationInput(
+        name=application_name,
+        rules=[
+            RuleInput(
+                rule_type="project.name.contains",
+                value="test"
+            )
+        ],
+        tags={
+            "test": "",
+            "priority": "high"
+        }
+    )
+    application = create_an_application(application_input=application_input)
     assert application is not None
 
 
 def test_get_a_list_of_applications():
-    response = get_a_list_of_applications()
-    applications = response.get("applications")
+    app_collection = get_a_list_of_applications()
+    applications = app_collection.applications
     assert len(applications) > 1
+
+
+def test_get_a_list_of_applications_with_tags_keys():
+    app_collection = get_a_list_of_applications(tags_keys=["test"])
+    applications = app_collection.applications
+    assert len(applications) > 1
+
+
+def test_get_a_list_of_applications_with_tags_values():
+    app_collection = get_a_list_of_applications(tags_values=["high"])
+    applications = app_collection.applications
+    assert len(applications) == 1
 
 
 def test_get_application_id_by_name():
@@ -45,16 +78,34 @@ def test_get_an_application_by_id():
 
 def test_update_an_application():
     application_id = get_application_id_by_name(name=application_name)
+
+    application_input = ApplicationInput(
+        name=application_name,
+        description="happy test 2022-03-08",
+        rules=[
+            RuleInput(
+                rule_type="project.name.contains",
+                value="test"
+            )
+        ],
+        tags={
+            "test": "",
+            "priority": "high"
+        }
+    )
+
     is_successful = update_an_application(application_id=application_id,
-                                          description="test description")
+                                          application_input=application_input)
     assert is_successful is True
 
 
 def test_create_an_application_rule():
     application_id = get_application_id_by_name(name=application_name)
-    rule_type = "project.name.contains"
-    rule_value = "happy"
-    application_rule = create_an_application_rule(application_id, rule_type, rule_value)
+    rule_input = RuleInput(
+        rule_type="project.name.contains",
+        value="happy"
+    )
+    application_rule = create_an_application_rule(application_id, rule_input=rule_input)
     assert application_rule is not None
 
 
@@ -68,7 +119,7 @@ def test_get_an_application_rule():
     application_id = get_application_id_by_name(name=application_name)
     application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
     if application_rules:
-        rule_id = application_rules[-1].get("id")
+        rule_id = application_rules[-1].id
         application_rule = get_an_application_rule(application_id=application_id, rule_id=rule_id)
         assert application_rule is not None
 
@@ -77,9 +128,14 @@ def test_update_an_application_rule():
     application_id = get_application_id_by_name(name=application_name)
     application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
     if application_rules:
-        rule_id = application_rules[-1].get("id")
-        application_rule = update_an_application_rule(application_id=application_id, rule_id=rule_id,
-                                                      rule_type="project.name.contains", rule_value="happy")
+        rule_id = application_rules[-1].id
+        rule_input = RuleInput(
+            rule_type="project.name.contains",
+            value="happy1"
+        )
+        application_rule = update_an_application_rule(
+            application_id=application_id, rule_id=rule_id, rule_input=rule_input
+        )
         assert application_rule is True
 
 
@@ -87,7 +143,7 @@ def test_delete_an_application_rule():
     application_id = get_application_id_by_name(name=application_name)
     application_rules = get_a_list_of_rules_for_a_specific_application(application_id=application_id)
     if application_rules:
-        rule_id = application_rules[0].get("id")
+        rule_id = application_rules[0].id
         is_successful = delete_an_application_rule(application_id=application_id, rule_id=rule_id)
         assert is_successful is True
 
