@@ -2,7 +2,7 @@
 import requests
 
 from ..compat import OK
-from ..config import ast_config
+from .config import config
 
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
@@ -16,21 +16,21 @@ def get_token():
         Returns:
             Bear Token (str)
     """
-    url = ast_config.get("access_control_url") + "/auth/realms/{TENANT_NAME}/protocol/openid-connect/token".format(
-        TENANT_NAME=ast_config.get("tenant_name")
+    url = config.get("access_control_url") + "/auth/realms/{TENANT_NAME}/protocol/openid-connect/token".format(
+        TENANT_NAME=config.get("tenant_name")
     )
     req_data = {
         "grant_type": "client_credentials",
-        "username": ast_config.get("username"),
-        "password": ast_config.get("password"),
-        "client_id": ast_config.get("client_id"),
-        "client_secret": ast_config.get("client_secret"),
+        "username": config.get("username"),
+        "password": config.get("password"),
+        "client_id": config.get("client_id"),
+        "client_secret": config.get("client_secret"),
     }
-    if ast_config.get("grant_type") == "refresh_token":
+    if config.get("grant_type") == "refresh_token":
         req_data = {
             "grant_type": "refresh_token",
             "client_id": "ast-app",
-            "refresh_token": ast_config.get("refresh_token"),
+            "refresh_token": config.get("refresh_token"),
         }
 
     response = requests.post(url=url, data=req_data, verify=False)

@@ -26,5 +26,10 @@ from .projectsAPI import (
 )
 
 from .uploadsAPI import (
-    create_a_pre_signed_url_to_upload_files
+    create_a_pre_signed_url_to_upload_files,
+    upload_zip_content_for_scanning,
+)
+
+from .scansAPI import (
+    create_scan,
 )
