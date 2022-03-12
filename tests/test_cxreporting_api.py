@@ -22,7 +22,7 @@ def check_report_generation_status_and_write_to_file(report_id, report_name, rep
         if report_status.upper() == "FAILED":
             print("Report generation failed!")
             return
-        time.sleep(2)
+        # time.sleep(2)
 
     report_content = retrieve_the_file_of_a_specific_report(report_id=report_id)
     report_folder = dirname(__file__)
@@ -34,8 +34,8 @@ def check_report_generation_status_and_write_to_file(report_id, report_name, rep
 
 def test_create_a_new_report_with_application_template_pdf():
     template_id = 6
-    output_format = "JSON"
-    entity_id = ["2,", "3", "5"]
+    output_format = "PDF"
+    entity_id = ["2", "3", "5"]
     report_name = "application_pdf"
     filters = [
         FilterDTO(
@@ -64,7 +64,7 @@ def test_create_a_new_report_with_application_template_pdf():
 def test_create_a_new_report_with_application_template_json():
     template_id = 6
     output_format = "JSON"
-    entity_id = ["2,", "3", "5"]
+    entity_id = ["2", "3", "5"]
     report_name = "application_json"
     filters = [
         FilterDTO(
