@@ -2,7 +2,7 @@
 import requests
 
 from ..compat import OK
-from ..config import sca_config
+from .config import config
 
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
@@ -51,10 +51,10 @@ def get_token():
 
     """
     return get_new_token(
-        token_url=sca_config.get("access_control_url") + "/identity/connect/token",
-        username=sca_config.get("username"),
-        password=sca_config.get("password"),
-        account=sca_config.get("account"),
+        token_url=config.get("access_control_url") + "/identity/connect/token",
+        username=config.get("username"),
+        password=config.get("password"),
+        account=config.get("account"),
     )
 
 
