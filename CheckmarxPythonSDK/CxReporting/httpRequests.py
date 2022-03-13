@@ -30,7 +30,7 @@ def retry_when_unauthorized(func):
 
 
 def http_get(relative_url):
-    url = config.get("base_url") + relative_url
+    url = config.get("reporting_client_url") + relative_url
     response = requests.get(
         url=url,
         headers=authHeaders.auth_headers,
@@ -44,7 +44,7 @@ def http_get(relative_url):
 
 
 def http_post(relative_url, data):
-    url = config.get("base_url") + relative_url
+    url = config.get("reporting_client_url") + relative_url
     response = requests.post(
         url=url,
         data=data,

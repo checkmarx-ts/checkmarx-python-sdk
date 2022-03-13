@@ -3,7 +3,8 @@ from ..configUtility import (
 )
 
 config_default = {
-    "base_url": "localhost:5001",
+    "base_url": "http://localhost",
+    "reporting_client_url": "http://localhost:5001",
     "username": "Admin",
     "password": "password",
     "grant_type": "password",
