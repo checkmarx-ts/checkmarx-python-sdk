@@ -17,6 +17,7 @@ For more information about Checkmarx API, please refer to Checkmarx knowledge Ce
 - [Access Control API Document](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary)
 - [CxSCA API Document](https://checkmarx.atlassian.net/wiki/spaces/CD/pages/1782087905/CxSCA+APIs)
 - [CxAST API Document](https://checkmarx.atlassian.net/wiki/spaces/AST/pages/3076063341/CxAST+Platform+API+Documentation)
+- [CxReporting API Document](https://checkmarx.atlassian.net/wiki/spaces/RS/pages/5860130923/APIs)
 
 # Notice
 
@@ -76,6 +77,15 @@ client_secret = ***
 username = ***
 password = ***
 refresh_token = ***
+
+[CxReporting]
+base_url = http://localhost:5001
+username = ***
+password = ***
+grant_type = password
+scope = reporting_api
+client_id = reporting_service_api
+client_secret = 014DF517-39D1-4453-B7B3-9930C563627C
 ```
 
 configuration file path:
@@ -122,7 +132,17 @@ For CxAST:
     - cxast_username
     - cxast_password
     - cxast_refresh_token
-    
+ 
+ For CxReporting
+ 
+    - cxreporting_base_url
+    - cxreporting_reporting_client_url
+    - cxreporting_username
+    - cxreporting_password
+    - cxreporting_grant_type
+    - cxreporting_scope
+    - cxreporting_client_id
+    - cxreporting_client_secret
 
 # Examples
  Please find example scripts from [here](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
@@ -135,3 +155,4 @@ For CxAST:
 - [CxSAST_ODATA_API](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_ODATA_API.md)
 - [CxSAST_Portal_SOAP_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_Portal_SOAP_API_List.md)
 - [CxSCA_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSCA_REST_API_List.md)
+- [CxReporting_REST_API_List]
