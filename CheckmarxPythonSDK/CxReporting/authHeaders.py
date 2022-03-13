@@ -2,7 +2,7 @@
 import requests
 
 from ..compat import OK
-from ..config import config
+from .config import config
 from ..auth import get_new_token
 
 from urllib3 import disable_warnings
