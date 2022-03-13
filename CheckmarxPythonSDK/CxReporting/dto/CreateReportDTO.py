@@ -17,7 +17,7 @@ class CreateReportDTO(object):
                                     5 for Multi Teams Template;
                                     6 for Application Template
             output_format (str): Format of the report to be generated. Is not case sensitive.
-            entity_id (list, str, int):
+            entity_id (list of str):
                             Unique ID.
                             For the Scan template: Scan Id;
                             For the Project template: Project Id;
