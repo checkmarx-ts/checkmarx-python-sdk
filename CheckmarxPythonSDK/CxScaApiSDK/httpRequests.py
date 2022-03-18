@@ -1,5 +1,5 @@
 import requests
-from ..config import sca_config
+from .config import config
 from . import authHeaders
 from ..compat import (OK, UNAUTHORIZED, NO_CONTENT, CREATED)
 
@@ -36,7 +36,7 @@ def get_value_from_response(func):
 
 
 def http_get(relative_url):
-    url = sca_config.get("server") + relative_url
+    url = config.get("server") + relative_url
     response = requests.get(
         url=url,
         headers=authHeaders.auth_headers,
@@ -50,7 +50,7 @@ def http_get(relative_url):
 
 
 def http_post(relative_url, data):
-    url = sca_config.get("server") + relative_url
+    url = config.get("server") + relative_url
     response = requests.post(
         url=url,
         data=data,
@@ -70,7 +70,7 @@ def http_put(relative_url, data, headers=None):
     if not headers:
         headers = authHeaders.auth_headers
 
-    url = sca_config.get("server") + relative_url
+    url = config.get("server") + relative_url
     response = requests.put(
         url=url,
         data=data,
@@ -84,7 +84,7 @@ def http_put(relative_url, data, headers=None):
 
 
 def http_delete(relative_url):
-    url = sca_config.get("server") + relative_url
+    url = config.get("server") + relative_url
     response = requests.delete(
         url=url,
         headers=authHeaders.auth_headers,
