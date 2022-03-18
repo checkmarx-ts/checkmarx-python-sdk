@@ -79,7 +79,8 @@ password = ***
 refresh_token = ***
 
 [CxReporting]
-base_url = http://localhost:5001
+base_url = http://localhost
+reporting_client_url = http://localhost:5001
 username = ***
 password = ***
 grant_type = password
@@ -155,4 +156,4 @@ For CxAST:
 - [CxSAST_ODATA_API](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_ODATA_API.md)
 - [CxSAST_Portal_SOAP_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_Portal_SOAP_API_List.md)
 - [CxSCA_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSCA_REST_API_List.md)
-- [CxReporting_REST_API_List]
+- [CxReporting_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/blob/master/docs/CxReporting_REST_API_List.md)
