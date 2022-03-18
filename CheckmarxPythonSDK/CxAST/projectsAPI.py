@@ -3,6 +3,7 @@ import json
 
 from .httpRequests import get_request, post_request, put_request, delete_request
 from ..compat import NO_CONTENT
+from .utilities import get_url_param
 
 
 def create_a_project(name, groups="", repo_url="", main_branch="", origin="", tags=None):
@@ -117,31 +118,37 @@ def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, 
           ]
         }
     """
-    relative_url = "/api/projects"
-    relative_url += "?offset={offset}&limit={limit}".format(
-        offset=offset, limit=limit
-    )
-    if ids and isinstance(ids, (list, tuple)):
-        for project_id in ids:
-            relative_url += "&ids={project_id}".format(project_id=project_id)
-    if names and isinstance(names, (list, tuple)):
-        for project_name in names:
-            relative_url += "&names={project_name}".format(project_name=project_name)
-    if name:
-        relative_url += "&name={name}".format(name=name)
-    if name_regex:
-        relative_url += "&name-regex={name_regex}".format(name_regex=name_regex)
-    if groups and isinstance(groups, (list, tuple)):
-        for project_group in groups:
-            relative_url += "&groups={project_group}".format(project_group=project_group)
-    if tags_keys and isinstance(tags_keys, (list, tuple)):
-        for tags_key in tags_keys:
-            relative_url += "&tags-keys={tags_key}".format(tags_key=tags_key)
-    if tags_values and isinstance(tags_values, (list, tuple)):
-        for tags_value in tags_values:
-            relative_url += "&tags-values={tags_value}".format(tags_value=tags_value)
-    if repo_url:
-        relative_url += "&repo-url={repo_url}".format(repo_url=repo_url)
+    relative_url = "/api/projects?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url += get_url_param("ids", ids)
+    relative_url += get_url_param("names", names)
+    relative_url += get_url_param("name", name)
+    relative_url += get_url_param("name-regex", name_regex)
+    relative_url += get_url_param("groups", groups)
+    relative_url += get_url_param("tags-keys", tags_keys)
+    relative_url += get_url_param("tags-values", tags_values)
+    relative_url += get_url_param("repo-url", repo_url)
+
+    # if ids and isinstance(ids, (list, tuple)):
+    #     for project_id in ids:
+    #         relative_url += "&ids={project_id}".format(project_id=project_id)
+    # if names and isinstance(names, (list, tuple)):
+    #     for project_name in names:
+    #         relative_url += "&names={project_name}".format(project_name=project_name)
+    # if name:
+    #     relative_url += "&name={name}".format(name=name)
+    # if name_regex:
+    #     relative_url += "&name-regex={name_regex}".format(name_regex=name_regex)
+    # if groups and isinstance(groups, (list, tuple)):
+    #     for project_group in groups:
+    #         relative_url += "&groups={project_group}".format(project_group=project_group)
+    # if tags_keys and isinstance(tags_keys, (list, tuple)):
+    #     for tags_key in tags_keys:
+    #         relative_url += "&tags-keys={tags_key}".format(tags_key=tags_key)
+    # if tags_values and isinstance(tags_values, (list, tuple)):
+    #     for tags_value in tags_values:
+    #         relative_url += "&tags-values={tags_value}".format(tags_value=tags_value)
+    # if repo_url:
+    #     relative_url += "&repo-url={repo_url}".format(repo_url=repo_url)
 
     response = get_request(relative_url=relative_url)
     return response.json()

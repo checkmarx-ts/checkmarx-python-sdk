@@ -1,4 +1,4 @@
-class GitCredential(object):
+class Credential(object):
     def __init__(self, username, credential_type, value):
         """
 
