@@ -1,7 +1,7 @@
 # encoding: utf-8
-import json
+import requests
 
-from .httpRequests import post_request
+from .httpRequests import post_request, put_request
 from ..compat import OK
 
 
@@ -21,3 +21,24 @@ def create_a_pre_signed_url_to_upload_files():
         url = response.json().get("url")
     return url
 
+
+def upload_zip_content_for_scanning(upload_link, zip_file_path):
+    """
+
+    Args:
+        upload_link (str):
+        zip_file_path (str):
+
+    Returns:
+        is_successful (bool)
+    """
+    is_successful = False
+
+    url = "{uploadLink}".format(uploadLink=upload_link)
+
+    with open(zip_file_path, 'rb') as data:
+        response = requests.put(url=url, data=data)
+        if response.status_code == OK:
+            is_successful = True
+
+    return is_successful
