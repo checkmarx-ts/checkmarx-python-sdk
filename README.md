@@ -79,7 +79,8 @@ password = ***
 refresh_token = ***
 
 [CxReporting]
-base_url = http://localhost:5001
+base_url = http://localhost
+reporting_client_url = http://localhost:5001
 username = ***
 password = ***
 grant_type = password
