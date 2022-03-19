@@ -91,7 +91,7 @@ client_secret = 014DF517-39D1-4453-B7B3-9930C563627C
 
 configuration file path:
 
-By default, Checkmarx Python SDK looks for `config.ini` file in a `.Checkmarx` folder in your home directory. 
+By default, Checkmarx Python SDK looks for `config.ini` or `config.json` file in a `.Checkmarx` folder in your home directory. 
 - For windows, it should be like `C:\\Users\\<UserName>\\.Checkmarx\\config.ini`
 - For linux and MacOS, it should be like `/home/<UserName>/.Checkmarx/config.ini` 
 
