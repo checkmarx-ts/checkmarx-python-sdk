@@ -1,5 +1,5 @@
 class FilterDTO(object):
-    def __init__(self, filter_type, excluded_values=None, included_values=None, pattern=None):
+    def __init__(self, filter_type, excluded_values=(), included_values=(), pattern=None):
         """
 
         Args:
