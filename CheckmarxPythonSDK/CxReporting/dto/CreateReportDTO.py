@@ -3,7 +3,7 @@ from .FilterDTO import FilterDTO
 
 
 class CreateReportDTO(object):
-    def __init__(self, template_id, output_format, entity_id, report_name=None, filters=None):
+    def __init__(self, template_id, output_format, entity_id, report_name=None, filters=()):
         """
 
         Args:
