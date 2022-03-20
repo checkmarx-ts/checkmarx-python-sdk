@@ -3,33 +3,13 @@ from datetime import datetime
 from os.path import normpath, join, dirname, exists
 
 from CheckmarxPythonSDK.CxReporting.api import (
-    retrieve_the_file_of_a_specific_report,
-    retrieve_the_status_of_a_specific_report,
-    create_a_new_report_request
+    get_report
 )
 
 from CheckmarxPythonSDK.CxReporting.dto import (
     CreateReportDTO,
     FilterDTO
 )
-
-
-def check_report_generation_status_and_write_to_file(report_id, report_name, report_type):
-    report_status = "NEW"
-    while report_status.upper() != "FINISHED":
-        report_status = retrieve_the_status_of_a_specific_report(report_id=report_id)
-        print("report status: {}".format(report_status))
-        if report_status.upper() == "FAILED":
-            print("Report generation failed!")
-            return
-        # time.sleep(2)
-
-    report_content = retrieve_the_file_of_a_specific_report(report_id=report_id)
-    report_folder = dirname(__file__)
-    time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
-    file_name = normpath(join(report_folder, report_name + time_stamp + "." + report_type))
-    with open(str(file_name), "wb") as f_out:
-        f_out.write(report_content)
 
 
 def create_a_new_report_with_application_template_pdf():
@@ -52,13 +32,14 @@ def create_a_new_report_with_application_template_pdf():
         report_name=report_name,
         filters=filters
     )
-    report_id = create_a_new_report_request(report_request=report_request)
-    assert report_id is not None
-    check_report_generation_status_and_write_to_file(
-        report_id,
-        report_name=report_name,
-        report_type=output_format
-    )
+
+    report_content = get_report(report_request=report_request)
+
+    report_folder = dirname(__file__)
+    time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
+    file_name = normpath(join(report_folder, report_name + time_stamp + "." + output_format))
+    with open(str(file_name), "wb") as f_out:
+        f_out.write(report_content)
 
 
 if __name__ == '__main__':
