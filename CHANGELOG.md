@@ -139,3 +139,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.7 - 2022-03-19
 * Add get_config_info_from_config_json_file
+
+0.4.8 - 2022-03-20
+* Add CxReporting api get_report

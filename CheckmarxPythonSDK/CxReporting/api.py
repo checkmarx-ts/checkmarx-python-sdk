@@ -1,3 +1,4 @@
+import time
 from .httpRequests import (get_request, post_request)
 from ..compat import (OK, CREATED)
 
@@ -54,6 +55,9 @@ def retrieve_the_status_of_a_specific_report(report_id):
 
     Returns:
         report_status (str)
+            NEW
+            PROCESSING
+            FINISHED
     """
     report_status = None
     relative_url = "/api/reports/{id}/status".format(id=report_id)
@@ -62,3 +66,28 @@ def retrieve_the_status_of_a_specific_report(report_id):
         item = response.json()
         report_status = item.get("reportStatus")
     return report_status
+
+
+def get_report(report_request):
+    """
+
+    Args:
+        report_request (CreateReportDTO):
+
+    Returns:
+        file content (binary string)
+    """
+    report_id = create_a_new_report_request(report_request=report_request)
+    if not report_id:
+        return None
+
+    report_status = retrieve_the_status_of_a_specific_report(report_id=report_id)
+    while report_status.upper() != "FINISHED":
+        if "FAIL" in report_status.upper():
+            print("Report generation failed!")
+            return None
+        report_status = retrieve_the_status_of_a_specific_report(report_id=report_id)
+        print("report status: {}".format(report_status))
+        time.sleep(2)
+
+    return retrieve_the_file_of_a_specific_report(report_id=report_id)
