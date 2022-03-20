@@ -35,6 +35,9 @@ def create_a_new_report_with_application_template_pdf():
 
     report_content = get_report(report_request=report_request)
 
+    if not report_content:
+        return None
+
     report_folder = dirname(__file__)
     time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
     file_name = normpath(join(report_folder, report_name + time_stamp + "." + output_format))
