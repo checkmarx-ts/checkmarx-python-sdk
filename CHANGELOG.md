@@ -142,3 +142,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.8 - 2022-03-20
 * Add CxReporting api get_report
+
+0.4.9 - 2022-03-20
+* Fix CxReporting data transfer object CreateReportDTO and FilterDTO
