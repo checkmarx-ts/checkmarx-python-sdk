@@ -59,7 +59,7 @@ class TeamAPI(object):
 
         return teams
 
-    def get_team_id_by_team_full_name(self, team_full_name=config.get("team_full_name")):
+    def get_team_id_by_team_full_name(self, team_full_name):
         """
         utility provided by SDK: get team id by team full name
 
