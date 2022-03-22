@@ -145,8 +145,7 @@ class ProjectsAPI(object):
 
         return project
 
-    def get_project_id_by_project_name_and_team_full_name(self, project_name,
-                                                          team_full_name=config.get("team_full_name")):
+    def get_project_id_by_project_name_and_team_full_name(self, project_name, team_full_name):
         """
         utility provided by SDK: get project id by project name, and team full name
 
@@ -367,9 +366,7 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def create_project_if_not_exists_by_project_name_and_team_full_name(
-            self, project_name, team_full_name=config.get("team_full_name")
-    ):
+    def create_project_if_not_exists_by_project_name_and_team_full_name(self, project_name, team_full_name):
         """
         create a project if it not exists by project name and a team full name
 
@@ -391,9 +388,7 @@ class ProjectsAPI(object):
 
         return project_id
 
-    def delete_project_if_exists_by_project_name_and_team_full_name(
-            self, project_name, team_full_name=config.get("team_full_name")
-    ):
+    def delete_project_if_exists_by_project_name_and_team_full_name(self, project_name, team_full_name):
         """
 
         Args:
