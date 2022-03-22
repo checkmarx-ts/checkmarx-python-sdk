@@ -90,7 +90,7 @@ class ProjectsAPI(object):
 
         return all_projects
 
-    def create_project_with_default_configuration(self, project_name, team_id=None, is_public=True, api_version="1.0"):
+    def create_project_with_default_configuration(self, project_name, team_id, is_public=True, api_version="1.0"):
         """
         REST API: create project
 
@@ -215,7 +215,7 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, project_name, team_id=None, custom_fields=None, api_version="1.0"):
+    def update_project_by_id(self, project_id, project_name, team_id, custom_fields=None, api_version="1.0"):
         """
         update project info by project id
 
@@ -268,14 +268,14 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def update_project_name_team_id(self, project_id, project_name, team_id=None, api_version="1.0"):
+    def update_project_name_team_id(self, project_id, project_name, team_id, api_version="1.0"):
         """
         REST API: update project name, team id
 
         Args:
             project_id (int):  consider using ProjectsAPI.get_project_id_by_name
             project_name (str, optional): Specifies the name of the project
-            team_id (int, str, optional): Specifies the Id of the team that owns the project
+            team_id (int, str): Specifies the Id of the team that owns the project
             api_version (str, optional):
 
         Returns:
