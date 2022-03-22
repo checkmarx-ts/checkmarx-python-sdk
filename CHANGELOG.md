@@ -145,3 +145,6 @@ All notable changes to this project will be documented in  this file.
 
 0.4.9 - 2022-03-20
 * Fix CxReporting data transfer object CreateReportDTO and FilterDTO
+
+0.5.0 - 2022-03-21
+* Fix the team_id parameter default to None issue
