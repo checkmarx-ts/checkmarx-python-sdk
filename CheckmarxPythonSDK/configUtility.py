@@ -105,8 +105,8 @@ def get_config_info_from_config_ini_file(section, option_list):
 
     config_file_path = get_config_path()
 
-    if not exists(config_file_path):
-        print("config file path not found: {path} ".format(path=config_file_path))
+    if not exists(config_file_path) or not config_file_path.endswith(".ini"):
+        print("config.ini file path not found: {path} ".format(path=config_file_path))
         return {}
 
     parser_obj = configparser.ConfigParser()
@@ -119,8 +119,8 @@ def get_config_info_from_config_json_file(section, option_list):
 
     config_file_path = get_config_path(file_extention=".json")
 
-    if not exists(config_file_path):
-        print("config file path not found: {path} ".format(path=config_file_path))
+    if not exists(config_file_path) or not config_file_path.endswith(".json"):
+        print("config.json file path not found: {path} ".format(path=config_file_path))
         return {}
 
     with open(file=config_file_path, mode="r") as json_file:
