@@ -45,7 +45,7 @@ def test_get_a_list_of_project_with_name_regex():
 
 
 def test_get_project_id_by_name():
-    project_id = get_project_id_by_name("AST_Jenkins")
+    project_id = get_project_id_by_name(name=new_project_name)
     assert project_id is not None
 
 
