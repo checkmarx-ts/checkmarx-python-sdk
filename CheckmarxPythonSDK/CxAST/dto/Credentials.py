@@ -1,4 +1,4 @@
-class Credential(object):
+class Credentials(object):
     def __init__(self, username, credential_type, value):
         """
 

@@ -2,10 +2,10 @@ from .Application import Application
 from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
 from .CreatedApplication import CreatedApplication
-from .GitCredential import GitCredential
+from .Credentials import Credentials
+from .Git import Git
+from .Project import Project
 from .Rule import Rule
 from .RuleInput import RuleInput
 from .ScanConfig import ScanConfig
-from .ScanGitHandler import ScanGitHandler
-from .ScanProjectInfo import ScanProjectInfo
-from .ScanUploadHandler import ScanUploadHandler
+from .Upload import Upload
