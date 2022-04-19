@@ -1,3 +1,4 @@
+# encoding: utf-8
 import requests
 from .config import config
 from . import authHeaders

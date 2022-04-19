@@ -1,7 +1,7 @@
 # encoding: utf-8
 from .httpRequests import get_request, post_request, put_request, delete_request
 from ..compat import NO_CONTENT, CREATED
-from .utilities import (get_url_param, type_check, list_member_type_check)
+from .utilities import get_url_param, type_check, list_member_type_check
 from .dto import (
     Application,
     ApplicationInput,

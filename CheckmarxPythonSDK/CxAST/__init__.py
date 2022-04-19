@@ -1,3 +1,4 @@
+# encoding: utf-8
 from .applicationsAPI import (
     create_an_application,
     get_a_list_of_applications,
