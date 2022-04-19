@@ -65,7 +65,7 @@ def test_get_all_tags():
 
 
 def test_get_last_scan_info():
-    response = get_last_scan_info()
+    response = get_last_scan_info(limit=100)
     assert response is not None
 
 

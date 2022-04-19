@@ -162,20 +162,6 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
 
     Returns:
         dict
-        example: {
-          "project-id": {
-            "id": "scan-id",
-            "createdAt": "",
-            "updatedAt": "",
-            "status": "Completed",
-            "userAgent": "user-agent",
-            "initiator": "initiator",
-            "branch": "branch",
-            "engines": "[\"sast\", \"kics\"]",
-            "sourceType": "github",
-            "sourceOrigin": "Jenkins"
-          }
-        }
     """
     type_check(offset, int)
     type_check(limit, int)
@@ -193,18 +179,6 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
     relative_url += get_url_param("scan-status", scan_status)
     relative_url += get_url_param("branch", branch)
     relative_url += get_url_param("engine", engine)
-
-    # if project_ids and isinstance(project_ids, (list, tuple)):
-    #     for project_id in project_ids:
-    #         relative_url += "&project-ids={project_id}".format(project_id=project_id)
-    # if application_id:
-    #     relative_url += "&application-id={application_id}".format(application_id=application_id)
-    # if scan_status:
-    #     relative_url += "&scan-status={scan_status}".format(scan_status=scan_status)
-    # if branch:
-    #     relative_url += "&branch={branch}".format(branch=branch)
-    # if engine:
-    #     relative_url += "&engine={engine}".format(engine=engine)
     response = get_request(relative_url=relative_url)
     project_scan_map = response.json()
     return {
@@ -249,10 +223,6 @@ def get_branches(offset=0, limit=20, project_id=None, branch_name=None):
     relative_url = "/api/projects/branches?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("project-id", project_id)
     relative_url += get_url_param("branch-name", branch_name)
-    # if project_id:
-    #     relative_url += "&project-id={project_id}".format(project_id=project_id)
-    # if branch_name:
-    #     relative_url += "&branch-name={branch_name}".format(branch_name=branch_name)
     response = get_request(relative_url)
     return response.json()
 
@@ -264,26 +234,7 @@ def get_a_project_by_id(project_id):
         project_id (str):
 
     Returns:
-        dict
-        example: {
-          "id": "string",
-          "name": "string",
-          "applicationIds": [
-            "string"
-          ],
-          "groups": [
-            "string"
-          ],
-          "repoUrl": "string",
-          "mainBranch": "string",
-          "origin": "string",
-          "createdAt": "2022-03-02T04:08:44.471Z",
-          "updatedAt": "2022-03-02T04:08:44.471Z",
-          "tags": {
-            "test": "",
-            "priority": "high"
-          }
-        }
+        RichProject
     """
     relative_url = "/api/projects/{id}".format(id=project_id)
     response = get_request(relative_url=relative_url)
@@ -317,20 +268,6 @@ def update_a_project(project_id, project_input):
     if not project_id:
         return False
     relative_url = "/api/projects/{id}".format(id=project_id)
-    # data = {}
-    # if name:
-    #     data.update({"name": name})
-    # if groups:
-    #     data.update({"groups": groups})
-    # if repo_url:
-    #     data.update({"repoUrl": repo_url})
-    # if main_branch:
-    #     data.update({"mainBranch": main_branch})
-    # if origin:
-    #     data.update({"origin": origin})
-    # if tags:
-    #     data.update({"tags": tags})
-    # data = json.dumps(data)
     data = project_input.get_post_data()
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
