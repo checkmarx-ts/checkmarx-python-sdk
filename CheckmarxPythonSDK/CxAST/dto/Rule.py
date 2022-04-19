@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Rule(object):
     def __init__(self, rule_id, rule_type, value):
         """

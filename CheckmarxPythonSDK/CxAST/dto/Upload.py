@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Upload(object):
     """
     Upload handler for scan

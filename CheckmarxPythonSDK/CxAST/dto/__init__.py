@@ -1,3 +1,4 @@
+# encoding: utf-8
 from .Application import Application
 from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
@@ -5,7 +6,14 @@ from .CreatedApplication import CreatedApplication
 from .Credentials import Credentials
 from .Git import Git
 from .Project import Project
+from .ProjectInput import ProjectInput
+from .ProjectsCollection import ProjectsCollection
+from .RichProject import RichProject
 from .Rule import Rule
 from .RuleInput import RuleInput
+from .Scan import Scan
 from .ScanConfig import ScanConfig
+from .ScanInput import ScanInput
+from .StatusDetails import StatusDetails
+from .SubsetScan import SubsetScan
 from .Upload import Upload

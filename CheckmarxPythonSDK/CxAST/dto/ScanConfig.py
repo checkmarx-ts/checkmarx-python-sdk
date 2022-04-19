@@ -1,3 +1,4 @@
+# encoding: utf-8
 class ScanConfig(object):
     def __init__(self, scan_type, value=None):
         """
