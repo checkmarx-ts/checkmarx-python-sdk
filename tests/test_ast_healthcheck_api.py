@@ -40,5 +40,5 @@ def test_get_health_of_the_scan_flow():
 
 
 def test_get_health_of_the_sast_engines():
-    helth_check = get_health_of_the_sast_engines()
-    assert helth_check is not None
+    health_check = get_health_of_the_sast_engines()
+    assert health_check is not None
