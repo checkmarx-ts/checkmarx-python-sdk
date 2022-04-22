@@ -43,3 +43,13 @@ from .scansAPI import (
     delete_scan,
     get_a_detailed_workflow_of_a_scan,
 )
+
+from .healthCheckServiceAPI import (
+    get_health_of_the_database,
+    get_health_of_the_in_memory_db,
+    get_health_of_the_message_queue,
+    get_health_of_the_object_stroe_including_all_buckets,
+    get_health_of_the_logging,
+    get_health_of_the_scan_flow,
+    get_health_of_the_sast_engines,
+)

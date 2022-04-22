@@ -17,6 +17,7 @@ from .ScanConfig import ScanConfig
 from .ScanInput import ScanInput
 from .ScansCollection import ScansCollection
 from .StatusDetails import StatusDetails
+from .SubCheck import SubCheck
 from .SubsetScan import SubsetScan
 from .TaskInfo import TaskInfo
 from .Upload import Upload
