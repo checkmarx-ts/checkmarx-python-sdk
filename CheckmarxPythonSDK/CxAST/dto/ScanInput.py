@@ -9,13 +9,13 @@ from ..utilities import (type_check, list_member_type_check)
 
 class ScanInput(object):
 
-    def __init__(self, scan_type, handler, project, configs, tags=None):
+    def __init__(self, scan_type, handler, project=None, configs=(), tags=None):
         """
 
         Args:
             scan_type (str): The type of the scan.
             handler (`Git`, `Upload`): A JSON object containing info about the 'handler' of the scan submission.
-            project (`Project`): A JSON object representing the project to scan
+            project (`Project`, optional): A JSON object representing the project to scan
             configs (`List` of `ScanConfig`):
             tags (dict): A JSON object containing a list of the tags associated with the scan, in key-value format.
         """
@@ -43,7 +43,7 @@ class ScanInput(object):
         return json.dumps({
             "type": self.type,
             "handler": self.handler.as_dict(),
-            "project": self.project.as_dict(),
-            "config": [config.as_dict() for config in self.config],
+            "project": self.project.as_dict() if self.project else self.project,
+            "config": [config.as_dict() for config in self.config or []],
             "tags": self.tags
         })

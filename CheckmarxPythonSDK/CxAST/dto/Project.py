@@ -1,12 +1,12 @@
 # encoding: utf-8
 class Project(object):
 
-    def __init__(self, project_id, name=None, groups=None, repo_url=None, main_branch=None, origin=None,
+    def __init__(self, project_id=None, name=None, groups=None, repo_url=None, main_branch=None, origin=None,
                  created_at=None, updated_at=None, tags=None, criticality=3):
         """
 
         Args:
-            project_id (str): A unique identifier for the project. For 'upload' projects, a value must be entered.
+            project_id (str, optional): A unique identifier for the project. For 'upload' projects, a value must be entered.
                 For 'git' projects, this field can be empty and the repository URL will be designated as the project ID.
             name (str): The project name
             groups (list of str): The groups authorized for this project
@@ -40,7 +40,9 @@ class Project(object):
         )
 
     def as_dict(self):
-        return {
-            "id": self.id,
-            "tags": self.tags,
-        }
+        data = {}
+        if self.id:
+            data.update({"id": self.id})
+        if self.tags:
+            data.update({"tags": self.tags})
+        return data

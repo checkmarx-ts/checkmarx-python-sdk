@@ -4,6 +4,7 @@ from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
 from .CreatedApplication import CreatedApplication
 from .Credentials import Credentials
+from .FileInfo import FileInfo
 from .Git import Git
 from .Project import Project
 from .ProjectInput import ProjectInput
@@ -14,6 +15,8 @@ from .RuleInput import RuleInput
 from .Scan import Scan
 from .ScanConfig import ScanConfig
 from .ScanInput import ScanInput
+from .ScansCollection import ScansCollection
 from .StatusDetails import StatusDetails
 from .SubsetScan import SubsetScan
+from .TaskInfo import TaskInfo
 from .Upload import Upload

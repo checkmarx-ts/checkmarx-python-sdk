@@ -14,7 +14,7 @@ from CheckmarxPythonSDK.CxAST.dto import (
     ProjectInput
 )
 
-new_project_name = "happy-test-2022-02-28"
+new_project_name = "happy-test-2022-04-20"
 
 
 def test_create_a_project():

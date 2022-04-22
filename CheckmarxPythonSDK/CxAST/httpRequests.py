@@ -92,3 +92,20 @@ def delete_request(relative_url):
                          "ErrorMessage: {msg}".format(msg=response.text))
 
     return response
+
+
+@retry_when_unauthorized
+def patch_request(relative_url, data):
+    url = config.get("server") + relative_url
+    response = requests.patch(
+        url=url,
+        headers=authHeaders.auth_headers,
+        data=data,
+        verify=False,
+    )
+
+    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
+        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
+                         "ErrorMessage: {msg}".format(msg=response.text))
+
+    return response
