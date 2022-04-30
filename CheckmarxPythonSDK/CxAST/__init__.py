@@ -69,3 +69,10 @@ from .sastQueriesAPI import (
     get_sast_queries_presets,
     get_sast_query_description,
 )
+
+from .sastQueriesAuditAPI import (
+    get_all_queries,
+    get_queries_metadata,
+    get_query_source,
+    update_query_source,
+)
