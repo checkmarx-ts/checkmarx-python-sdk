@@ -18,5 +18,5 @@ def test_get_sast_queries_presets():
 
 def test_get_sast_query_description():
     # haven't found ids
-    description = get_sast_query_description(ids=[])
+    description = get_sast_query_description(ids=["9001657640014870111"])
     assert description is not None

@@ -48,15 +48,16 @@ def get_sast_query_description(ids):
     """
 
     Args:
-        ids (list of int): list of query ids
+        ids (list of str): list of query ids
 
     Returns:
         list of descriptions associated to each of the given query ids
     """
     type_check(ids, list)
-    list_member_type_check(ids, int)
+    list_member_type_check(ids, str)
 
     relative_url = query_url + "/descriptions?"
     relative_url += get_url_param("ids", ids)
     response = get_request(relative_url=relative_url)
-    presets = response.json()
+    response = response.json()
+    return response
