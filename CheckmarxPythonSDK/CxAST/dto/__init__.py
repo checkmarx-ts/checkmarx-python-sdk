@@ -6,9 +6,16 @@ from .CreatedApplication import CreatedApplication
 from .Credentials import Credentials
 from .FileInfo import FileInfo
 from .Git import Git
+from .Group import Group
+from .MethodInfo import MethodInfo
+from .MethodParameter import MethodParameter
+from .Preset import Preset
 from .Project import Project
 from .ProjectInput import ProjectInput
 from .ProjectsCollection import ProjectsCollection
+from .Queries import Queries
+from .QueriesResponse import QueriesResponse
+from .Query import Query
 from .RichProject import RichProject
 from .Rule import Rule
 from .RuleInput import RuleInput
@@ -20,4 +27,6 @@ from .StatusDetails import StatusDetails
 from .SubCheck import SubCheck
 from .SubsetScan import SubsetScan
 from .TaskInfo import TaskInfo
+from .Tree import Tree
 from .Upload import Upload
+from .WorkspaceQuery import WorkspaceQuery

@@ -53,3 +53,19 @@ from .healthCheckServiceAPI import (
     get_health_of_the_scan_flow,
     get_health_of_the_sast_engines,
 )
+
+from .repoStoreServiceAPI import (
+    get_commit_content,
+    get_folder_content,
+    get_code,
+    get_project_tree_structure,
+    get_the_list_of_branches_inside_a_git_repository,
+)
+
+from .policyInformationPointAPI import get_groups
+
+from .sastQueriesAPI import (
+    get_list_of_the_existing_query_repos,
+    get_sast_queries_presets,
+    get_sast_query_description,
+)
