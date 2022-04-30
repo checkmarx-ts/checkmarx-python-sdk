@@ -76,3 +76,7 @@ from .sastQueriesAuditAPI import (
     get_query_source,
     update_query_source,
 )
+
+from .scannersResultsAPI import (
+    get_all_scanners_results_by_scan_id,
+)

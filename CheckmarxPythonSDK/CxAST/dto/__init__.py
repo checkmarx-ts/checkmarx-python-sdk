@@ -16,6 +16,9 @@ from .ProjectsCollection import ProjectsCollection
 from .Queries import Queries
 from .QueriesResponse import QueriesResponse
 from .Query import Query
+from .QueryDescription import QueryDescription
+from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
+from .Result import Result
 from .RichProject import RichProject
 from .Rule import Rule
 from .RuleInput import RuleInput

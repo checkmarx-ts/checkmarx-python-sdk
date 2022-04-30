@@ -1,6 +1,6 @@
 from .httpRequests import get_request
 from .utilities import get_url_param, type_check, list_member_type_check
-from .dto import QueriesResponse, Preset
+from .dto import QueriesResponse, Preset, QueryDescription, QueryDescriptionSampleCode
 
 query_url = "/api/queries"
 
@@ -51,7 +51,8 @@ def get_sast_query_description(ids):
         ids (list of str): list of query ids
 
     Returns:
-        list of descriptions associated to each of the given query ids
+        list of QueryDescription
+         associated to each of the given query ids
     """
     type_check(ids, list)
     list_member_type_check(ids, str)
@@ -60,4 +61,19 @@ def get_sast_query_description(ids):
     relative_url += get_url_param("ids", ids)
     response = get_request(relative_url=relative_url)
     response = response.json()
-    return response
+    return [
+        QueryDescription(
+            query_description_id=item.get("queryDescriptionId"),
+            result_description=item.get("resultDescription"),
+            risk=item.get("risk"),
+            cause=item.get("cause"),
+            general_recommendations=item.get("generalRecommendations"),
+            samples=[
+                QueryDescriptionSampleCode(
+                    programming_language=sample.get("progLanguage"),
+                    code=sample.get("code"),
+                    title=sample.get("title"),
+                ) for sample in item.get("samples") or []
+            ],
+        ) for item in response or []
+    ]
