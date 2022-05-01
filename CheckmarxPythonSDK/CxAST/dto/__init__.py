@@ -20,9 +20,11 @@ from .Query import Query
 from .QueryDescription import QueryDescription
 from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
 from .Result import Result
+from .ResultNode import ResultNode
 from .RichProject import RichProject
 from .Rule import Rule
 from .RuleInput import RuleInput
+from .SastResult import SastResult
 from .Scan import Scan
 from .ScanConfig import ScanConfig
 from .ScanInput import ScanInput

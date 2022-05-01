@@ -84,3 +84,7 @@ from .scannersResultsAPI import (
 from .kicsResultsAPI import (
     get_kics_results_by_scan_id,
 )
+
+from .sastResultsAPI import (
+    get_sast_results_by_scan_id,
+)
