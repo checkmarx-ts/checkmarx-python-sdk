@@ -7,6 +7,7 @@ from .Credentials import Credentials
 from .FileInfo import FileInfo
 from .Git import Git
 from .Group import Group
+from .KicsResult import KicsResult
 from .MethodInfo import MethodInfo
 from .MethodParameter import MethodParameter
 from .Preset import Preset
