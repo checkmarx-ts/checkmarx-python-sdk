@@ -1,3 +1,4 @@
+# encoding: utf-8
 from ..configUtility import (
     get_config
 )

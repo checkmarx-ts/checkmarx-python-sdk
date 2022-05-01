@@ -1,7 +1,7 @@
 # encoding: utf-8
 from .httpRequests import get_request, post_request, put_request, delete_request
 from ..compat import NO_CONTENT, CREATED
-from .utilities import (get_url_param, type_check, list_member_type_check)
+from .utilities import get_url_param, type_check, list_member_type_check
 from .dto import (
     Application,
     ApplicationInput,
@@ -10,6 +10,31 @@ from .dto import (
     Rule,
     RuleInput,
 )
+
+
+def __construct_application_rules(rules):
+    rules = rules or []
+    return [
+        Rule(
+            rule_id=rule.get("id"),
+            rule_type=rule.get("type"),
+            value=rule.get("value")
+        ) for rule in rules
+    ]
+
+
+def __construct_application(app):
+    return Application(
+        application_id=app.get("id"),
+        name=app.get("name"),
+        description=app.get("description"),
+        criticality=app.get("criticality"),
+        rules=__construct_application_rules(app.get("rules")),
+        project_ids=app.get("projectIds"),
+        created_at=app.get("createdAt"),
+        updated_at=app.get("updatedAt"),
+        tags=app.get("tags")
+    )
 
 
 def create_an_application(application_input):
@@ -32,13 +57,7 @@ def create_an_application(application_input):
         name=item.get("name"),
         description=item.get("description"),
         criticality=item.get("criticality"),
-        rules=[
-            Rule(
-                rule_id=rule.get("id"),
-                rule_type=rule.get("type"),
-                value=rule.get("value")
-            ) for rule in item.get("rules")
-        ],
+        rules=__construct_application_rules(item.get("rules")),
         tags=item.get("tags"),
         created_at=item.get("createdAt"),
         updated_at=item.get("updatedAt")
@@ -80,23 +99,7 @@ def get_a_list_of_applications(offset=0, limit=20, name=None, tags_keys=None, ta
         total_count=app_collection.get("totalCount"),
         filtered_total_count=app_collection.get("filteredTotalCount"),
         applications=[
-            Application(
-                application_id=app.get("id"),
-                name=app.get("name"),
-                description=app.get("description"),
-                criticality=app.get("criticality"),
-                rules=[
-                    Rule(
-                        rule_id=rule.get("id"),
-                        rule_type=rule.get("type"),
-                        value=rule.get("value")
-                    ) for rule in app.get("rules")
-                ],
-                project_ids=app.get("projectIds"),
-                created_at=app.get("createdAt"),
-                updated_at=app.get("updatedAt"),
-                tags=app.get("tags")
-            ) for app in app_collection.get("applications")
+            __construct_application(app) for app in app_collection.get("applications")
         ]
     )
 
@@ -154,23 +157,7 @@ def get_an_application_by_id(application_id):
     relative_url = "/api/applications/{id}".format(id=application_id)
     response = get_request(relative_url=relative_url)
     app = response.json()
-    return Application(
-        application_id=app.get("id"),
-        name=app.get("name"),
-        description=app.get("description"),
-        criticality=app.get("criticality"),
-        rules=[
-            Rule(
-                rule_id=rule.get("id"),
-                rule_type=rule.get("type"),
-                value=rule.get("value")
-            ) for rule in app.get("rules")
-        ],
-        project_ids=app.get("projectIds"),
-        created_at=app.get("createdAt"),
-        updated_at=app.get("updatedAt"),
-        tags=app.get("tags")
-    )
+    return __construct_application(app)
 
 
 def update_an_application(application_id, application_input):
@@ -253,13 +240,7 @@ def get_a_list_of_rules_for_a_specific_application(application_id):
     relative_url = "/api/applications/{id}/project-rules".format(id=application_id)
     response = get_request(relative_url=relative_url)
     rules = response.json()
-    return [
-        Rule(
-            rule_id=rule.get("id"),
-            rule_type=rule.get("type"),
-            value=rule.get("value")
-        ) for rule in rules
-    ]
+    return __construct_application_rules(rules)
 
 
 def get_an_application_rule(application_id, rule_id):

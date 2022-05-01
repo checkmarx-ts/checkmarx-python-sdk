@@ -1,71 +1,45 @@
 # encoding: utf-8
-import json
-
 from .httpRequests import get_request, post_request, put_request, delete_request
 from ..compat import NO_CONTENT
-from .utilities import get_url_param
+from .utilities import get_url_param, type_check, list_member_type_check
+from .dto import (
+    ProjectInput,
+    Project,
+    ProjectsCollection,
+    RichProject,
+    SubsetScan,
+)
 
 
-def create_a_project(name, groups="", repo_url="", main_branch="", origin="", tags=None):
+def __construct_project(project):
+    return Project(
+        project_id=project.get("id"),
+        name=project.get("name"),
+        groups=project.get("groups"),
+        repo_url=project.get("repoUrl"),
+        main_branch=project.get("mainBranch"),
+        origin=project.get("origin"),
+        created_at=project.get("createdAt"),
+        updated_at=project.get("updatedAt"),
+        tags=project.get("tags"),
+        criticality=project.get("criticality"),
+    )
+
+
+def create_a_project(project_input):
     """
 
     Args:
-        name (str): The name that you would like to assign to the new Project. The Project name must be unique.
-        groups (`list` of str): The group IDs of Groups (of users) that you would like to assign to this Project.
-                     The ID of a Group can be found using the GET /auth/groups API.
-                      A group must already exist in your account before a Project can be assigned to it.
-                       Only users assigned to the designated Groups will have access to this Project.
-        repo_url (str): The Git repo URL.
-        main_branch (str): The Git branch of the source code that is designated as “primary” for this Project.
-        origin (str): The manner by which the Project was created.
-        tags (dict): The tags you want assigned to the Project.
-                    Tags need to be formatted in key-value pairs.
-                    example:
-                    "tags": {"Tag01": "", "Severity": "high"}
+        project_input (ProjectInput):
 
     Returns:
-        dict
-        example: {
-              "id": "string",
-              "name": "string",
-              "groups": [
-                "string"
-              ],
-              "repoUrl": "string",
-              "mainBranch": "string",
-              "origin": "string",
-              "createdAt": "2022-03-07T12:06:18.427Z",
-              "updatedAt": "2022-03-07T12:06:18.427Z",
-              "tags": {
-                "test": "",
-                "priority": "high"
-              }
-            }
+        Project
     """
-
     relative_url = "/api/projects"
-    if groups:
-        if isinstance(groups, str):
-            groups = [groups]
-        elif isinstance(groups, list):
-            groups = [str(item) for item in groups]
-
-    data = {
-        "name": name
-    }
-    if groups:
-        data.update({"groups": groups})
-    if repo_url:
-        data.update({"repoUrl": repo_url})
-    if main_branch:
-        data.update({"mainBranch": main_branch})
-    if origin:
-        data.update({"origin": origin})
-    if tags:
-        data.update({"tags": tags})
-    data = json.dumps(data)
+    data = project_input.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
-    return response.json()
+    item = response.json()
+    return __construct_project(item)
 
 
 def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, name_regex=None, groups=None,
@@ -94,30 +68,25 @@ def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, 
         repo_url (str): Filter results by the project's repository url
 
     Returns:
-        dict
-        example: {
-          "totalCount": 0,
-          "filteredTotalCount": 0,
-          "projects": [
-            {
-              "id": "string",
-              "name": "string",
-              "groups": [
-                "string"
-              ],
-              "repoUrl": "string",
-              "mainBranch": "string",
-              "origin": "string",
-              "createdAt": "2022-03-02T03:36:17.102Z",
-              "updatedAt": "2022-03-02T03:36:17.102Z",
-              "tags": {
-                "test": "",
-                "priority": "high"
-              }
-            }
-          ]
-        }
+        ProjectsCollection
     """
+    type_check(offset, int)
+    type_check(limit, int)
+    type_check(ids, (list, tuple))
+    type_check(names, (list, tuple))
+    type_check(name, str)
+    type_check(name_regex, str)
+    type_check(groups, (list, tuple))
+    type_check(tags_keys, (list, tuple))
+    type_check(tags_values, (list, tuple))
+    type_check(repo_url, str)
+
+    list_member_type_check(ids, str)
+    list_member_type_check(names, str)
+    list_member_type_check(groups, str)
+    list_member_type_check(tags_keys, str)
+    list_member_type_check(tags_values, str)
+
     relative_url = "/api/projects?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("ids", ids)
     relative_url += get_url_param("names", names)
@@ -127,31 +96,15 @@ def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, 
     relative_url += get_url_param("tags-keys", tags_keys)
     relative_url += get_url_param("tags-values", tags_values)
     relative_url += get_url_param("repo-url", repo_url)
-
-    # if ids and isinstance(ids, (list, tuple)):
-    #     for project_id in ids:
-    #         relative_url += "&ids={project_id}".format(project_id=project_id)
-    # if names and isinstance(names, (list, tuple)):
-    #     for project_name in names:
-    #         relative_url += "&names={project_name}".format(project_name=project_name)
-    # if name:
-    #     relative_url += "&name={name}".format(name=name)
-    # if name_regex:
-    #     relative_url += "&name-regex={name_regex}".format(name_regex=name_regex)
-    # if groups and isinstance(groups, (list, tuple)):
-    #     for project_group in groups:
-    #         relative_url += "&groups={project_group}".format(project_group=project_group)
-    # if tags_keys and isinstance(tags_keys, (list, tuple)):
-    #     for tags_key in tags_keys:
-    #         relative_url += "&tags-keys={tags_key}".format(tags_key=tags_key)
-    # if tags_values and isinstance(tags_values, (list, tuple)):
-    #     for tags_value in tags_values:
-    #         relative_url += "&tags-values={tags_value}".format(tags_value=tags_value)
-    # if repo_url:
-    #     relative_url += "&repo-url={repo_url}".format(repo_url=repo_url)
-
     response = get_request(relative_url=relative_url)
-    return response.json()
+    item = response.json()
+    return ProjectsCollection(
+        total_count=item.get("totalCount"),
+        filtered_total_count=item.get("filteredTotalCount"),
+        projects=[
+            __construct_project(project) for project in item.get("projects") or []
+        ]
+    )
 
 
 def get_project_id_by_name(name):
@@ -165,10 +118,10 @@ def get_project_id_by_name(name):
     """
     pattern = "^" + name + "$"
     response = get_a_list_of_projects(name_regex=pattern)
-    projects = response.get("projects")
+    projects = response.projects
     if not projects:
         return None
-    return projects[0].get("id")
+    return projects[0].id
 
 
 def get_all_project_tags():
@@ -209,35 +162,40 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
 
     Returns:
         dict
-        example: {
-          "project-id": {
-            "id": "scan-id",
-            "createdAt": "",
-            "updatedAt": "",
-            "status": "Completed",
-            "userAgent": "user-agent",
-            "initiator": "initiator",
-            "branch": "branch",
-            "engines": "[\"sast\", \"kics\"]",
-            "sourceType": "github",
-            "sourceOrigin": "Jenkins"
-          }
-        }
     """
+    type_check(offset, int)
+    type_check(limit, int)
+    type_check(project_ids, (list, tuple))
+    type_check(application_id, str)
+    type_check(scan_status, str)
+    type_check(branch, str)
+    type_check(engine, str)
+
+    list_member_type_check(project_ids, str)
+
     relative_url = "/api/projects/last-scan?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
-    if project_ids and isinstance(project_ids, (list, tuple)):
-        for project_id in project_ids:
-            relative_url += "&project-ids={project_id}".format(project_id=project_id)
-    if application_id:
-        relative_url += "&application-id={application_id}".format(application_id=application_id)
-    if scan_status:
-        relative_url += "&scan-status={scan_status}".format(scan_status=scan_status)
-    if branch:
-        relative_url += "&branch={branch}".format(branch=branch)
-    if engine:
-        relative_url += "&engine={engine}".format(engine=engine)
+    relative_url += get_url_param("project-ids", project_ids)
+    relative_url += get_url_param("application-id", application_id)
+    relative_url += get_url_param("scan-status", scan_status)
+    relative_url += get_url_param("branch", branch)
+    relative_url += get_url_param("engine", engine)
     response = get_request(relative_url=relative_url)
-    return response.json()
+    project_scan_map = response.json()
+    return {
+        key: SubsetScan(
+            scan_id=value.get("id"),
+            created_at=value.get("createdAt"),
+            updated_at=value.get("updatedAt"),
+            status=value.get("status"),
+            user_agent=value.get("userAgent"),
+            initiator=value.get("initiator"),
+            branch=value.get("branch"),
+            engines=value.get("engines"),
+            source_type=value.get("sourceType"),
+            source_origin=value.get("sourceOrigin")
+        )
+        for key, value in project_scan_map.items()
+    }
 
 
 def get_branches(offset=0, limit=20, project_id=None, branch_name=None):
@@ -252,16 +210,19 @@ def get_branches(offset=0, limit=20, project_id=None, branch_name=None):
         branch_name (str): Branch name. filtered by full or partial name
 
     Returns:
-        list
+        list of str
         example: [
           "string"
         ]
     """
+    type_check(offset, int)
+    type_check(limit, int)
+    type_check(project_id, str)
+    type_check(branch_name, str)
+
     relative_url = "/api/projects/branches?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
-    if project_id:
-        relative_url += "&project-id={project_id}".format(project_id=project_id)
-    if branch_name:
-        relative_url += "&branch-name={branch_name}".format(branch_name=branch_name)
+    relative_url += get_url_param("project-id", project_id)
+    relative_url += get_url_param("branch-name", branch_name)
     response = get_request(relative_url)
     return response.json()
 
@@ -273,45 +234,33 @@ def get_a_project_by_id(project_id):
         project_id (str):
 
     Returns:
-        dict
-        example: {
-          "id": "string",
-          "name": "string",
-          "applicationIds": [
-            "string"
-          ],
-          "groups": [
-            "string"
-          ],
-          "repoUrl": "string",
-          "mainBranch": "string",
-          "origin": "string",
-          "createdAt": "2022-03-02T04:08:44.471Z",
-          "updatedAt": "2022-03-02T04:08:44.471Z",
-          "tags": {
-            "test": "",
-            "priority": "high"
-          }
-        }
+        RichProject
     """
     relative_url = "/api/projects/{id}".format(id=project_id)
     response = get_request(relative_url=relative_url)
-    return response.json()
+    project = response.json()
+    return RichProject(
+        project_id=project.get("id"),
+        name=project.get("name"),
+        application_ids=project.get("applicationIds"),
+        groups=project.get("groups"),
+        repo_url=project.get("repoUrl"),
+        main_branch=project.get("mainBranch"),
+        origin=project.get("origin"),
+        created_at=project.get("createdAt"),
+        updated_at=project.get("updatedAt"),
+        tags=project.get("tags"),
+        criticality=project.get("criticality"),
+    )
 
 
-def update_a_project(project_id, name=None, groups=None, repo_url=None, main_branch=None, origin=None, tags=None):
+def update_a_project(project_id, project_input):
     """
     Update Project. all parameters are covered by the input sent
 
     Args:
         project_id (str):
-        name (str): project name
-        groups (`list` of str): The groups authorized for this project
-        repo_url (str): The reprosentive repository URL
-        main_branch (str): The Git main branch
-        origin (str): The origin of project
-        tags (dict):
-
+        project_input (ProjectInput):
     Returns:
         bool
     """
@@ -319,25 +268,10 @@ def update_a_project(project_id, name=None, groups=None, repo_url=None, main_bra
     if not project_id:
         return False
     relative_url = "/api/projects/{id}".format(id=project_id)
-
-    data = {}
-    if name:
-        data.update({"name": name})
-    if groups:
-        data.update({"groups": groups})
-    if repo_url:
-        data.update({"repoUrl": repo_url})
-    if main_branch:
-        data.update({"mainBranch": main_branch})
-    if origin:
-        data.update({"origin": origin})
-    if tags:
-        data.update({"tags": tags})
-    data = json.dumps(data)
+    data = project_input.get_post_data()
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
         is_successful = True
-
     return is_successful
 
 
@@ -356,5 +290,4 @@ def delete_a_project(project_id):
         response = delete_request(relative_url=relative_url)
         if response.status_code == NO_CONTENT:
             is_successful = True
-
     return is_successful

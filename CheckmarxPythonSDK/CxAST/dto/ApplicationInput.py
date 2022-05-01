@@ -1,3 +1,4 @@
+# encoding: utf-8
 import json
 from .RuleInput import RuleInput
 from ..utilities import (type_check, int_range_check, list_member_type_check)
