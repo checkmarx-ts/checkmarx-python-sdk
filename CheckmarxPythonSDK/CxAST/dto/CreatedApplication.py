@@ -1,3 +1,4 @@
+# encoding: utf-8
 from .Rule import Rule
 
 

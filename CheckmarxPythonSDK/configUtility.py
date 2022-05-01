@@ -179,7 +179,6 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
         else:
             value = options.__getattribute__(cli_var)
         return value
-
     parser = PassThroughOptionParser()
     for item in option_list:
         parser.add_option("--" + prefix + item, help=SUPPRESS_HELP)

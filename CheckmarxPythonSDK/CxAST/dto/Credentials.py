@@ -1,4 +1,5 @@
-class Credential(object):
+# encoding: utf-8
+class Credentials(object):
     def __init__(self, username, credential_type, value):
         """
 

@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Application(object):
     def __init__(self, application_id, name, description, criticality, rules, project_ids, created_at,
                  updated_at, tags):

@@ -1,5 +1,5 @@
+# encoding: utf-8
 import json
-
 from ..utilities import (type_check)
 
 
@@ -14,13 +14,13 @@ class RuleInput(object):
             value (str): example: key;value  value of the rule, correlating to the rule type. key-value,
                     and list of ids, should be separated by semicolon (e.g 'key;value', 'id1;id2').
         """
-        # if rule_type not in [
-        #     "project.id.in", "project.id.starts-with", "project.id.contains", "project.id.regex",
-        #     "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists"
-        # ]:
-        #     raise ValueError("""Error for parameter rule_type, must be one of [ project.id.in,
-        #             project.id.starts-with, project.id.contains, project.id.regex,
-        #             project.tag.key.exists, project.tag.value.exists, project.tag.key-value.exists ] """)
+        if rule_type not in [
+            "project.id.in", "project.id.starts-with", "project.id.contains", "project.id.regex",
+            "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists"
+        ]:
+            raise ValueError("""Error for parameter rule_type, must be one of [ project.id.in,
+                    project.id.starts-with, project.id.contains, project.id.regex,
+                    project.tag.key.exists, project.tag.value.exists, project.tag.key-value.exists ] """)
         type_check(rule_type, str)
         type_check(value, str)
         self.type = rule_type
