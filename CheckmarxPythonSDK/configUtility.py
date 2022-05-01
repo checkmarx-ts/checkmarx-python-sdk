@@ -56,7 +56,7 @@ def get_config_path(file_extention=".ini"):
 
     # check environment variable "checkmarx_config_path", if exists, override the previous one
     config_path_from_env = os.getenv("checkmarx_config_path")
-    if config_path_from_env:
+    if config_path_from_env is not None:
         config_file_path = config_path_from_env
 
     # check command line option "--checkmarx_config_path", if exists, override the previous one
@@ -106,7 +106,8 @@ def get_config_info_from_config_ini_file(section, option_list):
     config_file_path = get_config_path()
 
     if not exists(config_file_path) or not config_file_path.endswith(".ini"):
-        print("config.ini file path not found: {path} ".format(path=config_file_path))
+        if config_file_path:
+            print("config.ini file path not found: {path} ".format(path=config_file_path))
         return {}
 
     parser_obj = configparser.ConfigParser()
@@ -120,7 +121,8 @@ def get_config_info_from_config_json_file(section, option_list):
     config_file_path = get_config_path(file_extention=".json")
 
     if not exists(config_file_path) or not config_file_path.endswith(".json"):
-        print("config.json file path not found: {path} ".format(path=config_file_path))
+        if config_file_path:
+            print("config.json file path not found: {path} ".format(path=config_file_path))
         return {}
 
     with open(file=config_file_path, mode="r") as json_file:
