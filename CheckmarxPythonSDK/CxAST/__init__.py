@@ -88,3 +88,7 @@ from .kicsResultsAPI import (
 from .sastResultsAPI import (
     get_sast_results_by_scan_id,
 )
+
+from .sastBestFixLocationAPI import (
+    get_bfl_graph_by_scan_id,
+)

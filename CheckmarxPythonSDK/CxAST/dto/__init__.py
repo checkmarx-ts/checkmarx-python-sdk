@@ -2,6 +2,7 @@
 from .Application import Application
 from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
+from .BflTree import BflTree
 from .CreatedApplication import CreatedApplication
 from .Credentials import Credentials
 from .FileInfo import FileInfo
