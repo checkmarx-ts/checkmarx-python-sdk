@@ -133,3 +133,21 @@ All notable changes to this project will be documented in  this file.
 
 0.4.5 - 2022-02-28
 * Add ODATA API get_results_for_a_specific_scan_id_with_similarity_ids
+
+0.4.6 - 2022-03-18
+* Add support for CxReporting API
+
+0.4.7 - 2022-03-19
+* Add get_config_info_from_config_json_file
+
+0.4.8 - 2022-03-20
+* Add CxReporting api get_report
+
+0.4.9 - 2022-03-20
+* Fix CxReporting data transfer object CreateReportDTO and FilterDTO
+
+0.5.0 - 2022-03-21
+* Fix the team_id parameter default to None issue
+
+0.5.1 - 2022-03-23
+* Fix config file issue

@@ -79,7 +79,8 @@ password = ***
 refresh_token = ***
 
 [CxReporting]
-base_url = http://localhost:5001
+base_url = http://localhost
+reporting_client_url = http://localhost:5001
 username = ***
 password = ***
 grant_type = password
@@ -90,7 +91,7 @@ client_secret = 014DF517-39D1-4453-B7B3-9930C563627C
 
 configuration file path:
 
-By default, Checkmarx Python SDK looks for `config.ini` file in a `.Checkmarx` folder in your home directory. 
+By default, Checkmarx Python SDK looks for `config.ini` or `config.json` file in a `.Checkmarx` folder in your home directory. 
 - For windows, it should be like `C:\\Users\\<UserName>\\.Checkmarx\\config.ini`
 - For linux and MacOS, it should be like `/home/<UserName>/.Checkmarx/config.ini` 
 
@@ -155,4 +156,4 @@ For CxAST:
 - [CxSAST_ODATA_API](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_ODATA_API.md)
 - [CxSAST_Portal_SOAP_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_Portal_SOAP_API_List.md)
 - [CxSCA_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSCA_REST_API_List.md)
-- [CxReporting_REST_API_List]
+- [CxReporting_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/blob/master/docs/CxReporting_REST_API_List.md)

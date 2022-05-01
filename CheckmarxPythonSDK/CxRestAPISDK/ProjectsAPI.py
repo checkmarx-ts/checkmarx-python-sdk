@@ -90,7 +90,7 @@ class ProjectsAPI(object):
 
         return all_projects
 
-    def create_project_with_default_configuration(self, project_name, team_id=None, is_public=True, api_version="1.0"):
+    def create_project_with_default_configuration(self, project_name, team_id, is_public=True, api_version="1.0"):
         """
         REST API: create project
 
@@ -145,8 +145,7 @@ class ProjectsAPI(object):
 
         return project
 
-    def get_project_id_by_project_name_and_team_full_name(self, project_name,
-                                                          team_full_name=config.get("team_full_name")):
+    def get_project_id_by_project_name_and_team_full_name(self, project_name, team_full_name):
         """
         utility provided by SDK: get project id by project name, and team full name
 
@@ -215,7 +214,7 @@ class ProjectsAPI(object):
 
         return project
 
-    def update_project_by_id(self, project_id, project_name, team_id=None, custom_fields=None, api_version="1.0"):
+    def update_project_by_id(self, project_id, project_name, team_id, custom_fields=None, api_version="1.0"):
         """
         update project info by project id
 
@@ -268,14 +267,14 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def update_project_name_team_id(self, project_id, project_name, team_id=None, api_version="1.0"):
+    def update_project_name_team_id(self, project_id, project_name, team_id, api_version="1.0"):
         """
         REST API: update project name, team id
 
         Args:
             project_id (int):  consider using ProjectsAPI.get_project_id_by_name
             project_name (str, optional): Specifies the name of the project
-            team_id (int, str, optional): Specifies the Id of the team that owns the project
+            team_id (int, str): Specifies the Id of the team that owns the project
             api_version (str, optional):
 
         Returns:
@@ -367,9 +366,7 @@ class ProjectsAPI(object):
 
         return is_successful
 
-    def create_project_if_not_exists_by_project_name_and_team_full_name(
-            self, project_name, team_full_name=config.get("team_full_name")
-    ):
+    def create_project_if_not_exists_by_project_name_and_team_full_name(self, project_name, team_full_name):
         """
         create a project if it not exists by project name and a team full name
 
@@ -391,9 +388,7 @@ class ProjectsAPI(object):
 
         return project_id
 
-    def delete_project_if_exists_by_project_name_and_team_full_name(
-            self, project_name, team_full_name=config.get("team_full_name")
-    ):
+    def delete_project_if_exists_by_project_name_and_team_full_name(self, project_name, team_full_name):
         """
 
         Args:

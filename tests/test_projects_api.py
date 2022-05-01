@@ -13,6 +13,8 @@ from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import CustomTasksAPI
 
+team_full_name = "/CxServer"
+
 
 def test_get_all_project_details():
     projects_api = ProjectsAPI()
@@ -29,10 +31,10 @@ def test_create_project_with_default_configuration():
     projects_api = ProjectsAPI()
 
     project_name = "test1"
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name)
+    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name, team_full_name)
 
     team_api = TeamAPI()
-    team_id = team_api.get_team_id_by_team_full_name()
+    team_id = team_api.get_team_id_by_team_full_name(team_full_name)
     response = projects_api.create_project_with_default_configuration(project_name, team_id, True)
     assert response.id is not None
 
@@ -40,14 +42,14 @@ def test_create_project_with_default_configuration():
 def test_get_project_id_by_name():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     assert project_id is not None
 
 
 def test_get_project_details_by_id():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     project = projects_api.get_project_details_by_id(project_id)
     assert project.project_id is not None
 
@@ -55,20 +57,20 @@ def test_get_project_details_by_id():
 def test_update_project_by_id():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
 
     branched_project_name = "test_update"
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(branched_project_name)
-    team_id = TeamAPI().get_team_id_by_team_full_name()
+    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(branched_project_name, team_full_name)
+    team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name)
     result = projects_api.update_project_by_id(project_id, project_name=branched_project_name, team_id=team_id)
     assert result is True
 
 
 def test_update_project_name_team_id():
     projects_api = ProjectsAPI()
-    team_id = TeamAPI().get_team_id_by_team_full_name()
+    team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name)
     project_name = "test_update"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     result = projects_api.update_project_name_team_id(project_id, project_name="test1", team_id=team_id)
     assert result is True
 
@@ -76,17 +78,19 @@ def test_update_project_name_team_id():
 def test_delete_project_by_id():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    result = projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name)
+    result = projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name, team_full_name)
     assert result is True
 
 
 def test_create_branched_project():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(
+        project_name, team_full_name
+    )
 
     branched_project_name = "test-branch"
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(branched_project_name)
+    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(branched_project_name, team_full_name)
     branched_project = projects_api.create_branched_project(project_id, branched_project_name)
     assert branched_project is not None
 
@@ -116,7 +120,7 @@ def test_get_issue_tracking_system_details_by_id():
 def test_set_project_exclude_settings_by_project_id():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     exclude_folders_pattern = "docs,tests,example"
     exclude_files_pattern = "*.txt,*.doc, *.csv"
     result = projects_api.set_project_exclude_settings_by_project_id(project_id, exclude_folders_pattern,
@@ -127,7 +131,7 @@ def test_set_project_exclude_settings_by_project_id():
 def test_get_project_exclude_settings_by_project_id():
     projects_api = ProjectsAPI()
     project_name = "test1"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     exclude_settings = projects_api.get_project_exclude_settings_by_project_id(project_id)
     assert exclude_settings is not None
 
@@ -135,7 +139,8 @@ def test_get_project_exclude_settings_by_project_id():
 def test_set_remote_source_setting_to_git():
     projects_api = ProjectsAPI()
     project_name = "jvl_git"
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
     url = "https://github.com/HappyY19/Cx-REST-API-SDK-Python.git"
     branch = "refs/heads/master"
     private_key_content = None
@@ -149,7 +154,7 @@ def test_set_remote_source_setting_to_git():
 def test_get_remote_source_settings_for_git_by_project_id():
     projects_api = ProjectsAPI()
     project_name = "jvl_git"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     git_settings = projects_api.get_remote_source_settings_for_git_by_project_id(project_id)
     assert git_settings is not None
 
@@ -157,7 +162,8 @@ def test_get_remote_source_settings_for_git_by_project_id():
 def test_set_remote_source_settings_to_svn():
     projects_api = ProjectsAPI()
     project_name = "happy-svn"
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     absolute_url = "svn://123.207.221.18/spring-mybatis-dva/happy"
     port = 3690
@@ -171,7 +177,7 @@ def test_set_remote_source_settings_to_svn():
 def test_get_remote_source_settings_for_svn_by_project_id():
     projects_api = ProjectsAPI()
     project_name = "happy-svn"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     svn_settings = projects_api.get_remote_source_settings_for_svn_by_project_id(project_id)
     assert svn_settings is not None
 
@@ -179,7 +185,8 @@ def test_get_remote_source_settings_for_svn_by_project_id():
 def test_set_remote_source_settings_to_tfs():
     project_name = "tfs_test"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
     username = "dm\\tfs"
     password = "Tfs12345"
     absolute_url = "http://tfs2013/tfs/DefaultCollection"
@@ -196,7 +203,8 @@ def test_set_remote_source_settings_to_tfs():
 def test_get_remote_source_settings_for_tfs_by_project_id():
     project_name = "tfs_test"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
     tfs_settings = projects_api.get_remote_source_settings_for_tfs_by_project_id(project_id)
     assert tfs_settings is not None
 
@@ -204,7 +212,8 @@ def test_get_remote_source_settings_for_tfs_by_project_id():
 def test_set_remote_source_setting_for_custom_by_project_id():
     project_name = "JVL-source-pulling"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
     # path = "\\\\Localhost\\c$\\\\Users\\HappyY\\Downloads\\SourceCode\\MyLocal\\Cx\\Repo"
     path = r"\\WIN-4MUJCQQ4KNT\Users\Administrator\Downloads\CxShare\sample"
     # Path should not be local
@@ -222,7 +231,7 @@ def test_set_remote_source_setting_for_custom_by_project_id():
 def test_get_remote_source_settings_for_custom_by_project_id():
     project_name = "JVL-source-pulling"
     projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     custom_source_setting = projects_api.get_remote_source_settings_for_custom_by_project_id(project_id)
     assert custom_source_setting is not None
 
@@ -230,7 +239,8 @@ def test_get_remote_source_settings_for_custom_by_project_id():
 def test_set_remote_source_settings_to_shared():
     project_name = "jvl-shared"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     paths = [r'\\WIN-4MUJCQQ4KNT\Users\Administrator\Downloads\CxShare\JavaVulnerableLab-master']
 
@@ -244,7 +254,7 @@ def test_set_remote_source_settings_to_shared():
 def test_get_remote_source_settings_for_shared_by_project_id():
     project_name = "jvl-shared"
     projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
 
     shared_source_setting = projects_api.get_remote_source_settings_for_shared_by_project_id(project_id)
     assert shared_source_setting is not None
@@ -253,7 +263,8 @@ def test_get_remote_source_settings_for_shared_by_project_id():
 def test_set_remote_source_settings_to_perforce():
     project_name = "perforce_test"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     username = "cx"
     password = "cx123456"
@@ -270,7 +281,8 @@ def test_set_remote_source_settings_to_perforce():
 def test_get_remote_source_settings_for_perforce_by_project_id():
     project_name = "perforce_test"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     perforce_settings = projects_api.get_remote_source_settings_for_perforce_by_project_id(project_id)
     assert perforce_settings is not None
@@ -279,7 +291,8 @@ def test_get_remote_source_settings_for_perforce_by_project_id():
 def test_set_remote_source_setting_to_git_using_ssh():
     project_name = "git-ssh"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     url = "git@github.com:HappyY19/Cx-REST-API-SDK-Python.git"
     branch = "refs/heads/master"
@@ -291,7 +304,8 @@ def test_set_remote_source_setting_to_git_using_ssh():
 def test_set_remote_source_setting_to_svn_using_ssh():
     project_name = "svn-ssh"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     absolute_url = "svn+ssh://cx@10.32.3.91/testrepo"
     port = 3690
@@ -306,7 +320,8 @@ def test_set_remote_source_setting_to_svn_using_ssh():
 def test_upload_source_code_zip_file():
     project_name = "JVL_local_zip"
     projects_api = ProjectsAPI()
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
+                                                                                              team_full_name)
 
     file_name = "JavaVulnerableLab-master.zip"
 
@@ -318,7 +333,7 @@ def test_upload_source_code_zip_file():
 def test_set_data_retention_settings_by_project_id():
     project_name = "JVL_local_zip"
     projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
 
     result = projects_api.set_data_retention_settings_by_project_id(project_id, 20)
     assert result is True
@@ -327,7 +342,7 @@ def test_set_data_retention_settings_by_project_id():
 def test_set_issue_tracking_system_as_jira_by_id():
     project_name = "JVL_local_zip"
     projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
 
     issue_tracking_system_id = 1
     jira_project_id = None
@@ -349,7 +364,7 @@ def test_get_all_preset_details():
 
 def test_get_preset_id_by_name():
     projects_api = ProjectsAPI()
-    preset_name = "TestJava"
+    preset_name = "Checkmarx Default"
     preset_id = projects_api.get_preset_id_by_name(preset_name)
     assert preset_id is not None
 
@@ -365,7 +380,7 @@ def test_get_preset_details_by_preset_id():
 def test_set_project_queue_setting():
     project_name = "jvl_git"
     projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     is_successful = projects_api.set_project_queue_setting(
         project_id=project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
         include_scans_in_process=False, identical_code_only=False)
@@ -375,7 +390,7 @@ def test_set_project_queue_setting():
 def test_update_project_queue_setting():
     project_name = "jvl_git"
     projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     is_successful = projects_api.update_project_queue_setting(
         project_id=project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
         include_scans_in_process=False, identical_code_only=False)
