@@ -16,14 +16,16 @@ class CreateReportDTO(object):
                                     4 for Single Team Template;
                                     5 for Multi Teams Template;
                                     6 for Application Template
+                                    7 for Executive Template
             output_format (str): Format of the report to be generated. Is not case sensitive.
             entity_id (list of str):
                             Unique ID.
                             For the Scan template: Scan Id;
                             For the Project template: Project Id;
                             For the Single Team template: Team full name;
-                            For the Multiple Teams template: list of Teams full name splitted by comma;
-                            For the application template: list of project Id splitted by comma
+                            For the Multiple Teams template: list of Teams full name split by comma;
+                            For the application template: list of project Id split by comma
+                            For the executive template: list of teams full name split by comma
             report_name (str):  maxLength: 150 nullable: true
                             "Report Name",  Name of the report to be generated. The service generates automatically a
                             report Id that will be concatenated with the specified report name
@@ -48,7 +50,7 @@ class CreateReportDTO(object):
                 if not isinstance(a_filter, FilterDTO):
                     raise ValueError("all filters should be FilterDTO")
 
-        if not (1 <= template_id <= 6):
+        if not (1 <= template_id <= 7):
             raise ValueError("parameter template_id not in range, minimum value 1, maximum value 6")
         if output_format.upper() not in ["PDF", "JSON"]:
             raise ValueError("parameter output_format should be either pdf or json")
