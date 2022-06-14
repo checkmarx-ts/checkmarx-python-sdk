@@ -151,3 +151,6 @@ All notable changes to this project will be documented in  this file.
 
 0.5.1 - 2022-03-23
 * Fix config file issue
+
+0.5.2 - 2022-05-01
+* Will not complain about missing config files only if names are non-empty 
