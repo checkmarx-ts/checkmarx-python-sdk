@@ -80,3 +80,15 @@ from .sastQueriesAuditAPI import (
 from .scannersResultsAPI import (
     get_all_scanners_results_by_scan_id,
 )
+
+from .kicsResultsAPI import (
+    get_kics_results_by_scan_id,
+)
+
+from .sastResultsAPI import (
+    get_sast_results_by_scan_id,
+)
+
+from .sastBestFixLocationAPI import (
+    get_bfl_graph_by_scan_id,
+)
