@@ -154,3 +154,6 @@ All notable changes to this project will be documented in  this file.
 
 0.5.2 - 2022-05-01
 * Will not complain about missing config files only if names are non-empty 
+
+0.5.3 - 2022-06-16
+* Add support for using keyring to get password from Windows Credential Manager
