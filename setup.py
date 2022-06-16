@@ -42,6 +42,7 @@ setup(
         "requests-toolbelt>=0.9.1",
         "zeep>=3.4.0",
         "python-dateutil>=2.8.2",
+        "keyring>=23.6.0",
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
