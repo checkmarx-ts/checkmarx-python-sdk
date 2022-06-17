@@ -1,3 +1,4 @@
+import sys
 import os
 import json
 from os.path import normpath, join, exists
@@ -200,6 +201,10 @@ def get_password_from_keyring(section, username):
         str
     """
     import keyring
+    if sys.platform.startswith('win32'):
+        from keyring.backends import Windows
+        keyring.set_keyring(Windows.WinVaultKeyring())
+
     return keyring.get_password(section, username)
 
 
