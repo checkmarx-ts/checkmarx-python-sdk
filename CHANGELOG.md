@@ -160,3 +160,6 @@ All notable changes to this project will be documented in  this file.
 
 0.5.4 - 2022-06-17
 * Update setup.py
+
+0.5.5 - 2022-06-17
+* Fix NoKeyringError when using Keyring with PyInstaller
