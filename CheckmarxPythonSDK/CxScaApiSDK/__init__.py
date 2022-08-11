@@ -22,5 +22,9 @@ from .api import (
     generate_upload_link_for_scanning,
     upload_zip_content_for_scanning,
     scan_previously_uploaded_zip,
+    get_comments_associated_with_a_project,
+    comment_a_vulnerability_for_a_specific_package_and_project,
+    get_states_associated_with_a_project,
+    change_state_of_a_vulnerability_for_a_specific_package_and_project
 
 )

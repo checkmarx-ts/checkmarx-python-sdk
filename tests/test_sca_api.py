@@ -22,6 +22,10 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     generate_upload_link_for_scanning,
     upload_zip_content_for_scanning,
     scan_previously_uploaded_zip,
+    get_comments_associated_with_a_project,
+    comment_a_vulnerability_for_a_specific_package_and_project,
+    get_states_associated_with_a_project,
+    change_state_of_a_vulnerability_for_a_specific_package_and_project
 )
 
 project_name = "happy_test_2021_01_15"
@@ -190,3 +194,47 @@ def test_generate_upload_link_for_scanning():
     # test_scan_previously_uploaded_zip():
     scan_id = scan_previously_uploaded_zip(project_id=project_id, uploaded_file_url=upload_link)
     assert scan_id is not None
+
+
+def test_get_comments_associated_with_a_project():
+    project_id = get_project_id_by_name(project_name)
+    project_comments = get_comments_associated_with_a_project(project_id)
+    assert project_comments is not None
+
+
+def test_comment_a_vulnerability_for_a_specific_package_and_project():
+    project_id = get_project_id_by_name(project_name)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
+    vulnerabilities = get_vulnerabilities_of_a_scan(scan_id=scan_id)
+    vulnerability_id = vulnerabilities[0].get("id")
+    packages = get_packages_of_a_scan(scan_id=scan_id)
+    package_id = packages[0].get("id")
+    is_successful = comment_a_vulnerability_for_a_specific_package_and_project(
+        project_id=project_id,
+        vulnerability_id=vulnerability_id,
+        package_id=package_id,
+        comment="test_SDK"
+    )
+    assert is_successful is True
+
+
+def test_get_states_associated_with_a_project():
+    project_id = get_project_id_by_name(project_name)
+    project_states = get_states_associated_with_a_project(project_id)
+    assert project_states is not None
+
+
+def test_change_state_of_a_vulnerability_for_a_specific_package_and_project():
+    project_id = get_project_id_by_name(project_name)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
+    vulnerabilities = get_vulnerabilities_of_a_scan(scan_id=scan_id)
+    vulnerability_id = vulnerabilities[0].get("id")
+    packages = get_packages_of_a_scan(scan_id=scan_id)
+    package_id = packages[0].get("id")
+    is_successful = change_state_of_a_vulnerability_for_a_specific_package_and_project(
+        project_id=project_id,
+        vulnerability_id=vulnerability_id,
+        package_id=package_id,
+        state="NotExploitable"
+    )
+    assert is_successful is True
