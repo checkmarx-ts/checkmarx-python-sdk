@@ -63,7 +63,7 @@ def create_scan(scan_input):
     return __construct_scan(item)
 
 
-@deprecated(version='0.5.3', reason='Use get_a_list_of_scans instead')
+@deprecated(version='0.5.5', reason='Use get_a_list_of_scans instead')
 def get_a_list_of_scan(*args, **kwargs):
     """
     """
@@ -229,7 +229,7 @@ def get_the_config_as_code_template_file(file_name):
     return response.text
 
 
-@deprecated(version='0.5.3', reason='Use get_a_scan_by_id instead')
+@deprecated(version='0.5.5', reason='Use get_a_scan_by_id instead')
 def get_scan_by_id(scan_id):
     return get_a_scan_by_id(scan_id)
 
