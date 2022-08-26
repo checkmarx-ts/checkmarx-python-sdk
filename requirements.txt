@@ -1,4 +1,4 @@
-urllib3==1.26.9
+urllib3==1.26.12
 requests==2.28.1
 requests-toolbelt==0.9.1
 zeep==4.1.0
