@@ -1,6 +1,7 @@
 # encoding: utf-8
 import json
 
+from deprecated import deprecated
 from .httpRequests import get_request, post_request, put_request, delete_request, patch_request
 from ..compat import NO_CONTENT, CREATED
 from .utilities import (get_url_param, type_check, list_member_type_check)
@@ -62,7 +63,14 @@ def create_scan(scan_input):
     return __construct_scan(item)
 
 
-def get_a_list_of_scan(offset=0, limit=20, scan_ids=None, groups=None, tags_keys=None, tags_values=None,
+@deprecated(version='0.5.3', reason='Use get_a_list_of_scans instead')
+def get_a_list_of_scan(*args, **kwargs):
+    """
+    """
+    return get_a_list_of_scans(*args, **kwargs)
+
+
+def get_a_list_of_scans(offset=0, limit=20, scan_ids=None, groups=None, tags_keys=None, tags_values=None,
                        statuses=None, project_id=None, project_ids=None, source_type=None, source_origin=None,
                        from_date=None, sort=None, field=None, search=None, to_date=None, project_names=None,
                        initiators=None, branch=None, branches=None):
@@ -221,7 +229,12 @@ def get_the_config_as_code_template_file(file_name):
     return response.text
 
 
+@deprecated(version='0.5.3', reason='Use get_a_scan_by_id instead')
 def get_scan_by_id(scan_id):
+    return get_a_scan_by_id(scan_id)
+
+
+def get_a_scan_by_id(scan_id):
     """
     Get details about a specific scan, including the current status of the scan.
     Args:
