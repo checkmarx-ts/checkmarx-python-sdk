@@ -18,7 +18,8 @@ def test_team():
     team_id = team_api.get_team_id_by_team_full_name("/CxServer")
     assert team_id is not None
 
+
 def test_get_team_id_by_team_full_name():
     team_api = TeamAPI()
-    team_id = team_api.get_team_id_by_team_full_name(r"CxServer\SP\Company")
+    team_id = team_api.get_team_id_by_team_full_name(r"CxServer")
     assert team_id is not None

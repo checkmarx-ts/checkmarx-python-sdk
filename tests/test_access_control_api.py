@@ -1,36 +1,35 @@
-
-
+import pytest
 from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
+from CheckmarxPythonSDK.utilities.CxError import BadRequestError
 
 
 def test_get_all_assignable_users():
     ac = AccessControlAPI()
     resp = ac.get_all_assignable_users()
-    assert resp is not None
-    if list(resp):
-        user = resp[0]
-        assert user.id == 1
+    assert len(resp) > 0
 
 
 def test_get_all_authentication_providers():
     ac = AccessControlAPI()
     resp = ac.get_all_authentication_providers()
-    assert resp is not None
-    if list(resp):
-        provider = resp[0]
-        assert provider.id == 1
+    assert len(resp) > 0
 
 
 def test_submit_first_admin_user():
     ac = AccessControlAPI()
-    resp = ac.submit_first_admin_user("dd", "Password01!", "Alex", "Smith", "alex.smith@test.com")
-    assert resp is not None
+    with pytest.raises(BadRequestError):
+        ac.submit_first_admin_user("dd", "DummyPassword0#*)", "Alex", "Smith", "alex.smith@test.com")
 
 
 def test_get_admin_user_exists_confirmation():
     ac = AccessControlAPI()
     resp = ac.get_admin_user_exists_confirmation()
     assert resp is True
+
+
+"""
+Skip LDAP methods Testing for now. Test these methods when the LDAP environment ready.
+"""
 
 
 def test_get_all_ldap_role_mapping():
@@ -42,7 +41,7 @@ def test_get_all_ldap_role_mapping():
 def test_get_my_profile():
     ac = AccessControlAPI()
     resp = ac.get_my_profile()
-    assert resp is not None
+    assert resp.username is not None
 
 
 def test_update_my_profile():
@@ -50,17 +49,22 @@ def test_update_my_profile():
     first_name = "test"
     last_name = "test"
     email = "test@test.com"
-    phone_number = "153"
-    cell_phone_number = "2332"
-    job_title = "something"
+    phone_number = "123456"
+    cell_phone_number = "123456"
+    job_title = "software developer"
     other = ""
-    country = "China"
-    locale_id = 7
+    country = "USA"
+    locale_id = 1
     resp = ac.update_my_profile(first_name=first_name, last_name=last_name, email=email, phone_number=phone_number,
                                 cell_phone_number=cell_phone_number, job_title=job_title, other=other, country=country,
                                 locale_id=locale_id)
     assert resp is True
 
+
+def test_get_all_oidc_clients():
+    ac = AccessControlAPI()
+    oidc_clients = ac.get_all_oidc_clients()
+    assert len(oidc_clients) > 0
 
 def test_get_all_permissions():
     ac = AccessControlAPI()
@@ -135,16 +139,16 @@ def test_create_new_saml_identity_provider():
 
     certificate_file_path = \
         r"C:\Users\HappyY\Documents\Checkmarx\CxSAST\Integration\SAML Integration\SAML Integration CER Files\test.cer"
-    active = "true"
+    active = True
     name = "CxSAML"
     issuer = "test1"
     login_url = 'https://srvl.idpname.com/app/checkmarxdev/sso/saml'
     logout_url = None
     error_url = None
-    sign_authn_request = "true"
+    sign_authn_request = True
     authn_request_binding = "HTTP-Redirect"
-    is_manual_management = "true"
-    default_team_id = "4"
+    is_manual_management = True
+    default_team_id = 1
     default_role_id = "1021"
 
     is_successful = ac.create_new_saml_identity_provider(
@@ -363,7 +367,7 @@ def test_delete_a_member_from_a_team():
 
 def test_get_all_teams():
     ac = AccessControlAPI()
-    resp = ac.get_all_teams()
+    resp = ac.get_all_teams
     assert resp is not None
 
 

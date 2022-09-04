@@ -17,7 +17,9 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
 project_name = "jvl_git"
 scans_api = ScansAPI()
 projects_api = ProjectsAPI()
-project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name=project_name)
+project_id = projects_api.get_project_id_by_project_name_and_team_full_name(
+    project_name=project_name, team_full_name="/CxServer"
+)
 
 
 def test_get_top_n_projects_by_risk_score():

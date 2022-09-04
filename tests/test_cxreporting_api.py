@@ -38,7 +38,7 @@ def check_report_generation_status_and_write_to_file(report_request, report_name
 def test_create_a_new_report_with_application_template_pdf():
     template_id = 6
     output_format = "PDF"
-    entity_id = ["2", "3", "5"]
+    entity_id = ["22", "20", "5"]
     report_name = "application_pdf"
     filters = [
         FilterDTO(

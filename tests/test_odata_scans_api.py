@@ -14,7 +14,9 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
 
 project_name = "jvl_git"
 projects_api = ProjectsAPI()
-project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name=project_name)
+project_id = projects_api.get_project_id_by_project_name_and_team_full_name(
+    project_name=project_name, team_full_name="/CxServer"
+)
 
 
 def test_get_all_data_for_a_specific_scan_id():
@@ -81,7 +83,7 @@ def test_get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for
 def test_get_the_state_of_each_scan_result_since_a_specific_date_for_a_project():
 
     r = get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(project_id=project_id,
-                                                                              start_date='2020-01-01')
+                                                                              start_date='2019-01-01')
 
     assert r is not None
 

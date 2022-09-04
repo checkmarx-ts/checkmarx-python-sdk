@@ -23,8 +23,8 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     upload_zip_content_for_scanning,
     scan_previously_uploaded_zip,
 )
-
-project_name = "happy_test_2021_01_15"
+from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
+project_name = "test_sca_2021_01_18"
 
 
 def test_get_all_projects():
@@ -38,14 +38,14 @@ def test_check_if_project_already_exists():
     assert exist_status is False
 
 
-def test_get_project_by_name():
-    project = get_all_projects(project_name=project_name)
-    assert project is not None
-
-
 def test_create_a_new_project():
     project = create_a_new_project(project_name=project_name)
     assert project.get("id") is not None
+
+
+def test_get_project_by_name():
+    project = get_all_projects(project_name=project_name)
+    assert project is not None
 
 
 def test_get_project_id_by_name():
@@ -190,3 +190,10 @@ def test_generate_upload_link_for_scanning():
     # test_scan_previously_uploaded_zip():
     scan_id = scan_previously_uploaded_zip(project_id=project_id, uploaded_file_url=upload_link)
     assert scan_id is not None
+
+
+def test_sca_access_control_api():
+
+    access_control = AccessControlAPI()
+    all_users = access_control.get_all_users()
+    pass
