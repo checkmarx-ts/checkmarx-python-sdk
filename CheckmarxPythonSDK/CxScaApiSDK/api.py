@@ -1,9 +1,7 @@
-
 import json
-import requests
-
 from .httpRequests import get_request, post_request, put_request, delete_request
-from ..compat import NO_CONTENT, OK
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
+from CheckmarxPythonSDK.utilities.httpRequests import put
 
 
 def get_all_projects(project_name=None):
@@ -43,7 +41,8 @@ def get_all_projects(project_name=None):
     if project_name:
         url += "?name={project_name}".format(project_name=project_name)
 
-    return get_request(url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def check_if_project_already_exists(project_name):
@@ -128,7 +127,8 @@ def get_project_by_id(project_id):
 
     """
     url = "/risk-management/projects/{id}".format(id=project_id)
-    return get_request(url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def update_project(project_id, project_name=None, assigned_teams=None):
@@ -140,9 +140,9 @@ def update_project(project_id, project_name=None, assigned_teams=None):
         assigned_teams (list of str):
 
     Returns:
-        is_successful (bool)
+        bool
     """
-    is_successful = False
+    result = False
     url = "/risk-management/projects/{id}".format(id=project_id)
     data = {}
     if project_name:
@@ -153,8 +153,8 @@ def update_project(project_id, project_name=None, assigned_teams=None):
     data = json.dumps(data)
     response = put_request(relative_url=url, data=data)
     if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
+        result = True
+    return result
 
 
 def delete_project(project_id):
@@ -164,14 +164,14 @@ def delete_project(project_id):
         project_id (str):
 
     Returns:
-        is_successful (bool)
+        bool
     """
-    is_successful = False
+    result = False
     url = "/risk-management/projects/{id}".format(id=project_id)
     response = delete_request(relative_url=url)
     if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
+        result = True
+    return result
 
 
 def get_all_scans_associated_with_a_project(project_id):
@@ -250,7 +250,8 @@ def get_all_scans_associated_with_a_project(project_id):
             ]
     """
     url = "/risk-management/scans?projectId={project_id}".format(project_id=project_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_latest_scan_id_of_a_project(project_id):
@@ -345,7 +346,8 @@ def get_scan_by_id(scan_id):
         }
     """
     url = "/risk-management/scans/{scanId}".format(scanId=scan_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_scan_status(scan_id):
@@ -360,7 +362,8 @@ def get_scan_status(scan_id):
         sample: {'name': 'Done', 'message': None}
     """
     url = "/risk-management/scans/{scanId}/status".format(scanId=scan_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_scan_settings(scan_id):
@@ -380,7 +383,8 @@ def get_scan_settings(scan_id):
             }
     """
     url = "/risk-management/scans/{scanId}/settings".format(scanId=scan_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_risk_report_summary(project_id=None, size=10):
@@ -431,7 +435,8 @@ def get_risk_report_summary(project_id=None, size=10):
     if optionals:
         url += "?" + "&".join(optionals)
 
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_packages_of_a_scan(scan_id):
@@ -593,7 +598,8 @@ def get_packages_of_a_scan(scan_id):
 
     """
     url = "/risk-management/risk-reports/{scanId}/packages".format(scanId=scan_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_vulnerabilities_of_a_scan(scan_id):
@@ -656,7 +662,8 @@ def get_vulnerabilities_of_a_scan(scan_id):
             ]
     """
     url = "/risk-management/risk-reports/{scanId}/vulnerabilities".format(scanId=scan_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def get_licenses_of_a_scan(scan_id):
@@ -685,7 +692,8 @@ def get_licenses_of_a_scan(scan_id):
         ]
     """
     url = "/risk-management/risk-reports/{scanId}/licenses".format(scanId=scan_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def ignore_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id):
@@ -753,7 +761,8 @@ def get_settings_for_a_specific_project(project_id):
         {'enableExploitablePath': False}
     """
     url = "/risk-management/settings/projects/{projectId}".format(projectId=project_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def update_settings_for_a_specific_project(project_id, enable_exploitable_path):
@@ -814,7 +823,7 @@ def upload_zip_content_for_scanning(upload_link, zip_file_path):
     url = "{uploadLink}".format(uploadLink=upload_link)
 
     with open(zip_file_path, 'rb') as data:
-        response = requests.put(url=url, data=data)
+        response = put(url=url, data=data)
         if response.status_code == OK:
             is_successful = True
 

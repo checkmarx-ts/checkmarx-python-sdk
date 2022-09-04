@@ -1,119 +1,50 @@
-import requests
 from .config import config
-from . import authHeaders
-from ..compat import (OK, UNAUTHORIZED, NO_CONTENT, CREATED)
+from CheckmarxPythonSDK.utilities.httpRequests import build_request_funcs, check_response
 
 
-def retry_when_unauthorized(func):
-    """
-
-    Args:
-        func (function)
-
-    Returns:
-        function
-    """
-    def retry(*args, **kwargs):
-        max_try = 3
-
-        response = func(*args, **kwargs)
-
-        while max_try > 0:
-            if response.status_code != UNAUTHORIZED:
-                break
-            authHeaders.update_auth_headers()
-            response = func(*args, **kwargs)
-            max_try -= 1
-
-        return response
-    return retry
+def get_data_from_config():
+    server_url = config.get("server")
+    token_url = config.get("access_control_url") + "/identity/connect/token"
+    timeout = config.get("timeout")
+    verify_ssl_cert = config.get("verify")
+    cert = config.get("cert")
+    username = config.get("username")
+    password = config.get("password")
+    account = config.get("account")
+    scope = config.get("scope")
+    token_req_data = {
+        "username": username,
+        "password": password,
+        "acr_values": "Tenant:" + account,
+        "grant_type": "password",
+        "scope": scope,
+        "client_id": "sca_resource_owner",
+    }
+    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
 
 
-def get_value_from_response(func):
-    def inner(*args, **kwargs):
-        return func(*args, **kwargs).json()
-    return inner
+get, post, put, _, delete = build_request_funcs(get_data_from_config)
 
 
-def http_get(relative_url):
-    url = config.get("server") + relative_url
-    response = requests.get(
-        url=url,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-
-    if response.status_code not in [OK, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
-    return response
-
-
-def http_post(relative_url, data):
-    url = config.get("server") + relative_url
-    response = requests.post(
-        url=url,
-        data=data,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-
-    if response.status_code not in [OK, CREATED, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
-
-    return response
-
-
-def http_put(relative_url, data, headers=None):
-
-    if not headers:
-        headers = authHeaders.auth_headers
-
-    url = config.get("server") + relative_url
-    response = requests.put(
-        url=url,
-        data=data,
-        headers=headers,
-        verify=False
-    )
-    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
-    return response
-
-
-def http_delete(relative_url):
-    url = config.get("server") + relative_url
-    response = requests.delete(
-        url=url,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-
-    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
-
-    return response
-
-
-@get_value_from_response
-@retry_when_unauthorized
 def get_request(relative_url):
-    return http_get(relative_url)
+    response = get(relative_url)
+    check_response(response)
+    return response
 
 
-@retry_when_unauthorized
 def post_request(relative_url, data):
-    return http_post(relative_url, data)
+    response = post(relative_url, data)
+    check_response(response)
+    return response
 
 
-@retry_when_unauthorized
-def put_request(relative_url, data, headers=None):
-    return http_put(relative_url, data, headers)
+def put_request(relative_url, data):
+    response = put(relative_url, data)
+    check_response(response)
+    return response
 
 
-@retry_when_unauthorized
-def delete_request(relative_url):
-    return http_delete(relative_url)
+def delete_request(relative_url, data=None):
+    response = delete(relative_url, data)
+    check_response(response)
+    return response
