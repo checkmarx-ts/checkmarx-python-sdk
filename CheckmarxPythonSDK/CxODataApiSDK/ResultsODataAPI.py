@@ -43,13 +43,9 @@ def get_the_query_that_was_run_for_a_particular_unique_scan_result(result_id, sc
     Returns:
         str
     """
-    url = ("/Cxwebinterface/odata/v1/Results(Id={id},ScanId={ScanId})"
-           "?$expand=Query($select=Name)").format(
-        id=result_id,
-        ScanId=scan_id
-    )
-
-    query_list = get_request(relative_url=url)
+    relative_url = "/Cxwebinterface/odata/v1/Results(Id={id},ScanId={ScanId})".format(id=result_id, ScanId=scan_id)
+    relative_url += "?$expand=Query($select=Name)"
+    query_list = get_request(relative_url=relative_url)
 
     if not query_list:
         return None
@@ -82,16 +78,14 @@ def get_results_for_a_specific_scan_id_with_query_language_state(scan_id, filter
         ]
     """
     # have to put ScanId in url, otherwise would have deserialization error
-    url = ("/Cxwebinterface/odata/v1/Scans({id})/Results?$select=Id,ScanId,QueryId,SimilarityId,PathId"
-           "&$expand=Query($select=Name;$expand=QueryGroup($select=Name,"
-           "LanguageName)),State($select=Name),Scan($select=Origin,LOC)").format(
-        id=scan_id
-    )
+    relative_url = "/Cxwebinterface/odata/v1/Scans({id})/Results".format(id=scan_id)
+    relative_url += "?$select=Id,ScanId,QueryId,SimilarityId,PathId&$expand=Query($select=Name;"
+    relative_url += "$expand=QueryGroup($select=Name,LanguageName)),State($select=Name),Scan($select=Origin,LOC)"
 
     if filter_false_positive:
-        url += "&$filter=State/Id eq 1 or State/Id eq 4"
+        relative_url += "&$filter=State/Id eq 1 or State/Id eq 4"
 
-    item_list = get_request(relative_url=url)
+    item_list = get_request(relative_url=relative_url)
 
     results = [
         {
