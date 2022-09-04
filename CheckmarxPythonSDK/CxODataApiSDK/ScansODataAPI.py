@@ -149,10 +149,10 @@ def get_last_full_scan_id_of_a_project(project_id):
     Returns:
         scan_id (int)
     """
-    url = ("/Cxwebinterface/odata/v1/Projects({id})/Scans"
-           "?$filter=IsIncremental%20eq%20false&$orderby=Id%20desc&$top=1&select=Id").format(id=project_id)
+    relative_url = "/Cxwebinterface/odata/v1/Projects({id})/Scans".format(id=project_id)
+    relative_url += "?$filter=IsIncremental%20eq%20false&$orderby=Id%20desc&$top=1&select=Id"
 
-    ids = get_request(relative_url=url)
+    ids = get_request(relative_url=relative_url)
 
     if not ids:
         return None
@@ -185,10 +185,10 @@ def get_last_full_scan_of_a_project(project_id):
         'StatisticsUpToDate': 1, 'IsPublic': True, 'IsLocked': False
         }
     """
-    url = ("/Cxwebinterface/odata/v1/Projects({id})/Scans"
-           "?$filter=IsIncremental%20eq%20false&$orderby=Id%20desc&$top=1").format(id=project_id)
+    relative_url = "/Cxwebinterface/odata/v1/Projects({id})/Scans".format(id=project_id)
+    relative_url += "?$filter=IsIncremental%20eq%20false&$orderby=Id%20desc&$top=1"
     
-    scan_data_list = get_request(relative_url=url)
+    scan_data_list = get_request(relative_url=relative_url)
 
     if not scan_data_list:
         return None
@@ -227,15 +227,11 @@ def get_all_scans_within_a_predefined_time_range_and_their_h_m_l_values_for_a_pr
              }]
     """
 
-    url = ("/Cxwebinterface/odata/v1/Projects({id})/Scans?"
-           "$filter=ScanRequestedOn%20gt%20{start_date}%20and"
-           "%20ScanRequestedOn%20lt%20{end_date}"
-           "&$select=Id,ScanRequestedOn,High,Medium,Low"
-           "&$orderby=ScanRequestedOn%20desc").format(
-        id=project_id, start_date=start_date, end_date=end_date
-    )
-
-    return get_request(relative_url=url)
+    relative_url = "/Cxwebinterface/odata/v1/Projects({id})/Scans?".format(id=project_id)
+    relative_url += "$filter=ScanRequestedOn%20gt%20{start_date}%20and".format(start_date=start_date)
+    relative_url += "%20ScanRequestedOn%20lt%20{end_date}".format(end_date=end_date)
+    relative_url += "&$select=Id,ScanRequestedOn,High,Medium,Low&$orderby=ScanRequestedOn%20desc"
+    return get_request(relative_url=relative_url)
 
 
 def get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(project_id, start_date):
@@ -275,20 +271,19 @@ def get_the_state_of_each_scan_result_since_a_specific_date_for_a_project(projec
         }]
     """
 
-    url = ("/Cxwebinterface/odata/v1/Scans?"
-           "$filter=ProjectId%20eq%20{id}%20and"
-           "%20ScanRequestedOn%20gt%20{start_date}"
-           "&$expand=Results($expand=State;$select=Id,ScanId,StateId)").format(
-        id=project_id, start_date=start_date
-    )
-
-    item_list = get_request(relative_url=url)
+    relative_url = "/Cxwebinterface/odata/v1/Scans?"
+    relative_url += "$filter=ProjectId%20eq%20{id}%20and".format(id=project_id)
+    relative_url += "%20ScanRequestedOn%20gt%20{start_date}".format(start_date=start_date)
+    relative_url += "&$expand=Results($expand=State;$select=Id,ScanId,StateId)"
+    item_list = get_request(relative_url=relative_url)
 
     for item in item_list:
-        item.pop('Results@odata.context')
+        if 'Results@odata.context' in item.keys():
+            item.pop('Results@odata.context')
         results = item.get('Results')
         for result in results:
-            result.pop('State@odata.context')
+            if 'State@odata.context' in result.keys():
+                result.pop('State@odata.context')
 
     return item_list
 
