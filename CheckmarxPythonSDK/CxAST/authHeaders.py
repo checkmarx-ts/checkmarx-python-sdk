@@ -1,7 +1,7 @@
 # encoding: utf-8
 import requests
 
-from ..compat import OK
+from CheckmarxPythonSDK.utilities.compat import OK
 from .config import config
 
 from urllib3 import disable_warnings
