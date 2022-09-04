@@ -9,7 +9,9 @@ from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
 def get_project_id(project_name="jvl_git"):
     projects_api = ProjectsAPI()
     project_name = project_name
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name)
+    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(
+        project_name, "/CxServer"
+    )
 
     return project_id
 
@@ -24,7 +26,8 @@ def test_create_new_scan():
     scan = scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
                                     custom_fields={"key1": "value1", "key2": "value2"},
                                     comment="scan from Python SDK", api_version="1.2")
-    assert scan is not None
+    scan_id = scan.id
+    assert scan_id > 1
 
 
 def test_get_all_scans_for_project():
@@ -32,7 +35,7 @@ def test_get_all_scans_for_project():
 
     scan_api = ScansAPI()
     all_scans = scan_api.get_all_scans_for_project(project_id, api_version="1.2")
-    assert all_scans is not None
+    assert len(all_scans) > 1
 
 
 def test_get_last_scan_id_of_a_project():
@@ -40,7 +43,7 @@ def test_get_last_scan_id_of_a_project():
 
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id)
-    assert scan_id is not None
+    assert scan_id > 1
 
 
 def test_get_sast_scan_details_by_scan_id():
@@ -57,7 +60,7 @@ def test_add_or_update_a_comment_by_scan_id():
 
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
-    result = scan_api.add_or_update_a_comment_by_scan_id(scan_id, "updated scan")
+    result = scan_api.add_or_update_a_comment_by_scan_id(scan_id, "updated scan comment")
     assert result is True
 
 
@@ -97,7 +100,6 @@ def test_update_queued_scan_status_by_scan_id():
     time.sleep(5)
     result = scan_api.update_queued_scan_status_by_scan_id(scan_id=scan.id)
     assert result is True
-    # TODO  check  why not can't deserialize scanRequest.status.id
 
 
 def test_get_all_scan_details_in_queue():
@@ -171,23 +173,6 @@ def test_assign_ticket_to_scan_results():
     is_successful = scan_api.assign_ticket_to_scan_results(results_id, ticket_id)
     assert is_successful is True
 
-#
-#
-# def test_publish_last_scan_results_to_management_and_orchestration_by_project_id():
-#     project_id = get_project_id()
-#     scan_api = ScansAPI()
-#     policy_finding_response = scan_api.publish_last_scan_results_to_management_and_orchestration_by_project_id(
-#         project_id)
-#     assert policy_finding_response is not None
-#
-#
-# def test_get_the_publish_last_scan_results_to_management_and_orchestration_status():
-#     project_id = get_project_id()
-#     scan_api = ScansAPI()
-#     policy_finding_status = scan_api.get_the_publish_last_scan_results_to_management_and_orchestration_status(
-#         project_id)
-#     assert policy_finding_status is not None
-
 
 def test_get_short_vulnerability_description_for_a_scan_result():
     """
@@ -224,18 +209,19 @@ def test_get_scan_results_of_a_specific_query():
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
-    query_version_code = 56089346
-    response = scan_api.get_scan_results_of_a_specific_query(scan_id, query_version_code)
-    pass
+    query_version_code = 56174104
+    results = scan_api.get_scan_results_of_a_specific_query(scan_id, query_version_code)
+    assert len(results) > 0
 
 
 def test_get_scan_results_for_a_specific_query_group_by_best_fix_location():
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
-    query_version_code = 56110529
-    response = scan_api.get_scan_results_for_a_specific_query_group_by_best_fix_location(scan_id, query_version_code)
-    pass
+    # stored_xss
+    query_version_code = 56174104
+    results = scan_api.get_scan_results_for_a_specific_query_group_by_best_fix_location(scan_id, query_version_code)
+    assert len(results) > 0
 
 
 def test_update_scan_result_labels_fields():
@@ -258,7 +244,7 @@ def test_create_new_scan_with_settings():
     scan_api = ScansAPI()
     preset_id = projects_api.get_preset_id_by_name("All")
     scan = scan_api.create_new_scan_with_settings(project_id=project_id, preset_id=preset_id,
-                                                  zipped_source_file_path="JavaVulnerableLab-master.zip",
+                                                  zipped_source_file_path="../JavaVulnerableLab-master.zip",
                                                   custom_fields={"some1": "baby2"},
                                                   api_version="1.2")
     assert scan is not None

@@ -323,7 +323,7 @@ def test_upload_source_code_zip_file():
     project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(project_name,
                                                                                               team_full_name)
 
-    file_name = "JavaVulnerableLab-master.zip"
+    file_name = "../JavaVulnerableLab-master.zip"
 
     zip_file_path = normpath(join(dirname(__file__), file_name))
     result = projects_api.upload_source_code_zip_file(project_id, zip_file_path)
