@@ -1,4 +1,4 @@
-from .configUtility import (
+from CheckmarxPythonSDK.utilities.configUtility import (
     get_config
 )
 
