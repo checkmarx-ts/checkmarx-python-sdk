@@ -56,7 +56,7 @@ def put_request(relative_url, data, headers=()):
 
 
 def patch_request(relative_url, data, headers=()):
-    response = put(relative_url, data=data, headers=headers)
+    response = patch(relative_url, data=data, headers=headers)
     check_response_status_code(response)
     return response
 

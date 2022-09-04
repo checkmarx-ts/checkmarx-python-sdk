@@ -2,10 +2,6 @@
 
 """
     tests.test_team
-
-    :copyright Checkmarx
-    :license MIT
-
 """
 
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
@@ -17,9 +13,7 @@ def test_team():
     assert len(teams) > 0
     team_id = team_api.get_team_id_by_team_full_name("/CxServer")
     assert team_id is not None
-
-
-def test_get_team_id_by_team_full_name():
-    team_api = TeamAPI()
-    team_id = team_api.get_team_id_by_team_full_name(r"CxServer")
-    assert team_id is not None
+    team_full_name = team_api.get_team_full_name_by_team_id(1)
+    assert team_full_name == "/CxServer"
+    new_team_id = team_api.create_team("Dagger Team", 1)
+    assert new_team_id > 1

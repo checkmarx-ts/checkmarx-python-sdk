@@ -268,7 +268,7 @@ class ScansAPI(object):
             CxError
         """
         result = False
-        relative_url = config.get("base_url") + "/cxrestapi/sast/scans/{id}".format(id=scan_id)
+        relative_url = "/cxrestapi/sast/scans/{id}".format(id=scan_id)
         patch_data = json.dumps(
             {
                 "comment": comment
