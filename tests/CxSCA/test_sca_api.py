@@ -183,7 +183,7 @@ def test_generate_upload_link_for_scanning():
     upload_link = generate_upload_link_for_scanning(project_id=project_id)
     assert upload_link is not None
     # test_upload_zip_content_for_scanning():
-    zip_file_path = r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk\examples\JavaVulnerableLab-master.zip"
+    zip_file_path = r"/examples/JavaVulnerableLab-master.zip"
     is_successful = upload_zip_content_for_scanning(upload_link, zip_file_path)
     assert is_successful is True
 
