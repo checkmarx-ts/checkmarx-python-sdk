@@ -94,7 +94,7 @@ def get_config_info_from_config_ini_file(section, option_list):
 
     def get_option(option):
         try:
-            if option in ["max_try"]:
+            if option in ["max_try", "timeout"]:
                 value = parser_obj.getint(section, option)
             elif option in ["verify"]:
                 value = parser_obj.getboolean(section, option)
@@ -108,7 +108,7 @@ def get_config_info_from_config_ini_file(section, option_list):
 
     if not exists(config_file_path) or not config_file_path.endswith(".ini"):
         if config_file_path:
-            print("config.ini file path not found: {path} ".format(path=config_file_path))
+            print("warning: config.ini file path not found: {path} ".format(path=config_file_path))
         return {}
 
     parser_obj = configparser.ConfigParser()
@@ -123,7 +123,7 @@ def get_config_info_from_config_json_file(section, option_list):
 
     if not exists(config_file_path) or not config_file_path.endswith(".json"):
         if config_file_path:
-            print("config.json file path not found: {path} ".format(path=config_file_path))
+            print("warning: config.json file path not found: {path} ".format(path=config_file_path))
         return {}
 
     with open(file=config_file_path, mode="r") as json_file:
@@ -146,7 +146,7 @@ def get_config_info_from_environment_variables(prefix, option_list):
     """
     def get_value(option):
         env_var = prefix + option
-        if option in ["max_try"]:
+        if option in ["max_try", "timeout"]:
             value = os.getenv(env_var)
             if value:
                 value = int(value)
@@ -154,6 +154,8 @@ def get_config_info_from_environment_variables(prefix, option_list):
             value = os.getenv(env_var)
             if value and value.lower() == "true":
                 value = True
+            else:
+                value = False
         else:
             value = os.getenv(env_var)
         return value
@@ -171,7 +173,7 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
     """
     def get_value(option):
         cli_var = prefix + option
-        if option in ["max_try"]:
+        if option in ["max_try", "timeout"]:
             value = options.__getattribute__(cli_var)
             if value:
                 value = int(value)
@@ -179,6 +181,8 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
             value = options.__getattribute__(cli_var)
             if value and value.lower() == "true":
                 value = True
+            else:
+                value = False
         else:
             value = options.__getattribute__(cli_var)
         return value
