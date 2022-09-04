@@ -1,6 +1,6 @@
 import time
 from .httpRequests import (get_request, post_request)
-from ..compat import (OK, CREATED)
+from CheckmarxPythonSDK.utilities.compat import (OK, CREATED)
 
 from .dto import (
     CreateReportDTO,
