@@ -1058,7 +1058,7 @@ class ScansAPI(object):
             CxCreateNewScanResponse
         """
         result = None
-        relative_url = config.get("base_url") + "/cxrestapi/sast/scanWithSettings"
+        relative_url = "/cxrestapi/sast/scanWithSettings"
         file_name = os.path.basename(zipped_source_file_path)
         if not os.path.exists(zipped_source_file_path):
             print("zipped_source_file_path not exist: {}".format(zipped_source_file_path))
@@ -1079,7 +1079,7 @@ class ScansAPI(object):
             }
         )
         headers = {"Content-Type": m.content_type}
-        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version).update(headers))
+        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == CREATED:
             a_dict = response.json()
             result = CxCreateNewScanResponse(

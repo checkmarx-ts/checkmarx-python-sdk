@@ -994,7 +994,7 @@ class ProjectsAPI(object):
             }
         )
         headers = {"Content-Type": m.content_type}
-        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version).update(headers))
+        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1036,7 +1036,7 @@ class ProjectsAPI(object):
             }
         )
         headers = {"Content-Type": m.content_type}
-        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version).update(headers))
+        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1068,7 +1068,7 @@ class ProjectsAPI(object):
             }
         )
         headers = {"Content-Type": m.content_type}
-        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version).update(headers))
+        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == NO_CONTENT:
             result = True
         return result

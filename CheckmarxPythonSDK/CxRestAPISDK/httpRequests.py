@@ -3,11 +3,14 @@ from CheckmarxPythonSDK.utilities.httpRequests import build_request_funcs, check
 from ..__version__ import __version__
 
 
-def get_headers(api_version="1.0"):
-    return {
+def get_headers(api_version="1.0", extra_header=None):
+    headers = {
         "cxOrigin": "Checkmarx Python SDK " + __version__,
         "Content-Type": "application/json;v={}".format(api_version),
     }
+    if extra_header and isinstance(extra_header, dict):
+        headers.update(extra_header)
+    return headers
 
 
 def get_data_from_config():

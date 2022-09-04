@@ -160,7 +160,7 @@ class OsaAPI(object):
         )
         headers = {"Content-Type": m.content_type}
         relative_url = "/cxrestapi/osa/scans" + "?projectId={project_id}".format(project_id=project_id)
-        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version).update(headers))
+        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == ACCEPTED:
             result = response.json().get("scanId")
         return result
