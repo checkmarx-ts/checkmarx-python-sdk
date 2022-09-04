@@ -626,7 +626,6 @@ def get_query_id_by_language_group_and_query_name(
         query_collection = [item for item in query_collection if item.get("LanguageName") in language]
 
     if isinstance(package_type_name, str):
-        assert package_type_name in ["Cx", "Corp"]
         query_collection = [item for item in query_collection if item.get("PackageTypeName") == package_type_name]
     elif isinstance(package_type_name, (list, tuple)):
         query_collection = [item for item in query_collection if item.get("PackageTypeName") in package_type_name]
