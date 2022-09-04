@@ -183,31 +183,38 @@ def get_new_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cer
     }
 
 
-def get_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cert=None, token_expired=False):
+def get_header_closure():
+    url = None
     auth_header = {
         "Authorization": None,
         "Accept": "application/json;v=1.0",
         "Content-Type": "application/json;v=1.0",
     }
 
-    def renew_header():
+    def inner_func(token_url, req_data, timeout=None, verify_ssl_cert=False, cert=None, token_expired=False):
+        nonlocal url
         nonlocal auth_header
-        if token_expired:
-            new_header = get_new_header(token_url, req_data, timeout, verify_ssl_cert, cert)
-            auth_header.update(new_header)
+        if not token_expired and token_url == url:
+            return auth_header
+        url = token_url
+        new_header = get_new_header(token_url, req_data, timeout, verify_ssl_cert, cert)
+        auth_header.update(new_header)
         return auth_header
 
-    return renew_header
+    return inner_func
+
+
+get_header_func = get_header_closure()
 
 
 def retry_when_unauthorized(function_to_send_request, data, get_data_from_config, relative_url, auth=None, headers=()):
     server_url, token_url, timeout, verify, cert, token_req_data = get_data_from_config()
     url = server_url + relative_url
-    origin_headers = get_header(token_url, token_req_data, timeout, verify, cert)()
+    origin_headers = get_header_func(token_url, token_req_data, timeout, verify, cert)
     origin_headers.update(headers)
     response = function_to_send_request(url, data, auth, timeout, origin_headers, verify=verify, cert=cert)
     if UNAUTHORIZED == response.status_code:
-        new_auth_header = get_header(token_url, token_req_data, timeout, verify, cert, token_expired=True)()
+        new_auth_header = get_header_func(token_url, token_req_data, timeout, verify, cert, token_expired=True)
         new_auth_header.update(headers)
         response = function_to_send_request(url, data, auth, timeout, new_auth_header, verify=verify, cert=cert)
     return response
