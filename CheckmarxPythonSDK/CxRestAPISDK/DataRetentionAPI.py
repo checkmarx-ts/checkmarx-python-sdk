@@ -1,18 +1,12 @@
 # encoding: utf-8
-import requests
+import json
 import datetime
 from dateutil.relativedelta import relativedelta
-
-from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, ACCEPTED
-from ..config import config
-
-from . import authHeaders
-from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .httpRequests import get_request, post_request, get_headers
+from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 from .sast.projects.dto import CxLink
 from .sast.dataRetention.dto import (
-    CxDefineDataRetentionNumberOfScansRequest,
     CxDefineDataRetentionResponse,
-    CxDefineDataRetentionDateRangeRequest,
     CxDataRetentionRequestStatus,
     CxDataRetentionRequestStatusStage
 )
@@ -22,11 +16,8 @@ class DataRetentionAPI(object):
     """
     data retention API
     """
-
-    def __init__(self):
-        self.retry = 0
-
-    def stop_data_retention(self, api_version="1.0"):
+    @staticmethod
+    def stop_data_retention(api_version="1.0"):
         """
         Stop the data retention (global)
         Args:
@@ -40,31 +31,15 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        stop_data_retention_url = config.get("base_url") + "/cxrestapi/sast/dataRetention/stop"
+        result = False
+        relative_url = "/cxrestapi/sast/dataRetention/stop"
+        response = post_request(relative_url=relative_url, data=None, headers=get_headers(api_version))
+        if response.status_code == ACCEPTED:
+            result = True
+        return result
 
-        r = requests.post(
-            url=stop_data_retention_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == ACCEPTED:
-            is_successful = True
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            is_successful = self.stop_data_retention(api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
-
-        self.retry = 0
-
-        return is_successful
-
-    def define_data_retention_date_range(self, start_date, end_date, duration_limit_in_hours, api_version="1.0"):
+    @staticmethod
+    def define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version="1.0"):
         """
         Define the global setting for data retention by date range
 
@@ -82,50 +57,30 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        data_retention = None
-
-        post_body_data = CxDefineDataRetentionDateRangeRequest(
-            start_date=start_date,
-            end_date=end_date,
-            duration_limit_in_hours=duration_limit_in_hours
-        ).get_post_data()
-
-        define_data_retention_date_range_url = config.get("base_url") + "/cxrestapi/sast/dataRetention/byDateRange"
-
-        r = requests.post(
-            url=define_data_retention_date_range_url,
-            data=post_body_data,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
+        result = None
+        relative_url = "/cxrestapi/sast/dataRetention/byDateRange"
+        post_data = json.dumps(
+            {
+                "startDate": start_date,
+                "endDate": end_date,
+                "durationLimitInHours": duration_limit_in_hours
+            }
         )
-
-        if r.status_code == ACCEPTED:
-            if r.text:
-                a_dict = r.json()
-                data_retention = CxDefineDataRetentionResponse(
+        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        if response.status_code == ACCEPTED:
+            if response.text:
+                a_dict = response.json()
+                result = CxDefineDataRetentionResponse(
                     data_retention_response_id=a_dict.get("id"),
                     link=CxLink(
                         rel=(a_dict.get("link", {}) or {}).get("rel"),
                         uri=(a_dict.get("link", {}) or {}).get("uri")
                     )
                 )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            data_retention = self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
-                                                                   api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return data_retention
-
-    def define_data_retention_by_number_of_scans(self, number_of_successful_scans_to_preserve, duration_limit_in_hours,
+    @staticmethod
+    def define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve, duration_limit_in_hours,
                                                  api_version="1.0"):
         """
         Define the global setting for the data retention by number of scans.
@@ -143,50 +98,29 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        data_retention = None
-        post_body_data = CxDefineDataRetentionNumberOfScansRequest(
-            number_of_successful_scans_to_preserve=number_of_successful_scans_to_preserve,
-            duration_limit_in_hours=duration_limit_in_hours
-        ).get_post_data()
-
-        define_data_retention_number_of_scans_url = config.get(
-            "base_url") + "/cxrestapi/sast/dataRetention/byNumberOfScans"
-
-        r = requests.post(
-            define_data_retention_number_of_scans_url,
-            data=post_body_data,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
+        result = None
+        relative_url = "/cxrestapi/sast/dataRetention/byNumberOfScans"
+        post_data = json.dumps(
+            {
+                "numOfSuccessfulScansToPreserve": number_of_successful_scans_to_preserve,
+                "durationLimitInHours": duration_limit_in_hours
+            }
         )
-
-        if r.status_code == ACCEPTED:
-            if r.text:
-                a_dict = r.json()
-                data_retention = CxDefineDataRetentionResponse(
+        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        if response.status_code == ACCEPTED:
+            if response.text:
+                a_dict = response.json()
+                result = CxDefineDataRetentionResponse(
                     data_retention_response_id=a_dict.get("id"),
                     link=CxLink(
                         rel=(a_dict.get("link", {}) or {}).get("rel"),
                         uri=(a_dict.get("link", {}) or {}).get("uri")
                     )
                 )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            data_retention = self.define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve,
-                                                                           duration_limit_in_hours,
-                                                                           api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return data_retention
-
-    def get_data_retention_request_status(self, request_id, api_version="1.0"):
+    @staticmethod
+    def get_data_retention_request_status(request_id, api_version="1.0"):
         """
         This one does not work!!!
         Get status details of a specific data retention request.
@@ -203,20 +137,12 @@ class DataRetentionAPI(object):
             NotFoundError
             CxError
         """
-        data_retention_request_status_url = config.get(
-            "base_url") + "/cxrestapi/sast/dataRetention/{requestId}/status".format(
-            requestId=request_id
-        )
-
-        r = requests.get(
-            url=data_retention_request_status_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-
-        if r.status_code == OK:
-            a_dict = r.json()
-            data_detention_request_status = CxDataRetentionRequestStatus(
+        result = None
+        relative_url = "/cxrestapi/sast/dataRetention/{requestId}/status".format(requestId=request_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            a_dict = response.json()
+            result = CxDataRetentionRequestStatus(
                 status_id=a_dict.get("id"),
                 stage=CxDataRetentionRequestStatusStage(
                     stage_id=(a_dict.get("stage", {}) or {}).get("id"),
@@ -227,22 +153,10 @@ class DataRetentionAPI(object):
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            data_detention_request_status = self.get_data_retention_request_status(request_id, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return data_detention_request_status
-
-    def define_data_retention_by_rolling_date(self, num_days, duration_limit_in_hours, api_version="1.0"):
+    @staticmethod
+    def define_data_retention_by_rolling_date(num_days, duration_limit_in_hours, api_version="1.0"):
         """
 
         Args:
@@ -260,9 +174,11 @@ class DataRetentionAPI(object):
         end_date = datetime.date.today() - time_delta
         end_date = end_date.strftime("%Y-%m-%d")
 
-        return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)
+        return DataRetentionAPI.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
+                                                                 api_version)
 
-    def define_data_retention_by_rolling_months(self, num_months, duration_limit_in_hours, api_version="1.0"):
+    @staticmethod
+    def define_data_retention_by_rolling_months(num_months, duration_limit_in_hours, api_version="1.0"):
         """
 
         Args:
@@ -280,4 +196,5 @@ class DataRetentionAPI(object):
         end_date = the_last_day_of_this_month - relativedelta(months=num_months) + relativedelta(day=31)
         end_date = end_date.strftime("%Y-%m-%d")
 
-        return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)
+        return DataRetentionAPI.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
+                                                                 api_version)

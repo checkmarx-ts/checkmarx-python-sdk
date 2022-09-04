@@ -14,8 +14,10 @@ config_default = {
     "configuration": "Default Configuration",
     "team_full_name": "/CxServer",
     "max_try": 3,
+    "report_folder": None,
+    "timeout": 20,
     "verify": False,
-    "report_folder": None
+    "cert": None,
 }
 
 config = get_config(config_default=config_default, section="checkmarx", prefix="cxsast_")

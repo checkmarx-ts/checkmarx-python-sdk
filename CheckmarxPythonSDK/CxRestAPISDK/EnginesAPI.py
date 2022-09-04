@@ -1,25 +1,17 @@
 # encoding: utf-8
-
-import requests
-
-from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, NO_CONTENT, CREATED
-from ..config import config
-
-from . import authHeaders
-from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+import json
+from .httpRequests import get_request, post_request, put_request, patch_request, delete_request, get_headers
+from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
 from .sast.projects.dto import CxLink
-from .sast.engines.dto import (CxRegisterEngineRequestBody, CxEngineServer, CxEngineConfiguration, CxEngineServerStatus)
+from .sast.engines.dto import (CxEngineServer, CxEngineConfiguration, CxEngineServerStatus)
 
 
 class EnginesAPI(object):
     """
     engines API
     """
-
-    def __init__(self):
-        self.retry = 0
-
-    def get_all_engine_server_details(self, api_version="1.0"):
+    @staticmethod
+    def get_all_engine_server_details(api_version="1.0"):
         """
         GET /sast/engineServers Gets details of all Engine Servers
         Args:
@@ -33,16 +25,11 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_servers_url = config.get("base_url") + "/cxrestapi/sast/engineServers"
-
-        r = requests.get(
-            url=engine_servers_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_list = r.json()
-            all_engine_server_details = [
+        result = None
+        relative_url = "/cxrestapi/sast/engineServers"
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = [
                 CxEngineServer(
                     engine_server_id=item.get("id"),
                     name=item.get("name"),
@@ -59,24 +46,12 @@ class EnginesAPI(object):
                         rel=(item.get("link", {}) or {}).get("rel"),
                         uri=(item.get("link", {}) or {}).get("uri")
                     )
-                ) for item in a_list
+                ) for item in response.json()
             ]
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            all_engine_server_details = self.get_all_engine_server_details(api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return all_engine_server_details
-
-    def get_engine_id_by_name(self, engine_name):
+    @staticmethod
+    def get_engine_id_by_name(engine_name):
         """
 
         Args:
@@ -85,11 +60,12 @@ class EnginesAPI(object):
         Returns:
             int: engine id
         """
-        all_engine_servers = self.get_all_engine_server_details()
+        all_engine_servers = EnginesAPI.get_all_engine_server_details()
         a_dict = {item.name: item.id for item in all_engine_servers}
         return a_dict.get(engine_name)
 
-    def register_engine(self, name, uri, min_loc, max_loc, is_blocked, max_scans, api_version="1.0"):
+    @staticmethod
+    def register_engine(name, uri, min_loc, max_loc, is_blocked, max_scans, api_version="1.0"):
         """
         POST  /sast/engineServers  Registers an Engine Server
         Args:
@@ -109,49 +85,32 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        post_request_body = CxRegisterEngineRequestBody(
-            name=name,
-            uri=uri,
-            min_loc=min_loc,
-            max_loc=max_loc,
-            is_blocked=is_blocked,
-            max_scans=max_scans
-        ).get_post_data()
-
-        engine_servers_url = config.get("base_url") + "/cxrestapi/sast/engineServers"
-
-        r = requests.post(
-            engine_servers_url,
-            data=post_request_body,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
+        result = None
+        post_data = json.dumps(
+            {
+                "name": name,
+                "uri": uri,
+                "minLoc": min_loc,
+                "maxLoc": max_loc,
+                "isBlocked": is_blocked,
+                "maxScans": max_scans
+            }
         )
-
-        if r.status_code == CREATED:
-            a_dict = r.json()
-            engine_server = CxEngineServer(
+        relative_url = "/cxrestapi/sast/engineServers"
+        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        if response.status_code == CREATED:
+            a_dict = response.json()
+            result = CxEngineServer(
                 engine_server_id=a_dict.get("id"),
                 link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            engine_server = self.register_engine(name, uri, min_loc, max_loc, is_blocked, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return engine_server
-
-    def unregister_engine_by_engine_id(self, engine_id, api_version="1.0"):
+    @staticmethod
+    def unregister_engine_by_engine_id(engine_id, api_version="1.0"):
         """
         DELETE /sast/engineServers/{id} Unregister an existing engine server.
 
@@ -167,32 +126,15 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
+        result = False
+        relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
+        response = delete_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == NO_CONTENT:
+            result = True
+        return result
 
-        r = requests.delete(
-            url=engine_server_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-
-        if r.status_code == NO_CONTENT:
-            is_successful = True
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            is_successful = self.unregister_engine_by_engine_id(engine_id, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
-
-        self.retry = 0
-
-        return is_successful
-
-    def get_engine_details(self, engine_id, api_version="1.0"):
+    @staticmethod
+    def get_engine_details(engine_id, api_version="1.0"):
         """
         GET /sast/engineServers/{id} Get details of a specific engine server by Id.
 
@@ -208,16 +150,12 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
-
-        r = requests.get(
-            url=engine_server_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            item = r.json()
-            engine_server = CxEngineServer(
+        result = None
+        relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            item = response.json()
+            result = CxEngineServer(
                 engine_server_id=item.get("id"),
                 name=item.get("name"),
                 uri=item.get("uri"),
@@ -234,22 +172,10 @@ class EnginesAPI(object):
                     uri=(item.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            engine_server = self.get_engine_details(engine_id, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return engine_server
-
-    def update_engine_server(self, engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None,
+    @staticmethod
+    def update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None,
                              api_version="1.0"):
         """
         PUT /sast/engineServers/{id}  Update an existing engine server's configuration
@@ -274,50 +200,32 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
-
-        data = CxRegisterEngineRequestBody(
-            name=name,
-            uri=uri,
-            min_loc=min_loc,
-            max_loc=max_loc,
-            is_blocked=is_blocked,
-            max_scans=max_scans
-        ).get_post_data()
-
-        r = requests.put(
-            url=engine_server_url,
-            data=data,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
+        result = None
+        relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
+        put_data = json.dumps(
+            {
+                "name": name,
+                "uri": uri,
+                "minLoc": min_loc,
+                "maxLoc": max_loc,
+                "isBlocked": is_blocked,
+                "maxScans": max_scans
+            }
         )
-
-        if r.status_code == OK:
-            a_dict = r.json()
-            engine_server = CxEngineServer(
+        response = put_request(relative_url=relative_url, data=put_data, headers=get_headers(api_version))
+        if response.status_code == OK:
+            a_dict = response.json()
+            result = CxEngineServer(
                 engine_server_id=a_dict.get("id"),
                 link=CxLink(
                     rel=(a_dict.get("link", {}) or {}).get("rel"),
                     uri=(a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            engine_server = self.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans,
-                                                      api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return engine_server
-
-    def update_an_engine_server_by_edit_single_field(self, engine_id, name, uri, min_loc, max_loc, is_blocked,
+    @staticmethod
+    def update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc, is_blocked,
                                                      max_scans, api_version="1.0"):
         """
         PATCH  sast/engineServers/{id}
@@ -339,44 +247,25 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_server_url = config.get("base_url") + "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
-
-        data = CxRegisterEngineRequestBody(
-            name=name,
-            uri=uri,
-            min_loc=min_loc,
-            max_loc=max_loc,
-            is_blocked=is_blocked,
-            max_scans=max_scans
-        ).get_post_data()
-
-        r = requests.patch(
-            url=engine_server_url,
-            data=data,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
+        result = False
+        relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
+        patch_data = json.dumps(
+            {
+                "name": name,
+                "uri": uri,
+                "minLoc": min_loc,
+                "maxLoc": max_loc,
+                "isBlocked": is_blocked,
+                "maxScans": max_scans
+            }
         )
+        response = patch_request(relative_url=relative_url, data=patch_data, headers=get_headers(api_version))
+        if response.status_code == NO_CONTENT:
+            result = True
+        return result
 
-        if r.status_code == NO_CONTENT:
-            is_successful = True
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            is_successful = self.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc,
-                                                                              is_blocked,
-                                                                              max_scans, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
-
-        self.retry = 0
-
-        return is_successful
-
-    def get_all_engine_configurations(self, api_version="1.0"):
+    @staticmethod
+    def get_all_engine_configurations(api_version="1.0"):
         """
         GET /sast/engineConfigurations Get the engine servers configuration list.
 
@@ -392,37 +281,20 @@ class EnginesAPI(object):
             CxError
 
         """
-        engine_configurations_url = config.get("base_url") + "/cxrestapi/sast/engineConfigurations"
-
-        r = requests.get(
-            url=engine_configurations_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_list = r.json()
-            all_engine_configurations = [
+        result = []
+        relative_url = "/cxrestapi/sast/engineConfigurations"
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = [
                 CxEngineConfiguration(
                     engine_configuration_id=item.get("id"),
                     name=item.get("name")
-                ) for item in a_list
+                ) for item in response.json()
             ]
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            all_engine_configurations = self.get_all_engine_configurations(api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return all_engine_configurations
-
-    def get_engine_configuration_id_by_name(self, engine_configuration_name):
+    @staticmethod
+    def get_engine_configuration_id_by_name(engine_configuration_name):
         """
 
         Args:
@@ -431,11 +303,12 @@ class EnginesAPI(object):
         Returns:
             int: engine configuration id
         """
-        all_engine_configurations = self.get_all_engine_configurations()
+        all_engine_configurations = EnginesAPI.get_all_engine_configurations()
         a_dict = {item.name: item.id for item in all_engine_configurations}
         return a_dict.get(engine_configuration_name)
 
-    def get_engine_configuration_by_id(self, configuration_id, api_version="1.0"):
+    @staticmethod
+    def get_engine_configuration_by_id(configuration_id, api_version="1.0"):
         """
         GET /sast/engineConfigurations/{id} Get a specific engine configuration by configuration Id.
 
@@ -451,32 +324,13 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        engine_configuration_url = config.get("base_url") + "/cxrestapi/sast/engineConfigurations/{id}".format(
-            id=configuration_id
-        )
-
-        r = requests.get(
-            url=engine_configuration_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_dict = r.json()
-            engine_configuration = CxEngineConfiguration(
+        result = None
+        relative_url = "/cxrestapi/sast/engineConfigurations/{id}".format(id=configuration_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            a_dict = response.json()
+            result = CxEngineConfiguration(
                 engine_configuration_id=a_dict.get("id"),
                 name=a_dict.get("name")
             )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            engine_configuration = self.get_engine_configuration_by_id(configuration_id, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
-
-        self.retry = 0
-
-        return engine_configuration
+        return result

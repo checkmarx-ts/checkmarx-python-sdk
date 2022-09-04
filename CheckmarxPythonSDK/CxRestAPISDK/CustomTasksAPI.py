@@ -1,11 +1,6 @@
 # encoding: utf-8
-import requests
-
-from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
-from ..config import config
-
-from . import authHeaders
-from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .httpRequests import get_request, get_headers
+from CheckmarxPythonSDK.utilities.compat import OK
 from .sast.projects.dto import CxCustomTask
 from .sast.projects.dto import CxLink
 
@@ -14,11 +9,8 @@ class CustomTasksAPI(object):
     """
     REST API: custom tasks
     """
-
-    def __init__(self):
-        self.retry = 0
-
-    def get_all_custom_tasks(self, api_version="1.0"):
+    @staticmethod
+    def get_all_custom_tasks(api_version="1.0"):
         """
         REST API: get all custom tasks
 
@@ -34,16 +26,12 @@ class CustomTasksAPI(object):
             CxError
 
         """
-        custom_tasks_url = config.get("base_url") + "/cxrestapi/customTasks"
-
-        r = requests.get(
-            url=custom_tasks_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_list = r.json()
-            custom_tasks = [
+        result = []
+        relative_url = "/cxrestapi/customTasks"
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            a_list = response.json()
+            result = [
                 CxCustomTask(
                     custom_task_id=item.get("id"),
                     name=item.get("name"),
@@ -55,23 +43,10 @@ class CustomTasksAPI(object):
                     )
                 ) for item in a_list
             ]
-            CustomTasksAPI.custom_tasks = custom_tasks
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            custom_tasks = self.get_all_custom_tasks(api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return custom_tasks
-
-    def get_custom_task_id_by_name(self, task_name):
+    @staticmethod
+    def get_custom_task_id_by_name(task_name):
         """
 
         Args:
@@ -80,13 +55,14 @@ class CustomTasksAPI(object):
         Returns:
             int: custom task id
         """
-        custom_tasks = self.get_all_custom_tasks()
+        custom_tasks = CustomTasksAPI.get_all_custom_tasks()
         a_dict = {
             item.name: item.id for item in custom_tasks
         }
         return a_dict.get(task_name)
 
-    def get_custom_task_by_id(self, task_id, api_version="1.0"):
+    @staticmethod
+    def get_custom_task_by_id(task_id, api_version="1.0"):
         """
 
         Args:
@@ -101,16 +77,12 @@ class CustomTasksAPI(object):
             NotFoundError
             CxError
         """
-        custom_task_url = config.get("base_url") + "/cxrestapi/customTasks/{id}".format(id=task_id)
-
-        r = requests.get(
-            url=custom_task_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_dict = r.json()
-            custom_task = CxCustomTask(
+        result = None
+        relative_url = "/cxrestapi/customTasks/{id}".format(id=task_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            a_dict = response.json()
+            result = CxCustomTask(
                 custom_task_id=a_dict.get("id"),
                 name=a_dict.get("name"),
                 custom_task_type=a_dict.get("type"),
@@ -120,22 +92,10 @@ class CustomTasksAPI(object):
                     (a_dict.get("link", {}) or {}).get("uri")
                 )
             )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            custom_task = self.get_custom_task_by_id(task_id, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return custom_task
-
-    def get_custom_task_by_name(self, task_name, api_version="1.0"):
+    @staticmethod
+    def get_custom_task_by_name(task_name, api_version="1.0"):
         """
 
         Args:
@@ -150,19 +110,14 @@ class CustomTasksAPI(object):
             NotFoundError
             CxError
         """
-        custom_task = None
-        custom_task_url = config.get("base_url") + "/cxrestapi/customTasks/name/{name}".format(name=task_name)
-
-        r = requests.get(
-            url=custom_task_url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_list = r.json()
+        result = None
+        relative_url = "/cxrestapi/customTasks/name/{name}".format(name=task_name)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            a_list = response.json()
             if a_list:
                 a_dict = a_list[0]
-                custom_task = CxCustomTask(
+                result = CxCustomTask(
                     custom_task_id=a_dict.get("id"),
                     name=a_dict.get("name"),
                     custom_task_type=a_dict.get("type"),
@@ -172,17 +127,4 @@ class CustomTasksAPI(object):
                         (a_dict.get("link", {}) or {}).get("uri")
                     )
                 )
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            custom_task = self.get_custom_task_by_name(task_name, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
-
-        self.retry = 0
-
-        return custom_task
+        return result

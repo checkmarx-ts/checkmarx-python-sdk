@@ -1,12 +1,7 @@
 # encoding: utf-8
-import requests
 import json
-
-from ..compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED
-from ..config import config
-
-from . import authHeaders
-from .exceptions.CxError import BadRequestError, NotFoundError, CxError
+from .httpRequests import get_request, put_request, get_headers
+from CheckmarxPythonSDK.utilities.compat import OK
 from .sast.configuration.dto import CxSASTConfig
 
 
@@ -14,13 +9,8 @@ class ConfigurationAPI(object):
     """
     CxSAST configuration API
     """
-    def __init__(self):
-        """
-
-        """
-        self.retry = 0
-
-    def get_cx_component_configuration_settings(self, group, api_version="1.0"):
+    @staticmethod
+    def get_cx_component_configuration_settings(group, api_version="1.0"):
         """
 
         Args:
@@ -42,38 +32,21 @@ class ConfigurationAPI(object):
         Returns:
             list of `CxSASTConfig`
         """
-        url = config.get("base_url") + "/cxrestapi/configurationsExtended/{group}".format(group=group)
-
-        r = requests.get(
-            url=url,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-        if r.status_code == OK:
-            a_list = r.json()
-            configurations = [
+        result = []
+        relative_url = "/cxrestapi/configurationsExtended/{group}".format(group=group)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = [
                 CxSASTConfig(
                     key=item.get("key"),
                     value=item.get("value"),
                     description=item.get("description")
-                ) for item in a_list
+                ) for item in response.json()
             ]
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            configurations = self.get_cx_component_configuration_settings(group, api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
+        return result
 
-        self.retry = 0
-
-        return configurations
-
-    def update_cx_component_configuration_settings(self, group, key_value_list, api_version="1.0"):
+    @staticmethod
+    def update_cx_component_configuration_settings(group, key_value_list, api_version="1.0"):
         """
 
         Warnings: Depending on the changed settings, in order to take effect,
@@ -92,7 +65,8 @@ class ConfigurationAPI(object):
         Returns:
             bool
         """
-        url = config.get("base_url") + "/cxrestapi/configurationsExtended/{group}".format(group=group)
+        result = False
+        relative_url = "/cxrestapi/configurationsExtended/{group}".format(group=group)
 
         temp_list = []
         for item in key_value_list:
@@ -101,34 +75,13 @@ class ConfigurationAPI(object):
             elif isinstance(item, CxSASTConfig):
                 temp_list.append(item.get_key_value_dict())
 
-        data = json.dumps([
+        put_data = json.dumps([
             {
                 "key": item.get("key"),
                 "value": item.get("value"),
             } for item in temp_list
         ])
-
-        r = requests.put(
-            url=url,
-            data=data,
-            headers=authHeaders.get_headers(api_version=api_version),
-            verify=config.get("verify")
-        )
-
-        if r.status_code == OK:
-            is_successful = True
-        elif r.status_code == BAD_REQUEST:
-            raise BadRequestError(r.text)
-        elif r.status_code == NOT_FOUND:
-            raise NotFoundError()
-        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
-            authHeaders.update_auth_headers()
-            self.retry += 1
-            is_successful = self.update_cx_component_configuration_settings(group, key_value_list,
-                                                                            api_version=api_version)
-        else:
-            raise CxError(r.text, r.status_code)
-
-        self.retry = 0
-
-        return is_successful
+        response = put_request(relative_url=relative_url, data=put_data, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = True
+        return result
