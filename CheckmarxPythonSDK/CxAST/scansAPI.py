@@ -1,15 +1,11 @@
 # encoding: utf-8
 import json
 
-from .httpRequests import get_request, post_request, put_request, delete_request, patch_request
-from ..compat import NO_CONTENT, CREATED
+from .httpRequests import get_request, post_request, delete_request, patch_request
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .utilities import (get_url_param, type_check, list_member_type_check)
 
 from .dto import (
-    Git,
-    Upload,
-    Project,
-    ScanConfig,
     ScanInput,
     Scan,
     StatusDetails,
