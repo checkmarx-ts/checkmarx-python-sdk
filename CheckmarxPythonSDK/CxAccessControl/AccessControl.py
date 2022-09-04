@@ -1,15 +1,10 @@
 # encoding: utf-8
 import os
-import requests
 import json
-
-from copy import copy
 
 from requests_toolbelt import MultipartEncoder
 
-from CheckmarxPythonSDK.utilities.compat import OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED
-from CheckmarxPythonSDK.utilities.httpRequests import check_response_status_code
-from CheckmarxPythonSDK.utilities.CxError import BadRequestError, NotFoundError, CxError
+from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
 from .accesscontrol.dto import (
     User, AuthenticationProvider, MyProfile, Permission, Role, ServiceProvider, SMTPSetting, SystemLocale, Team,
     WindowsDomain, SAMLIdentityProvider, SAMLServiceProvider, OIDCClient, LDAPRoleMapping, LDAPGroup, LDAPServer,
@@ -17,7 +12,7 @@ from .accesscontrol.dto import (
 )
 
 
-class AccessControlAPI(object):
+class AccessControl:
 
     def __init__(self, get_request, post_request, put_request, delete_request):
         """
@@ -42,7 +37,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/AssignableUsers"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 User(
@@ -64,7 +58,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/AuthenticationProviders"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 AuthenticationProvider(
@@ -101,7 +94,6 @@ class AccessControlAPI(object):
         })
         relative_url = "/cxrestapi/auth/Users/FirstAdmin"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -115,7 +107,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/Users/FirstAdminExistence"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK and response.json().get("firstAdminExists"):
             result = True
         return result
@@ -134,7 +125,6 @@ class AccessControlAPI(object):
         if ldap_server_id:
             relative_url += "?ldapServerId={id}".format(id=ldap_server_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 LDAPRoleMapping(
@@ -169,7 +159,6 @@ class AccessControlAPI(object):
             }
         )
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -186,7 +175,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/LDAPRoleMappings/{id}".format(id=ldap_role_mapping_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -253,7 +241,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/LDAPServers/TestConnection"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = True
         return result
@@ -273,7 +260,6 @@ class AccessControlAPI(object):
         if username_contains_pattern:
             relative_url += "?userNameContainsPattern={}".format(username_contains_pattern)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 User(
@@ -300,7 +286,6 @@ class AccessControlAPI(object):
         if name_contains_pattern:
             relative_url += "?nameContainsPattern={}".format(name_contains_pattern)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 LDAPGroup(
@@ -319,7 +304,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/LDAPServers"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 LDAPServer(
@@ -443,7 +427,6 @@ class AccessControlAPI(object):
             }
         )
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -460,7 +443,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/LDAPServers/{id}".format(id=ldap_server_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = LDAPServer(
@@ -584,7 +566,6 @@ class AccessControlAPI(object):
             }
         )
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -601,7 +582,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/LDAPServers/{id}".format(id=ldap_server_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -626,7 +606,6 @@ class AccessControlAPI(object):
         if optionals:
             relative_url += "?" + "&".join(optionals)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 LDAPTeamMapping(
@@ -661,7 +640,6 @@ class AccessControlAPI(object):
             }
         )
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -678,7 +656,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/LDAPTeamMappings/{id}".format(id=ldap_team_mapping_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -692,7 +669,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/MyProfile"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = MyProfile(
@@ -744,7 +720,6 @@ class AccessControlAPI(object):
         })
         relative_url = "/cxrestapi/auth/MyProfile"
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -758,7 +733,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/OIDCClients"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 OIDCClient(
@@ -800,7 +774,7 @@ class AccessControlAPI(object):
                                always_include_user_claims_in_id_token, client_id, client_name, allow_offline_access,
                                client_secrets, allow_grant_types, allowed_scopes, enabled, require_client_secret,
                                redirect_uris,
-                               post_logout_redrect_uris, front_channel_logout_uri,
+                               post_logout_redirect_uris, front_channel_logout_uri,
                                front_channel_logout_session_required,
                                back_channel_logout_uri, back_channel_logout_session_required, identity_token_life_time,
                                access_token_life_time, authorization_code_life_time, absolute_refresh_token_life_time,
@@ -823,7 +797,7 @@ class AccessControlAPI(object):
             enabled (bool):
             require_client_secret (bool):
             redirect_uris (list):
-            post_logout_redrect_uris (list):
+            post_logout_redirect_uris (list):
             front_channel_logout_uri (str):
             front_channel_logout_session_required (bool):
             back_channel_logout_uri (str):
@@ -859,7 +833,7 @@ class AccessControlAPI(object):
                 "enabled": enabled,
                 "requireClientSecret": require_client_secret,
                 "redirectUris": redirect_uris,
-                "postLogoutRedirectUris": post_logout_redrect_uris,
+                "postLogoutRedirectUris": post_logout_redirect_uris,
                 "frontChannelLogoutUri": front_channel_logout_uri,
                 "frontChannelLogoutSessionRequired": front_channel_logout_session_required,
                 "backChannelLogoutUri": back_channel_logout_uri,
@@ -879,7 +853,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/OIDCClients"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -896,7 +869,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/OIDCClients/{id}".format(id=oidc_client_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = OIDCClient(
@@ -938,7 +910,7 @@ class AccessControlAPI(object):
                               always_include_user_claims_in_id_token, client_id, client_name, allow_offline_access,
                               client_secrets, allow_grant_types, allowed_scopes, enabled, require_client_secret,
                               redirect_uris,
-                              post_logout_redrect_uris, front_channel_logout_uri,
+                              post_logout_redirect_uris, front_channel_logout_uri,
                               front_channel_logout_session_required,
                               back_channel_logout_uri, back_channel_logout_session_required, identity_token_life_time,
                               access_token_life_time, authorization_code_life_time, absolute_refresh_token_life_time,
@@ -962,7 +934,7 @@ class AccessControlAPI(object):
             enabled (bool):
             require_client_secret (bool):
             redirect_uris (list):
-            post_logout_redrect_uris (list):
+            post_logout_redirect_uris (list):
             front_channel_logout_uri (str):
             front_channel_logout_session_required (bool):
             back_channel_logout_uri (str):
@@ -998,7 +970,7 @@ class AccessControlAPI(object):
                 "enabled": enabled,
                 "requireClientSecret": require_client_secret,
                 "redirectUris": redirect_uris,
-                "postLogoutRedirectUris": post_logout_redrect_uris,
+                "postLogoutRedirectUris": post_logout_redirect_uris,
                 "frontChannelLogoutUri": front_channel_logout_uri,
                 "frontChannelLogoutSessionRequired": front_channel_logout_session_required,
                 "backChannelLogoutUri": back_channel_logout_uri,
@@ -1019,7 +991,6 @@ class AccessControlAPI(object):
 
         relative_url = "/cxrestapi/auth/OIDCClients/{id}".format(id=oidc_client_id)
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1036,7 +1007,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/OIDCClients/{id}".format(id=oidc_client_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1050,7 +1020,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/Permissions"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 Permission(
@@ -1074,7 +1043,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/Permissions/{id}".format(id=permission_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = Permission(
@@ -1094,7 +1062,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/Roles"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 Role(
@@ -1158,7 +1125,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/Roles"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -1175,7 +1141,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/Roles/{id}".format(id=role_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = Role(
@@ -1209,7 +1174,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/Roles/{id}".format(id=role_id)
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1226,7 +1190,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/Roles/{id}".format(id=role_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1240,7 +1203,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/SamlIdentityProviders"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 SAMLIdentityProvider(
@@ -1305,7 +1267,6 @@ class AccessControlAPI(object):
         headers = {"Content-Type": m.content_type}
         relative_url = "/cxrestapi/auth/SamlIdentityProviders"
         response = self.post_request(relative_url=relative_url, data=m, headers=headers)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -1322,7 +1283,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = SAMLIdentityProvider(
@@ -1387,7 +1347,6 @@ class AccessControlAPI(object):
         headers = {"Content-Type": m.content_type}
         relative_url = "/cxrestapi/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         response = self.put_request(relative_url=relative_url, data=m, headers=headers)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1404,7 +1363,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/SamlIdentityProviders/{id}".format(id=saml_identity_provider_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1423,7 +1381,6 @@ class AccessControlAPI(object):
         if saml_identity_provider_id:
             relative_url += "?samlProviderId={}".format(saml_identity_provider_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 SAMLRoleMapping(
@@ -1466,7 +1423,6 @@ class AccessControlAPI(object):
             samlProviderId=saml_identity_provider_id
         )
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1480,7 +1436,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/SamlServiceProvider/metadata"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = response.content
         return result
@@ -1494,7 +1449,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/SamlServiceProvider"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = SAMLServiceProvider(
@@ -1529,7 +1483,6 @@ class AccessControlAPI(object):
         headers = {"Content-Type": m.content_type}
         relative_url = "/cxrestapi/auth/SamlServiceProvider"
         response = self.put_request(relative_url=relative_url, data=m, headers=headers)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1548,7 +1501,6 @@ class AccessControlAPI(object):
         if saml_identity_provider_id:
             relative_url += "?samlProviderId={}".format(saml_identity_provider_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 SAMLTeamMapping(
@@ -1590,7 +1542,6 @@ class AccessControlAPI(object):
             id=saml_identity_provider_id
         )
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1604,7 +1555,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/ServiceProviders"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 ServiceProvider(
@@ -1626,7 +1576,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/ServiceProviders/{id}".format(id=service_provider_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = ServiceProvider(
@@ -1644,7 +1593,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/SMTPSettings"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 SMTPSetting(
@@ -1687,10 +1635,8 @@ class AccessControlAPI(object):
                 "username": username
             }
         )
-
         relative_url = "/cxrestapi/auth/SMTPSettings"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -1707,7 +1653,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = SMTPSetting(
@@ -1752,7 +1697,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)\
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1769,7 +1713,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/SMTPSettings/{id}".format(id=smtp_settings_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1806,7 +1749,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/SMTPSettings/testconnection"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = True
         return result
@@ -1820,7 +1762,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/SystemLocales"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 SystemLocale(
@@ -1844,7 +1785,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/Teams/{id}/Users".format(id=team_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 User(
@@ -1886,7 +1826,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/Teams/{teamId}/Users".format(teamId=team_id)
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1906,7 +1845,6 @@ class AccessControlAPI(object):
             teamId=team_id, userId=user_id
         )
         response = self.post_request(relative_url=relative_url, data=None)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1927,7 +1865,6 @@ class AccessControlAPI(object):
             userId=user_id
         )
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -1941,7 +1878,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/Teams"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 Team(
@@ -1989,9 +1925,8 @@ class AccessControlAPI(object):
                 "parentId": parent_id
             }
         )
-        relative_url ="/cxrestapi/auth/Teams"
+        relative_url = "/cxrestapi/auth/Teams"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -2005,10 +1940,9 @@ class AccessControlAPI(object):
         Returns:
             Team
         """
-        result =None
+        result = None
         relative_url = "/cxrestapi/auth/Teams/{id}".format(id=team_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = Team(
@@ -2039,7 +1973,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/Teams/{id}".format(id=team_id)
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -2056,7 +1989,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/Teams/{id}".format(id=team_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -2070,7 +2002,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/TokenSigningCertificateGeneration"
         response = self.post_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -2096,7 +2027,6 @@ class AccessControlAPI(object):
         )
         headers = {"Content-Type": m.content_type}
         response = self.post_request(relative_url=relative_url, data=m, headers=headers)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -2110,7 +2040,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/Users"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 User(
@@ -2151,7 +2080,6 @@ class AccessControlAPI(object):
         user = [item for item in all_users if item.username == username]
         if user:
             user_id = user[0].id
-
         return user_id
 
     def create_new_user(self, username, password, role_ids, team_ids, authentication_provider_id, first_name,
@@ -2205,7 +2133,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/Users"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -2222,7 +2149,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/Users/{id}".format(id=user_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = User(
@@ -2308,7 +2234,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/Users/{id}".format(id=user_id)
         response = self.delete_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -2366,7 +2291,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/Users/migration"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -2380,7 +2304,6 @@ class AccessControlAPI(object):
         result = []
         relative_url = "/cxrestapi/auth/WindowsDomains"
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 WindowsDomain(
@@ -2406,7 +2329,6 @@ class AccessControlAPI(object):
         domains = [item for item in windows_domains if item.name == name]
         if domains:
             windows_domain_id = domains[0].id
-
         return windows_domain_id
 
     def create_a_new_windows_domain(self, name, full_qualified_name):
@@ -2428,7 +2350,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/WindowsDomains"
         response = self.post_request(relative_url=relative_url, data=post_data)
-        check_response_status_code(response)
         if response.status_code == CREATED:
             result = True
         return result
@@ -2445,7 +2366,6 @@ class AccessControlAPI(object):
         result = None
         relative_url = "/cxrestapi/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             item = response.json()
             result = WindowsDomain(
@@ -2475,7 +2395,6 @@ class AccessControlAPI(object):
         )
         relative_url = "/cxrestapi/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         response = self.put_request(relative_url=relative_url, data=put_data)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -2492,7 +2411,6 @@ class AccessControlAPI(object):
         result = False
         relative_url = "/cxrestapi/auth/WindowsDomains/{id}".format(id=windows_domain_id)
         response = self.delete_request(relatvie_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == NO_CONTENT:
             result = True
         return result
@@ -2512,7 +2430,6 @@ class AccessControlAPI(object):
         if contains_pattern:
             relative_url += "?containsPattern={}".format(contains_pattern)
         response = self.get_request(relative_url=relative_url)
-        check_response_status_code(response)
         if response.status_code == OK:
             result = [
                 User(
@@ -2523,4 +2440,3 @@ class AccessControlAPI(object):
                 ) for item in response.json()
             ]
         return result
-        
