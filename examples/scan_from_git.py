@@ -21,7 +21,7 @@ from datetime import datetime
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
-from CheckmarxPythonSDK.config import config
+from CheckmarxPythonSDK.CxRestAPISDK.config import config
 
 
 def scan_from_git(team_full_name, project_name, report_type, git_repo_url, branch, report_folder=None):

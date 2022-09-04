@@ -24,7 +24,7 @@ from os.path import normpath, join, dirname, exists
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
-from CheckmarxPythonSDK.config import config
+from CheckmarxPythonSDK.CxRestAPISDK.config import config
 
 
 def scan_from_local(team_full_name, project_name, report_type, zip_file_path, report_folder=None):

@@ -57,7 +57,7 @@ def add_users_from_csv_file(users):
     all_user_email = [user.email for user in all_users]
     all_locale_code = [item.code for item in ac.get_all_system_locales()]
     all_roles = ac.get_all_roles()
-    all_teams = ac.get_all_teams()
+    all_teams = ac.get_all_teams
 
     for index, user in enumerate(users):
         row_number = index + 2

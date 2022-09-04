@@ -52,6 +52,7 @@ def sca_scan(project_name, zip_file_path):
         scan_status = response.get("name")
         if scan_status == "Scanning":
             print("scanning ...")
+            time.sleep(5)
             continue
         elif scan_status == "Done":
             print("scan finished successfully!")
@@ -59,7 +60,6 @@ def sca_scan(project_name, zip_file_path):
         elif scan_status == "Failed":
             print("scan_status:{}, message:{}".format(scan_status, response.get("message")))
             return
-        time.sleep(10)
 
     risk_report_summary = get_risk_report_summary(project_id=project_id)
     print("risk_report_summary:{}".format(risk_report_summary))
