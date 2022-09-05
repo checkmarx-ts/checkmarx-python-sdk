@@ -319,8 +319,6 @@ def check_response_status_code(response):
     status_code = response.status_code
     if status_code in [OK, CREATED, NO_CONTENT, ACCEPTED]:
         return
-    elif status_code == FORBIDDEN:
-        raise CxError("Forbidden to access", status_code)
     elif status_code == BAD_REQUEST:
         raise BadRequestError(response.text)
     elif status_code == NOT_FOUND:
