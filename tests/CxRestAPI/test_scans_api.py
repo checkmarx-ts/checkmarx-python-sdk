@@ -1,5 +1,10 @@
-# encoding: utf-8
+"""
+    tests.test_projects_api
 
+    :copyright Checkmarx
+    :license GPL-3
+
+"""
 import time
 
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
