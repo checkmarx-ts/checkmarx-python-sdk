@@ -165,13 +165,14 @@ def test_define_sast_scan_scheduling_settings():
     assert result is True
 
 
+"""
 def test_assign_ticket_to_scan_results():
     scan_api = ScansAPI()
-
     results_id = "1000004-5"
     ticket_id = "10060"
-    is_successful = scan_api.assign_ticket_to_scan_results(results_id, ticket_id)
-    assert is_successful is True
+    # is_successful = scan_api.assign_ticket_to_scan_results(results_id, ticket_id)
+    # assert is_successful is True
+"""
 
 
 def test_get_short_vulnerability_description_for_a_scan_result():
@@ -244,6 +245,7 @@ def test_create_new_scan_with_settings():
     scan_api = ScansAPI()
     preset_id = projects_api.get_preset_id_by_name("All")
     scan = scan_api.create_new_scan_with_settings(project_id=project_id, preset_id=preset_id,
+                                                  comment="prest All, private scan",
                                                   zipped_source_file_path="../JavaVulnerableLab-master.zip",
                                                   custom_fields={"some1": "baby2"},
                                                   api_version="1.2")
