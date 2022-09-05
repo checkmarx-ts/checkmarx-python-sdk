@@ -47,7 +47,7 @@ def test_define_data_retention_by_rolling_date():
 
 def test_delete_all_scans_older_than_num_of_months():
     data_retention_api = DataRetentionAPI()
-    num_months = 6
+    num_months = 60
     duration_limit_in_hours = 1
     data_retention = data_retention_api.define_data_retention_by_rolling_months(num_months, duration_limit_in_hours)
     assert data_retention is None
