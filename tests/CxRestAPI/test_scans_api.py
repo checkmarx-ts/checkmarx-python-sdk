@@ -273,6 +273,11 @@ def test_get_scan_logs():
 
 
 def test_get_basic_metrics_of_a_scan():
+    """
+    Could be 404 Not Found
+    Returns:
+
+    """
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
@@ -281,6 +286,11 @@ def test_get_basic_metrics_of_a_scan():
 
 
 def test_get_parsed_files_metrics_of_a_scan():
+    """
+    Could be 404 Not Found
+    Returns:
+
+    """
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
@@ -290,6 +300,11 @@ def test_get_parsed_files_metrics_of_a_scan():
 
 
 def test_get_failed_queries_metrics_of_a_scan():
+    """
+    Could be 404 Not Found
+    Returns:
+
+    """
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
@@ -299,6 +314,11 @@ def test_get_failed_queries_metrics_of_a_scan():
 
 
 def test_get_failed_general_queries_metrics_of_a_scan():
+    """
+    Could be 404 Not Found
+    Returns:
+
+    """
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
@@ -308,6 +328,11 @@ def test_get_failed_general_queries_metrics_of_a_scan():
 
 
 def test_get_succeeded_general_queries_metrics_of_a_scan():
+    """
+    Could be 404 Not Found
+    Returns:
+
+    """
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
