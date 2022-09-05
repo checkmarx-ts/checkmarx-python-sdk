@@ -276,7 +276,6 @@ def test_get_basic_metrics_of_a_scan():
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
-
     statistics = scan_api.get_basic_metrics_of_a_scan(scan_id=scan_id)
     assert statistics is not None
 
