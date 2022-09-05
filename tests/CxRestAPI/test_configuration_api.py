@@ -22,6 +22,17 @@ def test_update_cx_component_configuration_settings():
         group=group, key_value_list=key_value_list
     )
     assert response is True
+    group = "Scanning"
+    key_value_list = [
+        {
+            "key": "scanMetricsEnabled",
+            "value": "True"
+        }
+    ]
+    response = configuration_api.update_cx_component_configuration_settings(
+        group=group, key_value_list=key_value_list
+    )
+    assert response is True
 
 
 def test_update_cx_component_configuration_settings_with_param_cxsast_config():
