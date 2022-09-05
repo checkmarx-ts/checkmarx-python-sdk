@@ -1,4 +1,10 @@
+"""
+    tests.test_projects_api
 
+    :copyright Checkmarx
+    :license GPL-3
+
+"""
 from CheckmarxPythonSDK.CxRestAPISDK import QueriesAPI
 
 
