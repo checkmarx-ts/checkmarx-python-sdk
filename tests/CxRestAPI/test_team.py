@@ -1,7 +1,9 @@
-# encoding: utf-8
-
 """
-    tests.test_team
+    tests.test_projects_api
+
+    :copyright Checkmarx
+    :license GPL-3
+
 """
 
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
