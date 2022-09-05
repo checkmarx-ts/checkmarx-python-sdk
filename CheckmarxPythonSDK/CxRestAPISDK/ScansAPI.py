@@ -5,7 +5,6 @@ import json
 from requests_toolbelt import MultipartEncoder
 from .httpRequests import get_request, post_request, put_request, patch_request, delete_request, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT, ACCEPTED
-from CheckmarxPythonSDK.CxRestAPISDK.config import config
 from .sast.projects.dto import CxLink, CxProject, CxPreset
 from .sast.engines.dto import CxEngineServer, CxEngineConfiguration
 from .sast.scans.dto import CxScanState, CxPolicyFindingsStatus, \
@@ -1138,7 +1137,7 @@ class ScansAPI(object):
     @staticmethod
     def get_basic_metrics_of_a_scan(scan_id, api_version="3.0"):
         """
-
+        https://checkmarx.atlassian.net/wiki/spaces/SAST/pages/3206498165/Configuring+and+Viewing+Scan+Metrics
         Args:
             scan_id (int):
             api_version (str):
