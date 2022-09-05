@@ -4,6 +4,7 @@ import json
 from .httpRequests import get_request, post_request, put_request, patch_request, delete_request, get_headers
 from requests_toolbelt import MultipartEncoder
 from CheckmarxPythonSDK.utilities.compat import OK, CREATED, ACCEPTED, NO_CONTENT
+from CheckmarxPythonSDK.utilities.CxError import NotFoundError
 from .TeamAPI import TeamAPI
 from .sast.projects.dto import CxCreateProjectResponse, \
     CxIssueTrackingSystemDetail, CxIssueTrackingSystemField, \
@@ -113,13 +114,14 @@ class ProjectsAPI(object):
         project_id = None
 
         team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name=team_full_name)
+        try:
+            all_projects = ProjectsAPI.get_all_project_details(project_name=project_name, team_id=team_id)
 
-        all_projects = ProjectsAPI.get_all_project_details(project_name=project_name, team_id=team_id)
-
-        if all_projects and len(all_projects) == 1:
-            project_id = all_projects[0].project_id
-
-        return project_id
+            if all_projects and len(all_projects) == 1:
+                project_id = all_projects[0].project_id
+            return project_id
+        except NotFoundError:
+            return None
 
     @staticmethod
     def get_project_details_by_id(project_id, api_version="2.0"):
@@ -147,7 +149,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def update_project_by_id(project_id, project_name, team_id, custom_fields=None, api_version="1.0"):
+    def update_project_by_id(project_id, project_name, team_id, custom_fields=(), api_version="1.0"):
         """
         update project info by project id
 
@@ -172,7 +174,7 @@ class ProjectsAPI(object):
             {
                 "name": project_name,
                 "owningTeam": team_id,
-                "customFields": custom_fields
+                "CustomFields": custom_fields
             }
         )
         response = put_request(relative_url=relative_url, data=put_data, headers=get_headers(api_version))
@@ -282,7 +284,6 @@ class ProjectsAPI(object):
         project_id = ProjectsAPI.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
         if project_id:
             result = ProjectsAPI.delete_project_by_id(project_id)
-
         return result
 
     @staticmethod
