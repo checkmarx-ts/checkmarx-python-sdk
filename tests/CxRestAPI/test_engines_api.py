@@ -10,7 +10,7 @@
 
 from CheckmarxPythonSDK.CxRestAPISDK import EnginesAPI
 
-another_engine_ip = 'happyy-laptop:8088'
+another_engine_ip = 'happyy-laptop:8089'
 
 
 def test_get_all_engine_server_details():
@@ -28,7 +28,7 @@ def test_get_engine_id_by_name():
 
 def test_register_engine():
     engine_api = EnginesAPI()
-    name = "engine virtual"
+    name = "engine2"
     engine_id = engine_api.get_engine_id_by_name(name)
     if engine_id:
         engine_api.unregister_engine_by_engine_id(engine_id)
@@ -40,14 +40,6 @@ def test_register_engine():
     assert engine_server is not None
 
 
-def test_unregister_engine_by_engine_id():
-    engine_name = "engine virtual"
-    engine_api = EnginesAPI()
-    engine_id = engine_api.get_engine_id_by_name(engine_name)
-    result = engine_api.unregister_engine_by_engine_id(engine_id)
-    assert result is True
-
-
 def test_get_engine_details():
     engine_name = "Localhost"
     engine_api = EnginesAPI()
@@ -57,7 +49,6 @@ def test_get_engine_details():
 
 
 def test_update_engine_server():
-    # test_register_engine()
     engine_name = "engine2"
     engine_api = EnginesAPI()
     engine_id = engine_api.get_engine_id_by_name(engine_name)
@@ -106,3 +97,11 @@ def test_get_engine_configuration_by_id():
     configuration_id = engine_api.get_engine_configuration_id_by_name(name)
     configuration = engine_api.get_engine_configuration_by_id(configuration_id)
     assert configuration is not None
+
+
+def test_unregister_engine_by_engine_id():
+    engine_name = "engine2"
+    engine_api = EnginesAPI()
+    engine_id = engine_api.get_engine_id_by_name(engine_name)
+    result = engine_api.unregister_engine_by_engine_id(engine_id)
+    assert result is True
