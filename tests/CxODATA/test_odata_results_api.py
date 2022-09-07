@@ -1,3 +1,4 @@
+from CheckmarxPythonSDK.CxRestAPISDK import (ProjectsAPI, ScansAPI)
 from CheckmarxPythonSDK.CxODataApiSDK import (
     get_results_for_a_specific_scan_id,
     get_the_query_that_was_run_for_a_particular_unique_scan_result,
@@ -6,15 +7,22 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
     scan_results_group_by_query_id,
 )
 
+project_name = "jvl_git"
+scans_api = ScansAPI()
+projects_api = ProjectsAPI()
+project_id = projects_api.get_project_id_by_project_name_and_team_full_name(
+    project_name=project_name, team_full_name="/CxServer"
+)
+
+scan_id = scans_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+
 
 def test_get_results_for_a_specific_scan_id():
-    scan_id = 1000012
     results = get_results_for_a_specific_scan_id(scan_id=scan_id)
     assert results is not None
 
 
 def test_get_the_query_that_was_run_for_a_particular_unique_scan_result():
-    scan_id = 1000012
     query_name = get_the_query_that_was_run_for_a_particular_unique_scan_result(result_id=1,
                                                                                 scan_id=scan_id)
     assert query_name is not None
@@ -23,7 +31,7 @@ def test_get_the_query_that_was_run_for_a_particular_unique_scan_result():
 def test_get_results_for_a_specific_scan_id_with_query_language_state():
 
     r = get_results_for_a_specific_scan_id_with_query_language_state(
-        scan_id=1000012,
+        scan_id=scan_id,
         filter_false_positive=False
     )
     assert r is not None
@@ -32,7 +40,7 @@ def test_get_results_for_a_specific_scan_id_with_query_language_state():
 def test_get_results_group_by_query_id():
 
     r = get_results_for_a_specific_scan_id_with_query_language_state(
-        scan_id=1000012,
+        scan_id=scan_id,
         filter_false_positive=False
     )
 
@@ -41,7 +49,7 @@ def test_get_results_group_by_query_id():
 
 
 def test_get_results_group_by_query_id_and_add_count_filter_false_positive():
-    r = get_results_for_a_specific_scan_id_with_query_language_state(scan_id=1000012,
+    r = get_results_for_a_specific_scan_id_with_query_language_state(scan_id=scan_id,
                                                                      filter_false_positive=True)
     r = scan_results_group_by_query_id(r)
 
@@ -50,7 +58,7 @@ def test_get_results_group_by_query_id_and_add_count_filter_false_positive():
 
 def test_get_results_for_a_specific_scan_id_with_similarity_ids():
     r = get_results_for_a_specific_scan_id_with_similarity_ids(
-        scan_id=1000008,
+        scan_id=scan_id,
         similarity_ids=[2137433037, -1403228976]
     )
     assert r is not None
