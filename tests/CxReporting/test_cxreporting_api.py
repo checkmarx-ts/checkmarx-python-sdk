@@ -138,7 +138,7 @@ def test_create_new_report_with_single_team_template_pdf():
 def test_create_new_report_with_project_tempalte_pdf():
     template_id = 3
     output_format = "PDF"
-    entity_id = ["22"]
+    entity_id = ["5"]
     report_name = "project_pdf"
     filters = [
         FilterDTO(
