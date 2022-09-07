@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-from os.path import normpath, join, dirname, exists
+from os.path import normpath, join, dirname
 
 from CheckmarxPythonSDK.CxReporting.api import (
     retrieve_the_file_of_a_specific_report,
@@ -15,8 +15,10 @@ from CheckmarxPythonSDK.CxReporting.dto import (
 
 
 def check_report_generation_status_and_write_to_file(report_request, report_name, output_format):
+    result = False
     report_id = create_a_new_report_request(report_request=report_request)
-    assert report_id is not None
+    if not report_id:
+        return result
 
     report_status = "NEW"
     while report_status.upper() != "FINISHED":
@@ -24,7 +26,7 @@ def check_report_generation_status_and_write_to_file(report_request, report_name
         print("report status: {}".format(report_status))
         if report_status.upper() == "FAILED":
             print("Report generation failed!")
-            return
+            return result
         time.sleep(2)
 
     report_content = retrieve_the_file_of_a_specific_report(report_id=report_id)
@@ -33,6 +35,8 @@ def check_report_generation_status_and_write_to_file(report_request, report_name
     file_name = normpath(join(report_folder, report_name + time_stamp + "." + output_format))
     with open(str(file_name), "wb") as f_out:
         f_out.write(report_content)
+    result = True
+    return result
 
 
 def test_create_a_new_report_with_application_template_pdf():
@@ -55,13 +59,14 @@ def test_create_a_new_report_with_application_template_pdf():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
 
 
 def test_create_a_new_report_with_application_template_json():
     template_id = 6
     output_format = "JSON"
-    entity_id = ["2", "3", "5"]
+    entity_id = ["22", "20", "5"]
     report_name = "application_json"
     filters = [
         FilterDTO(
@@ -78,13 +83,14 @@ def test_create_a_new_report_with_application_template_json():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
 
 
 def test_create_new_report_with_multi_teams_template_pdf():
     template_id = 5
     output_format = "PDF"
-    entity_id = ["/CxServer", "/CxServer/CompanyTwo/AC_Dev_Team"]
+    entity_id = ["/CxServer"]
     report_name = "multiple_team_pdf"
     filters = [
         FilterDTO(
@@ -101,13 +107,14 @@ def test_create_new_report_with_multi_teams_template_pdf():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
 
 
 def test_create_new_report_with_single_team_template_pdf():
     template_id = 4
     output_format = "PDF"
-    entity_id = ["/CxServer/CompanyTwo/AC_Dev_Team"]
+    entity_id = ["/CxServer"]
     report_name = "single_team_pdf"
     filters = [
         FilterDTO(
@@ -124,13 +131,14 @@ def test_create_new_report_with_single_team_template_pdf():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
 
 
 def test_create_new_report_with_project_tempalte_pdf():
     template_id = 3
     output_format = "PDF"
-    entity_id = ["2"]
+    entity_id = ["22"]
     report_name = "project_pdf"
     filters = [
         FilterDTO(
@@ -147,13 +155,14 @@ def test_create_new_report_with_project_tempalte_pdf():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
 
 
 def test_create_new_report_with_scan_tempalte_result_state_oriented_pdf():
     template_id = 2
     output_format = "PDF"
-    entity_id = ["1000017"]
+    entity_id = ["1000130"]
     report_name = "scan_result_state_oriented_pdf"
     filters = [
         FilterDTO(
@@ -170,13 +179,14 @@ def test_create_new_report_with_scan_tempalte_result_state_oriented_pdf():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
 
 
 def test_create_new_report_with_scan_template_vulnerability_type_oriented_pdf():
     template_id = 1
     output_format = "PDF"
-    entity_id = ["1000017"]
+    entity_id = ["1000130"]
     report_name = "scan_vulnerability_type_oriented_pdf"
     filters = [
         FilterDTO(
@@ -193,4 +203,5 @@ def test_create_new_report_with_scan_template_vulnerability_type_oriented_pdf():
         report_name=report_name,
         filters=filters
     )
-    check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    result = check_report_generation_status_and_write_to_file(report_request, report_name, output_format)
+    assert result is True
