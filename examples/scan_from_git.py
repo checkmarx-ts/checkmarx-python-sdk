@@ -40,13 +40,13 @@ def scan_from_git(team_full_name, project_name, report_type, git_repo_url, branc
     """
     if not report_folder or not exists(report_folder):
         report_folder = dirname(__file__)
-    print(("team_full_name: {}, \n"
-           "project_name: {}, \n"
-           "report_type: {}, \n"
-           "git_repo_url: {}, \n"
-           "branch: {}, \n"
-           "report_folder: {}").format(team_full_name, project_name, report_type,
-                                       git_repo_url, branch, report_folder))
+    param_str = "team_full_name: {}, \n".format(team_full_name)
+    param_str += "project_name: {}, \n".format(project_name)
+    param_str += "report_type: {}, \n".format(report_type)
+    param_str += "git_repo_url: {}, \n".format(git_repo_url)
+    param_str += "branch: {}, \n".format(branch)
+    param_str += "report_folder: {}".format(report_folder)
+    print(param_str)
 
     projects_api = ProjectsAPI()
     team_api = TeamAPI()
@@ -79,7 +79,7 @@ def scan_from_git(team_full_name, project_name, report_type, git_repo_url, branc
 
     # 7. define SAST scan settings
     print("7. define SAST scan settings")
-    preset_id = projects_api.get_preset_id_by_name()
+    preset_id = projects_api.get_preset_id_by_name(preset_name="All")
     print("preset id: {}".format(preset_id))
     scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 
