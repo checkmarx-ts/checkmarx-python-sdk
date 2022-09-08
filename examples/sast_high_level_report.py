@@ -203,7 +203,7 @@ def compare(args):
     total = Summary('Total', 0, 0, 0, 0)
     writer = csv.writer(sys.stdout)
     writer.writerow(['Project Name', 'Fixed', 'Not Exploitable',
-                     'new', 'Recurrent'])
+                     'New', 'Recurrent'])
     for project in projects.values():
         summary = project.compare_scans()
         if summary:
