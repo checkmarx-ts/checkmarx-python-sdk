@@ -61,7 +61,7 @@ def get_config_path(file_extention=".ini"):
         config_file_path = config_path_from_env
 
     # check command line option "--checkmarx_config_path", if exists, override the previous one
-    parser = PassThroughOptionParser()
+    parser = PassThroughOptionParser(add_help_option=False)
     parser.add_option("--checkmarx_config_path", help=SUPPRESS_HELP)
     (options, args) = parser.parse_args()
     config_path_from_command_line = options.checkmarx_config_path
