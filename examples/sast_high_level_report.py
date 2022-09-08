@@ -193,7 +193,7 @@ def compare(args):
     projects = {}
     for scan in scans:
         if scan['IsIncremental']:
-            print(f'Scan {scan["Id"]}: skipping incremental scan')
+            logging.debug(f'Scan {scan["Id"]}: skipping incremental scan')
             continue
         project_name = scan['ProjectName']
         project = projects.get(project_name, Project(project_name))
