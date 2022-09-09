@@ -461,6 +461,51 @@ class ProjectsAPI(object):
 
         return project
 
+    def get_branch_project_status(self, branch_project_id, api_version="4.0"):
+        """
+        REST API: get all project details.
+        For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
+
+        Args:
+            branch_project_id (int, str): Unique Id of a specific branch_project.
+            api_version (str, optional):
+
+        Returns:
+            boolean: True means successful, False means not successful
+
+        Raises:
+            BadRequestError
+            NotFoundError
+            CxError
+        """
+
+        projects_url = config.get("base_url") + "/cxrestapi/projects/branch/{}".format(branch_project_id)
+        r = requests.get(
+            url=projects_url,
+            headers=authHeaders.get_headers(api_version=api_version),
+            verify=config.get("verify")
+        )
+        if r.status_code == OK:
+            item = r.json()
+            logging.info(r.json())
+            return item['status']['id'] == 2
+
+        elif r.status_code == BAD_REQUEST:
+            raise BadRequestError(r.text)
+        elif r.status_code == NOT_FOUND:
+            response = r.json()
+            raise CxError(response.get("messageDetails"), response.get("messageCode"))
+        elif (r.status_code == UNAUTHORIZED) and (self.retry < config.get("max_try")):
+            authHeaders.update_auth_headers()
+            self.retry += 1
+            return self.get_all_project_details(api_version=api_version)
+        else:
+            raise CxError(r.text, r.status_code)
+
+        self.retry = 0
+
+        return False
+    
     def get_all_issue_tracking_systems(self, api_version="1.0"):
         """
         Get details of all issue tracking systems (e.g. Jira) currently registered to CxSAST.
