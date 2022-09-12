@@ -228,10 +228,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log_level', default='INFO', metavar='LEVEL',
                         help='Set the logging level to LEVEL')
-    parser.add_argument('-p', '--project_id', type=int)
-    parser.add_argument('-t', '--team_id', type=int)
-    parser.add_argument('start_date', type=valid_date)
-    parser.add_argument('end_date', type=valid_date)
+    parser.add_argument('-p', '--project_id', type=int,
+                        help='Restrict report to the specified project')
+    parser.add_argument('-t', '--team_id', type=int,
+                        help='Restrict report to the specified team')
+    parser.add_argument('start_date', type=valid_date,
+                        help='Start date of report period')
+    parser.add_argument('end_date', type=valid_date,
+                        help='End date of report period')
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
