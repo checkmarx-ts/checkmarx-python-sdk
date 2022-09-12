@@ -142,7 +142,8 @@ def get_team_by_name(team_name):
 
     ac_api = AccessControlAPI()
     if team_name.find('/') >= 0:
-        return ac_api.get_team_id_by_full_name(team_name)
+        team_id = ac_api.get_team_id_by_full_name(team_name)
+        return ac_api.get_team_by_id(team_id)
     else:
         team = None
         for t in ac_api.get_all_teams():
