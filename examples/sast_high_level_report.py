@@ -8,7 +8,8 @@ import sys
 
 from CheckmarxPythonSDK.CxODataApiSDK.HttpRequests import get_request
 from CheckmarxPythonSDK.CxPortalSoapApiSDK import get_compare_scan_results
-
+from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
+from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 
 class Summary:
     """A summary of the differences across two scans."""
@@ -50,13 +51,16 @@ class Summary:
 
 def get_all_scans_in_date_range(args):
 
-    project_filter = ''
-    if args.project_id:
-        project_filter = f'%20and%20ProjectId%20eq%20{args.project_id}'
-
+    team = None
     team_filter = ''
-    if args.team_id:
-        team_filter = f'%20and%20OwningTeamId%20eq%20{args.team_id}'
+    if args.team_name:
+        team = get_team_by_name(args.team_name)
+        team_filter = f'%20and%20OwningTeamId%20eq%20{team.id}'
+
+    project_filter = ''
+    if args.project_name:
+        project = get_project_by_name(args.project_name, team)
+        project_filter = f'%20and%20ProjectId%20eq%20{project.project_id}'
 
     url = f'/Cxwebinterface/odata/v1/Scans?' \
         '$select=Id,ProjectName,IsIncremental,ScanRequestedOn,EngineFinishedOn' \
@@ -119,6 +123,39 @@ def count_not_exploitable(results):
 def filter_not_exploitable(similarity_ids, result_map):
 
     return [si for si in similarity_ids if result_map[si]['StateId'] != 1]
+
+
+def get_project_by_name(project_name, team):
+
+    p_api = ProjectsAPI()
+    if team:
+        return p_api.get_project_id_by_project_name_and_team_full_name(project_name, team.full_name)
+    else:
+        for p in p_api.get_all_project_details():
+            if p.name == project_name:
+                return p
+
+        raise ValueError(f'{project_name}: no such project')
+
+
+def get_team_by_name(team_name):
+
+    ac_api = AccessControlAPI()
+    if team_name.find('/') >= 0:
+        return ac_api.get_team_id_by_full_name(team_name)
+    else:
+        team = None
+        for t in ac_api.get_all_teams():
+            if t.name == team_name:
+                if team:
+                    raise ValueError(f'{team_name}: name is not unique')
+                else:
+                    team = t
+
+        if team:
+            return team
+        else:
+            raise ValueError(f'{team_name}: no such team')
 
 
 class Project:
@@ -228,9 +265,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log_level', default='INFO', metavar='LEVEL',
                         help='Set the logging level to LEVEL')
-    parser.add_argument('-p', '--project_id', type=int,
+    parser.add_argument('-p', '--project_name',
                         help='Restrict report to the specified project')
-    parser.add_argument('-t', '--team_id', type=int,
+    parser.add_argument('-t', '--team_name',
                         help='Restrict report to the specified team')
     parser.add_argument('start_date', type=valid_date,
                         help='Start date of report period')
