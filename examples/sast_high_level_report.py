@@ -9,18 +9,21 @@ import sys
 from CheckmarxPythonSDK.CxODataApiSDK.HttpRequests import get_request
 from CheckmarxPythonSDK.CxPortalSoapApiSDK import get_compare_scan_results
 from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
+from CheckmarxPythonSDK.CxRestAPISDK import CustomFieldsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 
 class Summary:
     """A summary of the differences across two scans."""
 
-    def __init__(self, project_name, fixed, not_exploitable, new, recurrent):
+    def __init__(self, project_name, fixed, not_exploitable, new,
+                 recurrent, custom_fields):
 
         self.project_name = project_name
         self.fixed = fixed
         self.not_exploitable = not_exploitable
         self.new = new
         self.recurrent = recurrent
+        self.custom_fields = custom_fields
 
     def add(self, other):
         """Add the figures from other to this summary."""
@@ -32,8 +35,8 @@ class Summary:
 
     def write_csv(self, writer):
 
-        writer.writerow([self.project_name, self.fixed, self.not_exploitable,
-                         self.new, self.recurrent])
+        writer.writerow([self.project_name, self.fixed,self.not_exploitable,
+                         self.new, self.recurrent, *self.custom_fields])
 
     def __repr__(self):
 
@@ -46,7 +49,8 @@ class Summary:
         return f'Summary[project_name={self.project_name},' \
             f'fixed={self.fixed},' \
             f'not_exploitable={self.not_exploitable},' \
-            f'new={self.new},recurrent={self.recurrent}]'
+            f'new={self.new},recurrent={self.recurrent},' \
+            f'custom_fields={self.custom_fields}]'
 
 
 def get_all_scans_in_date_range(args):
@@ -63,7 +67,7 @@ def get_all_scans_in_date_range(args):
         project_filter = f'%20and%20ProjectId%20eq%20{project.project_id}'
 
     url = f'/Cxwebinterface/odata/v1/Scans?' \
-        '$select=Id,ProjectName,IsIncremental,ScanRequestedOn,EngineFinishedOn' \
+        '$select=Id,ProjectName,OwningTeamId,IsIncremental,ScanRequestedOn,EngineFinishedOn' \
         f'&$filter=ScanRequestedOn%20ge%20{args.start_date}' \
         f'%20and%20ScanRequestedOn%20lt%20{args.end_date}' \
         f'{project_filter}' \
@@ -125,7 +129,7 @@ def filter_not_exploitable(similarity_ids, result_map):
     return [si for si in similarity_ids if result_map[si]['StateId'] != 1]
 
 
-def get_project_by_name(project_name, team):
+def get_project_by_name(project_name, team=None):
 
     p_api = ProjectsAPI()
     if team:
@@ -161,13 +165,25 @@ def get_team_by_name(team_name):
 
 class Project:
 
-    def __init__(self, project_name):
+    def __init__(self, project_name, custom_field_names):
 
         self.project_name = project_name
         self.first_scan_date = None
         self.first_scan_id = None
         self.last_scan_date = None
         self.last_scan_id = None
+        self.custom_fields = []
+
+        cx_project = get_project_by_name(self.project_name)
+        for field_name in custom_field_names:
+            found = False
+            for cx_custom_field in cx_project.custom_fields:
+                if field_name == cx_custom_field.name:
+                    self.custom_fields.append(cx_custom_field.value)
+                    found = True
+                    break
+            if not found:
+                self.custom_fields.append('')
 
     def add_scan(self, scan):
 
@@ -215,7 +231,8 @@ class Project:
                            len(filter_not_exploitable(new_similarity_ids,
                                                       last_result_map)),
                            len(filter_not_exploitable(recurring_similarity_ids,
-                                                      last_result_map)))
+                                                      last_result_map)),
+                           self.custom_fields)
 
         else:
             logging.debug(f'First and last scan ids are the same ({self.first_scan_id})')
@@ -223,7 +240,7 @@ class Project:
 
     def __str__(self):
 
-        return f'Project({self.project_name}, {self.first_scan_date}, {self.first_scan_id}, {self.last_scan_date}, {self.last_scan_id})'
+        return f'Project({self.project_id}, {self.project_name}, {self.first_scan_date}, {self.first_scan_id}, {self.last_scan_date}, {self.last_scan_id})'
 
 
 def compare(args):
@@ -235,14 +252,18 @@ def compare(args):
             logging.debug(f'Scan {scan["Id"]}: skipping incremental scan')
             continue
         project_name = scan['ProjectName']
-        project = projects.get(project_name, Project(project_name))
+        project = projects.get(project_name, Project(project_name,
+                                                     args.custom_fields))
         project.add_scan(scan)
         projects[project_name] = project
 
-    total = Summary('Total', 0, 0, 0, 0)
+    total = Summary('Total', 0, 0, 0, 0, ['' for cf in args.custom_fields])
     writer = csv.writer(sys.stdout)
-    writer.writerow(['Project Name', 'Fixed', 'Not Exploitable',
-                     'New', 'Recurrent'])
+    header = ['Project Name', 'Fixed', 'Not Exploitable',
+              'New', 'Recurrent']
+    header.extend(args.custom_fields)
+    writer.writerow(header)
+
     for project in projects.values():
         summary = project.compare_scans()
         if summary:
@@ -262,9 +283,28 @@ def valid_date(s):
         raise argparse.ArgumentTypeError(msg)
 
 
+def check_custom_fields(args):
+    ''' Check that the specified custom fields are valid.'''
+
+    logging.debug('Checking custom fields')
+    if not args.custom_fields:
+        args.custom_fields = []
+        return
+
+    cf_api = CustomFieldsAPI()
+    custom_fields = args.custom_fields.split(',')
+    for custom_field in custom_fields:
+        if not cf_api.get_custom_field_id_by_name(custom_field):
+            raise ValueError(f'{custom_field}: unknown custom field')
+
+    args.custom_fields = custom_fields
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--custom_fields',
+                        help='A comma-separated list of custom fields to include in the report')
     parser.add_argument('-l', '--log_level', default='INFO', metavar='LEVEL',
                         help='Set the logging level to LEVEL')
     parser.add_argument('-p', '--project_name',
@@ -278,4 +318,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
+    check_custom_fields(args)
     compare(args)
