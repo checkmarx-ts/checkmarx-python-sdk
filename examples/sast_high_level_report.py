@@ -173,7 +173,8 @@ class Project:
 
         scan_id = scan['Id']
         t = scan['ScanRequestedOn'].split('.')[0]
-        scan_requested_on = datetime.fromisoformat(t)
+        scan_requested_on = datetime.fromisoformat(t).astimezone()
+        logging.debug(f'scan_requested_on: {scan_requested_on}, self.first_scan_date: {self.first_scan_date}, self.last_scan_date: {self.last_scan_date}')
         if self.first_scan_date:
             if scan_requested_on <= self.first_scan_date:
                 self.first_scan_date = scan_requested_on
