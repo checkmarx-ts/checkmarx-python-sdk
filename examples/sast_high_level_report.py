@@ -177,17 +177,18 @@ class Project:
         self.last_scan_id = None
         self.custom_fields = []
 
-        logging.debug(f'Getting details of project {self.project_id}')
-        cx_project = projects_api.get_project_details_by_id(self.project_id)
-        for field_name in custom_field_names:
-            found = False
-            for cx_custom_field in cx_project.custom_fields:
-                if field_name == cx_custom_field.name:
-                    self.custom_fields.append(cx_custom_field.value)
-                    found = True
-                    break
-            if not found:
-                self.custom_fields.append('')
+        if custom_field_names:
+            logging.debug(f'Getting details of project {self.project_id}')
+            cx_project = projects_api.get_project_details_by_id(self.project_id)
+            for field_name in custom_field_names:
+                found = False
+                for cx_custom_field in cx_project.custom_fields:
+                    if field_name == cx_custom_field.name:
+                        self.custom_fields.append(cx_custom_field.value)
+                        found = True
+                        break
+                if not found:
+                    self.custom_fields.append('')
 
     def add_scan(self, scan):
 
@@ -257,8 +258,12 @@ def compare(args):
             continue
         project_id = scan['ProjectId']
         project_name = scan['ProjectName']
-        project = projects.get(project_name, Project(project_id, project_name,
-                                                     args.custom_fields))
+        logging.debug(f'project_id: {project_id}, project_name: {project_name}')
+        if project_name not in projects:
+            logging.debug('Creating new project object')
+            projects[project_name] = Project(project_id, project_name,
+                                             args.custom_fields)
+        project = projects[project_name]
         project.add_scan(scan)
         projects[project_name] = project
 
