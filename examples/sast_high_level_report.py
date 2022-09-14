@@ -12,6 +12,10 @@ from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
 from CheckmarxPythonSDK.CxRestAPISDK import CustomFieldsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 
+access_control_api = AccessControlAPI()
+custom_fields_api = CustomFieldsAPI()
+projects_api = ProjectsAPI()
+
 class Summary:
     """A summary of the differences across two scans."""
 
@@ -67,7 +71,7 @@ def get_all_scans_in_date_range(args):
         project_filter = f'%20and%20ProjectId%20eq%20{project.project_id}'
 
     url = f'/Cxwebinterface/odata/v1/Scans?' \
-        '$select=Id,ProjectName,OwningTeamId,IsIncremental,ScanRequestedOn,EngineFinishedOn' \
+        '$select=Id,ProjectId,ProjectName,OwningTeamId,IsIncremental,ScanRequestedOn,EngineFinishedOn' \
         f'&$filter=ScanRequestedOn%20ge%20{args.start_date}' \
         f'%20and%20ScanRequestedOn%20lt%20{args.end_date}' \
         f'{project_filter}' \
@@ -131,11 +135,10 @@ def filter_not_exploitable(similarity_ids, result_map):
 
 def get_project_by_name(project_name, team=None):
 
-    p_api = ProjectsAPI()
     if team:
-        return p_api.get_project_id_by_project_name_and_team_full_name(project_name, team.full_name)
+        return projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team.full_name)
     else:
-        for p in p_api.get_all_project_details():
+        for p in projects_api.get_all_project_details():
             if p.name == project_name:
                 return p
 
@@ -144,13 +147,12 @@ def get_project_by_name(project_name, team=None):
 
 def get_team_by_name(team_name):
 
-    ac_api = AccessControlAPI()
     if team_name.find('/') >= 0:
-        team_id = ac_api.get_team_id_by_full_name(team_name)
-        return ac_api.get_team_by_id(team_id)
+        team_id = access_control_api.get_team_id_by_full_name(team_name)
+        return access_control_api.get_team_by_id(team_id)
     else:
         team = None
-        for t in ac_api.get_all_teams():
+        for t in access_control_api.get_all_teams():
             if t.name == team_name:
                 if team:
                     raise ValueError(f'{team_name}: name is not unique')
@@ -165,8 +167,9 @@ def get_team_by_name(team_name):
 
 class Project:
 
-    def __init__(self, project_name, custom_field_names):
+    def __init__(self, project_id, project_name, custom_field_names):
 
+        self.project_id = project_id
         self.project_name = project_name
         self.first_scan_date = None
         self.first_scan_id = None
@@ -174,7 +177,8 @@ class Project:
         self.last_scan_id = None
         self.custom_fields = []
 
-        cx_project = get_project_by_name(self.project_name)
+        logging.debug(f'Getting details of project {self.project_id}')
+        cx_project = projects_api.get_project_details_by_id(self.project_id)
         for field_name in custom_field_names:
             found = False
             for cx_custom_field in cx_project.custom_fields:
@@ -251,8 +255,9 @@ def compare(args):
         if scan['IsIncremental']:
             logging.debug(f'Scan {scan["Id"]}: skipping incremental scan')
             continue
+        project_id = scan['ProjectId']
         project_name = scan['ProjectName']
-        project = projects.get(project_name, Project(project_name,
+        project = projects.get(project_name, Project(project_id, project_name,
                                                      args.custom_fields))
         project.add_scan(scan)
         projects[project_name] = project
@@ -291,10 +296,9 @@ def check_custom_fields(args):
         args.custom_fields = []
         return
 
-    cf_api = CustomFieldsAPI()
     custom_fields = args.custom_fields.split(',')
     for custom_field in custom_fields:
-        if not cf_api.get_custom_field_id_by_name(custom_field):
+        if not custom_fields_api.get_custom_field_id_by_name(custom_field):
             raise ValueError(f'{custom_field}: unknown custom field')
 
     args.custom_fields = custom_fields
