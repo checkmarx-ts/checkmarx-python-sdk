@@ -1931,6 +1931,32 @@ class AccessControl:
             result = True
         return result
 
+    def create_teams_recursively(self, team_full_name):
+        """
+        create new team by team full name recursively. Check the team existence start from root team /CxServer
+        Args:
+            team_full_name (str):
+
+        Returns:
+            list[int]: new created team id list
+        """
+        result = []
+        if isinstance(team_full_name, str) and team_full_name.startswith("/CxServer"):
+            teams = team_full_name.split("/")
+            length = len(teams)
+            parent_team_id = self.get_team_id_by_full_name("/CxServer")
+            for index in list(range(2, length)):
+                child_team_full_name = "/".join(teams[:index+1])
+                child_team_name = teams[index]
+                team_id = self.get_team_id_by_full_name(child_team_full_name)
+                if team_id is None:
+                    self.create_new_team(child_team_name, parent_team_id)
+                    team_id = self.get_team_id_by_full_name(child_team_full_name)
+                    result.append(team_id)
+                parent_team_id = team_id
+
+        return result
+
     def get_team_by_id(self, team_id):
         """
 
