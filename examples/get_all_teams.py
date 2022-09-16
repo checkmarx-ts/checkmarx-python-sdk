@@ -24,12 +24,12 @@ class ConfigOverride:
 
 configs = {
     'dst': {
-        'base_url': ' https://HappyY-Laptop',
+        'base_url': ' http://HappyY-Laptop',
         'username': 'Admin',
         'password': 'Password01!'
     },
     'src': {
-        'base_url': ' http://172.35.1.186',
+        'base_url': ' http://192.168.3.84',
         'username': 'Admin',
         'password': 'Password01!'
     }
