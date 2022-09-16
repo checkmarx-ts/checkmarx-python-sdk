@@ -390,6 +390,13 @@ def test_create_new_team():
         assert is_successful is True
 
 
+def test_create_teams_recursively():
+    ac = AccessControlAPI()
+    team_full_name = "/CxServer/DevOps/Golden Team/Box"
+    team_ids = ac.create_teams_recursively(team_full_name)
+    assert len(team_ids) > 0
+
+
 def test_get_team_by_id():
     ac = AccessControlAPI()
 
