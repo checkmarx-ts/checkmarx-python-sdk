@@ -135,7 +135,7 @@ def test_create_new_report_with_single_team_template_pdf():
     assert result is True
 
 
-def test_create_new_report_with_project_tempalte_pdf():
+def test_create_new_report_with_project_template_pdf():
     template_id = 3
     output_format = "PDF"
     entity_id = ["5"]
@@ -159,7 +159,7 @@ def test_create_new_report_with_project_tempalte_pdf():
     assert result is True
 
 
-def test_create_new_report_with_scan_tempalte_result_state_oriented_pdf():
+def test_create_new_report_with_scan_template_result_state_oriented_pdf():
     template_id = 2
     output_format = "PDF"
     entity_id = ["1000130"]
