@@ -23,7 +23,7 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     upload_zip_content_for_scanning,
     scan_previously_uploaded_zip,
 )
-from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
+# from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
 project_name = "test_sca_2021_01_18"
 
 
@@ -193,7 +193,6 @@ def test_generate_upload_link_for_scanning():
 
 
 def test_sca_access_control_api():
-
-    access_control = AccessControlAPI()
-    all_users = access_control.get_all_users()
+    # access_control = AccessControlAPI()
+    # all_users = access_control.get_all_users()
     pass
