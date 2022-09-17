@@ -9,7 +9,7 @@ config_default = {
     "username": None,
     "password": None,
     "scope": "sca_api access_control_api",
-    "timeout": 20,
+    "timeout": 60,
     "verify": False,
     "cert": None,
 }

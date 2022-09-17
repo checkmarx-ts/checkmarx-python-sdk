@@ -13,7 +13,7 @@ config_default = {
     "username": None,
     "password": None,
     "refresh_token": None,
-    "timeout": 20,
+    "timeout": 60,
     "verify": False,
     "cert": None,
 }

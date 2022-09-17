@@ -11,7 +11,7 @@ config_default = {
     "scope": "reporting_api",
     "client_id": "reporting_service_api",
     "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
-    "timeout": 20,
+    "timeout": 60,
     "verify": False,
     "cert": None,
 }

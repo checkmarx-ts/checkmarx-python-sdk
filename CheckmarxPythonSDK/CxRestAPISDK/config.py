@@ -15,7 +15,7 @@ config_default = {
     "team_full_name": "/CxServer",
     "max_try": 3,
     "report_folder": None,
-    "timeout": 20,
+    "timeout": 60,
     "verify": False,
     "cert": None,
 }
