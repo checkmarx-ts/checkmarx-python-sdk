@@ -5,11 +5,11 @@
     :license GPL-3
 
 """
+import time
 from os.path import normpath, join, dirname
 
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
-# from CheckmarxPythonSDK.CxRestAPISDK import CustomTasksAPI
 from CheckmarxPythonSDK.utilities.CxError import CxError
 team_full_name = "/CxServer"
 
@@ -99,21 +99,26 @@ def test_create_branched_project():
 
 def test_get_branch_project_status():
     projects_api = ProjectsAPI()
-    result = projects_api.get_branch_project_status(47)
+    branch_project_id = projects_api.get_project_id_by_project_name_and_team_full_name("test-branch", "/CxServer")
+    time.sleep(120)
+    result = projects_api.get_branch_project_status(branch_project_id)
     assert result is True
+    projects_api.delete_project_by_id(branch_project_id)
 
 
 def test_get_all_issue_tracking_systems():
-    projects_api = ProjectsAPI()
-    issue_tracking_systems = projects_api.get_all_issue_tracking_systems()
-    assert issue_tracking_systems is not None
+    # projects_api = ProjectsAPI()
+    # issue_tracking_systems = projects_api.get_all_issue_tracking_systems()
+    # assert issue_tracking_systems is not None
+    pass
 
 
 def test_get_issue_tracking_system_id_by_name():
-    projects_api = ProjectsAPI()
-    issue_tracking_system_name = "globe-demo"
-    issue_tracking_system_id = projects_api.get_issue_tracking_system_id_by_name(issue_tracking_system_name)
-    assert issue_tracking_system_id is not None
+    # projects_api = ProjectsAPI()
+    # issue_tracking_system_name = "globe-demo"
+    # issue_tracking_system_id = projects_api.get_issue_tracking_system_id_by_name(issue_tracking_system_name)
+    # assert issue_tracking_system_id is not None
+    pass
 
 
 def test_get_issue_tracking_system_details_by_id():
@@ -345,7 +350,6 @@ def test_upload_source_code_zip_file():
                                                                                               team_full_name)
 
     file_name = "../../JavaVulnerableLab-master.zip"
-
     zip_file_path = normpath(join(dirname(__file__), file_name))
     result = projects_api.upload_source_code_zip_file(project_id, zip_file_path)
     assert result is True
