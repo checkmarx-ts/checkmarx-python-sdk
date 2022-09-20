@@ -8,7 +8,7 @@ def test_sample():
     projects_api = ProjectsAPI()
     scan_api = ScansAPI()
 
-    team_id = team_api.get_team_id_by_team_full_name()
+    team_id = team_api.get_team_id_by_team_full_name("/CxServer")
     projects = projects_api.get_all_project_details(project_name="jvl_git", team_id=team_id)
 
     for project in projects:
