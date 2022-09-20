@@ -321,6 +321,16 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
+    def get_branch_project_status(branch_project_id, api_version="4.0"):
+        result = False
+        relative_url = "/cxrestapi/projects/branch/{}".format(branch_project_id)
+        response = get_request(relative_url=relative_url,headers=get_headers(api_version=api_version))
+        if response.status_code == OK:
+            item = response.json()
+            result = item['status']['id'] == 2
+        return result
+
+    @staticmethod
     def get_all_issue_tracking_systems(api_version="1.0"):
         """
         Get details of all issue tracking systems (e.g. Jira) currently registered to CxSAST.
