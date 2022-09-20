@@ -182,12 +182,9 @@ def test_generate_upload_link_for_scanning():
     project_id = get_project_id_by_name(project_name)
     upload_link = generate_upload_link_for_scanning(project_id=project_id)
     assert upload_link is not None
-    # test_upload_zip_content_for_scanning():
-    zip_file_path = r"/examples/JavaVulnerableLab-master.zip"
+    zip_file_path = "../JavaVulnerableLab-master.zip"
     is_successful = upload_zip_content_for_scanning(upload_link, zip_file_path)
     assert is_successful is True
-
-    # test_scan_previously_uploaded_zip():
     scan_id = scan_previously_uploaded_zip(project_id=project_id, uploaded_file_url=upload_link)
     assert scan_id is not None
 

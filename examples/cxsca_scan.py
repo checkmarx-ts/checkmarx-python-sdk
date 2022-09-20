@@ -52,7 +52,7 @@ def sca_scan(project_name, zip_file_path):
         scan_status = response.get("name")
         if scan_status == "Scanning":
             print("scanning ...")
-            time.sleep(5)
+            time.sleep(60)
             continue
         elif scan_status == "Done":
             print("scan finished successfully!")
@@ -90,5 +90,5 @@ def sca_scan(project_name, zip_file_path):
 
 if __name__ == "__main__":
     sca_project_name = "test_sca_2021_01_18"
-    sca_zip_file_path = r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk\examples\JavaVulnerableLab-master.zip"
+    sca_zip_file_path = "JavaVulnerableLab-master.zip"
     sca_scan(sca_project_name, sca_zip_file_path)
