@@ -1,3 +1,5 @@
+import time
+
 from CheckmarxPythonSDK.CxAST import (
     create_a_project,
     create_scan,
@@ -139,5 +141,6 @@ def test_delete_scan():
     project_id = get_project_id_by_name(name=new_project_name)
     scans_collection = get_a_list_of_scan(project_id=project_id)
     scan_id = scans_collection.scans[0].id
+    time.sleep(60)
     is_successful = delete_scan(scan_id=scan_id)
     assert is_successful is True

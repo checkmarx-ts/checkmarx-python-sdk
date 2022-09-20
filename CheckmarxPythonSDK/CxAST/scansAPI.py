@@ -1,7 +1,7 @@
 # encoding: utf-8
 import json
 
-from deprecate import deprecated
+from deprecated import deprecated
 from .httpRequests import get_request, post_request, delete_request, patch_request
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .utilities import (get_url_param, type_check, list_member_type_check)
