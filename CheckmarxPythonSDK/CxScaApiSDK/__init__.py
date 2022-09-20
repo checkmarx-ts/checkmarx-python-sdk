@@ -26,5 +26,4 @@ from .api import (
     comment_a_vulnerability_for_a_specific_package_and_project,
     get_states_associated_with_a_project,
     change_state_of_a_vulnerability_for_a_specific_package_and_project,
-
 )

@@ -37,12 +37,12 @@ setup(
     ],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
     install_requires=[
-        "urllib3>=1.26.9",
-        "requests>=2.28.0",
+        "urllib3>=1.26.12",
+        "requests>=2.28.1",
         "requests-toolbelt>=0.9.1",
         "zeep>=4.1.0",
         "python-dateutil>=2.8.2",
-        "keyring>=23.8.2",
+        "keyring>=23.9.3",
         "Deprecated>=1.2.13",
     ],
     extras_require={

@@ -108,3 +108,6 @@ venv_python2/
 .idea/
 
 .pdf
+
+# Emacs backup files
+*~
