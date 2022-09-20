@@ -26,12 +26,12 @@ configs = {
     'dst': {
         'base_url': ' http://HappyY-Laptop',
         'username': 'Admin',
-        'password': 'Password01!'
+        'password': '****'
     },
     'src': {
         'base_url': ' http://192.168.3.84',
         'username': 'Admin',
-        'password': 'Password01!'
+        'password': '***'
     }
 }
 
