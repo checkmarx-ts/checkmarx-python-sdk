@@ -163,3 +163,6 @@ All notable changes to this project will be documented in  this file.
 
 0.5.5 - 2022-06-17
 * Fix NoKeyringError when using Keyring with PyInstaller
+
+0.5.6 - 2022-09-20
+* Refactor code to remove duplicate http request logic
