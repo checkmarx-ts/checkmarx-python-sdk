@@ -1,6 +1,7 @@
 # encoding: utf-8
 import os
 import json
+from os.path import normpath, exists, abspath
 
 from requests_toolbelt import MultipartEncoder
 from .httpRequests import get_request, post_request, put_request, patch_request, delete_request, get_headers
@@ -1059,7 +1060,7 @@ class ScansAPI(object):
         result = None
         relative_url = "/cxrestapi/sast/scanWithSettings"
         file_name = os.path.basename(zipped_source_file_path)
-        if not os.path.exists(zipped_source_file_path):
+        if not exists(normpath(abspath(zipped_source_file_path))):
             print("zipped_source_file_path not exist: {}".format(zipped_source_file_path))
             return None
         m = MultipartEncoder(

@@ -6,7 +6,7 @@
 
 """
 import time
-
+from os.path import normpath, join, dirname
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
 
@@ -203,12 +203,14 @@ def test_register_scan_report():
     report_content = scan_api.get_report_by_id(report_id)
     assert report_content is not None
 
+query_version_code = 56142311
+
 
 def test_get_scan_results_of_a_specific_query():
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
-    query_version_code = 56174104
+
     results = scan_api.get_scan_results_of_a_specific_query(scan_id, query_version_code)
     assert len(results) > 0
 
@@ -217,8 +219,6 @@ def test_get_scan_results_for_a_specific_query_group_by_best_fix_location():
     project_id = get_project_id()
     scan_api = ScansAPI()
     scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
-    # stored_xss
-    query_version_code = 56174104
     results = scan_api.get_scan_results_for_a_specific_query_group_by_best_fix_location(scan_id, query_version_code)
     assert len(results) > 0
 
@@ -242,9 +242,11 @@ def test_create_new_scan_with_settings():
     projects_api = ProjectsAPI()
     scan_api = ScansAPI()
     preset_id = projects_api.get_preset_id_by_name("All")
+    file_name = "../../JavaVulnerableLab-master.zip"
+    zip_file_path = normpath(join(dirname(__file__), file_name))
     scan = scan_api.create_new_scan_with_settings(project_id=project_id, preset_id=preset_id,
                                                   comment="prest All, private scan",
-                                                  zipped_source_file_path="../../JavaVulnerableLab-master.zip",
+                                                  zipped_source_file_path=zip_file_path,
                                                   custom_fields={"some1": "baby2"},
                                                   api_version="1.2")
     assert scan is not None
