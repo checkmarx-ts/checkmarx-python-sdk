@@ -16,7 +16,6 @@ from .ScansAPI import ScansAPI
 from .DataRetentionAPI import DataRetentionAPI
 from .EnginesAPI import EnginesAPI
 from .OsaAPI import OsaAPI
-from .exceptions.CxError import (BadRequestError, NotFoundError, CxError)
-from .AccessControlAPI import AccessControlAPI
 from .ConfigurationAPI import ConfigurationAPI
 from .QueriesAPI import QueriesAPI
+from .AccessControlAPI import AccessControlAPI

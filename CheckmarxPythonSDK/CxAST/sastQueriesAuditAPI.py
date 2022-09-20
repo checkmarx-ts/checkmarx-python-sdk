@@ -1,7 +1,7 @@
 from .httpRequests import get_request, put_request
 from .utilities import get_url_param, type_check
 from .dto import Queries, Query, MethodParameter, MethodInfo, WorkspaceQuery
-from ..compat import OK
+from CheckmarxPythonSDK.utilities.compat import OK
 
 query_url = "/api/cx-audit"
 

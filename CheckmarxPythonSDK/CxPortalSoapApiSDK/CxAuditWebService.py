@@ -99,7 +99,7 @@ def upload_queries(query_groups):
                 OwningTeam=qg["OwningTeam"],
                 Status=factory.QueryStatus(qg["Status"]),
                 # Mimicking CxAudit, we do not set LanguageStateHash
-                #LanguageStateHash=qg["LanguageStateHash"],
+                # LanguageStateHash=qg["LanguageStateHash"],
                 LanguageStateDate=qg["LanguageStateDate"]
                 ) for qg in query_groups
             ])

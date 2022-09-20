@@ -2,8 +2,12 @@
 """
 Process CSV file like the following content:
 
-FirstName,LastName,Username,Email,JobTitle,Phone,MobilePhone,Country,Other,LocaleCode,Password,ExpirationDate,ActiveUser,Teams,Roles
-John,Smith,john,john.smith@sleep.net,,,333 666 111,,,,test,5/22/2023,TRUE,/CxServer/SP/Company/Users;/CxServer/SP/Checkmarx,Admin; SAST Admin
+FirstName,LastName,Username,Email,JobTitle,Phone,MobilePhone,Country,Other,LocaleCode,Password,ExpirationDate,
+ActiveUser,Teams,Roles
+
+John,Smith,john,john.smith@sleep.net,,,333 666 111,,,,test,5/22/2023,TRUE,
+/CxServer/SP/Company/Users;/CxServer/SP/Checkmarx,Admin;SAST Admin
+
 Bob,Han,bob,bob.han@dd.com,,,,,,,test,1/23/2021,FALSE,/CxServer;/CxServer/SP,SAST Reviewer; SAST Scanner
 
 Locale ID, Code, and Display Name:
@@ -31,12 +35,12 @@ from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
 
 
 def get_users_from_csv_file(file_path):
-    users = []
+    result = []
     with open(file_path, newline="") as csvFile:
         reader = csv.DictReader(csvFile)
         for row in reader:
-            users.append(row)
-    return users
+            result.append(row)
+    return result
 
 
 def add_users_from_csv_file(users):
@@ -85,9 +89,11 @@ def add_users_from_csv_file(users):
 
         team_ids = []
         for team_name in user.get("Teams").split(";"):
-            for item in all_teams:
-                if item.full_name == team_name:
-                    team_ids.append(item.id)
+            team_id = ac.get_team_id_by_full_name(team_name)
+            if team_id is None:
+                ac.create_teams_recursively(team_name)
+                team_id = ac.get_team_id_by_full_name(team_name)
+            team_ids.append(team_id)
 
         ac.create_new_user(
             username=user.get("Username"),
@@ -111,5 +117,6 @@ def add_users_from_csv_file(users):
 
 
 if __name__ == "__main__":
-    users = get_users_from_csv_file(r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk\examples\CxSAST_appliation_users.csv")
-    add_users_from_csv_file(users=users)
+    path = r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk\examples\CxSAST_appliation_users.csv"
+    users_from_csv = get_users_from_csv_file(path)
+    add_users_from_csv_file(users=users_from_csv)

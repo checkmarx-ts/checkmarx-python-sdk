@@ -1,8 +1,8 @@
 # encoding: utf-8
 import requests
 
-from .httpRequests import post_request, put_request
-from ..compat import OK
+from .httpRequests import post_request
+from CheckmarxPythonSDK.utilities.compat import OK
 from os.path import exists
 from . import authHeaders
 

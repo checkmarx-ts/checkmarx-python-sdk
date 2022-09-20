@@ -15,8 +15,10 @@ class RuleInput(object):
                     and list of ids, should be separated by semicolon (e.g 'key;value', 'id1;id2').
         """
         if rule_type not in [
+            "project.name.starts-with", "project.name.in", "project.name.contains", "project.name.regex",
             "project.id.in", "project.id.starts-with", "project.id.contains", "project.id.regex",
-            "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists"
+            "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists",
+
         ]:
             raise ValueError("""Error for parameter rule_type, must be one of [ project.id.in,
                     project.id.starts-with, project.id.contains, project.id.regex,

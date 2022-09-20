@@ -2,7 +2,7 @@ import csv
 from itertools import groupby
 from copy import deepcopy
 
-from ..config import config
+from CheckmarxPythonSDK.CxRestAPISDK.config import config
 from .ProjectsODataAPI import (get_all_projects_id_name, get_all_projects_id_name_and_team_id_name)
 from .ScansODataAPI import (
     get_all_scan_id_of_a_project,

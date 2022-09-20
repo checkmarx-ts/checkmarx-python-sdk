@@ -24,7 +24,7 @@ from os.path import normpath, join, dirname, exists
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
-from CheckmarxPythonSDK.config import config
+from CheckmarxPythonSDK.CxRestAPISDK.config import config
 
 
 def scan_from_local(team_full_name, project_name, report_type, zip_file_path, report_folder=None):
@@ -47,13 +47,12 @@ def scan_from_local(team_full_name, project_name, report_type, zip_file_path, re
     if not exists(zip_file_path):
         print("zip file not found. \n abort scan.")
         return
-
-    print(("team_full_name: {}, \n"
-           "project_name: {}, \n"
-           "report_type: {}, \n"
-           "zip_file_path: {}, \n"
-           "report_folder: {}").format(team_full_name, project_name, report_type,
-                                       zip_file_path, report_folder))
+    param_str = "team_full_name: {}, \n".format(team_full_name)
+    param_str += "project_name: {}, \n".format(project_name)
+    param_str += "report_type: {}, \n".format(report_type)
+    param_str += "zip_file_path: {}, \n".format(zip_file_path)
+    param_str += "report_folder: {}".format(report_folder)
+    print(param_str)
 
     team_api = TeamAPI()
     projects_api = ProjectsAPI()
@@ -86,7 +85,7 @@ def scan_from_local(team_full_name, project_name, report_type, zip_file_path, re
 
     # 7. define SAST scan settings
     print("7. define SAST scan settings")
-    preset_id = projects_api.get_preset_id_by_name()
+    preset_id = projects_api.get_preset_id_by_name(preset_name="All")
     print("preset id: {}".format(preset_id))
     scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 

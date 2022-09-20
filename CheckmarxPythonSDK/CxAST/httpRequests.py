@@ -1,111 +1,60 @@
 # encoding: utf-8
-import requests
 from .config import config
-from . import authHeaders
-from ..compat import (OK, UNAUTHORIZED, NO_CONTENT, CREATED)
+from CheckmarxPythonSDK.utilities.httpRequests import build_request_funcs, check_response
 
 
-def retry_when_unauthorized(func):
-    """
+def get_data_from_config():
+    server_url = config.get("server")
+    token_url = config.get("access_control_url") + "/auth/realms/{TENANT_NAME}/protocol/openid-connect/token".format(
+        TENANT_NAME=config.get("tenant_name")
+    )
+    timeout = config.get("timeout")
+    verify_ssl_cert = config.get("verify")
+    cert = config.get("cert")
+    token_req_data = {
+        "grant_type": "client_credentials",
+        "username": config.get("username"),
+        "password": config.get("password"),
+        "client_id": config.get("client_id"),
+        "client_secret": config.get("client_secret"),
+    }
+    if config.get("grant_type") == "refresh_token":
+        token_req_data = {
+            "grant_type": "refresh_token",
+            "client_id": "ast-app",
+            "refresh_token": config.get("refresh_token"),
+        }
+    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
 
-    Args:
-        func (function)
 
-    Returns:
-        function
-    """
-    def retry(*args, **kwargs):
-        max_try = 3
-
-        response = func(*args, **kwargs)
-
-        while max_try > 0:
-            if response.status_code != UNAUTHORIZED:
-                break
-            authHeaders.update_auth_headers()
-            response = func(*args, **kwargs)
-            max_try -= 1
-
-        return response
-    return retry
+get, post, put, patch, delete = build_request_funcs(get_data_from_config)
 
 
-@retry_when_unauthorized
 def get_request(relative_url):
-    url = config.get("server") + relative_url
-    response = requests.get(
-        url=url,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-
-    if response.status_code not in [OK, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
+    response = get(relative_url)
+    check_response(response)
     return response
 
 
-@retry_when_unauthorized
 def post_request(relative_url, data):
-    url = config.get("server") + relative_url
-    response = requests.post(
-        url=url,
-        data=data,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-
-    if response.status_code not in [OK, CREATED, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
-
+    response = post(relative_url, data)
+    check_response(response)
     return response
 
 
-@retry_when_unauthorized
 def put_request(relative_url, data):
-
-    url = config.get("server") + relative_url
-    response = requests.put(
-        url=url,
-        data=data,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-    if response.status_code not in [CREATED, NO_CONTENT, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
+    response = put(relative_url, data)
+    check_response(response)
     return response
 
 
-@retry_when_unauthorized
-def delete_request(relative_url):
-    url = config.get("server") + relative_url
-    response = requests.delete(
-        url=url,
-        headers=authHeaders.auth_headers,
-        verify=False
-    )
-
-    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
-
-    return response
-
-
-@retry_when_unauthorized
 def patch_request(relative_url, data):
-    url = config.get("server") + relative_url
-    response = requests.patch(
-        url=url,
-        headers=authHeaders.auth_headers,
-        data=data,
-        verify=False,
-    )
+    response = patch(relative_url, data)
+    check_response(response)
+    return response
 
-    if response.status_code not in [NO_CONTENT, UNAUTHORIZED]:
-        raise ValueError("HttpStatusCode: {code}".format(code=response.status_code),
-                         "ErrorMessage: {msg}".format(msg=response.text))
 
+def delete_request(relative_url, data=None):
+    response = delete(relative_url, data)
+    check_response(response)
     return response

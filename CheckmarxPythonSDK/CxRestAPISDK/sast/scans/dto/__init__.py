@@ -4,7 +4,6 @@ from .scanSettings.CxEmailNotification import CxEmailNotification
 from .scanSettings.CxLanguage import CxLanguage
 from .scanSettings.CxScanSettings import CxScanSettings
 from .CxCreateNewScanResponse import CxCreateNewScanResponse
-from .CxCreateScan import CxCreateScan
 from .CxDateAndTime import CxDateAndTime
 from .CxFinishedScanStatus import CxFinishedScanStatus
 from .CxLanguageState import CxLanguageState

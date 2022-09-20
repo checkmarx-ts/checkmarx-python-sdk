@@ -3,7 +3,7 @@ from requests import Session
 from zeep import Client, Settings
 from zeep.transports import Transport
 
-from ..config import config
+from CheckmarxPythonSDK.CxRestAPISDK.config import config
 from . import authHeaders
 
 

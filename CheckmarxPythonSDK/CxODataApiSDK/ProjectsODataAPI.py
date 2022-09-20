@@ -1,5 +1,5 @@
 from .HttpRequests import get_request, get_request_with_raw_response
-from . import authHeaders
+from ..CxPortalSoapApiSDK import get_version_number_as_int
 
 
 def get_top_n_projects_by_risk_score(number_of_projects):
@@ -42,13 +42,14 @@ def get_top_n_projects_by_risk_score(number_of_projects):
           },
         ]
     """
-    url = ("/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan"
-           "/RiskScore%20desc&$top={n}").format(n=number_of_projects)
+    relative_url = "/Cxwebinterface/odata/v1/Projects"
+    relative_url += "?$expand=LastScan&$orderby=LastScan/RiskScore%20desc&$top={n}".format(n=number_of_projects)
 
-    item_list = get_request(relative_url=url)
+    item_list = get_request(relative_url=relative_url)
 
     for item in item_list:
-        item.pop('LastScan@odata.context')
+        if 'LastScan@odata.context' in item.keys():
+            item.pop('LastScan@odata.context')
 
     return item_list
 
@@ -92,13 +93,14 @@ def get_top_n_projects_by_last_scan_duration(number_of_projects):
          }]
     """
 
-    url = ("/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan"
-           "/ScanDuration%20desc&$top={n}").format(n=number_of_projects)
+    relative_url = "/Cxwebinterface/odata/v1/Projects?$expand=LastScan&$orderby=LastScan"
+    relative_url += "/ScanDuration%20desc&$top={n}".format(n=number_of_projects)
 
-    item_list = get_request(relative_url=url)
+    item_list = get_request(relative_url=relative_url)
 
     for item in item_list:
-        item.pop('LastScan@odata.context')
+        if 'LastScan@odata.context' in item.keys():
+            item.pop('LastScan@odata.context')
 
     return item_list
 
@@ -153,9 +155,10 @@ def get_all_projects_with_their_last_scan_and_the_high_vulnerabilities():
 
     item_list = get_request(relative_url=url)
     for item in item_list:
-        item.pop('LastScan@odata.context')
+        if 'LastScan@odata.context' in item.keys():
+            item.pop('LastScan@odata.context')
         last_scan = item.get("LastScan")
-        if last_scan:
+        if last_scan and 'Results@odata.context' in last_scan.keys():
             last_scan.pop('Results@odata.context')
             
     return item_list
@@ -210,9 +213,10 @@ def get_projects_that_have_high_vulnerabilities_in_the_last_scan():
 
     item_list = get_request(relative_url=url)
     for item in item_list:
-        item.pop('LastScan@odata.context')
+        if 'LastScan@odata.context' in item.keys():
+            item.pop('LastScan@odata.context')
         last_scan = item.get("LastScan")
-        if last_scan:
+        if last_scan and 'Results@odata.context' in last_scan.keys():
             last_scan.pop('Results@odata.context')
     
     return item_list
@@ -268,23 +272,22 @@ def get_the_number_of_issues_vulnerabilities_within_a_predefined_time_range_for_
     """
 
     # OwningTeamId is of type string in 8.9 and previous versions, but from 9.0 the type changed to int
-    if not authHeaders.is_version_bigger_than_9:
+    if get_version_number_as_int() < 900:
         team_id = '%27' + str(team_id) + '%27'
 
-    url = ("/Cxwebinterface/odata/v1/Projects?$filter=OwningTeamId%20eq%20{team_id}"
-           "&$expand=Scans($expand=ResultSummary;$select=Id,ScanRequestedOn,ResultSummary;"
-           "$filter=ScanRequestedOn%20gt%20{start_date}%20and"
-           "%20ScanRequestedOn%20lt%20{end_date})").format(
-        team_id=team_id, start_date=start_date, end_date=end_date
-    )
-
-    item_list = get_request(relative_url=url)
+    relative_url = "/Cxwebinterface/odata/v1/Projects?$filter=OwningTeamId%20eq%20{team_id}".format(team_id=team_id)
+    relative_url += "&$expand=Scans($expand=ResultSummary;$select=Id,ScanRequestedOn,ResultSummary;"
+    relative_url += "$filter=ScanRequestedOn%20gt%20{start_date}%20and".format(start_date=start_date)
+    relative_url += "%20ScanRequestedOn%20lt%20{end_date})".format(end_date=end_date)
+    item_list = get_request(relative_url=relative_url)
 
     for item in item_list:
-        item.pop('Scans@odata.context')
+        if 'Scans@odata.context' in item.keys():
+            item.pop('Scans@odata.context')
         scans = item.get("Scans")
         for scan in scans:
-            scan.pop('ResultSummary@odata.context')
+            if 'ResultSummary@odata.context' in scan.keys():
+                scan.pop('ResultSummary@odata.context')
 
     return item_list
 
@@ -326,13 +329,11 @@ def get_all_projects_with_a_custom_field_that_has_a_specific_value(field_name, f
             }
         ]
     """
-    url = ("/Cxwebinterface/odata/v1/Projects?$filter=CustomFields/"
-           "any(f: f/FieldName eq '{field_name}' and f/FieldValue eq '{field_value}')"
-           ).format(
+    relative_url = "/Cxwebinterface/odata/v1/Projects?$filter=CustomFields/"
+    relative_url += "any(f: f/FieldName eq '{field_name}' and f/FieldValue eq '{field_value}')".format(
         field_name=field_name, field_value=field_value
     )
-
-    return get_request(relative_url=url)
+    return get_request(relative_url=relative_url)
 
 
 def get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(field_name):
@@ -362,14 +363,13 @@ def get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information
                 }
             ]
     """
-    url = ("/cxwebinterface/odata/v1/Projects?$expand=CustomFields"
-           "&$filter=CustomFields/any(f: f/FieldName eq '{field_name}')").format(
-        field_name=field_name
-    )
+    relative_url = "/cxwebinterface/odata/v1/Projects?$expand=CustomFields"
+    relative_url += "&$filter=CustomFields/any(f: f/FieldName eq '{field_name}')".format(field_name=field_name)
 
-    projects = get_request(relative_url=url)
+    projects = get_request(relative_url=relative_url)
     for project in projects:
-        project.pop('CustomFields@odata.context')
+        if 'CustomFields@odata.context' in project.keys():
+            project.pop('CustomFields@odata.context')
 
     return projects
 
@@ -402,7 +402,8 @@ def get_presets_associated_with_each_project():
 
     projects = get_request(relative_url=url)
     for project in projects:
-        project.pop('Preset@odata.context')
+        if 'Preset@odata.context' in project.keys():
+            project.pop('Preset@odata.context')
 
     return projects
 
