@@ -851,3 +851,116 @@ def scan_previously_uploaded_zip(project_id, uploaded_file_url):
 
     response = post_request(relative_url=url, data=data)
     return response.json().get("scanId")
+
+
+def get_comments_associated_with_a_project(project_id):
+    """
+    Args:
+        project_id (str):
+    Returns:
+        list of dict
+        sample:
+            [
+              {
+                "projectId": "2e100308-5a58-49ea-a003-dbff3481dc5a",
+                "vulnerabilityId": "CVE-2015-7501",
+                "packageId": "Yarn-commons-collections:commons-collections-3.2.1",
+                "comment": "new test",
+                "username": "mynewpseudo",
+                "createdOn": "2022-07-18T10:02:14.57846"
+              },
+              {
+                "projectId": "2e100308-5a58-49ea-a003-dbff3481dc5a",
+                "vulnerabilityId": "Cx78f40514-81ff",
+                "packageId": "Yarn-commons-collections:commons-collections-3.2.1",
+                "comment": "test on another vulnId",
+                "username": "mynewpseudo",
+                "createdOn": "2022-07-19T10:13:55.591269"
+              }
+            ]
+    """
+
+    url = "/risk-management/risk-metadata/{projectId}".format(projectId=project_id)
+    return get_request(relative_url=url)
+
+
+def comment_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, comment):
+    """
+    Args:
+        project_id (str):
+        vulnerability_id (str):
+        package_id (str):
+        comment (str):
+    Returns:
+        is_successful (bool)
+    """
+    is_successful = False
+    url = "/risk-management/risk-metadata"
+    data = json.dumps(
+        {
+            "projectId": project_id,
+            "packageId": package_id,
+            "vulnerabilityId": vulnerability_id,
+            "comment": comment,
+            "username": "NOT USED"
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        is_successful = True
+    return is_successful
+
+
+def get_states_associated_with_a_project(project_id):
+    """
+    Args:
+        project_id (str):
+    Returns:
+        list of dict
+        sample:
+            [
+              {
+                "projectId": "2e100308-5a58-49ea-a003-dbff3481dc5a",
+                "packageId": "Yarn-commons-collections:commons-collections-3.2.1",
+                "vulnerabilityId": "CVE-2015-7501",
+                "state": "ToVerify",
+                "createdOn": "2022-07-18T10:02:14.57846"
+              },
+              {
+                "projectId": "2e100308-5a58-49ea-a003-dbff3481dc5a",
+                "packageId": "Yarn-commons-collections:commons-collections-3.2.1",
+                "vulnerabilityId": "Cx78f40514-81ff",
+                "state": "NotExploitable",
+                "createdOn": "2022-07-19T10:13:55.591269"
+              }
+            ]
+    """
+
+    url = "/risk-management/risk-state/{projectId}".format(projectId=project_id)
+    return get_request(relative_url=url)
+
+
+def change_state_of_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, state):
+    """
+    Args:
+        project_id (str):
+        vulnerability_id (str):
+        package_id (str):
+        state (str):
+    Returns:
+        is_successful (bool)
+    """
+    is_successful = False
+    url = "/risk-management/risk-state"
+    data = json.dumps(
+        {
+            "packageId": package_id,
+            "projectId": project_id,
+            "state": state,
+            "vulnerabilityId": vulnerability_id
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        is_successful = True
+    return is_successful
