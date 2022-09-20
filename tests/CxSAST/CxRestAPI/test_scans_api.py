@@ -10,24 +10,17 @@ import time
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
 
-
-def get_project_id(project_name="jvl_git"):
-    projects_api = ProjectsAPI()
-    project_name = project_name
-    project_id = projects_api.create_project_if_not_exists_by_project_name_and_team_full_name(
-        project_name, "/CxServer"
-    )
-
-    return project_id
+from .. import get_project_id
 
 
 def test_create_new_scan():
     project_id = get_project_id()
-
     scan_api = ScansAPI()
-    # scan = scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
-    #                                 comment="scan from REST API")
-    # time.sleep(30)
+    # create new scan without scan custom fields
+    scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
+                             comment="scan from REST API")
+    time.sleep(30)
+    # create new scan without scan custom fields
     scan = scan_api.create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True,
                                     custom_fields={"key1": "value1", "key2": "value2"},
                                     comment="scan from Python SDK", api_version="1.2")
@@ -251,7 +244,7 @@ def test_create_new_scan_with_settings():
     preset_id = projects_api.get_preset_id_by_name("All")
     scan = scan_api.create_new_scan_with_settings(project_id=project_id, preset_id=preset_id,
                                                   comment="prest All, private scan",
-                                                  zipped_source_file_path="../JavaVulnerableLab-master.zip",
+                                                  zipped_source_file_path="../../JavaVulnerableLab-master.zip",
                                                   custom_fields={"some1": "baby2"},
                                                   api_version="1.2")
     assert scan is not None
