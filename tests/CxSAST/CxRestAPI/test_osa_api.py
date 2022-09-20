@@ -44,8 +44,8 @@ def test_get_osa_scan_by_scan_id():
 def test_create_an_osa_scan_request():
     project_id = get_project_id()
     osa_api = OsaAPI()
-    parent_folder = dirname(__file__)
-    path = normpath(join(parent_folder, "../../JavaVulnerableLab-master.zip"))
+    file_name = "../../JavaVulnerableLab-master.zip"
+    path = normpath(join(dirname(__file__), file_name))
     scan_id = osa_api.create_an_osa_scan_request(project_id, zipped_source_path=str(path))
     assert scan_id is not None
 
