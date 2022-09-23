@@ -170,3 +170,6 @@ All notable changes to this project will be documented in  this file.
 0.5.7 - 2022-09-23
 * Add Portal SOAP API get_associated_group_list
 * Add Portal SOAP API get_projects_display_data
+
+0.5.8 - 2022-09-23
+* export AccessControlAPI for sca
