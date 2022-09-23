@@ -30,3 +30,5 @@
     - generate_upload_link_for_scanning
     - upload_zip_content_for_scanning
     - scan_previously_uploaded_zip
+
+AccessControlAPI
