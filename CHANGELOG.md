@@ -166,3 +166,7 @@ All notable changes to this project will be documented in  this file.
 
 0.5.6 - 2022-09-20
 * Refactor code to remove duplicate http request logic
+
+0.5.7 - 2022-09-23
+* Add Portal SOAP API get_associated_group_list
+* Add Portal SOAP API get_projects_display_data
