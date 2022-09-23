@@ -12,6 +12,8 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     get_query_collection,
     get_query_id_by_language_group_and_query_name,
     get_preset_list,
+    get_projects_display_data,
+    get_associated_group_list,
     get_server_license_data,
     get_server_license_summary,
     delete_project,
@@ -82,11 +84,17 @@ def test_export_queries():
     #     out_file.write(response.get("Queries"))
 
 
+def test_get_associated_group_list():
+    response = get_associated_group_list()
+    assert response is not None
+
+
 def test_get_compare_scan_results():
     old_scan_id = 1050162
     new_scan_id = 1050164
     response = get_compare_scan_results(old_scan_id=old_scan_id, new_scan_id=new_scan_id)
     assert response is not None
+
 
 def test_get_path_comments_history():
     scan_id = 1000022
@@ -134,13 +142,20 @@ def test_get_preset_list():
     assert response["IsSuccesfull"] is True
 
 
+def test_get_projects_display_data():
+    response = get_projects_display_data()
+    assert response is not None
+
+
 def test_get_result_path():
     response = get_result_path(scan_id=1000006, path_id=1)
     assert response["IsSuccesfull"] is True
 
+
 def test_get_results_for_scan():
     response = get_results_for_scan(scan_id=1000006)
     assert response["IsSuccesfull"] is True
+
 
 def test_get_server_license_data():
     lic = get_server_license_data()

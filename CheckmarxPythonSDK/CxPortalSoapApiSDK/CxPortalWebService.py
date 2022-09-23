@@ -383,6 +383,48 @@ def export_queries(queries_ids):
     }
 
 
+def get_associated_group_list():
+    """
+
+    Returns:
+        {
+            'IsSuccesfull': True,
+            'ErrorMessage': None,
+            'GroupList': [
+                {
+                    'FullPath': '/CxServer',
+                    'GroupName': 'CxServer',
+                    'Guid': '1',
+                    'ID': '1',
+                    'Path': None,
+                    'Type': 'Team'
+                }
+            ]
+        }
+    """
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetAssociatedGroupsList(SessionID="0")
+
+    response = execute()
+    group_list = response.GroupList
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "GroupList": [
+            {
+                "FullPath": item["FullPath"],
+                "GroupName": item["GroupName"],
+                "Guid": item["Guid"],
+                "ID": item["ID"],
+                "Path": item["Path"],
+                "Type": item["Type"],
+            } for item in group_list.Group
+        ] if group_list else None
+    }
+
+
 def get_compare_scan_results(old_scan_id, new_scan_id):
     """
 
@@ -699,6 +741,71 @@ def get_preset_list():
                 "isUserAllowToDelete": item["isUserAllowToDelete"]
             } for item in preset_list["Preset"]
         ] if preset_list else None
+    }
+
+
+def get_projects_display_data():
+    """
+
+    Returns:
+    {
+        "IsSuccesfull": True,
+        "ErrorMessage": None,
+        "ProjectList": [
+            {
+                'Company': None,
+                'Group': 'CxServer',
+                'IsPublic': True,
+                'LastScanDate': {
+                        'Hour': 10,
+                        'Minute': 5,
+                        'Second': 2,
+                        'Day': 23,
+                        'Month': 9,
+                        'Year': 2022
+                    },
+                'Owner': 'Admin',
+                'Permission': {
+                    'IsAllowedToDelete': True,
+                    'IsAllowedToDuplicate': True,
+                    'IsAllowedToRun': True,
+                    'IsAllowedToUpdate': True
+                },
+                'Preset': 'Checkmarx Default',
+                'ProjectName': 'jvl_git',
+                'ServiceProvider': None,
+                'TotalOsaScans': 0,
+                'TotalScans': 41,
+                'projectID': 5
+            }
+        ]
+    """
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetProjectsDisplayData(sessionID="0")
+
+    response = execute()
+    project_list = response.projectList
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "ProjectList": [
+            {
+                "Company": item["Company"],
+                "Group": item["Group"],
+                "IsPublic": item["IsPublic"],
+                "LastScanDate": item["LastScanDate"],
+                "Owner": item["Owner"],
+                "Permission": item["Permission"],
+                "Preset": item["Preset"],
+                "ProjectName": item["ProjectName"],
+                "ServiceProvider": item["ServiceProvider"],
+                "TotalOsaScans": item["TotalOsaScans"],
+                "TotalScans": item["TotalScans"],
+                "projectID": item["projectID"],
+            } for item in project_list.ProjectDisplayData
+        ] if project_list else None
     }
 
 
