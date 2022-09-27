@@ -6,7 +6,7 @@ api_url = "/auth/admin/realms"
 
 def get_realms():
     relative_url = api_url
-    response = get_request(relative_url=relative_url, is_access_control=True)
+    response = get_request(relative_url=relative_url)
     return response
 
 
@@ -64,6 +64,6 @@ def get_users(realm, brief_representation=False, email=None, email_verified=None
     relative_url += get_url_param("search", search)
     relative_url += get_url_param("username", username)
 
-    response = get_request(relative_url=relative_url, is_access_control=True)
+    response = get_request(relative_url=relative_url)
     response = response.json()
     return response
