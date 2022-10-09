@@ -173,3 +173,6 @@ All notable changes to this project will be documented in  this file.
 
 0.5.8 - 2022-09-23
 * export AccessControlAPI for sca
+
+0.5.9 - 2022-10-09
+* make change to ScansAPI, method get_last_scan_id_of_a_project
