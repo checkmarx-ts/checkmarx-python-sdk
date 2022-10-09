@@ -40,7 +40,8 @@ def test_get_last_scan_id_of_a_project():
     project_id = get_project_id()
 
     scan_api = ScansAPI()
-    scan_id = scan_api.get_last_scan_id_of_a_project(project_id)
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True, only_completed_scans=True,
+                                                     only_real_scans=True, only_full_scans=True)
     assert scan_id > 1
 
 

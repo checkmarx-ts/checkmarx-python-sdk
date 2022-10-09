@@ -144,31 +144,65 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_last_scan_id_of_a_project(project_id, only_finished_scans=False):
+    def get_last_scan_id_of_a_project(project_id, only_finished_scans=False, only_completed_scans=True,
+                                      only_real_scans=True, only_full_scans=True, only_public_scans=True):
         """
         get the last scan id of a project
 
         Args:
             project_id (int): Unique Id of the project
             only_finished_scans (bool): True for only finished scans
+            only_completed_scans (bool): The finishedScanStatus could be Completed or Partial, True for Completed
+            only_real_scans (bool): There could be attempted scans, which changed the date of the scan start,
+                       but was never performed because there was no change in the code. For field dateAndTime, if the
+                       startedOn is different from finishedOn, it is a real scan
+            only_full_scans (bool): True for only full scans
+            only_public_scans (bool): True for only public scans
 
         Returns:
             int: scan id
         """
         scan_id = None
 
-        if project_id:
-            all_scans_for_this_project = ScansAPI.get_all_scans_for_project(project_id)
+        if not project_id:
+            return scan_id
 
-            if only_finished_scans:
-                all_scans_for_this_project = filter(lambda scan: scan.status.name == "Finished",
-                                                    all_scans_for_this_project)
+        all_scans_for_this_project = ScansAPI.get_all_scans_for_project(project_id)
 
-            all_scans_for_this_project = sorted(all_scans_for_this_project,
-                                                key=lambda scan: scan.id,
-                                                reverse=True)
-            if len(all_scans_for_this_project) > 0:
-                scan_id = all_scans_for_this_project[0].id
+        if only_finished_scans:
+            all_scans_for_this_project = filter(
+                lambda scan: scan.status.name == "Finished",
+                all_scans_for_this_project
+            )
+        if only_completed_scans:
+            all_scans_for_this_project = filter(
+                lambda scan: scan.finished_scan_status.value == 'Completed',
+                all_scans_for_this_project
+            )
+
+        if only_real_scans:
+            all_scans_for_this_project = filter(
+                lambda scan: scan.date_and_time.started_on != scan.date_and_time.finished_on,
+                all_scans_for_this_project
+            )
+
+        if only_full_scans:
+            all_scans_for_this_project = filter(
+                lambda scan: scan.is_incremental is False,
+                all_scans_for_this_project
+            )
+
+        if only_public_scans:
+            all_scans_for_this_project = filter(
+                lambda scan: scan.is_public is True,
+                all_scans_for_this_project
+            )
+
+        all_scans_for_this_project = sorted(all_scans_for_this_project,
+                                            key=lambda scan: scan.id,
+                                            reverse=True)
+        if len(all_scans_for_this_project) > 0:
+            scan_id = all_scans_for_this_project[0].id
 
         return scan_id
 
