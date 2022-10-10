@@ -207,9 +207,15 @@ def get_header_closure():
 get_header_func = get_header_closure()
 
 
-def retry_when_unauthorized(function_to_send_request, data, get_data_from_config, relative_url, auth=None, headers=()):
+def retry_when_unauthorized(function_to_send_request, data, get_data_from_config, relative_url, auth=None, headers=(),
+                            is_iam=False):
     server_url, token_url, timeout, verify, cert, token_req_data = get_data_from_config()
     url = server_url + relative_url
+    if is_iam:
+        http_fqdn_list = token_url.split("/")[0:3]
+        http_fqdn_list.pop(1)
+        access_control_url = "//".join(http_fqdn_list)
+        url = access_control_url + relative_url
     origin_headers = get_header_func(token_url, token_req_data, timeout, verify, cert)
     origin_headers.update(headers)
     response = function_to_send_request(url, data, auth, timeout, origin_headers, verify=verify, cert=cert)
@@ -220,7 +226,7 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
     return response
 
 
-def http_get(get_data_from_config, relative_url, auth=None, headers=()):
+def http_get(get_data_from_config, relative_url, auth=None, headers=(), is_iam=False):
     return retry_when_unauthorized(
         function_to_send_request=get,
         data=None,
@@ -228,10 +234,11 @@ def http_get(get_data_from_config, relative_url, auth=None, headers=()):
         relative_url=relative_url,
         auth=auth,
         headers=headers,
+        is_iam=is_iam,
     )
 
 
-def http_post(data, get_data_from_config, relative_url, auth=None, headers=()):
+def http_post(data, get_data_from_config, relative_url, auth=None, headers=(), is_iam=False):
     return retry_when_unauthorized(
         function_to_send_request=post,
         data=data,
@@ -239,10 +246,11 @@ def http_post(data, get_data_from_config, relative_url, auth=None, headers=()):
         relative_url=relative_url,
         auth=auth,
         headers=headers,
+        is_iam=is_iam,
     )
 
 
-def http_put(data, get_data_from_config, relative_url, auth=None, headers=()):
+def http_put(data, get_data_from_config, relative_url, auth=None, headers=(), is_iam=False):
     return retry_when_unauthorized(
         function_to_send_request=put,
         data=data,
@@ -250,10 +258,11 @@ def http_put(data, get_data_from_config, relative_url, auth=None, headers=()):
         relative_url=relative_url,
         auth=auth,
         headers=headers,
+        is_iam=is_iam,
     )
 
 
-def http_patch(data, get_data_from_config, relative_url, auth=None, headers=()):
+def http_patch(data, get_data_from_config, relative_url, auth=None, headers=(), is_iam=False):
     return retry_when_unauthorized(
         function_to_send_request=patch,
         data=data,
@@ -261,10 +270,11 @@ def http_patch(data, get_data_from_config, relative_url, auth=None, headers=()):
         relative_url=relative_url,
         auth=auth,
         headers=headers,
+        is_iam=is_iam,
     )
 
 
-def http_delete(get_data_from_config, relative_url, data=None, auth=None, headers=()):
+def http_delete(get_data_from_config, relative_url, data=None, auth=None, headers=(), is_iam=False):
     return retry_when_unauthorized(
         function_to_send_request=delete,
         data=data,
@@ -272,24 +282,25 @@ def http_delete(get_data_from_config, relative_url, data=None, auth=None, header
         relative_url=relative_url,
         auth=auth,
         headers=headers,
+        is_iam=is_iam,
     )
 
 
 def build_request_funcs(get_data_from_config):
-    def get_request(relative_url, auth=None, headers=()):
-        return http_get(get_data_from_config, relative_url, auth=auth, headers=headers)
+    def get_request(relative_url, auth=None, headers=(), is_iam=False):
+        return http_get(get_data_from_config, relative_url, auth=auth, headers=headers, is_iam=is_iam)
 
-    def post_request(relative_url, data, auth=None, headers=()):
-        return http_post(data, get_data_from_config, relative_url, auth=auth, headers=headers)
+    def post_request(relative_url, data, auth=None, headers=(), is_iam=False):
+        return http_post(data, get_data_from_config, relative_url, auth=auth, headers=headers, is_iam=is_iam)
 
-    def put_request(relative_url, data, auth=None, headers=()):
-        return http_put(data, get_data_from_config, relative_url, auth=auth, headers=headers)
+    def put_request(relative_url, data, auth=None, headers=(), is_iam=False):
+        return http_put(data, get_data_from_config, relative_url, auth=auth, headers=headers, is_iam=is_iam)
 
-    def patch_request(relative_url, data, auth=None, headers=()):
-        return http_patch(data, get_data_from_config, relative_url, auth=auth, headers=headers)
+    def patch_request(relative_url, data, auth=None, headers=(), is_iam=False):
+        return http_patch(data, get_data_from_config, relative_url, auth=auth, headers=headers, is_iam=is_iam)
 
-    def delete_request(relative_url, data=None, auth=None, headers=()):
-        return http_delete(get_data_from_config, relative_url, data=data, auth=auth, headers=headers)
+    def delete_request(relative_url, data=None, auth=None, headers=(), is_iam=False):
+        return http_delete(get_data_from_config, relative_url, data=data, auth=auth, headers=headers, is_iam=is_iam)
 
     return get_request, post_request, put_request, patch_request, delete_request
 

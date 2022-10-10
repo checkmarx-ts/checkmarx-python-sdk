@@ -29,32 +29,88 @@ def get_data_from_config():
 
 get, post, put, patch, delete = build_request_funcs(get_data_from_config)
 
+headers = {
+    "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/106.0.0.0 Safari/537.36"
+}
 
-def get_request(relative_url):
-    response = get(relative_url)
+
+def get_request(relative_url, is_iam=False):
+    """
+
+    Args:
+        relative_url (str):
+        is_iam (bool): True if the endpoint is for Identity And Management
+
+    Returns:
+
+    """
+
+    response = get(relative_url, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 
 
-def post_request(relative_url, data):
-    response = post(relative_url, data)
+def post_request(relative_url, data, is_iam=False):
+    """
+
+    Args:
+        relative_url (str):
+        data (str):
+        is_iam (bool): True if the endpoint is for Identity And Management
+
+    Returns:
+
+    """
+    response = post(relative_url, data, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 
 
-def put_request(relative_url, data):
-    response = put(relative_url, data)
+def put_request(relative_url, data, is_iam=False):
+    """
+
+    Args:
+        relative_url (str):
+        data (str):
+        is_iam (bool): True if the endpoint is for Identity And Management
+
+    Returns:
+
+    """
+    response = put(relative_url, data, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 
 
-def patch_request(relative_url, data):
-    response = patch(relative_url, data)
+def patch_request(relative_url, data, is_iam=False):
+    """
+
+    Args:
+        relative_url (str):
+        data (str):
+        is_iam (bool): True if the endpoint is for Identity And Management
+
+    Returns:
+
+    """
+    response = patch(relative_url, data, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 
 
-def delete_request(relative_url, data=None):
-    response = delete(relative_url, data)
+def delete_request(relative_url, data=None, is_iam=False):
+    """
+
+    Args:
+        relative_url (str):
+        data (str):
+        is_iam (bool): True if the endpoint is for Identity And Management
+
+    Returns:
+
+    """
+    response = delete(relative_url, data, is_iam=is_iam, headers=headers)
     check_response(response)
     return response

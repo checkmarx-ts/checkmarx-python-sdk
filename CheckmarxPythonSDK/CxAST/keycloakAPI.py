@@ -6,7 +6,7 @@ api_url = "/auth/admin/realms"
 
 def get_realms():
     relative_url = api_url
-    response = get_request(relative_url=relative_url)
+    response = get_request(relative_url=relative_url, is_iam=True)
     return response
 
 
