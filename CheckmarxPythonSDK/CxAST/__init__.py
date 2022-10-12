@@ -24,7 +24,7 @@ from .healthCheckServiceAPI import (
     get_health_of_the_sast_engines,
 )
 
-from .keycloakAPI import (
+from .KeycloakAPI import (
     get_realms,
     get_users,
 )
