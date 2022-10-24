@@ -587,57 +587,65 @@ def get_query_collection():
         return client.service.GetQueryCollection(sessionId="0")
 
     response = execute()
+    query_groups = []
+    for query_group in response.QueryGroups.CxWSQueryGroup:
+        if query_group.Queries:
+            queries = [
+                {
+                    "Categories": [
+                        {
+                            "CategoryName": category.CategoryName,
+                            "CategoryType": {
+                                "Id": category.CategoryType.Id,
+                                "Name": category.CategoryType.Name,
+                                "Order": category.CategoryType.Order,
+                            },
+                            "Id": category.Id
+                        } for category in query.Categories.CxQueryCategory
+                    ] if query.Categories else query.Categories,
+                    "Cwe": query.Cwe,
+                    "CxDescriptionID": query.CxDescriptionID,
+                    "EngineMetadata": query.EngineMetadata,
+                    "IsEncrypted": query.IsEncrypted,
+                    "IsExecutable": query.IsExecutable,
+                    "Name": query.Name,
+                    "PackageId": query.PackageId,
+                    "QueryId": query.QueryId,
+                    "QueryVersionCode": query.QueryVersionCode,
+                    "Severity": query.Severity,
+                    "Source": query.Source,
+                    "Status": query.Status,
+                    "Type": query.Type,
+                } for query in query_group.Queries.CxWSQuery
+            ]
+        else:
+            print(f'query group {query_group.LanguageName}:{query_group.PackageTypeName}:{query_group.Name} has no queries')
+            queries = []
+        qg = {
+            "Description": query_group.Description,
+            "Impacts": query_group.Impacts,
+            "IsEncrypted": query_group.IsEncrypted,
+            "IsReadOnly": query_group.IsReadOnly,
+            "Language": query_group.Language,
+            "LanguageName": query_group.LanguageName,
+            "LanguageStateDate": query_group.LanguageStateDate,
+            "LanguageStateHash": query_group.LanguageStateHash,
+            "Name": query_group.Name,
+            "OwningTeam": query_group.OwningTeam,
+            "PackageFullName": query_group.PackageFullName,
+            "PackageId": query_group.PackageId,
+            "PackageType": query_group.PackageType,
+            "PackageTypeName": query_group.PackageTypeName,
+            "ProjectId": query_group.ProjectId,
+            "Queries": queries,
+            "Status": query_group.Status
+        }
+
+        query_groups.append(qg)
     return {
         "IsSuccesfull": response.IsSuccesfull,
         "ErrorMessage": response.ErrorMessage,
-        "QueryGroups": [
-            {
-                "Description": query_group.Description,
-                "Impacts": query_group.Impacts,
-                "IsEncrypted": query_group.IsEncrypted,
-                "IsReadOnly": query_group.IsReadOnly,
-                "Language": query_group.Language,
-                "LanguageName": query_group.LanguageName,
-                "LanguageStateDate": query_group.LanguageStateDate,
-                "LanguageStateHash": query_group.LanguageStateHash,
-                "Name": query_group.Name,
-                "OwningTeam": query_group.OwningTeam,
-                "PackageFullName": query_group.PackageFullName,
-                "PackageId": query_group.PackageId,
-                "PackageType": query_group.PackageType,
-                "PackageTypeName": query_group.PackageTypeName,
-                "ProjectId": query_group.ProjectId,
-                "Queries": [
-                    {
-                        "Categories": [
-                            {
-                                "CategoryName": category.CategoryName,
-                                "CategoryType": {
-                                    "Id": category.CategoryType.Id,
-                                    "Name": category.CategoryType.Name,
-                                    "Order": category.CategoryType.Order,
-                                },
-                                "Id": category.Id
-                            } for category in query.Categories.CxQueryCategory
-                        ] if query.Categories else query.Categories,
-                        "Cwe": query.Cwe,
-                        "CxDescriptionID": query.CxDescriptionID,
-                        "EngineMetadata": query.EngineMetadata,
-                        "IsEncrypted": query.IsEncrypted,
-                        "IsExecutable": query.IsExecutable,
-                        "Name": query.Name,
-                        "PackageId": query.PackageId,
-                        "QueryId": query.QueryId,
-                        "QueryVersionCode": query.QueryVersionCode,
-                        "Severity": query.Severity,
-                        "Source": query.Source,
-                        "Status": query.Status,
-                        "Type": query.Type,
-                    } for query in query_group.Queries.CxWSQuery
-                ],
-                "Status": query_group.Status
-            } for query_group in response.QueryGroups.CxWSQueryGroup
-        ]
+        "QueryGroups": query_groups
     }
 
 
