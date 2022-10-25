@@ -26,7 +26,9 @@ from .healthCheckServiceAPI import (
 
 from .KeycloakAPI import (
     get_realms,
+
     get_users,
+    create_a_new_user,
 )
 
 from .kicsResultsAPI import (
