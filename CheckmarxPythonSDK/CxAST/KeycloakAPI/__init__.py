@@ -1,4 +1,5 @@
 from .RootAPI import get_realms
 from .UsersAPI import (
-    get_users
+    get_users,
+    create_a_new_user
 )

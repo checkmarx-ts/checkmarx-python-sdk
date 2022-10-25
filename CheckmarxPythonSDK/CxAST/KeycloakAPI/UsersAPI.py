@@ -1,3 +1,4 @@
+from ...utilities.compat import CREATED
 from ..httpRequests import get_request, post_request, put_request, delete_request
 from ..utilities import get_url_param, type_check
 from .url import api_url
@@ -73,11 +74,13 @@ def create_a_new_user(realm, user_representation):
         user_representation (UserRepresentation):
 
     Returns:
-
+        bool
     """
+    result = False
     relative_url = api_url + "/{realm}/users?".format(realm=realm)
     type_check(user_representation, UserRepresentation)
     post_data = user_representation.get_post_data()
     response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
-    response = response.json()
-    return response
+    if response.status_code == CREATED:
+        result = True
+    return result

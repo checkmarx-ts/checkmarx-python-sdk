@@ -2,11 +2,14 @@ import json
 
 
 class UserRepresentation(object):
-    def __init__(self, access, attributes, client_consents, client_roles, created_timestamp, credentials,
-                 disable_able_credential_types, email, email_verified, enabled, federated_identities, federation_link,
-                 first_name, groups, user_id, last_name, not_before, origin, realm_roles, required_actions, user_self,
-                 service_account_client_id, username):
+    def __init__(self, access=None, attributes=None, client_consents=None, client_roles=None, created_timestamp=None,
+                 credentials=None, disable_able_credential_types=None, email=None, email_verified=None, enabled=None,
+                 federated_identities=None, federation_link=None,
+                 first_name=None, groups=None, user_id=None, last_name=None, not_before=None, origin=None,
+                 realm_roles=None, required_actions=None, user_self=None,
+                 service_account_client_id=None, username=None):
         """
+        when used to create new user, username, email, first_name, last_name is required.
 
         Args:
             access:
@@ -16,7 +19,7 @@ class UserRepresentation(object):
             created_timestamp:
             credentials:
             disable_able_credential_types:
-            email:
+            email :
             email_verified:
             enabled:
             federated_identities:
