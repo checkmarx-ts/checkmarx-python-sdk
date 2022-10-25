@@ -619,7 +619,6 @@ def get_query_collection():
                 } for query in query_group.Queries.CxWSQuery
             ]
         else:
-            print(f'query group {query_group.LanguageName}:{query_group.PackageTypeName}:{query_group.Name} has no queries')
             queries = []
         qg = {
             "Description": query_group.Description,
