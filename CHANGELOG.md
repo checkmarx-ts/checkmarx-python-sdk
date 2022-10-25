@@ -176,3 +176,6 @@ All notable changes to this project will be documented in  this file.
 
 0.5.9 - 2022-10-09
 * make change to ScansAPI, method get_last_scan_id_of_a_project
+
+0.6.0 - 2022-10-25
+* Fix Portal SOAP API get_query_collection to handle query group without queries
