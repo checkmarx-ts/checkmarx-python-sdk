@@ -29,6 +29,9 @@ from .KeycloakAPI import (
 
     get_users,
     create_a_new_user,
+
+
+    get_group_hierarchy,
 )
 
 from .kicsResultsAPI import (
