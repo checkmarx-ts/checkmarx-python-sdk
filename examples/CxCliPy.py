@@ -53,9 +53,9 @@ def get_command_line_arguments():
     description = 'A simple command-line interface for CxSAST in Python.'
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('scan')
-    parser.add_argument('-cxsast_base_url', '--cxsast_base_url', required=True, help="CxSAST base url, for example: https://localhost")
-    parser.add_argument('-cxsast_username', '--cxsast_username', required=True, help="CxSAST username")
-    parser.add_argument('-cxsast_password', '--cxsast_password', required=True, help="CxSAST password")
+    parser.add_argument('--cxsast_base_url', required=True, help="CxSAST base url, for example: https://localhost")
+    parser.add_argument('--cxsast_username', required=True, help="CxSAST username")
+    parser.add_argument('--cxsast_password', required=True, help="CxSAST password")
     parser.add_argument('-preset', '--preset', required=True, help="The preset (rule set) name")
     parser.add_argument('-incremental', '--incremental', default=False, help="Set it True if make it an incremental scan")
     parser.add_argument('-location_type', '--location_type', required=True, help="Folder, Git")
@@ -205,11 +205,13 @@ def generate_report(scan_id: int, report_type: str, report_file_path: str):
 
     logger.info("get report status by id")
     while not scan_api.is_report_generation_finished(report_id):
+        logger.info("report generating")
         time.sleep(10)
 
     logger.info("get report by id")
     report_content = scan_api.get_report_by_id(report_id)
 
+    logger.info("write original report")
     with open(str(report_file_path), "wb") as f_out:
         f_out.write(report_content)
 
@@ -233,10 +235,13 @@ def update_csv_report(cx_report_file_path, scan_id):
     Returns:
 
     """
+    logger.info("update csv report")
     if not pathlib.Path(cx_report_file_path).exists():
         logger.info(f"report does not exist, file path: {cx_report_file_path}")
         return
     import csv
+    from collections import OrderedDict
+    logger.info("get similarity id by using ODATA API")
     similarity_id_path_ids = get_similarity_ids_of_a_scan(scan_id=scan_id)
     sim_path_dict = {}
     for pair in similarity_id_path_ids:
@@ -244,21 +249,23 @@ def update_csv_report(cx_report_file_path, scan_id):
 
     logger.info("read csv file")
     csv_content = []
-    field_names = []
-    with open(cx_report_file_path, newline='', encoding="utf-8") as csvfile:
+    with open(cx_report_file_path, newline='', encoding="utf-8-sig") as csvfile:
         reader = csv.DictReader(csvfile)
         field_names = reader.fieldnames
+        field_names = [item for item in field_names]
+        field_names.append('SimilarityID')
         for row in reader:
             path_id = row.get("Link").split('&')[2].split('=')[1]
             path_id = int(path_id)
             similarity_id = sim_path_dict.get(path_id)
-            row["SimilarityID"] = similarity_id
-            csv_content.append(row)
-
+            new_ordered_dict = OrderedDict()
+            for key, value in row.items():
+                new_ordered_dict[key] = value
+            new_ordered_dict['SimilarityID'] = similarity_id
+            csv_content.append(new_ordered_dict)
     logger.info("write csv file")
-    with open(cx_report_file_path, 'w', newline='', encoding="utf-8") as csvfile:
-        field_names.append("SimilarityID")
-        writer = csv.DictWriter(csvfile, fieldnames=field_names)
+    with open(cx_report_file_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=field_names, dialect='unix')
         writer.writeheader()
         writer.writerows(csv_content)
 
