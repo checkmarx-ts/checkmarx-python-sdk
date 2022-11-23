@@ -11,9 +11,8 @@ Sample usage
 """
 import pathlib
 import time
-from datetime import datetime
 import os
-from os.path import normpath, join, dirname, exists
+from os.path import exists
 from zipfile import ZipFile, ZIP_DEFLATED
 import logging
 
@@ -27,7 +26,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def get_cx_supported_file_extentions():
+def get_cx_supported_file_extensions():
     return [
         '.apex', '.apexp', '.asax', '.ascx', '.asp', '.aspx', '.bas', '.bdy', '.c', '.c++', '.cc', '.cgi', '.cls',
         '.component', '.conf', '.config', '.cpp', '.cs', '.cshtml', '.csproj', '.ctl', '.ctp', '.cxx', '.dsr', '.ec',
@@ -83,7 +82,7 @@ def create_zip_file_from_location_path(location_path_str: str, project_name: str
     from pathlib import Path
     import tempfile
     temp_dir = tempfile.gettempdir()
-    extentions = get_cx_supported_file_extentions()
+    extensions = get_cx_supported_file_extensions()
     path = Path(location_path_str)
     if not path.exists():
         raise FileExistsError(f"{location_path_str} does not exist, abort scan")
@@ -95,7 +94,7 @@ def create_zip_file_from_location_path(location_path_str: str, project_name: str
                     or "images" in base:
                 continue
             for file in files:
-                if file.startswith(".") and not file.endswith(tuple(extentions)):
+                if file.startswith(".") and not file.endswith(tuple(extensions)):
                     continue
                 fn = os.path.join(base, file)
                 zip_file.write(fn, fn[root_len:])
