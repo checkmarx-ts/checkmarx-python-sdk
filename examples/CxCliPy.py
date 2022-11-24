@@ -6,8 +6,8 @@ pyinstaller -y -F --clean CxCliPy.py
 Sample usage
 /home/happy/Documents/CxCliPy/dist/CxCliPy scan --cxsast_base_url http://192.168.3.84 --cxsast_username Admin
 --cxsast_password *** --preset All --incremental False --location_type Folder
---location_path /home/happy/Documents/JavaVulnerableLab --team_full_name /CxServer
---project_name happy-2022-11-21 --exclude_folders "test" --report_csv cx-report.csv
+--location_path /home/happy/Documents/JavaVulnerableLab
+--project_name /CxServer/happy-2022-11-21 --exclude_folders "test" --report_csv cx-report.csv
 """
 import pathlib
 import time
@@ -59,8 +59,7 @@ def get_command_line_arguments():
     parser.add_argument('-incremental', '--incremental', default=False, help="Set it True if make it an incremental scan")
     parser.add_argument('-location_type', '--location_type', required=True, help="Folder, Git")
     parser.add_argument('-location_path', '--location_path', required=True, help="Source code folder absolute path")
-    parser.add_argument('-team_full_name', '--team_full_name', required=True, help="team full name, for example /CxServer/Company")
-    parser.add_argument('-project_name', '--project_name', required=True, help="Checkmarx project name")
+    parser.add_argument('-project_name', '--project_name', required=True, help="Checkmarx project full path")
     parser.add_argument('-exclude_folders', '--exclude_folders', help="exclude folders")
     parser.add_argument('-exclude_files', '--exclude_files', help='exclude files')
     parser.add_argument('-report_xml', '--report_xml', default=None, help="xml report file path")
@@ -274,8 +273,7 @@ def run_scan_and_generate_reports(arguments):
     incremental = False if arguments.incremental.lower() == "false" else True
     location_type = arguments.location_type
     location_path = arguments.location_path
-    team_full_name = arguments.team_full_name
-    project_name = arguments.project_name
+    project_full_path = arguments.project_name
     exclude_folders = arguments.exclude_folders
     exclude_files = arguments.exclude_files
     report_xml = arguments.report_xml
@@ -286,14 +284,16 @@ def run_scan_and_generate_reports(arguments):
         f"incremental: {incremental}\n"
         f"location_type: {location_type}\n"
         f"location_path: {location_path}\n"
-        f"team_full_name: {team_full_name}\n"
-        f"project_name: {project_name}\n"
+        f"project_name: {project_full_path}\n"
         f"report_xml: {report_xml}\n"
         f"report_pdf: {report_pdf}\n"
         f"report_csv: {report_csv}\n"
     )
 
     logger.info(f"creating zip file by zip the source code folder: {location_path}")
+    l = project_full_path.split("/")
+    project_name = l[-1]
+    team_full_name = "/".join(l[0:len(l)-1])
     zip_file_path = create_zip_file_from_location_path(location_path, project_name)
     logger.info(f"ZIP file created: {zip_file_path}")
     scan_id = cx_scan_from_local_zip_file(preset_name=preset, team_full_name=team_full_name, project_name=project_name,
