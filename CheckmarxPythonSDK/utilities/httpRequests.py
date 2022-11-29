@@ -1,6 +1,7 @@
 # encoding: utf-8
 # For REST API, using Python requests package to initiate the requests, and get response
 import requests
+import logging
 from CheckmarxPythonSDK.utilities.compat import (
     OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED, ACCEPTED
 )
@@ -9,6 +10,8 @@ from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
 disable_warnings(InsecureRequestWarning)
+
+logger = logging.getLogger("CheckmarxPythonSDK")
 
 
 def request(method, url, params=None, data=None, json=None, files=None, auth=None, timeout=None, headers=None,
@@ -218,10 +221,28 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
         url = access_control_url + relative_url
     origin_headers = get_header_func(token_url, token_req_data, timeout, verify, cert)
     origin_headers.update(headers)
+    logger.debug(
+        "first http request:"
+        "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, "
+        "origin_headers: {origin_headers}, verify: {verify}, cert: {cert}".format(
+            method=function_to_send_request.__name__, url=url, data=data, auth=auth, timeout=timeout,
+            origin_headers=origin_headers, verify=verify, cert=cert
+        )
+    )
     response = function_to_send_request(url, data, auth, timeout, origin_headers, verify=verify, cert=cert)
     if UNAUTHORIZED == response.status_code:
         new_auth_header = get_header_func(token_url, token_req_data, timeout, verify, cert, token_expired=True)
         new_auth_header.update(headers)
+        logger.debug(
+            "http response status code is UNAUTHORIZED !\n."
+            "renew token, and send second http request:"
+            "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, "
+            "new_auth_header: {new_auth_header}, verify: {verify}, cert: {cert}".format(
+                method=function_to_send_request.__name__, url=url, data=data, auth=auth, timeout=timeout,
+                new_auth_header=new_auth_header, verify=verify,
+                cert=cert
+            )
+        )
         response = function_to_send_request(url, data, auth, timeout, new_auth_header, verify=verify, cert=cert)
     return response
 
@@ -334,5 +355,10 @@ def check_response_status_code(response):
         raise BadRequestError(response.text)
     elif status_code == NOT_FOUND:
         raise NotFoundError()
+    elif status_code == FORBIDDEN:
+        raise CxError(
+            response.text + " Please check the scope in your configuration file, please check if you have permission",
+            status_code
+        )
     else:
         raise CxError(response.text, status_code)

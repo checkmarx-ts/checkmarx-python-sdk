@@ -1,3 +1,4 @@
+import logging
 import sys
 import os
 import json
@@ -14,6 +15,7 @@ else:
     configparser = configparser
 
 from optparse import (OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError)
+logger = logging.getLogger("CheckmarxPythonSDK")
 
 
 class PassThroughOptionParser(OptionParser):
@@ -234,13 +236,23 @@ def get_config(config_default, section, prefix):
     config_from_cli = clean_null_terms(config_from_cli)
 
     config = {}
+    logger.debug("default config value: {}".format(config_default))
     config.update(config_default)
+    logger.debug("config from config.ini file: {}".format(config_from_ini_file))
     config.update(config_from_ini_file)
+    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug("config from config.json. file: {}".format(config_from_json_file))
     config.update(config_from_json_file)
+    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug("config_from_env: {}".format(config_from_env))
     config.update(config_from_env)
+    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug("config_from_cli: {}".format(config_from_cli))
     config.update(config_from_cli)
+    logger.debug("override the config value, now the config value is: {}".format(config))
 
     if os.getenv("use_keyring"):
+        logger.debug("there is environment variable use_keyring, get password from key ring")
         config.update({"password": get_password_from_keyring(section=section, username=config.get("username"))})
-
+    logger.debug("final config value is: {}".format(config))
     return config
