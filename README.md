@@ -145,6 +145,10 @@ For CxAST:
     - cxreporting_client_id
     - cxreporting_client_secret
 
+# Debug Mode
+You can use command line option `--cx_debug true` to enable debug mode. In debug mode, it will print out how to load the
+configuration file and print every http request send out.
+
 # Examples
  Please find example scripts from [here](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
 
