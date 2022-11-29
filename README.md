@@ -67,7 +67,7 @@ account = ***
 username = ***
 password = ***
 
-[CxAST]
+[CxOne]
 access_control_url = https://iam.checkmarx.net
 server = https://ast.checkmarx.net
 tenant_name  = ***
@@ -97,7 +97,7 @@ By default, Checkmarx Python SDK looks for `config.ini` or `config.json` file in
 
 You can also use `checkmarx_config_path` as environment variable  or command line argument to set up configuration file path.
 
-For CxAST configuration, if you are going to use refresh_token grant type, you must use client id "ast-app", 
+For CxOne configuration, if you are going to use refresh_token grant type, you must use client id "ast-app", 
 refresh_token, ignore client_secret, username, password. If you are going to use client_credentials grant type, 
 you must create a client with roles such as ast-scanner, manage-webhook, queries-editor, ast-viewer, manage-application,
 manage-project, then fill in your own client_id, client secret, username, password, ignore the refresh_token.
@@ -122,17 +122,17 @@ For CxSCA:
     - cxsca_username
     - cxsca_password
 
-For CxAST:
+For CxOne:
     
-    - cxast_access_control_url
-    - cxast_server
-    - cxast_tenant_name
-    - cxast_grant_type
-    - cxast_client_id
-    - cxast_client_secret
-    - cxast_username
-    - cxast_password
-    - cxast_refresh_token
+    - cxone_access_control_url
+    - cxone_server
+    - cxone_tenant_name
+    - cxone_grant_type
+    - cxone_client_id
+    - cxone_client_secret
+    - cxone_username
+    - cxone_password
+    - cxone_refresh_token
  
  For CxReporting
  
@@ -155,7 +155,7 @@ configuration file and print every http request send out.
 
 # API List
 
-- [CxAST_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxAST_REST_API_List.md)
+- [CxOne_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxOne_REST_API_List.md)
 - [CxSAST_and_CxOSA_REST_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_and_CxOSA_REST_API_List.md)
 - [CxSAST_ODATA_API](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_ODATA_API.md)
 - [CxSAST_Portal_SOAP_API_List](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/docs/CxSAST_Portal_SOAP_API_List.md)
