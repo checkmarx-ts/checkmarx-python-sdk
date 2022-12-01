@@ -1,4 +1,4 @@
-from CheckmarxPythonSDK.CxAST import (
+from CheckmarxPythonSDK.CxOne import (
 
     get_a_list_of_applications,
 
@@ -6,7 +6,7 @@ from CheckmarxPythonSDK.CxAST import (
 
 )
 
-from CheckmarxPythonSDK.CxAST import (
+from CheckmarxPythonSDK.CxOne import (
 
     get_a_list_of_projects,
 
@@ -27,7 +27,3 @@ if __name__ == '__main__':
     ast_applications = get_a_list_of_applications()
 
     print(ast_applications)
-
-    file = open("logs.txt", "a")
-
-    file.write(ast_applications)
