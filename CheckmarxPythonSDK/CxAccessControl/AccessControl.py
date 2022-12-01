@@ -12,6 +12,30 @@ from .accesscontrol.dto import (
 )
 
 
+def construct_user(item):
+    return User(
+        user_id=item.get("id"),
+        username=item.get("userName"),
+        last_login_date=item.get("lastLoginDate"),
+        role_ids=item.get("roleIds"),
+        team_ids=item.get("teamIds"),
+        authentication_provider_id=item.get("authenticationProviderId"),
+        creation_date=item.get("creationDate"),
+        first_name=item.get("firstName"),
+        last_name=item.get("lastName"),
+        email=item.get("email"),
+        phone_number=item.get("phoneNumber"),
+        cell_phone_number=item.get("cellPhoneNumber"),
+        job_title=item.get("jobTitle"),
+        other=item.get("other"),
+        country=item.get("country"),
+        active=item.get("active"),
+        expiration_date=item.get("expirationDate"),
+        allowed_ip_list=item.get("allowedIpList"),
+        locale_id=item.get("localeId")
+    )
+
+
 class AccessControl:
 
     def __init__(self, get_request, post_request, put_request, delete_request):
@@ -39,13 +63,7 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                User(
-                    user_id=item.get("id"),
-                    username=item.get("username"),
-                    first_name=item.get("firstName"),
-                    last_name=item.get("lastName"),
-                    email=item.get("email")
-                ) for item in response.json()
+                construct_user(item) for item in response.json()
             ]
         return result
 
@@ -262,12 +280,7 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                User(
-                    username=item.get("username"),
-                    first_name=item.get("firstName"),
-                    last_name=item.get("lastName"),
-                    email=item.get("email")
-                ) for item in response.json()
+                construct_user(item) for item in response.json()
             ]
         return result
 
@@ -1787,26 +1800,7 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                User(
-                    user_id=item.get("id"),
-                    username=item.get("userName"),
-                    last_login_date=item.get("lastLoginDate"),
-                    role_ids=item.get("roleIds"),
-                    team_ids=item.get("teamIds"),
-                    authentication_provider_id=item.get("authenticationProviderId"),
-                    first_name=item.get("firstName"),
-                    last_name=item.get("lastName"),
-                    email=item.get("email"),
-                    phone_number=item.get("phoneNumber"),
-                    cell_phone_number=item.get("cellPhoneNumber"),
-                    job_title=item.get("jobTitle"),
-                    other=item.get("other"),
-                    country=item.get("country"),
-                    active=item.get("active"),
-                    expiration_date=item.get("expirationDate"),
-                    allowed_ip_list=item.get("allowedIpList"),
-                    locale_id=item.get("localeId")
-                ) for item in response.json()
+                construct_user(item) for item in response.json()
             ]
         return result
 
@@ -2068,26 +2062,7 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                User(
-                    user_id=item.get("id"),
-                    username=item.get("userName"),
-                    last_login_date=item.get("lastLoginDate"),
-                    role_ids=item.get("roleIds"),
-                    team_ids=item.get("teamIds"),
-                    authentication_provider_id=item.get("authenticationProviderId"),
-                    first_name=item.get("firstName"),
-                    last_name=item.get("lastName"),
-                    email=item.get("email"),
-                    phone_number=item.get("phoneNumber"),
-                    cell_phone_number=item.get("cellPhoneNumber"),
-                    job_title=item.get("jobTitle"),
-                    other=item.get("other"),
-                    country=item.get("country"),
-                    active=item.get("active"),
-                    expiration_date=item.get("expirationDate"),
-                    allowed_ip_list=item.get("allowedIpList"),
-                    locale_id=item.get("localeId")
-                ) for item in response.json()
+                construct_user(item) for item in response.json()
             ]
         return result
 
@@ -2177,26 +2152,7 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             item = response.json()
-            result = User(
-                user_id=item.get("id"),
-                username=item.get("userName"),
-                last_login_date=item.get("lastLoginDate"),
-                role_ids=item.get("roleIds"),
-                team_ids=item.get("teamIds"),
-                authentication_provider_id=item.get("authenticationProviderId"),
-                first_name=item.get("firstName"),
-                last_name=item.get("lastName"),
-                email=item.get("email"),
-                phone_number=item.get("phoneNumber"),
-                cell_phone_number=item.get("cellPhoneNumber"),
-                job_title=item.get("jobTitle"),
-                other=item.get("other"),
-                country=item.get("country"),
-                active=item.get("active"),
-                expiration_date=item.get("expirationDate"),
-                allowed_ip_list=item.get("allowedIpList"),
-                locale_id=item.get("localeId")
-            )
+            result = construct_user(item)
         return result
 
     def update_a_user(self, user_id, role_ids, team_ids, first_name, last_name, email, phone_number, cell_phone_number,
@@ -2458,11 +2414,6 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                User(
-                    username=item.get("username"),
-                    first_name=item.get("firstname"),
-                    last_name=item.get("lastname"),
-                    email=item.get("email")
-                ) for item in response.json()
+                construct_user(item) for item in response.json()
             ]
         return result
