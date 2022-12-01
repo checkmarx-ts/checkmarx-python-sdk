@@ -187,3 +187,6 @@ All notable changes to this project will be documented in  this file.
 
 0.6.2 - 2022-12-01
 * add creation_date field to User class in AccessControl
+
+0.6.3 - 2022-12-01
+* add Portal SOAP API postpone_scan
