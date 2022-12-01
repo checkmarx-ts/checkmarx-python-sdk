@@ -184,3 +184,6 @@ All notable changes to this project will be documented in  this file.
 * Add command line option --cx_debug true to enable debug mode. In debug mode, the process to load configuration and every http request will be printed in console
 * Rename CxAST module to CxOne as required by Checkmarx Product Team
 * Add Keycload API dto types
+
+0.6.2 - 2022-12-01
+* add creation_date field to User class in AccessControl
