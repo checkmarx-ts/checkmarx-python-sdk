@@ -1119,6 +1119,28 @@ def lock_scan(scan_id):
     }
 
 
+def postpone_scan(scan_id):
+    """
+
+    Args:
+        scan_id (int):
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.PostponeScan(sessionID="0", RunId=str(scan_id))
+
+    response = execute()
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+    }
+
+
 def unlock_scan(scan_id):
     """
 

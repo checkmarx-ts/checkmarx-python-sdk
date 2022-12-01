@@ -27,6 +27,7 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     import_preset,
     import_queries,
     lock_scan,
+    postpone_scan,
     unlock_scan,
     get_results_for_scan,
     get_result_path,
@@ -210,6 +211,12 @@ def test_import_queries():
 def test_lock_scan():
     scan_id = 1040138
     response = lock_scan(scan_id=scan_id)
+    assert response.get("IsSuccesfull") is True
+
+
+def test_postpone_scan():
+    scan_id = 1000386
+    response = postpone_scan(scan_id=scan_id)
     assert response.get("IsSuccesfull") is True
 
 

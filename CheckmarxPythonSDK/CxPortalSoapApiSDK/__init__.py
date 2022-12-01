@@ -27,6 +27,7 @@ from .CxPortalWebService import (
     import_preset,
     import_queries,
     lock_scan,
+    postpone_scan,
     unlock_scan,
 )
 
