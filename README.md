@@ -12,12 +12,12 @@ By using this SDK, Checkmarx users will be able to do automatic scanning with Cx
 
 For more information about Checkmarx API, please refer to Checkmarx knowledge Center：
 
-- [CxSAST API Document](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/5767170/CxSAST+API+Guide)  
-- [CxOSA API Document](https://checkmarx.atlassian.net/wiki/spaces/CCOD/pages/856653848/CxOSA+API+Guide)
-- [Access Control API Document](https://checkmarx.atlassian.net/wiki/spaces/KC/pages/1098645604/Access+Control+REST+API+Summary)
-- [CxSCA API Document](https://checkmarx.atlassian.net/wiki/spaces/CD/pages/1782087905/CxSCA+APIs)
-- [CxAST API Document](https://checkmarx.atlassian.net/wiki/spaces/AST/pages/3076063341/CxAST+Platform+API+Documentation)
-- [CxReporting API Document](https://checkmarx.atlassian.net/wiki/spaces/RS/pages/5860130923/APIs)
+- [CxSAST API Document](https://checkmarx.com/resource/documents/en/34965-46552-sast-api-guide.html)  
+- [CxOSA API Document](https://checkmarx.com/resource/documents/en/34965-46909-cxosa-api-guide.html)
+- [Access Control API Document](https://checkmarx.com/resource/documents/en/34965-46622-access-control--rest--api--v1-5-and-up-.html)
+- [CxSCA API Document](https://checkmarx.com/resource/documents/en/34965-19221-checkmarx-sca--rest--api-documentation.html)
+- [CxOne API Document](https://checkmarx.com/resource/documents/en/34965-68772-checkmarx-one-api-documentation.html)
+- [CxReporting API Document](https://checkmarx.com/resource/documents/en/34965-93162-apis.html)
 
 # Notice
 
@@ -150,7 +150,7 @@ You can use command line option `--cx_debug true` to enable debug mode. In debug
 configuration file and print every http request send out.
 
 # Examples
- Please find example scripts from [here](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
+ Please find example scripts from [examples folder](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
 
 
 # API List
