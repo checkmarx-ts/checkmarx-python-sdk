@@ -179,3 +179,8 @@ All notable changes to this project will be documented in  this file.
 
 0.6.0 - 2022-10-25
 * Fix Portal SOAP API get_query_collection to handle query group without queries
+
+0.6.1 - 2022-12-01
+* Add command line option --cx_debug true to enable debug mode. In debug mode, the process to load configuration and every http request will be printed in console
+* Rename CxAST module to CxOne as required by Checkmarx Product Team
+* Add Keycload API dto types
