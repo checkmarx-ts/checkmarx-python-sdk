@@ -187,13 +187,61 @@ def test_get_short_vulnerability_description_for_a_scan_result():
     assert short_description is not None
 
 
+def get_similarity_ids_of_a_scan(scan_id):
+    from CheckmarxPythonSDK.CxODataApiSDK.HttpRequests import get_request
+    url = f"/Cxwebinterface/odata/v1/Scans({scan_id})/Results?$select=SimilarityId,PathId"
+    return get_request(relative_url=url)
+
+
+def update_csv_report(cx_report_file_path, scan_id):
+    """
+    update CSV report by add the similarityID column (data retrieved by using ODATA API)
+    Args:
+        cx_report_file_path:
+        scan_id:
+
+    Returns:
+
+    """
+    import pathlib
+    if not pathlib.Path(cx_report_file_path).exists():
+        return
+    import csv
+    from collections import OrderedDict
+    similarity_id_path_ids = get_similarity_ids_of_a_scan(scan_id=scan_id)
+    sim_path_dict = {}
+    for pair in similarity_id_path_ids:
+        sim_path_dict[pair.get("PathId")] = pair.get("SimilarityId")
+    csv_content = []
+    with open(cx_report_file_path, newline='', encoding="utf-8-sig") as csvfile:
+        reader = csv.DictReader(csvfile)
+        field_names = reader.fieldnames
+        field_names = [item for item in field_names]
+        field_names.append('SimilarityID')
+        for row in reader:
+            path_id = row.get("Link").split('&')[2].split('=')[1]
+            path_id = int(path_id)
+            similarity_id = sim_path_dict.get(path_id)
+            new_ordered_dict = OrderedDict()
+            for key, value in row.items():
+                new_ordered_dict[key] = value
+            new_ordered_dict['SimilarityID'] = similarity_id
+            csv_content.append(new_ordered_dict)
+    with open(cx_report_file_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=field_names, dialect='unix')
+        writer.writeheader()
+        writer.writerows(csv_content)
+
+
 def test_register_scan_report():
     project_id = get_project_id()
 
     scan_api = ScansAPI()
-    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True)
+    scan_id = scan_api.get_last_scan_id_of_a_project(project_id, only_finished_scans=True, only_completed_scans=False,
+                                                     only_real_scans=False, only_full_scans=False,
+                                                     only_public_scans=False)
 
-    report_type = "XML"
+    report_type = "CSV"
     scan_report = scan_api.register_scan_report(scan_id, report_type)
     assert scan_report is not None
 
@@ -203,7 +251,10 @@ def test_register_scan_report():
     time.sleep(30)
     report_content = scan_api.get_report_by_id(report_id)
     assert report_content is not None
+    with open(str("cx-report.csv"), "wb") as f_out:
+        f_out.write(report_content)
 
+    update_csv_report(r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk\tests\cx-report.csv", scan_id)
 query_version_code = 56142311
 
 

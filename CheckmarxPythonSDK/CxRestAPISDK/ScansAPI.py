@@ -1097,22 +1097,25 @@ class ScansAPI(object):
         if not exists(normpath(abspath(zipped_source_file_path))):
             print("zipped_source_file_path not exist: {}".format(zipped_source_file_path))
             return None
+        fields = {
+            "projectId": str(project_id),
+            "overrideProjectSetting": str(override_project_setting),
+            "isIncremental": str(is_incremental),
+            "isPublic": str(is_public),
+            "forceScan": str(force_scan),
+            "comment": str(comment),
+            "presetId": str(preset_id),
+            "engineConfigurationId": str(engine_configuration_id),
+            "zippedSource": (file_name, open(zipped_source_file_path, 'rb'), "application/zip"),
+            "customFields": json.dumps(custom_fields),
+
+        }
+        if post_scan_action_id:
+            fields.update({"postScanActionId": str(post_scan_action_id)})
         m = MultipartEncoder(
-            fields={
-                "projectId": str(project_id),
-                "overrideProjectSetting": str(override_project_setting),
-                "isIncremental": str(is_incremental),
-                "isPublic": str(is_public),
-                "forceScan": str(force_scan),
-                "comment": str(comment),
-                "presetId": str(preset_id),
-                "engineConfigurationId": str(engine_configuration_id),
-                "zippedSource": (file_name, open(zipped_source_file_path, 'rb'), "application/zip"),
-                "customFields": json.dumps(custom_fields),
-                "postScanActionId": str(post_scan_action_id),
-            }
+            fields=fields
         )
-        headers = {"Content-Type": m.content_type}
+        headers = {"Content-Type": m.content_type + "; v={}".format(api_version)}
         response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == CREATED:
             a_dict = response.json()
