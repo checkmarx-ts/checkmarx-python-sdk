@@ -10,9 +10,9 @@ def get_debug_command_line_arg():
     result = False
     import optparse
     parser = optparse.OptionParser()
-    parser.add_option('--cx_debug', help="enable debug mode")
-    args = parser.parse_args()
-    if args[0].__dict__.keys().__contains__('cx_debug'):
+    parser.add_option('--cx_debug', action="store_true", dest="cx_debug", help="enable debug mode")
+    options, args = parser.parse_args()
+    if options.cx_debug:
         result = True
     return result
 
