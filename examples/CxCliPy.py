@@ -65,7 +65,7 @@ def get_command_line_arguments():
     parser.add_argument('-report_xml', '--report_xml', default=None, help="xml report file path")
     parser.add_argument('-report_pdf', '--report_pdf', default=None, help="pdf report file path")
     parser.add_argument('-report_csv', '--report_csv', default=None, help="csv report file path")
-    return parser.parse_args()
+    return parser.parse_known_args()
 
 
 def create_zip_file_from_location_path(location_path_str: str, project_name: str):
@@ -315,4 +315,5 @@ def run_scan_and_generate_reports(arguments):
 if __name__ == '__main__':
     # get command line arguments
     cli_arguments = get_command_line_arguments()
+    cli_arguments = cli_arguments[0]
     run_scan_and_generate_reports(cli_arguments)
