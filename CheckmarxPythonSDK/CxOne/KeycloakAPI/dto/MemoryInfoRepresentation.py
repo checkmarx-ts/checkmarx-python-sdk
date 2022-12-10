@@ -10,13 +10,13 @@ class MemoryInfoRepresentation:
 
     def __str__(self):
         return f"MemoryInfoRepresentation(" \
-               f"free={self.free}" \
-               f"freeFormated={self.freeFormated}" \
-               f"freePercentage={self.freePercentage}" \
-               f"total={self.total}" \
-               f"totalFormated={self.totalFormated}" \
-               f"used={self.used}" \
-               f"usedFormated={self.usedFormated}" \
+               f"free={self.free} " \
+               f"freeFormated={self.freeFormated} " \
+               f"freePercentage={self.freePercentage} " \
+               f"total={self.total} " \
+               f"totalFormated={self.totalFormated} " \
+               f"used={self.used} " \
+               f"usedFormated={self.usedFormated} " \
                f")"
 
     def get_post_data(self):
@@ -30,6 +30,7 @@ class MemoryInfoRepresentation:
             "used": self.used,
             "usedFormated": self.usedFormated,
         })
+
 
 def construct_memory_info_representation(item):
     return MemoryInfoRepresentation(

@@ -6,9 +6,9 @@ class FederatedIdentityRepresentation:
 
     def __str__(self):
         return f"FederatedIdentityRepresentation(" \
-               f"identityProvider={self.identityProvider}" \
-               f"userId={self.userId}" \
-               f"userName={self.userName}" \
+               f"identityProvider={self.identityProvider} " \
+               f"userId={self.userId} " \
+               f"userName={self.userName} " \
                f")"
 
     def get_post_data(self):
@@ -18,6 +18,7 @@ class FederatedIdentityRepresentation:
             "userId": self.userId,
             "userName": self.userName,
         })
+
 
 def construct_federated_identity_representation(item):
     return FederatedIdentityRepresentation(

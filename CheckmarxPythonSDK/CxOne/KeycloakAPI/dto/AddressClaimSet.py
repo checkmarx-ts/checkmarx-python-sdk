@@ -9,12 +9,12 @@ class AddressClaimSet:
 
     def __str__(self):
         return f"AddressClaimSet(" \
-               f"country={self.country}" \
-               f"formatted={self.formatted}" \
-               f"locality={self.locality}" \
-               f"postal_code={self.postal_code}" \
-               f"region={self.region}" \
-               f"street_address={self.street_address}" \
+               f"country={self.country} " \
+               f"formatted={self.formatted} " \
+               f"locality={self.locality} " \
+               f"postal_code={self.postal_code} " \
+               f"region={self.region} " \
+               f"street_address={self.street_address} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class AddressClaimSet:
             "region": self.region,
             "street_address": self.street_address,
         })
+
 
 def construct_address_claim_set(item):
     return AddressClaimSet(

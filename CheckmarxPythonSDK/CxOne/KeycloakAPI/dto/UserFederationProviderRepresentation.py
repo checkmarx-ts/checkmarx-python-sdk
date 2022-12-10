@@ -1,5 +1,6 @@
 class UserFederationProviderRepresentation:
-    def __init__(self, changed_sync_period, config, display_name, full_sync_period, user_federation_provider_representation_id, last_sync, priority, provider_name):
+    def __init__(self, changed_sync_period, config, display_name, full_sync_period,
+                 user_federation_provider_representation_id, last_sync, priority, provider_name):
         self.changedSyncPeriod = changed_sync_period
         self.config = config
         self.displayName = display_name
@@ -11,14 +12,14 @@ class UserFederationProviderRepresentation:
 
     def __str__(self):
         return f"UserFederationProviderRepresentation(" \
-               f"changedSyncPeriod={self.changedSyncPeriod}" \
-               f"config={self.config}" \
-               f"displayName={self.displayName}" \
-               f"fullSyncPeriod={self.fullSyncPeriod}" \
-               f"id={self.id}" \
-               f"lastSync={self.lastSync}" \
-               f"priority={self.priority}" \
-               f"providerName={self.providerName}" \
+               f"changedSyncPeriod={self.changedSyncPeriod} " \
+               f"config={self.config} " \
+               f"displayName={self.displayName} " \
+               f"fullSyncPeriod={self.fullSyncPeriod} " \
+               f"id={self.id} " \
+               f"lastSync={self.lastSync} " \
+               f"priority={self.priority} " \
+               f"providerName={self.providerName} " \
                f")"
 
     def get_post_data(self):
@@ -33,6 +34,7 @@ class UserFederationProviderRepresentation:
             "priority": self.priority,
             "providerName": self.providerName,
         })
+
 
 def construct_user_federation_provider_representation(item):
     return UserFederationProviderRepresentation(

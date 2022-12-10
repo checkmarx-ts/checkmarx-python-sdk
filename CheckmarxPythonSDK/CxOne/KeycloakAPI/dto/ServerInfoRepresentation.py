@@ -1,5 +1,7 @@
 class ServerInfoRepresentation:
-    def __init__(self, builtin_protocol_mappers, client_importers, client_installations, component_types, enums, identity_providers, memory_info, password_policies, profile_info, protocol_mapper_types, providers, social_providers, system_info, themes):
+    def __init__(self, builtin_protocol_mappers, client_importers, client_installations, component_types, enums,
+                 identity_providers, memory_info, password_policies, profile_info, protocol_mapper_types, providers,
+                 social_providers, system_info, themes):
         self.builtinProtocolMappers = builtin_protocol_mappers
         self.clientImporters = client_importers
         self.clientInstallations = client_installations
@@ -17,20 +19,20 @@ class ServerInfoRepresentation:
 
     def __str__(self):
         return f"ServerInfoRepresentation(" \
-               f"builtinProtocolMappers={self.builtinProtocolMappers}" \
-               f"clientImporters={self.clientImporters}" \
-               f"clientInstallations={self.clientInstallations}" \
-               f"componentTypes={self.componentTypes}" \
-               f"enums={self.enums}" \
-               f"identityProviders={self.identityProviders}" \
-               f"memoryInfo={self.memoryInfo}" \
-               f"passwordPolicies={self.passwordPolicies}" \
-               f"profileInfo={self.profileInfo}" \
-               f"protocolMapperTypes={self.protocolMapperTypes}" \
-               f"providers={self.providers}" \
-               f"socialProviders={self.socialProviders}" \
-               f"systemInfo={self.systemInfo}" \
-               f"themes={self.themes}" \
+               f"builtinProtocolMappers={self.builtinProtocolMappers} " \
+               f"clientImporters={self.clientImporters} " \
+               f"clientInstallations={self.clientInstallations} " \
+               f"componentTypes={self.componentTypes} " \
+               f"enums={self.enums} " \
+               f"identityProviders={self.identityProviders} " \
+               f"memoryInfo={self.memoryInfo} " \
+               f"passwordPolicies={self.passwordPolicies} " \
+               f"profileInfo={self.profileInfo} " \
+               f"protocolMapperTypes={self.protocolMapperTypes} " \
+               f"providers={self.providers} " \
+               f"socialProviders={self.socialProviders} " \
+               f"systemInfo={self.systemInfo} " \
+               f"themes={self.themes} " \
                f")"
 
     def get_post_data(self):
@@ -51,6 +53,7 @@ class ServerInfoRepresentation:
             "systemInfo": self.systemInfo,
             "themes": self.themes,
         })
+
 
 def construct_server_info_representation(item):
     return ServerInfoRepresentation(

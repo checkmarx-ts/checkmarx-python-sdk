@@ -6,9 +6,9 @@ class MultivaluedHashMap:
 
     def __str__(self):
         return f"MultivaluedHashMap(" \
-               f"empty={self.empty}" \
-               f"loadFactor={self.loadFactor}" \
-               f"threshold={self.threshold}" \
+               f"empty={self.empty} " \
+               f"loadFactor={self.loadFactor} " \
+               f"threshold={self.threshold} " \
                f")"
 
     def get_post_data(self):
@@ -18,6 +18,7 @@ class MultivaluedHashMap:
             "loadFactor": self.loadFactor,
             "threshold": self.threshold,
         })
+
 
 def construct_multivalued_hash_map(item):
     return MultivaluedHashMap(

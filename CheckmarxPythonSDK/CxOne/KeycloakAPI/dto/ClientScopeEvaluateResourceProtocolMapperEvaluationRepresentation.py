@@ -9,12 +9,12 @@ class ClientScopeEvaluateResourceProtocolMapperEvaluationRepresentation:
 
     def __str__(self):
         return f"ClientScopeEvaluateResourceProtocolMapperEvaluationRepresentation(" \
-               f"containerId={self.containerId}" \
-               f"containerName={self.containerName}" \
-               f"containerType={self.containerType}" \
-               f"mapperId={self.mapperId}" \
-               f"mapperName={self.mapperName}" \
-               f"protocolMapper={self.protocolMapper}" \
+               f"containerId={self.containerId} " \
+               f"containerName={self.containerName} " \
+               f"containerType={self.containerType} " \
+               f"mapperId={self.mapperId} " \
+               f"mapperName={self.mapperName} " \
+               f"protocolMapper={self.protocolMapper} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class ClientScopeEvaluateResourceProtocolMapperEvaluationRepresentation:
             "mapperName": self.mapperName,
             "protocolMapper": self.protocolMapper,
         })
+
 
 def construct_client_scope_evaluate_resource_protocol_mapper_evaluation_representation(item):
     return ClientScopeEvaluateResourceProtocolMapperEvaluationRepresentation(

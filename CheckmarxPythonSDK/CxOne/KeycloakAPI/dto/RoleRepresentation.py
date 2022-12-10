@@ -1,5 +1,6 @@
 class RoleRepresentation:
-    def __init__(self, attributes, client_role, composite, composites, container_id, description, role_representation_id, name):
+    def __init__(self, attributes, client_role, composite, composites, container_id, description,
+                 role_representation_id, name):
         self.attributes = attributes
         self.clientRole = client_role
         self.composite = composite
@@ -11,14 +12,14 @@ class RoleRepresentation:
 
     def __str__(self):
         return f"RoleRepresentation(" \
-               f"attributes={self.attributes}" \
-               f"clientRole={self.clientRole}" \
-               f"composite={self.composite}" \
-               f"composites={self.composites}" \
-               f"containerId={self.containerId}" \
-               f"description={self.description}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
+               f"attributes={self.attributes} " \
+               f"clientRole={self.clientRole} " \
+               f"composite={self.composite} " \
+               f"composites={self.composites} " \
+               f"containerId={self.containerId} " \
+               f"description={self.description} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
                f")"
 
     def get_post_data(self):
@@ -33,6 +34,7 @@ class RoleRepresentation:
             "id": self.id,
             "name": self.name,
         })
+
 
 def construct_role_representation(item):
     return RoleRepresentation(

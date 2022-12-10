@@ -4,7 +4,7 @@ class AccessTokenAuthorization:
 
     def __str__(self):
         return f"AccessTokenAuthorization(" \
-               f"permissions={self.permissions}" \
+               f"permissions={self.permissions} " \
                f")"
 
     def get_post_data(self):
@@ -12,6 +12,7 @@ class AccessTokenAuthorization:
         return json.dumps({
             "permissions": self.permissions,
         })
+
 
 def construct_access_token_authorization(item):
     return AccessTokenAuthorization(

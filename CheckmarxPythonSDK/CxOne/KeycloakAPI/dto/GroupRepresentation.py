@@ -11,14 +11,14 @@ class GroupRepresentation:
 
     def __str__(self):
         return f"GroupRepresentation(" \
-               f"access={self.access}" \
-               f"attributes={self.attributes}" \
-               f"clientRoles={self.clientRoles}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"path={self.path}" \
-               f"realmRoles={self.realmRoles}" \
-               f"subGroups={self.subGroups}" \
+               f"access={self.access} " \
+               f"attributes={self.attributes} " \
+               f"clientRoles={self.clientRoles} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"path={self.path} " \
+               f"realmRoles={self.realmRoles} " \
+               f"subGroups={self.subGroups} " \
                f")"
 
     def get_post_data(self):
@@ -33,6 +33,7 @@ class GroupRepresentation:
             "realmRoles": self.realmRoles,
             "subGroups": self.subGroups,
         })
+
 
 def construct_group_representation(item):
     return GroupRepresentation(

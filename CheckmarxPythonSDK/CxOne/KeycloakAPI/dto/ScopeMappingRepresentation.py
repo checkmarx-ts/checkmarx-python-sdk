@@ -7,10 +7,10 @@ class ScopeMappingRepresentation:
 
     def __str__(self):
         return f"ScopeMappingRepresentation(" \
-               f"client={self.client}" \
-               f"clientScope={self.clientScope}" \
-               f"roles={self.roles}" \
-               f"self={self.self}" \
+               f"client={self.client} " \
+               f"clientScope={self.clientScope} " \
+               f"roles={self.roles} " \
+               f"self={self.self} " \
                f")"
 
     def get_post_data(self):
@@ -21,6 +21,7 @@ class ScopeMappingRepresentation:
             "roles": self.roles,
             "self": self.self,
         })
+
 
 def construct_scope_mapping_representation(item):
     return ScopeMappingRepresentation(

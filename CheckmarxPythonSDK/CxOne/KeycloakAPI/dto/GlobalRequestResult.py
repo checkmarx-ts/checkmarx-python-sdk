@@ -5,8 +5,8 @@ class GlobalRequestResult:
 
     def __str__(self):
         return f"GlobalRequestResult(" \
-               f"failedRequests={self.failedRequests}" \
-               f"successRequests={self.successRequests}" \
+               f"failedRequests={self.failedRequests} " \
+               f"successRequests={self.successRequests} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class GlobalRequestResult:
             "failedRequests": self.failedRequests,
             "successRequests": self.successRequests,
         })
+
 
 def construct_global_request_result(item):
     return GlobalRequestResult(

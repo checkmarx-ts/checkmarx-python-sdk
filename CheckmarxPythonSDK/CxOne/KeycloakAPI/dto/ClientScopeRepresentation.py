@@ -9,12 +9,12 @@ class ClientScopeRepresentation:
 
     def __str__(self):
         return f"ClientScopeRepresentation(" \
-               f"attributes={self.attributes}" \
-               f"description={self.description}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"protocol={self.protocol}" \
-               f"protocolMappers={self.protocolMappers}" \
+               f"attributes={self.attributes} " \
+               f"description={self.description} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"protocol={self.protocol} " \
+               f"protocolMappers={self.protocolMappers} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class ClientScopeRepresentation:
             "protocol": self.protocol,
             "protocolMappers": self.protocolMappers,
         })
+
 
 def construct_client_scope_representation(item):
     return ClientScopeRepresentation(

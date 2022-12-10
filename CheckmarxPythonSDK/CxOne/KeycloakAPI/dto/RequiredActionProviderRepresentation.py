@@ -10,13 +10,13 @@ class RequiredActionProviderRepresentation:
 
     def __str__(self):
         return f"RequiredActionProviderRepresentation(" \
-               f"alias={self.alias}" \
-               f"config={self.config}" \
-               f"defaultAction={self.defaultAction}" \
-               f"enabled={self.enabled}" \
-               f"name={self.name}" \
-               f"priority={self.priority}" \
-               f"providerId={self.providerId}" \
+               f"alias={self.alias} " \
+               f"config={self.config} " \
+               f"defaultAction={self.defaultAction} " \
+               f"enabled={self.enabled} " \
+               f"name={self.name} " \
+               f"priority={self.priority} " \
+               f"providerId={self.providerId} " \
                f")"
 
     def get_post_data(self):
@@ -30,6 +30,7 @@ class RequiredActionProviderRepresentation:
             "priority": self.priority,
             "providerId": self.providerId,
         })
+
 
 def construct_required_action_provider_representation(item):
     return RequiredActionProviderRepresentation(

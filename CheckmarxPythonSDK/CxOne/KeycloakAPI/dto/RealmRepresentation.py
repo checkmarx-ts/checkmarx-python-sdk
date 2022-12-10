@@ -1,5 +1,42 @@
 class RealmRepresentation:
-    def __init__(self, access_code_lifespan, access_code_lifespan_login, access_code_lifespan_user_action, access_token_lifespan, access_token_lifespan_for_implicit_flow, account_theme, action_token_generated_by_admin_lifespan, action_token_generated_by_user_lifespan, admin_events_details_enabled, admin_events_enabled, admin_theme, attributes, authentication_flows, authenticator_config, browser_flow, browser_security_headers, brute_force_protected, client_authentication_flow, client_offline_session_idle_timeout, client_offline_session_max_lifespan, client_policies, client_profiles, client_scope_mappings, client_scopes, client_session_idle_timeout, client_session_max_lifespan, clients, components, default_default_client_scopes, default_groups, default_locale, default_optional_client_scopes, default_role, default_signature_algorithm, direct_grant_flow, display_name, display_name_html, docker_authentication_flow, duplicate_emails_allowed, edit_username_allowed, email_theme, enabled, enabled_event_types, events_enabled, events_expiration, events_listeners, failure_factor, federated_users, groups, realm_representation_id, identity_provider_mappers, identity_providers, internationalization_enabled, keycloak_version, login_theme, login_with_email_allowed, max_delta_time_seconds, max_failure_wait_seconds, minimum_quick_login_wait_seconds, not_before, o_auth2_device_code_lifespan, o_auth2_device_polling_interval, oauth2_device_code_lifespan, oauth2_device_polling_interval, offline_session_idle_timeout, offline_session_max_lifespan, offline_session_max_lifespan_enabled, otp_policy_algorithm, otp_policy_digits, otp_policy_initial_counter, otp_policy_look_ahead_window, otp_policy_period, otp_policy_type, otp_supported_applications, password_policy, permanent_lockout, protocol_mappers, quick_login_check_milli_seconds, realm, refresh_token_max_reuse, registration_allowed, registration_email_as_username, registration_flow, remember_me, required_actions, reset_credentials_flow, reset_password_allowed, revoke_refresh_token, roles, scope_mappings, smtp_server, ssl_required, sso_session_idle_timeout, sso_session_idle_timeout_remember_me, sso_session_max_lifespan, sso_session_max_lifespan_remember_me, supported_locales, user_federation_mappers, user_federation_providers, user_managed_access_allowed, users, verify_email, wait_increment_seconds, web_authn_policy_acceptable_aaguids, web_authn_policy_attestation_conveyance_preference, web_authn_policy_authenticator_attachment, web_authn_policy_avoid_same_authenticator_register, web_authn_policy_create_timeout, web_authn_policy_passwordless_acceptable_aaguids, web_authn_policy_passwordless_attestation_conveyance_preference, web_authn_policy_passwordless_authenticator_attachment, web_authn_policy_passwordless_avoid_same_authenticator_register, web_authn_policy_passwordless_create_timeout, web_authn_policy_passwordless_require_resident_key, web_authn_policy_passwordless_rp_entity_name, web_authn_policy_passwordless_rp_id, web_authn_policy_passwordless_signature_algorithms, web_authn_policy_passwordless_user_verification_requirement, web_authn_policy_require_resident_key, web_authn_policy_rp_entity_name, web_authn_policy_rp_id, web_authn_policy_signature_algorithms, web_authn_policy_user_verification_requirement):
+    def __init__(self, access_code_lifespan, access_code_lifespan_login, access_code_lifespan_user_action,
+                 access_token_lifespan, access_token_lifespan_for_implicit_flow, account_theme,
+                 action_token_generated_by_admin_lifespan, action_token_generated_by_user_lifespan,
+                 admin_events_details_enabled, admin_events_enabled, admin_theme, attributes, authentication_flows,
+                 authenticator_config, browser_flow, browser_security_headers, brute_force_protected,
+                 client_authentication_flow, client_offline_session_idle_timeout, client_offline_session_max_lifespan,
+                 client_policies, client_profiles, client_scope_mappings, client_scopes, client_session_idle_timeout,
+                 client_session_max_lifespan, clients, components, default_default_client_scopes, default_groups,
+                 default_locale, default_optional_client_scopes, default_role, default_signature_algorithm,
+                 direct_grant_flow, display_name, display_name_html, docker_authentication_flow,
+                 duplicate_emails_allowed, edit_username_allowed, email_theme, enabled, enabled_event_types,
+                 events_enabled, events_expiration, events_listeners, failure_factor, federated_users, groups,
+                 realm_representation_id, identity_provider_mappers, identity_providers, internationalization_enabled,
+                 keycloak_version, login_theme, login_with_email_allowed, max_delta_time_seconds,
+                 max_failure_wait_seconds, minimum_quick_login_wait_seconds, not_before, o_auth2_device_code_lifespan,
+                 o_auth2_device_polling_interval, oauth2_device_code_lifespan, oauth2_device_polling_interval,
+                 offline_session_idle_timeout, offline_session_max_lifespan, offline_session_max_lifespan_enabled,
+                 otp_policy_algorithm, otp_policy_digits, otp_policy_initial_counter, otp_policy_look_ahead_window,
+                 otp_policy_period, otp_policy_type, otp_supported_applications, password_policy, permanent_lockout,
+                 protocol_mappers, quick_login_check_milli_seconds, realm, refresh_token_max_reuse,
+                 registration_allowed, registration_email_as_username, registration_flow, remember_me, required_actions,
+                 reset_credentials_flow, reset_password_allowed, revoke_refresh_token, roles, scope_mappings,
+                 smtp_server, ssl_required, sso_session_idle_timeout, sso_session_idle_timeout_remember_me,
+                 sso_session_max_lifespan, sso_session_max_lifespan_remember_me, supported_locales,
+                 user_federation_mappers, user_federation_providers, user_managed_access_allowed, users, verify_email,
+                 wait_increment_seconds, web_authn_policy_acceptable_aaguids,
+                 web_authn_policy_attestation_conveyance_preference, web_authn_policy_authenticator_attachment,
+                 web_authn_policy_avoid_same_authenticator_register, web_authn_policy_create_timeout,
+                 web_authn_policy_passwordless_acceptable_aaguids,
+                 web_authn_policy_passwordless_attestation_conveyance_preference,
+                 web_authn_policy_passwordless_authenticator_attachment,
+                 web_authn_policy_passwordless_avoid_same_authenticator_register,
+                 web_authn_policy_passwordless_create_timeout, web_authn_policy_passwordless_require_resident_key,
+                 web_authn_policy_passwordless_rp_entity_name, web_authn_policy_passwordless_rp_id,
+                 web_authn_policy_passwordless_signature_algorithms,
+                 web_authn_policy_passwordless_user_verification_requirement, web_authn_policy_require_resident_key,
+                 web_authn_policy_rp_entity_name, web_authn_policy_rp_id, web_authn_policy_signature_algorithms,
+                 web_authn_policy_user_verification_requirement):
         self.accessCodeLifespan = access_code_lifespan
         self.accessCodeLifespanLogin = access_code_lifespan_login
         self.accessCodeLifespanUserAction = access_code_lifespan_user_action
@@ -126,129 +163,129 @@ class RealmRepresentation:
 
     def __str__(self):
         return f"RealmRepresentation(" \
-               f"accessCodeLifespan={self.accessCodeLifespan}" \
-               f"accessCodeLifespanLogin={self.accessCodeLifespanLogin}" \
-               f"accessCodeLifespanUserAction={self.accessCodeLifespanUserAction}" \
-               f"accessTokenLifespan={self.accessTokenLifespan}" \
-               f"accessTokenLifespanForImplicitFlow={self.accessTokenLifespanForImplicitFlow}" \
-               f"accountTheme={self.accountTheme}" \
-               f"actionTokenGeneratedByAdminLifespan={self.actionTokenGeneratedByAdminLifespan}" \
-               f"actionTokenGeneratedByUserLifespan={self.actionTokenGeneratedByUserLifespan}" \
-               f"adminEventsDetailsEnabled={self.adminEventsDetailsEnabled}" \
-               f"adminEventsEnabled={self.adminEventsEnabled}" \
-               f"adminTheme={self.adminTheme}" \
-               f"attributes={self.attributes}" \
-               f"authenticationFlows={self.authenticationFlows}" \
-               f"authenticatorConfig={self.authenticatorConfig}" \
-               f"browserFlow={self.browserFlow}" \
-               f"browserSecurityHeaders={self.browserSecurityHeaders}" \
-               f"bruteForceProtected={self.bruteForceProtected}" \
-               f"clientAuthenticationFlow={self.clientAuthenticationFlow}" \
-               f"clientOfflineSessionIdleTimeout={self.clientOfflineSessionIdleTimeout}" \
-               f"clientOfflineSessionMaxLifespan={self.clientOfflineSessionMaxLifespan}" \
-               f"clientPolicies={self.clientPolicies}" \
-               f"clientProfiles={self.clientProfiles}" \
-               f"clientScopeMappings={self.clientScopeMappings}" \
-               f"clientScopes={self.clientScopes}" \
-               f"clientSessionIdleTimeout={self.clientSessionIdleTimeout}" \
-               f"clientSessionMaxLifespan={self.clientSessionMaxLifespan}" \
-               f"clients={self.clients}" \
-               f"components={self.components}" \
-               f"defaultDefaultClientScopes={self.defaultDefaultClientScopes}" \
-               f"defaultGroups={self.defaultGroups}" \
-               f"defaultLocale={self.defaultLocale}" \
-               f"defaultOptionalClientScopes={self.defaultOptionalClientScopes}" \
-               f"defaultRole={self.defaultRole}" \
-               f"defaultSignatureAlgorithm={self.defaultSignatureAlgorithm}" \
-               f"directGrantFlow={self.directGrantFlow}" \
-               f"displayName={self.displayName}" \
-               f"displayNameHtml={self.displayNameHtml}" \
-               f"dockerAuthenticationFlow={self.dockerAuthenticationFlow}" \
-               f"duplicateEmailsAllowed={self.duplicateEmailsAllowed}" \
-               f"editUsernameAllowed={self.editUsernameAllowed}" \
-               f"emailTheme={self.emailTheme}" \
-               f"enabled={self.enabled}" \
-               f"enabledEventTypes={self.enabledEventTypes}" \
-               f"eventsEnabled={self.eventsEnabled}" \
-               f"eventsExpiration={self.eventsExpiration}" \
-               f"eventsListeners={self.eventsListeners}" \
-               f"failureFactor={self.failureFactor}" \
-               f"federatedUsers={self.federatedUsers}" \
-               f"groups={self.groups}" \
-               f"id={self.id}" \
-               f"identityProviderMappers={self.identityProviderMappers}" \
-               f"identityProviders={self.identityProviders}" \
-               f"internationalizationEnabled={self.internationalizationEnabled}" \
-               f"keycloakVersion={self.keycloakVersion}" \
-               f"loginTheme={self.loginTheme}" \
-               f"loginWithEmailAllowed={self.loginWithEmailAllowed}" \
-               f"maxDeltaTimeSeconds={self.maxDeltaTimeSeconds}" \
-               f"maxFailureWaitSeconds={self.maxFailureWaitSeconds}" \
-               f"minimumQuickLoginWaitSeconds={self.minimumQuickLoginWaitSeconds}" \
-               f"notBefore={self.notBefore}" \
-               f"oAuth2DeviceCodeLifespan={self.oAuth2DeviceCodeLifespan}" \
-               f"oAuth2DevicePollingInterval={self.oAuth2DevicePollingInterval}" \
-               f"oauth2DeviceCodeLifespan={self.oauth2DeviceCodeLifespan}" \
-               f"oauth2DevicePollingInterval={self.oauth2DevicePollingInterval}" \
-               f"offlineSessionIdleTimeout={self.offlineSessionIdleTimeout}" \
-               f"offlineSessionMaxLifespan={self.offlineSessionMaxLifespan}" \
-               f"offlineSessionMaxLifespanEnabled={self.offlineSessionMaxLifespanEnabled}" \
-               f"otpPolicyAlgorithm={self.otpPolicyAlgorithm}" \
-               f"otpPolicyDigits={self.otpPolicyDigits}" \
-               f"otpPolicyInitialCounter={self.otpPolicyInitialCounter}" \
-               f"otpPolicyLookAheadWindow={self.otpPolicyLookAheadWindow}" \
-               f"otpPolicyPeriod={self.otpPolicyPeriod}" \
-               f"otpPolicyType={self.otpPolicyType}" \
-               f"otpSupportedApplications={self.otpSupportedApplications}" \
-               f"passwordPolicy={self.passwordPolicy}" \
-               f"permanentLockout={self.permanentLockout}" \
-               f"protocolMappers={self.protocolMappers}" \
-               f"quickLoginCheckMilliSeconds={self.quickLoginCheckMilliSeconds}" \
-               f"realm={self.realm}" \
-               f"refreshTokenMaxReuse={self.refreshTokenMaxReuse}" \
-               f"registrationAllowed={self.registrationAllowed}" \
-               f"registrationEmailAsUsername={self.registrationEmailAsUsername}" \
-               f"registrationFlow={self.registrationFlow}" \
-               f"rememberMe={self.rememberMe}" \
-               f"requiredActions={self.requiredActions}" \
-               f"resetCredentialsFlow={self.resetCredentialsFlow}" \
-               f"resetPasswordAllowed={self.resetPasswordAllowed}" \
-               f"revokeRefreshToken={self.revokeRefreshToken}" \
-               f"roles={self.roles}" \
-               f"scopeMappings={self.scopeMappings}" \
-               f"smtpServer={self.smtpServer}" \
-               f"sslRequired={self.sslRequired}" \
-               f"ssoSessionIdleTimeout={self.ssoSessionIdleTimeout}" \
-               f"ssoSessionIdleTimeoutRememberMe={self.ssoSessionIdleTimeoutRememberMe}" \
-               f"ssoSessionMaxLifespan={self.ssoSessionMaxLifespan}" \
-               f"ssoSessionMaxLifespanRememberMe={self.ssoSessionMaxLifespanRememberMe}" \
-               f"supportedLocales={self.supportedLocales}" \
-               f"userFederationMappers={self.userFederationMappers}" \
-               f"userFederationProviders={self.userFederationProviders}" \
-               f"userManagedAccessAllowed={self.userManagedAccessAllowed}" \
-               f"users={self.users}" \
-               f"verifyEmail={self.verifyEmail}" \
-               f"waitIncrementSeconds={self.waitIncrementSeconds}" \
-               f"webAuthnPolicyAcceptableAaguids={self.webAuthnPolicyAcceptableAaguids}" \
-               f"webAuthnPolicyAttestationConveyancePreference={self.webAuthnPolicyAttestationConveyancePreference}" \
-               f"webAuthnPolicyAuthenticatorAttachment={self.webAuthnPolicyAuthenticatorAttachment}" \
-               f"webAuthnPolicyAvoidSameAuthenticatorRegister={self.webAuthnPolicyAvoidSameAuthenticatorRegister}" \
-               f"webAuthnPolicyCreateTimeout={self.webAuthnPolicyCreateTimeout}" \
-               f"webAuthnPolicyPasswordlessAcceptableAaguids={self.webAuthnPolicyPasswordlessAcceptableAaguids}" \
-               f"webAuthnPolicyPasswordlessAttestationConveyancePreference={self.webAuthnPolicyPasswordlessAttestationConveyancePreference}" \
-               f"webAuthnPolicyPasswordlessAuthenticatorAttachment={self.webAuthnPolicyPasswordlessAuthenticatorAttachment}" \
-               f"webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister={self.webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister}" \
-               f"webAuthnPolicyPasswordlessCreateTimeout={self.webAuthnPolicyPasswordlessCreateTimeout}" \
-               f"webAuthnPolicyPasswordlessRequireResidentKey={self.webAuthnPolicyPasswordlessRequireResidentKey}" \
-               f"webAuthnPolicyPasswordlessRpEntityName={self.webAuthnPolicyPasswordlessRpEntityName}" \
-               f"webAuthnPolicyPasswordlessRpId={self.webAuthnPolicyPasswordlessRpId}" \
-               f"webAuthnPolicyPasswordlessSignatureAlgorithms={self.webAuthnPolicyPasswordlessSignatureAlgorithms}" \
-               f"webAuthnPolicyPasswordlessUserVerificationRequirement={self.webAuthnPolicyPasswordlessUserVerificationRequirement}" \
-               f"webAuthnPolicyRequireResidentKey={self.webAuthnPolicyRequireResidentKey}" \
-               f"webAuthnPolicyRpEntityName={self.webAuthnPolicyRpEntityName}" \
-               f"webAuthnPolicyRpId={self.webAuthnPolicyRpId}" \
-               f"webAuthnPolicySignatureAlgorithms={self.webAuthnPolicySignatureAlgorithms}" \
-               f"webAuthnPolicyUserVerificationRequirement={self.webAuthnPolicyUserVerificationRequirement}" \
+               f"accessCodeLifespan={self.accessCodeLifespan} " \
+               f"accessCodeLifespanLogin={self.accessCodeLifespanLogin} " \
+               f"accessCodeLifespanUserAction={self.accessCodeLifespanUserAction} " \
+               f"accessTokenLifespan={self.accessTokenLifespan} " \
+               f"accessTokenLifespanForImplicitFlow={self.accessTokenLifespanForImplicitFlow} " \
+               f"accountTheme={self.accountTheme} " \
+               f"actionTokenGeneratedByAdminLifespan={self.actionTokenGeneratedByAdminLifespan} " \
+               f"actionTokenGeneratedByUserLifespan={self.actionTokenGeneratedByUserLifespan} " \
+               f"adminEventsDetailsEnabled={self.adminEventsDetailsEnabled} " \
+               f"adminEventsEnabled={self.adminEventsEnabled} " \
+               f"adminTheme={self.adminTheme} " \
+               f"attributes={self.attributes} " \
+               f"authenticationFlows={self.authenticationFlows} " \
+               f"authenticatorConfig={self.authenticatorConfig} " \
+               f"browserFlow={self.browserFlow} " \
+               f"browserSecurityHeaders={self.browserSecurityHeaders} " \
+               f"bruteForceProtected={self.bruteForceProtected} " \
+               f"clientAuthenticationFlow={self.clientAuthenticationFlow} " \
+               f"clientOfflineSessionIdleTimeout={self.clientOfflineSessionIdleTimeout} " \
+               f"clientOfflineSessionMaxLifespan={self.clientOfflineSessionMaxLifespan} " \
+               f"clientPolicies={self.clientPolicies} " \
+               f"clientProfiles={self.clientProfiles} " \
+               f"clientScopeMappings={self.clientScopeMappings} " \
+               f"clientScopes={self.clientScopes} " \
+               f"clientSessionIdleTimeout={self.clientSessionIdleTimeout} " \
+               f"clientSessionMaxLifespan={self.clientSessionMaxLifespan} " \
+               f"clients={self.clients} " \
+               f"components={self.components} " \
+               f"defaultDefaultClientScopes={self.defaultDefaultClientScopes} " \
+               f"defaultGroups={self.defaultGroups} " \
+               f"defaultLocale={self.defaultLocale} " \
+               f"defaultOptionalClientScopes={self.defaultOptionalClientScopes} " \
+               f"defaultRole={self.defaultRole} " \
+               f"defaultSignatureAlgorithm={self.defaultSignatureAlgorithm} " \
+               f"directGrantFlow={self.directGrantFlow} " \
+               f"displayName={self.displayName} " \
+               f"displayNameHtml={self.displayNameHtml} " \
+               f"dockerAuthenticationFlow={self.dockerAuthenticationFlow} " \
+               f"duplicateEmailsAllowed={self.duplicateEmailsAllowed} " \
+               f"editUsernameAllowed={self.editUsernameAllowed} " \
+               f"emailTheme={self.emailTheme} " \
+               f"enabled={self.enabled} " \
+               f"enabledEventTypes={self.enabledEventTypes} " \
+               f"eventsEnabled={self.eventsEnabled} " \
+               f"eventsExpiration={self.eventsExpiration} " \
+               f"eventsListeners={self.eventsListeners} " \
+               f"failureFactor={self.failureFactor} " \
+               f"federatedUsers={self.federatedUsers} " \
+               f"groups={self.groups} " \
+               f"id={self.id} " \
+               f"identityProviderMappers={self.identityProviderMappers} " \
+               f"identityProviders={self.identityProviders} " \
+               f"internationalizationEnabled={self.internationalizationEnabled} " \
+               f"keycloakVersion={self.keycloakVersion} " \
+               f"loginTheme={self.loginTheme} " \
+               f"loginWithEmailAllowed={self.loginWithEmailAllowed} " \
+               f"maxDeltaTimeSeconds={self.maxDeltaTimeSeconds} " \
+               f"maxFailureWaitSeconds={self.maxFailureWaitSeconds} " \
+               f"minimumQuickLoginWaitSeconds={self.minimumQuickLoginWaitSeconds} " \
+               f"notBefore={self.notBefore} " \
+               f"oAuth2DeviceCodeLifespan={self.oAuth2DeviceCodeLifespan} " \
+               f"oAuth2DevicePollingInterval={self.oAuth2DevicePollingInterval} " \
+               f"oauth2DeviceCodeLifespan={self.oauth2DeviceCodeLifespan} " \
+               f"oauth2DevicePollingInterval={self.oauth2DevicePollingInterval} " \
+               f"offlineSessionIdleTimeout={self.offlineSessionIdleTimeout} " \
+               f"offlineSessionMaxLifespan={self.offlineSessionMaxLifespan} " \
+               f"offlineSessionMaxLifespanEnabled={self.offlineSessionMaxLifespanEnabled} " \
+               f"otpPolicyAlgorithm={self.otpPolicyAlgorithm} " \
+               f"otpPolicyDigits={self.otpPolicyDigits} " \
+               f"otpPolicyInitialCounter={self.otpPolicyInitialCounter} " \
+               f"otpPolicyLookAheadWindow={self.otpPolicyLookAheadWindow} " \
+               f"otpPolicyPeriod={self.otpPolicyPeriod} " \
+               f"otpPolicyType={self.otpPolicyType} " \
+               f"otpSupportedApplications={self.otpSupportedApplications} " \
+               f"passwordPolicy={self.passwordPolicy} " \
+               f"permanentLockout={self.permanentLockout} " \
+               f"protocolMappers={self.protocolMappers} " \
+               f"quickLoginCheckMilliSeconds={self.quickLoginCheckMilliSeconds} " \
+               f"realm={self.realm} " \
+               f"refreshTokenMaxReuse={self.refreshTokenMaxReuse} " \
+               f"registrationAllowed={self.registrationAllowed} " \
+               f"registrationEmailAsUsername={self.registrationEmailAsUsername} " \
+               f"registrationFlow={self.registrationFlow} " \
+               f"rememberMe={self.rememberMe} " \
+               f"requiredActions={self.requiredActions} " \
+               f"resetCredentialsFlow={self.resetCredentialsFlow} " \
+               f"resetPasswordAllowed={self.resetPasswordAllowed} " \
+               f"revokeRefreshToken={self.revokeRefreshToken} " \
+               f"roles={self.roles} " \
+               f"scopeMappings={self.scopeMappings} " \
+               f"smtpServer={self.smtpServer} " \
+               f"sslRequired={self.sslRequired} " \
+               f"ssoSessionIdleTimeout={self.ssoSessionIdleTimeout} " \
+               f"ssoSessionIdleTimeoutRememberMe={self.ssoSessionIdleTimeoutRememberMe} " \
+               f"ssoSessionMaxLifespan={self.ssoSessionMaxLifespan} " \
+               f"ssoSessionMaxLifespanRememberMe={self.ssoSessionMaxLifespanRememberMe} " \
+               f"supportedLocales={self.supportedLocales} " \
+               f"userFederationMappers={self.userFederationMappers} " \
+               f"userFederationProviders={self.userFederationProviders} " \
+               f"userManagedAccessAllowed={self.userManagedAccessAllowed} " \
+               f"users={self.users} " \
+               f"verifyEmail={self.verifyEmail} " \
+               f"waitIncrementSeconds={self.waitIncrementSeconds} " \
+               f"webAuthnPolicyAcceptableAaguids={self.webAuthnPolicyAcceptableAaguids} " \
+               f"webAuthnPolicyAttestationConveyancePreference={self.webAuthnPolicyAttestationConveyancePreference} " \
+               f"webAuthnPolicyAuthenticatorAttachment={self.webAuthnPolicyAuthenticatorAttachment} " \
+               f"webAuthnPolicyAvoidSameAuthenticatorRegister={self.webAuthnPolicyAvoidSameAuthenticatorRegister} " \
+               f"webAuthnPolicyCreateTimeout={self.webAuthnPolicyCreateTimeout} " \
+               f"webAuthnPolicyPasswordlessAcceptableAaguids={self.webAuthnPolicyPasswordlessAcceptableAaguids} " \
+               f"webAuthnPolicyPasswordlessAttestationConveyancePreference={self.webAuthnPolicyPasswordlessAttestationConveyancePreference} " \
+               f"webAuthnPolicyPasswordlessAuthenticatorAttachment={self.webAuthnPolicyPasswordlessAuthenticatorAttachment} " \
+               f"webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister={self.webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister} " \
+               f"webAuthnPolicyPasswordlessCreateTimeout={self.webAuthnPolicyPasswordlessCreateTimeout} " \
+               f"webAuthnPolicyPasswordlessRequireResidentKey={self.webAuthnPolicyPasswordlessRequireResidentKey} " \
+               f"webAuthnPolicyPasswordlessRpEntityName={self.webAuthnPolicyPasswordlessRpEntityName} " \
+               f"webAuthnPolicyPasswordlessRpId={self.webAuthnPolicyPasswordlessRpId} " \
+               f"webAuthnPolicyPasswordlessSignatureAlgorithms={self.webAuthnPolicyPasswordlessSignatureAlgorithms} " \
+               f"webAuthnPolicyPasswordlessUserVerificationRequirement={self.webAuthnPolicyPasswordlessUserVerificationRequirement} " \
+               f"webAuthnPolicyRequireResidentKey={self.webAuthnPolicyRequireResidentKey} " \
+               f"webAuthnPolicyRpEntityName={self.webAuthnPolicyRpEntityName} " \
+               f"webAuthnPolicyRpId={self.webAuthnPolicyRpId} " \
+               f"webAuthnPolicySignatureAlgorithms={self.webAuthnPolicySignatureAlgorithms} " \
+               f"webAuthnPolicyUserVerificationRequirement={self.webAuthnPolicyUserVerificationRequirement} " \
                f")"
 
     def get_post_data(self):
@@ -379,6 +416,7 @@ class RealmRepresentation:
             "webAuthnPolicyUserVerificationRequirement": self.webAuthnPolicyUserVerificationRequirement,
         })
 
+
 def construct_realm_representation(item):
     return RealmRepresentation(
         access_code_lifespan=item.get("accessCodeLifespan"),
@@ -490,15 +528,19 @@ def construct_realm_representation(item):
         web_authn_policy_avoid_same_authenticator_register=item.get("webAuthnPolicyAvoidSameAuthenticatorRegister"),
         web_authn_policy_create_timeout=item.get("webAuthnPolicyCreateTimeout"),
         web_authn_policy_passwordless_acceptable_aaguids=item.get("webAuthnPolicyPasswordlessAcceptableAaguids"),
-        web_authn_policy_passwordless_attestation_conveyance_preference=item.get("webAuthnPolicyPasswordlessAttestationConveyancePreference"),
-        web_authn_policy_passwordless_authenticator_attachment=item.get("webAuthnPolicyPasswordlessAuthenticatorAttachment"),
-        web_authn_policy_passwordless_avoid_same_authenticator_register=item.get("webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister"),
+        web_authn_policy_passwordless_attestation_conveyance_preference=item.get(
+            "webAuthnPolicyPasswordlessAttestationConveyancePreference"),
+        web_authn_policy_passwordless_authenticator_attachment=item.get(
+            "webAuthnPolicyPasswordlessAuthenticatorAttachment"),
+        web_authn_policy_passwordless_avoid_same_authenticator_register=item.get(
+            "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister"),
         web_authn_policy_passwordless_create_timeout=item.get("webAuthnPolicyPasswordlessCreateTimeout"),
         web_authn_policy_passwordless_require_resident_key=item.get("webAuthnPolicyPasswordlessRequireResidentKey"),
         web_authn_policy_passwordless_rp_entity_name=item.get("webAuthnPolicyPasswordlessRpEntityName"),
         web_authn_policy_passwordless_rp_id=item.get("webAuthnPolicyPasswordlessRpId"),
         web_authn_policy_passwordless_signature_algorithms=item.get("webAuthnPolicyPasswordlessSignatureAlgorithms"),
-        web_authn_policy_passwordless_user_verification_requirement=item.get("webAuthnPolicyPasswordlessUserVerificationRequirement"),
+        web_authn_policy_passwordless_user_verification_requirement=item.get(
+            "webAuthnPolicyPasswordlessUserVerificationRequirement"),
         web_authn_policy_require_resident_key=item.get("webAuthnPolicyRequireResidentKey"),
         web_authn_policy_rp_entity_name=item.get("webAuthnPolicyRpEntityName"),
         web_authn_policy_rp_id=item.get("webAuthnPolicyRpId"),

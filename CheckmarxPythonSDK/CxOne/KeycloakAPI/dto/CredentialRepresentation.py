@@ -1,5 +1,6 @@
 class CredentialRepresentation:
-    def __init__(self, created_date, credential_data, credential_representation_id, priority, secret_data, temporary, credential_representation_type, user_label, value):
+    def __init__(self, created_date, credential_data, credential_representation_id, priority, secret_data, temporary,
+                 credential_representation_type, user_label, value):
         self.createdDate = created_date
         self.credentialData = credential_data
         self.id = credential_representation_id
@@ -12,15 +13,15 @@ class CredentialRepresentation:
 
     def __str__(self):
         return f"CredentialRepresentation(" \
-               f"createdDate={self.createdDate}" \
-               f"credentialData={self.credentialData}" \
-               f"id={self.id}" \
-               f"priority={self.priority}" \
-               f"secretData={self.secretData}" \
-               f"temporary={self.temporary}" \
-               f"type={self.type}" \
-               f"userLabel={self.userLabel}" \
-               f"value={self.value}" \
+               f"createdDate={self.createdDate} " \
+               f"credentialData={self.credentialData} " \
+               f"id={self.id} " \
+               f"priority={self.priority} " \
+               f"secretData={self.secretData} " \
+               f"temporary={self.temporary} " \
+               f"type={self.type} " \
+               f"userLabel={self.userLabel} " \
+               f"value={self.value} " \
                f")"
 
     def get_post_data(self):
@@ -36,6 +37,7 @@ class CredentialRepresentation:
             "userLabel": self.userLabel,
             "value": self.value,
         })
+
 
 def construct_credential_representation(item):
     return CredentialRepresentation(

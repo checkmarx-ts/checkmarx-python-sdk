@@ -5,8 +5,8 @@ class ClientPolicyConditionRepresentation:
 
     def __str__(self):
         return f"ClientPolicyConditionRepresentation(" \
-               f"condition={self.condition}" \
-               f"configuration={self.configuration}" \
+               f"condition={self.condition} " \
+               f"configuration={self.configuration} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class ClientPolicyConditionRepresentation:
             "condition": self.condition,
             "configuration": self.configuration,
         })
+
 
 def construct_client_policy_condition_representation(item):
     return ClientPolicyConditionRepresentation(

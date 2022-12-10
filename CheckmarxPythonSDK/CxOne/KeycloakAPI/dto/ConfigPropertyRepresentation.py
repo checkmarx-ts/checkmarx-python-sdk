@@ -10,13 +10,13 @@ class ConfigPropertyRepresentation:
 
     def __str__(self):
         return f"ConfigPropertyRepresentation(" \
-               f"defaultValue={self.defaultValue}" \
-               f"helpText={self.helpText}" \
-               f"label={self.label}" \
-               f"name={self.name}" \
-               f"options={self.options}" \
-               f"secret={self.secret}" \
-               f"type={self.type}" \
+               f"defaultValue={self.defaultValue} " \
+               f"helpText={self.helpText} " \
+               f"label={self.label} " \
+               f"name={self.name} " \
+               f"options={self.options} " \
+               f"secret={self.secret} " \
+               f"type={self.type} " \
                f")"
 
     def get_post_data(self):
@@ -30,6 +30,7 @@ class ConfigPropertyRepresentation:
             "secret": self.secret,
             "type": self.type,
         })
+
 
 def construct_config_property_representation(item):
     return ConfigPropertyRepresentation(

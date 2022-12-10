@@ -6,9 +6,9 @@ class ManagementPermissionReference:
 
     def __str__(self):
         return f"ManagementPermissionReference(" \
-               f"enabled={self.enabled}" \
-               f"resource={self.resource}" \
-               f"scopePermissions={self.scopePermissions}" \
+               f"enabled={self.enabled} " \
+               f"resource={self.resource} " \
+               f"scopePermissions={self.scopePermissions} " \
                f")"
 
     def get_post_data(self):
@@ -18,6 +18,7 @@ class ManagementPermissionReference:
             "resource": self.resource,
             "scopePermissions": self.scopePermissions,
         })
+
 
 def construct_management_permission_reference(item):
     return ManagementPermissionReference(

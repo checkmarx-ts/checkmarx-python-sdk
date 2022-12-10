@@ -8,11 +8,11 @@ class ProtocolMapperRepresentation:
 
     def __str__(self):
         return f"ProtocolMapperRepresentation(" \
-               f"config={self.config}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"protocol={self.protocol}" \
-               f"protocolMapper={self.protocolMapper}" \
+               f"config={self.config} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"protocol={self.protocol} " \
+               f"protocolMapper={self.protocolMapper} " \
                f")"
 
     def get_post_data(self):
@@ -24,6 +24,7 @@ class ProtocolMapperRepresentation:
             "protocol": self.protocol,
             "protocolMapper": self.protocolMapper,
         })
+
 
 def construct_protocol_mapper_representation(item):
     return ProtocolMapperRepresentation(

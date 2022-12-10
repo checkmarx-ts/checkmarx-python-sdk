@@ -5,8 +5,8 @@ class ClientPolicyExecutorRepresentation:
 
     def __str__(self):
         return f"ClientPolicyExecutorRepresentation(" \
-               f"configuration={self.configuration}" \
-               f"executor={self.executor}" \
+               f"configuration={self.configuration} " \
+               f"executor={self.executor} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class ClientPolicyExecutorRepresentation:
             "configuration": self.configuration,
             "executor": self.executor,
         })
+
 
 def construct_client_policy_executor_representation(item):
     return ClientPolicyExecutorRepresentation(

@@ -1,4 +1,3 @@
-
 class User(object):
     def __init__(self, user_id, created_timestamp, username, enabled, totp, email_verified, first_name, last_name,
                  email, attributes, disableable_credential_types, required_actions, not_before, access):

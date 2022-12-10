@@ -1,5 +1,7 @@
 class JsonNode:
-    def __init__(self, array, big_decimal, big_integer, binary, boolean, container_node, double, empty, json_node_float, floating_point_number, json_node_int, integral_number, long, missing_node, node_type, null, number, json_node_object, pojo, short, textual, value_node):
+    def __init__(self, array, big_decimal, big_integer, binary, boolean, container_node, double, empty, json_node_float,
+                 floating_point_number, json_node_int, integral_number, long, missing_node, node_type, null, number,
+                 json_node_object, pojo, short, textual, value_node):
         self.array = array
         self.bigDecimal = big_decimal
         self.bigInteger = big_integer
@@ -25,28 +27,28 @@ class JsonNode:
 
     def __str__(self):
         return f"JsonNode(" \
-               f"array={self.array}" \
-               f"bigDecimal={self.bigDecimal}" \
-               f"bigInteger={self.bigInteger}" \
-               f"binary={self.binary}" \
-               f"boolean={self.boolean}" \
-               f"containerNode={self.containerNode}" \
-               f"double={self.double}" \
-               f"empty={self.empty}" \
-               f"float={self.float}" \
-               f"floatingPointNumber={self.floatingPointNumber}" \
-               f"int={self.int}" \
-               f"integralNumber={self.integralNumber}" \
-               f"long={self.long}" \
-               f"missingNode={self.missingNode}" \
-               f"nodeType={self.nodeType}" \
-               f"null={self.null}" \
-               f"number={self.number}" \
-               f"object={self.object}" \
-               f"pojo={self.pojo}" \
-               f"short={self.short}" \
-               f"textual={self.textual}" \
-               f"valueNode={self.valueNode}" \
+               f"array={self.array} " \
+               f"bigDecimal={self.bigDecimal} " \
+               f"bigInteger={self.bigInteger} " \
+               f"binary={self.binary} " \
+               f"boolean={self.boolean} " \
+               f"containerNode={self.containerNode} " \
+               f"double={self.double} " \
+               f"empty={self.empty} " \
+               f"float={self.float} " \
+               f"floatingPointNumber={self.floatingPointNumber} " \
+               f"int={self.int} " \
+               f"integralNumber={self.integralNumber} " \
+               f"long={self.long} " \
+               f"missingNode={self.missingNode} " \
+               f"nodeType={self.nodeType} " \
+               f"null={self.null} " \
+               f"number={self.number} " \
+               f"object={self.object} " \
+               f"pojo={self.pojo} " \
+               f"short={self.short} " \
+               f"textual={self.textual} " \
+               f"valueNode={self.valueNode} " \
                f")"
 
     def get_post_data(self):
@@ -75,6 +77,7 @@ class JsonNode:
             "textual": self.textual,
             "valueNode": self.valueNode,
         })
+
 
 def construct_json_node(item):
     return JsonNode(

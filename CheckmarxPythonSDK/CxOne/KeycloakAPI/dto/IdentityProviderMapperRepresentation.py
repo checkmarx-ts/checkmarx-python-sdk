@@ -1,5 +1,6 @@
 class IdentityProviderMapperRepresentation:
-    def __init__(self, config, identity_provider_mapper_representation_id, identity_provider_alias, identity_provider_mapper, name):
+    def __init__(self, config, identity_provider_mapper_representation_id, identity_provider_alias,
+                 identity_provider_mapper, name):
         self.config = config
         self.id = identity_provider_mapper_representation_id
         self.identityProviderAlias = identity_provider_alias
@@ -8,11 +9,11 @@ class IdentityProviderMapperRepresentation:
 
     def __str__(self):
         return f"IdentityProviderMapperRepresentation(" \
-               f"config={self.config}" \
-               f"id={self.id}" \
-               f"identityProviderAlias={self.identityProviderAlias}" \
-               f"identityProviderMapper={self.identityProviderMapper}" \
-               f"name={self.name}" \
+               f"config={self.config} " \
+               f"id={self.id} " \
+               f"identityProviderAlias={self.identityProviderAlias} " \
+               f"identityProviderMapper={self.identityProviderMapper} " \
+               f"name={self.name} " \
                f")"
 
     def get_post_data(self):
@@ -24,6 +25,7 @@ class IdentityProviderMapperRepresentation:
             "identityProviderMapper": self.identityProviderMapper,
             "name": self.name,
         })
+
 
 def construct_identity_provider_mapper_representation(item):
     return IdentityProviderMapperRepresentation(

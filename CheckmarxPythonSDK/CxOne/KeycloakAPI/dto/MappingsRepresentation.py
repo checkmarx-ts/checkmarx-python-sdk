@@ -5,8 +5,8 @@ class MappingsRepresentation:
 
     def __str__(self):
         return f"MappingsRepresentation(" \
-               f"clientMappings={self.clientMappings}" \
-               f"realmMappings={self.realmMappings}" \
+               f"clientMappings={self.clientMappings} " \
+               f"realmMappings={self.realmMappings} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class MappingsRepresentation:
             "clientMappings": self.clientMappings,
             "realmMappings": self.realmMappings,
         })
+
 
 def construct_mappings_representation(item):
     return MappingsRepresentation(

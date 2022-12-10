@@ -10,13 +10,13 @@ class PartialImportRepresentation:
 
     def __str__(self):
         return f"PartialImportRepresentation(" \
-               f"clients={self.clients}" \
-               f"groups={self.groups}" \
-               f"identityProviders={self.identityProviders}" \
-               f"ifResourceExists={self.ifResourceExists}" \
-               f"policy={self.policy}" \
-               f"roles={self.roles}" \
-               f"users={self.users}" \
+               f"clients={self.clients} " \
+               f"groups={self.groups} " \
+               f"identityProviders={self.identityProviders} " \
+               f"ifResourceExists={self.ifResourceExists} " \
+               f"policy={self.policy} " \
+               f"roles={self.roles} " \
+               f"users={self.users} " \
                f")"
 
     def get_post_data(self):
@@ -30,6 +30,7 @@ class PartialImportRepresentation:
             "roles": self.roles,
             "users": self.users,
         })
+
 
 def construct_partial_import_representation(item):
     return PartialImportRepresentation(

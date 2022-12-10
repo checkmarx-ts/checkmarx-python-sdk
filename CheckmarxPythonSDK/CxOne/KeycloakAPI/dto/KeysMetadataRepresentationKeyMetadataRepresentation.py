@@ -1,5 +1,6 @@
 class KeysMetadataRepresentationKeyMetadataRepresentation:
-    def __init__(self, algorithm, certificate, kid, provider_id, provider_priority, public_key, status, keys_metadata_representation_key_metadata_representation_type, use):
+    def __init__(self, algorithm, certificate, kid, provider_id, provider_priority, public_key, status,
+                 keys_metadata_representation_key_metadata_representation_type, use):
         self.algorithm = algorithm
         self.certificate = certificate
         self.kid = kid
@@ -12,15 +13,15 @@ class KeysMetadataRepresentationKeyMetadataRepresentation:
 
     def __str__(self):
         return f"KeysMetadataRepresentationKeyMetadataRepresentation(" \
-               f"algorithm={self.algorithm}" \
-               f"certificate={self.certificate}" \
-               f"kid={self.kid}" \
-               f"providerId={self.providerId}" \
-               f"providerPriority={self.providerPriority}" \
-               f"publicKey={self.publicKey}" \
-               f"status={self.status}" \
-               f"type={self.type}" \
-               f"use={self.use}" \
+               f"algorithm={self.algorithm} " \
+               f"certificate={self.certificate} " \
+               f"kid={self.kid} " \
+               f"providerId={self.providerId} " \
+               f"providerPriority={self.providerPriority} " \
+               f"publicKey={self.publicKey} " \
+               f"status={self.status} " \
+               f"type={self.type} " \
+               f"use={self.use} " \
                f")"
 
     def get_post_data(self):
@@ -36,6 +37,7 @@ class KeysMetadataRepresentationKeyMetadataRepresentation:
             "type": self.type,
             "use": self.use,
         })
+
 
 def construct_keys_metadata_representation_key_metadata_representation(item):
     return KeysMetadataRepresentationKeyMetadataRepresentation(

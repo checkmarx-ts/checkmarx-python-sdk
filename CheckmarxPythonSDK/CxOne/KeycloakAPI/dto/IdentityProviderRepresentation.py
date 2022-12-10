@@ -1,5 +1,7 @@
 class IdentityProviderRepresentation:
-    def __init__(self, add_read_token_role_on_create, alias, config, display_name, enabled, first_broker_login_flow_alias, internal_id, link_only, post_broker_login_flow_alias, provider_id, store_token, trust_email):
+    def __init__(self, add_read_token_role_on_create, alias, config, display_name, enabled,
+                 first_broker_login_flow_alias, internal_id, link_only, post_broker_login_flow_alias, provider_id,
+                 store_token, trust_email):
         self.addReadTokenRoleOnCreate = add_read_token_role_on_create
         self.alias = alias
         self.config = config
@@ -15,18 +17,18 @@ class IdentityProviderRepresentation:
 
     def __str__(self):
         return f"IdentityProviderRepresentation(" \
-               f"addReadTokenRoleOnCreate={self.addReadTokenRoleOnCreate}" \
-               f"alias={self.alias}" \
-               f"config={self.config}" \
-               f"displayName={self.displayName}" \
-               f"enabled={self.enabled}" \
-               f"firstBrokerLoginFlowAlias={self.firstBrokerLoginFlowAlias}" \
-               f"internalId={self.internalId}" \
-               f"linkOnly={self.linkOnly}" \
-               f"postBrokerLoginFlowAlias={self.postBrokerLoginFlowAlias}" \
-               f"providerId={self.providerId}" \
-               f"storeToken={self.storeToken}" \
-               f"trustEmail={self.trustEmail}" \
+               f"addReadTokenRoleOnCreate={self.addReadTokenRoleOnCreate} " \
+               f"alias={self.alias} " \
+               f"config={self.config} " \
+               f"displayName={self.displayName} " \
+               f"enabled={self.enabled} " \
+               f"firstBrokerLoginFlowAlias={self.firstBrokerLoginFlowAlias} " \
+               f"internalId={self.internalId} " \
+               f"linkOnly={self.linkOnly} " \
+               f"postBrokerLoginFlowAlias={self.postBrokerLoginFlowAlias} " \
+               f"providerId={self.providerId} " \
+               f"storeToken={self.storeToken} " \
+               f"trustEmail={self.trustEmail} " \
                f")"
 
     def get_post_data(self):
@@ -45,6 +47,7 @@ class IdentityProviderRepresentation:
             "storeToken": self.storeToken,
             "trustEmail": self.trustEmail,
         })
+
 
 def construct_identity_provider_representation(item):
     return IdentityProviderRepresentation(

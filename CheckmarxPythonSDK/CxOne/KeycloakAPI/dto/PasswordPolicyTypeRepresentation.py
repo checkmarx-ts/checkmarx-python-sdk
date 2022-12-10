@@ -1,5 +1,6 @@
 class PasswordPolicyTypeRepresentation:
-    def __init__(self, config_type, default_value, display_name, password_policy_type_representation_id, multiple_supported):
+    def __init__(self, config_type, default_value, display_name, password_policy_type_representation_id,
+                 multiple_supported):
         self.configType = config_type
         self.defaultValue = default_value
         self.displayName = display_name
@@ -8,11 +9,11 @@ class PasswordPolicyTypeRepresentation:
 
     def __str__(self):
         return f"PasswordPolicyTypeRepresentation(" \
-               f"configType={self.configType}" \
-               f"defaultValue={self.defaultValue}" \
-               f"displayName={self.displayName}" \
-               f"id={self.id}" \
-               f"multipleSupported={self.multipleSupported}" \
+               f"configType={self.configType} " \
+               f"defaultValue={self.defaultValue} " \
+               f"displayName={self.displayName} " \
+               f"id={self.id} " \
+               f"multipleSupported={self.multipleSupported} " \
                f")"
 
     def get_post_data(self):
@@ -24,6 +25,7 @@ class PasswordPolicyTypeRepresentation:
             "id": self.id,
             "multipleSupported": self.multipleSupported,
         })
+
 
 def construct_password_policy_type_representation(item):
     return PasswordPolicyTypeRepresentation(

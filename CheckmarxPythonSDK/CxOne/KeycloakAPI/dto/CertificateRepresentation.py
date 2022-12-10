@@ -7,10 +7,10 @@ class CertificateRepresentation:
 
     def __str__(self):
         return f"CertificateRepresentation(" \
-               f"certificate={self.certificate}" \
-               f"kid={self.kid}" \
-               f"privateKey={self.privateKey}" \
-               f"publicKey={self.publicKey}" \
+               f"certificate={self.certificate} " \
+               f"kid={self.kid} " \
+               f"privateKey={self.privateKey} " \
+               f"publicKey={self.publicKey} " \
                f")"
 
     def get_post_data(self):
@@ -21,6 +21,7 @@ class CertificateRepresentation:
             "privateKey": self.privateKey,
             "publicKey": self.publicKey,
         })
+
 
 def construct_certificate_representation(item):
     return CertificateRepresentation(

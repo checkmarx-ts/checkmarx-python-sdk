@@ -9,12 +9,12 @@ class ClientInitialAccessPresentation:
 
     def __str__(self):
         return f"ClientInitialAccessPresentation(" \
-               f"count={self.count}" \
-               f"expiration={self.expiration}" \
-               f"id={self.id}" \
-               f"remainingCount={self.remainingCount}" \
-               f"timestamp={self.timestamp}" \
-               f"token={self.token}" \
+               f"count={self.count} " \
+               f"expiration={self.expiration} " \
+               f"id={self.id} " \
+               f"remainingCount={self.remainingCount} " \
+               f"timestamp={self.timestamp} " \
+               f"token={self.token} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class ClientInitialAccessPresentation:
             "timestamp": self.timestamp,
             "token": self.token,
         })
+
 
 def construct_client_initial_access_presentation(item):
     return ClientInitialAccessPresentation(

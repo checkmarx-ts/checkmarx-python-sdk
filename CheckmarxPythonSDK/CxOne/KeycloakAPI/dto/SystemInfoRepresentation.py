@@ -1,5 +1,7 @@
 class SystemInfoRepresentation:
-    def __init__(self, file_encoding, java_home, java_runtime, java_vendor, java_version, java_vm, java_vm_version, os_architecture, os_name, os_version, server_time, uptime, uptime_millis, user_dir, user_locale, user_name, user_timezone, version):
+    def __init__(self, file_encoding, java_home, java_runtime, java_vendor, java_version, java_vm, java_vm_version,
+                 os_architecture, os_name, os_version, server_time, uptime, uptime_millis, user_dir, user_locale,
+                 user_name, user_timezone, version):
         self.fileEncoding = file_encoding
         self.javaHome = java_home
         self.javaRuntime = java_runtime
@@ -21,24 +23,24 @@ class SystemInfoRepresentation:
 
     def __str__(self):
         return f"SystemInfoRepresentation(" \
-               f"fileEncoding={self.fileEncoding}" \
-               f"javaHome={self.javaHome}" \
-               f"javaRuntime={self.javaRuntime}" \
-               f"javaVendor={self.javaVendor}" \
-               f"javaVersion={self.javaVersion}" \
-               f"javaVm={self.javaVm}" \
-               f"javaVmVersion={self.javaVmVersion}" \
-               f"osArchitecture={self.osArchitecture}" \
-               f"osName={self.osName}" \
-               f"osVersion={self.osVersion}" \
-               f"serverTime={self.serverTime}" \
-               f"uptime={self.uptime}" \
-               f"uptimeMillis={self.uptimeMillis}" \
-               f"userDir={self.userDir}" \
-               f"userLocale={self.userLocale}" \
-               f"userName={self.userName}" \
-               f"userTimezone={self.userTimezone}" \
-               f"version={self.version}" \
+               f"fileEncoding={self.fileEncoding} " \
+               f"javaHome={self.javaHome} " \
+               f"javaRuntime={self.javaRuntime} " \
+               f"javaVendor={self.javaVendor} " \
+               f"javaVersion={self.javaVersion} " \
+               f"javaVm={self.javaVm} " \
+               f"javaVmVersion={self.javaVmVersion} " \
+               f"osArchitecture={self.osArchitecture} " \
+               f"osName={self.osName} " \
+               f"osVersion={self.osVersion} " \
+               f"serverTime={self.serverTime} " \
+               f"uptime={self.uptime} " \
+               f"uptimeMillis={self.uptimeMillis} " \
+               f"userDir={self.userDir} " \
+               f"userLocale={self.userLocale} " \
+               f"userName={self.userName} " \
+               f"userTimezone={self.userTimezone} " \
+               f"version={self.version} " \
                f")"
 
     def get_post_data(self):
@@ -63,6 +65,7 @@ class SystemInfoRepresentation:
             "userTimezone": self.userTimezone,
             "version": self.version,
         })
+
 
 def construct_system_info_representation(item):
     return SystemInfoRepresentation(

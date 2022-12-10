@@ -1,5 +1,8 @@
 class UserRepresentation:
-    def __init__(self, access, attributes, client_consents, client_roles, created_timestamp, credentials, disableable_credential_types, email, email_verified, enabled, federated_identities, federation_link, first_name, groups, user_representation_id, last_name, not_before, origin, realm_roles, required_actions, user_representation_self, service_account_client_id, username):
+    def __init__(self, access, attributes, client_consents, client_roles, created_timestamp, credentials,
+                 disableable_credential_types, email, email_verified, enabled, federated_identities, federation_link,
+                 first_name, groups, user_representation_id, last_name, not_before, origin, realm_roles,
+                 required_actions, user_representation_self, service_account_client_id, username):
         self.access = access
         self.attributes = attributes
         self.clientConsents = client_consents
@@ -26,29 +29,29 @@ class UserRepresentation:
 
     def __str__(self):
         return f"UserRepresentation(" \
-               f"access={self.access}" \
-               f"attributes={self.attributes}" \
-               f"clientConsents={self.clientConsents}" \
-               f"clientRoles={self.clientRoles}" \
-               f"createdTimestamp={self.createdTimestamp}" \
-               f"credentials={self.credentials}" \
-               f"disableableCredentialTypes={self.disableableCredentialTypes}" \
-               f"email={self.email}" \
-               f"emailVerified={self.emailVerified}" \
-               f"enabled={self.enabled}" \
-               f"federatedIdentities={self.federatedIdentities}" \
-               f"federationLink={self.federationLink}" \
-               f"firstName={self.firstName}" \
-               f"groups={self.groups}" \
-               f"id={self.id}" \
-               f"lastName={self.lastName}" \
-               f"notBefore={self.notBefore}" \
-               f"origin={self.origin}" \
-               f"realmRoles={self.realmRoles}" \
-               f"requiredActions={self.requiredActions}" \
-               f"self={self.self}" \
-               f"serviceAccountClientId={self.serviceAccountClientId}" \
-               f"username={self.username}" \
+               f"access={self.access} " \
+               f"attributes={self.attributes} " \
+               f"clientConsents={self.clientConsents} " \
+               f"clientRoles={self.clientRoles} " \
+               f"createdTimestamp={self.createdTimestamp} " \
+               f"credentials={self.credentials} " \
+               f"disableableCredentialTypes={self.disableableCredentialTypes} " \
+               f"email={self.email} " \
+               f"emailVerified={self.emailVerified} " \
+               f"enabled={self.enabled} " \
+               f"federatedIdentities={self.federatedIdentities} " \
+               f"federationLink={self.federationLink} " \
+               f"firstName={self.firstName} " \
+               f"groups={self.groups} " \
+               f"id={self.id} " \
+               f"lastName={self.lastName} " \
+               f"notBefore={self.notBefore} " \
+               f"origin={self.origin} " \
+               f"realmRoles={self.realmRoles} " \
+               f"requiredActions={self.requiredActions} " \
+               f"self={self.self} " \
+               f"serviceAccountClientId={self.serviceAccountClientId} " \
+               f"username={self.username} " \
                f")"
 
     def get_post_data(self):
@@ -78,6 +81,7 @@ class UserRepresentation:
             "serviceAccountClientId": self.serviceAccountClientId,
             "username": self.username,
         })
+
 
 def construct_user_representation(item):
     return UserRepresentation(

@@ -7,10 +7,10 @@ class ProfileInfoRepresentation:
 
     def __str__(self):
         return f"ProfileInfoRepresentation(" \
-               f"disabledFeatures={self.disabledFeatures}" \
-               f"experimentalFeatures={self.experimentalFeatures}" \
-               f"name={self.name}" \
-               f"previewFeatures={self.previewFeatures}" \
+               f"disabledFeatures={self.disabledFeatures} " \
+               f"experimentalFeatures={self.experimentalFeatures} " \
+               f"name={self.name} " \
+               f"previewFeatures={self.previewFeatures} " \
                f")"
 
     def get_post_data(self):
@@ -21,6 +21,7 @@ class ProfileInfoRepresentation:
             "name": self.name,
             "previewFeatures": self.previewFeatures,
         })
+
 
 def construct_profile_info_representation(item):
     return ProfileInfoRepresentation(

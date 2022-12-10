@@ -1,5 +1,6 @@
 class ResourceRepresentation:
-    def __init__(self, resource_representation_id, attributes, display_name, icon_uri, name, owner_managed_access, scopes, resource_representation_type, uris):
+    def __init__(self, resource_representation_id, attributes, display_name, icon_uri, name, owner_managed_access,
+                 scopes, resource_representation_type, uris):
         self.id = resource_representation_id
         self.attributes = attributes
         self.displayName = display_name
@@ -12,15 +13,15 @@ class ResourceRepresentation:
 
     def __str__(self):
         return f"ResourceRepresentation(" \
-               f"id={self.id}" \
-               f"attributes={self.attributes}" \
-               f"displayName={self.displayName}" \
-               f"icon_uri={self.icon_uri}" \
-               f"name={self.name}" \
-               f"ownerManagedAccess={self.ownerManagedAccess}" \
-               f"scopes={self.scopes}" \
-               f"type={self.type}" \
-               f"uris={self.uris}" \
+               f"id={self.id} " \
+               f"attributes={self.attributes} " \
+               f"displayName={self.displayName} " \
+               f"icon_uri={self.icon_uri} " \
+               f"name={self.name} " \
+               f"ownerManagedAccess={self.ownerManagedAccess} " \
+               f"scopes={self.scopes} " \
+               f"type={self.type} " \
+               f"uris={self.uris} " \
                f")"
 
     def get_post_data(self):
@@ -36,6 +37,7 @@ class ResourceRepresentation:
             "type": self.type,
             "uris": self.uris,
         })
+
 
 def construct_resource_representation(item):
     return ResourceRepresentation(

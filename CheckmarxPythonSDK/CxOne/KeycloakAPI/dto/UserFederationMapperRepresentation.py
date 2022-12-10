@@ -1,5 +1,6 @@
 class UserFederationMapperRepresentation:
-    def __init__(self, config, federation_mapper_type, federation_provider_display_name, user_federation_mapper_representation_id, name):
+    def __init__(self, config, federation_mapper_type, federation_provider_display_name,
+                 user_federation_mapper_representation_id, name):
         self.config = config
         self.federationMapperType = federation_mapper_type
         self.federationProviderDisplayName = federation_provider_display_name
@@ -8,11 +9,11 @@ class UserFederationMapperRepresentation:
 
     def __str__(self):
         return f"UserFederationMapperRepresentation(" \
-               f"config={self.config}" \
-               f"federationMapperType={self.federationMapperType}" \
-               f"federationProviderDisplayName={self.federationProviderDisplayName}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
+               f"config={self.config} " \
+               f"federationMapperType={self.federationMapperType} " \
+               f"federationProviderDisplayName={self.federationProviderDisplayName} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
                f")"
 
     def get_post_data(self):
@@ -24,6 +25,7 @@ class UserFederationMapperRepresentation:
             "id": self.id,
             "name": self.name,
         })
+
 
 def construct_user_federation_mapper_representation(item):
     return UserFederationMapperRepresentation(

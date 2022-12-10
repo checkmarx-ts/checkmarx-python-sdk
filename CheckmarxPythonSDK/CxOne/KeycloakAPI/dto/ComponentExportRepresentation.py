@@ -9,12 +9,12 @@ class ComponentExportRepresentation:
 
     def __str__(self):
         return f"ComponentExportRepresentation(" \
-               f"config={self.config}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"providerId={self.providerId}" \
-               f"subComponents={self.subComponents}" \
-               f"subType={self.subType}" \
+               f"config={self.config} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"providerId={self.providerId} " \
+               f"subComponents={self.subComponents} " \
+               f"subType={self.subType} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class ComponentExportRepresentation:
             "subComponents": self.subComponents,
             "subType": self.subType,
         })
+
 
 def construct_component_export_representation(item):
     return ComponentExportRepresentation(

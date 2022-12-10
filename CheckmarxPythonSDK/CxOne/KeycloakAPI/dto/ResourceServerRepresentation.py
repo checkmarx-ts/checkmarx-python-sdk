@@ -1,5 +1,6 @@
 class ResourceServerRepresentation:
-    def __init__(self, allow_remote_resource_management, client_id, decision_strategy, resource_server_representation_id, name, policies, policy_enforcement_mode, resources, scopes):
+    def __init__(self, allow_remote_resource_management, client_id, decision_strategy,
+                 resource_server_representation_id, name, policies, policy_enforcement_mode, resources, scopes):
         self.allowRemoteResourceManagement = allow_remote_resource_management
         self.clientId = client_id
         self.decisionStrategy = decision_strategy
@@ -12,15 +13,15 @@ class ResourceServerRepresentation:
 
     def __str__(self):
         return f"ResourceServerRepresentation(" \
-               f"allowRemoteResourceManagement={self.allowRemoteResourceManagement}" \
-               f"clientId={self.clientId}" \
-               f"decisionStrategy={self.decisionStrategy}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"policies={self.policies}" \
-               f"policyEnforcementMode={self.policyEnforcementMode}" \
-               f"resources={self.resources}" \
-               f"scopes={self.scopes}" \
+               f"allowRemoteResourceManagement={self.allowRemoteResourceManagement} " \
+               f"clientId={self.clientId} " \
+               f"decisionStrategy={self.decisionStrategy} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"policies={self.policies} " \
+               f"policyEnforcementMode={self.policyEnforcementMode} " \
+               f"resources={self.resources} " \
+               f"scopes={self.scopes} " \
                f")"
 
     def get_post_data(self):
@@ -36,6 +37,7 @@ class ResourceServerRepresentation:
             "resources": self.resources,
             "scopes": self.scopes,
         })
+
 
 def construct_resource_server_representation(item):
     return ResourceServerRepresentation(

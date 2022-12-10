@@ -7,10 +7,10 @@ class Permission:
 
     def __str__(self):
         return f"Permission(" \
-               f"claims={self.claims}" \
-               f"rsid={self.rsid}" \
-               f"rsname={self.rsname}" \
-               f"scopes={self.scopes}" \
+               f"claims={self.claims} " \
+               f"rsid={self.rsid} " \
+               f"rsname={self.rsname} " \
+               f"scopes={self.scopes} " \
                f")"
 
     def get_post_data(self):
@@ -21,6 +21,7 @@ class Permission:
             "rsname": self.rsname,
             "scopes": self.scopes,
         })
+
 
 def construct_permission(item):
     return Permission(

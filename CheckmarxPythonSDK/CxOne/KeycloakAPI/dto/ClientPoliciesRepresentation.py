@@ -4,7 +4,7 @@ class ClientPoliciesRepresentation:
 
     def __str__(self):
         return f"ClientPoliciesRepresentation(" \
-               f"policies={self.policies}" \
+               f"policies={self.policies} " \
                f")"
 
     def get_post_data(self):
@@ -12,6 +12,7 @@ class ClientPoliciesRepresentation:
         return json.dumps({
             "policies": self.policies,
         })
+
 
 def construct_client_policies_representation(item):
     return ClientPoliciesRepresentation(

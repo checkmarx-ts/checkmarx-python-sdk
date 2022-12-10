@@ -10,13 +10,13 @@ class ComponentRepresentation:
 
     def __str__(self):
         return f"ComponentRepresentation(" \
-               f"config={self.config}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"parentId={self.parentId}" \
-               f"providerId={self.providerId}" \
-               f"providerType={self.providerType}" \
-               f"subType={self.subType}" \
+               f"config={self.config} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"parentId={self.parentId} " \
+               f"providerId={self.providerId} " \
+               f"providerType={self.providerType} " \
+               f"subType={self.subType} " \
                f")"
 
     def get_post_data(self):
@@ -30,6 +30,7 @@ class ComponentRepresentation:
             "providerType": self.providerType,
             "subType": self.subType,
         })
+
 
 def construct_component_representation(item):
     return ComponentRepresentation(

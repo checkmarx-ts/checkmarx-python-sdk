@@ -6,9 +6,9 @@ class ClientMappingsRepresentation:
 
     def __str__(self):
         return f"ClientMappingsRepresentation(" \
-               f"client={self.client}" \
-               f"id={self.id}" \
-               f"mappings={self.mappings}" \
+               f"client={self.client} " \
+               f"id={self.id} " \
+               f"mappings={self.mappings} " \
                f")"
 
     def get_post_data(self):
@@ -18,6 +18,7 @@ class ClientMappingsRepresentation:
             "id": self.id,
             "mappings": self.mappings,
         })
+
 
 def construct_client_mappings_representation(item):
     return ClientMappingsRepresentation(

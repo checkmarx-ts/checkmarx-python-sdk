@@ -1,5 +1,12 @@
 class ClientRepresentation:
-    def __init__(self, access, admin_url, always_display_in_console, attributes, authentication_flow_binding_overrides, authorization_services_enabled, authorization_settings, base_url, bearer_only, client_authenticator_type, client_id, consent_required, default_client_scopes, description, direct_access_grants_enabled, enabled, frontchannel_logout, full_scope_allowed, client_representation_id, implicit_flow_enabled, name, node_re_registration_timeout, not_before, oauth2_device_authorization_grant_enabled, optional_client_scopes, origin, protocol, protocol_mappers, public_client, redirect_uris, registered_nodes, registration_access_token, root_url, secret, service_accounts_enabled, standard_flow_enabled, surrogate_auth_required, web_origins):
+    def __init__(self, access, admin_url, always_display_in_console, attributes, authentication_flow_binding_overrides,
+                 authorization_services_enabled, authorization_settings, base_url, bearer_only,
+                 client_authenticator_type, client_id, consent_required, default_client_scopes, description,
+                 direct_access_grants_enabled, enabled, frontchannel_logout, full_scope_allowed,
+                 client_representation_id, implicit_flow_enabled, name, node_re_registration_timeout, not_before,
+                 oauth2_device_authorization_grant_enabled, optional_client_scopes, origin, protocol, protocol_mappers,
+                 public_client, redirect_uris, registered_nodes, registration_access_token, root_url, secret,
+                 service_accounts_enabled, standard_flow_enabled, surrogate_auth_required, web_origins):
         self.access = access
         self.adminUrl = admin_url
         self.alwaysDisplayInConsole = always_display_in_console
@@ -41,44 +48,44 @@ class ClientRepresentation:
 
     def __str__(self):
         return f"ClientRepresentation(" \
-               f"access={self.access}" \
-               f"adminUrl={self.adminUrl}" \
-               f"alwaysDisplayInConsole={self.alwaysDisplayInConsole}" \
-               f"attributes={self.attributes}" \
-               f"authenticationFlowBindingOverrides={self.authenticationFlowBindingOverrides}" \
-               f"authorizationServicesEnabled={self.authorizationServicesEnabled}" \
-               f"authorizationSettings={self.authorizationSettings}" \
-               f"baseUrl={self.baseUrl}" \
-               f"bearerOnly={self.bearerOnly}" \
-               f"clientAuthenticatorType={self.clientAuthenticatorType}" \
-               f"clientId={self.clientId}" \
-               f"consentRequired={self.consentRequired}" \
-               f"defaultClientScopes={self.defaultClientScopes}" \
-               f"description={self.description}" \
-               f"directAccessGrantsEnabled={self.directAccessGrantsEnabled}" \
-               f"enabled={self.enabled}" \
-               f"frontchannelLogout={self.frontchannelLogout}" \
-               f"fullScopeAllowed={self.fullScopeAllowed}" \
-               f"id={self.id}" \
-               f"implicitFlowEnabled={self.implicitFlowEnabled}" \
-               f"name={self.name}" \
-               f"nodeReRegistrationTimeout={self.nodeReRegistrationTimeout}" \
-               f"notBefore={self.notBefore}" \
-               f"oauth2DeviceAuthorizationGrantEnabled={self.oauth2DeviceAuthorizationGrantEnabled}" \
-               f"optionalClientScopes={self.optionalClientScopes}" \
-               f"origin={self.origin}" \
-               f"protocol={self.protocol}" \
-               f"protocolMappers={self.protocolMappers}" \
-               f"publicClient={self.publicClient}" \
-               f"redirectUris={self.redirectUris}" \
-               f"registeredNodes={self.registeredNodes}" \
-               f"registrationAccessToken={self.registrationAccessToken}" \
-               f"rootUrl={self.rootUrl}" \
-               f"secret={self.secret}" \
-               f"serviceAccountsEnabled={self.serviceAccountsEnabled}" \
-               f"standardFlowEnabled={self.standardFlowEnabled}" \
-               f"surrogateAuthRequired={self.surrogateAuthRequired}" \
-               f"webOrigins={self.webOrigins}" \
+               f"access={self.access} " \
+               f"adminUrl={self.adminUrl} " \
+               f"alwaysDisplayInConsole={self.alwaysDisplayInConsole} " \
+               f"attributes={self.attributes} " \
+               f"authenticationFlowBindingOverrides={self.authenticationFlowBindingOverrides} " \
+               f"authorizationServicesEnabled={self.authorizationServicesEnabled} " \
+               f"authorizationSettings={self.authorizationSettings} " \
+               f"baseUrl={self.baseUrl} " \
+               f"bearerOnly={self.bearerOnly} " \
+               f"clientAuthenticatorType={self.clientAuthenticatorType} " \
+               f"clientId={self.clientId} " \
+               f"consentRequired={self.consentRequired} " \
+               f"defaultClientScopes={self.defaultClientScopes} " \
+               f"description={self.description} " \
+               f"directAccessGrantsEnabled={self.directAccessGrantsEnabled} " \
+               f"enabled={self.enabled} " \
+               f"frontchannelLogout={self.frontchannelLogout} " \
+               f"fullScopeAllowed={self.fullScopeAllowed} " \
+               f"id={self.id} " \
+               f"implicitFlowEnabled={self.implicitFlowEnabled} " \
+               f"name={self.name} " \
+               f"nodeReRegistrationTimeout={self.nodeReRegistrationTimeout} " \
+               f"notBefore={self.notBefore} " \
+               f"oauth2DeviceAuthorizationGrantEnabled={self.oauth2DeviceAuthorizationGrantEnabled} " \
+               f"optionalClientScopes={self.optionalClientScopes} " \
+               f"origin={self.origin} " \
+               f"protocol={self.protocol} " \
+               f"protocolMappers={self.protocolMappers} " \
+               f"publicClient={self.publicClient} " \
+               f"redirectUris={self.redirectUris} " \
+               f"registeredNodes={self.registeredNodes} " \
+               f"registrationAccessToken={self.registrationAccessToken} " \
+               f"rootUrl={self.rootUrl} " \
+               f"secret={self.secret} " \
+               f"serviceAccountsEnabled={self.serviceAccountsEnabled} " \
+               f"standardFlowEnabled={self.standardFlowEnabled} " \
+               f"surrogateAuthRequired={self.surrogateAuthRequired} " \
+               f"webOrigins={self.webOrigins} " \
                f")"
 
     def get_post_data(self):
@@ -123,6 +130,7 @@ class ClientRepresentation:
             "surrogateAuthRequired": self.surrogateAuthRequired,
             "webOrigins": self.webOrigins,
         })
+
 
 def construct_client_representation(item):
     return ClientRepresentation(

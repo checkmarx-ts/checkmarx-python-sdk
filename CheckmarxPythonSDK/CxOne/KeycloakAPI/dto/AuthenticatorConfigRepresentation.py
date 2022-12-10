@@ -6,9 +6,9 @@ class AuthenticatorConfigRepresentation:
 
     def __str__(self):
         return f"AuthenticatorConfigRepresentation(" \
-               f"alias={self.alias}" \
-               f"config={self.config}" \
-               f"id={self.id}" \
+               f"alias={self.alias} " \
+               f"config={self.config} " \
+               f"id={self.id} " \
                f")"
 
     def get_post_data(self):
@@ -18,6 +18,7 @@ class AuthenticatorConfigRepresentation:
             "config": self.config,
             "id": self.id,
         })
+
 
 def construct_authenticator_config_representation(item):
     return AuthenticatorConfigRepresentation(

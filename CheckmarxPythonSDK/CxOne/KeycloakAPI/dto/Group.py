@@ -15,10 +15,10 @@ class Group:
         self.subGroups = sub_groups
 
     def __str__(self):
-        return f"Group("\
-               f"id={self.id}" \
-               f"name={self.name}"\
-               f"path={self.path}" \
+        return f"Group(" \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"path={self.path} " \
                f"subGroups={self.subGroups}" \
                f")"
 

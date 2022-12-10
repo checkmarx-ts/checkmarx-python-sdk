@@ -5,8 +5,8 @@ class SpiInfoRepresentation:
 
     def __str__(self):
         return f"SpiInfoRepresentation(" \
-               f"internal={self.internal}" \
-               f"providers={self.providers}" \
+               f"internal={self.internal} " \
+               f"providers={self.providers} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class SpiInfoRepresentation:
             "internal": self.internal,
             "providers": self.providers,
         })
+
 
 def construct_spi_info_representation(item):
     return SpiInfoRepresentation(

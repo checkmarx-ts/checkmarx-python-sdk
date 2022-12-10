@@ -9,12 +9,12 @@ class ScopeRepresentation:
 
     def __str__(self):
         return f"ScopeRepresentation(" \
-               f"displayName={self.displayName}" \
-               f"iconUri={self.iconUri}" \
-               f"id={self.id}" \
-               f"name={self.name}" \
-               f"policies={self.policies}" \
-               f"resources={self.resources}" \
+               f"displayName={self.displayName} " \
+               f"iconUri={self.iconUri} " \
+               f"id={self.id} " \
+               f"name={self.name} " \
+               f"policies={self.policies} " \
+               f"resources={self.resources} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class ScopeRepresentation:
             "policies": self.policies,
             "resources": self.resources,
         })
+
 
 def construct_scope_representation(item):
     return ScopeRepresentation(

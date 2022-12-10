@@ -1,5 +1,6 @@
 class PolicyRepresentation:
-    def __init__(self, config, decision_strategy, description, policy_representation_id, logic, name, owner, policies, resources, resources_data, scopes, scopes_data, policy_representation_type):
+    def __init__(self, config, decision_strategy, description, policy_representation_id, logic, name, owner, policies,
+                 resources, resources_data, scopes, scopes_data, policy_representation_type):
         self.config = config
         self.decisionStrategy = decision_strategy
         self.description = description
@@ -16,19 +17,19 @@ class PolicyRepresentation:
 
     def __str__(self):
         return f"PolicyRepresentation(" \
-               f"config={self.config}" \
-               f"decisionStrategy={self.decisionStrategy}" \
-               f"description={self.description}" \
-               f"id={self.id}" \
-               f"logic={self.logic}" \
-               f"name={self.name}" \
-               f"owner={self.owner}" \
-               f"policies={self.policies}" \
-               f"resources={self.resources}" \
-               f"resourcesData={self.resourcesData}" \
-               f"scopes={self.scopes}" \
-               f"scopesData={self.scopesData}" \
-               f"type={self.type}" \
+               f"config={self.config} " \
+               f"decisionStrategy={self.decisionStrategy} " \
+               f"description={self.description} " \
+               f"id={self.id} " \
+               f"logic={self.logic} " \
+               f"name={self.name} " \
+               f"owner={self.owner} " \
+               f"policies={self.policies} " \
+               f"resources={self.resources} " \
+               f"resourcesData={self.resourcesData} " \
+               f"scopes={self.scopes} " \
+               f"scopesData={self.scopesData} " \
+               f"type={self.type} " \
                f")"
 
     def get_post_data(self):
@@ -48,6 +49,7 @@ class PolicyRepresentation:
             "scopesData": self.scopesData,
             "type": self.type,
         })
+
 
 def construct_policy_representation(item):
     return PolicyRepresentation(

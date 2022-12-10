@@ -5,8 +5,8 @@ class ClientInitialAccessCreatePresentation:
 
     def __str__(self):
         return f"ClientInitialAccessCreatePresentation(" \
-               f"count={self.count}" \
-               f"expiration={self.expiration}" \
+               f"count={self.count} " \
+               f"expiration={self.expiration} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class ClientInitialAccessCreatePresentation:
             "count": self.count,
             "expiration": self.expiration,
         })
+
 
 def construct_client_initial_access_create_presentation(item):
     return ClientInitialAccessCreatePresentation(

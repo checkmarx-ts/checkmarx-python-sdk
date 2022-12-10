@@ -1,5 +1,8 @@
 class IDToken:
-    def __init__(self, acr, address, at_hash, auth_time, azp, birthdate, c_hash, category, claims_locales, email, email_verified, exp, family_name, gender, given_name, iat, iss, jti, locale, middle_name, name, nbf, nickname, nonce, other_claims, phone_number, phone_number_verified, picture, preferred_username, profile, s_hash, session_state, sid, sub, typ, updated_at, website, zoneinfo):
+    def __init__(self, acr, address, at_hash, auth_time, azp, birthdate, c_hash, category, claims_locales, email,
+                 email_verified, exp, family_name, gender, given_name, iat, iss, jti, locale, middle_name, name, nbf,
+                 nickname, nonce, other_claims, phone_number, phone_number_verified, picture, preferred_username,
+                 profile, s_hash, session_state, sid, sub, typ, updated_at, website, zoneinfo):
         self.acr = acr
         self.address = address
         self.at_hash = at_hash
@@ -41,44 +44,44 @@ class IDToken:
 
     def __str__(self):
         return f"IDToken(" \
-               f"acr={self.acr}" \
-               f"address={self.address}" \
-               f"at_hash={self.at_hash}" \
-               f"auth_time={self.auth_time}" \
-               f"azp={self.azp}" \
-               f"birthdate={self.birthdate}" \
-               f"c_hash={self.c_hash}" \
-               f"category={self.category}" \
-               f"claims_locales={self.claims_locales}" \
-               f"email={self.email}" \
-               f"email_verified={self.email_verified}" \
-               f"exp={self.exp}" \
-               f"family_name={self.family_name}" \
-               f"gender={self.gender}" \
-               f"given_name={self.given_name}" \
-               f"iat={self.iat}" \
-               f"iss={self.iss}" \
-               f"jti={self.jti}" \
-               f"locale={self.locale}" \
-               f"middle_name={self.middle_name}" \
-               f"name={self.name}" \
-               f"nbf={self.nbf}" \
-               f"nickname={self.nickname}" \
-               f"nonce={self.nonce}" \
-               f"otherClaims={self.otherClaims}" \
-               f"phone_number={self.phone_number}" \
-               f"phone_number_verified={self.phone_number_verified}" \
-               f"picture={self.picture}" \
-               f"preferred_username={self.preferred_username}" \
-               f"profile={self.profile}" \
-               f"s_hash={self.s_hash}" \
-               f"session_state={self.session_state}" \
-               f"sid={self.sid}" \
-               f"sub={self.sub}" \
-               f"typ={self.typ}" \
-               f"updated_at={self.updated_at}" \
-               f"website={self.website}" \
-               f"zoneinfo={self.zoneinfo}" \
+               f"acr={self.acr} " \
+               f"address={self.address} " \
+               f"at_hash={self.at_hash} " \
+               f"auth_time={self.auth_time} " \
+               f"azp={self.azp} " \
+               f"birthdate={self.birthdate} " \
+               f"c_hash={self.c_hash} " \
+               f"category={self.category} " \
+               f"claims_locales={self.claims_locales} " \
+               f"email={self.email} " \
+               f"email_verified={self.email_verified} " \
+               f"exp={self.exp} " \
+               f"family_name={self.family_name} " \
+               f"gender={self.gender} " \
+               f"given_name={self.given_name} " \
+               f"iat={self.iat} " \
+               f"iss={self.iss} " \
+               f"jti={self.jti} " \
+               f"locale={self.locale} " \
+               f"middle_name={self.middle_name} " \
+               f"name={self.name} " \
+               f"nbf={self.nbf} " \
+               f"nickname={self.nickname} " \
+               f"nonce={self.nonce} " \
+               f"otherClaims={self.otherClaims} " \
+               f"phone_number={self.phone_number} " \
+               f"phone_number_verified={self.phone_number_verified} " \
+               f"picture={self.picture} " \
+               f"preferred_username={self.preferred_username} " \
+               f"profile={self.profile} " \
+               f"s_hash={self.s_hash} " \
+               f"session_state={self.session_state} " \
+               f"sid={self.sid} " \
+               f"sub={self.sub} " \
+               f"typ={self.typ} " \
+               f"updated_at={self.updated_at} " \
+               f"website={self.website} " \
+               f"zoneinfo={self.zoneinfo} " \
                f")"
 
     def get_post_data(self):
@@ -123,6 +126,7 @@ class IDToken:
             "website": self.website,
             "zoneinfo": self.zoneinfo,
         })
+
 
 def construct_i_d_token(item):
     return IDToken(

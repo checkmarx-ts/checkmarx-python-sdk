@@ -5,8 +5,8 @@ class AccessTokenAccess:
 
     def __str__(self):
         return f"AccessTokenAccess(" \
-               f"roles={self.roles}" \
-               f"verify_caller={self.verify_caller}" \
+               f"roles={self.roles} " \
+               f"verify_caller={self.verify_caller} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class AccessTokenAccess:
             "roles": self.roles,
             "verify_caller": self.verify_caller,
         })
+
 
 def construct_access_token_access(item):
     return AccessTokenAccess(

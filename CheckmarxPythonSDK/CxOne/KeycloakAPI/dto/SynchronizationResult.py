@@ -9,12 +9,12 @@ class SynchronizationResult:
 
     def __str__(self):
         return f"SynchronizationResult(" \
-               f"added={self.added}" \
-               f"failed={self.failed}" \
-               f"ignored={self.ignored}" \
-               f"removed={self.removed}" \
-               f"status={self.status}" \
-               f"updated={self.updated}" \
+               f"added={self.added} " \
+               f"failed={self.failed} " \
+               f"ignored={self.ignored} " \
+               f"removed={self.removed} " \
+               f"status={self.status} " \
+               f"updated={self.updated} " \
                f")"
 
     def get_post_data(self):
@@ -27,6 +27,7 @@ class SynchronizationResult:
             "status": self.status,
             "updated": self.updated,
         })
+
 
 def construct_synchronization_result(item):
     return SynchronizationResult(

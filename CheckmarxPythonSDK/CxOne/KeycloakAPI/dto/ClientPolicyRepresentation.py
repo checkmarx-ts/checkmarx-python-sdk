@@ -8,11 +8,11 @@ class ClientPolicyRepresentation:
 
     def __str__(self):
         return f"ClientPolicyRepresentation(" \
-               f"conditions={self.conditions}" \
-               f"description={self.description}" \
-               f"enabled={self.enabled}" \
-               f"name={self.name}" \
-               f"profiles={self.profiles}" \
+               f"conditions={self.conditions} " \
+               f"description={self.description} " \
+               f"enabled={self.enabled} " \
+               f"name={self.name} " \
+               f"profiles={self.profiles} " \
                f")"
 
     def get_post_data(self):
@@ -24,6 +24,7 @@ class ClientPolicyRepresentation:
             "name": self.name,
             "profiles": self.profiles,
         })
+
 
 def construct_client_policy_representation(item):
     return ClientPolicyRepresentation(

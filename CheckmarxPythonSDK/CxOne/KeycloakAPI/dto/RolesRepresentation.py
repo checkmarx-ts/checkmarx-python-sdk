@@ -5,8 +5,8 @@ class RolesRepresentation:
 
     def __str__(self):
         return f"RolesRepresentation(" \
-               f"client={self.client}" \
-               f"realm={self.realm}" \
+               f"client={self.client} " \
+               f"realm={self.realm} " \
                f")"
 
     def get_post_data(self):
@@ -15,6 +15,7 @@ class RolesRepresentation:
             "client": self.client,
             "realm": self.realm,
         })
+
 
 def construct_roles_representation(item):
     return RolesRepresentation(

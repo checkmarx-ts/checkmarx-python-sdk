@@ -7,10 +7,10 @@ class AuthenticatorConfigInfoRepresentation:
 
     def __str__(self):
         return f"AuthenticatorConfigInfoRepresentation(" \
-               f"helpText={self.helpText}" \
-               f"name={self.name}" \
-               f"properties={self.properties}" \
-               f"providerId={self.providerId}" \
+               f"helpText={self.helpText} " \
+               f"name={self.name} " \
+               f"properties={self.properties} " \
+               f"providerId={self.providerId} " \
                f")"
 
     def get_post_data(self):
@@ -21,6 +21,7 @@ class AuthenticatorConfigInfoRepresentation:
             "properties": self.properties,
             "providerId": self.providerId,
         })
+
 
 def construct_authenticator_config_info_representation(item):
     return AuthenticatorConfigInfoRepresentation(

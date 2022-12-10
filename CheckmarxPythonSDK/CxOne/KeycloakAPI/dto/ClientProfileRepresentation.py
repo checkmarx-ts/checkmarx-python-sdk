@@ -6,9 +6,9 @@ class ClientProfileRepresentation:
 
     def __str__(self):
         return f"ClientProfileRepresentation(" \
-               f"description={self.description}" \
-               f"executors={self.executors}" \
-               f"name={self.name}" \
+               f"description={self.description} " \
+               f"executors={self.executors} " \
+               f"name={self.name} " \
                f")"
 
     def get_post_data(self):
@@ -18,6 +18,7 @@ class ClientProfileRepresentation:
             "executors": self.executors,
             "name": self.name,
         })
+
 
 def construct_client_profile_representation(item):
     return ClientProfileRepresentation(
