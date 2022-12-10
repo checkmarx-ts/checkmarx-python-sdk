@@ -62,3 +62,12 @@ def test_get_results_for_a_specific_scan_id_with_similarity_ids():
         similarity_ids=[2137433037, -1403228976]
     )
     assert r is not None
+
+
+def test_get_similarity_ids_of_a_scan():
+    def get_similarity_ids_of_a_scan():
+        from CheckmarxPythonSDK.CxODataApiSDK.HttpRequests import get_request
+        url = f"/Cxwebinterface/odata/v1/Scans(1000414)/Results?$select=SimilarityId,PathId"
+        return get_request(relative_url=url)
+    r = get_similarity_ids_of_a_scan()
+    assert r is not None
