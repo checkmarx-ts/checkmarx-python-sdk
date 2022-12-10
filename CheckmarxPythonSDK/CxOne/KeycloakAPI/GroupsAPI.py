@@ -1,8 +1,7 @@
-from ...utilities.compat import CREATED
-from ..httpRequests import get_request, post_request, put_request, delete_request
-
 import json
-from ..httpRequests import get_request
+from ...utilities.compat import CREATED, NO_CONTENT
+from ..httpRequests import get_request, post_request, put_request, delete_request
+from typing import List
 from ..utilities import get_url_param, type_check
 from .url import api_url
 
@@ -13,9 +12,9 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
 )
 
 
-def get_group_hierarchy(realm, brief_representation=False, first=None, max_result_size=100, search=None):
+def get_group_hierarchy(realm, brief_representation=False, first=None, max_result_size=100, search=None) -> List[Group]:
     """
-
+    Get group hierarchy.
     Args:
         realm (str):
         brief_representation (bool):
@@ -24,7 +23,7 @@ def get_group_hierarchy(realm, brief_representation=False, first=None, max_resul
         search (str):
 
     Returns:
-        list of Group
+        List[Group]
     """
     type_check(realm, str)
     type_check(brief_representation, bool)
@@ -44,12 +43,12 @@ def get_group_hierarchy(realm, brief_representation=False, first=None, max_resul
     return groups
 
 
-def create_group_set(realm, group_representation):
+def create_group_set(realm, group_representation) -> bool:
     """
-
+    create or add a top level realm groupSet or create child.
     Args:
-        realm:
-        group_representation:
+        realm (str):
+        group_representation (GroupRepresentation):
 
     Returns:
         bool (True for success, False for failure)
@@ -65,64 +64,163 @@ def create_group_set(realm, group_representation):
     return result
 
 
-def get_group_by_name(realm, group_name):
+def get_group_by_name(realm, group_name) -> Group:
+    """
+
+    Args:
+        realm (str):
+        group_name (str):
+
+    Returns:
+        Group
+    """
+    result = None
     type_check(realm, str)
     type_check(group_name, str)
+    groups = get_group_hierarchy(realm=realm, max_result_size=1000)
+    one_group = list(filter(lambda g: g.name == group_name, groups))
+    if len(one_group) == 1:
+        result = one_group[0]
+    return result
 
-    relative_url = api_url + f"/{realm}/groups"
+
+def get_number_of_groups_in_a_realm(realm) -> int:
+    """
+    Returns the groups counts.
+    Args:
+        realm (str):
+
+    Returns:
+        int
+    """
+    type_check(realm, str)
+    relative_url = api_url + f"/{realm}/groups/count"
     response = get_request(relative_url=relative_url, is_iam=True)
     response = response.json()
-    groups = [construct_group(item) for item in response]
-
-    for group in groups:
-        if group_name and group.name == group_name:
-            return group.id
+    result = response.get("count")
+    return result
 
 
-def create_group(realm, group_name):
+def get_group_by_id(realm, group_id) -> Group:
+    """
+
+    Args:
+        realm (str):
+        group_id (str):
+
+    Returns:
+
+    """
     type_check(realm, str)
+    type_check(group_id, str)
+    relative_url = api_url + f"/{realm}/groups/{group_id}"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    item = response.json()
+    return construct_group(item)
 
-    relative_url = api_url + f"/{realm}/groups"
-    post_data = json.dumps(
-        {
-            'name': group_name 
-        }
-    )
-    response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
-    return response
+
+def update_group_by_id(realm, group_id, group_representation) -> bool:
+    """
+
+    Args:
+        realm (str):
+        group_id (str):
+        group_representation (GroupRepresentation):
+
+    Returns:
+        bool
+    """
+    result = False
+    type_check(realm, str)
+    type_check(group_id, str)
+    relative_url = api_url + f"/{realm}/groups/{group_id}"
+    type_check(group_representation, GroupRepresentation)
+    post_data = group_representation.get_post_data()
+    response = put_request(relative_url=relative_url, data=post_data, is_iam=True)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
+def delete_group_by_id(realm, group_id) -> bool:
+    """
+
+    Args:
+        realm (str):
+        group_id (str):
+
+    Returns:
+
+    """
+    result = False
+    type_check(realm, str)
+    type_check(group_id, str)
+    relative_url = api_url + f"/{realm}/groups/{group_id}"
+    response = delete_request(relative_url=relative_url, is_iam=True)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
 
 
 def create_subgroup(realm, group_id, subgroup_name):
-    type_check(realm, str)
+    """
+    Set or create child.
+    Args:
+        realm (str):
+        group_id (str):
+        subgroup_name (str):
 
+    Returns:
+        bool
+    """
+    result = False
+    type_check(realm, str)
+    type_check(group_id, str)
+    type_check(subgroup_name, str)
     relative_url = api_url + f"/{realm}/groups/{group_id}/children"
     post_data = json.dumps(
         {
-            'name': subgroup_name 
+            'name': subgroup_name
         }
     )
     response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
-    return response
+    if response.status_code == CREATED:
+        result = True
+    return result
 
 
-def add_group_role(realm, group_id, container_id, role_id, role_name):
+def get_group_permissions(realm, group_id):
+    pass
+
+
+def update_group_permissions(realm, group_id):
+    pass
+
+
+def get_group_members(realm, group_id):
+    pass
+
+
+def create_group(realm, group_name):
+    """
+
+    Args:
+        realm (str):
+        group_name (str):
+
+    Returns:
+        bool
+    """
+    result = False
     type_check(realm, str)
-    type_check(group_id, str)
-    type_check(role_name, str)
-    type_check(role_id, str)
-
-    relative_url = api_url + f"/{realm}/groups/{group_id}/role-mappings/clients/{container_id}" 
+    type_check(group_name, str)
+    relative_url = api_url + f"/{realm}/groups"
     post_data = json.dumps(
-        [{
-            "clientRole": True,
-            "composite":True,
-            "containerId":f"{container_id}",
-            "description":"Scan projects in Groups of this user",
-            "id":f"{role_id}",
-            "name":f"{role_name}"
-        }]
+        {
+            'name': group_name
+        }
     )
-    print(post_data)
-    response = post_request(relative_url=relative_url, data=post_data)
-    return response
-
+    response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
+    if response.status_code == CREATED:
+        result = True
+    return result
