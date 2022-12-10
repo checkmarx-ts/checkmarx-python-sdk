@@ -256,3 +256,20 @@ def get_config(config_default, section, prefix):
         config.update({"password": get_password_from_keyring(section=section, username=config.get("username"))})
     logger.debug("final config value is: {}".format(config))
     return config
+
+
+def get_debug_command_line_arg():
+    """
+    True if there is --cx_debug in the command line option
+    Returns:
+        bool
+    """
+    result = False
+    import sys
+    print(sys.argv)
+    parser = PassThroughOptionParser(add_help_option=False)
+    parser.add_option('--cx_debug', action="store_true", dest="cx_debug", help="enable debug mode")
+    options, args = parser.parse_args()
+    if options.cx_debug:
+        result = True
+    return result
