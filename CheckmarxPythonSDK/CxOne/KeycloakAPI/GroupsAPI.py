@@ -9,6 +9,8 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
     Group,
     construct_group,
     GroupRepresentation,
+    construct_management_permission_reference,
+    ManagementPermissionReference,
 )
 
 
@@ -109,7 +111,7 @@ def get_group_by_id(realm, group_id) -> Group:
         group_id (str):
 
     Returns:
-
+        Group
     """
     type_check(realm, str)
     type_check(group_id, str)
@@ -162,7 +164,7 @@ def delete_group_by_id(realm, group_id) -> bool:
     return result
 
 
-def create_subgroup(realm, group_id, subgroup_name):
+def create_subgroup(realm, group_id, subgroup_name) -> bool:
     """
     Set or create child.
     Args:
@@ -189,16 +191,76 @@ def create_subgroup(realm, group_id, subgroup_name):
     return result
 
 
-def get_group_permissions(realm, group_id):
-    pass
+def get_group_permissions(realm, group_id) -> ManagementPermissionReference:
+    """
+    Return object stating whether client Authorization permissions have
+        been initialized or not and a reference
+    Args:
+        realm (str):
+        group_id (str):
+
+    Returns:
+        ManagementPermissionReference
+    """
+    type_check(realm, str)
+    type_check(group_id, str)
+    relative_url = api_url + f"/{realm}/groups/{group_id}/management/permissions"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    item = response.json()
+    return construct_management_permission_reference(item)
 
 
-def update_group_permissions(realm, group_id):
-    pass
+def update_group_permissions(realm, group_id, group_permissions):
+    """
+        Return object stating whether client Authorization permissions have
+            been initialized or not and a reference
+        Args:
+            realm (str):
+            group_id (str):
+            group_permissions (ManagementPermissionReference):
+
+        Returns:
+            ManagementPermissionReference
+        """
+    result = False
+    type_check(realm, str)
+    type_check(group_id, str)
+    type_check(group_permissions, ManagementPermissionReference)
+    relative_url = api_url + f"/{realm}/groups/{group_id}/management/permissions"
+    data = group_permissions.get_post_data()
+    response = put_request(relative_url=relative_url, data=data, is_iam=True)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
 
 
-def get_group_members(realm, group_id):
-    pass
+def get_group_members(realm, group_id, brief_representation=True, first=100, max_result_size=100):
+    """
+
+    Args:
+        realm (str):
+        group_id (str):
+        brief_representation (bool): Only return basic information (only guaranteed to return id, username, created,
+                                    first and last name, email, enabled state, email verification state, federation
+                                    link, and access. Note that it means that namely user attributes, required actions,
+                                    and not before are not returned.)
+        first (int): Pagination offset
+        max_result_size (int): Maximum results size (defaults to 100)
+
+    Returns:
+
+    """
+
+    type_check(realm, str)
+    type_check(group_id, str)
+    relative_url = api_url + f"/{realm}/groups/{group_id}/members"
+    relative_url += "?"
+    relative_url += f"briefRepresentation={brief_representation}"
+    relative_url += f"&first={first}"
+    relative_url += f"&max={max_result_size}"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    item_list = response.json()
+    return item_list
 
 
 def create_group(realm, group_name):

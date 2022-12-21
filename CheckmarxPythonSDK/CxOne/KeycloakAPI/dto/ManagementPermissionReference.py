@@ -1,5 +1,15 @@
+from .ScopePermissions import ScopePermissions, construct_scope_permissions
+
+
 class ManagementPermissionReference:
-    def __init__(self, enabled, resource, scope_permissions):
+    def __init__(self, enabled: bool, resource: str, scope_permissions: ScopePermissions):
+        """
+
+        Args:
+            enabled (bool):
+            resource (str):
+            scope_permissions ():
+        """
         self.enabled = enabled
         self.resource = resource
         self.scopePermissions = scope_permissions
@@ -16,7 +26,7 @@ class ManagementPermissionReference:
         return json.dumps({
             "enabled": self.enabled,
             "resource": self.resource,
-            "scopePermissions": self.scopePermissions,
+            "scopePermissions": self.scopePermissions.get_post_data(),
         })
 
 
@@ -24,5 +34,5 @@ def construct_management_permission_reference(item):
     return ManagementPermissionReference(
         enabled=item.get("enabled"),
         resource=item.get("resource"),
-        scope_permissions=item.get("scopePermissions"),
+        scope_permissions=construct_scope_permissions(item.get("scopePermissions")),
     )

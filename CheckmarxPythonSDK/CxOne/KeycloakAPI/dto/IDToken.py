@@ -128,7 +128,7 @@ class IDToken:
         })
 
 
-def construct_i_d_token(item):
+def construct_id_token(item):
     return IDToken(
         acr=item.get("acr"),
         address=item.get("address"),
