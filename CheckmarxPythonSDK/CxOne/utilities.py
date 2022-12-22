@@ -12,7 +12,7 @@ def get_url_param(url_param_key, value):
     result = ""
     if not value:
         return result
-    if isinstance(value, str):
+    if isinstance(value, (str, int)):
         result += "&{param_key}={pram_value}".format(param_key=url_param_key, pram_value=value)
     elif isinstance(value, (list, tuple)):
         for item in value:

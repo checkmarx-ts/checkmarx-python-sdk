@@ -8,6 +8,8 @@ from .url import api_url
 from .dto import (
     AstIdWithName,
     construct_ast_id_with_name,
+    AstUser,
+    construct_ast_user,
 )
 
 # PIP
@@ -30,12 +32,51 @@ def get_groups(realm, group_name=None, limit=None, ids=None) -> List[AstIdWithNa
     type_check(limit, int)
     type_check(ids, str)
     relative_url = api_url + f"/{realm}/pip/groups?"
-    if group_name:
-        relative_url += f"groupName={group_name}"
-    if limit:
-        relative_url += f"&limit={limit}"
-    if ids:
-        relative_url += f"&ids={ids}"
+    relative_url += get_url_param("groupName", group_name)
+    relative_url += get_url_param("limit", limit)
+    relative_url += get_url_param("ids", ids)
     response = get_request(relative_url=relative_url, is_iam=True)
     item_list = response.json()
     return [construct_ast_id_with_name(item) for item in item_list]
+
+
+def get_users(realm, term, limit=100) -> List[AstIdWithName]:
+    """
+
+    Args:
+        realm (str):
+        term (str): required. TODO: check What is term?
+        limit (int): Max amount of returned records
+
+    Returns:
+        List[AstIdWithName]
+    """
+    type_check(realm, str)
+    type_check(term, str)
+    type_check(limit, int)
+    relative_url = api_url + f"/{realm}/pip/users?"
+    relative_url += get_url_param("term", term)
+    relative_url += get_url_param("limit", limit)
+    response = get_request(relative_url=relative_url, is_iam=True)
+    item_list = response.json()
+    return [construct_ast_id_with_name(item) for item in item_list]
+
+
+def get_users_by_groups(realm, group_id) -> List[AstUser]:
+    """
+
+    Args:
+        realm (str):
+        group_id (str):
+
+    Returns:
+        List[AstUser]
+    """
+    type_check(realm, str)
+    type_check(group_id, str)
+    relative_url = api_url + f"/{realm}/pip/users/group/{group_id}"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    item_list = response.json()
+    return [construct_ast_user(item) for item in item_list]
+
+
