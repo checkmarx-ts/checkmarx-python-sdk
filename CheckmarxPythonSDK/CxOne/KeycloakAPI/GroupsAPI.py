@@ -33,8 +33,7 @@ def get_group_hierarchy(realm, brief_representation=False, first=None, max_resul
     type_check(max_result_size, int)
     type_check(search, str)
 
-    relative_url = api_url + f"/{realm}/groups"
-    relative_url += "?"
+    relative_url = api_url + f"/{realm}/groups?"
     relative_url += get_url_param("briefRepresentation", brief_representation)
     relative_url += get_url_param("first", first)
     relative_url += get_url_param("max", max_result_size)
@@ -253,11 +252,10 @@ def get_group_members(realm, group_id, brief_representation=True, first=100, max
 
     type_check(realm, str)
     type_check(group_id, str)
-    relative_url = api_url + f"/{realm}/groups/{group_id}/members"
-    relative_url += "?"
-    relative_url += f"briefRepresentation={brief_representation}"
-    relative_url += f"&first={first}"
-    relative_url += f"&max={max_result_size}"
+    relative_url = api_url + f"/{realm}/groups/{group_id}/members?"
+    relative_url += get_url_param("briefRepresentation", brief_representation)
+    relative_url += get_url_param("first", first)
+    relative_url += get_url_param("max", max_result_size)
     response = get_request(relative_url=relative_url, is_iam=True)
     item_list = response.json()
     return item_list
