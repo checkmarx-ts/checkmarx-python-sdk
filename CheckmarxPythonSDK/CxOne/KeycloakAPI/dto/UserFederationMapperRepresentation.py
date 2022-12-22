@@ -9,11 +9,11 @@ class UserFederationMapperRepresentation:
 
     def __str__(self):
         return f"UserFederationMapperRepresentation(" \
-               f"config={self.config} " \
-               f"federationMapperType={self.federationMapperType} " \
-               f"federationProviderDisplayName={self.federationProviderDisplayName} " \
-               f"id={self.id} " \
-               f"name={self.name} " \
+               f"config={self.config}, " \
+               f"federationMapperType={self.federationMapperType}, " \
+               f"federationProviderDisplayName={self.federationProviderDisplayName}, " \
+               f"id={self.id}, " \
+               f"name={self.name}" \
                f")"
 
     def get_post_data(self):

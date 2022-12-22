@@ -7,10 +7,10 @@ class UserConsentRepresentation:
 
     def __str__(self):
         return f"UserConsentRepresentation(" \
-               f"clientId={self.clientId} " \
-               f"createdDate={self.createdDate} " \
-               f"grantedClientScopes={self.grantedClientScopes} " \
-               f"lastUpdatedDate={self.lastUpdatedDate} " \
+               f"clientId={self.clientId}, " \
+               f"createdDate={self.createdDate}, " \
+               f"grantedClientScopes={self.grantedClientScopes}, " \
+               f"lastUpdatedDate={self.lastUpdatedDate}" \
                f")"
 
     def get_post_data(self):

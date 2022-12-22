@@ -248,7 +248,7 @@ def get_group_members(realm, group_id, brief_representation=True, first=100, max
         max_result_size (int): Maximum results size (defaults to 100)
 
     Returns:
-
+        List[User]: By doing test, this API only returns empty list
     """
 
     type_check(realm, str)

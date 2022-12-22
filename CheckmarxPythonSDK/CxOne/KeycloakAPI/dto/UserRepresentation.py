@@ -29,29 +29,29 @@ class UserRepresentation:
 
     def __str__(self):
         return f"UserRepresentation(" \
-               f"access={self.access} " \
-               f"attributes={self.attributes} " \
-               f"clientConsents={self.clientConsents} " \
-               f"clientRoles={self.clientRoles} " \
-               f"createdTimestamp={self.createdTimestamp} " \
-               f"credentials={self.credentials} " \
-               f"disableableCredentialTypes={self.disableableCredentialTypes} " \
-               f"email={self.email} " \
-               f"emailVerified={self.emailVerified} " \
-               f"enabled={self.enabled} " \
-               f"federatedIdentities={self.federatedIdentities} " \
-               f"federationLink={self.federationLink} " \
-               f"firstName={self.firstName} " \
-               f"groups={self.groups} " \
-               f"id={self.id} " \
-               f"lastName={self.lastName} " \
-               f"notBefore={self.notBefore} " \
-               f"origin={self.origin} " \
-               f"realmRoles={self.realmRoles} " \
-               f"requiredActions={self.requiredActions} " \
-               f"self={self.self} " \
-               f"serviceAccountClientId={self.serviceAccountClientId} " \
-               f"username={self.username} " \
+               f"access={self.access}, " \
+               f"attributes={self.attributes}, " \
+               f"clientConsents={self.clientConsents}, " \
+               f"clientRoles={self.clientRoles}, " \
+               f"createdTimestamp={self.createdTimestamp}, " \
+               f"credentials={self.credentials}, " \
+               f"disableableCredentialTypes={self.disableableCredentialTypes}, " \
+               f"email={self.email}, " \
+               f"emailVerified={self.emailVerified}, " \
+               f"enabled={self.enabled}, " \
+               f"federatedIdentities={self.federatedIdentities}, " \
+               f"federationLink={self.federationLink}, " \
+               f"firstName={self.firstName}, " \
+               f"groups={self.groups}, " \
+               f"id={self.id}, " \
+               f"lastName={self.lastName}, " \
+               f"notBefore={self.notBefore}, " \
+               f"origin={self.origin}, " \
+               f"realmRoles={self.realmRoles}, " \
+               f"requiredActions={self.requiredActions}, " \
+               f"self={self.self}, " \
+               f"serviceAccountClientId={self.serviceAccountClientId}, " \
+               f"username={self.username}" \
                f")"
 
     def get_post_data(self):

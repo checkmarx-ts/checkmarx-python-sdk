@@ -18,19 +18,19 @@ class User(object):
 
     def __str__(self):
         return f"User(" \
-               f"id={self.id}" \
-               f"createdTimestamp={self.createdTimestamp}" \
-               f"username={self.username}" \
-               f"enabled={self.enabled}" \
-               f"totp={self.totp}" \
-               f"emailVerified={self.emailVerified}" \
-               f"firstName={self.firstName}" \
-               f"lastName={self.lastName}" \
-               f"email={self.email}" \
-               f"attributes={self.attributes}" \
-               f"disableableCredentialTypes={self.disableableCredentialTypes}" \
-               f"requiredActions={self.requiredActions}" \
-               f"notBefore={self.notBefore}" \
+               f"id={self.id}, " \
+               f"createdTimestamp={self.createdTimestamp}, " \
+               f"username={self.username}, " \
+               f"enabled={self.enabled}, " \
+               f"totp={self.totp}, " \
+               f"emailVerified={self.emailVerified}, " \
+               f"firstName={self.firstName}, " \
+               f"lastName={self.lastName}, " \
+               f"email={self.email}, " \
+               f"attributes={self.attributes}, " \
+               f"disableableCredentialTypes={self.disableableCredentialTypes}, " \
+               f"requiredActions={self.requiredActions}, " \
+               f"notBefore={self.notBefore}, " \
                f"access={self.access}" \
                f")"
 

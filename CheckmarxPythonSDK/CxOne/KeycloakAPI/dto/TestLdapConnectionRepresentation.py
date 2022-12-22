@@ -13,15 +13,15 @@ class TestLdapConnectionRepresentation:
 
     def __str__(self):
         return f"TestLdapConnectionRepresentation(" \
-               f"action={self.action} " \
-               f"authType={self.authType} " \
-               f"bindCredential={self.bindCredential} " \
-               f"bindDn={self.bindDn} " \
-               f"componentId={self.componentId} " \
-               f"connectionTimeout={self.connectionTimeout} " \
-               f"connectionUrl={self.connectionUrl} " \
-               f"startTls={self.startTls} " \
-               f"useTruststoreSpi={self.useTruststoreSpi} " \
+               f"action={self.action}, " \
+               f"authType={self.authType}, " \
+               f"bindCredential={self.bindCredential}, " \
+               f"bindDn={self.bindDn}, " \
+               f"componentId={self.componentId}, " \
+               f"connectionTimeout={self.connectionTimeout}, " \
+               f"connectionUrl={self.connectionUrl}, " \
+               f"startTls={self.startTls}, " \
+               f"useTruststoreSpi={self.useTruststoreSpi}" \
                f")"
 
     def get_post_data(self):

@@ -12,14 +12,14 @@ class UserFederationProviderRepresentation:
 
     def __str__(self):
         return f"UserFederationProviderRepresentation(" \
-               f"changedSyncPeriod={self.changedSyncPeriod} " \
-               f"config={self.config} " \
-               f"displayName={self.displayName} " \
-               f"fullSyncPeriod={self.fullSyncPeriod} " \
-               f"id={self.id} " \
-               f"lastSync={self.lastSync} " \
-               f"priority={self.priority} " \
-               f"providerName={self.providerName} " \
+               f"changedSyncPeriod={self.changedSyncPeriod}, " \
+               f"config={self.config}, " \
+               f"displayName={self.displayName}, " \
+               f"fullSyncPeriod={self.fullSyncPeriod}, " \
+               f"id={self.id}, " \
+               f"lastSync={self.lastSync}, " \
+               f"priority={self.priority}, " \
+               f"providerName={self.providerName}" \
                f")"
 
     def get_post_data(self):
