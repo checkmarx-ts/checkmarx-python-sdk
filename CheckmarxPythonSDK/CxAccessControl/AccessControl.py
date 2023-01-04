@@ -280,7 +280,14 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                construct_user(item) for item in response.json()
+                # We can't use construct_user because the response
+                # property names are slightly different (e.g.,
+                # "firstname" instead of "firstName".
+                User(email=item["email"],
+                     first_name=item["firstname"],
+                     last_name=item["lastname"],
+                     username=item["username"]
+                     ) for item in response.json()
             ]
         return result
 
