@@ -196,3 +196,6 @@ All notable changes to this project will be documented in  this file.
 
 0.6.5 - 2022-12-10
 * Fix --cx_debug command line option issue
+
+0.6.6 - 2023-01-05
+* Fix the get_user_entries_by_search_criteria AccessControl method. 
