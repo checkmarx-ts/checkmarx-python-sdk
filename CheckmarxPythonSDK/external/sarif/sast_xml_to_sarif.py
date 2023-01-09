@@ -26,13 +26,13 @@ from CheckmarxPythonSDK.external.sarif.dto import (
 )
 from CheckmarxPythonSDK.external.sarif.stig_mapping import stig_mapping
 from CheckmarxPythonSDK.CxPortalSoapApiSDK.CxPortalWebService import get_query_collection
-from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.xml_results import get_xml_results, obj_to_dict
+from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.xml_results import get_xml_results
 from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.dto import (
     CxXMLResults
 )
 
 
-def create_sarif_report_from_sast_xml(xml_path, xml_string=None):
+def create_sarif_report_from_sast_xml(xml_path, xml_string=None) -> SarifResultsCollection:
     xml_report = get_xml_results(xml_path, xml_string)
     return create_sarif_results(xml_report)
 
@@ -259,9 +259,3 @@ def find_stig_id(categories) -> str:
 
 def find_stig_rule_id(stig_id) -> str:
     return stig_mapping.get(stig_id)
-
-
-if __name__ == '__main__':
-    sarif_result = create_sarif_report_from_sast_xml(r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk\examples\jvl_local_2022_10_18_16_39_47.XML")
-    sarif_result_dict = obj_to_dict(sarif_result)
-    pass
