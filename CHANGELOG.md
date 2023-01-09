@@ -199,3 +199,6 @@ All notable changes to this project will be documented in  this file.
 
 0.6.6 - 2023-01-05
 * Fix the get_user_entries_by_search_criteria AccessControl method. 
+
+0.6.7 - 2023-01-09
+* Add support for sast xml to sarif
