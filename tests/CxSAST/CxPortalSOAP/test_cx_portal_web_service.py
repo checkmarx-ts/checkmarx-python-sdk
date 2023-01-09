@@ -117,6 +117,23 @@ def test_get_queries_categories():
 
 def test_get_query_collection():
     response = get_query_collection()
+    query_groups = response.get("QueryGroups")
+    a_list = []
+    for query_group in query_groups:
+        query_group_name = query_group.get("Name")
+        if "General" in query_group_name or "Quality" in query_group_name or "Best" in query_group_name:
+            continue
+        for query in query_group.get("Queries"):
+            categories = query.get('Categories')
+            if categories is None:
+                categories = []
+            query_dict = {"QueryId": query.get('QueryId'), "Name": query.get('Name'), "Cwe": query.get('Cwe'),
+                          "Severity": query.get('Severity'), "QueryGroupName": query_group.get('Name'),
+                          "LanguageName": query_group.get('LanguageName'),
+                          "PackageTypeName": query_group.get('PackageTypeName'), "Categories": [
+                    {"CategoryName": category.get('CategoryName'),
+                     "CategoryType": category.get('CategoryType').get('Name')} for category in categories]}
+            a_list.append(query_dict)
     assert response is not None
 
 
