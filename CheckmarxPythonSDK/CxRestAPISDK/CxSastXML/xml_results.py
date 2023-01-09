@@ -99,6 +99,8 @@ def get_xml_results(xml_file_path=None, xml_content_as_string=None) -> CxXMLResu
 
 def obj_to_dict(obj) -> dict:
     result = {}
+    if isinstance(obj, (int, str, bool, dict)):
+        return obj
     obj_dict = obj.__dict__
     for key, value in obj_dict.items():
         if value is None or isinstance(value, (int, str)):
