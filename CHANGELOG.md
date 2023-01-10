@@ -202,3 +202,6 @@ All notable changes to this project will be documented in  this file.
 
 0.6.7 - 2023-01-09
 * Add support for sast xml to sarif
+
+0.6.8 - 2023-01-10
+* Add SCA API get_scan_reports

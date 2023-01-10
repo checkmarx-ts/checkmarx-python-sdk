@@ -21,6 +21,7 @@
     - get_licenses_of_a_scan
     - ignore_a_vulnerability_for_a_specific_package_and_project
     - undo_the_ignore_state_of_an_ignored_vulnerability
+    - get_scan_reports
 
 4. Settings    
     - get_settings_for_a_specific_project
