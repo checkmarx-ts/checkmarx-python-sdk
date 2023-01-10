@@ -964,3 +964,44 @@ def change_state_of_a_vulnerability_for_a_specific_package_and_project(project_i
     if response.status_code == OK:
         is_successful = True
     return is_successful
+
+
+def get_scan_reports(scan_id, report_format="Json", data_types=("All",)):
+    """
+
+    Args:
+        scan_id (str): The unique identifier of the scan for which you would like to generate a report.
+        report_format (str): The format of the report that is generated. Your selection determines whether the report
+             generated is a Scan Report or an SBOM Report. It al determines the file format of the report.
+             Json - Scan Report in JSON format
+             Xml - Scan Report in XML format
+             Pdf - Scan Report in PDF format
+             Csv - Scan Report in CSV format  - for this format, the response is given as a zip file, which can be extracted to obtain the CSV files
+             CycloneDxJson - SBOM report CycloneDX v1.3 format, returned as a JSON
+             CycloneDxXml - SBOM report CycloneDX v1.3 format, returned as an XML
+        data_types (list of str, tuple of str):Specifies the sections that will be included in the report. You can specify
+             This parameter is relevant only for Scan Reports, not for SBOM Reports.
+
+             All
+             Packages
+             Vulnerabilities
+             Licenses
+             Policies
+             SupplyChainRisks
+
+    Returns:
+
+    """
+    if report_format not in ["Json", "Xml", "Pdf", "Csv", "CycloneDxJson", "CycloneDxXml"]:
+        raise ValueError("parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml")
+    if not isinstance(data_types, (list, tuple)):
+        raise ValueError("parameter data_types can only be list or tuple")
+    for item in data_types:
+        if item not in ["All", "Packages", "Vulnerabilities", "Licenses", "Policies", "SupplyChainRisks"]:
+            raise ValueError("dataType can only be All, Packages, Vulnerabilities, Licenses, Policies, "
+                             "SupplyChainRisks")
+    url = "/risk-management/risk-reports/{scan_id}/export".format(scan_id=scan_id)
+    url += "?format={report_format}".format(report_format=report_format)
+    url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
+    response = get_request(relative_url=url)
+    return response.content

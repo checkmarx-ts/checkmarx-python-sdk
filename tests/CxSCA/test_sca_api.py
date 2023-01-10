@@ -26,6 +26,7 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     comment_a_vulnerability_for_a_specific_package_and_project,
     get_states_associated_with_a_project,
     change_state_of_a_vulnerability_for_a_specific_package_and_project,
+    get_scan_reports,
     AccessControlAPI
 )
 # from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
@@ -236,3 +237,55 @@ def test_change_state_of_a_vulnerability_for_a_specific_package_and_project():
         state="NotExploitable"
     )
     assert is_successful is True
+
+
+def test_get_scan_reports():
+    import time
+    scan_id = "d5b2b7b4-a3d0-454b-b7ae-43de69d750db"
+
+    # scan report
+    json_report = get_scan_reports(scan_id=scan_id)
+    with open("sca_scan_report.json", "wb") as json_file:
+        json_file.write(json_report)
+    time.sleep(5)
+    xml_report = get_scan_reports(scan_id=scan_id, report_format="Xml")
+    with open("sca_scan_report.xml", "wb") as xml_file:
+        xml_file.write(xml_report)
+    time.sleep(5)
+    pdf_report = get_scan_reports(scan_id=scan_id, report_format="Pdf")
+    with open("sca_scan_report.pdf", "wb") as pdf_file:
+        pdf_file.write(pdf_report)
+    time.sleep(5)
+    csv_report = get_scan_reports(scan_id=scan_id, report_format="Csv")
+    with open("sca_scan_report.zip", "wb") as csv_zip:
+        csv_zip.write(csv_report)
+    time.sleep(5)
+    # SBOM report
+    sbom_report_in_json = get_scan_reports(scan_id=scan_id, report_format="CycloneDxJson")
+    with open("sca_scan_sbom_report.json", "wb") as sbom_report_json_file:
+        sbom_report_json_file.write(sbom_report_in_json)
+    time.sleep(5)
+    sbom_report_in_xml = get_scan_reports(scan_id=scan_id, report_format="CycloneDxXml")
+    with open("sca_scan_sbom_report.xml", "wb") as sbom_report_xml_file:
+        sbom_report_xml_file.write(sbom_report_in_xml)
+    time.sleep(5)
+    # scan report only with Vulnerabilities and Packages
+    partial_json_report = get_scan_reports(scan_id=scan_id, data_types=("Vulnerabilities", "Packages"))
+    with open("partial_sca_scan_report.json", "wb") as partial_json_file:
+        partial_json_file.write(partial_json_report)
+    time.sleep(5)
+    partial_xml_report = get_scan_reports(scan_id=scan_id, report_format="Xml",
+                                          data_types=("Vulnerabilities", "Packages"))
+    with open("partial_sca_scan_report.xml", "wb") as partial_xml_file:
+        partial_xml_file.write(partial_xml_report)
+    time.sleep(5)
+    partial_pdf_report = get_scan_reports(scan_id=scan_id, report_format="Pdf",
+                                          data_types=("Vulnerabilities", "Packages"))
+    with open("partial_sca_scan_report.pdf", "wb") as partial_pdf_file:
+        partial_pdf_file.write(partial_pdf_report)
+    time.sleep(5)
+    partial_csv_report = get_scan_reports(scan_id=scan_id, report_format="Csv",
+                                          data_types=("Vulnerabilities", "Packages"))
+    with open("partial_sca_scan_report.zip", "wb") as partial_csv_zip_file:
+        partial_csv_zip_file.write(partial_csv_report)
+    assert partial_csv_report is not None
