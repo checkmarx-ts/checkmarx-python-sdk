@@ -166,6 +166,7 @@ def cx_scan_from_local_zip_file(preset_name: str, team_full_name: str, project_n
         incremental = False
 
     logger.info("create new scan")
+    logger.info(f"The scan type will be: {'incremental' if incremental else 'full'} ")
     scan = scan_api.create_new_scan(project_id=project_id, is_incremental=incremental)
     scan_id = scan.id
     logger.info("scan_id : {}".format(scan_id))
