@@ -56,7 +56,7 @@ def get_command_line_arguments():
     parser.add_argument('--cxsast_username', required=True, help="CxSAST username")
     parser.add_argument('--cxsast_password', required=True, help="CxSAST password")
     parser.add_argument('-preset', '--preset', required=True, help="The preset (rule set) name")
-    parser.add_argument('-incremental', '--incremental', default=False, help="Set it True if make it an incremental scan")
+    parser.add_argument('-incremental', '--incremental', default=False, help="Set it True for incremental scan")
     parser.add_argument('-location_type', '--location_type', required=True, help="Folder, Git")
     parser.add_argument('-location_path', '--location_path', required=True, help="Source code folder absolute path")
     parser.add_argument('-project_name', '--project_name', required=True, help="Checkmarx project full path")
@@ -65,6 +65,9 @@ def get_command_line_arguments():
     parser.add_argument('-report_xml', '--report_xml', default=None, help="xml report file path")
     parser.add_argument('-report_pdf', '--report_pdf', default=None, help="pdf report file path")
     parser.add_argument('-report_csv', '--report_csv', default=None, help="csv report file path")
+    parser.add_argument('-full_scan_cycle', '--full_scan_cycle', default=10,
+                        help="Defines the number of incremental scans to be performed, before performing a periodic "
+                             "full scan")
     return parser.parse_known_args()
 
 
@@ -101,7 +104,8 @@ def create_zip_file_from_location_path(location_path_str: str, project_name: str
 
 
 def cx_scan_from_local_zip_file(preset_name: str, team_full_name: str, project_name: str, zip_file_path: str,
-                                exclude_folders: str, exclude_files: str, incremental: bool = False):
+                                exclude_folders: str, exclude_files: str, incremental: bool = False,
+                                full_scan_cycle=10):
     """
 
     Args:
@@ -112,6 +116,7 @@ def cx_scan_from_local_zip_file(preset_name: str, team_full_name: str, project_n
         exclude_folders (str):
         exclude_files (str):
         incremental (bool):
+        full_scan_cycle (int):
 
     Returns:
 
@@ -153,6 +158,12 @@ def cx_scan_from_local_zip_file(preset_name: str, team_full_name: str, project_n
     projects_api.set_project_exclude_settings_by_project_id(
         project_id, exclude_folders_pattern=exclude_folders, exclude_files_pattern=exclude_files
     )
+
+    scans_of_this_project = scan_api.get_all_scans_for_project(project_id=project_id)
+    number_of_scans_of_this_project = len(scans_of_this_project) + 1
+    remainder = number_of_scans_of_this_project % full_scan_cycle
+    if remainder == 0:
+        incremental = False
 
     logger.info("create new scan")
     scan = scan_api.create_new_scan(project_id=project_id, is_incremental=incremental)
@@ -279,6 +290,7 @@ def run_scan_and_generate_reports(arguments):
     report_xml = arguments.report_xml
     report_pdf = arguments.report_pdf
     report_csv = arguments.report_csv
+    full_scan_cycle = int(arguments.full_scan_cycle)
     logger.info(
         f"preset: {preset}\n"
         f"incremental: {incremental}\n"
@@ -288,17 +300,19 @@ def run_scan_and_generate_reports(arguments):
         f"report_xml: {report_xml}\n"
         f"report_pdf: {report_pdf}\n"
         f"report_csv: {report_csv}\n"
+        f"full_scan_cycle: {full_scan_cycle}\n"
     )
 
     logger.info(f"creating zip file by zip the source code folder: {location_path}")
-    l = project_full_path.split("/")
-    project_name = l[-1]
-    team_full_name = "/".join(l[0:len(l)-1])
+    project_path_list = project_full_path.split("/")
+    project_name = project_path_list[-1]
+    team_full_name = "/".join(project_path_list[0: len(project_path_list)-1])
     zip_file_path = create_zip_file_from_location_path(location_path, project_name)
     logger.info(f"ZIP file created: {zip_file_path}")
     scan_id = cx_scan_from_local_zip_file(preset_name=preset, team_full_name=team_full_name, project_name=project_name,
                                           zip_file_path=zip_file_path, exclude_folders=exclude_folders,
-                                          exclude_files=exclude_files, incremental=incremental)
+                                          exclude_files=exclude_files, incremental=incremental,
+                                          full_scan_cycle=full_scan_cycle)
 
     logger.info(f"deleting zip file: {zip_file_path}")
     pathlib.Path(zip_file_path).unlink()
