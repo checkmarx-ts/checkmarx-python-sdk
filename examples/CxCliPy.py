@@ -8,6 +8,7 @@ Sample usage
 --cxsast_password *** --preset All --incremental False --location_type Folder
 --location_path /home/happy/Documents/JavaVulnerableLab
 --project_name /CxServer/happy-2022-11-21 --exclude_folders "test" --report_csv cx-report.csv
+--full_scan_cycle 10
 """
 import pathlib
 import time
