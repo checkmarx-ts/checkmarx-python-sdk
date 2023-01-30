@@ -30,7 +30,7 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     AccessControlAPI
 )
 # from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
-project_name = "test_sca_2021_01_18"
+project_name = "test_sca_2023_01_30"
 
 
 def test_get_all_projects():

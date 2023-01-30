@@ -89,6 +89,6 @@ def sca_scan(project_name, zip_file_path):
 
 
 if __name__ == "__main__":
-    sca_project_name = "test_sca_2021_01_18"
+    sca_project_name = "test_sca_2023_01_30"
     sca_zip_file_path = "JavaVulnerableLab-master.zip"
     sca_scan(sca_project_name, sca_zip_file_path)

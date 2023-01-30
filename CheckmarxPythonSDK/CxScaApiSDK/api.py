@@ -881,7 +881,8 @@ def get_comments_associated_with_a_project(project_id):
     """
 
     url = "/risk-management/risk-metadata/{projectId}".format(projectId=project_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def comment_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, comment):
@@ -937,7 +938,8 @@ def get_states_associated_with_a_project(project_id):
     """
 
     url = "/risk-management/risk-state/{projectId}".format(projectId=project_id)
-    return get_request(relative_url=url)
+    response = get_request(relative_url=url)
+    return response.json()
 
 
 def change_state_of_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, state):

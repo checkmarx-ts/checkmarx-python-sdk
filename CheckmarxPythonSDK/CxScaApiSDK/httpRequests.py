@@ -25,26 +25,32 @@ def get_data_from_config():
 
 get, post, put, _, delete = build_request_funcs(get_data_from_config)
 
+headers = {
+    "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/106.0.0.0 Safari/537.36"
+}
+
 
 def get_request(relative_url):
-    response = get(relative_url)
+    response = get(relative_url, headers=headers)
     check_response(response)
     return response
 
 
 def post_request(relative_url, data):
-    response = post(relative_url, data)
+    response = post(relative_url, data, headers=headers)
     check_response(response)
     return response
 
 
 def put_request(relative_url, data):
-    response = put(relative_url, data)
+    response = put(relative_url, data, headers=headers)
     check_response(response)
     return response
 
 
 def delete_request(relative_url, data=None):
-    response = delete(relative_url, data)
+    response = delete(relative_url, data, headers=headers)
     check_response(response)
     return response
