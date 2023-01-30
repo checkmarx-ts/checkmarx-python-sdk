@@ -205,3 +205,6 @@ All notable changes to this project will be documented in  this file.
 
 0.6.8 - 2023-01-10
 * Add SCA API get_scan_reports
+
+0.6.9 - 2023-01-30
+* Fix SCA API get_states_associated_with_a_project and get_comments_associated_with_a_project
