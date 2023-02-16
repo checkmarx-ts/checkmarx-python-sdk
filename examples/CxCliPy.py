@@ -120,7 +120,7 @@ def cx_scan_from_local_zip_file(preset_name: str, team_full_name: str, project_n
         full_scan_cycle (int):
 
     Returns:
-
+        return scan id if scan finished, otherwise return None
     """
     from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI, ProjectsAPI, ScansAPI
     team_api = TeamAPI()
@@ -179,8 +179,8 @@ def cx_scan_from_local_zip_file(preset_name: str, team_full_name: str, project_n
         logger.info("scan_status: {}".format(scan_status))
         if scan_status == "Finished":
             break
-        elif scan_status == "Failed":
-            return
+        elif scan_status in ["Failed", "Canceled"]:
+            return None
         time.sleep(10)
 
     logger.info("get statistics results by scan id")
@@ -315,6 +315,10 @@ def run_scan_and_generate_reports(arguments):
                                           zip_file_path=zip_file_path, exclude_folders=exclude_folders,
                                           exclude_files=exclude_files, incremental=incremental,
                                           full_scan_cycle=full_scan_cycle)
+
+    if scan_id is None:
+        logger.info("Scan did not finish successfully, exit!")
+        return
 
     logger.info(f"deleting zip file: {zip_file_path}")
     pathlib.Path(zip_file_path).unlink()
