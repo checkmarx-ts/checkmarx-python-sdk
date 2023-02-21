@@ -4,10 +4,11 @@ This a CLI script. It can be converted to binary file by using pyinstaller
 pyinstaller -y -F --clean CxCliPy.py
 
 Sample usage
-/home/happy/Documents/CxCliPy/dist/CxCliPy scan --cxsast_base_url http://192.168.3.84 --cxsast_username Admin
---cxsast_password *** --preset All --incremental False --location_type Folder
---location_path /home/happy/Documents/JavaVulnerableLab
---project_name /CxServer/happy-2022-11-21 --exclude_folders "test" --report_csv cx-report.csv
+/home/happy/Documents/CxCliPy/dist/CxCliPy scan --cxsast_base_url http://192.168.3.84 --cxsast_username Admin \
+--cxsast_password *** --preset All --incremental False --location_type Folder \
+--location_path /home/happy/Documents/JavaVulnerableLab \
+--project_name /CxServer/happy-2022-11-21 --exclude_folders "test" --exclude_files "*min.js" \
+--report_csv cx-report.csv \
 --full_scan_cycle 10
 """
 import pathlib
@@ -97,7 +98,11 @@ def create_zip_file_from_location_path(location_path_str: str, project_name: str
                     or "images" in base:
                 continue
             for file in files:
-                if file.startswith(".") and not file.endswith(tuple(extensions)):
+                if file.startswith("."):
+                    continue
+                if not file.endswith(tuple(extensions)):
+                    continue
+                if file.endswith(".min.js"):
                     continue
                 fn = os.path.join(base, file)
                 zip_file.write(fn, fn[root_len:])
