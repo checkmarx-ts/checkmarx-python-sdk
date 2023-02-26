@@ -208,3 +208,6 @@ All notable changes to this project will be documented in  this file.
 
 0.6.9 - 2023-01-30
 * Fix SCA API get_states_associated_with_a_project and get_comments_associated_with_a_project
+
+0.7.0 - 2023-02-26
+* Fix AccessControl API get_windows_domain_user_entries_by_search_criteria
