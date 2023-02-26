@@ -2421,6 +2421,11 @@ class AccessControl:
         response = self.get_request(relative_url=relative_url)
         if response.status_code == OK:
             result = [
-                construct_user(item) for item in response.json()
+                User(
+                    username=item.get("username"),
+                    first_name=item.get("firstname"),
+                    last_name=item.get("lastname"),
+                    email=item.get("email")
+                ) for item in response.json()
             ]
         return result
