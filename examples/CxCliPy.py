@@ -170,10 +170,11 @@ def create_zip_file_from_location_path(location_path_str: str, project_name: str
     path = Path(location_path_str)
     if not path.exists():
         raise FileExistsError(f"{location_path_str} does not exist, abort scan")
+    absolute_path_str = str(os.path.normpath(path.absolute()))
     file_path = f"{temp_dir}/cx_{project_name}.zip"
     with ZipFile(file_path, "w", ZIP_DEFLATED) as zip_file:
-        root_len = len(location_path_str) + 1
-        for base, dirs, files in os.walk(location_path_str):
+        root_len = len(absolute_path_str) + 1
+        for base, dirs, files in os.walk(absolute_path_str):
             path_folders = base.split(os.sep)
             if any([should_be_excluded(exclude_folders, folder) for folder in path_folders]):
                 continue
