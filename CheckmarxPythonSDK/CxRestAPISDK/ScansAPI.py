@@ -109,9 +109,8 @@ class ScansAPI(object):
 
         Args:
             project_id (int, optional): Unique Id of the project
-            scan_status (str, optional): The current status of the scan
-                        (1="New", 2="PreScan", 3="Queued", 4="Scanning", 6="PostScan", 7="Finished", 8="Canceled",
-                        9="Failed", 10="SourcePullingAndDeployment", 1001="None").
+            scan_status (str, optional): The current status of the scan, only support the following
+                        ["Scanning", "Finished", "Canceled", "Failed"]
             last (int):  Number of last scans to include.
             api_version (str, optional):
 
@@ -130,6 +129,8 @@ class ScansAPI(object):
         if project_id:
             optionals.append("projectId={}".format(project_id))
         if scan_status:
+            if scan_status not in ["Scanning", "Finished", "Canceled", "Failed"]:
+                raise ValueError("scanStatus can only be Scanning, Finished, Canceled, Failed")
             optionals.append("scanStatus={}".format(scan_status))
         if last:
             optionals.append("last={}".format(last))

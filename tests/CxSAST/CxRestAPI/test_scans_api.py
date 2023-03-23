@@ -35,6 +35,18 @@ def test_get_all_scans_for_project():
     all_scans = scan_api.get_all_scans_for_project(project_id, api_version="1.2")
     assert len(all_scans) > 1
 
+    last_ten_scans = scan_api.get_all_scans_for_project(project_id=project_id, scan_status="Finished", last=10, api_version="1.2")
+    assert len(last_ten_scans) > 1
+
+    last_ten_scans_api_1 = scan_api.get_all_scans_for_project(project_id=project_id, scan_status="Finished", last=10)
+    assert len(last_ten_scans_api_1) > 1
+
+    scanning_scans = scan_api.get_all_scans_for_project(project_id=project_id, scan_status="Scanning", last=10)
+    canceled_scans = scan_api.get_all_scans_for_project(project_id=project_id, scan_status="Canceled", last=10)
+    failed_scans = scan_api.get_all_scans_for_project(project_id=project_id, scan_status="Failed", last=10)
+    pass
+
+
 
 def test_get_last_scan_id_of_a_project():
     project_id = get_project_id()
@@ -46,10 +58,11 @@ def test_get_last_scan_id_of_a_project():
 
 
 def test_get_sast_scan_details_by_scan_id():
-    project_id = get_project_id()
-
+    # project_id = get_project_id()
+    #
     scan_api = ScansAPI()
-    scan_id = scan_api.get_last_scan_id_of_a_project(project_id)
+    # scan_id = scan_api.get_last_scan_id_of_a_project(project_id)
+    scan_id = 1000493
     scan = scan_api.get_sast_scan_details_by_scan_id(scan_id)
     assert scan is not None
 
