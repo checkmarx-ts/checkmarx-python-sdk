@@ -19,3 +19,4 @@ from .OsaAPI import OsaAPI
 from .ConfigurationAPI import ConfigurationAPI
 from .QueriesAPI import QueriesAPI
 from .AccessControlAPI import AccessControlAPI
+from .GeneralAPI import GeneralAPI
