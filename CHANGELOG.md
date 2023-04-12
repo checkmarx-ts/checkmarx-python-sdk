@@ -211,3 +211,6 @@ All notable changes to this project will be documented in  this file.
 
 0.7.0 - 2023-02-26
 * Fix AccessControl API get_windows_domain_user_entries_by_search_criteria
+
+0.7.1 - 2023-04-12
+* Add support for get_server_license_data
