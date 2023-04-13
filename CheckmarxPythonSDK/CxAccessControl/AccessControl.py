@@ -1089,7 +1089,7 @@ class AccessControl:
                     is_system_role=item.get("isSystemRole"),
                     name=item.get("name"),
                     description=item.get("description"),
-                    permission_ids=item.get("permission_ids")
+                    permission_ids=item.get("permissionIds")
                 ) for item in response.json()
             ]
         return result
