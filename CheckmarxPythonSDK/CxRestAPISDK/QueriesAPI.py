@@ -27,3 +27,45 @@ class QueriesAPI(object):
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_query_id_and_query_version_code(language, query_name, severity="High", api_version="4.0"):
+        """
+
+        Args:
+            language (str): Language of the query
+            query_name (str): Severity of the query, default value is "Info"
+            severity (str): Query name of the query
+            api_version (str, optional):
+
+        Returns:
+            dict
+            example:
+            {
+              "queryId": 0,
+              "queryVersionCode": 0
+            }
+        """
+        result = None
+        relative_url = "/cxrestapi/queries/queryVersionCode?"
+        checkmarx_supported_languages = [
+            "Apex", "ASP", "Cobol", "CPP", "CSharp", "Dart", "Go", "Groovy", "Java", "JavaScript", "Kotlin", "Lua",
+            "Objc", "Perl", "PHP", "PLSQL", "Python", "RPG", "Ruby", "Scala", "Swift", "VB6", "VbNet", 'VbScript'
+        ]
+        severity_list = ["High", "Medium", "Low", "Info"]
+        if language and language not in checkmarx_supported_languages:
+            raise ValueError(
+                "language wrong value, supported languages: {}".format(",".join(checkmarx_supported_languages))
+            )
+        if severity and severity not in severity_list:
+            raise ValueError(
+                "severity wrong value, supported severity: {}".format(",".join(severity_list))
+            )
+        relative_url += "language={language}&severity={severity}&queryName={query_name}".format(
+            language=language, severity=severity, query_name=query_name
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
+
