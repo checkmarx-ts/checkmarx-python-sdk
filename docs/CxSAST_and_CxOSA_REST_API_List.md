@@ -45,6 +45,7 @@
     - get_preset_details_by_preset_id
     - set_project_queue_setting
     - update_project_queue_setting
+    - set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection
 4. CustomTasksAPI
     - get_all_custom_tasks
     - get_custom_task_id_by_name
@@ -207,3 +208,4 @@
     - update_cx_component_configuration_settings
 13 . Queries API
     - get_the_full_description_of_the_query
+    - get_query_id_and_query_version_code
