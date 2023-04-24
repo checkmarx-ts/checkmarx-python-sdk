@@ -1319,3 +1319,21 @@ class ProjectsAPI(object):
         if response.status_code == NO_CONTENT:
             result = True
         return result
+
+    @staticmethod
+    def set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection(project_id, api_version="4.0"):
+        """
+
+        Args:
+            project_id (int):
+            api_version:
+
+        Returns:
+
+        """
+        result = False
+        relative_url = "/cxrestapi//projects/{id}/forceScanOnNoCodeChanges".format(id=project_id)
+        response = post_request(relative_url=relative_url, data=None, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = True
+        return result

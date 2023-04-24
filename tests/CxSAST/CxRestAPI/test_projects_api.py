@@ -420,3 +420,11 @@ def test_update_project_queue_setting():
         project_id=project_id, queue_keep_mode="KeepAll", scans_type="OnlyFull",
         include_scans_in_process=False, identical_code_only=False)
     assert is_successful is True
+
+
+def test_set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection():
+    project_name = "jvl_git"
+    projects_api = ProjectsAPI()
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
+    is_successful = projects_api.set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection(project_id)
+    assert is_successful is True
