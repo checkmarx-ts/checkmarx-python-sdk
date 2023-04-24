@@ -1332,7 +1332,7 @@ class ProjectsAPI(object):
 
         """
         result = False
-        relative_url = "/cxrestapi//projects/{id}/forceScanOnNoCodeChanges".format(id=project_id)
+        relative_url = "/cxrestapi/projects/{id}/forceScanOnNoCodeChanges".format(id=project_id)
         response = post_request(relative_url=relative_url, data=None, headers=get_headers(api_version))
         if response.status_code == OK:
             result = True
