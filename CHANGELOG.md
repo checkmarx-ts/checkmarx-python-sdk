@@ -217,3 +217,6 @@ All notable changes to this project will be documented in  this file.
 
 0.7.2 - 2023-04-13
 * Fix AccessControl API get_all_roles
+
+0.7.3 - 2023-04-25
+* Fix ScansAPI __construct_scan_queue_detail
