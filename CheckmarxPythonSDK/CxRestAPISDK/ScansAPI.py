@@ -405,7 +405,7 @@ class ScansAPI(object):
             team_id=item.get("teamId"),
             date_created=item.get("dateCreated"),
             queued_on=item.get("queuedOn"),
-            engine_started_on=item.get("engineStaredOn"),
+            engine_started_on=item.get("engineStartedOn"),
             completed_on=item.get("completedOn"),
             loc=item.get("loc"),
             is_incremental=item.get("isIncremental"),
