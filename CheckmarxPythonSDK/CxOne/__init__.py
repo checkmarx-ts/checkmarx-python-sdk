@@ -82,7 +82,12 @@ from .scanConfigurationAPI import (
     define_parameters_in_the_input_list_for_the_current_tenant,
     get_the_list_of_all_the_parameters_for_a_project,
     define_parameters_in_the_input_list_for_a_specific_project,
-    get_the_list_of_all_parameters_that_will_be_used_in_the_scan_run
+    get_the_list_of_all_parameters_that_will_be_used_in_the_scan_run,
+    get_all_default_configs_for_the_tenant,
+    create_a_default_config_for_the_sast_engine,
+    get_sast_default_config_by_id,
+    update_default_config_for_the_sast_engine,
+    delete_a_sast_default_config,
 )
 
 from .scannersResultsAPI import (

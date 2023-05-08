@@ -1,5 +1,12 @@
 class DefaultConfig:
     def __init__(self, name, description, url):
+        """
+
+        Args:
+            name (str): Name of the default config
+            description (str): Description of the default config
+            url (str): Url for the default config file
+        """
         self.name = name
         self.description = description
         self.url = url

@@ -53,7 +53,6 @@ def list_member_type_check(list_param, member_type):
 
 def int_range_check(param, start_range, end_range):
     if param and param not in range(start_range, end_range):
-        raise ValueError(("Error, parameter out of range, "
-                          "minimum value={min}, maximum value={max}").format(
+        raise ValueError("Error, parameter out of range, minimum value={min}, maximum value={max}".format(
             min=start_range, max=end_range - 1
         ))

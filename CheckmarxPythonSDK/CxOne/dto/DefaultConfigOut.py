@@ -1,5 +1,15 @@
 class DefaultConfigOut:
     def __init__(self, default_config_out_id, name, description, url, is_tenant_default, associated_projects):
+        """
+
+        Args:
+            default_config_out_id (str):  Id of the default config
+            name (str): Name of the default config
+            description (str): Description of the default config
+            url (str): Url for the default config file
+            is_tenant_default (bool): Boolean when in use by tenant
+            associated_projects (int): The number of associated projects
+        """
         self.id = default_config_out_id
         self.name = name
         self.description = description

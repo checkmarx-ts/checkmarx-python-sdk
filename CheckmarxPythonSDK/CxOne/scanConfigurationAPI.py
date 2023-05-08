@@ -1,11 +1,10 @@
 import json
-from .httpRequests import get_request, patch_request
-from .utilities import get_url_param, type_check, list_member_type_check
+from .httpRequests import get_request, patch_request, post_request, put_request, delete_request
+from .utilities import type_check, list_member_type_check
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .dto import (
     DefaultConfig,
     DefaultConfigOut,
-    Error,
     ScanParameter,
 )
 
@@ -125,3 +124,115 @@ def get_the_list_of_all_parameters_that_will_be_used_in_the_scan_run(project_id,
             allow_override=item.get("allowOverride")
         ) for item in response
     ]
+
+
+def get_all_default_configs_for_the_tenant(name=None, exact_match=None, limit=100, offset=0):
+    """
+
+    Args:
+        name (str, optional): Filter by default config name
+        exact_match (bool, optional): Forces the filter query to be an exact match instead
+        limit (int): Limits the number of returned results. Default value : 100
+        offset (int): Offset from which start returned results. Default value : 0
+
+    Returns:
+
+    """
+    type_check(name, str)
+    type_check(exact_match, bool)
+    type_check(limit, int)
+    type_check(offset, int)
+    relative_url = api_url + "/sast/default-config"
+    response = get_request(relative_url=relative_url)
+    response = response.json()
+    return [
+        DefaultConfigOut(
+            default_config_out_id=item.get("id"),
+            name=item.get("name"),
+            description=item.get("description"),
+            url=item.get("url"),
+            is_tenant_default=item.get("isTenantDefault"),
+            associated_projects=item.get("associatedProjects")
+        ) for item in response
+    ]
+
+
+def create_a_default_config_for_the_sast_engine(default_config):
+    """
+
+    Args:
+        default_config (DefaultConfig):
+
+    Returns:
+
+    """
+    result = False
+    type_check(default_config, DefaultConfig)
+    relative_url = api_url + "/sast/default-config"
+    data = default_config.get_post_data()
+    response = post_request(relative_url=relative_url, data=data)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
+def get_sast_default_config_by_id(config_id):
+    """
+
+    Args:
+        config_id (str):
+
+    Returns:
+
+    """
+    type_check(config_id, str)
+    relative_url = api_url + "/sast/default-config/{id}".format(id=config_id)
+    response = get_request(relative_url=relative_url)
+    item = response.json()
+    return DefaultConfigOut(
+            default_config_out_id=item.get("id"),
+            name=item.get("name"),
+            description=item.get("description"),
+            url=item.get("url"),
+            is_tenant_default=item.get("isTenantDefault"),
+            associated_projects=item.get("associatedProjects")
+        )
+
+
+def update_default_config_for_the_sast_engine(config_id, default_config):
+    """
+
+    Args:
+        config_id (str):
+        default_config (DefaultConfig):
+
+    Returns:
+
+    """
+    result = False
+    type_check(config_id, str)
+    type_check(default_config, DefaultConfig)
+    relative_url = api_url + "/sast/default-config/{id}".format(id=config_id)
+    data = default_config.get_post_data()
+    response = put_request(relative_url=relative_url, data=data)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
+def delete_a_sast_default_config(config_id):
+    """
+
+        Args:
+            config_id (str):
+
+        Returns:
+
+        """
+    result = False
+    type_check(config_id, str)
+    relative_url = api_url + "/sast/default-config/{id}".format(id=config_id)
+    response = delete_request(relative_url=relative_url)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
