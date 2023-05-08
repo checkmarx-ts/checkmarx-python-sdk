@@ -77,6 +77,14 @@ from .sastQueriesAuditAPI import (
     update_query_source,
 )
 
+from .scanConfigurationAPI import (
+    get_the_list_of_all_the_parameters_defined_for_the_current_tenant,
+    define_parameters_in_the_input_list_for_the_current_tenant,
+    get_the_list_of_all_the_parameters_for_a_project,
+    define_parameters_in_the_input_list_for_a_specific_project,
+    get_the_list_of_all_parameters_that_will_be_used_in_the_scan_run
+)
+
 from .scannersResultsAPI import (
     get_all_scanners_results_by_scan_id,
 )
