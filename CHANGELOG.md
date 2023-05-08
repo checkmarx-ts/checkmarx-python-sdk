@@ -220,3 +220,6 @@ All notable changes to this project will be documented in  this file.
 
 0.7.3 - 2023-04-25
 * Fix ScansAPI __construct_scan_queue_detail
+
+0.7.4 - 2023-05-08
+* Add CxOne scanConfigurationAPI
