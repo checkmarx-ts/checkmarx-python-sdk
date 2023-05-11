@@ -31,6 +31,7 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     unlock_scan,
     get_results_for_scan,
     get_result_path,
+    get_pivot_data,
 )
 
 
@@ -103,6 +104,20 @@ def test_get_path_comments_history():
     label_type = 'Remark'
     response = get_path_comments_history(scan_id=scan_id, path_id=path_id, label_type=label_type)
     assert response.get("IsSuccesfull") is True
+
+
+def test_get_pivot_data():
+    pivot_data = get_pivot_data(
+        pivot_view_client_type="AllProjectScans", include_not_exploitable=False, range_type="CUSTOM",
+        date_from="2020-05-01-0-0-0", date_to="2023-05-09-0-0-0"
+    )
+    assert pivot_data is not None
+
+    pivot_data = get_pivot_data(
+        pivot_view_client_type="LastMonthProjectScans", include_not_exploitable=False, range_type="PAST_MONTH",
+        date_from="2020-05-01-0-0-0", date_to="2023-05-09-0-0-0"
+    )
+    assert pivot_data is not None
 
 
 def test_get_user_profile_data():

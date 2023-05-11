@@ -549,6 +549,58 @@ def get_path_comments_history(scan_id, path_id, label_type):
     }
 
 
+def get_pivot_data(pivot_view_client_type, include_not_exploitable=False, range_type="PAST_MONTH", date_from=None,
+                   date_to=None):
+    """
+
+    Args:
+        pivot_view_client_type (str):  [AllProjectScans, LastMonthProjectScans, ProjectsLastScan, LastWeekOWASPTop10]
+        include_not_exploitable (bool):
+        range_type (str): [ALL, PAST_DAY, PAST_WEEK, PAST_MONTH, PAST_3_MONTH, PAST_YEAR, CUSTOM]
+        date_from (str, optional): example: '2023-05-08-17-14-38'
+        date_to (str, optional): example: '2023-10-08-17-14-38'
+
+    Returns:
+
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        if pivot_view_client_type not in [
+            "AllProjectScans", "LastMonthProjectScans", "ProjectsLastScan", "LastWeekOWASPTop10"
+        ]:
+            raise ValueError("pivot_view_client_type should be AllProjectScans, LastMonthProjectScans, "
+                             "ProjectsLastScan, LastWeekOWASPTop10")
+
+        if range_type not in [
+            "ALL", "PAST_DAY", "PAST_WEEK", "PAST_MONTH", "PAST_3_MONTH", "PAST_YEAR", "CUSTOM"
+        ]:
+            raise ValueError("range_type should be ALL, PAST_DAY, PAST_WEEK, PAST_MONTH, PAST_3_MONTH, PAST_YEAR,"
+                             " CUSTOM")
+        not_exploitable = factory.PivotClientExploitabilityParam(IncludeNotExploitable=include_not_exploitable)
+        from_date = None
+        to_date = None
+        if date_from:
+            date_list = [int(item) for item in date_from.split('-')]
+            from_date = factory.CxDateTime(Year=date_list[0], Month=date_list[1], Day=date_list[2], Hour=date_list[3],
+                                           Minute=date_list[4], Second=date_list[5])
+        if date_to:
+            date_list = [int(item) for item in date_to.split('-')]
+            to_date = factory.CxDateTime(Year=date_list[0], Month=date_list[1], Day=date_list[2], Hour=date_list[3],
+                                         Minute=date_list[4], Second=date_list[5])
+        date_range = factory.PivotClientDateRangeParam(RangeType=range_type, DateFrom=from_date, DateTo=to_date)
+        array_of_pivot_client_base_param = factory.ArrayOfPivotClientBaseParam([not_exploitable, date_range])
+
+        pivot_data_request = factory.CxPivotDataRequest(
+            ViewName=pivot_view_client_type, Criteria=array_of_pivot_client_base_param
+        )
+        return client.service.GetPivotData(SessionID="0", PivotParams=pivot_data_request)
+
+    response = execute()
+    return response
+
+
 def get_queries_categories():
     """
 

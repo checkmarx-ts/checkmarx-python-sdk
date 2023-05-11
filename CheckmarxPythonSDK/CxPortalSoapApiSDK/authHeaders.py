@@ -9,7 +9,7 @@ def get_token():
     token_req_data.update(
         {
             "grant_type": "password",
-            "scope": "sast_api",
+            "scope": "offline_access sast_api",
             "client_id": "resource_owner_sast_client",
             "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
         }
