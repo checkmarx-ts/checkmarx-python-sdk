@@ -3,6 +3,8 @@
 import datetime
 import logging
 
+logger = logging.getLogger('CheckmarxPythonSDK')
+
 class CxServerLicenseData(object):
     """
     CxSAST server license data
