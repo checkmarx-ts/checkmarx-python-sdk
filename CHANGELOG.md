@@ -226,3 +226,6 @@ All notable changes to this project will be documented in  this file.
 
 0.7.5 - 2023-05-08
 * Fix version issue
+
+0.7.6 - 2023-05-11
+* Fix use of undefined variable
