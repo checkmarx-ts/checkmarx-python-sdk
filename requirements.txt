@@ -4,4 +4,4 @@ requests-toolbelt==1.0.0
 zeep==4.2.1
 python-dateutil==2.8.2
 keyring==23.13.1
-Deprecated==1.2.13
+Deprecated==1.2.14
