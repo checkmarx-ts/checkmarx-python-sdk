@@ -115,7 +115,7 @@ def test_get_pivot_data():
 
     pivot_data = get_pivot_data(
         pivot_view_client_type="LastMonthProjectScans", include_not_exploitable=False, range_type="PAST_MONTH",
-        date_from="2020-05-01-0-0-0", date_to="2023-05-09-0-0-0"
+        date_from="2023-06-01-0-0-0", date_to="2023-06-30-0-0-0"
     )
     assert pivot_data is not None
 
