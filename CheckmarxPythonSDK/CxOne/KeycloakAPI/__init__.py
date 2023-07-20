@@ -18,3 +18,7 @@ from .GroupsAPI import (
     get_group_members,
     create_group,
 )
+
+from .RoleMapperAPI import (
+    get_role_mappings,
+)

@@ -8,30 +8,31 @@ from CheckmarxPythonSDK.CxOne.config import config
 
 base_url = config.get("server")
 
+
 def create_scan_report(file_format, scan_id, project_id):
     report_url = f"{base_url}/api/reports"
 
     post_data = json.dumps({
-            "fileFormat": file_format,
-            "reportType": "ui",
-            "reportName": "scan-report",
-            "data": {
-                "scanId": scan_id,
-                "projectId": project_id,
-                "branchName": ".unknown",
-                "sections": [
+        "fileFormat": file_format,
+        "reportType": "ui",
+        "reportName": "scan-report",
+        "data": {
+            "scanId": scan_id,
+            "projectId": project_id,
+            "branchName": ".unknown",
+            "sections": [
                 "ScanSummary",
                 "ExecutiveSummary",
                 "ScanResults"
-                ],
-                "scanners": [
+            ],
+            "scanners": [
                 "SAST",
                 "SCA",
                 "KICS"
-                ],
-                "host": ""
-                }
-            })
+            ],
+            "host": ""
+        }
+    })
 
     headers = authHeaders.auth_headers.copy()
 
@@ -53,6 +54,7 @@ def create_scan_report(file_format, scan_id, project_id):
             print("Generating report, please wait...")
             time.sleep(2)
     return report_id
+
 
 def get_scan_report(report_id):
     relative_url = f"/api/reports/{report_id}/download"

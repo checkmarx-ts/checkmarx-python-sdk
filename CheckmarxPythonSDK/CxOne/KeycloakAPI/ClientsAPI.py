@@ -3,10 +3,12 @@ from CheckmarxPythonSDK.CxOne.httpRequests import get_request, post_request, put
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.url import api_url
 import time
 
+
 def get_all_oauth_clients(realm):
     relative_url = api_url + f"/{realm}/clients??first=0&max=999999&search=True"
     response = get_request(relative_url=relative_url, is_iam=True)
     return response
+
 
 def get_oauth_client_by_name(realm, client_name):
     relative_url = api_url + f"/{realm}/clients??first=0&max=999999&search=True"
@@ -18,11 +20,12 @@ def get_oauth_client_by_name(realm, client_name):
 
     return response
 
+
 def create_oauth_client(realm, client_name):
     relative_url = api_url + f"/{realm}/clients"
     post_data = json.dumps(
         {
-            'enabled' : True,
+            'enabled': True,
             'attributes': {},
             'redirectUris': [],
             'clientId': client_name,
@@ -31,6 +34,7 @@ def create_oauth_client(realm, client_name):
     )
     response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
     return response
+
 
 def edit_auth_client(realm, client_id, client_name, name, description):
     relative_url = api_url + f"/{realm}/clients/{client_id}"
@@ -69,43 +73,43 @@ def edit_auth_client(realm, client_id, client_name, name, description):
             "nodeReRegistrationTimeout": -1,
             "protocolMappers": [
                 {
-                "name": "Client IP Address",
-                "protocol": "openid-connect",
-                "protocolMapper": "oidc-usersessionmodel-note-mapper",
-                "consentRequired": False,
-                "config": {
-                    "user.session.note": "clientAddress",
-                    "id.token.claim": "True",
-                    "access.token.claim": "True",
-                    "claim.name": "clientAddress",
-                    "jsonType.label": "String"
-                }
+                    "name": "Client IP Address",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": False,
+                    "config": {
+                        "user.session.note": "clientAddress",
+                        "id.token.claim": "True",
+                        "access.token.claim": "True",
+                        "claim.name": "clientAddress",
+                        "jsonType.label": "String"
+                    }
                 },
                 {
-                "name": "Client ID",
-                "protocol": "openid-connect",
-                "protocolMapper": "oidc-usersessionmodel-note-mapper",
-                "consentRequired": False,
-                "config": {
-                    "user.session.note": "clientId",
-                    "id.token.claim": "True",
-                    "access.token.claim": "True",
-                    "claim.name": "clientId",
-                    "jsonType.label": "String"
-                }
+                    "name": "Client ID",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": False,
+                    "config": {
+                        "user.session.note": "clientId",
+                        "id.token.claim": "True",
+                        "access.token.claim": "True",
+                        "claim.name": "clientId",
+                        "jsonType.label": "String"
+                    }
                 },
                 {
-                "name": "Client Host",
-                "protocol": "openid-connect",
-                "protocolMapper": "oidc-usersessionmodel-note-mapper",
-                "consentRequired": False,
-                "config": {
-                    "user.session.note": "clientHost",
-                    "id.token.claim": "True",
-                    "access.token.claim": "True",
-                    "claim.name": "clientHost",
-                    "jsonType.label": "String"
-                }
+                    "name": "Client Host",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": False,
+                    "config": {
+                        "user.session.note": "clientHost",
+                        "id.token.claim": "True",
+                        "access.token.claim": "True",
+                        "claim.name": "clientHost",
+                        "jsonType.label": "String"
+                    }
                 }
             ],
             "defaultClientScopes": [
@@ -134,19 +138,21 @@ def edit_auth_client(realm, client_id, client_name, name, description):
     response = put_request(relative_url=relative_url, data=put_data, is_iam=True)
     return response
 
+
 def get_oauth_service_account_user(realm, client_id):
     relative_url = api_url + f"/{realm}/clients/{client_id}/service-account-user"
     response = get_request(relative_url=relative_url, is_iam=True)
     return response.json()
 
+
 def add_group_to_oauth_client(realm, service_account_user_id, group_id):
     relative_url = api_url + f"/{realm}/users/{service_account_user_id}/groups/{group_id}"
-    
+
     put_data = json.dumps(
         {
-            "realm":f"{realm}",
-            "userId":f"{service_account_user_id}",
-            "groupId":f"{group_id}"
+            "realm": f"{realm}",
+            "userId": f"{service_account_user_id}",
+            "groupId": f"{group_id}"
         }
     )
     response = put_request(relative_url=relative_url, data=put_data, is_iam=True)

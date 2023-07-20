@@ -12,7 +12,9 @@ from .dto import (
     construct_ast_user,
 )
 
-# PIP
+"""
+PIP
+"""
 
 
 def get_groups(realm, group_name=None, limit=None, ids=None) -> List[AstIdWithName]:
@@ -78,5 +80,3 @@ def get_users_by_groups(realm, group_id) -> List[AstUser]:
     response = get_request(relative_url=relative_url, is_iam=True)
     item_list = response.json()
     return [construct_ast_user(item) for item in item_list]
-
-
