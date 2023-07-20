@@ -40,31 +40,31 @@ def get_data_from_config():
 get, post, put, patch, delete = build_request_funcs(get_data_from_config)
 
 
-def get_request(relative_url, headers=()):
-    response = get(relative_url, headers=headers)
+def get_request(relative_url, headers=(), is_iam=False):
+    response = get(relative_url, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response
 
 
-def post_request(relative_url, data, headers=()):
-    response = post(relative_url, data=data, headers=headers)
+def post_request(relative_url, data, headers=(), is_iam=False):
+    response = post(relative_url, data=data, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response
 
 
-def put_request(relative_url, data, headers=()):
-    response = put(relative_url, data=data, headers=headers)
+def put_request(relative_url, data, headers=(), is_iam=False):
+    response = put(relative_url, data=data, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response
 
 
-def patch_request(relative_url, data, headers=()):
-    response = patch(relative_url, data=data, headers=headers)
+def patch_request(relative_url, data, headers=(), is_iam=False):
+    response = patch(relative_url, data=data, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response
 
 
-def delete_request(relative_url, data=None, headers=()):
-    response = delete(relative_url, data=data, headers=headers)
+def delete_request(relative_url, data=None, headers=(), is_iam=False):
+    response = delete(relative_url, data=data, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response

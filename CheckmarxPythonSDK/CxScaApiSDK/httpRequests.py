@@ -32,25 +32,25 @@ headers = {
 }
 
 
-def get_request(relative_url):
-    response = get(relative_url, headers=headers)
+def get_request(relative_url, is_iam=False):
+    response = get(relative_url, headers=headers, is_iam=is_iam)
     check_response(response)
     return response
 
 
-def post_request(relative_url, data):
-    response = post(relative_url, data, headers=headers)
+def post_request(relative_url, data, is_iam=False):
+    response = post(relative_url, data, headers=headers, is_iam=is_iam)
     check_response(response)
     return response
 
 
-def put_request(relative_url, data):
-    response = put(relative_url, data, headers=headers)
+def put_request(relative_url, data, is_iam=False):
+    response = put(relative_url, data, headers=headers, is_iam=is_iam)
     check_response(response)
     return response
 
 
-def delete_request(relative_url, data=None):
-    response = delete(relative_url, data, headers=headers)
+def delete_request(relative_url, data=None, is_iam=False):
+    response = delete(relative_url, data, headers=headers, is_iam=is_iam)
     check_response(response)
     return response
