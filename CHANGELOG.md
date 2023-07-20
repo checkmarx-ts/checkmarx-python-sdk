@@ -232,3 +232,7 @@ All notable changes to this project will be documented in  this file.
 
 0.7.7 - 2023-07-13
 * Add Portal SOAP API get_pivot_data which is used by Portal Data Analysis
+
+0.7.8 - 2023-07-20
+* Fix SCA Access Control API
+* Add some CxOne API
