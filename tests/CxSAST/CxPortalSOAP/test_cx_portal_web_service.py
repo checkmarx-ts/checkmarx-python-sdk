@@ -11,6 +11,7 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     get_import_queries_status,
     get_query_collection,
     get_query_id_by_language_group_and_query_name,
+    get_query_description_by_query_id,
     get_preset_list,
     get_projects_display_data,
     get_associated_group_list,
@@ -118,6 +119,11 @@ def test_get_pivot_data():
         date_from="2023-06-01-0-0-0", date_to="2023-06-30-0-0-0"
     )
     assert pivot_data is not None
+    pivot_data = get_pivot_data(
+        pivot_view_client_type="ProjectsLastScan", include_not_exploitable=False, range_type="CUSTOM",
+        date_from="2023-07-01-0-0-0", date_to="2023-08-30-0-0-0"
+    )
+    assert pivot_data is not None
 
 
 def test_get_user_profile_data():
@@ -161,6 +167,13 @@ def test_get_query_id_by_language_group_and_query_name():
 
     response = get_query_id_by_language_group_and_query_name(package_type_name="Corp")
     assert isinstance(response, list)
+
+
+def test_get_query_description_by_query_id():
+    # SQL_Injection query id 100013
+    query_id = 100013
+    response = get_query_description_by_query_id(query_id)
+    assert response is not None
 
 
 def test_get_name_of_user_who_marked_false_positive_from_comments_history():

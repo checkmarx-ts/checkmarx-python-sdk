@@ -749,6 +749,30 @@ def get_query_id_by_language_group_and_query_name(
     return query_id_list
 
 
+def get_query_description_by_query_id(query_id):
+    """
+
+    Args:
+        query_id (int):
+
+    Returns:
+        str
+    """
+
+    @retry_when_unauthorized
+    def execute():
+        client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
+        return client.service.GetQueryDescriptionByQueryId(sessionId="0", queryId=query_id)
+
+    response = execute()
+    return {
+        "IsSuccesfull": response.IsSuccesfull,
+        "ErrorMessage": response.ErrorMessage,
+        "QueryDescription": response.QueryDescription
+    }
+
+
+
 def get_name_of_user_who_marked_false_positive_from_comments_history(scan_id, path_id):
     """
 
