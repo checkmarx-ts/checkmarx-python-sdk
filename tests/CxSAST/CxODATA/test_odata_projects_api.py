@@ -12,6 +12,7 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
     get_all_projects_that_are_set_up_with_a_non_standard_configuration,
     get_all_projects_id_name,
     get_all_projects_id_name_and_team_id_name,
+    get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team,
 )
 
 project_name = "jvl_git"
@@ -48,7 +49,7 @@ def test_get_projects_that_have_high_vulnerabilities_in_the_last_scan():
 
 def test_get_the_number_of_issues_vulnerabilities_within_a_predefined_time_range_for_all_projects_in_a_team():
     r = get_the_number_of_issues_vulnerabilities_within_a_predefined_time_range_for_all_projects_in_a_team(
-        team_id=1, start_date='2001-01-01', end_date='2020-11-18'
+        team_id=1, start_date='2023-07-01', end_date='2023-08-08'
     )
     assert r is not None
 
@@ -94,3 +95,9 @@ def test_get_all_projects_id_name_and_team_id_name():
     r = get_all_projects_id_name_and_team_id_name()
     assert r is not None
 
+
+def test_get_all_scans_within_a_predefined_time_range_for_all_projects_in_a_team():
+    r = get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team(
+        team_id=1, start_date='2023-07-01', end_date='2023-08-08'
+    )
+    assert r is not None

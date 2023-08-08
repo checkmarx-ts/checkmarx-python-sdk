@@ -482,3 +482,45 @@ def get_all_projects_id_name_and_team_id_name():
             "ProjectName": item.get("Name")
         } for item in item_list
     ]
+
+
+def get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team(
+        team_id, start_date, end_date):
+    """
+    Requested result:list the number of recurrent/resolved/new issues (vulnerabilities) detected by scans made in
+    all projects that were carried out in a team within a predefined time range. The sample query below refers to
+    a time range between the 23/07/2015 and 23/08/2015.
+
+    Query used for retrieving the data:
+    http://localhost/Cxwebinterface/odata/v1/Projects?$select=Id,Name&
+    $filter=OwningTeamId%20eq%20%2700000000-1111-1111-b111-989c9070eb11%27&
+    $expand=Scans($select=Id,ScanRequestedOn;
+    $filter=ScanRequestedOn%20gt%202015-07-23%20and%20ScanRequestedOn%20lt%202015-08-23;
+    $orderby=Id)
+
+    Returns:
+        list of dict
+        example:
+        [
+        {'Id': 5, 'Name': 'jvl_git', 'Scans': [
+        {'Id': 1000756}, {'Id': 1000757}, {'Id': 1000762}, {'Id': 1000764}, {'Id': 1000767}, {'Id': 1000773},
+        {'Id': 1000775}, {'Id': 1000778}, {'Id': 1000780}, {'Id': 1000781}, {'Id': 1000785}, {'Id': 1000789},
+        {'Id': 1000792}, {'Id': 1000795}, {'Id': 1000798}, {'Id': 1000803}, {'Id': 1000810}, {'Id': 1000811},
+        {'Id': 1000818}]}
+        ]
+    """
+    # OwningTeamId is of type string in 8.9 and previous versions, but from 9.0 the type changed to int
+    if get_version_number_as_int() < 900:
+        team_id = '%27' + str(team_id) + '%27'
+
+    relative_url = "/Cxwebinterface/odata/v1/Projects?$select=Id,Name"
+    relative_url += "&$filter=OwningTeamId%20eq%20{team_id}".format(team_id=team_id)
+    relative_url += "&$expand=Scans($select=Id;"
+    relative_url += "$filter=ScanRequestedOn%20gt%20{start_date}%20and".format(start_date=start_date)
+    relative_url += "%20ScanRequestedOn%20lt%20{end_date};$orderby=Id)".format(end_date=end_date)
+    item_list = get_request(relative_url=relative_url)
+
+    for item in item_list:
+        if 'Scans@odata.context' in item.keys():
+            item.pop('Scans@odata.context')
+    return item_list

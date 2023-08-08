@@ -11,6 +11,7 @@ from .ProjectsODataAPI import (
     get_all_projects_that_are_set_up_with_a_non_standard_configuration,
     get_all_projects_id_name,
     get_all_projects_id_name_and_team_id_name,
+    get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team,
 )
 from .ResultsODataAPI import (
     get_results_for_a_specific_scan_id,
@@ -18,6 +19,7 @@ from .ResultsODataAPI import (
     get_results_for_a_specific_scan_id_with_query_language_state,
     get_results_group_by_query_id_and_add_count_json_format,
     get_results_for_a_specific_scan_id_with_similarity_ids,
+    get_number_of_results_for_a_specific_scan_id_with_result_state,
 )
 from .ScansODataAPI import (
     get_all_data_for_a_specific_scan_id,

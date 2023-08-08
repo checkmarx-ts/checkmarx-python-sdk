@@ -238,3 +238,36 @@ def get_results_for_a_specific_scan_id_with_similarity_ids(scan_id, similarity_i
         } for item in item_list
     ]
     return results
+
+
+def get_number_of_results_for_a_specific_scan_id_with_result_state(scan_id, result_states):
+    """
+
+    Args:
+        scan_id (int):
+        result_states (list of str): Available values,
+            TO_VERIFY, NOT_EXPLOITABLE, CONFIRMED, URGENT, PROPOSED_NOT_EXPLOITABLE
+
+    Returns:
+        int
+
+    """
+    for state in result_states:
+        if state not in ["TO_VERIFY", "NOT_EXPLOITABLE", "CONFIRMED", "URGENT", "PROPOSED_NOT_EXPLOITABLE"]:
+            raise ValueError("result state should be in the list: TO_VERIFY, NOT_EXPLOITABLE, CONFIRMED, URGENT, "
+                             "PROPOSED_NOT_EXPLOITABLE")
+    state_index_map = {
+        "TO_VERIFY": 0,
+        "NOT_EXPLOITABLE": 1,
+        "CONFIRMED": 2,
+        "URGENT": 3,
+        "PROPOSED_NOT_EXPLOITABLE": 4
+    }
+    state_id_list = [state_index_map.get(item) for item in result_states]
+
+    relative_url = "/Cxwebinterface/odata/v1/Scans({id})/Results".format(id=scan_id)
+    relative_url += "?$select=Id&$filter=State/Id in ({state_id_list})".format(
+        state_id_list=",".join([str(item) for item in state_id_list])
+    )
+    item_list = get_request(relative_url=relative_url)
+    return len(item_list)

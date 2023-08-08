@@ -5,6 +5,7 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
     get_results_for_a_specific_scan_id_with_query_language_state,
     get_results_for_a_specific_scan_id_with_similarity_ids,
     scan_results_group_by_query_id,
+    get_number_of_results_for_a_specific_scan_id_with_result_state,
 )
 
 project_name = "jvl_git"
@@ -70,4 +71,11 @@ def test_get_similarity_ids_of_a_scan():
         url = f"/Cxwebinterface/odata/v1/Scans(1000414)/Results?$select=SimilarityId,PathId"
         return get_request(relative_url=url)
     r = get_similarity_ids_of_a_scan()
+    assert r is not None
+
+
+def test_get_number_of_results_for_a_specific_scan_id_with_result_state():
+    r = get_number_of_results_for_a_specific_scan_id_with_result_state(
+        scan_id=scan_id, result_states=["NOT_EXPLOITABLE"]
+    )
     assert r is not None
