@@ -241,4 +241,8 @@ All notable changes to this project will be documented in  this file.
 * Add Portal SOAP API get_query_description_by_query_id
 
 0.8.0 - 2023-08-09
-* Add ODATA API get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team, get_number_of_results_for_a_specific_scan_id_with_result_state 
+* Add ODATA API get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team, get_number_of_results_for_a_specific_scan_id_with_result_state
+
+0.8.1 - 2023-08-11
+* Fix get_query_id_by_language_group_and_query_name
+* Add get_cx_description_by_query_id
