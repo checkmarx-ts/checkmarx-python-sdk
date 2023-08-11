@@ -402,6 +402,7 @@ def get_associated_group_list():
             ]
         }
     """
+
     @retry_when_unauthorized
     def execute():
         client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
@@ -484,6 +485,7 @@ def get_import_queries_status(request_id):
     Returns:
 
     """
+
     @retry_when_unauthorized
     def execute():
         client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
@@ -700,53 +702,36 @@ def get_query_collection():
     }
 
 
-def get_query_id_by_language_group_and_query_name(
-        language=None, package_type_name=None, package_name=None, query_name=None
-):
+def get_query_id_by_language_group_and_query_name(query_collections, language, package_type_name, package_name,
+                                                  query_name):
     """
 
     Args:
-        language (str, list, tuple, None):
-        package_type_name (str, list, tuple, None): ["Cx", "Corp"]
-        package_name (str, list, tuple, None):
-        query_name (str, list, tuple, None):
+        query_collections (list):
+        language (str):
+        package_type_name (str): ["Cx", "Corp"]
+        package_name (str):
+        query_name (str):
 
     Returns:
-        int, list of int, None
+        int, None
     """
-    query_id_list = []
-    response = get_query_collection()
-    if not response.get("IsSuccesfull"):
-        return None
+    query_id = None
 
-    query_collection = response.get("QueryGroups")
+    filtered_query_collections = [
+        item for item in query_collections if
+        item.get("LanguageName") == language and item.get("PackageTypeName") == package_type_name and item.get(
+            "Name") == package_name
+    ]
+    if len(filtered_query_collections) != 1:
+        return query_id
 
-    if isinstance(language, str):
-        query_collection = [item for item in query_collection if item.get("LanguageName") == language]
-    elif isinstance(language, (list, tuple)):
-        query_collection = [item for item in query_collection if item.get("LanguageName") in language]
-
-    if isinstance(package_type_name, str):
-        query_collection = [item for item in query_collection if item.get("PackageTypeName") == package_type_name]
-    elif isinstance(package_type_name, (list, tuple)):
-        query_collection = [item for item in query_collection if item.get("PackageTypeName") in package_type_name]
-
-    if isinstance(package_name, str):
-        query_collection = [item for item in query_collection if item.get("Name") == package_name]
-    elif isinstance(package_name, (list, tuple)):
-        query_collection = [item for item in query_collection if item.get("Name") in package_name]
-
-    for item in query_collection:
-        for query in item.get("Queries"):
-            if isinstance(query_name, (str, list, tuple)) and query.get("Name") not in [query_name]:
-                continue
-            query_id = query.get("QueryId")
-            query_id_list.append(query_id)
-
-    if len(query_id_list) == 1:
-        query_id_list = query_id_list[0]
-
-    return query_id_list
+    queries = filtered_query_collections[0].get("Queries")
+    queries = [query for query in queries if query.get("Name") == query_name]
+    if len(queries) == 1:
+        query = queries[0]
+        query_id = query.get("QueryId")
+    return query_id
 
 
 def get_query_description_by_query_id(query_id):
@@ -771,6 +756,25 @@ def get_query_description_by_query_id(query_id):
         "QueryDescription": response.QueryDescription
     }
 
+
+def get_cx_description_by_query_id():
+    query_description_dict = {}
+
+    def get_query_description(query_id):
+        """
+          Args:
+              query_id (int):
+          Returns:
+               str
+          """
+        if query_id in query_description_dict.keys():
+            query_description = query_description_dict.get(query_id)
+        else:
+            query_description = get_query_description_by_query_id(query_id).get('QueryDescription')
+            query_description_dict.update({query_id: query_description})
+        return query_description
+
+    return get_query_description
 
 
 def get_name_of_user_who_marked_false_positive_from_comments_history(scan_id, path_id):
@@ -863,6 +867,7 @@ def get_projects_display_data():
             }
         ]
     """
+
     @retry_when_unauthorized
     def execute():
         client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
@@ -1064,6 +1069,7 @@ def get_user_profile_data():
     Returns:
 
     """
+
     @retry_when_unauthorized
     def execute():
         client, factory = get_client_and_factory(relative_web_interface_url=relative_web_interface_url)
