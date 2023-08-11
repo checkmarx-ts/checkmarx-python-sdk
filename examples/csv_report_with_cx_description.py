@@ -21,8 +21,6 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-query_collections = get_query_collection().get("QueryGroups")
-
 
 def get_command_line_arguments():
     """
@@ -139,6 +137,7 @@ if __name__ == '__main__':
     project_names = project_names.split(",") if ',' in project_names else [project_names]
     project_id_names = get_all_projects_id_name()
     query_description_function = get_cx_description_by_query_id()
+    query_collections = get_query_collection().get("QueryGroups")
     for project_name in project_names:
         logger.info(f"generate csv report for project: {project_name}")
         project_id = None
