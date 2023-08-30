@@ -3,6 +3,7 @@ from .Application import Application
 from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
 from .BflTree import BflTree
+from .BranchInput import BranchInput
 from .CreatedApplication import CreatedApplication
 from .Credentials import Credentials
 from .FileInfo import FileInfo
@@ -11,6 +12,7 @@ from .Group import Group
 from .KicsResult import KicsResult
 from .MethodInfo import MethodInfo
 from .MethodParameter import MethodParameter
+from .OrgRepo import OrgRepo
 from .Preset import Preset
 from .Project import Project
 from .ProjectInput import ProjectInput
@@ -20,6 +22,8 @@ from .QueriesResponse import QueriesResponse
 from .Query import Query
 from .QueryDescription import QueryDescription
 from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
+from .ReposCollection import ReposCollection
+from .RepoScmImportInput import RepoScmImportInput
 from .Result import Result
 from .ResultNode import ResultNode
 from .RichProject import RichProject
@@ -30,6 +34,7 @@ from .Scan import Scan
 from .ScanConfig import ScanConfig
 from .ScanInput import ScanInput
 from .ScansCollection import ScansCollection
+from .scmOrg import ScmOrg
 from .StatusDetails import StatusDetails
 from .SubCheck import SubCheck
 from .SubsetScan import SubsetScan
