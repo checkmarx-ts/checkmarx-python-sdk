@@ -266,7 +266,7 @@ def get_debug_command_line_arg():
     """
     result = False
     import sys
-    print(sys.argv)
+    logger.debug(sys.argv)
     parser = PassThroughOptionParser(add_help_option=False)
     parser.add_option('--cx_debug', action="store_true", dest="cx_debug", help="enable debug mode")
     options, args = parser.parse_args()
