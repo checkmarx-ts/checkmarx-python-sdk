@@ -1064,29 +1064,41 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def create_new_scan_with_settings(project_id, preset_id, zipped_source_file_path,
+    def create_new_scan_with_settings(project_id, comment, preset_id, zipped_source_file_path,
                                       override_project_setting=False,
                                       is_incremental=False,
-                                      is_public=False, force_scan=True, comment="", engine_configuration_id=0,
+                                      is_public=True, force_scan=True, engine_configuration_id=0,
                                       custom_fields=None, post_scan_action_id=None,
-                                      api_version="1.0"):
+                                      run_post_scan_only_when_new_results=False,
+                                      run_post_scan_min_severity=None,
+                                      post_scan_action_arguments=None,
+                                      api_version="4.0"):
         """
 
         Args:
-            project_id (int):
-            preset_id (int):
+            project_id (int): Specifies the Unique Id of the specific project to be scanned
+            comment (str): Specifies the scan comment
+            preset_id (int): Specify the preset id to use during the scan, 0 = use project's default
+            override_project_setting (bool): Specifies whether to overwrite project settings to be the default for the
+                                            next scans .If set to false or empty - do not overwrite project settings.
+                                            If set to true - overwrite project settings
             zipped_source_file_path (str):
-            override_project_setting (booL):
-            is_incremental (bool):
-            is_public (bool):
-            force_scan (bool):
-            comment (str):
-            engine_configuration_id (int):
-            custom_fields (dict, optional):   api_version must be "1.2"
-                            e.g. {
-                                    "key": "value"
-                                 }
-            post_scan_action_id (int, optional):
+            is_incremental (bool):  Specifies whether the scan is incremental of full
+            is_public (bool): Specifies whether the requested scan is public or private
+            force_scan (bool): Specifies whether the code should be scanned regardless of unchanged code
+            engine_configuration_id (int): Specify the engine-configuration to use during the scan, 0 = use project's
+                                            default
+            custom_fields (dict, optional): Any custom fields used to tag the scan.
+                                                Example: {"key1":"val1","key2":"val2"}
+            post_scan_action_id (int, optional): Specify post action to be executed after scan is completed
+            run_post_scan_only_when_new_results(bool, optional): Specify if the configured post scan action will be
+                                    executed only if new results are found, compared to the previous scan.
+                                    Used in conjunction with PostScanActionId.
+            run_post_scan_min_severity(int, optional): Specify the minimal severity value when evaluating new results
+                                        compared to the previous scan. Used in conjunction with
+                                        RunPostScanOnlyWhenNewResults.
+            post_scan_action_arguments(str, optional): Specify the additional arguments to add to the post scan action.
+                                    Used in conjunction with PostScanActionId.
             api_version (str, optional):
 
         Returns:
@@ -1104,15 +1116,29 @@ class ScansAPI(object):
             "isIncremental": str(is_incremental),
             "isPublic": str(is_public),
             "forceScan": str(force_scan),
-            "comment": str(comment),
             "presetId": str(preset_id),
             "engineConfigurationId": str(engine_configuration_id),
             "zippedSource": (file_name, open(zipped_source_file_path, 'rb'), "application/zip"),
-            "customFields": json.dumps(custom_fields),
-
         }
+        if comment:
+            fields.update({
+                "comment": str(comment)
+            })
+        if custom_fields:
+            fields.update({
+                "customFields": json.dumps(custom_fields),
+            })
         if post_scan_action_id:
-            fields.update({"postScanActionId": str(post_scan_action_id)})
+            fields.update({
+                "postScanActionId": str(post_scan_action_id),
+                "postScanActionArguments": str(post_scan_action_arguments),
+            })
+            fields.update({
+                "runPostScanOnlyWhenNewResults": run_post_scan_only_when_new_results,
+                "runPostScanMinSeverity": run_post_scan_min_severity,
+            })
+            if run_post_scan_only_when_new_results:
+                pass
         m = MultipartEncoder(
             fields=fields
         )

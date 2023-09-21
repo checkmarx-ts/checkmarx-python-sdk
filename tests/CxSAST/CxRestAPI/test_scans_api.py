@@ -313,7 +313,7 @@ def test_create_new_scan_with_settings():
                                                   comment="prest All, private scan",
                                                   zipped_source_file_path=zip_file_path,
                                                   custom_fields={"some1": "baby2"},
-                                                  api_version="1.2")
+                                                  api_version="4")
     assert scan is not None
 
 
