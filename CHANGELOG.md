@@ -246,3 +246,6 @@ All notable changes to this project will be documented in  this file.
 0.8.1 - 2023-08-11
 * Fix get_query_id_by_language_group_and_query_name
 * Add get_cx_description_by_query_id
+
+0.8.2 - 2023-09-21
+* Fix SAST Rest API, ScansAPI create_new_scan_with_settings, use API version 4
