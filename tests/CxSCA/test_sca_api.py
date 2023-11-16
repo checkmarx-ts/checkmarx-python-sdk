@@ -330,7 +330,7 @@ def test_get_suggest_private_package():
 
 def test_execute_action_on_package_vulnerabilities():
     package_name = "org.apache.tomcat.embed:tomcat-embed-core"
-    package_manager = "maven"
+    package_manager = "Maven"
     vulnerability_id = "CVE-2022-42252"
     package_version = "9.0.46"
     project_ids = ["6413c96c-b19e-4f4e-82bf-e637fa011c18"]

@@ -856,7 +856,6 @@ def scan_previously_uploaded_zip(project_id, uploaded_file_url):
     return response.json().get("scanId")
 
 
-@deprecated(version="0.8.2", reason="you should use another function")
 def get_comments_associated_with_a_project(project_id):
     """
     Args:
@@ -889,7 +888,6 @@ def get_comments_associated_with_a_project(project_id):
     return response.json()
 
 
-@deprecated(version="0.8.2", reason="you should use another function")
 def comment_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, comment):
     """
     Args:
@@ -917,7 +915,6 @@ def comment_a_vulnerability_for_a_specific_package_and_project(project_id, vulne
     return is_successful
 
 
-@deprecated(version="0.8.2", reason="you should use another function")
 def get_states_associated_with_a_project(project_id):
     """
     Args:
@@ -948,7 +945,6 @@ def get_states_associated_with_a_project(project_id):
     return response.json()
 
 
-@deprecated(version="0.8.2", reason="you should use another function: execute_action_on_package_vulnerabilities")
 def change_state_of_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, state):
     """
     Args:
@@ -1119,7 +1115,7 @@ def execute_action_on_package_vulnerabilities(package_name, package_manager, vul
         bool
     """
     result = False
-    url = "/risk-management/package-vulnerabilities"
+    url = "/management-of-risk/package-vulnerabilities"
     data = json.dumps(
         {
             "packageName": package_name,
@@ -1171,7 +1167,7 @@ def evaluate_package_vulnerabilities(scan_id, entities):
 
     """
     result = None
-    url = "/risk-management/evaluate/package-vulnerabilities"
+    url = "/management-of-risk/evaluate/package-vulnerabilities"
     data = json.dumps(
         {
             "scanId": scan_id,
@@ -1201,7 +1197,7 @@ def disable_an_action_of_package_vulnerability(package_name, package_version, pa
 
     """
     result = False
-    url = "/risk-management/package-vulnerabilities/disable"
+    url = "/management-of-risk/package-vulnerabilities/disable"
     data = json.dumps(
         {
             "packageName": package_name,
@@ -1249,7 +1245,7 @@ def get_changes_of_package_vulnerabilities_of_a_project(project_id, from_when, s
 
     """
     result = None
-    url = "/risk-management/package-vulnerabilities/changes"
+    url = "/management-of-risk/package-vulnerabilities/changes"
     data = json.dumps(
         {
             "projectId": project_id,
@@ -1306,7 +1302,7 @@ def search_entity_profile_of_package_vulnerabilities(package_name, package_versi
         }
     """
     result = None
-    url = "/risk-management/package-vulnerabilities/entity-profile/search"
+    url = "/management-of-risk/package-vulnerabilities/entity-profile/search"
     data = json.dumps(
         {
             "packageName": package_name,
@@ -1346,7 +1342,7 @@ def execute_actions_on_supply_chain_risks(package_name, package_manager, supply_
     """
 
     result = False
-    url = "/risk-management/package-supply-chain-risks"
+    url = "/management-of-risk/package-supply-chain-risks"
     data = json.dumps(
         {
             "packageName": package_name,
@@ -1397,7 +1393,7 @@ def evaluate_supply_chain_risks(scan_id, entities):
         ]
     """
     result = None
-    url = "/risk-management/evaluate/package-supply-chain-risks"
+    url = "/management-of-risk/evaluate/package-supply-chain-risks"
     data = json.dumps(
         {
             "scanId": scan_id,
@@ -1426,7 +1422,7 @@ def disable_an_action_for_a_supply_chain_risk(package_name, package_version, pac
 
     """
     result = False
-    url = "/risk-management/package-supply-chain-risks/disable"
+    url = "/management-of-risk/package-supply-chain-risks/disable"
     data = json.dumps(
         {
             "packageName": package_name,
@@ -1472,7 +1468,7 @@ def get_changes_of_supply_chain_risk(project_id, from_when, skip, take):
         }
     """
     result = None
-    url = "/risk-management/package-supply-chain-risks/changes"
+    url = "/management-of-risk/package-supply-chain-risks/changes"
     data = json.dumps(
         {
             "projectId": project_id,
@@ -1527,7 +1523,7 @@ def search_entity_profile_of_package_supply_chain_risks(package_name, package_ve
         }
     """
     result = None
-    url = "/risk-management/package-supply-chain-risks/entity-profile/search"
+    url = "/management-of-risk/package-supply-chain-risks/entity-profile/search"
     data = json.dumps(
         {
             "packageName": package_name,
@@ -1563,7 +1559,7 @@ def execute_actions_on_package_license(package_id, license_name, project_ids, ac
         bool
     """
     result = False
-    url = "/risk-management/package-licenses"
+    url = "/management-of-risk/package-licenses"
     data = json.dumps(
         {
             "packageId": package_id,
@@ -1629,7 +1625,7 @@ def evaluate_package_licenses(entities, scan_id):
         ]
     """
     result = None
-    url = "/risk-management/evaluate/package-licenses"
+    url = "/management-of-risk/evaluate/package-licenses"
     data = json.dumps(
         {
             "entities": entities,
@@ -1678,7 +1674,7 @@ def search_entity_profiles_of_package_licenses(package_id, license_name, project
 
     """
     result = None
-    url = "/risk-management/package-licenses/entity-profile/search"
+    url = "/management-of-risk/package-licenses/entity-profile/search"
     data = json.dumps(
         {
             "packageId": package_id,
