@@ -15,7 +15,7 @@ def get_data_from_config():
     token_req_data = {
         "username": username,
         "password": password,
-        "acr_values": "Tenant:" + account,
+        "acr_values": "Tenant:" + str(account),
         "grant_type": "password",
         "scope": scope,
         "client_id": "sca_resource_owner",
@@ -28,7 +28,7 @@ get, post, put, _, delete = build_request_funcs(get_data_from_config)
 headers = {
     "user-agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/106.0.0.0 Safari/537.36"
+        "Chrome/106.0.0.0 Safari/537.36",
 }
 
 

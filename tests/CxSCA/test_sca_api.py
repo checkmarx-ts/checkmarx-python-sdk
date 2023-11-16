@@ -27,7 +27,24 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     get_states_associated_with_a_project,
     change_state_of_a_vulnerability_for_a_specific_package_and_project,
     get_scan_reports,
-    AccessControlAPI
+    AccessControlAPI,
+    get_aggregated_risks,
+    get_artifact_license,
+    get_artifact_info,
+    get_suggest_private_package,
+    execute_action_on_package_vulnerabilities,
+    evaluate_package_vulnerabilities,
+    disable_an_action_of_package_vulnerability,
+    get_changes_of_package_vulnerabilities_of_a_project,
+    search_entity_profile_of_package_vulnerabilities,
+    execute_actions_on_supply_chain_risks,
+    evaluate_supply_chain_risks,
+    disable_an_action_for_a_supply_chain_risk,
+    get_changes_of_supply_chain_risk,
+    search_entity_profile_of_package_supply_chain_risks,
+    execute_actions_on_package_license,
+    evaluate_package_licenses,
+    search_entity_profiles_of_package_licenses,
 )
 # from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
 project_name = "test_sca_2023_01_30"
@@ -289,3 +306,163 @@ def test_get_scan_reports():
     with open("partial_sca_scan_report.zip", "wb") as partial_csv_zip_file:
         partial_csv_zip_file.write(partial_csv_report)
     assert partial_csv_report is not None
+
+
+def test_get_aggregated_risks():
+    resp = get_aggregated_risks("Python", "urllib3", "1.20")
+    assert resp is not None
+
+
+def test_get_artifact_license():
+    resp = get_artifact_license("Python", "urllib3", "1.20")
+    assert resp is not None
+
+
+def test_get_artifact_info():
+    resp = get_artifact_info("Python", "urllib3", "1.20")
+    assert resp is not None
+
+
+def test_get_suggest_private_package():
+    resp = get_suggest_private_package("Python", "nltk", "3.8.1")
+    assert resp is not None
+
+
+def test_execute_action_on_package_vulnerabilities():
+    package_name = "org.apache.tomcat.embed:tomcat-embed-core"
+    package_manager = "maven"
+    vulnerability_id = "CVE-2022-42252"
+    package_version = "9.0.46"
+    project_ids = ["6413c96c-b19e-4f4e-82bf-e637fa011c18"]
+    actions = [
+        {
+            "actionType": "ChangeState",
+            "value": "Confirmed",
+            "comment": "Change State to Confirmed"
+        }
+    ]
+
+    resp = execute_action_on_package_vulnerabilities(package_name, package_manager, vulnerability_id, package_version,
+                                                     project_ids, actions)
+    assert resp is not None
+
+
+def test_evaluate_package_vulnerabilities():
+    scan_id = ""
+    entities = []
+    resp = evaluate_package_vulnerabilities(scan_id, entities)
+    assert resp is not None
+
+
+def test_disable_an_action_of_package_vulnerability():
+    package_name = ""
+    package_version = ""
+    package_manager = ""
+    vulnerability_id = ""
+    project_ids = []
+    action_type = ""
+    resp = disable_an_action_of_package_vulnerability(package_name, package_version, package_manager, vulnerability_id,
+                                                      project_ids, action_type)
+    assert resp is not None
+
+
+def test_get_changes_of_package_vulnerabilities_of_a_project():
+    project_id = ""
+    from_when = ""
+    skip = 0
+    take = 100
+    resp = get_changes_of_package_vulnerabilities_of_a_project(project_id, from_when, skip, take)
+    assert resp is not None
+
+
+def test_search_entity_profile_of_package_vulnerabilities():
+    package_name = ""
+    package_version = ""
+    package_manager = ""
+    vulnerability_id = ""
+    project_id = ""
+    action_type = ""
+    to_when = ""
+    resp = search_entity_profile_of_package_vulnerabilities(package_name, package_version, package_manager, vulnerability_id,
+                                                     project_id, action_type, to_when)
+    assert resp is not None
+
+
+def test_execute_actions_on_supply_chain_risks():
+    package_name = ""
+    package_manager = ""
+    supply_chain_risk_id = ""
+    package_version = ""
+    project_ids = ""
+    actions = []
+    resp = execute_actions_on_supply_chain_risks(package_name, package_manager, supply_chain_risk_id, package_version,
+                                                 project_ids, actions)
+    assert resp is not None
+
+
+def test_evaluate_supply_chain_risks():
+    scan_id = ""
+    entities = []
+    resp = evaluate_supply_chain_risks(scan_id, entities)
+    assert resp is not None
+
+
+def test_disable_an_action_for_a_supply_chain_risk():
+    package_name = ""
+    package_version = ""
+    package_manager = ""
+    supply_chain_risk_id = ""
+    project_ids = []
+    action_type = ""
+    resp = disable_an_action_for_a_supply_chain_risk(package_name, package_version, package_manager,
+                                                     supply_chain_risk_id,
+                                              project_ids, action_type)
+    assert resp is not None
+
+
+def test_get_changes_of_supply_chain_risk():
+    project_id = ""
+    from_when = ""
+    skip = 0
+    take = 100
+    resp = get_changes_of_supply_chain_risk(project_id, from_when, skip, take)
+    assert resp is not None
+
+
+def test_search_entity_profile_of_package_supply_chain_risks():
+    package_name = ""
+    package_version = ""
+    package_manager = ""
+    supply_chain_risk_id = ""
+    project_id = ""
+    action_type = ""
+    to_when = ""
+    resp = search_entity_profile_of_package_supply_chain_risks(package_name, package_version, package_manager,
+                                                        supply_chain_risk_id, project_id, action_type, to_when)
+    assert resp is not None
+
+
+def test_execute_actions_on_package_license():
+    package_id = ""
+    license_name = ""
+    project_ids = []
+    actions = []
+    resp = execute_actions_on_package_license(package_id, license_name, project_ids, actions)
+    assert resp is not None
+
+
+def test_evaluate_package_licenses():
+    entities = []
+    scan_id = ""
+    resp = evaluate_package_licenses(entities, scan_id)
+    assert resp is not None
+
+
+def test_search_entity_profiles_of_package_licenses():
+    package_id = ""
+    license_name = ""
+    project_id = ""
+    action_type = ""
+    to_when = ""
+    resp = search_entity_profiles_of_package_licenses(package_id, license_name, project_id, action_type, to_when)
+    assert resp is not None

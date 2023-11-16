@@ -1,6 +1,9 @@
 import json
+
+from deprecated import deprecated
+
 from .httpRequests import get_request, post_request, put_request, delete_request
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK, CREATED
 from CheckmarxPythonSDK.utilities.httpRequests import put
 
 
@@ -23,7 +26,7 @@ def get_all_projects(project_name=None):
             'tenantId': '19',
             'branch': 'master',
             'assignedTeams': [],
-            'lastSuccessfulScanId': 'ccebfdbb-491f-4733-802c-2083c8716972'
+            'lastSuccessfulScanId': 'ccebfdbb-491f-4733-802c-2083c8716972',
           },
           {
             'id': '075e6da2-f7cb-43e8-8c94-2fb823d5c29c',
@@ -33,8 +36,8 @@ def get_all_projects(project_name=None):
             'tenantId': '19',
             'branch': 'master',
             'assignedTeams': ['/CxServer/SCA-PM/Champions/UK'],
-            'lastSuccessfulScanId': '8bad3b00-71a8-466b-af24-8a9ea0d170da'
-            }
+            'lastSuccessfulScanId': '8bad3b00-71a8-466b-af24-8a9ea0d170da',
+          }
         ]
     """
     url = "/risk-management/projects"
@@ -687,7 +690,7 @@ def get_licenses_of_a_scan(scan_id):
             'copyLeft': 'NoCopyleft',
             'patentRiskScore': 3,
             'name': 'BSD 3',
-            'url': 'https://opensource.org/licenses/BSD-3-Clause'
+            'url': 'https://opensource.org/licenses/BSD-3-Clause',
            }
         ]
     """
@@ -853,6 +856,7 @@ def scan_previously_uploaded_zip(project_id, uploaded_file_url):
     return response.json().get("scanId")
 
 
+@deprecated(version="0.8.2", reason="you should use another function")
 def get_comments_associated_with_a_project(project_id):
     """
     Args:
@@ -885,6 +889,7 @@ def get_comments_associated_with_a_project(project_id):
     return response.json()
 
 
+@deprecated(version="0.8.2", reason="you should use another function")
 def comment_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, comment):
     """
     Args:
@@ -912,6 +917,7 @@ def comment_a_vulnerability_for_a_specific_package_and_project(project_id, vulne
     return is_successful
 
 
+@deprecated(version="0.8.2", reason="you should use another function")
 def get_states_associated_with_a_project(project_id):
     """
     Args:
@@ -942,6 +948,7 @@ def get_states_associated_with_a_project(project_id):
     return response.json()
 
 
+@deprecated(version="0.8.2", reason="you should use another function: execute_action_on_package_vulnerabilities")
 def change_state_of_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id, state):
     """
     Args:
@@ -978,11 +985,12 @@ def get_scan_reports(scan_id, report_format="Json", data_types=("All",)):
              Json - Scan Report in JSON format
              Xml - Scan Report in XML format
              Pdf - Scan Report in PDF format
-             Csv - Scan Report in CSV format  - for this format, the response is given as a zip file, which can be extracted to obtain the CSV files
+             Csv - Scan Report in CSV format  - for this format, the response is given as a zip file,
+                which can be extracted to obtain the CSV files
              CycloneDxJson - SBOM report CycloneDX v1.3 format, returned as a JSON
              CycloneDxXml - SBOM report CycloneDX v1.3 format, returned as an XML
-        data_types (list of str, tuple of str):Specifies the sections that will be included in the report. You can specify
-             This parameter is relevant only for Scan Reports, not for SBOM Reports.
+        data_types (list of str, tuple of str):Specifies the sections that will be included in the report.
+            You can specify This parameter is relevant only for Scan Reports, not for SBOM Reports.
 
              All
              Packages
@@ -1007,3 +1015,680 @@ def get_scan_reports(scan_id, report_format="Json", data_types=("All",)):
     url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
     response = get_request(relative_url=url)
     return response.content
+
+
+def get_aggregated_risks(package_type, package_name, version):
+    """
+        This is a public API
+    Args:
+        package_type (str): e.g. Python
+        package_name:
+        version:
+
+    Returns:
+
+    """
+    url = "/public/risk-aggregation/aggregated-risks"
+    data = json.dumps({
+        "packageName": package_name,
+        "version": version,
+        "packageManager": package_type
+    })
+    response = post_request(relative_url=url, data=data)
+    return response.json()
+
+
+def get_artifact_license(package_type, package_name, version):
+    """
+        This is a public API
+    Args:
+        package_type (str): e.g. Python
+        package_name:
+        version:
+
+    Returns:
+
+    """
+    url = "/public/packages/{}/{}/versions/{}/licenses".format(package_type, package_name, version)
+    response = get_request(relative_url=url)
+    return response.json()
+
+
+def get_artifact_info(package_type, package_name, version):
+    """
+        This is a public API
+    Args:
+        package_type (str): e.g.  Python
+        package_name:
+        version:
+
+    Returns:
+
+    """
+    url = "/public/packages/{}/{}/{}".format(package_type, package_name, version)
+    response = get_request(relative_url=url)
+    return response.json()
+
+
+def get_suggest_private_package(package_type, package_name, version):
+    """
+        This is a public API
+    Args:
+        package_type (str):  Python
+        package_name:
+        version:
+
+    Returns:
+
+    """
+    url = "/private-dependencies-repository/dependencies"
+    data = json.dumps([{
+        "origin": "PrivateArtifactory",
+        "packageManager": package_type,
+        "name": package_name,
+        "version": version
+    }])
+    response = post_request(relative_url=url, data=data)
+    return response.json()
+
+
+def execute_action_on_package_vulnerabilities(package_name, package_manager, vulnerability_id, package_version,
+                                              project_ids, actions):
+    """
+
+    action is a dict with the following keys:
+    "actionType": "ChangeState"
+    "value": "ToVerify", "Confirmed", "Urgent", "NotExploitable"
+    "comment":
+
+    Args:
+        package_name (str): "handlebars"
+        package_manager (str): "npm"
+        vulnerability_id (str): "CVE-2019-19919"
+        package_version (str): "4.0.5"
+        project_ids (list of str):  ["8cce1a5f-b59e-49c4-bff4-f0d709381f01"]
+        actions (list of dict):  [
+            {
+              "actionType": "ChangeState",
+              "value": "NotExploitable",
+              "comment": "Comment.",
+            }
+          ]
+
+    Returns:
+        bool
+    """
+    result = False
+    url = "/risk-management/package-vulnerabilities"
+    data = json.dumps(
+        {
+            "packageName": package_name,
+            "packageManager": package_manager,
+            "vulnerabilityId": vulnerability_id,
+            "packageVersion": package_version,
+            "projectIds": project_ids,
+            "actions": actions
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == CREATED:
+        result = True
+    return result
+
+
+def evaluate_package_vulnerabilities(scan_id, entities):
+    """
+
+    entity is a dict with the following keys:
+    "packageName": package_name,
+    "packageVersion": package_version,
+    "packageManager": package_manager,
+    "vulnerabilityId": vulnerability_id
+
+    Args:
+        scan_id (str):
+        entities (list of dict):
+
+    Returns:
+
+        [
+          {
+            "originalEntity": {
+                "packageName": "handlebars",
+                "packageVersion": "4.0.5",
+                "packageManager": "Npm",
+                "vulnerabilityId": "CVE-2019-19919"
+            },
+            "entityModifications": {
+                "state": "NotExploitable",
+                "isIgnored": true
+            },
+            "entityProfilesApplied": [
+              "8cce1a5f-b59e-49c4-bff4-f0d709381f01"
+            ]
+          }
+        ]
+
+    """
+    result = None
+    url = "/risk-management/evaluate/package-vulnerabilities"
+    data = json.dumps(
+        {
+            "scanId": scan_id,
+            "entities": entities
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
+
+
+def disable_an_action_of_package_vulnerability(package_name, package_version, package_manager, vulnerability_id,
+                                               project_ids, action_type):
+    """
+
+    Args:
+        package_name (str):
+        package_version (str):
+        package_manager (str):
+        vulnerability_id (str):
+        project_ids (list of str):
+        action_type (str):  "ChangeState", "Snooze", "Ignore", "ChangeScore", "ChangeSeverity",
+            "MarkLicenseAsEffective", "AddLicense", "RemoveLicense"
+
+    Returns:
+
+    """
+    result = False
+    url = "/risk-management/package-vulnerabilities/disable"
+    data = json.dumps(
+        {
+            "packageName": package_name,
+            "packageVersion": package_version,
+            "packageManager": package_manager,
+            "vulnerabilityId": vulnerability_id,
+            "projectIds": project_ids,
+            "actionType": action_type
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
+def get_changes_of_package_vulnerabilities_of_a_project(project_id, from_when, skip, take):
+    """
+
+    Args:
+        project_id (str):
+        from_when (str): example, "2023-06-17T13:13:30.184592+00:00"
+        skip (int): 0
+        take (int): 100
+
+    Returns:
+
+    {
+      "currentPage": 0,
+      "totalPages": 0,
+      "pageSize": 100,
+      "totalCount": 1,
+      "items": [
+        {
+          "entityProfileId": "8cce1a5f-b59e-49c4-bff4-f0d709381f01",
+          "context": {
+            "packageName": "handlebars",
+            "packageManager": "Npm",
+            "packageVersion": "4.0.5",
+            "vulnerabilityId": "CVE-2019-19919"
+          }
+        }
+      ]
+    }
+
+    """
+    result = None
+    url = "/risk-management/package-vulnerabilities/changes"
+    data = json.dumps(
+        {
+            "projectId": project_id,
+            "from": from_when,
+            "skip": skip,
+            "take": take
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
+
+
+def search_entity_profile_of_package_vulnerabilities(package_name, package_version, package_manager, vulnerability_id,
+                                                     project_id, action_type, to_when):
+    """
+
+    Args:
+        package_name (str):
+        package_version (str):
+        package_manager (str):
+        vulnerability_id (str):
+        project_id (str):
+        action_type (str):  possible values,"ChangeState", "Snooze", "Ignore", "ChangeScore", "ChangeSeverity",
+            "MarkLicenseAsEffective", "AddLicense", "RemoveLicense"
+        to_when (str):
+
+    Returns:
+
+        {
+          "id": "8cce1a5f-b59e-49c4-bff4-f0d709381f01",
+          "context": {
+            "packageName": "handlebars",
+            "packageVersion": "4.0.5",
+            "packageManager": "Npm",
+            "vulnerabilityId": "CVE-2019-19919"
+          },
+          "name": "handlebars:4.0.5:Npm:CVE-2019-19919",
+          "actions": [
+            {
+              "actionType": "ChangeState",
+              "actionValue": "NotExploitable",
+              "enabled": true,
+              "commentContext": {
+                "ManagementOfRiskCommentId": "8cce1a5f-b59e-49c4-bff4-f0d709381f01"
+              },
+              "createdAt": "2023-07-13T18:31:30.849484+00:00"
+            }
+          ],
+          "entityType": "PackageVulnerability",
+          "enabled": true,
+          "createdAt": "2023-03-23T09:16:54.982Z"
+        }
+    """
+    result = None
+    url = "/risk-management/package-vulnerabilities/entity-profile/search"
+    data = json.dumps(
+        {
+            "packageName": package_name,
+            "packageVersion": package_version,
+            "packageManager": package_manager,
+            "vulnerabilityId": vulnerability_id,
+            "projectId": project_id,
+            "actionType": action_type,
+            "to": to_when
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
+
+
+def execute_actions_on_supply_chain_risks(package_name, package_manager, supply_chain_risk_id, package_version,
+                                          project_ids, actions):
+    """
+
+     action is a dict with the following keys:
+    "actionType": "ChangeState"
+    "value": "ToVerify", "Confirmed", "Urgent", "NotExploitable"
+    "comment":
+
+    Args:
+        package_name (str):
+        package_manager (str):
+        supply_chain_risk_id (str):
+        package_version (str):
+        project_ids (list of str):
+        actions (list of dict):
+
+    Returns:
+
+    """
+
+    result = False
+    url = "/risk-management/package-supply-chain-risks"
+    data = json.dumps(
+        {
+            "packageName": package_name,
+            "packageManager": package_manager,
+            "supplyChainRiskId": supply_chain_risk_id,
+            "packageVersion": package_version,
+            "projectIds": project_ids,
+            "actions": actions
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == CREATED:
+        result = True
+    return result
+
+
+def evaluate_supply_chain_risks(scan_id, entities):
+    """
+
+    entity is a dict with the following keys:
+    "packageName": "handlebars",
+    "packageVersion": "4.0.5",
+    "packageManager": "Npm",
+    "supplyChainRiskId": "Cx3a0295c5-2d04"
+
+    Args:
+        scan_id (str):
+        entities (list of dict):
+
+    Returns:
+
+        [
+          {
+            "originalEntity": {
+                "packageName": "handlebars",
+                "packageVersion": "4.0.5",
+                "packageManager": "Npm",
+                "vulnerabilityId": "Cx3a0295c5-2d04"
+            },
+            "entityModifications": {
+                "state": "NotExploitable",
+                "isIgnored": true
+            },
+            "entityProfilesApplied": [
+              "8cce1a5f-b59e-49c4-bff4-f0d709381f01"
+            ]
+          }
+        ]
+    """
+    result = None
+    url = "/risk-management/evaluate/package-supply-chain-risks"
+    data = json.dumps(
+        {
+            "scanId": scan_id,
+            "entities": entities
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == CREATED:
+        result = response.json()
+    return result
+
+
+def disable_an_action_for_a_supply_chain_risk(package_name, package_version, package_manager, supply_chain_risk_id,
+                                              project_ids, action_type):
+    """
+
+    Args:
+        package_name (str):
+        package_version (str):
+        package_manager (str):
+        supply_chain_risk_id (str):
+        project_ids (list of str):
+        action_type (str): "ChangeState"
+
+    Returns:
+
+    """
+    result = False
+    url = "/risk-management/package-supply-chain-risks/disable"
+    data = json.dumps(
+        {
+            "packageName": package_name,
+            "packageVersion": package_version,
+            "packageManager": package_manager,
+            "supplyChainRiskId": supply_chain_risk_id,
+            "projectIds": project_ids,
+            "actionType": action_type
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
+def get_changes_of_supply_chain_risk(project_id, from_when, skip, take):
+    """
+
+    Args:
+        project_id (str):
+        from_when (str): "2023-06-17T13:13:30.184592+00:00"
+        skip (int):  0
+        take (int):  100
+
+    Returns:
+        {
+          "currentPage": 0,
+          "totalPages": 0,
+          "pageSize": 100,
+          "totalCount": 1,
+          "items": [
+            {
+              "entityProfileId": "8cce1a5f-b59e-49c4-bff4-f0d709381f01",
+              "context": {
+                "packageName": "handlebars",
+                "packageManager": "Npm",
+                "packageVersion": "4.0.5",
+                "supplyChainRiskId": "Cx3a0295c5-2d04",
+              }
+            }
+          ]
+        }
+    """
+    result = None
+    url = "/risk-management/package-supply-chain-risks/changes"
+    data = json.dumps(
+        {
+            "projectId": project_id,
+            "from": from_when,
+            "skip": skip,
+            "take": take
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
+
+
+def search_entity_profile_of_package_supply_chain_risks(package_name, package_version, package_manager,
+                                                        supply_chain_risk_id, project_id, action_type, to_when):
+    """
+
+    Args:
+        package_name (str):
+        package_version (str):
+        package_manager (str):
+        supply_chain_risk_id (str):
+        project_id (str):
+        action_type (str):
+        to_when (str):
+
+    Returns:
+        {
+          "id": "8cce1a5f-b59e-49c4-bff4-f0d709381f01",
+          "context": {
+            "packageName": "handlebars",
+            "packageVersion": "4.0.5",
+            "packageManager": "Npm",
+            "supplyChainRiskId": "Cx3a0295c5-2d04",
+          },
+          "name": "handlebars:4.0.5:Npm:CVE-2019-19919",
+          "actions": [
+            {
+              "actionType": "ChangeState",
+              "actionValue": "NotExploitable",
+              "enabled": true,
+              "commentContext": {
+                "ManagementOfRiskCommentId": "8cce1a5f-b59e-49c4-bff4-f0d709381f01"
+              },
+              "createdAt": "2023-07-13T18:31:30.849484+00:00"
+            }
+          ],
+          "entityType": "PackageSupplyChainRisk",
+          "enabled": true,
+          "createdAt": "2023-03-23T09:16:54.982Z"
+        }
+    """
+    result = None
+    url = "/risk-management/package-supply-chain-risks/entity-profile/search"
+    data = json.dumps(
+        {
+            "packageName": package_name,
+            "packageVersion": package_version,
+            "packageManager": package_manager,
+            "supplyChainRiskId": supply_chain_risk_id,
+            "projectId": project_id,
+            "actionType": action_type,
+            "to": to_when
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
+
+
+def execute_actions_on_package_license(package_id, license_name, project_ids, actions):
+    """
+
+    action is a dict with following keys:
+    "actionType": "MarkLicenseAsEffective",
+    "value": "MarkLicenseAsEffective",
+    "comment": "Comment."
+
+    Args:
+        package_id (str):
+        license_name (str):
+        project_ids (list of str):
+        actions (list of dict):
+
+    Returns:
+        bool
+    """
+    result = False
+    url = "/risk-management/package-licenses"
+    data = json.dumps(
+        {
+            "packageId": package_id,
+            "licenseName": license_name,
+            "projectIds": project_ids,
+            "actions": actions
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == CREATED:
+        result = True
+    return result
+
+
+def evaluate_package_licenses(entities, scan_id):
+    """
+
+    entity is a dict: for example
+    {
+        "package":
+        {
+            "packageId": "npm-handlebars-4.0.5"
+        },
+        "identifiedLicenses": [
+            {
+                "license":
+                {
+                    "name": "apache2"
+                }
+            }
+        ]
+    }
+
+    Args:
+        entities (list of dict):
+        scan_id (str):
+
+    Returns:
+        [
+          {
+            "originalEntity": {
+              "package": {
+                "packageId": "npm-handlebars-4.0.5"
+              },
+              "identifiedLicenses": [
+                {
+                  "license": {
+                    "name": "apache2"
+                  }
+                }
+              ]
+            },
+            "entityModifications": {
+              "licenseNames": [
+                "MarkLicenseAsEffective"
+              ],
+              "isEffective": true
+            },
+            "entityProfilesApplied": [
+              "8cce1a5f-b59e-49c4-bff4-f0d709381f01"
+            ]
+          }
+        ]
+    """
+    result = None
+    url = "/risk-management/evaluate/package-licenses"
+    data = json.dumps(
+        {
+            "entities": entities,
+            "scanId": scan_id
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
+
+
+def search_entity_profiles_of_package_licenses(package_id, license_name, project_id, action_type, to_when):
+    """
+
+    Args:
+        package_id (str):
+        license_name (str):
+        project_id (str):
+        action_type (str):
+        to_when (str):
+
+    Returns:
+        {
+          "id": "8cce1a5f-b59e-49c4-bff4-f0d709381f0a",
+          "context": {
+            "LicenseName": "apache2",
+            "PackageId": "npm-handlebars-4.0.5"
+          },
+          "name": "package-xpto:Apache2",
+          "actions": [
+            {
+              "actionType": "MarkLicenseAsEffective",
+              "actionValue": "MarkLicenseAsEffective",
+              "enabled": true,
+              "commentContext": {
+                "ManagementOfRiskCommentId": "8cce1a5f-b59e-49c4-bff4-f0d709381f0a"
+              },
+              "createdAt": "2023-07-13T19:21:29.798063+00:00"
+            }
+          ],
+          "entityType": "PackageLicense",
+          "enabled": true,
+          "createdAt": "2023-07-13T19:21:29.988802+00:00"
+        }
+
+    """
+    result = None
+    url = "/risk-management/package-licenses/entity-profile/search"
+    data = json.dumps(
+        {
+            "packageId": package_id,
+            "licenseName": license_name,
+            "projectId": project_id,
+            "actionType": action_type,
+            "to": to_when
+        }
+    )
+    response = post_request(relative_url=url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result

@@ -27,6 +27,23 @@ from .api import (
     get_states_associated_with_a_project,
     change_state_of_a_vulnerability_for_a_specific_package_and_project,
     get_scan_reports,
+    get_aggregated_risks,
+    get_artifact_license,
+    get_artifact_info,
+    get_suggest_private_package,
+    execute_action_on_package_vulnerabilities,
+    evaluate_package_vulnerabilities,
+    disable_an_action_of_package_vulnerability,
+    get_changes_of_package_vulnerabilities_of_a_project,
+    search_entity_profile_of_package_vulnerabilities,
+    execute_actions_on_supply_chain_risks,
+    evaluate_supply_chain_risks,
+    disable_an_action_for_a_supply_chain_risk,
+    get_changes_of_supply_chain_risk,
+    search_entity_profile_of_package_supply_chain_risks,
+    execute_actions_on_package_license,
+    evaluate_package_licenses,
+    search_entity_profiles_of_package_licenses,
 )
 
 from .AccessControlAPI import AccessControlAPI
