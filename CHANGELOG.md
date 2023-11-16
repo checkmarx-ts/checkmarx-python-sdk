@@ -249,3 +249,6 @@ All notable changes to this project will be documented in  this file.
 
 0.8.2 - 2023-09-21
 * Fix SAST Rest API, ScansAPI create_new_scan_with_settings, use API version 4
+
+0.8.3 - 2023-11-16
+* Add SCA MoR endpoints
