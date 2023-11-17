@@ -348,8 +348,19 @@ def test_execute_action_on_package_vulnerabilities():
 
 
 def test_evaluate_package_vulnerabilities():
-    scan_id = ""
-    entities = []
+    scan_id = "4f912121-93ab-44e1-b897-2a4dd0227138"
+    package_name = "org.apache.tomcat.embed:tomcat-embed-core"
+    package_manager = "Maven"
+    vulnerability_id = "CVE-2022-42252"
+    package_version = "9.0.46"
+    entities = [
+        {
+            "packageName": package_name,
+            "packageVersion": package_version,
+            "packageManager": package_manager,
+            "vulnerabilityId": vulnerability_id
+        }
+    ]
     resp = evaluate_package_vulnerabilities(scan_id, entities)
     assert resp is not None
 
@@ -367,8 +378,8 @@ def test_disable_an_action_of_package_vulnerability():
 
 
 def test_get_changes_of_package_vulnerabilities_of_a_project():
-    project_id = ""
-    from_when = ""
+    project_id = "6413c96c-b19e-4f4e-82bf-e637fa011c18"
+    from_when = "2023-06-17T13:13:30.184592+00:00"
     skip = 0
     take = 100
     resp = get_changes_of_package_vulnerabilities_of_a_project(project_id, from_when, skip, take)
@@ -376,13 +387,13 @@ def test_get_changes_of_package_vulnerabilities_of_a_project():
 
 
 def test_search_entity_profile_of_package_vulnerabilities():
-    package_name = ""
-    package_version = ""
-    package_manager = ""
-    vulnerability_id = ""
-    project_id = ""
-    action_type = ""
-    to_when = ""
+    package_name = "org.apache.tomcat.embed:tomcat-embed-core"
+    package_manager = "Maven"
+    vulnerability_id = "CVE-2022-42252"
+    package_version = "9.0.46"
+    project_id = "6413c96c-b19e-4f4e-82bf-e637fa011c18"
+    action_type = "ChangeState"
+    to_when = "2023-11-17T13:13:30.184592+00:00"
     resp = search_entity_profile_of_package_vulnerabilities(package_name, package_version, package_manager, vulnerability_id,
                                                      project_id, action_type, to_when)
     assert resp is not None
