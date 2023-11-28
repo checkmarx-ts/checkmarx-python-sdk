@@ -252,3 +252,6 @@ All notable changes to this project will be documented in  this file.
 
 0.8.3 - 2023-11-16
 * Add SCA MoR endpoints
+
+0.8.4 - 2023-11-28
+* Fix CxSAST REST API ProjectsAPI get_project_id_by_project_name_and_team_full_name
