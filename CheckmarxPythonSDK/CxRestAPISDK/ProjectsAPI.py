@@ -117,7 +117,7 @@ class ProjectsAPI(object):
         try:
             all_projects = ProjectsAPI.get_all_project_details(project_name=project_name, team_id=team_id)
 
-            if all_projects and len(all_projects) == 1:
+            if all_projects and len(all_projects) > 0:
                 project_id = all_projects[0].project_id
             return project_id
         except NotFoundError:
