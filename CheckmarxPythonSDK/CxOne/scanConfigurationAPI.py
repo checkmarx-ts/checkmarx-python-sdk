@@ -236,3 +236,65 @@ def delete_a_sast_default_config(config_id):
     if response.status_code == NO_CONTENT:
         result = True
     return result
+
+
+def update_project_repo_url(project_id, repo_url):
+    """
+
+    Args:
+        project_id (str):
+        repo_url (str):
+
+    Returns:
+
+    """
+    type_check(project_id, str)
+    type_check(repo_url, str)
+    relative_url = api_url + "/project?project-id=" + project_id
+    data=[{
+            "key": "scan.handler.git.repository",
+            "name": "repository",
+            "category": "git",
+            "originLevel": "Project",
+            "value": repo_url,
+            "valuetype": "String",
+            "allowOverride": True
+        }]
+
+    data_json = json.dumps(data)  
+    response = patch_request(relative_url=relative_url, data=data_json)
+
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
+def update_project_token(project_id, token):
+    """
+
+    Args:
+        project_id (str):
+        token (str):
+
+    Returns:
+
+    """
+    type_check(project_id, str)
+    type_check(token, str)
+    relative_url = api_url + "/project?project-id=" + project_id
+    data=[{
+        	"key": "scan.handler.git.token",
+        	"name": "token",
+        	"category": "git",
+        	"originLevel": "Project",
+        	"value": token,
+        	"valuetype": "Secret",
+        	"allowOverride": True
+        },]
+
+    data_json = json.dumps(data)  
+    response = patch_request(relative_url=relative_url, data=data_json)
+
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
