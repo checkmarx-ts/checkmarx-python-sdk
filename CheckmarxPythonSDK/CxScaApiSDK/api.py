@@ -796,7 +796,9 @@ def update_settings_for_a_specific_project(project_id, enable_exploitable_path):
 
 def generate_upload_link_for_scanning(project_id):
     """
-
+        This function should be used together with the following functions:
+            * upload_zip_content_for_scanning
+            * scan_previously_uploaded_zip
     Args:
         project_id (str):
 
@@ -816,7 +818,9 @@ def generate_upload_link_for_scanning(project_id):
 
 def upload_zip_content_for_scanning(upload_link, zip_file_path):
     """
-
+        This function should be used together with the following functions:
+            * generate_upload_link_for_scanning
+            * scan_previously_uploaded_zip
     Args:
         upload_link (str):
         zip_file_path (str):
@@ -838,7 +842,9 @@ def upload_zip_content_for_scanning(upload_link, zip_file_path):
 
 def scan_previously_uploaded_zip(project_id, uploaded_file_url):
     """
-
+        This function should be used together with the following functions:
+            * generate_upload_link_for_scanning
+            * upload_zip_content_for_scanning
     Args:
         project_id (str):
         uploaded_file_url (str):
