@@ -390,12 +390,13 @@ def get_scan_settings(scan_id):
     return response.json()
 
 
-def get_risk_report_summary(project_id=None, size=10):
+def get_risk_report_summary(project_id=None, size=10, skip=0):
     """
 
     Args:
         project_id (str):
         size (int): default 10
+        skip (int): 0
 
     Returns:
         list of dict
@@ -435,6 +436,8 @@ def get_risk_report_summary(project_id=None, size=10):
         optionals.append("projectId={project_id}".format(project_id=project_id))
     if size:
         optionals.append("size={size}".format(size=size))
+    if skip:
+        optionals.append("skip={skip}".format(skip=skip))
     if optionals:
         url += "?" + "&".join(optionals)
 
