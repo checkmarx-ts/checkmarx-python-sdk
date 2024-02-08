@@ -190,13 +190,13 @@ def get_sast_default_config_by_id(config_id):
     response = get_request(relative_url=relative_url)
     item = response.json()
     return DefaultConfigOut(
-            default_config_out_id=item.get("id"),
-            name=item.get("name"),
-            description=item.get("description"),
-            url=item.get("url"),
-            is_tenant_default=item.get("isTenantDefault"),
-            associated_projects=item.get("associatedProjects")
-        )
+        default_config_out_id=item.get("id"),
+        name=item.get("name"),
+        description=item.get("description"),
+        url=item.get("url"),
+        is_tenant_default=item.get("isTenantDefault"),
+        associated_projects=item.get("associatedProjects")
+    )
 
 
 def update_default_config_for_the_sast_engine(config_id, default_config):
@@ -251,17 +251,17 @@ def update_project_repo_url(project_id, repo_url):
     type_check(project_id, str)
     type_check(repo_url, str)
     relative_url = api_url + "/project?project-id=" + project_id
-    data=[{
-            "key": "scan.handler.git.repository",
-            "name": "repository",
-            "category": "git",
-            "originLevel": "Project",
-            "value": repo_url,
-            "valuetype": "String",
-            "allowOverride": True
-        }]
+    data = [{
+        "key": "scan.handler.git.repository",
+        "name": "repository",
+        "category": "git",
+        "originLevel": "Project",
+        "value": repo_url,
+        "valuetype": "String",
+        "allowOverride": True
+    }]
 
-    data_json = json.dumps(data)  
+    data_json = json.dumps(data)
     response = patch_request(relative_url=relative_url, data=data_json)
 
     if response.status_code == NO_CONTENT:
@@ -282,17 +282,17 @@ def update_project_token(project_id, token):
     type_check(project_id, str)
     type_check(token, str)
     relative_url = api_url + "/project?project-id=" + project_id
-    data=[{
-        	"key": "scan.handler.git.token",
-        	"name": "token",
-        	"category": "git",
-        	"originLevel": "Project",
-        	"value": token,
-        	"valuetype": "Secret",
-        	"allowOverride": True
-        },]
+    data = [{
+        "key": "scan.handler.git.token",
+        "name": "token",
+        "category": "git",
+        "originLevel": "Project",
+        "value": token,
+        "valuetype": "Secret",
+        "allowOverride": True
+    }, ]
 
-    data_json = json.dumps(data)  
+    data_json = json.dumps(data)
     response = patch_request(relative_url=relative_url, data=data_json)
 
     if response.status_code == NO_CONTENT:
