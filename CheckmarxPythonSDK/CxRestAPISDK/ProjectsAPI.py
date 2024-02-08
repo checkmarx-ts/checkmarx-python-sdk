@@ -1053,7 +1053,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def upload_source_code_zip_file(project_id, zip_file_path, api_version="1.0"):
+    def upload_source_code_zip_file(project_id, zip_file_path, api_version="4.0"):
         """
         Upload a zip file that contains the source code for scanning.
 
