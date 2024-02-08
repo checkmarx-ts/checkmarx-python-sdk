@@ -255,3 +255,7 @@ All notable changes to this project will be documented in  this file.
 
 0.8.4 - 2023-11-28
 * Fix CxSAST REST API ProjectsAPI get_project_id_by_project_name_and_team_full_name
+
+0.8.5 - 2024-02-08
+* Add new support for SCA API: create_sbom_report, get_sbom_report_creation_status, get_sbom_supported_file_formats, run_file_analysis, retrieve_analysis_result 
+* CxOne API report API, scan configuration API
