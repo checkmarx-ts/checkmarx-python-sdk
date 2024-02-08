@@ -47,6 +47,11 @@ from .api import (
     generate_upload_link,
     upload_zip_file,
     scan_zip_file_or_github_file,
+    create_sbom_report,
+    get_sbom_report_creation_status,
+    get_sbom_supported_file_formats,
+    run_file_analysis,
+    retrieve_analysis_result,
 )
 
 from .AccessControlAPI import AccessControlAPI

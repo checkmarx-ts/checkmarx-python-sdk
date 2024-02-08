@@ -1,3 +1,4 @@
+import time
 from CheckmarxPythonSDK.CxScaApiSDK import (
     get_all_projects,
     check_if_project_already_exists,
@@ -48,6 +49,11 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     generate_upload_link,
     upload_zip_file,
     scan_zip_file_or_github_file,
+    create_sbom_report,
+    get_sbom_report_creation_status,
+    get_sbom_supported_file_formats,
+    run_file_analysis,
+    retrieve_analysis_result,
 )
 # from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
 project_name = "test_sca_2023_01_30"
@@ -498,11 +504,43 @@ def test_generate_upload_link():
     result = upload_zip_file(upload_link=upload_link, zip_file_path=zip_file_path)
     assert result is True
     project_id = get_project_id_by_name(project_name)
-    result = scan_zip_file_or_github_file(project_id=project_id, project_type="upload", handler_url=upload_link)
-    assert result is True
+    scan_id = scan_zip_file_or_github_file(project_id=project_id, project_type="upload", handler_url=upload_link)
+    assert scan_id is not None
+
+    sbom_report_analysis(scan_id=scan_id, file_format="CycloneDxJson")
 
 
 def test_scan_zip_file_or_github_file():
     project_id = get_project_id_by_name(project_name)
-    result = scan_zip_file_or_github_file(project_id=project_id, project_type="git", handler_url="https://github.com/CSPF-Founder/JavaVulnerableLab.git")
-    assert result is True
+    scan_id = scan_zip_file_or_github_file(project_id=project_id, project_type="git", handler_url="https://github.com/CSPF-Founder/JavaVulnerableLab.git")
+    assert scan_id is not None
+
+
+def sbom_report_analysis(scan_id, file_format):
+    while True:
+        response = get_scan_status(scan_id=scan_id)
+        scan_status = response.get("name")
+        if scan_status == "Scanning":
+            print("scanning ...")
+            time.sleep(60)
+            continue
+        elif scan_status == "Done":
+            print("scan finished successfully!")
+            break
+        elif scan_status == "Failed":
+            print("scan_status:{}, message:{}".format(scan_status, response.get("message")))
+            return
+    export_id = create_sbom_report(scan_id, file_format)
+    assert len(export_id) > 0
+    creation_status = get_sbom_report_creation_status(export_id=export_id)
+    while creation_status.get("exportStatus") != "Completed":
+        time.sleep(10)
+        creation_status = get_sbom_report_creation_status(export_id=export_id)
+
+    report_content = get_scan_reports(scan_id=scan_id, report_format=file_format)
+    file_path_to_analyze = "./sbom_report.json"
+    with open(file_path_to_analyze, "wb") as out_file:
+        out_file.write(report_content)
+    request_id = run_file_analysis(file_path_to_analyze)
+    result = retrieve_analysis_result(request_id)
+    assert result is not None
