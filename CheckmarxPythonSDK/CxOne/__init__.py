@@ -88,6 +88,9 @@ from .scanConfigurationAPI import (
     get_sast_default_config_by_id,
     update_default_config_for_the_sast_engine,
     delete_a_sast_default_config,
+    update_project_repo_url,
+    update_project_token
+
 )
 
 from .scannersResultsAPI import (

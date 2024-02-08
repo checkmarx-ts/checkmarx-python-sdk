@@ -61,3 +61,9 @@ def get_scan_report(report_id):
 
     response = get_request(relative_url=relative_url)
     return response.content
+
+def get_risk_scan_report(scan_id, report_type):
+    relative_url = f"/api/sca/risk-management/risk-reports/{scan_id}/export?format={report_type}"
+    
+    response = get_request(relative_url=relative_url)
+    return response.content
