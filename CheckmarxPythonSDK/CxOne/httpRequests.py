@@ -52,34 +52,36 @@ def get_request(relative_url, is_iam=False):
     return response
 
 
-def post_request(relative_url, data, is_iam=False):
+def post_request(relative_url, data, files=None, is_iam=False):
     """
 
     Args:
         relative_url (str):
         data (str):
+        files:
         is_iam (bool): True if the endpoint is for Identity And Management
 
     Returns:
 
     """
-    response = post(relative_url, data, is_iam=is_iam, headers=headers)
+    response = post(relative_url, data, files=files, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 
 
-def put_request(relative_url, data, is_iam=False):
+def put_request(relative_url, data, files=None, is_iam=False):
     """
 
     Args:
         relative_url (str):
         data (str):
+        files:
         is_iam (bool): True if the endpoint is for Identity And Management
 
     Returns:
 
     """
-    response = put(relative_url, data, is_iam=is_iam, headers=headers)
+    response = put(relative_url, data, files=files, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 

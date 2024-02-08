@@ -4,7 +4,7 @@ import requests
 from .httpRequests import post_request
 from CheckmarxPythonSDK.utilities.compat import OK
 from os.path import exists
-from . import authHeaders
+from CheckmarxPythonSDK.utilities.httpRequests import auth_header
 
 
 def create_a_pre_signed_url_to_upload_files():
@@ -41,7 +41,7 @@ def upload_zip_content_for_scanning(upload_link, zip_file_path):
 
     url = "{uploadLink}".format(uploadLink=upload_link)
 
-    headers = authHeaders.auth_headers.copy()
+    headers = auth_header.copy()
     headers.update(
         {"Content-Type": "application/x-www-form-urlencoded"}
     )

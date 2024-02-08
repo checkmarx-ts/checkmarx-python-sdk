@@ -3,7 +3,7 @@ import requests
 import time
 import os
 from CheckmarxPythonSDK.CxOne.httpRequests import get_request, post_request
-from CheckmarxPythonSDK.CxOne import authHeaders
+from CheckmarxPythonSDK.utilities.httpRequests import auth_header
 from CheckmarxPythonSDK.CxOne.config import config
 
 base_url = config.get("server")
@@ -34,7 +34,7 @@ def create_scan_report(file_format, scan_id, project_id):
         }
     })
 
-    headers = authHeaders.auth_headers.copy()
+    headers = auth_header.copy()
 
     response = requests.post(report_url, headers=headers, data=post_data, verify=False)
     report_json = response.json()
