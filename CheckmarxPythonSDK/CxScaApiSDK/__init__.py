@@ -44,6 +44,9 @@ from .api import (
     execute_actions_on_package_license,
     evaluate_package_licenses,
     search_entity_profiles_of_package_licenses,
+    generate_upload_link,
+    upload_zip_file,
+    scan_zip_file_or_github_file,
 )
 
 from .AccessControlAPI import AccessControlAPI

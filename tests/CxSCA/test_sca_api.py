@@ -45,6 +45,9 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     execute_actions_on_package_license,
     evaluate_package_licenses,
     search_entity_profiles_of_package_licenses,
+    generate_upload_link,
+    upload_zip_file,
+    scan_zip_file_or_github_file,
 )
 # from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
 project_name = "test_sca_2023_01_30"
@@ -133,6 +136,15 @@ def test_get_scan_settings():
 def test_get_risk_report_summary():
     project_id = get_project_id_by_name(project_name)
     risk_report_summary = get_risk_report_summary(project_id=project_id)
+    assert risk_report_summary is not None
+
+    risk_report_summary = get_risk_report_summary(size=400, skip=0)
+    assert risk_report_summary is not None
+
+    risk_report_summary = get_risk_report_summary(size=400, skip=400)
+    assert risk_report_summary is not None
+
+    risk_report_summary = get_risk_report_summary(size=400, skip=800)
     assert risk_report_summary is not None
 
 
@@ -477,3 +489,20 @@ def test_search_entity_profiles_of_package_licenses():
     to_when = ""
     resp = search_entity_profiles_of_package_licenses(package_id, license_name, project_id, action_type, to_when)
     assert resp is not None
+
+
+def test_generate_upload_link():
+    upload_link = generate_upload_link()
+    assert len(upload_link) > 0
+    zip_file_path = "../JavaVulnerableLab-master.zip"
+    result = upload_zip_file(upload_link=upload_link, zip_file_path=zip_file_path)
+    assert result is True
+    project_id = get_project_id_by_name(project_name)
+    result = scan_zip_file_or_github_file(project_id=project_id, project_type="upload", handler_url=upload_link)
+    assert result is True
+
+
+def test_scan_zip_file_or_github_file():
+    project_id = get_project_id_by_name(project_name)
+    result = scan_zip_file_or_github_file(project_id=project_id, project_type="git", handler_url="https://github.com/CSPF-Founder/JavaVulnerableLab.git")
+    assert result is True
