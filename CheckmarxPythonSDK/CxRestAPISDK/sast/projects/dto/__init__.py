@@ -56,13 +56,13 @@ def construct_cx_project(item):
                 custom_field_id=custom_field.get("id"),
                 value=custom_field.get("value"),
                 name=custom_field.get("name")
-            ) for custom_field in item.get("customFields")
+            ) for custom_field in item.get("customFields") or []
         ],
         links=[
             CxLink(
                 rel=link.get("rel"),
                 uri=link.get("uri"),
-            ) for link in item.get("links")
+            ) for link in item.get("links") or []
         ],
         project_queue_settings=CxProjectQueueSetting(
             queue_keep_mode=item.get("projectQueueSettings", {}).get("queueKeepMode"),

@@ -1247,7 +1247,7 @@ class ScansAPI(object):
                                                                       {}).get("scannedSuccessfullyLOCPercentage"),
                         count_of_dom_objects=value.get("countOfDomObjects")
                     )
-                    for key, value in item.get("languageStatistics").items()
+                    for key, value in item.get("languageStatistics", {}).items()
                 ],
                 exclusion_folders_pattern=item.get("exclusionFoldersPattern"),
                 exclusion_files_pattern=item.get("exclusionFilesPattern"),
@@ -1285,7 +1285,7 @@ class ScansAPI(object):
                         parsed_unsuccessfully=value.get("parsedUnsuccessfully"),
                         parsed_partially=value.get("parsedPartially")
                     )
-                    for key, value in item.get("scannedFilesPerLanguage").items()
+                    for key, value in item.get("scannedFilesPerLanguage", {}).items()
                 ]
             )
         return result

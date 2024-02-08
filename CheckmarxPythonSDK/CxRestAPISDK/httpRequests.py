@@ -46,14 +46,14 @@ def get_request(relative_url, headers=(), is_iam=False):
     return response
 
 
-def post_request(relative_url, data, headers=(), is_iam=False):
-    response = post(relative_url, data=data, headers=headers, is_iam=is_iam)
+def post_request(relative_url, data, files=None, headers=(), is_iam=False):
+    response = post(relative_url, data=data, files=files, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response
 
 
-def put_request(relative_url, data, headers=(), is_iam=False):
-    response = put(relative_url, data=data, headers=headers, is_iam=is_iam)
+def put_request(relative_url, data, files=None, headers=(), is_iam=False):
+    response = put(relative_url, data=data, files=files, headers=headers, is_iam=is_iam)
     check_response_status_code(response)
     return response
 
