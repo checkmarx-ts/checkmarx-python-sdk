@@ -14,6 +14,11 @@ from .applicationsAPI import (
     delete_an_application_rule,
 )
 
+from .flagsAPI import (
+    get_all_feature_flags,
+    get_feature_flag,
+)
+
 from .healthCheckServiceAPI import (
     get_health_of_the_database,
     get_health_of_the_in_memory_db,

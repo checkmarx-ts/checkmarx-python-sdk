@@ -9,6 +9,7 @@ from .DefaultConfig import DefaultConfig
 from .DefaultConfigOut import DefaultConfigOut
 from .Error import Error
 from .FileInfo import FileInfo
+from .Flag import Flag
 from .Git import Git
 from .Group import Group
 from .KicsResult import KicsResult
