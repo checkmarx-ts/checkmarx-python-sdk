@@ -4,7 +4,6 @@ import requests
 import time
 import os
 from CheckmarxPythonSDK.CxOne.httpRequests import get_request, post_request
-from CheckmarxPythonSDK.CxOne import authHeaders
 from CheckmarxPythonSDK.CxOne.config import config
 from .dto import (
     Flag,
