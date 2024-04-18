@@ -193,7 +193,8 @@ def update_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cert
 
 
 auth_header = {
-    "Authorization": None
+    "Authorization": None,
+    "Content-Type": "application/json"
 }
 
 
