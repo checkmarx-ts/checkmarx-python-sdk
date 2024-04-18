@@ -1142,7 +1142,7 @@ def get_artifact_info(package_type, package_name, version):
     Returns:
 
     """
-    url = "/public/packages/{}/{}/{}".format(package_type, package_name, version)
+    url = "/public/packages/{}/{}/versions/{}".format(package_type, package_name, version)
     response = get_request(relative_url=url)
     return response.json()
 
