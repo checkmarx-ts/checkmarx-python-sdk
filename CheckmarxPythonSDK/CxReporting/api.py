@@ -6,6 +6,8 @@ from .dto import (
     CreateReportDTO,
 )
 
+headers = {"Content-Type": "application/json; v=1.0"}
+
 
 def retrieve_the_file_of_a_specific_report(report_id):
     """
@@ -18,7 +20,7 @@ def retrieve_the_file_of_a_specific_report(report_id):
     """
     report_content = None
     relative_url = "/api/reports/{id}".format(id=report_id)
-    response = get_request(relative_url=relative_url)
+    response = get_request(relative_url=relative_url, headers=headers)
     if response.status_code == OK:
         report_content = response.content
     return report_content
@@ -40,7 +42,7 @@ def create_a_new_report_request(report_request):
 
     relative_url = "/api/reports"
     data = report_request.get_post_data()
-    response = post_request(relative_url=relative_url, data=data)
+    response = post_request(relative_url=relative_url, data=data, headers=headers)
     if response.status_code == CREATED:
         item = response.json()
         report_id = item.get("reportId")
@@ -61,7 +63,7 @@ def retrieve_the_status_of_a_specific_report(report_id):
     """
     report_status = None
     relative_url = "/api/reports/{id}/status".format(id=report_id)
-    response = get_request(relative_url=relative_url)
+    response = get_request(relative_url=relative_url, headers=headers)
     if response.status_code == OK:
         item = response.json()
         report_status = item.get("reportStatus")
