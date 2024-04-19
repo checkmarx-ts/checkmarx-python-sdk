@@ -70,5 +70,7 @@ class ProjectInput(object):
             data.update({"origin": self.origin})
         if self.tags:
             data.update({"tags": self.tags})
-
+        if self.criticality:
+            data.update({"tags": self.criticality})
+            
         return json.dumps(data)
