@@ -263,3 +263,6 @@ All notable changes to this project will be documented in  this file.
 0.8.6 - 2024-04-18
 * Fix CxReporting 415 issue
 * Fix SCA APi get_artifact_info
+
+0.8.7 - 2024-04-19
+* Fix CxOne ProjectInput.py criticality tag
