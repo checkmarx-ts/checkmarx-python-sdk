@@ -445,3 +445,10 @@ def test_set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_dete
     project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     is_successful = projects_api.set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection(project_id)
     assert is_successful is True
+
+
+def test_precheck_team():
+    projects_api = ProjectsAPI()
+    result = projects_api.precheck_team(1)
+    assert result is not None
+

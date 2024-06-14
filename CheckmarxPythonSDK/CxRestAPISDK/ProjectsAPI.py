@@ -1351,3 +1351,26 @@ class ProjectsAPI(object):
         if response.status_code == OK:
             result = True
         return result
+
+    @staticmethod
+    def precheck_team(team_id, api_version="1.0"):
+        """
+        Verification of team existence    Used to verify before creating a new project for a team
+        Args:
+            team_id (int):
+            api_version:
+
+        Returns:
+            {
+              "id": 0,
+              "name": "string",
+              "fullName": "string",
+              "parentId": 0
+            }
+        """
+        result = None
+        relative_url = "/cxrestapi//projects/precheck/teams/{id}".format(id=team_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
