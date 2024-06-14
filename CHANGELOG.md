@@ -266,3 +266,6 @@ All notable changes to this project will be documented in  this file.
 
 0.8.7 - 2024-04-19
 * Fix CxOne ProjectInput.py criticality tag
+
+0.8.8 - 2024-06-14
+* Update Projects API set_remote_source_setting_to_git
