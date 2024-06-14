@@ -41,3 +41,21 @@ class GeneralAPI:
                 ]
             )
         return result
+
+    @staticmethod
+    def get_server_system_version(api_version="1.1"):
+        """
+        Returns version, hotfix number and engine pack version
+        Returns:
+            {
+              "version": "string",
+              "hotFix": "string",
+              "enginePackVersion": "string"
+            }
+        """
+        result = None
+        relative_url = "/cxrestapi//system/version"
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
