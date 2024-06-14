@@ -159,11 +159,28 @@ def test_set_remote_source_setting_to_git():
                                                                                               team_full_name)
     url = "https://github.com/HappyY19/Cx-REST-API-SDK-Python.git"
     branch = "refs/heads/master"
-    private_key_file_path = r"C:\Users\HappyY\.ssh\id_ed25519"
+    result = projects_api.set_remote_source_setting_to_git(project_id, url, branch, authentication="none")
+    assert result is True
+
+    url = "https://github.com/HappyY19/CxSoccer.git"
+    branch = "refs/heads/master"
+    username = "***"
+    password = "***!"
+    result = projects_api.set_remote_source_setting_to_git(project_id, url, branch,
+                                                        authentication="credentials",
+                                                           username=username,
+                                                           password=password)
+    assert result is True
+
+    github_personal_access_token = "***"
+    result = projects_api.set_remote_source_setting_to_git(project_id, url, branch, authentication="PAT", pat=github_personal_access_token)
+    assert result is True
+
+    private_key_file_path = r"C:\Users\HappyY\.ssh\id_rsa"
     with open(private_key_file_path, 'r') as f:
         private_key_content = f.read()
         try:
-            result = projects_api.set_remote_source_setting_to_git(project_id, url, branch,
+            result = projects_api.set_remote_source_setting_to_git(project_id, url, branch, authentication="ssh",
                                                                    private_key=private_key_content)
             assert result is True
         except CxError:

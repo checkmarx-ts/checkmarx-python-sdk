@@ -509,7 +509,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def get_remote_source_settings_for_git_by_project_id(project_id, api_version="1.0"):
+    def get_remote_source_settings_for_git_by_project_id(project_id, api_version="1.3"):
         """
         Get a specific project's remote source settings for a GIT repository according to the Project Id.
 
@@ -542,14 +542,20 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def set_remote_source_setting_to_git(project_id, url, branch, private_key=None, api_version="1.0"):
+    def set_remote_source_setting_to_git(project_id, url, branch, authentication=None, username=None,
+                                         password=None, pat=None, private_key=None, api_version="1.3"):
         """
-        Set a specific project's remote source location to a GIT repository using SSH protocol.
+        Set a specific project's remote source location to a GIT repository
 
         Args:
             project_id (int): Unique Id of the project
             url (str): The url which is used to connect to the GIT repository (e.g. git@github.com:test/repo.git)
             branch (str): The branch of a GIT repository (e.g. refs/heads/master)
+            authentication: (str):  The authentication method which is used to connect to a private GIT
+                repository = ['Undefined', 'none', 'credentials', 'PAT', 'ssh'],
+            username (str, optional): The username which is used to connect to GIT repository ,
+            password (str, optional):  The user password which is used to connect to GIT repository ,
+            pat (str, optional): The user password which is used to connect to GIT repository ,
             private_key (str, optional): The private key (optional) which is used to connect to the GIT repository using
                                 SSH protocol
                                 (e.g. -----BEGIN RSA PRIVATE KEY-----
@@ -567,11 +573,19 @@ class ProjectsAPI(object):
             CxError
         """
         result = False
+        if authentication not in ['Undefined', 'none', 'credentials', 'PAT', 'ssh']:
+            raise ValueError("Value error for parameter 'authentication', it should be one of the list ['Undefined', "
+                             "'none', 'credentials', 'PAT', 'ssh'] ")
+
         relative_url = "/cxrestapi/projects/{id}/sourceCode/remoteSettings/git".format(id=project_id)
         post_data = json.dumps(
             {
                 "url": url,
                 "branch": branch,
+                "authentication": authentication,
+                "userName": username,
+                "password": password,
+                "pat": pat,
                 "privateKey": private_key
             }
         )
@@ -972,7 +986,7 @@ class ProjectsAPI(object):
 
     @staticmethod
     def set_remote_source_setting_to_git_using_ssh(project_id, url, branch, private_key_file_path,
-                                                   api_version="1.0"):
+                                                   api_version="1.3"):
         """
         Set a specific project's remote source location to a GIT repository using the SSH protocol
 
