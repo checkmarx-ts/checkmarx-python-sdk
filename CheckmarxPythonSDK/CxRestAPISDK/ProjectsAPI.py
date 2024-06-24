@@ -1369,7 +1369,34 @@ class ProjectsAPI(object):
             }
         """
         result = None
-        relative_url = "/cxrestapi//projects/precheck/teams/{id}".format(id=team_id)
+        relative_url = "/cxrestapi/projects/precheck/teams/{id}".format(id=team_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
+
+    @staticmethod
+    def get_project_branching_status(project_id, api_version="4.0"):
+        """
+            Gets project branching status
+        Args:
+            project_id (int): Unique Id of the branched project
+            api_version (str):
+        Returns:
+            {
+              "id": 0,
+              "originalProjectId": 0,
+              "originalProjectName": "string",
+              "branchedOnScanId": 0,
+              "branchedProjectId": 0,
+              "timestamp": "2024-06-14T03:37:20.698Z",
+              "comment": "string",
+              "status": "Started",
+              "errorMessage": "string"
+            }
+        """
+        result = None
+        relative_url = "/cxrestapi/projects/branch/{id}".format(id=project_id)
         response = get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()

@@ -452,3 +452,13 @@ def test_precheck_team():
     result = projects_api.precheck_team(1)
     assert result is not None
 
+
+def test_get_project_branching_status():
+    branched_project_name = "jvl_local_2024_06_24_branch"
+    project_name = "jvl_local"
+    projects_api = ProjectsAPI()
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
+    response = projects_api.create_branched_project(project_id, branched_project_name)
+    branched_project_id = response.id
+    result = projects_api.get_project_branching_status(branched_project_id)
+    assert result is not None
