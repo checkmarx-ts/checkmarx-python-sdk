@@ -54,7 +54,7 @@ class GeneralAPI:
             }
         """
         result = None
-        relative_url = "/cxrestapi//system/version"
+        relative_url = "/cxrestapi/system/version"
         response = get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
