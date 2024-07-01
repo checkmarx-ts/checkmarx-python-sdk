@@ -9,3 +9,8 @@ def test_get_server_license_data():
 def test_get_server_system_version():
     result = GeneralAPI().get_server_system_version()
     assert result is not None
+
+
+def test_get_result_states():
+    result = GeneralAPI().get_result_states()
+    assert result is not None
