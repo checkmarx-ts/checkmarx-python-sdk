@@ -50,7 +50,8 @@ class QueriesAPI(object):
         relative_url = "/cxrestapi/queries/queryVersionCode?"
         checkmarx_supported_languages = [
             "Apex", "ASP", "Cobol", "CPP", "CSharp", "Dart", "Go", "Groovy", "Java", "JavaScript", "Kotlin", "Lua",
-            "Objc", "Perl", "PHP", "PLSQL", "Python", "RPG", "Ruby", "Scala", "Swift", "VB6", "VbNet", 'VbScript'
+            "Objc", "Perl", "PHP", "PLSQL", "Python", "RPG", "Ruby", "Rust", "Scala", "Swift", "VB6", "VbNet",
+            'VbScript'
         ]
         severity_list = ["High", "Medium", "Low", "Info"]
         if language and language not in checkmarx_supported_languages:
