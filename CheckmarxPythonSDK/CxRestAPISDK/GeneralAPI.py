@@ -2,7 +2,7 @@
 import json
 
 from .httpRequests import get_request, post_request, patch_request, delete_request, get_headers
-from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT
+from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT, ACCEPTED
 from .sast.general.dto import CxServerLicenseData, CxSupportedLanguage, CxTranslationInput
 
 
@@ -400,3 +400,21 @@ class GeneralAPI:
         if response.status_code == NO_CONTENT:
             is_successful = True
         return is_successful
+
+    @staticmethod
+    def delete_result_state(state_id, api_version="4.0"):
+        """
+
+        Args:
+            state_id (int): The Id of the Result State
+            api_version (str):
+        Returns:
+            bool
+        """
+        is_successful = False
+        relative_url = "/cxrestapi/sast/resultStates/{id}".format(id=state_id)
+        response = delete_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == ACCEPTED:
+            is_successful = True
+        return is_successful
+

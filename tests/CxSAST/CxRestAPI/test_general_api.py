@@ -31,3 +31,8 @@ def test_update_result_state():
         permission="set-result-state-nonsense"
     )
     assert result is True
+
+
+def test_delete_result_state():
+    result = GeneralAPI().delete_result_state(state_id=5)
+    assert result is True
