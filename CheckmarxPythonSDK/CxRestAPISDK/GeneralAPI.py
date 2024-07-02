@@ -2,7 +2,7 @@
 import json
 
 from .httpRequests import get_request, post_request, patch_request, delete_request, get_headers
-from CheckmarxPythonSDK.utilities.compat import OK
+from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT
 from .sast.general.dto import CxServerLicenseData, CxSupportedLanguage, CxTranslationInput
 
 
@@ -339,11 +339,12 @@ class GeneralAPI:
         return result
 
     @staticmethod
-    def create_result_state(translation_inputs, api_version="4.0"):
+    def create_result_state(translation_inputs, permission, api_version="4.0"):
         """
 
         Args:
             translation_inputs (List of `CxTranslationInput`):
+            permission (str): example, "set-result-state-toverify"
             api_version (str):
 
         Returns:
@@ -360,7 +361,7 @@ class GeneralAPI:
         post_data = json.dumps(
             {
                 "names": [item.to_dict() for item in translation_inputs],
-                "permission": "set-result-state-toverify"
+                "permission": permission
             }
         )
         relative_url = "/cxrestapi/sast/resultStates"
@@ -368,3 +369,34 @@ class GeneralAPI:
         if response.status_code == OK:
             result = response.json().get("id")
         return result
+
+    @staticmethod
+    def update_result_state(state_id, translation_inputs, permission, api_version="4.0"):
+        """
+
+        Args:
+            state_id (int):
+            translation_inputs (List of `CxTranslationInput`):
+            permission (str): example, "set-result-state-toverify"
+            api_version (str):
+
+        Returns:
+            bool
+        """
+        is_successful = False
+        if not isinstance(translation_inputs, (list, tuple)):
+            raise ValueError("translation_inputs should be list or tuple")
+        for item in translation_inputs:
+            if not isinstance(item, CxTranslationInput):
+                raise ValueError("member of translation_inputs should be CxTranslationInput")
+        patch_data = json.dumps(
+            {
+                "names": [item.to_dict() for item in translation_inputs],
+                "permission": permission
+            }
+        )
+        relative_url = "/cxrestapi/sast/resultStates/{id}".format(id=state_id)
+        response = patch_request(relative_url=relative_url, data=patch_data, headers=get_headers(api_version))
+        if response.status_code == NO_CONTENT:
+            is_successful = True
+        return is_successful

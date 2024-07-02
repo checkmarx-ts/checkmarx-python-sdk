@@ -17,5 +17,17 @@ def test_get_result_states():
 
 
 def test_create_result_state():
-    result = GeneralAPI().create_result_state([CxTranslationInput(language_id=1033, name="DoesNotMakeSense")])
+    result = GeneralAPI().create_result_state(
+        translation_inputs=[CxTranslationInput(language_id=1033, name="DoesNotMakeSense")],
+        permission="set-result-state-nonsense"
+    )
     assert result > 4
+
+
+def test_update_result_state():
+    result = GeneralAPI().update_result_state(
+        state_id=5,
+        translation_inputs=[CxTranslationInput(language_id=1033, name="DoesNotMakeSense")],
+        permission="set-result-state-nonsense"
+    )
+    assert result is True
