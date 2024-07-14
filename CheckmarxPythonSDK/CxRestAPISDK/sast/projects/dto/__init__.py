@@ -47,15 +47,13 @@ def construct_cx_project(item):
             (item.get("sourceSettingsLink", {}) or {}).get("rel"),
             (item.get("sourceSettingsLink", {}) or {}).get("uri")
         ),
-        link=CxLink(
-            (item.get("link", {}) or {}).get("rel"),
-            (item.get("link", {}) or {}).get("uri")
-        ),
         custom_fields=[
             CxCustomField(
                 custom_field_id=custom_field.get("id"),
                 value=custom_field.get("value"),
-                name=custom_field.get("name")
+                name=custom_field.get("name"),
+                is_mandatory=custom_field.get("isMandatory"),
+                project_id=custom_field.get("projectId"),
             ) for custom_field in item.get("customFields") or []
         ],
         links=[
@@ -64,11 +62,17 @@ def construct_cx_project(item):
                 uri=link.get("uri"),
             ) for link in item.get("links") or []
         ],
+        owner=item.get("owner"),
+        is_deprecated=item.get("isDeprecated"),
         project_queue_settings=CxProjectQueueSetting(
             queue_keep_mode=item.get("projectQueueSettings", {}).get("queueKeepMode"),
             scans_type=item.get("projectQueueSettings", {}).get("scansType"),
             include_scans_in_process=item.get("projectQueueSettings", {}).get("includeScansInProcess"),
             identical_code_only=item.get("projectQueueSettings", {}).get("identicalCodeOnly"),
         ),
+        is_branched=item.get("isBranched"),
+        original_project_id=item.get("originalProjectId"),
+        branched_on_scan_id=item.get("branchedOnScanId"),
+        related_projects=item.get("relatedProjects"),
     )
 

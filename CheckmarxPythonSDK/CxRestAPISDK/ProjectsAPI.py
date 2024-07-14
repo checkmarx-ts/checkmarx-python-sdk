@@ -124,7 +124,7 @@ class ProjectsAPI(object):
             return None
 
     @staticmethod
-    def get_project_details_by_id(project_id, api_version="2.0"):
+    def get_project_details_by_id(project_id, api_version="5.0"):
         """
         REST API: get project details by project id
 

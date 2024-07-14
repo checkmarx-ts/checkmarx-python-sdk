@@ -6,7 +6,7 @@ class CxCustomField(object):
     custom fields
     """
 
-    def __init__(self, custom_field_id, name, value=None, is_mandatory=None):
+    def __init__(self, custom_field_id, name, value=None, is_mandatory=None, project_id=None):
         """
 
         Args:
@@ -18,8 +18,9 @@ class CxCustomField(object):
         self.name = name
         self.value = value
         self.is_mandatory = is_mandatory
+        self.project_id = project_id
 
     def __str__(self):
-        return "custom_fields(id={}, name={}, value={}, is_mandatory={})".format(
-            self.id, self.name, self.value, self.is_mandatory
+        return "custom_fields(id={}, name={}, value={}, is_mandatory={}, project_id={})".format(
+            self.id, self.name, self.value, self.is_mandatory, self.project_id
         )
