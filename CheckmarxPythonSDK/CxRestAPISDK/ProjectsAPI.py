@@ -217,7 +217,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def delete_project_by_id(project_id, delete_running_scans=False, api_version="1.0"):
+    def delete_project_by_id(project_id, delete_running_scans=False, api_version="5.0"):
         """
         REST API: delete project by id
 
