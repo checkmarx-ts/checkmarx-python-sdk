@@ -12,7 +12,7 @@ from .sast.projects.dto import CxCreateProjectResponse, \
     CxIssueTrackingSystemType, CxIssueTrackingSystemFieldAllowedValue, \
     CxIssueTrackingSystem, CxLink, CxCustomRemoteSourceSettings, \
     CxProjectExcludeSettings, CxSVNSettings, CxURI, CxPerforceSettings, \
-    CxTFSSettings, CxPreset
+    CxTFSSettings, CxPreset, CxCustomField
 from .sast.projects.dto import construct_cx_project
 
 
@@ -149,7 +149,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def update_project_by_id(project_id, project_name, team_id, custom_fields=(), api_version="1.0"):
+    def update_project_by_id(project_id, project_name, team_id, custom_fields=(), api_version="5.0"):
         """
         update project info by project id
 
@@ -170,11 +170,13 @@ class ProjectsAPI(object):
         """
         result = False
         relative_url = "/cxrestapi/projects/{id}".format(id=project_id)
+        if not isinstance(custom_fields, (list, tuple)):
+            raise ValueError("parameter custom_fields should be a list of CxCustomField")
         put_data = json.dumps(
             {
                 "name": project_name,
                 "owningTeam": team_id,
-                "CustomFields": custom_fields
+                "CustomFields": [item.to_dict() for item in custom_fields]
             }
         )
         response = put_request(relative_url=relative_url, data=put_data, headers=get_headers(api_version))

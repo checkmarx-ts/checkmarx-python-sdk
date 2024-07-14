@@ -24,3 +24,9 @@ class CxCustomField(object):
         return "custom_fields(id={}, name={}, value={}, is_mandatory={}, project_id={})".format(
             self.id, self.name, self.value, self.is_mandatory, self.project_id
         )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "value": self.value,
+        }
