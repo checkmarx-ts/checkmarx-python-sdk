@@ -184,7 +184,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def update_project_name_team_id(project_id, project_name, team_id, api_version="1.0"):
+    def update_project_name_team_id(project_id, project_name, team_id, api_version="5.0"):
         """
         REST API: update project name, team id
 

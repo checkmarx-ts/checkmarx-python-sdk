@@ -70,10 +70,10 @@ def test_update_project_by_id():
 def test_update_project_name_team_id():
     projects_api = ProjectsAPI()
     team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name)
-    project_name = "test_update"
+    project_name = "1111"
     project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
     if project_id:
-        result = projects_api.update_project_name_team_id(project_id, project_name="test1", team_id=team_id)
+        result = projects_api.update_project_name_team_id(project_id, project_name="11112", team_id=team_id)
         assert result is True
 
 
