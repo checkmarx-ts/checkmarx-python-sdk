@@ -418,3 +418,21 @@ class GeneralAPI:
             is_successful = True
         return is_successful
 
+    @staticmethod
+    def get_all_scheduled_jobs(api_version="4.0"):
+        """
+
+        Args:
+            api_version:
+
+        Returns:
+            list of dict
+            example:
+            [{'projectId': 8, 'projectName': 'jvl_git', 'scanDays': ['Sunday'], 'scanTime': '12:00 上午'}]
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/scheduledJobs"
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

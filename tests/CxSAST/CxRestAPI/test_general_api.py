@@ -36,3 +36,8 @@ def test_update_result_state():
 def test_delete_result_state():
     result = GeneralAPI().delete_result_state(state_id=5)
     assert result is True
+
+
+def test_get_all_scheduled_jobs():
+    result = GeneralAPI().get_all_scheduled_jobs()
+    assert result is not None
