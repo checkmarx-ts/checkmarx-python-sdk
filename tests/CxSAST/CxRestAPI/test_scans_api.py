@@ -414,3 +414,7 @@ def test_lock_scan():
     result = ScansAPI().lock_scan(scan_id=1000036)
     assert result is True
 
+
+def test_unlock_scan():
+    result = ScansAPI().unlock_scan(scan_id=1000036)
+    assert result is True
