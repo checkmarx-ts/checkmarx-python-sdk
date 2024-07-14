@@ -1426,3 +1426,21 @@ class ScansAPI(object):
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def lock_scan(scan_id, api_version="4.0"):
+        """
+
+        Args:
+            scan_id (int): Unique ID of a specific scan
+            api_version (str):
+
+        Returns:
+
+        """
+        is_successful = False
+        relative_url = "/cxrestapi/sast/lockScan?id={id}".format(id=scan_id)
+        response = put_request(relative_url=relative_url, data=None, headers=get_headers(api_version))
+        if response.status_code == OK:
+            is_successful = True
+        return is_successful

@@ -408,3 +408,9 @@ def test_get_succeeded_general_queries_metrics_of_a_scan():
 def test_get_result_path_comments_history():
     result = ScansAPI().get_result_path_comments_history(scan_id=1000036, path_id=1)
     assert result is not None
+
+
+def test_lock_scan():
+    result = ScansAPI().lock_scan(scan_id=1000036)
+    assert result is True
+
