@@ -272,3 +272,6 @@ All notable changes to this project will be documented in  this file.
 
 0.8.9 - 2024-07-14
 * Add support for GeneralAPI get_result_states, create_result_state, update_result_state, delete_result_state
+
+0.9.0 - 2024-07-14
+* Add support for ProjectsAPI force_scan_on_no_code_changes
