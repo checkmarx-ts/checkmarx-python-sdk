@@ -462,3 +462,8 @@ def test_get_project_branching_status():
     branched_project_id = response.id
     result = projects_api.get_project_branching_status(branched_project_id)
     assert result is not None
+
+
+def test_force_scan_on_no_code_changes():
+    result = ProjectsAPI().force_scan_on_no_code_changes(project_id=5)
+    assert result is True

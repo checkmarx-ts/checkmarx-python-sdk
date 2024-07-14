@@ -1401,3 +1401,21 @@ class ProjectsAPI(object):
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def force_scan_on_no_code_changes(project_id, api_version="4.0"):
+        """
+        Set project's next scheduled scan to be excluded from "no code changes" detection
+        Args:
+            project_id (int):  Id of the project
+            api_version (str):
+
+        Returns:
+            bool
+        """
+        is_successful = False
+        relative_url = "/cxrestapi//projects/{id}/forceScanOnNoCodeChanges".format(id=project_id)
+        response = post_request(relative_url=relative_url, data={}, headers=get_headers(api_version))
+        if response.status_code == OK:
+            is_successful = True
+        return is_successful
