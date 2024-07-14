@@ -15,7 +15,7 @@ from .sast.scans.dto import CxScanState, CxPolicyFindingsStatus, \
     CxCreateScanSettingsResponse, CxEmailNotification, CxLanguage, \
     CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields, \
     CxScanStatistics, CxScanFileCountOfLanguage, CxLanguageStatistic, CxScanParsedFiles, CxScanParsedFilesMetric, \
-    CxScanFailedQueries, CxScanFailedGeneralQueries, CxScanSucceededGeneralQueries
+    CxScanFailedQueries, CxScanFailedGeneralQueries, CxScanSucceededGeneralQueries, CxPostScanActionConditions
 
 
 class ScansAPI(object):
@@ -497,7 +497,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_scan_settings_by_project_id(project_id, api_version="1.0"):
+    def get_scan_settings_by_project_id(project_id, api_version="4.0"):
         """
         Get scan settings by project Id.
 
@@ -540,12 +540,21 @@ class ScansAPI(object):
                         uri=(a_dict.get("engineConfiguration", {}) or {}).get("link", {}).get("uri")
                     )
                 ),
+                post_scan_action_data=a_dict.get("postScanActionData"),
+                post_scan_action_name=a_dict.get("postScanActionName"),
                 post_scan_action=a_dict.get("postScanAction"),
                 email_notifications=CxEmailNotification(
                     failed_scan=(a_dict.get("emailNotifications", {}) or {}).get("failedScan"),
                     before_scan=(a_dict.get("emailNotifications", {}) or {}).get("beforeScan"),
                     after_scan=(a_dict.get("emailNotifications", {}) or {}).get("afterScan"),
-                )
+                ),
+                post_scan_action_conditions=CxPostScanActionConditions(
+                    run_only_when_new_results=(a_dict.get("postScanActionConditions",
+                                                          {}) or {}).get("runOnlyWhenNewResults"),
+                    run_only_when_new_results_min_severity=(
+                            a_dict.get("postScanActionConditions", {}) or {}).get("runOnlyWhenNewResultsMinSeverity"),
+                ),
+                post_scan_action_arguments=a_dict.get("postScanActionArguments"),
             )
         return result
 

@@ -47,7 +47,6 @@ def test_get_all_scans_for_project():
     pass
 
 
-
 def test_get_last_scan_id_of_a_project():
     project_id = get_project_id()
 

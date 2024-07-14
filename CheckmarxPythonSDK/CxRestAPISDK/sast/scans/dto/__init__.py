@@ -2,6 +2,7 @@ from .scanSettings.CxCreateScanSettingsRequestBody import CxCreateScanSettingsRe
 from .scanSettings.CxCreateScanSettingsResponse import CxCreateScanSettingsResponse
 from .scanSettings.CxEmailNotification import CxEmailNotification
 from .scanSettings.CxLanguage import CxLanguage
+from .scanSettings.CxPostScanActionConditions import CxPostScanActionConditions
 from .scanSettings.CxScanSettings import CxScanSettings
 from .CxCreateNewScanResponse import CxCreateNewScanResponse
 from .CxDateAndTime import CxDateAndTime
