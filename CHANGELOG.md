@@ -269,3 +269,6 @@ All notable changes to this project will be documented in  this file.
 
 0.8.8 - 2024-06-14
 * Update Projects API set_remote_source_setting_to_git
+
+0.8.9 - 2024-07-14
+* Add support for GeneralAPI get_result_states, create_result_state, update_result_state, delete_result_state
