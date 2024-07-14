@@ -561,7 +561,9 @@ class ScansAPI(object):
     @staticmethod
     def define_sast_scan_settings(project_id, preset_id, engine_configuration_id=1, post_scan_action_id=None,
                                   failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None,
-                                  api_version="1.0"):
+                                  run_only_when_new_results=True, run_only_when_new_results_min_severity=0,
+                                  post_scan_action_arguments=None,
+                                  api_version="4.0"):
         """
         Define the SAST scan settings according to a project (preset and engine configuration).
 
@@ -574,6 +576,9 @@ class ScansAPI(object):
             failed_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the scan failure
                                                                         message
             after_scan_emails (:obj:`list` of :obj:`str`, optional): Specifies the email to send the post-scan message
+            run_only_when_new_results (bool):
+            run_only_when_new_results_min_severity (int):
+            post_scan_action_arguments (str):
             api_version (str, optional):
 
         Returns:
@@ -585,6 +590,12 @@ class ScansAPI(object):
             CxError
         """
         result = None
+        if not isinstance(failed_scan_emails, list):
+            raise ValueError("failed_scan_emails should be a list")
+        if not isinstance(before_scan_emails, list):
+            raise ValueError("before_scan_emails should be a list")
+        if not isinstance(after_scan_emails, list):
+            raise ValueError("after_scan_emails should be a list")
         relative_url = "/cxrestapi/sast/scanSettings"
         post_data = json.dumps(
             {
@@ -597,6 +608,11 @@ class ScansAPI(object):
                     "beforeScan": before_scan_emails,
                     "afterScan": after_scan_emails,
                 },
+                "postScanActionConditions": {
+                    "runOnlyWhenNewResults": run_only_when_new_results,
+                    "runOnlyWhenNewResultsMinSeverity": run_only_when_new_results_min_severity
+                },
+                "postScanActionArguments": post_scan_action_arguments
             }
         )
         response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
