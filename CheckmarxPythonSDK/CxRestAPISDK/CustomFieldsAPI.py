@@ -10,7 +10,7 @@ class CustomFieldsAPI(object):
 
     """
     @staticmethod
-    def get_all_custom_fields(api_version="1.0"):
+    def get_all_custom_fields(api_version="5.0"):
         """
         REST API: get all custom fields
 
@@ -32,7 +32,8 @@ class CustomFieldsAPI(object):
             result = [
                 CxCustomField(
                     custom_field_id=item.get("id"),
-                    name=item.get("name")
+                    name=item.get("name"),
+                    is_mandatory=item.get("isMandatory")
                 ) for item in response.json()
             ]
         return result
