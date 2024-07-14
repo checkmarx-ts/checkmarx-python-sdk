@@ -1364,3 +1364,33 @@ class ScansAPI(object):
                 general_queries_result_count=item.get("generalQueriesResultCount")
             )
         return result
+
+    @staticmethod
+    def get_result_path_comments_history(scan_id, path_id, comment_to_display="All", api_version="4.0"):
+        """
+
+        Args:
+            scan_id (int):
+            path_id (int):
+            comment_to_display (str): All, Latest
+            api_version (str):
+
+        Returns:
+            dict
+            example:
+                {'comments': ['happy yang jvl_git, [2023年12月28日 15:01]: Changed status to Confirmed ']}
+        """
+        result = None
+
+        if comment_to_display not in ["All", "Latest"]:
+            raise ValueError("parameter comment_to_display accepted value are All, Latest.")
+
+        relative_url = ("/cxrestapi/sast/resultPathCommentsHistory?"
+                        "id={id}&pathId={pathId}&commentToDisplay={commentToDisplay}").format(
+            id=scan_id, pathId=path_id, commentToDisplay=comment_to_display
+        )
+
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

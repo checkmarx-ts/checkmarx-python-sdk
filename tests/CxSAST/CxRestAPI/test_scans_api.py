@@ -403,3 +403,8 @@ def test_get_succeeded_general_queries_metrics_of_a_scan():
 
     succeeded_general_queries = scan_api.get_succeeded_general_queries_metrics_of_a_scan(scan_id=scan_id)
     assert succeeded_general_queries is not None
+
+
+def test_get_result_path_comments_history():
+    result = ScansAPI().get_result_path_comments_history(scan_id=1000036, path_id=1)
+    assert result is not None
