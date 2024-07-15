@@ -3,7 +3,7 @@ import json
 
 from .httpRequests import get_request, post_request, patch_request, delete_request, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT, ACCEPTED
-from .sast.general.dto import CxServerLicenseData, CxSupportedLanguage, CxTranslationInput
+from .sast.general.dto import CxServerLicenseData, CxSupportedLanguage, CxTranslationInput, CxUserPersistence
 
 
 class GeneralAPI:
@@ -462,5 +462,29 @@ class GeneralAPI:
             result = response.json()
         return result
 
-    # @staticmethod
-    # def update_persistence_data_for_current_usr(persistence_items, api_version="5.0"):
+    @staticmethod
+    def update_persistence_data_for_current_user(persistence_items, api_version="5.0"):
+        """
+        Updates an existing user persistence data for current user
+        Args:
+            persistence_items (list of `CxUserPersistence`):
+            api_version (str):
+
+        Returns:
+
+        """
+        is_successful = False
+        if not isinstance(persistence_items, list):
+            raise ValueError("parameter persistence_items should be a list of CxUserPersistence")
+        for item in persistence_items:
+            if not isinstance(item, CxUserPersistence):
+                raise ValueError("member in parameter persistence_items should be CxUserPersistence")
+        result = None
+        relative_url = "/cxrestapi/userPersistence"
+        data = json.dumps(
+            [item.to_dict() for item in persistence_items]
+        )
+        response = patch_request(relative_url=relative_url, data=data, headers=get_headers(api_version))
+        if response.status_code == OK:
+            is_successful = True
+        return is_successful

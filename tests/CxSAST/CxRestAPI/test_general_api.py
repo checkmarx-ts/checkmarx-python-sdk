@@ -1,5 +1,6 @@
 from CheckmarxPythonSDK.CxRestAPISDK import GeneralAPI
-from CheckmarxPythonSDK.CxRestAPISDK.sast.general.dto import CxTranslationInput
+from CheckmarxPythonSDK.CxRestAPISDK.sast.general.dto import CxTranslationInput, CxUserPersistence
+
 
 def test_get_server_license_data():
     result = GeneralAPI().get_server_license_data()
@@ -44,5 +45,12 @@ def test_get_all_scheduled_jobs():
 
 
 def test_get_user_persistence_data_for_current_user():
-    result = GeneralAPI().get_user_persistence_data_for_current_user(persistence_keys=["username", "email"])
+    result = GeneralAPI().get_user_persistence_data_for_current_user(persistence_keys=["key1", "key2"])
     assert result is not None
+
+
+def test_update_persistence_data_for_current_user():
+    result = GeneralAPI().update_persistence_data_for_current_user(
+        [CxUserPersistence("key1", "value1"), CxUserPersistence("key2", "value2")]
+    )
+    assert result is True
