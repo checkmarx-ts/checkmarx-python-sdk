@@ -1220,9 +1220,9 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_scan_logs(scan_id, api_version="3.0"):
+    def get_scan_logs(scan_id, api_version="5.0"):
         """
-
+        Gets Scan logs.
         Args:
             scan_id (int):
             api_version (str):
