@@ -1463,3 +1463,30 @@ class ProjectsAPI(object):
         if response.status_code == OK:
             is_successful = True
         return is_successful
+
+    @staticmethod
+    def get_project_validity_for_running_incremental_scan(project_id, api_version="5.0"):
+        """
+        Get the project's validity for running Incremental scan
+        Args:
+            project_id:
+            api_version:
+
+        Returns:
+            dict
+            {
+              "validForIncrementalScan": true,
+              "consecutiveIncrementalScansLimitReached": true,
+              "enginePackUpgradedSinceLastFullScan": true,
+              "maxConsecutiveIncrementalScans": 0,
+              "incrementalScansSinceLastFullScan": 0,
+              "lastFullScanDate": "2024-07-14T12:05:47.255Z",
+              "enginePackUpgradeDate": "2024-07-14T12:05:47.255Z"
+            }
+        """
+        result = None
+        relative_url = "/cxrestapi/projects/{id}/incrementalScanValidityStatus".format(id=project_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

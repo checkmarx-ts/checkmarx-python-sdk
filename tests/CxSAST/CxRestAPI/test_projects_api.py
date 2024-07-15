@@ -478,3 +478,8 @@ def test_get_path_filter():
 def test_set_path_filter():
     result = ProjectsAPI().set_path_filter(project_id=5, path_filter="!test,!lib")
     assert result is True
+
+
+def test_get_project_validity_for_running_incremental_scan():
+    result = ProjectsAPI().get_project_validity_for_running_incremental_scan(project_id=5)
+    assert result is not None
