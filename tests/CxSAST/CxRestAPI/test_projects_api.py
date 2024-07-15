@@ -473,3 +473,8 @@ def test_force_scan_on_no_code_changes():
 def test_get_path_filter():
     result = ProjectsAPI().get_path_filter(project_id=5)
     assert result is not None
+
+
+def test_set_path_filter():
+    result = ProjectsAPI().set_path_filter(project_id=5, path_filter="!test,!lib")
+    assert result is True

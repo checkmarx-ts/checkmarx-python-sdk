@@ -1439,3 +1439,27 @@ class ProjectsAPI(object):
         if response.status_code == OK:
             result = response.json()
         return result.get("pathFilter")
+
+    @staticmethod
+    def set_path_filter(project_id, path_filter, api_version="5.0"):
+        """
+        Set project's source code files/folders filter
+        Args:
+            project_id (int): Unique ID of a specific project
+            path_filter (str): Filter for source code files/folder
+            api_version (str):
+
+        Returns:
+            bool
+        """
+        is_successful = False
+        relative_url = "/cxrestapi/projects/{projectId}/sourceCode/pathFilter".format(projectId=project_id)
+        data = json.dumps(
+            {
+                "pathFilter": path_filter
+            }
+        )
+        response = put_request(relative_url=relative_url, data=data, headers=get_headers(api_version))
+        if response.status_code == OK:
+            is_successful = True
+        return is_successful
