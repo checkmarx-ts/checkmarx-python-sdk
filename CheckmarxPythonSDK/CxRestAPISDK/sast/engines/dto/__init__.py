@@ -1,4 +1,5 @@
 from .CxEngineConfiguration import CxEngineConfiguration
+from .CxEngineDedication import CxEngineDedication
 from .CxEngineServer import CxEngineServer
 from .CxEngineServerStatus import CxEngineServerStatus
 from .CxRegisterEngineRequestBody import CxRegisterEngineRequestBody

@@ -3,7 +3,7 @@ import json
 from .httpRequests import get_request, post_request, put_request, patch_request, delete_request, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
 from .sast.projects.dto import CxLink
-from .sast.engines.dto import (CxEngineServer, CxEngineConfiguration, CxEngineServerStatus)
+from .sast.engines.dto import (CxEngineServer, CxEngineConfiguration, CxEngineDedication, CxEngineServerStatus)
 
 
 class EnginesAPI(object):
@@ -11,7 +11,7 @@ class EnginesAPI(object):
     engines API
     """
     @staticmethod
-    def get_all_engine_server_details(api_version="1.0"):
+    def get_all_engine_server_details(api_version="5.0"):
         """
         GET /sast/engineServers Gets details of all Engine Servers
         Args:
@@ -38,6 +38,7 @@ class EnginesAPI(object):
                     max_loc=item.get("maxLoc"),
                     max_scans=item.get("maxScans"),
                     cx_version=item.get("cxVersion"),
+                    operating_system=item.get("operatingSystem"),
                     status=CxEngineServerStatus(
                         status_id=(item.get("status", {}) or {}).get("id"),
                         value=(item.get("status", {}) or {}).get("value"),
@@ -45,7 +46,17 @@ class EnginesAPI(object):
                     link=CxLink(
                         rel=(item.get("link", {}) or {}).get("rel"),
                         uri=(item.get("link", {}) or {}).get("uri")
-                    )
+                    ),
+                    offline_reason_code=item.get("offlineReasonCode"),
+                    offline_reason_message=item.get("offlineReasonMessage"),
+                    offline_reason_message_parameters=item.get("offlineReasonMessageParameters"),
+                    dedications=[
+                        CxEngineDedication(
+                            item_type=va.get("itemType"),
+                            item_id=va.get("itemId"),
+                            item_name=va.get("itemName"),
+                        ) for va in item.get("dedications", [{}])
+                    ]
                 ) for item in response.json()
             ]
         return result
