@@ -21,7 +21,7 @@ class ProjectsAPI(object):
     the projects API
     """
     @staticmethod
-    def get_all_project_details(project_name=None, team_id=None, api_version="2.0"):
+    def get_all_project_details(project_name=None, team_id=None, show_also_deleted_projects=False, api_version="5.0"):
         """
         REST API: get all project details.
         For argument team_id, please consider using TeamAPI.get_team_id_by_full_name(team_full_name)
@@ -30,6 +30,7 @@ class ProjectsAPI(object):
             project_name (str, optional): Unique name of a specific project or projects
             team_id (int, str, optional): Unique Id of a specific team or teams.
                             default to id of the corresponding team full name in config.ini
+            show_also_deleted_projects (bool): Expose deleted project information, default value is "false"
             api_version (str, optional):
 
         Returns:
@@ -41,14 +42,11 @@ class ProjectsAPI(object):
             CxError
         """
         result = None
-        relative_url = "/cxrestapi/projects"
-        optionals = []
+        relative_url = "/cxrestapi/projects?showAlsoDeletedProjects={}".format(show_also_deleted_projects)
         if project_name:
-            optionals.append("projectName=" + str(project_name))
+            relative_url += "&projectName={}".format(project_name)
         if team_id:
-            optionals.append("teamId=" + str(team_id))
-        if optionals:
-            relative_url += "?" + "&".join(optionals)
+            relative_url += "&teamId={}".format(team_id)
         response = get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [

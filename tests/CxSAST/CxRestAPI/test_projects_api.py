@@ -16,12 +16,12 @@ team_full_name = "/CxServer"
 
 def test_get_all_project_details():
     projects_api = ProjectsAPI()
-    all_projects = projects_api.get_all_project_details(api_version="2.1")
+    all_projects = projects_api.get_all_project_details(show_also_deleted_projects=True, api_version="5.0")
     assert all_projects is not None
     if len(all_projects) > 0:
         first_project = all_projects[0]
         project_detail = projects_api.get_all_project_details(first_project.name, first_project.team_id,
-                                                              api_version="2.1")
+                                                              api_version="5.0")
         assert project_detail is not None
 
 
