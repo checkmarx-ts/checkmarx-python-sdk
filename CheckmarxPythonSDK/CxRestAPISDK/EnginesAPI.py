@@ -6,6 +6,37 @@ from .sast.projects.dto import CxLink
 from .sast.engines.dto import (CxEngineServer, CxEngineConfiguration, CxEngineDedication, CxEngineServerStatus)
 
 
+def construct_engine_server(item):
+    return CxEngineServer(
+        engine_server_id=item.get("id"),
+        name=item.get("name"),
+        uri=item.get("uri"),
+        min_loc=item.get("minLoc"),
+        max_loc=item.get("maxLoc"),
+        max_scans=item.get("maxScans"),
+        cx_version=item.get("cxVersion"),
+        operating_system=item.get("operatingSystem"),
+        status=CxEngineServerStatus(
+            status_id=(item.get("status", {}) or {}).get("id"),
+            value=(item.get("status", {}) or {}).get("value"),
+        ),
+        link=CxLink(
+            rel=(item.get("link", {}) or {}).get("rel"),
+            uri=(item.get("link", {}) or {}).get("uri")
+        ),
+        offline_reason_code=item.get("offlineReasonCode"),
+        offline_reason_message=item.get("offlineReasonMessage"),
+        offline_reason_message_parameters=item.get("offlineReasonMessageParameters"),
+        dedications=[
+            CxEngineDedication(
+                item_type=va.get("itemType"),
+                item_id=va.get("itemId"),
+                item_name=va.get("itemName"),
+            ) for va in item.get("dedications", [{}])
+        ]
+    )
+
+
 class EnginesAPI(object):
     """
     engines API
@@ -30,34 +61,7 @@ class EnginesAPI(object):
         response = get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
-                CxEngineServer(
-                    engine_server_id=item.get("id"),
-                    name=item.get("name"),
-                    uri=item.get("uri"),
-                    min_loc=item.get("minLoc"),
-                    max_loc=item.get("maxLoc"),
-                    max_scans=item.get("maxScans"),
-                    cx_version=item.get("cxVersion"),
-                    operating_system=item.get("operatingSystem"),
-                    status=CxEngineServerStatus(
-                        status_id=(item.get("status", {}) or {}).get("id"),
-                        value=(item.get("status", {}) or {}).get("value"),
-                    ),
-                    link=CxLink(
-                        rel=(item.get("link", {}) or {}).get("rel"),
-                        uri=(item.get("link", {}) or {}).get("uri")
-                    ),
-                    offline_reason_code=item.get("offlineReasonCode"),
-                    offline_reason_message=item.get("offlineReasonMessage"),
-                    offline_reason_message_parameters=item.get("offlineReasonMessageParameters"),
-                    dedications=[
-                        CxEngineDedication(
-                            item_type=va.get("itemType"),
-                            item_id=va.get("itemId"),
-                            item_name=va.get("itemName"),
-                        ) for va in item.get("dedications", [{}])
-                    ]
-                ) for item in response.json()
+                construct_engine_server(item) for item in response.json()
             ]
         return result
 
@@ -156,7 +160,7 @@ class EnginesAPI(object):
         return result
 
     @staticmethod
-    def get_engine_details(engine_id, api_version="1.0"):
+    def get_engine_details(engine_id, api_version="5.0"):
         """
         GET /sast/engineServers/{id} Get details of a specific engine server by Id.
 
@@ -177,23 +181,7 @@ class EnginesAPI(object):
         response = get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             item = response.json()
-            result = CxEngineServer(
-                engine_server_id=item.get("id"),
-                name=item.get("name"),
-                uri=item.get("uri"),
-                min_loc=item.get("minLoc"),
-                max_loc=item.get("maxLoc"),
-                max_scans=item.get("maxScans"),
-                cx_version=item.get("cxVersion"),
-                status=CxEngineServerStatus(
-                    status_id=(item.get("status", {}) or {}).get("id"),
-                    value=(item.get("status", {}) or {}).get("value"),
-                ),
-                link=CxLink(
-                    rel=(item.get("link", {}) or {}).get("rel"),
-                    uri=(item.get("link", {}) or {}).get("uri")
-                )
-            )
+            result = construct_engine_server(item)
         return result
 
     @staticmethod

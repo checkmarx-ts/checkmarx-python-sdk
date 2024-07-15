@@ -44,7 +44,7 @@ def test_register_engine():
 
 
 def test_get_engine_details():
-    engine_name = "Localhost"
+    engine_name = "engine2"
     engine_api = EnginesAPI()
     engine_id = engine_api.get_engine_id_by_name(engine_name)
     engine_detail = engine_api.get_engine_details(engine_id)
