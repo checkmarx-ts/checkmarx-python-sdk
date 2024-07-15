@@ -185,8 +185,8 @@ class EnginesAPI(object):
         return result
 
     @staticmethod
-    def update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None,
-                             api_version="1.0"):
+    def update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None, dedications=None,
+                             api_version="5.0"):
         """
         PUT /sast/engineServers/{id}  Update an existing engine server's configuration
                                         and enables to change certain parameters.
@@ -200,6 +200,7 @@ class EnginesAPI(object):
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
             max_scans (int): Specifies the maximum number of concurrent scans to perform
+            dedications (`list` of :obj:`CxEngineDedication`):
             api_version (str, optional):
 
         Returns:
@@ -211,9 +212,18 @@ class EnginesAPI(object):
             CxError
         """
         result = None
+        if dedications:
+            if not isinstance(dedications, list):
+                raise ValueError("parameter dedications should be a list of CxEngineDedication")
+            for dedication in dedications:
+                if not isinstance(dedication, CxEngineDedication):
+                    raise ValueError("member of dedications should be CxEngineDedication")
         relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
         put_data = json.dumps(
             {
+                "dedications": [
+                    item.to_dict() for item in dedications
+                ],
                 "name": name,
                 "uri": uri,
                 "minLoc": min_loc,
@@ -235,8 +245,9 @@ class EnginesAPI(object):
         return result
 
     @staticmethod
-    def update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc, is_blocked,
-                                                     max_scans, api_version="1.0"):
+    def update_an_engine_server_by_edit_single_field(engine_id, name=None, uri=None, min_loc=None, max_loc=None,
+                                                     is_blocked=None, max_scans=None, dedications=None,
+                                                     api_version="5.0"):
         """
         PATCH  sast/engineServers/{id}
         Args:
@@ -247,6 +258,7 @@ class EnginesAPI(object):
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
             max_scans (int): Specifies the maximum number of concurrent scans to perform
+            dedications (`list` of :obj:`CxEngineDedication`):
             api_version (str, optional):
 
         Returns:
@@ -258,17 +270,31 @@ class EnginesAPI(object):
             CxError
         """
         result = False
+        if dedications:
+            if not isinstance(dedications, list):
+                raise ValueError("parameter dedications should be a list of CxEngineDedication")
+            for dedication in dedications:
+                if not isinstance(dedication, CxEngineDedication):
+                    raise ValueError("member of dedications should be CxEngineDedication")
         relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
-        patch_data = json.dumps(
-            {
-                "name": name,
-                "uri": uri,
-                "minLoc": min_loc,
-                "maxLoc": max_loc,
-                "isBlocked": is_blocked,
-                "maxScans": max_scans
-            }
-        )
+        data = {}
+        if name:
+            data.update({"name": name})
+        if uri:
+            data.update({"uri": uri})
+        if min_loc:
+            data.update({"minLoc": min_loc})
+        if max_loc:
+            data.update({"maxLoc": max_loc})
+        if is_blocked:
+            data.update({"isBlocked": is_blocked})
+        if max_scans:
+            data.update({"maxScans": max_scans})
+        if dedications:
+            data.update({"dedications": [
+                    item.to_dict() for item in dedications
+                ]})
+        patch_data = json.dumps(data)
         response = patch_request(relative_url=relative_url, data=patch_data, headers=get_headers(api_version))
         if response.status_code == NO_CONTENT:
             result = True

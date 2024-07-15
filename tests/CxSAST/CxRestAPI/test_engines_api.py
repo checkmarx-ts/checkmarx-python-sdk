@@ -61,8 +61,9 @@ def test_update_engine_server():
     max_loc = 999999999
     is_blocked = False
     max_scans = 1
+    dedications = [CxEngineDedication(item_type="Project", item_id="99")]
     engine_server = engine_api.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked,
-                                                    max_scans=max_scans)
+                                                    max_scans=max_scans, dedications=dedications)
     assert engine_server.id > 1
 
 
@@ -76,8 +77,10 @@ def test_update_an_engine_server_by_edit_single_field():
     max_loc = 999999999
     is_blocked = False
     max_scans = 1
+    dedications = [CxEngineDedication(item_type="Project", item_id="99")]
     is_successful = engine_api.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc,
-                                                                            is_blocked, max_scans=max_scans)
+                                                                            is_blocked, max_scans=max_scans,
+                                                                            dedications=dedications)
     assert is_successful is True
 
 
