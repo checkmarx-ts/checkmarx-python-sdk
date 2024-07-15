@@ -8,10 +8,17 @@ from .CxCreateNewScanResponse import CxCreateNewScanResponse
 from .CxDateAndTime import CxDateAndTime
 from .CxFinishedScanStatus import CxFinishedScanStatus
 from .CxLanguageState import CxLanguageState
+from .CxLanguageStatistic import CxLanguageStatistic
 from .CxPolicyFindingResponse import CxPolicyFindingResponse
 from .CxPolicyFindingsStatus import CxPolicyFindingsStatus
 from .CxRegisterScanReportResponse import CxRegisterScanReportResponse
 from .CxResultsStatistics import CxResultsStatistics
+from .CxScanDetail import CxScanDetail
+from .CxScanFailedGeneralQueries import CxScanFailedGeneralQueries
+from .CxScanFailedQueries import CxScanFailedQueries
+from .CxScanFileCountOfLanguage import CxScanFileCountOfLanguage
+from .CxScanParsedFiles import CxScanParsedFiles
+from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
 from .CxScanQueueDetail import CxScanQueueDetail
 from .CxScanReportStatus import CxScanReportStatus
 from .CxScanReportXmlContent import CxScanReportXmlContent
@@ -21,19 +28,13 @@ from .CxScanResultLabelsFields import CxScanResultLabelsFields
 from .CxScanResultNode import CxScanResultNode
 from .CxScanStage import CxScanStage
 from .CxScanState import CxScanState
+from .CxScanStatistics import CxScanStatistics
+from .CxScanSucceededGeneralQueries import CxScanSucceededGeneralQueries
 from .CxScanType import CxScanType
 from .CxSchedulingSettings import CxSchedulingSettings
 from .CxStatisticsResult import CxStatisticsResult
 from .CxStatus import CxStatus
 from .CxStatusDetail import CxStatusDetail
-from .CxLanguageStatistic import CxLanguageStatistic
-from .CxScanFileCountOfLanguage import CxScanFileCountOfLanguage
-from .CxScanStatistics import CxScanStatistics
-from .CxScanParsedFiles import CxScanParsedFiles
-from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
-from .CxScanFailedQueries import CxScanFailedQueries
-from .CxScanFailedGeneralQueries import CxScanFailedGeneralQueries
-from .CxScanSucceededGeneralQueries import CxScanSucceededGeneralQueries
 
 
 def construct_scan_result_node(item):

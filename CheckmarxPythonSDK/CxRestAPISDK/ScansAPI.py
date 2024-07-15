@@ -34,12 +34,12 @@ class ScansAPI(object):
         Returns:
             :obj:`CxScanDetail`
         """
-        return CxScanDetail.CxScanDetail(
+        return CxScanDetail(
             scan_id=item.get("id"),
             project=CxProject(
                 project_id=item.get("project", {}).get("id"),
                 name=item.get("project", {}).get("name"),
-                link=item.get("project", {}).get("link")
+                links=[item.get("project", {}).get("link")]
             ),
             status=CxStatus(
                 status_id=item.get("status", {}).get("id"),
@@ -81,6 +81,7 @@ class ScansAPI(object):
             ),
             owner=item.get("owner"),
             origin=item.get("origin"),
+            origin_url=item.get("originURL"),
             initiator_name=item.get("initiatorName"),
             owning_team_id=item.get("owningTeamId"),
             is_public=item.get("isPublic"),
@@ -259,7 +260,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_sast_scan_details_by_scan_id(scan_id, api_version="1.0"):
+    def get_sast_scan_details_by_scan_id(scan_id, api_version="5.0"):
         """
         Get details of a specific SAST scan.
 
@@ -384,10 +385,10 @@ class ScansAPI(object):
             project=CxProject(
                 project_id=(item.get("project", {}) or {}).get("id"),
                 name=(item.get("project", {}) or {}).get("name"),
-                link=CxLink(
+                links=[CxLink(
                     rel=((item.get("project", {}) or {}).get("link", {}) or {}).get("rel"),
                     uri=((item.get("project", {}) or {}).get("link", {}) or {}).get("uri")
-                )
+                )]
             ),
             engine=CxEngineServer(
                 engine_server_id=(item.get("engine", {}) or {}).get("id"),
@@ -521,10 +522,10 @@ class ScansAPI(object):
             result = CxScanSettings(
                 project=CxProject(
                     project_id=(a_dict.get("project", {}) or {}).get("id"),
-                    link=CxLink(
+                    links=[CxLink(
                         rel=(a_dict.get("project", {}) or {}).get("link", {}).get("rel"),
                         uri=(a_dict.get("project", {}) or {}).get("link", {}).get("uri")
-                    )
+                    )]
                 ),
                 preset=CxPreset(
                     preset_id=(a_dict.get("preset", {}) or {}).get("id"),
@@ -827,10 +828,6 @@ class ScansAPI(object):
             result = CxPolicyFindingsStatus(
                 project=CxProject(
                     project_id=(a_dict.get("project", {}) or {}).get("id"),
-                    link=CxLink(
-                        rel=((a_dict.get("project", {}) or {}).get("link", {}) or {}).get("rel"),
-                        uri=((a_dict.get("project", {}) or {}).get("link", {}) or {}).get("uri")
-                    )
                 ),
                 scan=CxCreateNewScanResponse(
                     scan_id=(a_dict.get("scan", {}) or {}).get("id"),

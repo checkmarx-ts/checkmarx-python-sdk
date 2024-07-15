@@ -61,7 +61,7 @@ def test_get_sast_scan_details_by_scan_id():
     #
     scan_api = ScansAPI()
     # scan_id = scan_api.get_last_scan_id_of_a_project(project_id)
-    scan_id = 1000493
+    scan_id = 1000036
     scan = scan_api.get_sast_scan_details_by_scan_id(scan_id)
     assert scan is not None
 
