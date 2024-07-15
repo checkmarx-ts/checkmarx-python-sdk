@@ -436,3 +436,31 @@ class GeneralAPI:
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_user_persistence_data_for_current_user(persistence_keys, api_version="5.0"):
+        """
+        Gets user persistence data for current user
+        Args:
+            persistence_keys (`list` of `str`): persistence keys
+            api_version (str):
+
+        Returns:
+            list
+        """
+        if not isinstance(persistence_keys, list):
+            raise ValueError("parameter persistence_keys should be a list of str")
+        for item in persistence_keys:
+            if not isinstance(item, str):
+                raise ValueError("all member in persistence_keys should be a str")
+        result = None
+        relative_url = "/cxrestapi/userPersistence?"
+        relative_url += "&".join(["persistenceKeys={}".format(item) for item in persistence_keys])
+
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
+
+    # @staticmethod
+    # def update_persistence_data_for_current_usr(persistence_items, api_version="5.0"):

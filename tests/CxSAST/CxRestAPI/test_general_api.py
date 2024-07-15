@@ -41,3 +41,8 @@ def test_delete_result_state():
 def test_get_all_scheduled_jobs():
     result = GeneralAPI().get_all_scheduled_jobs()
     assert result is not None
+
+
+def test_get_user_persistence_data_for_current_user():
+    result = GeneralAPI().get_user_persistence_data_for_current_user(persistence_keys=["username", "email"])
+    assert result is not None
