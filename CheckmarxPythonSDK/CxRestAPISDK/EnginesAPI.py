@@ -76,7 +76,7 @@ class EnginesAPI(object):
         return a_dict.get(engine_name)
 
     @staticmethod
-    def register_engine(name, uri, min_loc, max_loc, is_blocked, max_scans, api_version="1.0"):
+    def register_engine(name, uri, min_loc, max_loc, is_blocked, max_scans, dedications=None, api_version="5.0"):
         """
         POST  /sast/engineServers  Registers an Engine Server
         Args:
@@ -86,6 +86,7 @@ class EnginesAPI(object):
             max_loc (int): Specifies the maximum number of lines of code to scan
             is_blocked (boolean): Specifies whether or not the engine will be able to receive scan requests
             max_scans (int):
+            dedications (`list` of :obj:`CxEngineDedication`):
             api_version (str, optional):
 
         Returns:
@@ -97,8 +98,18 @@ class EnginesAPI(object):
             CxError
         """
         result = None
+        if dedications:
+            if not isinstance(dedications, list):
+                raise ValueError("parameter dedications should be a list of CxEngineDedication")
+            for dedication in dedications:
+                if not isinstance(dedication, CxEngineDedication):
+                    raise ValueError("member of dedications should be CxEngineDedication")
+
         post_data = json.dumps(
             {
+                "dedications": [
+                    item.to_dict() for item in dedications
+                ],
                 "name": name,
                 "uri": uri,
                 "minLoc": min_loc,
@@ -121,7 +132,7 @@ class EnginesAPI(object):
         return result
 
     @staticmethod
-    def unregister_engine_by_engine_id(engine_id, api_version="1.0"):
+    def unregister_engine_by_engine_id(engine_id, api_version="5.0"):
         """
         DELETE /sast/engineServers/{id} Unregister an existing engine server.
 

@@ -30,11 +30,12 @@ class CxEngineServer(object):
             offline_reason_message_parameters (str):
             dedications (`list` of :obj:`CxEngineDedication`)
         """
-        if not isinstance(dedications, list):
-            raise ValueError("parameter dedications should be a list of CxEngineDedication")
-        for item in dedications:
-            if not isinstance(item, CxEngineDedication):
-                raise ValueError("member of dedications should be CxEngineDedication")
+        if dedications:
+            if not isinstance(dedications, list):
+                raise ValueError("parameter dedications should be a list of CxEngineDedication")
+            for item in dedications:
+                if not isinstance(item, CxEngineDedication):
+                    raise ValueError("member of dedications should be CxEngineDedication")
 
         self.id = engine_server_id
         self.name = name
