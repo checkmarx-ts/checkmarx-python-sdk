@@ -55,7 +55,7 @@ class ProjectsAPI(object):
         return result
 
     @staticmethod
-    def create_project_with_default_configuration(project_name, team_id, is_public=True, api_version="1.0"):
+    def create_project_with_default_configuration(project_name, team_id, is_public=True, api_version="5.0"):
         """
         REST API: create project
 
