@@ -468,3 +468,8 @@ def test_get_project_branching_status():
 def test_force_scan_on_no_code_changes():
     result = ProjectsAPI().force_scan_on_no_code_changes(project_id=5)
     assert result is True
+
+
+def test_get_path_filter():
+    result = ProjectsAPI().get_path_filter(project_id=5)
+    assert result is not None
