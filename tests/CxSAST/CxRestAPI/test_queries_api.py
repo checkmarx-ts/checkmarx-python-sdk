@@ -21,3 +21,8 @@ def test_get_query_id_and_query_version_code():
         language="Java", query_name="SQL_Injection", severity="High"
     )
     assert query_id_and_version_code is not None
+
+
+def test_get_preset_detail():
+    result = QueriesAPI().get_preset_detail(preset_id=36)
+    assert result is not None

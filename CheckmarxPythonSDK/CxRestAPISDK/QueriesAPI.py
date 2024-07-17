@@ -70,3 +70,29 @@ class QueriesAPI(object):
             result = response.json()
         return result
 
+    @staticmethod
+    def get_preset_detail(preset_id, api_version="5.0"):
+        """
+        Gets query information of specific preset
+        Args:
+            preset_id (int):
+            api_version (str):
+
+        Returns:
+            list of dict
+            example:
+            [
+              {
+                "queryId": 0,
+                "queryName": "string",
+                "queryLanguage": "string",
+                "querySource": "string"
+              }
+            ]
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/presetDetails/{id}".format(id=preset_id)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
