@@ -275,3 +275,6 @@ All notable changes to this project will be documented in  this file.
 
 0.9.0 - 2024-07-14
 * Add support for ProjectsAPI force_scan_on_no_code_changes
+
+0.9.1 - 2024-07-17
+* Add support for new APIs
