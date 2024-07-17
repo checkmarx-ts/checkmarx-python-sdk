@@ -488,3 +488,34 @@ class GeneralAPI:
         if response.status_code == OK:
             is_successful = True
         return is_successful
+
+    @staticmethod
+    def get_audit_trail_for_roles(from_date, to_date, api_version="5.0"):
+        """
+
+        Args:
+            from_date (str):  	From Date (Input Format: yyyy-mm-dd)
+            to_date (str):  To Date (Input Format: yyyy-mm-dd)
+            api_version (str):
+
+        Returns:
+            list of dict
+            example:
+            [
+              {
+                'event': 'RoleCreated',
+                'id': 1, 'ownerId': -1,
+                'ownerName': 'client_credentials_installer',
+                'roleDetails': {'id': 0, 'name': None},
+                'timeStamp': '2023-08-18T05:14:33.6851454'
+              }
+            ]
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/roles/auditTrail?fromDate={fromDate}&toDate={toDate}".format(
+            fromDate=from_date, toDate=to_date
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
