@@ -1458,3 +1458,38 @@ class ScansAPI(object):
         if response.status_code == OK:
             is_successful = True
         return is_successful
+
+    @staticmethod
+    def get_scan_result_labels_action_fields(scan_id, path_id, api_version="5.0"):
+        """
+        Get scan result labels action fields
+        Args:
+            scan_id (int):
+            path_id (int):
+            api_version (str):
+
+        Returns:
+            Labels are changes made on the results' properties by the user.
+            list of dict
+            example:
+            [
+              {
+                "user": "tod-cyber",
+                "comment": "Changed status to Urgent",
+                "createdDate": "2024-07-14T20:05:45.7517605"
+              },
+              {
+                "user": "jim-developer",
+                "comment": "Changed severity to Medium",
+                "createdDate": "2024-07-14T20:05:45.7517605"
+              }
+            ]
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/scans/{scanId}/actionResults/{pathId}/labels".format(
+            scanId=scan_id, pathId=path_id
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

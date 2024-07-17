@@ -418,3 +418,8 @@ def test_lock_scan():
 def test_unlock_scan():
     result = ScansAPI().unlock_scan(scan_id=1000036)
     assert result is True
+
+
+def test_get_scan_result_labels_action_fields():
+    result = ScansAPI.get_scan_result_labels_action_fields(scan_id=1000036, path_id=1)
+    assert result is not None
