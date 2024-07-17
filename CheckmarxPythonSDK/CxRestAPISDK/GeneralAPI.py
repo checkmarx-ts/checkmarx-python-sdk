@@ -550,3 +550,37 @@ class GeneralAPI:
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_audit_trail_for_presets(from_date, to_date, api_version="5.0"):
+        """
+
+        Args:
+            from_date (str):  	From Date (Input Format: yyyy-mm-dd)
+            to_date (str):  To Date (Input Format: yyyy-mm-dd)
+            api_version (str):
+
+        Returns:
+            list of dict
+            example:
+                [
+                    {
+                        'event': 'Update',
+                        'id': 8,
+                        'isSuccessful': True,
+                        'ownerId': 1,
+                        'ownerName': 'Admin',
+                        'presetId': 100002,
+                        'presetName': 'Checkmarx Default - Customized',
+                        'timeStamp': '2024-01-11T09:44:11.78'
+                    }
+                ]
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/presets/auditTrail?fromDate={fromDate}&toDate={toDate}".format(
+            fromDate=from_date, toDate=to_date
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
