@@ -584,3 +584,42 @@ class GeneralAPI:
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_audit_trail_for_results(from_date, to_date, update_type="ALL", api_version="5.0"):
+        """
+
+        Args:
+            update_type (str): Update Type (ALL, ASSIGN, RESULT_COMMENT, RESULT_SEVERITY, RESULT_STATE) ,
+                        default value is "ALL"
+            from_date (str):  	From Date (Input Format: yyyy-mm-dd)
+            to_date (str):  To Date (Input Format: yyyy-mm-dd)
+            api_version (str):
+
+        Returns:
+            list of dict
+            example:
+                [
+                    {
+                      'id': 48,
+                      'isSuccessful': True,
+                      'ownerName': 'Admin',
+                      'projectId': 5,
+                      'scanId': 1000076,
+                      'timeStamp': '2024-01-05T11:25:21.943',
+                      'updateType': 'RESULT_STATE'
+                    }
+                ]
+        """
+        result = None
+        if update_type not in ["ALL", "ASSIGN", "RESULT_COMMENT", "RESULT_SEVERITY", "RESULT_STATE"]:
+            raise ValueError('parameter update_type should be a member of list '
+                             '["ALL", "ASSIGN", "RESULT_COMMENT", "RESULT_SEVERITY", "RESULT_STATE"]')
+        relative_url = ("/cxrestapi/sast/results/auditTrail?updateType={updateType}&fromDate={fromDate}"
+                        "&toDate={toDate}").format(
+            updateType=update_type, fromDate=from_date, toDate=to_date
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

@@ -69,3 +69,8 @@ def test_get_audit_trail_for_teams():
 def test_get_teams_trail_for_presets():
     result = GeneralAPI().get_audit_trail_for_presets(from_date="2024-01-01", to_date="2024-07-17")
     assert result is not None
+
+
+def test_get_teams_trail_for_results():
+    result = GeneralAPI().get_audit_trail_for_results(from_date="2024-01-01", to_date="2024-07-17")
+    assert result is not None
