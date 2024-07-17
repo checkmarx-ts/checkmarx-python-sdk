@@ -1543,3 +1543,32 @@ class ScansAPI(object):
             result = response.json()
             result = result.get("results")
         return result
+
+    @staticmethod
+    def get_compare_results_summary_of_two_scans(old_scan_id, new_scan_id, api_version="5.0"):
+        """
+
+        Args:
+            old_scan_id (int):
+            new_scan_id (int):
+            api_version (str):
+
+        Returns:
+            dict
+            example:
+                {
+                  'high': {'fixed': 100, 'new': 0, 'reOccured': 12},
+                  'info': {'fixed': 0, 'new': 0, 'reOccured': 0},
+                  'low': {'fixed': 233, 'new': 36, 'reOccured': 0},
+                  'medium': {'fixed': 117, 'new': 6, 'reOccured': 46},
+                  'total': {'fixed': 450, 'new': 42, 'reOccured': 58}
+                }
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/scans/{oldScanId}/compareSummaryTo/{newScanId}".format(
+            oldScanId=old_scan_id, newScanId=new_scan_id
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

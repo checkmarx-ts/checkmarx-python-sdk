@@ -428,3 +428,8 @@ def test_get_scan_result_labels_action_fields():
 def test_get_compare_results_of_two_scans():
     result = ScansAPI().get_compare_results_of_two_scans(old_scan_id=1000076, new_scan_id=1000118)
     assert result is not None
+
+
+def test_get_compare_results_summary_of_two_scans():
+    result = ScansAPI().get_compare_results_summary_of_two_scans(old_scan_id=1000076, new_scan_id=1000118)
+    assert result is not None
