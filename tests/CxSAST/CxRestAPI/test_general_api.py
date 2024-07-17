@@ -59,3 +59,8 @@ def test_update_persistence_data_for_current_user():
 def test_get_audit_trail_for_roles():
     result = GeneralAPI().get_audit_trail_for_roles(from_date="2024-01-01", to_date="2024-07-17")
     assert result is not None
+
+
+def test_get_teams_trail_for_roles():
+    result = GeneralAPI().get_audit_trail_for_teams(from_date="2024-01-01", to_date="2024-07-17")
+    assert result is not None

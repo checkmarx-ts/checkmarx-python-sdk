@@ -519,3 +519,34 @@ class GeneralAPI:
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_audit_trail_for_teams(from_date, to_date, api_version="5.0"):
+        """
+
+        Args:
+            from_date (str):  	From Date (Input Format: yyyy-mm-dd)
+            to_date (str):  To Date (Input Format: yyyy-mm-dd)
+            api_version (str):
+
+        Returns:
+            list of dict
+            example:
+                [
+                    { 'event': 'TeamCreated',
+                      'id': 15769,
+                      'ownerId': 1,
+                      'ownerName': 'Admin',
+                      'teamDetails': None,
+                      'timeStamp': '2024-04-15T07:35:45.6458877'
+                    }
+                ]
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/teams/auditTrail?fromDate={fromDate}&toDate={toDate}".format(
+            fromDate=from_date, toDate=to_date
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result
