@@ -436,6 +436,16 @@ def test_get_compare_results_summary_of_two_scans():
 
 
 def test_get_a_collection_of_scans_by_project():
+    result = ScansAPI().get_a_collection_of_scans_by_project()
+    assert result is not None
+    result = ScansAPI().get_a_collection_of_scans_by_project(last=10)
+    assert result is not None
+    result = ScansAPI().get_a_collection_of_scans_by_project(project_id=5)
+    assert result is not None
+    try:
+        result = ScansAPI().get_a_collection_of_scans_by_project(scan_status="Finished")
+    except ValueError as e:
+        print(e)
     result = ScansAPI().get_a_collection_of_scans_by_project(last=10, project_id=5)
     assert result is not None
     result = ScansAPI().get_a_collection_of_scans_by_project(last=10, project_id=5, scan_status="Finished")

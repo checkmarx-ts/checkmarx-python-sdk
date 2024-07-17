@@ -1574,7 +1574,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_a_collection_of_scans_by_project(last, project_id, scan_status=None, api_version="5.0"):
+    def get_a_collection_of_scans_by_project(last=None, project_id=None, scan_status=None, api_version="5.0"):
         """
 
         Args:
@@ -1590,11 +1590,18 @@ class ScansAPI(object):
         if scan_status and scan_status not in ["Scanning", "Finished", "Canceled", "Failed"]:
             raise ValueError('parameter scan_status should be a member from list ["Scanning", "Finished", '
                              '"Canceled", "Failed"]')
-        relative_url = "/cxrestapi/sast/scans?last={last}&projectId={projectId}".format(
-            last=last, projectId=project_id
-        )
+        relative_url = "/cxrestapi/sast/scans"
+        optional = []
+        if last:
+            optional.append("last={last}".format(last=last))
+        if project_id:
+            optional.append("projectId={projectId}".format(projectId=project_id))
         if scan_status:
-            relative_url += "&scanStatus={scanStatus}".format(scanStatus=scan_status)
+            if not last or not project_id:
+                raise ValueError("Both last and project_id can not be None when scan_status is not None")
+            optional.append("&scanStatus={scanStatus}".format(scanStatus=scan_status))
+        if optional:
+            relative_url += "?" + "&".join(optional)
         response = get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
