@@ -1495,7 +1495,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_compare_results_of_two_scans(old_scan_id, new_scan_id, api_version="5.0"):
+    def get_compare_results_of_two_scans(old_scan_id, new_scan_id, api_version="5.1"):
         """
 
         Args:
@@ -1530,7 +1530,7 @@ class ScansAPI(object):
                   'comparedToScanId': 1000118,
                   'comparedToScanPathId': -1,
                   'queryName': 'Connection_String_Injection'
-                  }
+                }
             ]
 
         """
