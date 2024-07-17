@@ -210,7 +210,7 @@ class ScansAPI(object):
 
     @staticmethod
     def create_new_scan(project_id, is_incremental=False, is_public=True, force_scan=True, comment="",
-                        custom_fields=None, api_version="1.0"):
+                        custom_fields=None, api_version="5.0"):
         """
         Create a new SAST scan and assign it to a project.
 
@@ -1110,7 +1110,7 @@ class ScansAPI(object):
                                       run_post_scan_only_when_new_results=False,
                                       run_post_scan_min_severity=None,
                                       post_scan_action_arguments=None,
-                                      api_version="4.0"):
+                                      api_version="5.0"):
         """
 
         Args:
