@@ -1572,3 +1572,30 @@ class ScansAPI(object):
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_a_collection_of_scans_by_project(last, project_id, scan_status=None, api_version="5.0"):
+        """
+
+        Args:
+            last (int): Amount of the latest scans
+            project_id (int): Unique ID of a specific project
+            scan_status (str, optional): Specifies the scan stage: ["Scanning", "Finished", "Canceled", "Failed"]
+            api_version (str):
+
+        Returns:
+
+        """
+        result = None
+        if scan_status and scan_status not in ["Scanning", "Finished", "Canceled", "Failed"]:
+            raise ValueError('parameter scan_status should be a member from list ["Scanning", "Finished", '
+                             '"Canceled", "Failed"]')
+        relative_url = "/cxrestapi/sast/scans?last={last}&projectId={projectId}".format(
+            last=last, projectId=project_id
+        )
+        if scan_status:
+            relative_url += "&scanStatus={scanStatus}".format(scanStatus=scan_status)
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+        return result

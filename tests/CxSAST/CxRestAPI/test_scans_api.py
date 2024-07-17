@@ -433,3 +433,10 @@ def test_get_compare_results_of_two_scans():
 def test_get_compare_results_summary_of_two_scans():
     result = ScansAPI().get_compare_results_summary_of_two_scans(old_scan_id=1000076, new_scan_id=1000118)
     assert result is not None
+
+
+def test_get_a_collection_of_scans_by_project():
+    result = ScansAPI().get_a_collection_of_scans_by_project(last=10, project_id=5)
+    assert result is not None
+    result = ScansAPI().get_a_collection_of_scans_by_project(last=10, project_id=5, scan_status="Finished")
+    assert result is not None
