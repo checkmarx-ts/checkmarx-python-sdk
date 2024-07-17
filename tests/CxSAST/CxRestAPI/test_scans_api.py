@@ -423,3 +423,8 @@ def test_unlock_scan():
 def test_get_scan_result_labels_action_fields():
     result = ScansAPI.get_scan_result_labels_action_fields(scan_id=1000036, path_id=1)
     assert result is not None
+
+
+def test_get_compare_results_of_two_scans():
+    result = ScansAPI().get_compare_results_of_two_scans(old_scan_id=1000076, new_scan_id=1000118)
+    assert result is not None

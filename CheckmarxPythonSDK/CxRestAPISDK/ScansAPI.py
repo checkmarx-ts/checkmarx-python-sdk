@@ -1493,3 +1493,53 @@ class ScansAPI(object):
         if response.status_code == OK:
             result = response.json()
         return result
+
+    @staticmethod
+    def get_compare_results_of_two_scans(old_scan_id, new_scan_id, api_version="5.0"):
+        """
+
+        Args:
+            old_scan_id (int):
+            new_scan_id (int):
+            api_version (str):
+
+        Returns:
+            list of dict
+            example:
+            [
+                {
+                  'similarityID': 994470032,
+                  'queryId': 589,
+                  'pathId': 21,
+                  'sourceFolder': 'java\\org\\cysecurity\\cspf\\jvl\\controller',
+                  'sourceFile': 'Install.java',
+                  'sourceLine': 54,
+                  'sourceObject': '""dburl""',
+                  'destFolder': 'java\\org\\cysecurity\\cspf\\jvl\\controller',
+                  'destFile': 'Install.java',
+                  'destLine': 112,
+                  'numberOfNodes': 0,
+                  'destObject': 'dburl',
+                  'comment': 'happy yang jvl_git, [2023年10月13日 14:31]: Explain why it is not exploitable. ÿ',
+                  'state': 1,
+                  'severity': 3,
+                  'assignedUser': '',
+                  'resultStatus': 0,
+                  'queryVersionCode': 0,
+                  'scanId': 1000076,
+                  'comparedToScanId': 1000118,
+                  'comparedToScanPathId': -1,
+                  'queryName': 'Connection_String_Injection'
+                  }
+            ]
+
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/scans/{oldScanId}/compareResultsTo/{newScanId}".format(
+            oldScanId=old_scan_id, newScanId=new_scan_id
+        )
+        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        if response.status_code == OK:
+            result = response.json()
+            result = result.get("results")
+        return result
