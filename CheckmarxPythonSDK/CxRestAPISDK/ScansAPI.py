@@ -1238,7 +1238,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_basic_metrics_of_a_scan(scan_id, api_version="3.0"):
+    def get_basic_metrics_of_a_scan(scan_id, api_version="5.0"):
         """
         https://checkmarx.atlassian.net/wiki/spaces/SAST/pages/3206498165/Configuring+and+Viewing+Scan+Metrics
         Args:
@@ -1287,8 +1287,7 @@ class ScansAPI(object):
                     )
                     for key, value in item.get("languageStatistics", {}).items()
                 ],
-                exclusion_folders_pattern=item.get("exclusionFoldersPattern"),
-                exclusion_files_pattern=item.get("exclusionFilesPattern"),
+                path_filter_pattern=item.get("pathFilterPattern"),
                 failed_queries_count=item.get("failedQueriesCount"),
                 succeeded_general_queries_count=item.get("generalQueries", {}).get("succeededGeneralQueriesCount"),
                 failed_general_queries_count=item.get("generalQueries", {}).get("failedGeneralQueriesCount"),
