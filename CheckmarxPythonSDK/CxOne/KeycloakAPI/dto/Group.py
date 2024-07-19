@@ -28,5 +28,5 @@ def construct_group(item):
         group_id=item.get("id"),
         name=item.get("name"),
         path=item.get("path"),
-        sub_groups=[construct_group(group) for group in item.get("subGroups")]
+        sub_groups=[construct_group(group) for group in item.get("subGroups") or []]
     )
