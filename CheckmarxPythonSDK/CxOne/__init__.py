@@ -14,6 +14,10 @@ from .applicationsAPI import (
     delete_an_application_rule,
 )
 
+from .auditTrailAPI import (
+    get_audit_events_for_tenant,
+)
+
 from .flagsAPI import (
     get_all_feature_flags,
     get_feature_flag,
