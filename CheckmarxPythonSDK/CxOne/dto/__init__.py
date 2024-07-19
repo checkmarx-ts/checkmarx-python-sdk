@@ -15,6 +15,8 @@ from .FileInfo import FileInfo
 from .Flag import Flag
 from .Git import Git
 from .Group import Group
+from .ImportRequest import ImportRequest
+from .ImportResults import ImportResults
 from .KicsResult import KicsResult
 from .MethodInfo import MethodInfo
 from .MethodParameter import MethodParameter
