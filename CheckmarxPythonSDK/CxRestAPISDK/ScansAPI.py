@@ -444,7 +444,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def update_queued_scan_status_by_scan_id(scan_id, api_version="1.0"):
+    def update_queued_scan_status_by_scan_id(scan_id, api_version="1.2"):
         """
         Update (Cancel) a running scan in the queue according to the scan Id.
 
@@ -470,6 +470,10 @@ class ScansAPI(object):
         if response.status_code == OK:
             result = True
         return result
+
+    @staticmethod
+    def cancel_scan(scan_id, api_version="1.2"):
+        return ScansAPI.update_queued_scan_status_by_scan_id(scan_id=scan_id, api_version=api_version)
 
     @staticmethod
     def get_all_scan_details_in_queue(project_id=None, api_version="1.0"):
