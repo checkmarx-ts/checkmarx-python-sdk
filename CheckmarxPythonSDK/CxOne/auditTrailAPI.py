@@ -6,6 +6,8 @@ from .dto import (
     AuditEvents,
 )
 
+api_url = "/api/audit"
+
 
 def __construct_audit_events(audit_events):
     return AuditEvents(
@@ -44,7 +46,7 @@ def get_audit_events_for_tenant(offset=0, limit=200):
     """
     type_check(offset, int)
     type_check(limit, int)
-    relative_url = "/api/audit?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url = api_url + "?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     response = get_request(relative_url=relative_url)
     item = response.json()
     return __construct_audit_events(audit_events=item)
