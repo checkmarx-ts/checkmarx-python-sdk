@@ -6,6 +6,8 @@ from CheckmarxPythonSDK.utilities.compat import OK
 from os.path import exists
 from CheckmarxPythonSDK.utilities.httpRequests import auth_header
 
+api_url = "/api/uploads"
+
 
 def create_a_pre_signed_url_to_upload_files():
     """
@@ -17,7 +19,7 @@ def create_a_pre_signed_url_to_upload_files():
         url (str)
     """
     url = None
-    relative_url = "/api/uploads"
+    relative_url = api_url
     response = post_request(relative_url=relative_url, data=None)
     if response.status_code == OK:
         url = response.json().get("url")
