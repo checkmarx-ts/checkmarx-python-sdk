@@ -114,6 +114,26 @@ def define_parameters_in_the_input_list_for_a_specific_project(project_id, scan_
     return result
 
 
+def delete_parameters_for_a_specific_project(project_id, config_keys):
+    """
+
+    Args:
+        project_id (str):
+        config_keys (str):
+
+    Returns:
+
+    """
+    result = False
+    type_check(project_id, str)
+    type_check(config_keys, str)
+    relative_url = api_url + "/project?project-id={}&config-keys={}".format(project_id, config_keys)
+    response = delete_request(relative_url=relative_url)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
+
+
 def get_the_list_of_all_parameters_that_will_be_used_in_the_scan_run(project_id, scan_id):
     """
 
