@@ -10,6 +10,8 @@ from .dto import (
     Container,
 )
 
+api_url = "/api/cnas"
+
 
 def create_enrich_account(data):
     """
@@ -21,7 +23,7 @@ def create_enrich_account(data):
         EnrichAccount
     """
     type_check(data, CreateEnrichAccount)
-    relative_url = "/api/cnas/accounts/enrich"
+    relative_url = api_url + "/accounts/enrich"
     data = data.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
@@ -45,7 +47,7 @@ def get_enrich_account_by_external_id(external_id, offset=0, limit=100):
     type_check(external_id, str)
     type_check(offset, int)
     type_check(limit, int)
-    relative_url = "/api/cnas/accounts/enrich?external-id={}&offset={}&limit={}".format(
+    relative_url = api_url + "/accounts/enrich?external-id={}&offset={}&limit={}".format(
         external_id, offset, limit
     )
     response = get_request(relative_url=relative_url)
@@ -82,7 +84,7 @@ def start_enrichment(cloud_insights_account_id, start_enrich):
     type_check(cloud_insights_account_id, str)
     type_check(start_enrich, StartEnrich)
 
-    relative_url = "/api/cnas/accounts/{id}/enrich".format(id=cloud_insights_account_id)
+    relative_url = api_url + "/accounts/{id}/enrich".format(id=cloud_insights_account_id)
     post_data = start_enrich.get_post_data()
     response = post_request(relative_url=relative_url, data=post_data)
     item = response.json()
@@ -99,7 +101,7 @@ def get_cloud_insight_account(account_id):
         Account
     """
     type_check(account_id, str)
-    relative_url = "/api/cnas/accounts/{id}".format(id=account_id)
+    relative_url = api_url + "/accounts/{id}".format(id=account_id)
     response = get_request(relative_url=relative_url)
     account = response.json()
     return Account(
@@ -124,7 +126,7 @@ def delete_cloud_insight_account(account_id):
           bool
       """
     is_successful = False
-    relative_url = "/api/cnas/accounts/{id}".format(id=account_id)
+    relative_url = api_url + "/accounts/{id}".format(id=account_id)
     response = delete_request(relative_url=relative_url)
     if response.status_code == OK:
         is_successful = True
@@ -167,7 +169,7 @@ def get_all_containers_for_an_account_id(account_id, limit=100, offset=0, image_
     type_check(cluster_id, str)
     type_check(order_column, str)
     type_check(order_direction, str)
-    relative_url = "/api/cnas/accounts/{id}/containers?limit={limit}&offset={offset}".format(
+    relative_url = api_url + "/accounts/{id}/containers?limit={limit}&offset={offset}".format(
         id=account_id, limit=limit, offset=offset
     )
     if image_name:
