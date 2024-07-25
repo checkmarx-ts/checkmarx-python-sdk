@@ -14,6 +14,8 @@ from .dto import (
     TaskInfo,
 )
 
+api_url = "/api/scans"
+
 
 def __construct_scan(item):
     return Scan(
@@ -52,7 +54,7 @@ def create_scan(scan_input):
         Scan
     """
     type_check(scan_input, ScanInput)
-    relative_url = "/api/scans"
+    relative_url = api_url
     data = scan_input.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
@@ -150,7 +152,7 @@ def get_a_list_of_scans(offset=0, limit=20, scan_ids=None, groups=None, tags_key
     list_member_type_check(initiators, str)
     list_member_type_check(branches, str)
 
-    relative_url = "/api/scans?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url = api_url + "?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("scan-ids", scan_ids)
     relative_url += get_url_param("groups", groups)
     relative_url += get_url_param("tags-keys", tags_keys)
@@ -185,7 +187,7 @@ def get_all_scan_tags():
     Returns:
         dict
     """
-    relative_url = "/api/scans/tags"
+    relative_url = api_url + "/tags"
     response = get_request(relative_url=relative_url)
     return response.json()
 
@@ -196,7 +198,7 @@ def get_summary_of_the_status_of_the_scans():
     Returns:
         dict
     """
-    relative_url = "/api/scans/summary"
+    relative_url = api_url + "/summary"
     response = get_request(relative_url=relative_url)
     return response.json()
 
@@ -207,7 +209,7 @@ def get_the_list_of_available_config_as_code_template_files():
     Returns:
         dict
     """
-    relative_url = "/api/scans/templates"
+    relative_url = api_url + "/templates"
     response = get_request(relative_url=relative_url)
     return response.json()
 
@@ -220,7 +222,7 @@ def get_the_config_as_code_template_file(file_name):
     Returns:
         str
     """
-    relative_url = "/api/scans/templates/{file_name}".format(file_name=file_name)
+    relative_url = api_url + "/templates/{file_name}".format(file_name=file_name)
     response = get_request(relative_url=relative_url)
     return response.text
 
@@ -239,7 +241,7 @@ def get_a_scan_by_id(scan_id):
     Returns:
         Scan
     """
-    relative_url = "/api/scans/{id}".format(id=scan_id)
+    relative_url = api_url + "/{id}".format(id=scan_id)
     response = get_request(relative_url=relative_url)
     item = response.json()
     return __construct_scan(item)
@@ -255,7 +257,7 @@ def cancel_scan(scan_id):
         str  example:  "Canceled"
     """
     is_successful = False
-    relative_url = "/api/scans/{id}".format(id=scan_id)
+    relative_url = api_url + "/{id}".format(id=scan_id)
     data = json.dumps({"status": "Canceled"})
     response = patch_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
@@ -273,7 +275,7 @@ def delete_scan(scan_id):
 
     """
     is_successful = False
-    relative_url = "/api/scans/{id}".format(id=scan_id)
+    relative_url = api_url + "/{id}".format(id=scan_id)
     response = delete_request(relative_url=relative_url)
     if response.status_code == NO_CONTENT:
         is_successful = True
@@ -289,7 +291,7 @@ def get_a_detailed_workflow_of_a_scan(scan_id):
     Returns:
         list of TaskInfo
     """
-    relative_url = "/api/scans/{id}/workflow".format(id=scan_id)
+    relative_url = api_url + "/{id}/workflow".format(id=scan_id)
     response = get_request(relative_url=relative_url)
     items = response.json()
     return [
