@@ -6,6 +6,8 @@ from .dto import (
     ImportResults,
 )
 
+api_url = "/api/byor"
+
 
 def create_byor_import(import_request):
     """
@@ -17,7 +19,7 @@ def create_byor_import(import_request):
         ImportResults
     """
     type_check(import_request, ImportRequest)
-    relative_url = "/api/byor/imports"
+    relative_url = api_url + "/imports"
     data = import_request.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
