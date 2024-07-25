@@ -11,6 +11,7 @@ from .dto import (
     RuleInput,
 )
 
+api_url = "/api/applications"
 
 def __construct_application_rules(rules):
     rules = rules or []
@@ -48,7 +49,7 @@ def create_an_application(application_input):
     """
     type_check(application_input, ApplicationInput)
 
-    relative_url = "/api/applications"
+    relative_url = api_url
     data = application_input.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
@@ -89,7 +90,7 @@ def get_a_list_of_applications(offset=0, limit=20, name=None, tags_keys=None, ta
     list_member_type_check(tags_keys, str)
     list_member_type_check(tags_values, str)
 
-    relative_url = "/api/applications?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url = api_url + "?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("name", name)
     relative_url += get_url_param("tags-keys", tags_keys)
     relative_url += get_url_param("tags-values", tags_values)
@@ -138,7 +139,7 @@ def get_all_application_tags():
           ]
         }
     """
-    relative_url = "/api/applications/tags"
+    relative_url = api_url + "/tags"
     response = get_request(relative_url=relative_url)
     return response.json()
 
@@ -154,7 +155,7 @@ def get_an_application_by_id(application_id):
     """
     type_check(application_id, str)
 
-    relative_url = "/api/applications/{id}".format(id=application_id)
+    relative_url = api_url + "/{id}".format(id=application_id)
     response = get_request(relative_url=relative_url)
     app = response.json()
     return __construct_application(app)
@@ -174,7 +175,7 @@ def update_an_application(application_id, application_input):
     type_check(application_input, ApplicationInput)
 
     is_successful = False
-    relative_url = "/api/applications/{id}".format(id=application_id)
+    relative_url = api_url + "/{id}".format(id=application_id)
     data = application_input.get_post_data()
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
@@ -194,7 +195,7 @@ def delete_an_application(application_id):
     type_check(application_id, str)
 
     is_successful = False
-    relative_url = "/api/applications/{id}".format(id=application_id)
+    relative_url = api_url + "/{id}".format(id=application_id)
     response = delete_request(relative_url=relative_url)
     if response.status_code == NO_CONTENT:
         is_successful = True
@@ -214,7 +215,7 @@ def create_an_application_rule(application_id, rule_input):
     type_check(application_id, str)
     type_check(rule_input, RuleInput)
 
-    relative_url = "/api/applications/{id}/project-rules".format(id=application_id)
+    relative_url = api_url + "/{id}/project-rules".format(id=application_id)
     type_check(rule_input, RuleInput)
     data = rule_input.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
@@ -237,7 +238,7 @@ def get_a_list_of_rules_for_a_specific_application(application_id):
     """
     type_check(application_id, str)
 
-    relative_url = "/api/applications/{id}/project-rules".format(id=application_id)
+    relative_url = api_url + "/{id}/project-rules".format(id=application_id)
     response = get_request(relative_url=relative_url)
     rules = response.json()
     return __construct_application_rules(rules)
@@ -256,7 +257,7 @@ def get_an_application_rule(application_id, rule_id):
     type_check(application_id, str)
     type_check(rule_id, str)
 
-    relative_url = "/api/applications/{id}/project-rules/{rule_id}".format(
+    relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
         id=application_id, rule_id=rule_id
     )
     response = get_request(relative_url=relative_url)
@@ -284,7 +285,7 @@ def update_an_application_rule(application_id, rule_id, rule_input):
     type_check(rule_input, RuleInput)
 
     is_successful = False
-    relative_url = "/api/applications/{id}/project-rules/{rule_id}".format(
+    relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
         id=application_id, rule_id=rule_id
     )
     data = rule_input.get_post_data()
@@ -308,7 +309,7 @@ def delete_an_application_rule(application_id, rule_id):
     type_check(rule_id, str)
 
     is_successful = False
-    relative_url = "/api/applications/{id}/project-rules/{rule_id}".format(
+    relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
         id=application_id, rule_id=rule_id
     )
     response = delete_request(relative_url=relative_url)
