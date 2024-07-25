@@ -1,6 +1,8 @@
 from .httpRequests import get_request
 from .dto import SubCheck
 
+api_url = "/api/healthcheck"
+
 
 def __construct_health_check(response):
     response = response.json()
@@ -16,42 +18,42 @@ def __construct_health_check(response):
 
 
 def get_health_of_the_database():
-    relative_url = "/api/healthcheck/database"
+    relative_url = api_url + "/database"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
 
 
 def get_health_of_the_in_memory_db():
-    relative_url = "/api/healthcheck/in-memory-db"
+    relative_url = api_url + "/in-memory-db"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
 
 
 def get_health_of_the_message_queue():
-    relative_url = "/api/healthcheck/message-queue"
+    relative_url = api_url + "/message-queue"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
 
 
 def get_health_of_the_object_stroe_including_all_buckets():
-    relative_url = "/api/healthcheck/object-store"
+    relative_url = api_url + "/object-store"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
 
 
 def get_health_of_the_logging():
-    relative_url = "/api/healthcheck/logging"
+    relative_url = api_url + "/logging"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
 
 
 def get_health_of_the_scan_flow():
-    relative_url = "/api/healthcheck/scan-flow"
+    relative_url = api_url + "/scan-flow"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
 
 
 def get_health_of_the_sast_engines():
-    relative_url = "/api/healthcheck/sast-engines"
+    relative_url = api_url + "/sast-engines"
     response = get_request(relative_url=relative_url)
     return __construct_health_check(response)
