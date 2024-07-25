@@ -11,6 +11,9 @@ from .dto import (
 
 base_url = config.get("server")
 
+api_url = f"/api/flags/"
+
+
 def __construct_flag(flag):
     return Flag(
         name=flag.get("name"),
@@ -18,13 +21,14 @@ def __construct_flag(flag):
         payload=flag.get("payload")
     )
 
+
 def get_all_feature_flags():
     """
 
     Returns:
         `list` of `Flag`
     """
-    relative_url = f"/api/flags/"
+    relative_url = api_url
 
     response = get_request(relative_url=relative_url)
 
@@ -41,7 +45,7 @@ def get_feature_flag(name):
     Returns:
         `Flag`
     """
-    relative_url = f"/api/flags/{name}"
+    relative_url = api_url + f"/{name}"
 
     response = get_request(relative_url=relative_url)
 
