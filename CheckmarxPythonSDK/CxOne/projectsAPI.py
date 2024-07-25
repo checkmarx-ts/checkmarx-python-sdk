@@ -11,6 +11,8 @@ from .dto import (
 )
 
 
+api_url = "/api/projects"
+
 def __construct_project(project):
     return Project(
         project_id=project.get("id"),
@@ -35,7 +37,7 @@ def create_a_project(project_input):
     Returns:
         Project
     """
-    relative_url = "/api/projects"
+    relative_url = api_url
     data = project_input.get_post_data()
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
@@ -87,7 +89,7 @@ def get_a_list_of_projects(offset=0, limit=20, ids=None, names=None, name=None, 
     list_member_type_check(tags_keys, str)
     list_member_type_check(tags_values, str)
 
-    relative_url = "/api/projects?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url = api_url + "?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("ids", ids)
     relative_url += get_url_param("names", names)
     relative_url += get_url_param("name", name)
@@ -139,7 +141,7 @@ def get_all_project_tags():
           ]
         }
     """
-    relative_url = "/api/projects/tags"
+    relative_url = api_url + "/tags"
     response = get_request(relative_url=relative_url)
     return response.json()
 
@@ -173,7 +175,7 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
 
     list_member_type_check(project_ids, str)
 
-    relative_url = "/api/projects/last-scan?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url = api_url + "/last-scan?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("project-ids", project_ids)
     relative_url += get_url_param("application-id", application_id)
     relative_url += get_url_param("scan-status", scan_status)
@@ -220,7 +222,7 @@ def get_branches(offset=0, limit=20, project_id=None, branch_name=None):
     type_check(project_id, str)
     type_check(branch_name, str)
 
-    relative_url = "/api/projects/branches?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
+    relative_url = api_url + "/branches?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
     relative_url += get_url_param("project-id", project_id)
     relative_url += get_url_param("branch-name", branch_name)
     response = get_request(relative_url)
@@ -236,7 +238,7 @@ def get_a_project_by_id(project_id):
     Returns:
         RichProject
     """
-    relative_url = "/api/projects/{id}".format(id=project_id)
+    relative_url = api_url + "/{id}".format(id=project_id)
     response = get_request(relative_url=relative_url)
     project = response.json()
     return RichProject(
@@ -267,7 +269,7 @@ def update_a_project(project_id, project_input):
     is_successful = False
     if not project_id:
         return False
-    relative_url = "/api/projects/{id}".format(id=project_id)
+    relative_url = api_url + "/{id}".format(id=project_id)
     data = project_input.get_post_data()
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
@@ -286,7 +288,7 @@ def delete_a_project(project_id):
     is_successful = False
 
     if isinstance(project_id, str):
-        relative_url = "/api/projects/{id}".format(id=project_id)
+        relative_url = api_url + "/{id}".format(id=project_id)
         response = delete_request(relative_url=relative_url)
         if response.status_code == NO_CONTENT:
             is_successful = True
