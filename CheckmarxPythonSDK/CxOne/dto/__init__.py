@@ -10,6 +10,7 @@ from .AuditEvents import AuditEvents
 from .BflTree import BflTree
 from .ComplianceSummary import ComplianceSummary
 from .Container import Container
+from .Contributors import Contributors
 from .CreatedApplication import CreatedApplication
 from .CreateEnrichAccount import CreateEnrichAccount
 from .Credentials import Credentials
