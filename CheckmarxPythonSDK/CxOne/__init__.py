@@ -79,6 +79,10 @@ from .projectsAPI import (
     delete_a_project,
 )
 
+from .projectsOverviewAPI import (
+    get_tenant_projects_overview,
+)
+
 from .repoStoreServiceAPI import (
     get_commit_content,
     get_folder_content,

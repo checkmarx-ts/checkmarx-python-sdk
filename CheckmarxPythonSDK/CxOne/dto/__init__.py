@@ -16,6 +16,7 @@ from .CreateEnrichAccount import CreateEnrichAccount
 from .Credentials import Credentials
 from .DefaultConfig import DefaultConfig
 from .DefaultConfigOut import DefaultConfigOut
+from .EngineData import EngineData
 from .EnrichAccount import EnrichAccount
 from .Error import Error
 from .FileInfo import FileInfo
@@ -30,6 +31,7 @@ from .MethodParameter import MethodParameter
 from .Preset import Preset
 from .Project import Project
 from .ProjectInput import ProjectInput
+from .ProjectResponseModel import ProjectResponseModel
 from .ProjectsCollection import ProjectsCollection
 from .Queries import Queries
 from .QueriesResponse import QueriesResponse
@@ -49,6 +51,7 @@ from .ScanInput import ScanInput
 from .ScanParameter import ScanParameter
 from .ScansCollection import ScansCollection
 from .ScaPackageCounters import ScaPackageCounters
+from .SeverityCounter import SeverityCounter
 from .SeveritySummary import SeveritySummary
 from .SinkFileSummary import SinkFileSummary
 from .SinkNodeSummary import SinkNodeSummary
@@ -59,6 +62,7 @@ from .StatusDetails import StatusDetails
 from .SubCheck import SubCheck
 from .SubsetScan import SubsetScan
 from .TaskInfo import TaskInfo
+from .TotalCounters import TotalCounters
 from .Tree import Tree
 from .Upload import Upload
 from .WorkspaceQuery import WorkspaceQuery
