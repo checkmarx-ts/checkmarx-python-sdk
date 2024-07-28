@@ -81,6 +81,7 @@ from .projectsAPI import (
 
 from .projectsOverviewAPI import (
     get_tenant_projects_overview,
+    get_project_counters,
 )
 
 from .repoStoreServiceAPI import (

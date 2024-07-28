@@ -30,6 +30,7 @@ from .MethodInfo import MethodInfo
 from .MethodParameter import MethodParameter
 from .Preset import Preset
 from .Project import Project
+from .ProjectCounter import ProjectCounter
 from .ProjectInput import ProjectInput
 from .ProjectResponseModel import ProjectResponseModel
 from .ProjectsCollection import ProjectsCollection
