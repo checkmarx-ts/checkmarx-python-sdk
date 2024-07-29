@@ -84,6 +84,16 @@ from .projectsOverviewAPI import (
     get_project_counters,
 )
 
+from .queryEditorAPI import (
+    create_new_audit_session,
+)
+
+from .reportAPI import (
+    create_scan_report,
+    get_scan_report,
+    get_risk_scan_report,
+)
+
 from .repoStoreServiceAPI import (
     get_commit_content,
     get_folder_content,
