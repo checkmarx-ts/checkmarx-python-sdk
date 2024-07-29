@@ -34,6 +34,7 @@ from .ProjectCounter import ProjectCounter
 from .ProjectInput import ProjectInput
 from .ProjectResponseModel import ProjectResponseModel
 from .ProjectsCollection import ProjectsCollection
+from .Property import Property
 from .Queries import Queries
 from .QueriesResponse import QueriesResponse
 from .Query import Query
@@ -46,6 +47,9 @@ from .RichProject import RichProject
 from .Rule import Rule
 from .RuleInput import RuleInput
 from .SastResult import SastResult
+from .SastScan import SastScan
+from .ScaContainersCounters import ScaContainersCounters
+from .ScaCounters import ScaCounters
 from .Scan import Scan
 from .ScanConfig import ScanConfig
 from .ScanInput import ScanInput

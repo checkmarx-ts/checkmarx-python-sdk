@@ -109,6 +109,21 @@ from .sastQueriesAuditAPI import (
     update_query_source,
 )
 
+from .sastResourceManagementServiceAPI import (
+    get_sast_scan_allocation_info,
+    delete_sast_scan,
+    get_sast_scans,
+)
+
+from .sastResultsAPI import (
+    get_sast_results_by_scan_id,
+)
+
+from .sastResultsSummaryAPI import (
+    get_summary_for_many_scans,
+    get_sast_aggregate_results,
+)
+
 from .scanConfigurationAPI import (
     get_the_list_of_all_the_parameters_defined_for_the_current_tenant,
     define_parameters_in_the_input_list_for_the_current_tenant,
@@ -127,15 +142,6 @@ from .scanConfigurationAPI import (
 
 from .scannersResultsAPI import (
     get_all_scanners_results_by_scan_id,
-)
-
-from .sastResultsSummaryAPI import (
-    get_summary_for_many_scans,
-    get_sast_aggregate_results,
-)
-
-from .sastResultsAPI import (
-    get_sast_results_by_scan_id,
 )
 
 from .scansAPI import (
