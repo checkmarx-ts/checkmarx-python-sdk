@@ -30,7 +30,7 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
 
 
-get, _, _, _, _ = build_request_funcs(get_data_from_config)
+get, _, _, _, _, _ = build_request_funcs(get_data_from_config)
 
 
 def get_value_from_response(func):

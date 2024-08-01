@@ -95,6 +95,7 @@ from .reportAPI import (
 )
 
 from .repoStoreServiceAPI import (
+    check_if_scan_has_source_code_available,
     get_commit_content,
     get_folder_content,
     get_code,

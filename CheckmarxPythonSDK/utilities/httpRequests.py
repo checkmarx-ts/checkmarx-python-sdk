@@ -49,6 +49,26 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
                             timeout=timeout, headers=headers, verify=verify, cert=cert)
 
 
+def head(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+    """
+
+    Args:
+        url (str):
+        files :
+        data :
+        auth :
+        timeout (float, tuple, optional):
+        headers (dict):
+        verify (bool, str, optional):
+        cert (str, tuple, optional):
+
+    Returns:
+
+    """
+    return request("HEAD", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
+                   verify=verify, cert=cert)
+
+
 def get(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
     """
 
@@ -240,6 +260,18 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
 
 
 def build_request_funcs(get_data_from_config):
+
+    def head_request(relative_url, auth=None, headers=(), is_iam=False):
+        return retry_when_unauthorized(
+            function_to_send_request=head,
+            data=None,
+            get_data_from_config=get_data_from_config,
+            relative_url=relative_url,
+            auth=auth,
+            headers=headers,
+            is_iam=is_iam,
+        )
+
     def get_request(relative_url, auth=None, headers=(), is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=get,
@@ -297,7 +329,7 @@ def build_request_funcs(get_data_from_config):
             is_iam=is_iam,
         )
 
-    return get_request, post_request, put_request, patch_request, delete_request
+    return get_request, post_request, put_request, patch_request, delete_request, head_request
 
 
 def check_response(response):
@@ -305,7 +337,7 @@ def check_response(response):
     status_code = response.status_code
     text = response.text
     if True in [
-        method == 'GET' and status_code not in [OK, UNAUTHORIZED],
+        method in ['GET', 'HEAD'] and status_code not in [OK, UNAUTHORIZED],
         method == 'POST' and status_code not in [OK, CREATED, UNAUTHORIZED, ACCEPTED],
         method in ['PUT', 'PATCH', 'DELETE'] and status_code not in [OK, NO_CONTENT, ACCEPTED, UNAUTHORIZED],
     ]:

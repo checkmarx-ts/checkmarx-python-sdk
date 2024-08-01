@@ -23,7 +23,7 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
 
 
-get, post, put, _, delete = build_request_funcs(get_data_from_config)
+get, post, put, _, delete, _ = build_request_funcs(get_data_from_config)
 
 agent_headers = {
     "user-agent":

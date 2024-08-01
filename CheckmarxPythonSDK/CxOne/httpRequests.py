@@ -27,7 +27,7 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
 
 
-get, post, put, patch, delete = build_request_funcs(get_data_from_config)
+get, post, put, patch, delete, head = build_request_funcs(get_data_from_config)
 
 headers = {
     "user-agent":
@@ -114,5 +114,21 @@ def delete_request(relative_url, data=None, is_iam=False):
 
     """
     response = delete(relative_url, data, is_iam=is_iam, headers=headers)
+    check_response(response)
+    return response
+
+
+def head_request(relative_url, is_iam=False):
+    """
+
+    Args:
+        relative_url (str):
+        is_iam (bool): True if the endpoint is for Identity And Management
+
+    Returns:
+
+    """
+
+    response = head(relative_url, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
