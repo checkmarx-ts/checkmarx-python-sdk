@@ -1,4 +1,5 @@
-from .httpRequests import get_request, head_request
+import json
+from .httpRequests import get_request, head_request, post_request
 from .utilities import get_url_param, type_check, list_member_type_check
 from .dto import Tree, FileInfo
 from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT
@@ -89,15 +90,34 @@ def get_project_tree_structure(commit_id):
     Returns:
 
     """
-    relative_url = repo_store_url + "/files/{commit_id}/{file_name}".format(commit_id=commit_id, file_name=file_name)
+    relative_url = repo_store_url + "/project-tree/{commit_id}".format(commit_id=commit_id)
     response = get_request(relative_url=relative_url)
     return response
 
 
-def get_the_list_of_branches_inside_a_git_repository(project_id, repo_url, token=None):
-    relative_url = repo_store_url + "/git/fetch-branches?project-id={project_id}&repo-url={repo_url}".format(
-        project_id=project_id, repo_url=repo_url
+def get_the_list_of_branches_inside_a_git_repository(project_id, repo_url, token=None, ssh_key=None):
+    """
+
+    Args:
+        project_id:
+        repo_url:
+        token:
+        ssh_key:
+
+    Returns:
+        list of str
+    """
+    result = None
+    relative_url = repo_store_url + "/git/fetch-branches"
+    data = json.dumps(
+        {
+            "repoURL": repo_url,
+            "token": token,
+            "projectID": project_id,
+            "sshKey": ssh_key
+        }
     )
-    relative_url += get_url_param("token", token)
-    response = get_request(relative_url=relative_url)
-    return response
+    response = post_request(relative_url=relative_url, data=data)
+    if response.status_code == OK:
+        result = response.json()
+    return result
