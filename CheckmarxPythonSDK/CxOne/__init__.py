@@ -135,6 +135,13 @@ from .sastResultsSummaryAPI import (
     get_sast_aggregate_results,
 )
 
+from .sastScanMetadataServiceAPI import (
+    get_metadata_of_scans,
+    get_metadata_of_scan,
+    get_engine_metrics_of_scan,
+    get_engine_versions_of_scan,
+)
+
 from .scanConfigurationAPI import (
     get_the_list_of_all_the_parameters_defined_for_the_current_tenant,
     define_parameters_in_the_input_list_for_the_current_tenant,

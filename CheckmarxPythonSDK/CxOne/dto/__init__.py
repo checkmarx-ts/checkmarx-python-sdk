@@ -17,6 +17,7 @@ from .Credentials import Credentials
 from .DefaultConfig import DefaultConfig
 from .DefaultConfigOut import DefaultConfigOut
 from .EngineData import EngineData
+from .EngineMetrics import EngineMetrics
 from .EnrichAccount import EnrichAccount
 from .Error import Error
 from .FileInfo import FileInfo
@@ -52,6 +53,9 @@ from .ScaContainersCounters import ScaContainersCounters
 from .ScaCounters import ScaCounters
 from .Scan import Scan
 from .ScanConfig import ScanConfig
+from .ScanEngineVersion import ScanEngineVersion
+from .ScanInfo import ScanInfo
+from .ScanInfoCollection import ScanInfoCollection
 from .ScanInput import ScanInput
 from .ScanParameter import ScanParameter
 from .ScansCollection import ScansCollection
