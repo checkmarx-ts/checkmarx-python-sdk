@@ -36,6 +36,8 @@ from .LogItem import LogItem
 from .MethodInfo import MethodInfo
 from .MethodParameter import MethodParameter
 from .Preset import Preset
+from .PresetPaged import PresetPaged
+from .PresetSummary import PresetSummary
 from .Project import Project
 from .ProjectCounter import ProjectCounter
 from .ProjectInput import ProjectInput
@@ -47,6 +49,7 @@ from .QueriesResponse import QueriesResponse
 from .Query import Query
 from .QueryDescription import QueryDescription
 from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
+from .QueryDetails import QueryDetails
 from .Result import Result
 from .ResultNode import ResultNode
 from .ResultsSummary import ResultsSummary

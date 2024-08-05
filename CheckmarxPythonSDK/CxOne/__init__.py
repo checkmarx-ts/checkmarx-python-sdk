@@ -123,6 +123,18 @@ from .sastQueriesAuditAPI import (
     update_query_source,
 )
 
+from .sastQueriesAuditPresetsAPI import (
+    get_presets,
+    create_new_preset,
+    get_queries,
+    get_preset_by_id,
+    update_a_preset,
+    delete_a_preset_by_id,
+    get_preset_summary_by_id,
+    clone_preset,
+    add_query_to_preset,
+)
+
 from .sastResourceManagementServiceAPI import (
     get_sast_scan_allocation_info,
     delete_sast_scan,
