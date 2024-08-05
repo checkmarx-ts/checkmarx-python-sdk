@@ -145,7 +145,7 @@ from .sastResultsAPI import (
     get_sast_results_by_scan_id,
 )
 
-from .sastResultsSummaryAPI import (
+from .resultsSummaryAPI import (
     get_summary_for_many_scans,
     get_sast_aggregate_results,
 )
