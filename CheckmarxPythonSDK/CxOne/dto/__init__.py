@@ -8,6 +8,8 @@ from .AuditEvent import AuditEvent
 from .AuditEventLink import AuditEventLink
 from .AuditEvents import AuditEvents
 from .BflTree import BflTree
+from .Category import Category
+from .CategoryType import CategoryType
 from .ComplianceSummary import ComplianceSummary
 from .Container import Container
 from .Contributors import Contributors

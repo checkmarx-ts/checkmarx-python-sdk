@@ -111,6 +111,9 @@ from .sastQueriesAPI import (
     get_list_of_the_existing_query_repos,
     get_sast_queries_presets,
     get_sast_query_description,
+    get_mapping_between_ast_and_sast_query_ids,
+    get_sast_queries_preset_for_a_specific_scan,
+    get_sast_queries_categories,
 )
 
 from .sastQueriesAuditAPI import (

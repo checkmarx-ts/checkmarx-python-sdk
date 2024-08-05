@@ -1,6 +1,7 @@
 from .httpRequests import get_request
 from .utilities import get_url_param, type_check, list_member_type_check
-from .dto import QueriesResponse, Preset, QueryDescription, QueryDescriptionSampleCode
+from .dto import QueriesResponse, Preset, QueryDescription, QueryDescriptionSampleCode, Category, CategoryType
+from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 
 query_url = "/api/queries"
 
@@ -77,3 +78,69 @@ def get_sast_query_description(ids):
             ],
         ) for item in response or []
     ]
+
+
+def get_mapping_between_ast_and_sast_query_ids():
+    """
+
+    Returns:
+        list of dict
+        [
+        {
+          "astId": "string",
+          "sastId": "string"
+        }
+      ]
+    """
+    result = None
+    relative_url = query_url + "/mappings"
+    response = get_request(relative_url=relative_url)
+    if response.status_code == OK:
+        result = response.json().get("mappings")
+    return result
+
+
+def get_sast_queries_preset_for_a_specific_scan(scan_id):
+    """
+
+    Args:
+        scan_id (str):
+
+    Returns:
+        prest_id (int)
+    """
+    result = None
+    relative_url = query_url + f"/preset/{scan_id}"
+    response = get_request(relative_url=relative_url)
+    if response.status_code == OK:
+        result = response.json().get("id")
+    return result
+
+
+def get_sast_queries_categories():
+    """
+
+    Returns:
+        list of CategoryType
+    """
+    result = None
+    relative_url = query_url + "/categories-types"
+    response = get_request(relative_url=relative_url)
+    if response.status_code == OK:
+        response = response.json()
+        result = [
+            CategoryType(
+                category_type_id=item.get("id"),
+                name=item.get("name"),
+                sast_id=item.get("sastId"),
+                order=item.get("order"),
+                categories=[
+                    Category(
+                        category_id=category.get("id"),
+                        name=category.get("name"),
+                        sast_id=category.get("sastId"),
+                    ) for category in item.get("categories", []) or []
+                ]
+            ) for item in response
+        ]
+    return result
