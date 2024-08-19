@@ -31,3 +31,18 @@ class ResultNode(object):
             self.column, self.fileName, self.fullName, self.length, self.line, self.methodLine, self.method, self.name,
             self.domType, self.nodeHash
         )
+
+
+def construct_result_node(node):
+    return ResultNode(
+        column=node.get("column"),
+        file_name=node.get('fileName'),
+        full_name=node.get('fullName'),
+        length=node.get('length'),
+        line=node.get('line'),
+        method_line=node.get('methodLine'),
+        method=node.get("method"),
+        name=node.get('name'),
+        dom_type=node.get('domType'),
+        node_hash=node.get("nodeHash"),
+    )

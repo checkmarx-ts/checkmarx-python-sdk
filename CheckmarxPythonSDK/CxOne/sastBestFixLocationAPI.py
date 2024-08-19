@@ -1,6 +1,6 @@
 from .httpRequests import get_request
 from .utilities import get_url_param, type_check, list_member_type_check
-from .dto import BflTree, SastResult, ResultNode
+from .dto import BflTree, SastResult, ResultNode, construct_result_node
 
 api_url = "/api/bfl"
 
@@ -50,17 +50,7 @@ def get_bfl_graph_by_scan_id(scan_id, query_id=None, result_ids=None, include_gr
         "trees": [
             BflTree(
                 tree_id=tree.get("id"),
-                bfl=ResultNode(
-                    column=tree.get("bfl").get('column'),
-                    file_name=tree.get("bfl").get('fileName'),
-                    full_name=tree.get("bfl").get('fullName'),
-                    length=tree.get("bfl").get('length'),
-                    line=tree.get("bfl").get('line'),
-                    method_line=tree.get("bfl").get('methodLine'),
-                    method=tree.get("bfl").get('method'),
-                    name=tree.get("bfl").get('name'),
-                    dom_type=tree.get("bfl").get('domType')
-                ),
+                bfl=construct_result_node(tree.get("bfl")),
                 results=[
                     SastResult(
                         result_id=result.get('uniqueID'),
@@ -80,17 +70,7 @@ def get_bfl_graph_by_scan_id(scan_id, query_id=None, result_ids=None, include_gr
                         status=result.get("status"),
                         found_at=result.get("foundAt"),
                         nodes=[
-                            ResultNode(
-                                column=node.get("column"),
-                                file_name=node.get('fileName'),
-                                full_name=node.get('fullName'),
-                                length=node.get('length'),
-                                line=node.get('line'),
-                                method_line=node.get('methodLine'),
-                                method=node.get("method"),
-                                name=node.get('name'),
-                                dom_type=node.get('domType'),
-                            ) for node in result.get("nodes") or []
+                            construct_result_node(node) for node in result.get("nodes") or []
                         ],
                         state=result.get("state"),
                     ) for result in tree.get('results') or []

@@ -10,6 +10,7 @@ from .AuditEvents import AuditEvents
 from .BflTree import BflTree
 from .Category import Category
 from .CategoryType import CategoryType
+from .ChangeDetails import ChangeDetails, construct_change_details
 from .ComplianceSummary import ComplianceSummary
 from .Container import Container
 from .Contributors import Contributors
@@ -51,12 +52,12 @@ from .QueryDescription import QueryDescription
 from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
 from .QueryDetails import QueryDetails
 from .Result import Result
-from .ResultNode import ResultNode
+from .ResultNode import ResultNode, construct_result_node
 from .ResultsSummary import ResultsSummary
 from .RichProject import RichProject
 from .Rule import Rule
 from .RuleInput import RuleInput
-from .SastResult import SastResult
+from .SastResult import SastResult, construct_sast_result
 from .SastScan import SastScan
 from .ScaContainersCounters import ScaContainersCounters
 from .ScaCounters import ScaCounters

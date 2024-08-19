@@ -4,5 +4,5 @@ from CheckmarxPythonSDK.CxOne import (
 
 
 def test_get_sast_results_by_scan_id():
-    response = get_sast_results_by_scan_id(scan_id="353d9a5d-cf52-4384-8516-e31d7447ead1")
+    response = get_sast_results_by_scan_id(scan_id="ae8ae620-06bb-4c16-bb15-809270e0ccc6")
     assert response is not None
