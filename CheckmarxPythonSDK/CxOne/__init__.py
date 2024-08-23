@@ -103,6 +103,10 @@ from .repoStoreServiceAPI import (
     get_the_list_of_branches_inside_a_git_repository,
 )
 
+from .resultsSummaryAPI import (
+    get_summary_for_many_scans,
+)
+
 from .sastBestFixLocationAPI import (
     get_bfl_graph_by_scan_id,
 )
@@ -145,10 +149,10 @@ from .sastResultsAPI import (
     get_sast_results_by_scan_id,
 )
 
-from .resultsSummaryAPI import (
-    get_summary_for_many_scans,
+from .sastResultsSummaryAPI import (
     get_sast_aggregate_results,
 )
+
 
 from .sastScanMetadataServiceAPI import (
     get_metadata_of_scans,
