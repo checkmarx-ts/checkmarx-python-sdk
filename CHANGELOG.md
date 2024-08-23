@@ -278,3 +278,6 @@ All notable changes to this project will be documented in  this file.
 
 0.9.1 - 2024-07-17
 * Add support for new APIs
+
+0.9.2 - 2024-08-23
+* Add support for CxOne APIs
