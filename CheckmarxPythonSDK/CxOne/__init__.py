@@ -190,6 +190,7 @@ from .scansAPI import (
     get_the_list_of_available_config_as_code_template_files,
     get_the_config_as_code_template_file,
     get_scan_by_id,
+    get_a_scan_by_id,
     cancel_scan,
     delete_scan,
     get_a_detailed_workflow_of_a_scan,
