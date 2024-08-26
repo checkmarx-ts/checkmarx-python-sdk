@@ -20,7 +20,11 @@ def get_data_from_config():
         "scope": scope,
         "client_id": "sca_resource_owner",
     }
-    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
+    proxies = {
+        "http": config.get("proxy"),
+        "https": config.get("proxy"),
+    }
+    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
 get, post, put, _, delete, _ = build_request_funcs(get_data_from_config)

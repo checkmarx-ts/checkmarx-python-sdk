@@ -23,7 +23,11 @@ def get_data_from_config():
         "client_id": client_id,
         "client_secret": client_secret,
     }
-    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
+    proxies = {
+        "http": config.get("proxy"),
+        "https": config.get("proxy"),
+    }
+    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
 get_request, post_request, _, _, _, _ = build_request_funcs(get_data_from_config)

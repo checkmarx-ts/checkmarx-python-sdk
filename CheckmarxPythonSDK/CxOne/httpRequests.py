@@ -24,7 +24,11 @@ def get_data_from_config():
             "client_id": "ast-app",
             "refresh_token": config.get("refresh_token"),
         }
-    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
+    proxies = {
+        "http": config.get("proxy"),
+        "https": config.get("proxy"),
+    }
+    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
 get, post, put, patch, delete, head = build_request_funcs(get_data_from_config)

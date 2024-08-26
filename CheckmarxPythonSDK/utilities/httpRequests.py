@@ -15,7 +15,7 @@ logger = logging.getLogger("CheckmarxPythonSDK")
 
 
 def request(method, url, params=None, data=None, json=None, files=None, auth=None, timeout=None, headers=None,
-            verify=False, cert=None):
+            verify=False, cert=None, proxies=None):
     """
     https://requests.readthedocs.io/en/latest/api/#requests.request
     Args:
@@ -46,10 +46,10 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
 
     """
     return requests.request(method=method, url=url, params=params, data=data, json=json, files=files, auth=auth,
-                            timeout=timeout, headers=headers, verify=verify, cert=cert)
+                            timeout=timeout, headers=headers, verify=verify, cert=cert, proxies=proxies)
 
 
-def head(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+def head(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
@@ -61,15 +61,16 @@ def head(url, files=None, data=None, auth=None, timeout=None, headers=None, veri
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
+        proxies (dict, optional)
 
     Returns:
 
     """
     return request("HEAD", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
-                   verify=verify, cert=cert)
+                   verify=verify, cert=cert, proxies=proxies)
 
 
-def get(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+def get(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
@@ -81,15 +82,16 @@ def get(url, files=None, data=None, auth=None, timeout=None, headers=None, verif
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
+         proxies (dict, optional):
 
     Returns:
 
     """
     return request("GET", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
-                   verify=verify, cert=cert)
+                   verify=verify, cert=cert, proxies=proxies)
 
 
-def post(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+def post(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
@@ -101,14 +103,15 @@ def post(url, data, files=None, auth=None, timeout=None, headers=None, verify=Fa
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
+         proxies (dict, optional):
 
     Returns:
     """
     return request("POST", url, data=data, files=files, auth=auth, timeout=timeout, headers=headers,
-                   verify=verify, cert=cert)
+                   verify=verify, cert=cert, proxies=proxies)
 
 
-def put(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+def put(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
@@ -120,14 +123,15 @@ def put(url, data, files=None, auth=None, timeout=None, headers=None, verify=Fal
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
+        proxies (dict, optional):
 
     Returns:
     """
     return request("PUT", url, data=data, files=files, auth=auth, timeout=timeout, headers=headers,
-                   verify=verify, cert=cert)
+                   verify=verify, cert=cert, proxies=proxies)
 
 
-def patch(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+def patch(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
@@ -139,14 +143,15 @@ def patch(url, data, files=None, auth=None, timeout=None, headers=None, verify=F
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
+        proxies (dict, optional):
 
     Returns:
     """
     return request("PATCH", url, files=files, auth=auth, data=data, timeout=timeout, headers=headers,
-                   verify=verify, cert=cert)
+                   verify=verify, cert=cert, proxies=proxies)
 
 
-def delete(url, data=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None):
+def delete(url, data=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
@@ -158,15 +163,16 @@ def delete(url, data=None, files=None, auth=None, timeout=None, headers=None, ve
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
+        proxies (dict, optional)
 
     Returns:
 
     """
     return request("DELETE", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
-                   verify=verify, cert=cert)
+                   verify=verify, cert=cert, proxies=proxies)
 
 
-def get_new_token(token_url, request_data, timeout=None, verify_ssl_cert=False, cert=None):
+def get_new_token(token_url, request_data, timeout=None, verify_ssl_cert=False, cert=None, proxies=None):
     """
 
     Args:
@@ -175,12 +181,14 @@ def get_new_token(token_url, request_data, timeout=None, verify_ssl_cert=False, 
         timeout (float, tuple, optional):
         verify_ssl_cert (bool, str):
         cert:
+        proxies (dict, optional):
 
     Returns:
         Bear Token (str)
     """
 
-    response = post(url=token_url, data=request_data, timeout=timeout, verify=verify_ssl_cert, cert=cert)
+    response = post(url=token_url, data=request_data, timeout=timeout, verify=verify_ssl_cert, cert=cert,
+                    proxies=proxies)
 
     if response.status_code != OK:
         raise ValueError(response.text, response.status_code)
@@ -189,7 +197,7 @@ def get_new_token(token_url, request_data, timeout=None, verify_ssl_cert=False, 
     return content.get("token_type") + " " + content.get("access_token")
 
 
-def update_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cert=None):
+def update_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cert=None, proxies=None):
     """
 
     Args:
@@ -198,6 +206,7 @@ def update_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cert
         timeout (float, tuple, optional):
         verify_ssl_cert (bool, str):
         cert:
+        proxies (dict, optional)
 
     Returns:
 
@@ -207,7 +216,8 @@ def update_header(token_url, req_data, timeout=None, verify_ssl_cert=False, cert
         request_data=req_data,
         timeout=timeout,
         verify_ssl_cert=verify_ssl_cert,
-        cert=cert
+        cert=cert,
+        proxies=proxies,
     )
     auth_header.update({"Authorization": new_token})
 
@@ -220,7 +230,7 @@ auth_header = {
 
 def retry_when_unauthorized(function_to_send_request, data, get_data_from_config, relative_url, files=None, auth=None,
                             headers=(), is_iam=False):
-    server_url, token_url, timeout, verify, cert, token_req_data = get_data_from_config()
+    server_url, token_url, timeout, verify, cert, token_req_data, proxies = get_data_from_config()
     url = server_url + relative_url
     # is_iam is used for Access Control API
     if is_iam:
@@ -234,13 +244,13 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
     logger.debug(
         "first http request:"
         "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, "
-        "origin_headers: {origin_headers}, verify: {verify}, cert: {cert}".format(
+        "origin_headers: {origin_headers}, verify: {verify}, cert: {cert}, proxies: {proxies}".format(
             method=function_to_send_request.__name__, url=url, data=data, auth=auth, timeout=timeout,
-            origin_headers=temp_header, verify=verify, cert=cert
+            origin_headers=temp_header, verify=verify, cert=cert, proxies=proxies
         )
     )
     response = function_to_send_request(url=url, data=data, auth=auth, timeout=timeout, headers=temp_header,
-                                        files=files, verify=verify, cert=cert)
+                                        files=files, verify=verify, cert=cert, proxies=proxies)
     if UNAUTHORIZED == response.status_code:
         update_header(token_url, token_req_data, timeout, verify, cert)
         temp_header.update(auth_header)
@@ -251,11 +261,11 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
             "new_auth_header: {new_auth_header}, verify: {verify}, cert: {cert}".format(
                 method=function_to_send_request.__name__, url=url, data=data, auth=auth, timeout=timeout,
                 new_auth_header=temp_header, verify=verify,
-                cert=cert
+                cert=cert, proxies=proxies,
             )
         )
         response = function_to_send_request(url=url, data=data, auth=auth, timeout=timeout, headers=temp_header,
-                                            files=files, verify=verify, cert=cert)
+                                            files=files, verify=verify, cert=cert, proxies=proxies)
     return response
 
 

@@ -26,7 +26,10 @@ def get_client_and_factory(relative_web_interface_url):
     )
 
     client.transport.session.verify = False
-
+    client.transport.session.proxies = {
+        'http': config.get("proxy"),
+        'https': config.get("proxy"),
+    }
     factory = client.type_factory("ns0")
 
     return client, factory
