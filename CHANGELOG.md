@@ -284,3 +284,6 @@ All notable changes to this project will be documented in  this file.
 
 0.9.3 - 2024-08-26
 * CxOne refactor header user-agent
+
+0.9.4 - 2024-08-26
+* Add support for proxy
