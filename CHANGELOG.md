@@ -287,3 +287,6 @@ All notable changes to this project will be documented in  this file.
 
 0.9.4 - 2024-08-26
 * Add support for proxy
+
+0.9.5 - 2024-08-26
+* Fix update_header proxy issue
