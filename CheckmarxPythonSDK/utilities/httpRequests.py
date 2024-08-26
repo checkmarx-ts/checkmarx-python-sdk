@@ -252,7 +252,7 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
     response = function_to_send_request(url=url, data=data, auth=auth, timeout=timeout, headers=temp_header,
                                         files=files, verify=verify, cert=cert, proxies=proxies)
     if UNAUTHORIZED == response.status_code:
-        update_header(token_url, token_req_data, timeout, verify, cert)
+        update_header(token_url, token_req_data, timeout, verify, cert, proxies=proxies)
         temp_header.update(auth_header)
         logger.debug(
             "http response status code is UNAUTHORIZED !\n."
