@@ -37,13 +37,13 @@ def test_ast_create_scan_by_upload_file():
     url = create_a_pre_signed_url_to_upload_files()
     is_successful = upload_zip_content_for_scanning(
         upload_link=url,
-        zip_file_path=(r"C:\Users\HappyY\Documents\SourceCode\GitHub\checkmarx-python-sdk"
-                       r"\tests\JavaVulnerableLab-master.zip")
+        zip_file_path=("/home/happy/Documents/software/application_security/checkmarx/tools/checkmarx-python-sdk"
+                       "/tests/JavaVulnerableLab-master.zip")
     )
     assert is_successful is True
     scan_input = ScanInput(
         scan_type="upload",
-        handler=Upload(upload_url=url),
+        handler=Upload(upload_url=url, branch="master"),
         project=Project(project_id=project_id, tags={"test": "", "priority": "high"}),
         configs=[
             ScanConfig("sast", {"incremental": "false", "presetName": "ASA Premium"}),
