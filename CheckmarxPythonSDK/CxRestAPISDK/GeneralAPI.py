@@ -351,10 +351,10 @@ class GeneralAPI:
             Id of result state(int)
         """
         result = None
-        if not isinstance(translation_inputs, (list, tuple)):
+        if translation_inputs and not isinstance(translation_inputs, (list, tuple)):
             raise ValueError("translation_inputs should be list or tuple")
         for item in translation_inputs:
-            if not isinstance(item, CxTranslationInput):
+            if item and not isinstance(item, CxTranslationInput):
                 raise ValueError("member of translation_inputs should be CxTranslationInput")
 
         result = None
@@ -384,10 +384,10 @@ class GeneralAPI:
             bool
         """
         is_successful = False
-        if not isinstance(translation_inputs, (list, tuple)):
+        if translation_inputs and not isinstance(translation_inputs, (list, tuple)):
             raise ValueError("translation_inputs should be list or tuple")
         for item in translation_inputs:
-            if not isinstance(item, CxTranslationInput):
+            if item and not isinstance(item, CxTranslationInput):
                 raise ValueError("member of translation_inputs should be CxTranslationInput")
         patch_data = json.dumps(
             {
@@ -448,10 +448,10 @@ class GeneralAPI:
         Returns:
             list
         """
-        if not isinstance(persistence_keys, list):
+        if persistence_keys and not isinstance(persistence_keys, list):
             raise ValueError("parameter persistence_keys should be a list of str")
         for item in persistence_keys:
-            if not isinstance(item, str):
+            if item and not isinstance(item, str):
                 raise ValueError("all member in persistence_keys should be a str")
         result = None
         relative_url = "/cxrestapi/userPersistence?"
@@ -474,10 +474,10 @@ class GeneralAPI:
 
         """
         is_successful = False
-        if not isinstance(persistence_items, list):
+        if persistence_items and not isinstance(persistence_items, list):
             raise ValueError("parameter persistence_items should be a list of CxUserPersistence")
         for item in persistence_items:
-            if not isinstance(item, CxUserPersistence):
+            if item and not isinstance(item, CxUserPersistence):
                 raise ValueError("member in parameter persistence_items should be CxUserPersistence")
         result = None
         relative_url = "/cxrestapi/userPersistence"

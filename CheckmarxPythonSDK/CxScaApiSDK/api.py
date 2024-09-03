@@ -1062,7 +1062,7 @@ class Sca(object):
         """
         if report_format not in ["Json", "Xml", "Pdf", "Csv", "CycloneDxJson", "CycloneDxXml"]:
             raise ValueError("parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml")
-        if not isinstance(data_types, (list, tuple)):
+        if data_types and not isinstance(data_types, (list, tuple)):
             raise ValueError("parameter data_types can only be list or tuple")
         for item in data_types:
             if item not in ["All", "Packages", "Vulnerabilities", "Licenses", "Policies", "SupplyChainRisks"]:

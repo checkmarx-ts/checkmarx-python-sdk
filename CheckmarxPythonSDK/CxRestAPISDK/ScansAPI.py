@@ -595,11 +595,11 @@ class ScansAPI(object):
             CxError
         """
         result = None
-        if not isinstance(failed_scan_emails, list):
+        if failed_scan_emails and not isinstance(failed_scan_emails, list):
             raise ValueError("failed_scan_emails should be a list")
-        if not isinstance(before_scan_emails, list):
+        if before_scan_emails and not isinstance(before_scan_emails, list):
             raise ValueError("before_scan_emails should be a list")
-        if not isinstance(after_scan_emails, list):
+        if after_scan_emails and not isinstance(after_scan_emails, list):
             raise ValueError("after_scan_emails should be a list")
         relative_url = "/cxrestapi/sast/scanSettings"
         post_data = json.dumps(
@@ -668,11 +668,11 @@ class ScansAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/sast/scanSettings"
-        if not isinstance(failed_scan_emails, list):
+        if failed_scan_emails and not isinstance(failed_scan_emails, list):
             raise ValueError("failed_scan_emails should be a list")
-        if not isinstance(before_scan_emails, list):
+        if before_scan_emails and not isinstance(before_scan_emails, list):
             raise ValueError("before_scan_emails should be a list")
-        if not isinstance(after_scan_emails, list):
+        if after_scan_emails and not isinstance(after_scan_emails, list):
             raise ValueError("after_scan_emails should be a list")
         put_data = json.dumps(
             {

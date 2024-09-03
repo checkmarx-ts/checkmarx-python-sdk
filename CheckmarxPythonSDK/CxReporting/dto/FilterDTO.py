@@ -46,7 +46,7 @@ class FilterDTO(object):
             included_values (list of str, optional):
             pattern (str, optional):
         """
-        if not isinstance(filter_type, int):
+        if filter_type and not isinstance(filter_type, int):
             raise ValueError("parameter filter_type type should be int")
         if excluded_values and not isinstance(excluded_values, (list, tuple)):
             raise ValueError("parameter excluded_values type should be list or tuple")

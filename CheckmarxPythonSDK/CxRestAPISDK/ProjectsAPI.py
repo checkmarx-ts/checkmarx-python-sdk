@@ -168,7 +168,7 @@ class ProjectsAPI(object):
         """
         result = False
         relative_url = "/cxrestapi/projects/{id}".format(id=project_id)
-        if not isinstance(custom_fields, (list, tuple)):
+        if custom_fields and not isinstance(custom_fields, (list, tuple)):
             raise ValueError("parameter custom_fields should be a list of CxCustomField")
         put_data = json.dumps(
             {

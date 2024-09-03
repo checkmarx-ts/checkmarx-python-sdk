@@ -7,9 +7,9 @@ class CxUserPersistence(object):
             key (str):
             value (str):
         """
-        if not isinstance(key, str):
+        if key and not isinstance(key, str):
             raise ValueError("parameter key should be str")
-        if not isinstance(value, str):
+        if value and not isinstance(value, str):
             raise ValueError("parameter value should be str")
         self.key = key
         self.value = value

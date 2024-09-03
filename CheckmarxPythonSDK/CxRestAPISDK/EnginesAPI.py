@@ -106,7 +106,7 @@ class EnginesAPI(object):
             if not isinstance(dedications, list):
                 raise ValueError("parameter dedications should be a list of CxEngineDedication")
             for dedication in dedications:
-                if not isinstance(dedication, CxEngineDedication):
+                if dedication and not isinstance(dedication, CxEngineDedication):
                     raise ValueError("member of dedications should be CxEngineDedication")
 
         post_data = json.dumps(
@@ -216,7 +216,7 @@ class EnginesAPI(object):
             if not isinstance(dedications, list):
                 raise ValueError("parameter dedications should be a list of CxEngineDedication")
             for dedication in dedications:
-                if not isinstance(dedication, CxEngineDedication):
+                if dedication and not isinstance(dedication, CxEngineDedication):
                     raise ValueError("member of dedications should be CxEngineDedication")
         relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
         put_data = json.dumps(
@@ -274,7 +274,7 @@ class EnginesAPI(object):
             if not isinstance(dedications, list):
                 raise ValueError("parameter dedications should be a list of CxEngineDedication")
             for dedication in dedications:
-                if not isinstance(dedication, CxEngineDedication):
+                if dedication and not isinstance(dedication, CxEngineDedication):
                     raise ValueError("member of dedications should be CxEngineDedication")
         relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
         data = {}
