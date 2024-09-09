@@ -32,22 +32,22 @@ class CreateReportDTO(object):
             filters (list of FilterDTO): nullable: true,
                         Filters to be applied in the report creation.
         """
-        if not isinstance(template_id, int):
+        if template_id and not isinstance(template_id, int):
             raise ValueError("parameter template_id type should be int")
-        if not isinstance(output_format, str):
+        if output_format and not isinstance(output_format, str):
             raise ValueError("parameter output type should be str")
-        if not isinstance(entity_id, (list, tuple)):
+        if entity_id and not isinstance(entity_id, (list, tuple)):
             raise ValueError("parameter entity_id type should be list or tuple")
         for entity in entity_id:
-            if not isinstance(entity, str):
+            if entity and not isinstance(entity, str):
                 raise ValueError("All entity id should be str")
-        if not isinstance(report_name, str):
+        if report_name and not isinstance(report_name, str):
             raise ValueError("parameter report_name type should be str")
         if filters:
             if not isinstance(filters, (list, tuple)):
                 raise ValueError("parameter filters type should be list or tuple")
             for a_filter in filters:
-                if not isinstance(a_filter, FilterDTO):
+                if a_filter and not isinstance(a_filter, FilterDTO):
                     raise ValueError("all filters should be FilterDTO")
 
         if not (1 <= template_id <= 7):

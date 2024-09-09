@@ -37,7 +37,7 @@ def create_a_new_report_request(report_request):
     """
     report_id = None
 
-    if not isinstance(report_request, CreateReportDTO):
+    if report_request and not isinstance(report_request, CreateReportDTO):
         return report_id
 
     relative_url = "/api/reports"

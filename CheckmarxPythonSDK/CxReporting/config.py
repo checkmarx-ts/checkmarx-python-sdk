@@ -14,6 +14,7 @@ config_default = {
     "timeout": 60,
     "verify": False,
     "cert": None,
+    "proxy": None,
 }
 
 config = get_config(config_default=config_default, section="CxReporting", prefix="cxreporting_")

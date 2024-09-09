@@ -278,3 +278,18 @@ All notable changes to this project will be documented in  this file.
 
 0.9.1 - 2024-07-17
 * Add support for new APIs
+
+0.9.2 - 2024-08-23
+* Add support for CxOne APIs
+
+0.9.3 - 2024-08-26
+* CxOne refactor header user-agent
+
+0.9.4 - 2024-08-26
+* Add support for proxy
+
+0.9.5 - 2024-08-26
+* Fix update_header proxy issue
+
+0.9.6 - 2024-09-03
+* Fix type checking

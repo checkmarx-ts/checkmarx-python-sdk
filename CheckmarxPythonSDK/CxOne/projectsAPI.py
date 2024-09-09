@@ -147,7 +147,8 @@ def get_all_project_tags():
 
 
 def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None, scan_status=None,
-                       branch=None, engine=None):
+                       branch=None, engine=None, sast_status=None, kics_status=None, sca_status=None,
+                       apisec_status=None, microengines_status=None, containers_status=None):
     """
     Get a key-value map, key=[project id], value=[last scan (based on the filter)]
 
@@ -161,6 +162,13 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
         scan_status (str): Scan status, please look at the scans API description for status options
         branch (str): Git branch of the scan
         engine (str): Engine type of the scan
+        sast_status (str): Sast engine status, please look at the scans API description for status options
+        kics_status (str): Kics engine status, please look at the scans API description for status options
+        sca_status (str): Sca engine status, please look at the scans API description for status options
+        apisec_status (str): APISec engine status, please look at the scans API description for status options
+        microengines_status (str): Micro Engines engine status, please look at the scans API description for status
+                            options
+        containers_status (str): Containers engine status, please look at the scans API description for status options
 
     Returns:
         dict
@@ -181,6 +189,14 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
     relative_url += get_url_param("scan-status", scan_status)
     relative_url += get_url_param("branch", branch)
     relative_url += get_url_param("engine", engine)
+
+    relative_url += get_url_param("sast-status", engine)
+    relative_url += get_url_param("kics-status", engine)
+    relative_url += get_url_param("sca-status", engine)
+    relative_url += get_url_param("apisec-status", engine)
+    relative_url += get_url_param("microengines-status", engine)
+    relative_url += get_url_param("containers-status", engine)
+
     response = get_request(relative_url=relative_url)
     project_scan_map = response.json()
     return {
@@ -195,7 +211,7 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
             engines=value.get("engines"),
             source_type=value.get("sourceType"),
             source_origin=value.get("sourceOrigin")
-        )
+        ) if value else None
         for key, value in project_scan_map.items()
     }
 

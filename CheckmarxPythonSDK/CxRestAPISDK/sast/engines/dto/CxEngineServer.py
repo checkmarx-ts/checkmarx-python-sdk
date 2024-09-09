@@ -34,7 +34,7 @@ class CxEngineServer(object):
             if not isinstance(dedications, list):
                 raise ValueError("parameter dedications should be a list of CxEngineDedication")
             for item in dedications:
-                if not isinstance(item, CxEngineDedication):
+                if item and not isinstance(item, CxEngineDedication):
                     raise ValueError("member of dedications should be CxEngineDedication")
 
         self.id = engine_server_id
