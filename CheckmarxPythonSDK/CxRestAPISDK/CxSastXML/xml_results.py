@@ -104,6 +104,8 @@ def obj_to_dict(obj) -> dict:
     obj_dict = obj.__dict__
     for key, value in obj_dict.items():
         if value is None or isinstance(value, (int, str)):
+            if key == 'schema':
+                key = '$schema'
             result[key] = value
         elif isinstance(value, list):
             result[key] = []
@@ -111,6 +113,7 @@ def obj_to_dict(obj) -> dict:
                 result[key].append(obj_to_dict(item))
         else:
             result[key] = obj_to_dict(value)
+
     return result
 
 
