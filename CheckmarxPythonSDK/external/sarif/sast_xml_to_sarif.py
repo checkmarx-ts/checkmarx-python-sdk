@@ -50,6 +50,7 @@ def create_sarif_run(xml_report: CxXMLResults) -> SarifRun:
     taxonomies = create_taxonomies(xml_report)
     tool = SarifTool(driver=SarifDriver(
         name="Checkmarx CxSAST",
+        full_name="Checkmarx CxSAST",
         version="1.0",
         information_uri="https://checkmarx.com",
         rules=convert_cx_results_to_sarif_rules(xml_report, taxonomies)
@@ -60,7 +61,7 @@ def create_sarif_run(xml_report: CxXMLResults) -> SarifRun:
 
 def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies) -> List[SarifDriverRule]:
     queries = xml_report.Queries
-    category_taxa: List[SarifTaxa] = taxonomies[0].Taxa
+    category_taxa: List[SarifTaxa] = taxonomies[0].taxa
 
     return [
         SarifDriverRule(
@@ -75,8 +76,8 @@ def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies) -> L
                         target_id=get_id_of_sarif_tool_component(query.Name, category_taxa),
                         index=0,
                         tool_component=SarifToolComponent(
-                            name=taxonomies[0].Name,
-                            guid=taxonomies[0].Guid,
+                            name=taxonomies[0].name,
+                            guid=taxonomies[0].guid,
                             index=get_index_of_sarif_tool_component(query.Name, category_taxa)
                         )
                     )
@@ -88,14 +89,14 @@ def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies) -> L
 
 def get_id_of_sarif_tool_component(query_name, category_taxa):
     for item in category_taxa:
-        if item.Name == query_name:
-            return item.Id
+        if item.name == query_name:
+            return item.id
     return 0
 
 
 def get_index_of_sarif_tool_component(query_name, category_taxa):
     for index, item in enumerate(category_taxa):
-        if item.Name == query_name:
+        if item.name == query_name:
             return index
     return None
 
@@ -103,7 +104,7 @@ def get_index_of_sarif_tool_component(query_name, category_taxa):
 def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies) -> List[SarifScanResult]:
     sarif_result = []
 
-    category_taxa: List[SarifTaxa] = taxonomies[0].Taxa
+    category_taxa: List[SarifTaxa] = taxonomies[0].taxa
 
     for query in xml_report.Queries:
         for result in query.Results:
@@ -114,7 +115,7 @@ def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies) ->
                     level=get_sarif_scan_result_level(query.Severity),
                     message=SarifMessage(text=query.Name),
                     properties=SarifResultPropertyBag(
-                        tags=["similarityId", "cxCwe", "CxStigID", "CxStigRuleID"],
+                        tags=["similarityId", "cxCwe", "cxStigID", "cxStigRuleID"],
                         similarity_id=int(result.Path.SimilarityId),
                         cx_cwe=str(query.CweId),
                         cx_stig_id=get_stig_id_from_category_taxa_by_query_id(category_taxa, query.Id),
@@ -143,14 +144,14 @@ def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies) ->
 
 def get_stig_id_from_category_taxa_by_query_id(category_taxa: List[SarifTaxa], query_id):
     for sarif_taxa in category_taxa:
-        if sarif_taxa.Id == str(query_id):
-            return sarif_taxa.Properties.CxStigID
+        if sarif_taxa.id == str(query_id):
+            return sarif_taxa.properties.cxStigID
 
 
 def get_stig_rule_id_from_category_taxa_by_query_id(category_taxa: List[SarifTaxa], query_id):
     for sarif_taxa in category_taxa:
-        if sarif_taxa.Id == str(query_id):
-            return sarif_taxa.Properties.CxStigRuleID
+        if sarif_taxa.id == str(query_id):
+            return sarif_taxa.properties.cxStigRuleID
 
 
 def get_sarif_scan_result_kind(query_severity) -> str:
@@ -206,8 +207,8 @@ def create_category_taxonomy(xml_report: CxXMLResults) -> SarifTaxonomy:
             short_description = SarifDescription(text="")
             stig_id = find_stig_id(categories)
             properties = SarifTaxaPropertyBag(
-                tags=["CxCwe", "CxSeverity", "CxCategoryName", "CxCategoryType", "CxQueryGroupName", "CxLanguageName",
-                      "CxPackageTypeName", "CxStigID", "CxStigRuleID"],
+                tags=["cxCwe", "cxSeverity", "cxCategoryName", "cxCategoryType", "cxQueryGroupName", "cxLanguageName",
+                      "cxPackageTypeName", "cxStigID", "cxStigRuleID"],
                 cx_cwe=query.get('Cwe'),
                 cx_severity=convert_cx_severity_to_string(query.get('Severity')),
                 cx_category=[

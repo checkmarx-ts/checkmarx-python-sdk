@@ -13,17 +13,17 @@ class SarifTaxa:
             short_description (SarifDescription):
             properties (SarifTaxaPropertyBag):
         """
-        self.Id = taxa_id
-        self.Name = name
-        self.FullDescription = full_description
-        self.ShortDescription = short_description
-        self.Properties = properties
+        self.id = taxa_id
+        self.name = name
+        self.fullDescription = full_description
+        self.shortDescription = short_description
+        self.properties = properties
 
     def __str__(self):
         return f"SarifTaxa(" \
-               f"taxa_id={self.Id}, "\
-               f"name={self.Name}, "\
-               f"full_description={self.FullDescription}, "\
-               f"short_description={self.ShortDescription}, "\
-               f"properties={self.Properties}"\
+               f"taxa_id={self.id}, "\
+               f"name={self.name}, "\
+               f"full_description={self.fullDescription}, "\
+               f"short_description={self.shortDescription}, "\
+               f"properties={self.properties}"\
                f")"

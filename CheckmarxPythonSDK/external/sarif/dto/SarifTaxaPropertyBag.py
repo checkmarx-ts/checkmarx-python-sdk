@@ -17,25 +17,25 @@ class SarifTaxaPropertyBag:
             cx_stig_id (str):
             cx_stig_rule_id (str):
         """
-        self.Tags = tags
-        self.CxCwe = cx_cwe
-        self.CxSeverity = cx_severity
-        self.CxCategory = cx_category
-        self.CxQueryGroupName = cx_query_group_name
-        self.CxLanguageName = cx_language_name
-        self.CxPackageTypeName = cx_package_type_name
-        self.CxStigID = cx_stig_id
-        self.CxStigRuleID = cx_stig_rule_id
+        self.tags = tags
+        self.cxCwe = cx_cwe
+        self.cxSeverity = cx_severity
+        self.cxCategory = cx_category
+        self.cxQueryGroupName = cx_query_group_name
+        self.cxLanguageName = cx_language_name
+        self.cxPackageTypeName = cx_package_type_name
+        self.cxStigID = cx_stig_id
+        self.cxStigRuleID = cx_stig_rule_id
 
     def __str__(self):
         return f"SarifTaxaPropertyBag(" \
-               f"tags={self.Tags}, "\
-               f"cx_cwe={self.CxCwe}, "\
-               f"cx_severity={self.CxSeverity}, "\
-               f"cx_category={self.CxCategory}, " \
-               f"cx_query_group_name={self.CxQueryGroupName}, " \
-               f"cx_language_name={self.CxLanguageName}, " \
-               f"cx_package_type_name={self.CxPackageTypeName}, " \
-               f"cx_stig_id={self.CxStigID}, " \
-               f"cx_stig_rule_id={self.CxStigRuleID}" \
+               f"tags={self.tags}, "\
+               f"cx_cwe={self.cxCwe}, "\
+               f"cx_severity={self.cxSeverity}, "\
+               f"cx_category={self.cxCategory}, " \
+               f"cx_query_group_name={self.cxQueryGroupName}, " \
+               f"cx_language_name={self.cxLanguageName}, " \
+               f"cx_package_type_name={self.cxPackageTypeName}, " \
+               f"cx_stig_id={self.cxStigID}, " \
+               f"cx_stig_rule_id={self.cxStigRuleID}" \
                f")"

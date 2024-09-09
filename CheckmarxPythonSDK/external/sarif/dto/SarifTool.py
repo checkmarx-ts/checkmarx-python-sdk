@@ -8,9 +8,9 @@ class SarifTool:
         Args:
             driver (SarifDriver):
         """
-        self.Driver = driver
+        self.driver = driver
 
     def __str__(self):
         return f"SarifDriver(" \
-               f"driver={self.Driver}"\
+               f"driver={self.driver}"\
                f")"

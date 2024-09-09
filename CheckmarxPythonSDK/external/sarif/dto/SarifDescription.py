@@ -5,9 +5,9 @@ class SarifDescription:
         Args:
             text (str):
         """
-        self.Text = text
+        self.text = text
 
     def __str__(self):
         return f"SarifDescription(" \
-               f"text={self.Text}" \
+               f"text={self.text}" \
                f")"

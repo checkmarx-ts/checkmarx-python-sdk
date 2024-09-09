@@ -10,13 +10,13 @@ class SarifTaxaRelationshipTarget:
             index (int):
             tool_component (SarifToolComponent):
         """
-        self.ID = target_id
-        self.Index = index
-        self.ToolComponent = tool_component
+        self.id = target_id
+        self.index = index
+        self.toolComponent = tool_component
 
     def __str__(self):
         return f"SarifTaxaRelationshipTarget(" \
-               f"target_id={self.ID}, "\
-               f"index={self.Index}, "\
-               f"tool_component={self.ToolComponent}"\
+               f"target_id={self.id}, "\
+               f"index={self.index}, "\
+               f"tool_component={self.toolComponent}"\
                f")"

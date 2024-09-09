@@ -13,17 +13,17 @@ class SarifDriver:
             information_uri (str):
             rules (list of SarifDriverRule):
         """
-        self.Name = name
-        self.FullName = full_name
-        self.Version = version
-        self.InformationURI = information_uri
-        self.Rules = rules
+        self.name = name
+        self.fullName = full_name
+        self.version = version
+        self.informationUri = information_uri
+        self.rules = rules
 
     def __str__(self):
         return f"SarifDriver(" \
-               f"name={self.Name}, " \
-               f"full_name={self.FullName}, " \
-               f"version={self.Version}, " \
-               f"information_uri={self.InformationURI}, " \
-               f"rules={self.Rules}"\
+               f"name={self.name}, " \
+               f"full_name={self.fullName}, " \
+               f"version={self.version}, " \
+               f"information_uri={self.informationUri}, " \
+               f"rules={self.rules}"\
                f")"

@@ -12,13 +12,13 @@ class SarifPhysicalLocation:
             region (SarifRegion):
             properties (SarifPhysicalLocationPropertyBag):
         """
-        self.ArtifactLocation = artifact_location
-        self.Region = region
-        self.Properties = properties
+        self.artifactLocation = artifact_location
+        self.region = region
+        self.properties = properties
 
     def __str__(self):
         return f"SarifPhysicalLocation(" \
-               f"artifact_location={self.ArtifactLocation}, " \
-               f"region={self.Region}" \
-               f"properties={self.Properties}"\
+               f"artifact_location={self.artifactLocation}, " \
+               f"region={self.region}" \
+               f"properties={self.properties}"\
                f")"

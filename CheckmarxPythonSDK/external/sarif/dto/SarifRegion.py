@@ -7,13 +7,13 @@ class SarifRegion:
             start_column (int):
             end_column (int):
         """
-        self.StartLine = start_line
-        self.StartColumn = start_column
-        self.EndColumn = end_column
+        self.startLine = start_line
+        self.startColumn = start_column
+        self.endColumn = end_column
 
     def __str__(self):
         return f"SarifRegion(" \
-               f"start_line={self.StartLine}, "\
-               f"start_column={self.StartColumn}, "\
-               f"end_column={self.EndColumn}" \
+               f"start_line={self.startLine}, "\
+               f"start_column={self.startColumn}, "\
+               f"end_column={self.endColumn}" \
                f")"

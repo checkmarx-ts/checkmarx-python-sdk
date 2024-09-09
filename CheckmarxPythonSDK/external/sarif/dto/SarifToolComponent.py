@@ -7,13 +7,13 @@ class SarifToolComponent:
             guid (str):
             index (int):
         """
-        self.Name = name
-        self.Guid = guid
-        self.Index = index
+        self.name = name
+        self.guid = guid
+        self.index = index
 
     def __str__(self):
         return f"SarifToolComponent(" \
-               f"name={self.Name}, "\
-               f"guid={self.Guid}, "\
-               f"index={self.Index}"\
+               f"name={self.name}, "\
+               f"guid={self.guid}, "\
+               f"index={self.index}"\
                f")"

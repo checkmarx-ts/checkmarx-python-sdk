@@ -5,9 +5,9 @@ class SarifArtifactLocation:
         Args:
             uri (str):
         """
-        self.URI = uri
+        self.uri = uri
 
     def __str__(self):
         return f"SarifArtifactLocation(" \
-               f"uri={self.URI}"\
+               f"uri={self.uri}"\
                f")"

@@ -13,13 +13,13 @@ class SarifRun:
             results (list of SarifScanResult):
             taxonomies (list of SarifTaxonomy)
         """
-        self.Tool = tool
-        self.Results = results
-        self.Taxonomies = taxonomies
+        self.tool = tool
+        self.results = results
+        self.taxonomies = taxonomies
 
     def __str__(self):
         return f"SarifRun(" \
-               f"tool={self.Tool}, "\
-               f"results={self.Results}"\
-               f"taxonomies={self.Taxonomies}"\
+               f"tool={self.tool}, "\
+               f"results={self.results}"\
+               f"taxonomies={self.taxonomies}"\
                f")"

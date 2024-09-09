@@ -13,17 +13,17 @@ class SarifTaxonomy:
             short_description (SarifDescription):
             taxa (list of SarifTaxa):
         """
-        self.Guid = guid
-        self.Name = name
-        self.FullDescription = full_description
-        self.ShortDescription = short_description
-        self.Taxa = taxa
+        self.guid = guid
+        self.name = name
+        self.fullDescription = full_description
+        self.shortDescription = short_description
+        self.taxa = taxa
 
     def __str__(self):
         return f"SarifTaxonomy(" \
-               f"guid={self.Guid}, "\
-               f"name={self.Name}, "\
-               f"full_description={self.FullDescription}, "\
-               f"short_description={self.ShortDescription}, "\
-               f"taxa={self.Taxa}"\
+               f"guid={self.guid}, "\
+               f"name={self.name}, "\
+               f"full_description={self.fullDescription}, "\
+               f"short_description={self.shortDescription}, "\
+               f"taxa={self.taxa}"\
                f")"

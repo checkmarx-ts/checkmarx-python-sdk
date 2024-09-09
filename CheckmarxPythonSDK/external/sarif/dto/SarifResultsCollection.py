@@ -10,13 +10,13 @@ class SarifResultsCollection:
             version (str):
             runs (list of SarifRun):
         """
-        self.Schema = schema
-        self.Version = version
-        self.Runs = runs
+        self.schema = schema
+        self.version = version
+        self.runs = runs
 
     def __str__(self):
         return f"SarifResultsCollection("\
-               f"schema={self.Schema}, "\
-               f"version={self.Version}, "\
-               f"runs={self.Runs} "\
+               f"schema={self.schema}, "\
+               f"version={self.version}, "\
+               f"runs={self.runs} "\
                f")"

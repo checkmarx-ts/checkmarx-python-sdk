@@ -15,19 +15,19 @@ class SarifScanResult:
             properties (SarifResultPropertyBag):
             locations (list of SarifLocation):
         """
-        self.RuleID = rule_id
-        self.Kind = kind
-        self.Level = level
-        self.Message = message
-        self.Properties = properties
-        self.Locations = locations
+        self.ruleId = rule_id
+        self.kind = kind
+        self.level = level
+        self.message = message
+        self.properties = properties
+        self.locations = locations
 
     def __str__(self):
         return f"SarifScanResult(" \
-               f"rule_id={self.RuleID}, "\
-               f"kind={self.Kind}, " \
-               f"level={self.Level}, " \
-               f"message={self.Message}, " \
-               f"properties={self.Properties}, "\
-               f"locations={self.Locations}"\
+               f"rule_id={self.ruleId}, "\
+               f"kind={self.kind}, " \
+               f"level={self.level}, " \
+               f"message={self.message}, " \
+               f"properties={self.properties}, "\
+               f"locations={self.locations}"\
                f")"

@@ -13,19 +13,19 @@ class SarifDriverRule:
             help_uri (str):
             relation_ships (SarifTaxaRelationship):
         """
-        self.ID = rule_id
-        self.Name = name
-        self.HelpURI = help_uri
-        self.FullDescription = full_description
-        self.ShortDescription = short_description
-        self.Relationships = relation_ships
+        self.id = rule_id
+        self.name = name
+        self.helpUri = help_uri
+        self.fullDescription = full_description
+        self.shortDescription = short_description
+        self.relationships = relation_ships
 
     def __str__(self):
         return f"SarifDriverRule("\
-               f"rule_id={self.ID}, "\
-               f"name={self.Name}, "\
-               f"rule_help={self.HelpURI}, "\
-               f"full_description={self.FullDescription}, "\
-               f"short_description={self.ShortDescription}, "\
-               f"relation_ships={self.Relationships}"\
+               f"rule_id={self.id}, "\
+               f"name={self.name}, "\
+               f"rule_help={self.helpUri}, "\
+               f"full_description={self.fullDescription}, "\
+               f"short_description={self.shortDescription}, "\
+               f"relation_ships={self.relationships}"\
                ")"
