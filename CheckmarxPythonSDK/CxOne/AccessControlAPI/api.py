@@ -42,6 +42,26 @@ def get_groups(realm, group_name=None, limit=None, ids=None) -> List[AstIdWithNa
     return [construct_ast_id_with_name(item) for item in item_list]
 
 
+def get_group_by_name(realm, group_name):
+    """
+
+    Args:
+        realm (str):
+        group_name (str):
+
+    Returns:
+        Group
+    """
+    result = None
+    type_check(realm, str)
+    type_check(group_name, str)
+    groups = get_groups(realm=realm, group_name=group_name)
+    one_group = list(filter(lambda g: g.name == group_name, groups))
+    if len(one_group) == 1:
+        result = one_group[0]
+    return result
+
+
 def get_users(realm, term, limit=100) -> List[AstIdWithName]:
     """
 
