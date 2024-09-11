@@ -8,13 +8,18 @@ from CheckmarxPythonSDK.CxOne import (
     get_a_project_by_id,
     update_a_project,
     delete_a_project,
+
+)
+
+from CheckmarxPythonSDK.CxOne.AccessControlAPI import (
+    get_group_by_name
 )
 
 from CheckmarxPythonSDK.CxOne.dto import (
     ProjectInput
 )
 
-new_project_name = "happy-test-2022-04-20"
+new_project_name = "happy-test-2024-09-10-11"
 
 
 def test_create_a_project():
@@ -23,6 +28,21 @@ def test_create_a_project():
         response = create_a_project(
             project_input=ProjectInput(
                 name=new_project_name
+            )
+        )
+        assert response is not None
+
+
+def test_create_a_project_with_group():
+    group = get_group_by_name("asean_2021_08", "dev/alpha")
+    group_id = group.id
+    project_id = get_project_id_by_name(name=new_project_name)
+    if not project_id:
+        response = create_a_project(
+            project_input=ProjectInput(
+                name=new_project_name,
+                groups=[group_id],
+                tags={"3": None}
             )
         )
         assert response is not None
