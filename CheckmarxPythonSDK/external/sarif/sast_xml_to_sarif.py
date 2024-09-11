@@ -22,7 +22,7 @@ from CheckmarxPythonSDK.external.sarif.dto import (
     SarifTaxonomy,
     SarifTool,
     SarifToolComponent,
-
+    SarifMultiFormatMessageString,
 )
 from CheckmarxPythonSDK.external.sarif.stig_mapping import stig_mapping
 from CheckmarxPythonSDK.CxPortalSoapApiSDK.CxPortalWebService import get_query_collection
@@ -32,13 +32,19 @@ from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.dto import (
 )
 
 
-def create_sarif_report_from_sast_xml(xml_path, xml_string=None) -> SarifResultsCollection:
+def create_sarif_report_from_sast_xml(xml_path, xml_string=None, query_risk_dict=None, query_recommendation_dict=None) \
+        -> SarifResultsCollection:
     xml_report = get_xml_results(xml_path, xml_string)
-    return create_sarif_results(xml_report)
+    return create_sarif_results(xml_report, query_risk_dict=query_risk_dict,
+                                query_recommendation_dict=query_recommendation_dict)
 
 
-def create_sarif_results(xml_report) -> SarifResultsCollection:
-    sarif_runs = [create_sarif_run(xml_report)]
+def create_sarif_results(xml_report, query_risk_dict, query_recommendation_dict) -> SarifResultsCollection:
+    sarif_runs = [
+        create_sarif_run(xml_report,
+                         query_risk_dict=query_risk_dict,
+                         query_recommendation_dict=query_recommendation_dict)
+    ]
     return SarifResultsCollection(
         schema="https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         version="2.1.0",
@@ -46,30 +52,35 @@ def create_sarif_results(xml_report) -> SarifResultsCollection:
     )
 
 
-def create_sarif_run(xml_report: CxXMLResults) -> SarifRun:
+def create_sarif_run(xml_report: CxXMLResults, query_risk_dict, query_recommendation_dict) -> SarifRun:
     taxonomies = create_taxonomies(xml_report)
     tool = SarifTool(driver=SarifDriver(
         name="Checkmarx CxSAST",
         full_name="Checkmarx CxSAST",
         version="1.0",
         information_uri="https://checkmarx.com",
-        rules=convert_cx_results_to_sarif_rules(xml_report, taxonomies)
+        rules=convert_cx_results_to_sarif_rules(xml_report, taxonomies, query_risk_dict=query_risk_dict)
     ))
-    results = convert_cx_results_to_sarif_results(xml_report, taxonomies)
+    results = convert_cx_results_to_sarif_results(xml_report, taxonomies, query_recommendation_dict)
     return SarifRun(tool=tool, results=results, taxonomies=taxonomies)
 
 
-def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies) -> List[SarifDriverRule]:
+def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies, query_risk_dict) -> List[SarifDriverRule]:
     queries = xml_report.Queries
     category_taxa: List[SarifTaxa] = taxonomies[0].taxa
 
     return [
         SarifDriverRule(
-            rule_id=str(query.Id),
+            rule_id=str(query.Name),
             name=query.Name,
             short_description=SarifDescription(text=""),
             full_description=SarifDescription(text=""),
             help_uri=f"https://cwe.mitre.org/data/definitions/{query.CweId}.html",
+            help=SarifMultiFormatMessageString(
+                general="",
+                text=query_risk_dict.get(query.Id),
+                markdown="",
+            ),
             relation_ships=[
                 SarifTaxaRelationship(
                     target=SarifTaxaRelationshipTarget(
@@ -101,7 +112,7 @@ def get_index_of_sarif_tool_component(query_name, category_taxa):
     return None
 
 
-def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies) -> List[SarifScanResult]:
+def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies, query_recommendation_dict) -> List[SarifScanResult]:
     sarif_result = []
 
     category_taxa: List[SarifTaxa] = taxonomies[0].taxa
@@ -136,7 +147,12 @@ def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies) ->
                                 )
                             )
                         ) for node in result.Path.PathNodes
-                    ]
+                    ],
+                    fixes=[{
+                        "description": {
+                            "text": query_recommendation_dict.get(query.Id)
+                        }
+                    }]
                 )
             )
     return sarif_result

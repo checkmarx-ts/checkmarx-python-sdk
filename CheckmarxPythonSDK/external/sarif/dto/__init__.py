@@ -6,6 +6,7 @@ from .SarifDriver import SarifDriver
 from .SarifDriverRule import SarifDriverRule
 from .SarifLocation import SarifLocation
 from .SarifMessage import SarifMessage
+from .SarifMultiFormatMessageString import SarifMultiFormatMessageString
 from .SarifPhysicalLocation import SarifPhysicalLocation
 from .SarifPhysicalLocationPropertyBag import SarifPhysicalLocationPropertyBag
 from .SarifRegion import SarifRegion

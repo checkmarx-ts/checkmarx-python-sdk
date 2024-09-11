@@ -4,7 +4,7 @@ from .SarifLocation import SarifLocation
 
 
 class SarifScanResult:
-    def __init__(self, rule_id, kind, level, message, properties, locations):
+    def __init__(self, rule_id, kind, level, message, properties, locations, fixes):
         """
 
         Args:
@@ -14,6 +14,7 @@ class SarifScanResult:
             message (SarifMessage):
             properties (SarifResultPropertyBag):
             locations (list of SarifLocation):
+            fixes ():
         """
         self.ruleId = rule_id
         self.kind = kind
@@ -21,6 +22,7 @@ class SarifScanResult:
         self.message = message
         self.properties = properties
         self.locations = locations
+        self.fixes = fixes
 
     def __str__(self):
         return f"SarifScanResult(" \
@@ -29,5 +31,6 @@ class SarifScanResult:
                f"level={self.level}, " \
                f"message={self.message}, " \
                f"properties={self.properties}, "\
-               f"locations={self.locations}"\
+               f"locations={self.locations}, "\
+               f"fixes={self.fixes}, "\
                f")"
