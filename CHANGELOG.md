@@ -293,3 +293,7 @@ All notable changes to this project will be documented in  this file.
 
 0.9.6 - 2024-09-03
 * Fix type checking
+
+0.9.7 - 2024-09-11
+* Fix SARIF report
+* Fix CxOne project create issue
