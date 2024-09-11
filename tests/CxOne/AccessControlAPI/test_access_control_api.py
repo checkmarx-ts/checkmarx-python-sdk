@@ -2,6 +2,7 @@ from CheckmarxPythonSDK.CxOne.AccessControlAPI import (
     get_groups,
     get_users,
     get_users_by_groups,
+    get_group_by_name,
     # get_api_keys,
 )
 
@@ -12,6 +13,11 @@ def test_get_groups():
 
     groups = get_groups(realm=realm)
     assert len(groups) > 1
+
+
+def test_get_sub_group():
+    group = get_group_by_name(realm=realm, group_name="dev/alpha")
+    assert group is not None
 
 
 def test_get_users():
