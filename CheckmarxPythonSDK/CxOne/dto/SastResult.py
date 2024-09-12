@@ -86,7 +86,7 @@ class SastResult(object):
 
 def construct_sast_result(result):
     return SastResult(
-        result_id=result.get('uniqueID'),
+        result_id=result.get('resultHash'),
         result_hash=result.get("resultHash"),
         query_id=result.get("queryID"),
         query_id_str=result.get("queryIDStr"),
