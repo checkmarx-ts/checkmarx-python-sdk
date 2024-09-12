@@ -303,3 +303,6 @@ All notable changes to this project will be documented in  this file.
 
 0.9.9 - 2024-09-12
 * Fix CxSAST Odata api proxy issue
+
+1.0.0 - 2024-09-12
+* Fix Sarif report rueId use queryName instead of queryId
