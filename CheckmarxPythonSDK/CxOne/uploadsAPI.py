@@ -49,7 +49,7 @@ def upload_zip_content_for_scanning(upload_link, zip_file_path):
     )
 
     with open(zip_file_path, 'rb') as data:
-        response = requests.put(url=url, data=data, headers=headers)
+        response = requests.put(url=url, data=data, headers=headers, verify=False)
         if response.status_code == OK:
             is_successful = True
 
