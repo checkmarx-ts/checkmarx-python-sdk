@@ -121,7 +121,7 @@ def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies, qu
         for result in query.Results:
             sarif_result.append(
                 SarifScanResult(
-                    rule_id=str(query.Id),
+                    rule_id=str(query.Name),
                     kind=get_sarif_scan_result_kind(query.Severity),
                     level=get_sarif_scan_result_level(query.Severity),
                     message=SarifMessage(text=query.Name),
