@@ -297,3 +297,6 @@ All notable changes to this project will be documented in  this file.
 0.9.7 - 2024-09-11
 * Fix SARIF report
 * Fix CxOne project create issue
+
+0.9.8 - 2024-09-12
+* Fix CxOne upload file ssl cert verify issue
