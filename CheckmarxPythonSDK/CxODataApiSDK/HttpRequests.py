@@ -27,7 +27,11 @@ def get_data_from_config():
         "client_id": "resource_owner_sast_client",
         "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
     }
-    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data
+    proxies = {
+        "http": config.get("proxy"),
+        "https": config.get("proxy"),
+    }
+    return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
 get, _, _, _, _, _ = build_request_funcs(get_data_from_config)
