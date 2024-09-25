@@ -1,4 +1,5 @@
 # encoding: utf-8
+import json
 from .httpRequests import get_request, post_request, put_request, delete_request
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .utilities import get_url_param, type_check, list_member_type_check
@@ -309,3 +310,103 @@ def delete_a_project(project_id):
         if response.status_code == NO_CONTENT:
             is_successful = True
     return is_successful
+
+def update_project_group(project_id, groups):
+    """
+
+    Args:
+        project_id (str):
+        groups (`list` of str):
+
+    Returns:
+        bool
+    """
+    relative_url = f"/api/projects/{project_id}"
+
+    project = get_request(relative_url=relative_url)
+    project_data = project.json()  
+    project_data['groups'] = groups  
+
+    response = put_request(relative_url=relative_url, data=json.dumps(project_data))
+    return response
+
+def update_primary_branch(project_id, branch_name):
+    """
+
+    Args:
+        project_id (str):
+        branch_name (str): The desired branch name to be the primary branch
+    Returns:
+        HTTP 204 No Content
+    """
+    relative_url = f"/api/projects/{project_id}"
+
+    project = get_request(relative_url=relative_url)
+    project_data = project.json()  
+    project_data['mainBranch'] = branch_name  
+
+    response = put_request(relative_url=relative_url, data=json.dumps(project_data))
+    return response
+
+def add_project_single_tag(project_id, tag_key, tag_value):
+    """
+
+    Args:
+        project_id (str):
+        tag_key (str):
+        tag_value (str):
+    Returns:
+        HTTP 204 No Content
+    """
+    relative_url = f"/api/projects/{project_id}"
+      
+    project = get_request(relative_url=relative_url)
+    project_data = project.json()    
+    if 'tags' not in project_data:    
+        project_data['tags'] = {}  
+    project_data['tags'][tag_key] = tag_value  
+      
+    response = put_request(relative_url=relative_url, data=json.dumps(project_data))
+    return response  
+
+def remove_project_single_tag(project_id, tag_key):
+    """
+
+    Args:
+        project_id (str):
+        tag_key (str):
+        tag_value (str):
+    Returns:
+        HTTP 204 No Content
+    """
+    relative_url = f"/api/projects/{project_id}"
+
+    project = get_request(relative_url=relative_url)
+    project_data = project.json()  
+    if 'tags' in project_data:  
+        project_data['tags'].pop(tag_key)
+        
+    response = put_request(relative_url=relative_url, data=json.dumps(project_data))
+    return response
+
+def update_project_single_tag(project_id, tag_key, tag_value):
+    """
+
+    Args:
+        project_id (str):
+        tag_key (str):
+        tag_value (str):
+    Returns:
+        HTTP 204 No Content
+    """
+    relative_url = f"/api/projects/{project_id}"
+
+    project = get_request(relative_url=relative_url)
+    project_data = project.json()  
+    if 'tags' in project_data:  
+        project_data['tags'][tag_key] = tag_value
+
+    # Update the project with the new tags  
+    response = put_request(relative_url=relative_url, data=json.dumps(project_data))
+    return response
+    
