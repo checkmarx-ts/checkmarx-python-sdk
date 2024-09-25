@@ -189,6 +189,20 @@ def create_subgroup(realm, group_id, subgroup_name) -> bool:
         result = True
     return result
 
+def get_subgroup_by_id(realm, group_id):
+    """
+    Get a subgroup by group id.
+    Args:
+        realm (str):
+        group_id (str):
+
+    Returns:
+        bool
+    """
+    relative_url = f"{api_url}/{realm}/groups/{group_id}/children?max=1000"
+    response = get_request(relative_url=relative_url)
+    subgroups = response.json()
+    return subgroups
 
 def get_group_permissions(realm, group_id) -> ManagementPermissionReference:
     """
