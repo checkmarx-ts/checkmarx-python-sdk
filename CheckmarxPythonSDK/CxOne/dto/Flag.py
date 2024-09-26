@@ -13,6 +13,6 @@ class Flag(object):
         self.payload = payload
 
     def __str__(self):
-        return """Flag(name={name}, status={status}, payload={payload}""".format(
+        return """Flag(name={name}, status={status}, payload={payload})""".format(
             name=self.name, status=self.status, payload=self.payload
         )
