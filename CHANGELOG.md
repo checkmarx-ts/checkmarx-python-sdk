@@ -306,3 +306,6 @@ All notable changes to this project will be documented in  this file.
 
 1.0.0 - 2024-09-12
 * Fix Sarif report rueId use queryName instead of queryId
+
+1.0.1 - 2024-09-26
+* Fix CxOne ScanConfig
