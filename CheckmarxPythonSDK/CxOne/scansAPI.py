@@ -301,3 +301,75 @@ def get_a_detailed_workflow_of_a_scan(scan_id):
             info=item.get("Info"),
         ) for item in items or []
     ]
+
+def sca_recalculate(project_id, branch):
+    """
+
+    Args:
+        project_id (str):
+        branch (str):
+
+    Returns:
+        HTTP 201 Created
+    """
+    relative_url = f"/api/scans/recalculate"
+
+    scan_data = json.dumps({
+        "project_id": f"{project_id}",
+        "branch": f"{branch}",
+        "engines":["sca"],
+        "config":[{"type":"sca","value":{"enableContainersScan":True}}]
+        })
+    
+    response = post_request(relative_url=relative_url, data=(scan_data))
+    return response
+
+def scan_by_repo_url(project_id, repo_url, branch, engines, tag):  
+    """
+
+    Args:
+        project_id (str):
+        repo_url (str):
+        branch (str):
+        engines (`list` of str): ["sast","sca", "kics", "apisec"] 
+        tag (json): {"test-all": ""}
+
+    Returns:
+        HTTP 201 Created
+    """
+    
+    relative_url = f"/api/scans"  
+
+    scan_data = {  
+        "type": "git",  
+        "handler": {  
+            "repoUrl": repo_url,  
+            "branch": branch,  
+            # "skipSubModules": False  
+        },  
+        "project": {  
+            "id": project_id,  
+            "tags": {}  
+        },  
+        "config": [],  
+        "tags": tag
+    }  
+      
+    engine_configs = {  
+        "sast": {"incremental": "false"},  
+        "sca": {},  
+        "kics": {},  
+        "apisec": {}  
+    }  
+      
+    for engine in engines:  
+        if engine in engine_configs:  
+            scan_data["config"].append({  
+                "type": engine,  
+                "value": engine_configs[engine]  
+            })  
+        else:  
+            print(f"Warning: Engine '{engine}' is not supported and will be ignored.")  
+    
+    response = post_request(relative_url=relative_url, data=json.dumps((scan_data)))
+    return response 
