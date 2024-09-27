@@ -8,7 +8,7 @@ from CheckmarxPythonSDK.utilities.compat import (
 from CheckmarxPythonSDK.utilities.CxError import BadRequestError, NotFoundError, CxError
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
-
+from requests.exceptions import ConnectionError
 disable_warnings(InsecureRequestWarning)
 
 logger = logging.getLogger("CheckmarxPythonSDK")
@@ -45,8 +45,14 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
     Returns:
 
     """
-    return requests.request(method=method, url=url, params=params, data=data, json=json, files=files, auth=auth,
-                            timeout=timeout, headers=headers, verify=verify, cert=cert, proxies=proxies)
+    for _ in range(3):
+        try:
+            response = requests.request(method=method, url=url, params=params, data=data, json=json, files=files,
+                                        auth=auth, timeout=timeout, headers=headers, verify=verify, cert=cert,
+                                        proxies=proxies)
+            return response
+        except ConnectionError:
+            logger.error("Connection error. Retrying...")
 
 
 def head(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
