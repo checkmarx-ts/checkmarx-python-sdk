@@ -191,12 +191,12 @@ def get_last_scan_info(offset=0, limit=20, project_ids=None, application_id=None
     relative_url += get_url_param("branch", branch)
     relative_url += get_url_param("engine", engine)
 
-    relative_url += get_url_param("sast-status", engine)
-    relative_url += get_url_param("kics-status", engine)
-    relative_url += get_url_param("sca-status", engine)
-    relative_url += get_url_param("apisec-status", engine)
-    relative_url += get_url_param("microengines-status", engine)
-    relative_url += get_url_param("containers-status", engine)
+    relative_url += get_url_param("sast-status", sast_status)
+    relative_url += get_url_param("kics-status", kics_status)
+    relative_url += get_url_param("sca-status", sca_status)
+    relative_url += get_url_param("apisec-status", apisec_status)
+    relative_url += get_url_param("microengines-status", microengines_status)
+    relative_url += get_url_param("containers-status", containers_status)
 
     response = get_request(relative_url=relative_url)
     project_scan_map = response.json()
