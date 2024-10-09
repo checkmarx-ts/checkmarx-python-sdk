@@ -354,7 +354,7 @@ def check_response(response):
     text = response.text
     if True in [
         method in ['GET', 'HEAD'] and status_code not in [OK, UNAUTHORIZED],
-        method == 'POST' and status_code not in [OK, CREATED, UNAUTHORIZED, ACCEPTED],
+        method == 'POST' and status_code not in [OK, NO_CONTENT, CREATED, UNAUTHORIZED, ACCEPTED],
         method in ['PUT', 'PATCH', 'DELETE'] and status_code not in [OK, NO_CONTENT, ACCEPTED, UNAUTHORIZED],
     ]:
         raise ValueError("HttpStatusCode: {code}".format(code=status_code),
