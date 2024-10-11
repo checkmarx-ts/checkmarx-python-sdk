@@ -38,12 +38,12 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
 
 def test_add_license_expiration_notification():
     response = add_license_expiration_notification()
-    assert response.get("IsSuccesfull") is True
+    assert response.IsSuccesfull is True
 
 
 def test_create_new_preset():
     response = create_new_preset(query_ids=[343], name="ddd10")
-    assert response['IsSuccesfull'] is True
+    assert response.IsSuccesfull is True
 
 
 def test_create_scan_report():
@@ -54,23 +54,23 @@ def test_create_scan_report():
         display_categories_all=False,
         display_categories_ids=list(range(30, 62))
     )
-    assert response["IsSuccesfull"] is True
-    assert response["ID"] > 0
+    assert response.IsSuccesfull is True
+    assert response.ID > 0
 
 
 def test_delete_preset():
-    response = delete_preset(preset_id=120006)
-    assert response["IsSuccesfull"] is True
+    response = delete_preset(preset_id=100006)
+    assert response.IsSuccesfull is True
 
 
 def test_delete_project():
-    response = delete_project(project_id=3)
-    assert response["IsSuccesfull"] is True
+    response = delete_project(project_id=94)
+    assert response.IsSuccesfull is True
 
 
 def test_delete_projects():
     response = delete_projects(project_ids=[8], flag="OnlyAllowedProjects")
-    assert response["IsSuccesfull"] is True
+    assert response.IsSuccesfull is True
 
 
 def test_export_preset():
