@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.0.4 - 2024-10-16
+* Add support for CxOne SCA APIs
+
 1.0.3 - 2024-10-09
 * Fix CxOne ProjectsAPI get_last_scan_info
 
