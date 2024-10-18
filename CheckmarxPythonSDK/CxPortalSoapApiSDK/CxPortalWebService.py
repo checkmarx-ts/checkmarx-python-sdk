@@ -15,11 +15,7 @@ def add_license_expiration_notification():
     """
 
     Returns:
-        CxWSBasicRepsonse
-        {
-            'IsSuccesfull': True,
-            'ErrorMessage': None
-        }
+
     """
 
     @retry_when_unauthorized
@@ -29,7 +25,10 @@ def add_license_expiration_notification():
 
     response = execute()
 
-    return response
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"]
+    }
 
 
 def create_new_preset(query_ids, name):
@@ -40,26 +39,21 @@ def create_new_preset(query_ids, name):
         name (str):
 
     Returns:
-        CxWSResponsePresetDetails
+        dict
 
+        sample return:
         {
-            'IsSuccesfull': True,
-            'ErrorMessage': None,
-            'preset': {
-                'queryIds': {
-                    'long': [
-                        343
-                    ]
-                },
-                'id': 100006,
-                'name': 'ddd10',
-                'owningteam': 1,
-                'isPublic': True,
-                'owner': None,
-                'isUserAllowToUpdate': True,
-                'isUserAllowToDelete': True,
-                'IsDuplicate': False
-            }
+            'queryIds':  [
+                    343
+            ],
+            'id': 110003,
+            'name': 'ddd',
+            'owningteam': 1,
+            'isPublic': True,
+            'owner': None,
+            'isUserAllowToUpdate': True,
+            'isUserAllowToDelete': True,
+            'IsDuplicate': False
         }
     """
 
@@ -76,7 +70,22 @@ def create_new_preset(query_ids, name):
         return client.service.CreateNewPreset(sessionId="0", presrt=cx_preset_detail)
 
     response = execute()
-    return response
+    preset = response.preset
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "preset": {
+            'queryIds': preset["queryIds"]["long"],
+            'id': preset["id"],
+            'name': preset["name"],
+            'owningteam': preset["owningteam"],
+            'isPublic': preset["isPublic"],
+            'owner': preset["owner"],
+            'isUserAllowToUpdate': preset["isUserAllowToUpdate"],
+            'isUserAllowToDelete': preset["isUserAllowToDelete"],
+            'IsDuplicate': preset["IsDuplicate"]
+        } if preset else None
+    }
 
 
 def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None, results_severity_all=True,
@@ -141,12 +150,7 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
         results_display_option_snippets_mode (str): "None", "SourceAndDestination", "Full"
 
     Returns:
-        CxWSCreateReportResponse
-        {
-            'IsSuccesfull': True,
-            'ErrorMessage': None,
-            'ID': 336
-        }
+
     """
 
     @retry_when_unauthorized
@@ -243,7 +247,12 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
         return client.service.CreateScanReport(SessionID="0", Report=filtered_report_request)
 
     response = execute()
-    return response
+
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"],
+        "ID": response["ID"]
+    }
 
 
 def delete_preset(preset_id):
@@ -253,11 +262,7 @@ def delete_preset(preset_id):
         preset_id (int):
 
     Returns:
-        CxWSBasicRepsonse
-        {
-            'IsSuccesfull': True,
-            'ErrorMessage': None
-        }
+
     """
 
     @retry_when_unauthorized
@@ -266,7 +271,10 @@ def delete_preset(preset_id):
         return client.service.DeletePreset(sessionId="0", id=preset_id)
 
     response = execute()
-    return response
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"]
+    }
 
 
 def delete_project(project_id):
@@ -276,17 +284,7 @@ def delete_project(project_id):
         project_id (int):
 
     Returns:
-        CxWSResponseDeleteProjects
-        {
-            'IsSuccesfull': True,
-            'ErrorMessage': None,
-            'IsConfirmation': False,
-            'Flags': [
-                'None'
-            ],
-            'UndeletedProjects': None,
-            'NumOfDeletedProjects': 1
-        }
+
     """
 
     @retry_when_unauthorized
@@ -295,7 +293,10 @@ def delete_project(project_id):
         return client.service.DeleteProject(sessionID="0", projectID=project_id)
 
     response = execute()
-    return response
+    return {
+        "IsSuccesfull": response["IsSuccesfull"],
+        "ErrorMessage": response["ErrorMessage"]
+    }
 
 
 def delete_projects(project_ids, flag="None"):
