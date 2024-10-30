@@ -1,7 +1,7 @@
 urllib3==2.2.3
 requests==2.32.3
 requests-toolbelt==1.0.0
-zeep==4.3.0
+zeep==4.3.1
 python-dateutil==2.9.0.post0
 keyring==25.4.1
 Deprecated==1.2.14
