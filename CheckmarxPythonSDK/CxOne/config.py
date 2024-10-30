@@ -6,7 +6,6 @@ from CheckmarxPythonSDK.utilities.configUtility import (
 config_default = {
     "access_control_url": "https://iam.checkmarx.net",
     "server": "https://ast.checkmarx.net",
-    "tenant_id": None, # Needed for the feature flags API (see flagsAPI.py)
     "tenant_name": None,
     "grant_type": "refresh_token",
     "client_id": "ast-app",

@@ -5,6 +5,7 @@ import time
 import os
 from CheckmarxPythonSDK.CxOne.httpRequests import get_request, post_request
 from CheckmarxPythonSDK.CxOne.config import config
+from .utilities import type_check, list_member_type_check
 from .dto import (
     Flag,
 )
@@ -22,17 +23,25 @@ def __construct_flag(flag):
     )
 
 
-def get_all_feature_flags():
+def get_all_feature_flags(ids=None):
     """
+    Args:
+         ids (`list`)
 
     Returns:
         `list` of `Flag`
     """
-    if not config['tenant_id']:
-        _set_tenant_id()
+    type_check(ids, (list, tuple))
 
-    relative_url = f"{api_url}?filter={config['tenant_id']}"
+    list_member_type_check(ids, str)
 
+    relative_url = f"{api_url}"
+    # We can't use get_url_param() because it assumes that this is not
+    # the first query parameter.
+    if ids:
+        relative_url += f"?ids={','.join(ids)}"
+
+    print(f'relative_url: {relative_url}')
     response = get_request(relative_url=relative_url)
 
     flags = response.json()
@@ -48,19 +57,11 @@ def get_feature_flag(name):
     Returns:
         `Flag`
     """
-    if not config['tenant_id']:
-        _set_tenant_id()
+    type_check(name, str)
 
-    relative_url = f"{api_url}{name}?filter={config['tenant_id']}"
+    relative_url = f"{api_url}{name}"
 
     response = get_request(relative_url=relative_url)
 
     flag = response.json()
     return __construct_flag(flag)
-
-
-def _set_tenant_id():
-
-    resp = get_request(f"/auth/admin/realms/{config['tenant_name']}",
-                       is_iam=True)
-    config['tenant_id'] = resp.json()['id']
