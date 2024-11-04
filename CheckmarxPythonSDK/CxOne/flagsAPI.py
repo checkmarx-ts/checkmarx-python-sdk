@@ -41,7 +41,6 @@ def get_all_feature_flags(ids=None):
     if ids:
         relative_url += f"?ids={','.join(ids)}"
 
-    print(f'relative_url: {relative_url}')
     response = get_request(relative_url=relative_url)
 
     flags = response.json()
