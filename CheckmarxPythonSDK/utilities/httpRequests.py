@@ -247,6 +247,9 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
     temp_header = auth_header.copy()
     if headers:
         temp_header.update(headers)
+    if temp_header.get("Authorization") is None:
+        update_header(token_url, token_req_data, timeout, verify, cert, proxies=proxies)
+        temp_header.update(auth_header)
     logger.debug(
         "first http request:"
         "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, "
