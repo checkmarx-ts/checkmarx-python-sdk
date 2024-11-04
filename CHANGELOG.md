@@ -1,6 +1,10 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.0.5 - 2024-11-04
+* Add support for CxOne Flags API
+* Fix header Authorization default to None issue
+
 1.0.4 - 2024-10-16
 * Add support for CxOne SCA APIs
 
