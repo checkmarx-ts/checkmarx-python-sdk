@@ -52,6 +52,7 @@ from .api import (
     get_sbom_supported_file_formats,
     run_file_analysis,
     retrieve_analysis_result,
+    get_count_of_vulnerabilities_risks_by_scan_id,
 )
 
 from .AccessControlAPI import AccessControlAPI

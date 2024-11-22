@@ -4,7 +4,8 @@ from .httpRequests import (
     get_request as get_req,
     post_request as post_req,
     put_request as put_req,
-    delete_request as delete_req
+    delete_request as delete_req,
+    gql_request as gql_req,
 )
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK, CREATED, ACCEPTED
 from CheckmarxPythonSDK.utilities.httpRequests import put, auth_header
@@ -13,11 +14,14 @@ from requests_toolbelt import MultipartEncoder
 
 class Sca(object):
 
-    def __init__(self, get_request=get_req, post_request=post_req, put_request=put_req, delete_request=delete_req):
+    def __init__(self, get_request=get_req, post_request=post_req, put_request=put_req, delete_request=delete_req,
+                 gql_request=gql_req):
         self.get_request = get_request
         self.post_request = post_request
         self.put_request = put_request
         self.delete_request = delete_request
+        self.gql_request = gql_request
+        self.gql_relative_url = "/graphql/graphql"
 
     def get_all_projects(self, project_name=None):
         """
@@ -1835,6 +1839,32 @@ class Sca(object):
             result = response.json()
         return result
 
+    def get_count_of_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+        """
+
+        Args:
+            scan_id:
+            is_exploitable_path_enabled:
+
+        Returns:
+            example:
+            {'vulnerabilitiesRisksByScanId': {'risksLevelCounts': {'critical': 0, 'empty': 0, 'high': 48, 'low': 0,
+            'medium': 30, 'none': 0}, 'totalCount': 78}}
+        """
+        result = None
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "vulnerabilitiesRisksByScanId ("
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled},"
+                 f"scanId: \"{scan_id}\","
+                 'where: {}'
+                 ")"
+                 "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
+                 "}")
+
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2075,3 +2105,8 @@ def run_file_analysis(file_path_to_analyze, analysis_type="sbom"):
 
 def retrieve_analysis_result(request_id):
     return Sca().retrieve_analysis_result(request_id=request_id)
+
+
+def get_count_of_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False):
+    return Sca().get_count_of_vulnerabilities_risks_by_scan_id(scan_id=scan_id,
+                                                               is_exploitable_path_enabled=is_exploitable_path_enabled)

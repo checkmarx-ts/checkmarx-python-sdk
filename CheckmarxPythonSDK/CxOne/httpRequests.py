@@ -1,6 +1,7 @@
 # encoding: utf-8
 from .config import config
 from CheckmarxPythonSDK.utilities.httpRequests import build_request_funcs, check_response
+from ..__version__ import __version__
 
 
 def get_data_from_config():
@@ -31,12 +32,10 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
-get, post, put, patch, delete, head = build_request_funcs(get_data_from_config)
+get, post, put, patch, delete, head, gql = build_request_funcs(get_data_from_config)
 
 headers = {
-    # "user-agent":
-    #     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-    #     "Chrome/106.0.0.0 Safari/537.36"
+    "user-agent": f"Checkmarx Python SDK {__version__}"
 }
 
 
@@ -135,4 +134,9 @@ def head_request(relative_url, is_iam=False):
 
     response = head(relative_url, is_iam=is_iam, headers=headers)
     check_response(response)
+    return response
+
+
+def gql_request(relative_url, data, is_iam=False):
+    response = gql(relative_url, data=data, headers=headers, is_iam=is_iam)
     return response

@@ -30,4 +30,4 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
-get_request, post_request, _, _, _, _ = build_request_funcs(get_data_from_config)
+get_request, post_request, _, _, _, _, _ = build_request_funcs(get_data_from_config)

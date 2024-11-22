@@ -41,7 +41,7 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
-get, post, put, patch, delete, _ = build_request_funcs(get_data_from_config)
+get, post, put, patch, delete, _, _ = build_request_funcs(get_data_from_config)
 
 
 def get_request(relative_url, headers=(), is_iam=False):
