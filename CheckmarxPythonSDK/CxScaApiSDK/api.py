@@ -1843,15 +1843,14 @@ class Sca(object):
         """
 
         Args:
-            scan_id:
-            is_exploitable_path_enabled:
+            scan_id (str):
+            is_exploitable_path_enabled (bool):
 
         Returns:
             example:
             {'vulnerabilitiesRisksByScanId': {'risksLevelCounts': {'critical': 0, 'empty': 0, 'high': 48, 'low': 0,
             'medium': 30, 'none': 0}, 'totalCount': 78}}
         """
-        result = None
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
                  "vulnerabilitiesRisksByScanId ("
@@ -1862,6 +1861,48 @@ class Sca(object):
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
 
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
+    def get_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+        """
+
+        Args:
+            scan_id:
+            is_exploitable_path_enabled:
+            take:
+            skip:
+
+        Returns:
+
+        """
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "vulnerabilitiesRisksByScanId ("
+                 "where: null, "
+                 f"take: {take}, "
+                 f"skip: {skip}, "
+                 'order: {score: DESC}, '
+                 f"scanId:  \"{scan_id}\", "
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled})"
+                 " { totalCount, undisclosedRiskLevelCounts { empty, critical, high, medium, low, none },"
+                 " items { credit, state, isIgnored, cve, cwe, description, packageId, severity, type, published,"
+                 " score, violatedPolicies, isExploitable, isKevDataExists, isExploitDbDataExists, relation, "
+                 "epssData { cve, date, epss, percentile }, isEpssDataExists, detectionDate, isVulnerabilityNew, "
+                 "cweInfo { title }, packageInfo { name, packageRepository, version }, "
+                 "exploitablePath { methodMatch { fullName, line, namespace, shortName, sourceFile }, "
+                 "methodSourceCall { fullName, line, namespace, shortName, sourceFile } },"
+                 " vulnerablePackagePath { id, isDevelopment, isResolved, name, version, vulnerabilityRiskLevel }, "
+                 "references { comment, type, url }, cvss2 { attackComplexity, attackVector, authentication, "
+                 "availability, availabilityRequirement, baseScore, collateralDamagePotential, confidentiality, "
+                 "confidentialityRequirement, exploitCodeMaturity, integrityImpact, integrityRequirement,"
+                 " remediationLevel, reportConfidence, targetDistribution }, "
+                 "cvss3 { attackComplexity, attackVector, availability, availabilityRequirement, baseScore, "
+                 "confidentiality, confidentialityRequirement, exploitCodeMaturity, integrity, integrityRequirement, "
+                 "privilegesRequired, remediationLevel, reportConfidence, scope, userInteraction }, "
+                 "pendingState, pendingChanges, packageState { type, value }, pendingScore, pendingSeverity,"
+                 " isScoreOverridden } } }"
+        )
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
@@ -2110,3 +2151,8 @@ def retrieve_analysis_result(request_id):
 def get_count_of_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False):
     return Sca().get_count_of_vulnerabilities_risks_by_scan_id(scan_id=scan_id,
                                                                is_exploitable_path_enabled=is_exploitable_path_enabled)
+
+
+def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+    return Sca().get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled,
+                                                      take=take, skip=skip)

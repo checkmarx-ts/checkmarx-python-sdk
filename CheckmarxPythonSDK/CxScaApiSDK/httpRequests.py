@@ -31,9 +31,8 @@ get, post, put, _, delete, _, gql = build_request_funcs(get_data_from_config)
 
 agent_headers = {
     "user-agent":
-        # "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-        # "Chrome/106.0.0.0 Safari/537.36",
-        f"Checkmarx Python SDK {__version__}"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/106.0.0.0 Safari/537.36",
 }
 
 
