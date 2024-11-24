@@ -45,6 +45,15 @@ def test_get_supply_chain_risks_by_scan_id():
     assert second_result is not None
 
 
+def test_get_legal_risks_by_scan_id():
+    result = ScaAPI().get_legal_risks_by_scan_id(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7",
+                                                 take=10, skip=0)
+    assert result is not None
+    second_result = ScaAPI().get_legal_risks_by_scan_id(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7",
+                                                        take=10, skip=10)
+    assert second_result is not None
+
+
 def test_get_direct_third_party_packages_by_scan_id():
     result = ScaAPI().get_direct_third_party_packages_by_scan_id(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7",
                                                                  take=10, skip=0)

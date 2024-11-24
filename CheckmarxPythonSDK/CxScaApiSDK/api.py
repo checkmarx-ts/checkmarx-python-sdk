@@ -1999,6 +1999,32 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_legal_risks_by_scan_id(self, scan_id, take=10, skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            take (int):
+            skip (int):
+
+        Returns:
+            example:
+            {'items': [], 'totalCount': 0}
+        """
+        query = ("query { "
+                 "legalRisksByScanId  ("
+                 "where: null, "
+                 f"take: {take}, "
+                 f"skip: {skip}, "
+                 'order: {score: DESC}, '
+                 f"scanId:  \"{scan_id}\""
+                 ")"
+                 " { totalCount, items { licenseName, packageId, violatedPolicies, packageName, packageVersion, "
+                 "relation, score, severity, state, isTest, isDev, message } } "
+                 " }")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
     def get_direct_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
         """
             This is a GraphQL API
@@ -2438,6 +2464,10 @@ def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=Fa
 
 def get_supply_chain_risks_by_scan_id(scan_id, take=10, skip=0):
     return Sca().get_supply_chain_risks_by_scan_id(scan_id, take=take, skip=skip)
+
+
+def get_legal_risks_by_scan_id(scan_id, take=10, skip=0):
+    return Sca().get_legal_risks_by_scan_id(scan_id, take=take, skip=skip)
 
 
 def get_direct_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
