@@ -1864,24 +1864,21 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
-    def get_number_of_supply_chain_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+    def get_number_of_supply_chain_risks_by_scan_id(self, scan_id):
         """
                     This is a GraphQL API
                 Args:
                     scan_id (str):
-                    is_exploitable_path_enabled (bool):
 
                 Returns:
                     example:
-                    {'vulnerabilitiesRisksByScanId': {'risksLevelCounts': {'critical': 0, 'empty': 0, 'high': 48, 'low': 0,
-                    'medium': 30, 'none': 0}, 'totalCount': 78}}
+                    {'supplyChainRisksByScanId': {'risksLevelCounts': {'critical': 0, 'empty': 0, 'high': 0, 'low': 0,
+                     'medium': 0, 'none': 0}, 'totalCount': 0}}
                 """
-        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
                  "supplyChainRisksByScanId  ("
-                 f"isExploitablePathEnabled: {is_exploitable_path_enabled},"
                  f"scanId: \"{scan_id}\","
-                 'where: {"and":[{"and":[{"isIgnore":{"eq":false}}]}]}}'
+                 'where: {and:[{and:[{isIgnore:{eq:false}}]}]}'
                  ")"
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
@@ -2348,7 +2345,11 @@ def retrieve_analysis_result(request_id):
 
 def get_number_of_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False):
     return Sca().get_number_of_vulnerabilities_risks_by_scan_id(scan_id=scan_id,
-                                                               is_exploitable_path_enabled=is_exploitable_path_enabled)
+                                                                is_exploitable_path_enabled=is_exploitable_path_enabled)
+
+
+def get_number_of_supply_chain_risks_by_scan_id(scan_id):
+    return Sca().get_number_of_supply_chain_risks_by_scan_id(scan_id=scan_id)
 
 
 def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
