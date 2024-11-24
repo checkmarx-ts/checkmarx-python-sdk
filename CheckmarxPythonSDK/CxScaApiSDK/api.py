@@ -1856,7 +1856,32 @@ class Sca(object):
                  "vulnerabilitiesRisksByScanId ("
                  f"isExploitablePathEnabled: {is_exploitable_path_enabled},"
                  f"scanId: \"{scan_id}\","
-                 'where: {}'
+                 'where: {and:[{and:[{isIgnored:{eq:false}}]}]}'
+                 ")"
+                 "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
+                 "}")
+
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
+    def get_number_of_supply_chain_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+        """
+                    This is a GraphQL API
+                Args:
+                    scan_id (str):
+                    is_exploitable_path_enabled (bool):
+
+                Returns:
+                    example:
+                    {'vulnerabilitiesRisksByScanId': {'risksLevelCounts': {'critical': 0, 'empty': 0, 'high': 48, 'low': 0,
+                    'medium': 30, 'none': 0}, 'totalCount': 78}}
+                """
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "supplyChainRisksByScanId  ("
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled},"
+                 f"scanId: \"{scan_id}\","
+                 'where: {"and":[{"and":[{"isIgnore":{"eq":false}}]}]}}'
                  ")"
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
