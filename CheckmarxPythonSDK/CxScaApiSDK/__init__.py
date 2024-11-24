@@ -52,7 +52,7 @@ from .api import (
     get_sbom_supported_file_formats,
     run_file_analysis,
     retrieve_analysis_result,
-    get_count_of_vulnerabilities_risks_by_scan_id,
+    get_number_of_vulnerabilities_risks_by_scan_id,
     get_vulnerabilities_risks_by_scan_id,
     get_direct_third_party_packages_by_scan_id,
     get_transitive_third_party_packages_by_scan_id,

@@ -1839,7 +1839,7 @@ class Sca(object):
             result = response.json()
         return result
 
-    def get_count_of_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+    def get_number_of_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
         """
             This is a GraphQL API
         Args:
@@ -2321,8 +2321,8 @@ def retrieve_analysis_result(request_id):
     return Sca().retrieve_analysis_result(request_id=request_id)
 
 
-def get_count_of_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False):
-    return Sca().get_count_of_vulnerabilities_risks_by_scan_id(scan_id=scan_id,
+def get_number_of_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False):
+    return Sca().get_number_of_vulnerabilities_risks_by_scan_id(scan_id=scan_id,
                                                                is_exploitable_path_enabled=is_exploitable_path_enabled)
 
 
