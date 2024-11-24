@@ -2225,6 +2225,34 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_container_vulnerabilities_by_scan_id(self, scan_id, fetch_runtime_data=False, take=10, skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            fetch_runtime_data (bool):
+            take (int):
+            skip (int):
+
+        Returns:
+            example:
+                {"containerVulnerabilities":{"totalCount":0,"items":[]}}
+        """
+        fetch_runtime_data = "true" if fetch_runtime_data else "false"
+        query = ("query { "
+                 "containerVulnerabilities  ("
+                 f"scanId: \"{scan_id}\", "
+                 f"fetchRuntimeData: {fetch_runtime_data}, "
+                 f"take: {take}, " 
+                 f"skip: {skip}, "
+                 "where: null, "
+                 'order: {riskFactors:{isMalicious:DESC},severity:DESC}'
+                 ")"
+                 "{totalCount, items {cve, cwe, name, version, published, severity, riskFactors {isMalicious, isUsed}}}"
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2533,3 +2561,8 @@ def get_number_of_packages_used_for_accessing_saas_services(scan_id, is_exploita
 
 def get_container_packages_by_scan_id(scan_id, fetch_runtime_data=False, take=10, skip=0):
     return Sca().get_container_packages_by_scan_id(scan_id, fetch_runtime_data=fetch_runtime_data, take=take, skip=skip)
+
+
+def get_container_vulnerabilities_by_scan_id(scan_id, fetch_runtime_data=False, take=10, skip=0):
+    return Sca().get_container_vulnerabilities_by_scan_id(scan_id, fetch_runtime_data=fetch_runtime_data, take=take,
+                                                          skip=skip)
