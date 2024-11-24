@@ -1971,6 +1971,34 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_supply_chain_risks_by_scan_id(self, scan_id, take=10, skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            take (int):
+            skip (int):
+
+        Returns:
+            example:
+            {'items': [], 'totalCount': 0}
+        """
+        query = ("query { "
+                 "supplyChainRisksByScanId ("
+                 "where: null, "
+                 f"take: {take}, "
+                 f"skip: {skip}, "
+                 'order: {score: DESC}, '
+                 f"scanId:  \"{scan_id}\""
+                 ")"
+                 " { totalCount, items { state, description, id, identifiedInPackage, identifiedInPackageName,"
+                 " identifiedInPackageVersion, score, severity, title, type, cve, violatedPolicies, relation,"
+                 " publishDate, detectionDate, pendingState, pendingChanges, packageState { type, value }, "
+                 "pendingScore, pendingSeverity, originalScore } }"
+                 " }")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
     def get_direct_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
         """
             This is a GraphQL API
@@ -2406,6 +2434,10 @@ def get_number_of_legal_risks_by_scan_id(scan_id):
 def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
     return Sca().get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled,
                                                       take=take, skip=skip)
+
+
+def get_supply_chain_risks_by_scan_id(scan_id, take=10, skip=0):
+    return Sca().get_supply_chain_risks_by_scan_id(scan_id, take=take, skip=skip)
 
 
 def get_direct_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
