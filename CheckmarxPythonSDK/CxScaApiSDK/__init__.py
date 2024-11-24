@@ -58,6 +58,7 @@ from .api import (
     get_number_of_packages_by_scan_id,
     get_number_of_direct_third_party_packages_by_scan_id,
     get_number_of_transitive_third_party_packages_by_scan_id,
+    get_number_of_packages_used_for_accessing_saas_services,
 )
 
 from .AccessControlAPI import AccessControlAPI

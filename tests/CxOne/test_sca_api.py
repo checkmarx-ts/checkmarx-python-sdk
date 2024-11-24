@@ -42,3 +42,8 @@ def test_get_number_of_direct_third_party_packages_by_scan_id():
 def test_get_number_of_transitive_third_party_packages_by_scan_id():
     result = ScaAPI().get_number_of_transitive_third_party_packages_by_scan_id(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7")
     assert result is not None
+
+
+def test_get_number_of_packages_used_for_accessing_saas_services():
+    result = ScaAPI().get_number_of_packages_used_for_accessing_saas_services(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7")
+    assert result is not None
