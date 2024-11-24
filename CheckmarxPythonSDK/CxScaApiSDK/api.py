@@ -1989,6 +1989,33 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_number_of_transitive_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+        """
+        This is a GraphQL API
+        Args:
+            scan_id (str):
+            is_exploitable_path_enabled (bool):
+
+        Returns:
+            example:
+            {'packagesRows': {'hasMaliciousPackage': False, 'maxVulnerabilitiesCount': 36, 'totalCount': 206,
+            'totalDevCount': 70, 'totalDevOrTestCount': 70, 'totalPolicyViolationsCount': 0}}
+        """
+
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "packagesRows ("
+                 f"scanId: \"{scan_id}\", "
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
+                 "where: {relation:{or:[{eq:\"Transitive\"},{eq:\"Mixed\"}]},isPrivateDependency:{neq:true},"
+                 "isSaasProvider:{eq:false}}"
+                 ")"
+                 " { totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
+                 "hasMaliciousPackage, totalDevOrTestCount } "
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2252,5 +2279,11 @@ def get_number_of_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False
 
 def get_number_of_direct_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False):
     return Sca().get_number_of_direct_third_party_packages_by_scan_id(
+        scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled
+    )
+
+
+def get_number_of_transitive_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False):
+    return Sca().get_number_of_transitive_third_party_packages_by_scan_id(
         scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled
     )
