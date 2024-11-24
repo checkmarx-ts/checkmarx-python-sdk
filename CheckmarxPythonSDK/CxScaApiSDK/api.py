@@ -2281,6 +2281,37 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_down_stream_remediation_by_scan_id(self, scan_id, include_broken_methods=True, take=10, skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            include_broken_methods (bool):
+            take (int):
+            skip (int):
+
+        Returns:
+            example:
+                {'downstreamRemediation': {'items': [], 'totalCount': 0}}
+        """
+        include_broken_methods = "true" if include_broken_methods else "false"
+        query = ("query { "
+                 "downstreamRemediation    ("
+                 f"scanId: \"{scan_id}\", "
+                 f"includeBrokenMethods: {include_broken_methods}, "
+                 f"take: {take}, "
+                 f"skip: {skip}, "
+                 "where: null, "
+                 'order: {summaryQuery:{packageId:ASC}}'
+                 ")"
+                 "{totalCount, items { id, summaryQuery { effortEstimation, packageName, packageVersion, packageId, "
+                 "criticalVulnerabilityCount, highVulnerabilityCount, mediumVulnerabilityCount, lowVulnerabilityCount,"
+                 "effortEstimation, impact, hasExploitablePath, packages { name, version, criticalVulnerabilityCount,"
+                 " highVulnerabilityCount, mediumVulnerabilityCount, lowVulnerabilityCount, parent { name, version}}}}}"
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2598,3 +2629,8 @@ def get_container_vulnerabilities_by_scan_id(scan_id, fetch_runtime_data=False, 
 
 def get_package_licenses_by_scan_id(scan_id, take=0, skip=0):
     return Sca().get_package_licenses_by_scan_id(scan_id, take=take, skip=skip)
+
+
+def get_down_stream_remediation_by_scan_id(scan_id, include_broken_methods=True, take=10, skip=0):
+    return Sca().get_down_stream_remediation_by_scan_id(scan_id, include_broken_methods=include_broken_methods,
+                                                        take=take, skip=skip)

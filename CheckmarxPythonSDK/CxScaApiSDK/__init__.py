@@ -68,6 +68,7 @@ from .api import (
     get_container_packages_by_scan_id,
     get_container_vulnerabilities_by_scan_id,
     get_package_licenses_by_scan_id,
+    get_down_stream_remediation_by_scan_id,
 )
 
 from .AccessControlAPI import AccessControlAPI
