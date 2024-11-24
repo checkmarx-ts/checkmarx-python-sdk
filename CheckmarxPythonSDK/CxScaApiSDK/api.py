@@ -1906,7 +1906,7 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
-    def get_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+    def get_direct_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
         """
             This is a GraphQL API
         Args:
@@ -1955,7 +1955,7 @@ class Sca(object):
         """
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
-                 "packagesRows (" 
+                 "packagesRows ("
                  f"scanId: \"{scan_id}\", "
                  f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
                  "where: {}) { totalCount, totalDevCount, totalDevOrTestCount } "
@@ -1977,7 +1977,7 @@ class Sca(object):
         """
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
-                 "packagesRows (" 
+                 "packagesRows ("
                  f"scanId: \"{scan_id}\", "
                  f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
                  "where: {relation:{or:[{eq:\"Direct\"},{eq:\"Mixed\"}]},"
@@ -2294,9 +2294,10 @@ def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=Fa
                                                       take=take, skip=skip)
 
 
-def get_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
-    return Sca().get_packages_by_scan_id(scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled,
-                                         take=take, skip=skip)
+def get_direct_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+    return Sca().get_direct_third_party_packages_by_scan_id(scan_id,
+                                                            is_exploitable_path_enabled=is_exploitable_path_enabled,
+                                                            take=take, skip=skip)
 
 
 def get_number_of_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False):
