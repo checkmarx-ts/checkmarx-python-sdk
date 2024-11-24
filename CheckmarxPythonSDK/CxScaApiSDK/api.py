@@ -1942,6 +1942,43 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_transitive_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10,
+                                                       skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            is_exploitable_path_enabled (bool):
+            take (int):
+            skip (int):
+
+        Returns:
+
+        """
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "packagesRows ("
+                 "where: {relation:{or:[{eq:\"Transitive\"},{eq:\"Mixed\"}]},isPrivateDependency:{neq:true}, "
+                 "isSaasProvider:{eq:false}}, "
+                 f"take: {take}, "
+                 f"skip: {skip}, "
+                 "order: {risks:DESC}, "
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
+                 f"scanId: \"{scan_id}\""
+                 ")"
+                 "{ items { packageId, name, version, isViolatingPolicy, isMalicious, dependencyPathCount, "
+                 "violatedPoliciesCount, violatedPolicies, relation, matchType, legalRiskLevel, isDev, "
+                 "remediationTaskId, isTest, isNpmVerified, isPluginDependency, isFramework, packageRepository, "
+                 "packageUsage, releaseDate, isPrivateDependency, outdatedModel { newestVersion, versionsInBetween, "
+                 "newestLibraryDate }, saasProviderInfo { name, key, type }, effectiveLicenses { name, riskLevel }, "
+                 "risks { vulnerabilities { critical, high, medium, low, none }, legalRisk { critical, high, medium, "
+                 "low, none }, supplyChainRisks { critical, high, medium, low, none }, vulnerabilitiesWithoutIgnored {"
+                 " critical, high, medium, low, none }, supplyChainRisksWithoutIgnored { critical, high, medium, low,"
+                 " none } } }, totalCount }"
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
     def get_number_of_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
         """
             This is a GraphQL API
@@ -2298,6 +2335,12 @@ def get_direct_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enab
     return Sca().get_direct_third_party_packages_by_scan_id(scan_id,
                                                             is_exploitable_path_enabled=is_exploitable_path_enabled,
                                                             take=take, skip=skip)
+
+
+def get_transitive_third_party_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+    return Sca().get_transitive_third_party_packages_by_scan_id(scan_id,
+                                                                is_exploitable_path_enabled=is_exploitable_path_enabled,
+                                                                take=take, skip=skip)
 
 
 def get_number_of_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False):
