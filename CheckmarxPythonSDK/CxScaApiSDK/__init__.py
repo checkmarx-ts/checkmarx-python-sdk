@@ -55,6 +55,7 @@ from .api import (
     get_count_of_vulnerabilities_risks_by_scan_id,
     get_vulnerabilities_risks_by_scan_id,
     get_packages_by_scan_id,
+    get_number_of_packages_by_scan_id,
 )
 
 from .AccessControlAPI import AccessControlAPI

@@ -1942,6 +1942,27 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_number_of_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+        """
+
+        Args:
+            scan_id (str):
+            is_exploitable_path_enabled (bool):
+
+        Returns:
+            example:
+            {'packagesRows': {'totalCount': 245, 'totalDevCount': 70, 'totalDevOrTestCount': 70}}
+        """
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "packagesRows (" 
+                 f"scanId: \"{scan_id}\", "
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
+                 "where: {}) { totalCount, totalDevCount, totalDevOrTestCount } "
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2197,3 +2218,7 @@ def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=Fa
 def get_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
     return Sca().get_packages_by_scan_id(scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled,
                                          take=take, skip=skip)
+
+
+def get_number_of_packages_by_scan_id(scan_id, is_exploitable_path_enabled=False):
+    return Sca().get_number_of_packages_by_scan_id(scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled)
