@@ -2174,16 +2174,14 @@ class Sca(object):
 
     def get_number_of_packages_used_for_accessing_saas_services(self, scan_id, is_exploitable_path_enabled=False):
         """
-                This is a GraphQL API
-                Args:
-                    scan_id (str):
-                    is_exploitable_path_enabled (bool):
+        This is a GraphQL API
+        Args:
+            scan_id (str):
+            is_exploitable_path_enabled (bool):
 
-                Returns:
-                    example:
-                    {'packagesRows': {'hasMaliciousPackage': False, 'maxVulnerabilitiesCount': 36, 'totalCount': 206,
-                    'totalDevCount': 70, 'totalDevOrTestCount': 70, 'totalPolicyViolationsCount': 0}}
-                """
+        Returns:
+
+        """
 
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
@@ -2194,6 +2192,35 @@ class Sca(object):
                  ")"
                  " { totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount } "
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
+    def get_container_packages_by_scan_id(self, scan_id, fetch_runtime_data=False, take=10, skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            fetch_runtime_data (bool):
+            take (int):
+            skip (int):
+
+        Returns:
+            example:
+                {'containerPackages': {'items': [], 'totalCount': 0}}
+        """
+        fetch_runtime_data = "true" if fetch_runtime_data else "false"
+        query = ("query { "
+                 "containerPackages  ("
+                 f"scanId: \"{scan_id}\", "
+                 f"fetchRuntimeData: {fetch_runtime_data}, "
+                 f"take: {take}, " 
+                 f"skip: {skip}, "
+                 "where: null, "
+                 'order: {isMalicious:DESC,runtimeUsage:DESC,vulnerabilitiesCounter:{high:DESC}}'
+                 ")"
+                 "{ totalCount, items { packageName, packageVersion, imageName, imageTag, identifiedBy, deploymentType,"
+                 "runtimeUsage, imageOrigins, isMalicious, vulnerabilitiesCounter { high, medium, low } } }  "
                  "}")
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
@@ -2502,3 +2529,7 @@ def get_number_of_packages_used_for_accessing_saas_services(scan_id, is_exploita
     return Sca().get_number_of_packages_used_for_accessing_saas_services(
         scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled
     )
+
+
+def get_container_packages_by_scan_id(scan_id, fetch_runtime_data=False, take=10, skip=0):
+    return Sca().get_container_packages_by_scan_id(scan_id, fetch_runtime_data=fetch_runtime_data, take=take, skip=skip)
