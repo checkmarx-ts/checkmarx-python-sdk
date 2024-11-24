@@ -1886,7 +1886,28 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
-    def get_number_of_outdated_packages(self, scan_id):
+    def get_number_of_outdated_packages_by_scan_id(self, scan_id):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+
+        Returns:
+            example:
+            {"packagesRows":{"totalCount":201}}
+        """
+        query = ("query { "
+                 "packagesRows   ("
+                 f"scanId: \"{scan_id}\","
+                 'where: {and:[{outdatedModel:{and:[{versionsInBetween:{gte:1}}]}}]}'
+                 ")"
+                 "{ totalCount }"
+                 "}")
+
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
+    def get_number_of_outdated_packages_by_scan_id(self, scan_id):
         """
             This is a GraphQL API
         Args:
@@ -2373,8 +2394,8 @@ def get_number_of_supply_chain_risks_by_scan_id(scan_id):
     return Sca().get_number_of_supply_chain_risks_by_scan_id(scan_id=scan_id)
 
 
-def get_number_of_outdated_packages(scan_id):
-    return Sca().get_number_of_outdated_packages(scan_id=scan_id)
+def get_number_of_outdated_packages_by_scan_id(scan_id):
+    return Sca().get_number_of_outdated_packages_by_scan_id(scan_id=scan_id)
 
 
 def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
