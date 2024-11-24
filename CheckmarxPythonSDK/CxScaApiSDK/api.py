@@ -2253,6 +2253,34 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_package_licenses_by_scan_id(self, scan_id, take=10, skip=0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            take (int):
+            skip (int):
+
+        Returns:
+
+        """
+        query = ("query { "
+                 "packageLicensesByScanId   ("
+                 f"scanId: \"{scan_id}\", "
+                 f"take: {take}, "
+                 f"skip: {skip}, "
+                 "where: null, "
+                 'order: {pendingState:ASC,riskScore:DESC}'
+                 ")"
+                 "{totalCount, items { copyLeftType, copyrightRiskLevel, isViolatingPolicy, licenseUrl, name, "
+                 "patentRiskLevel, reference, referenceType, licenseSourcePath, relation, riskLevel, riskScore, "
+                 "violatedPolicies, violatedPoliciesCount, state, pendingChanges, pendingState, isForbidden, status, "
+                 "package { link, numberOfLicensesInPackage, packageId, packageName, packageVersion }, "
+                 "packageState { type, value } } }"
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2566,3 +2594,7 @@ def get_container_packages_by_scan_id(scan_id, fetch_runtime_data=False, take=10
 def get_container_vulnerabilities_by_scan_id(scan_id, fetch_runtime_data=False, take=10, skip=0):
     return Sca().get_container_vulnerabilities_by_scan_id(scan_id, fetch_runtime_data=fetch_runtime_data, take=take,
                                                           skip=skip)
+
+
+def get_package_licenses_by_scan_id(scan_id, take=0, skip=0):
+    return Sca().get_package_licenses_by_scan_id(scan_id, take=take, skip=skip)
