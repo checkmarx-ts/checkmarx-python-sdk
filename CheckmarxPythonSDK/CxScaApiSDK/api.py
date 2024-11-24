@@ -2359,6 +2359,50 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_scan_progress_by_scan_id(self, scan_id):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+
+        Returns:
+            example:
+                {'scanProgress': {'totalDuration': 35847.367, 'data': [
+        {'name': 'Generating download link', 'startTime': '2024-11-22T01:54:01.129Z', 'duration': 0.253,
+        'status': 'Done'},
+        {'name': 'Download Project Code', 'startTime': '2024-11-22T01:54:01.145Z', 'duration': 69.031,
+        'status': 'Done'},
+        {'name': 'CollectEvidencesScanPipelineStep', 'startTime': '2024-11-22T01:54:01.227Z', 'duration': 0.001,
+        'status': 'Done'},
+         {'name': 'Collecting Evidence', 'startTime': '2024-11-22T01:54:01.237Z', 'duration': 5241.963,
+         'status': 'Done'},
+          {'name': 'Store Ignored Vulnerabilities in Scan Results', 'startTime': '2024-11-22T01:54:06.547Z',
+          'duration': 7.692, 'status': 'Done'},
+          {'name': 'Generate Risk Report', 'startTime': '2024-11-22T01:54:06.565Z', 'duration': 15284.921,
+          'status': 'Done'},
+          {'name': 'Find Private Packages', 'startTime': '2024-11-22T01:54:36.900Z', 'duration': 0.815,
+          'status': 'Done'},
+          {'name': 'Global Inventory Publisher', 'startTime': '2024-11-22T01:54:36.918Z', 'duration': 0.769,
+          'status': 'Done'},
+          {'name': 'Correlating container vulnerabilities', 'startTime': '2024-11-22T01:54:06.498Z',
+          'duration': 27.277, 'status': 'Done'},
+          {'name': 'Handle Container Evidences', 'startTime': '2024-11-22T01:54:06.490Z', 'duration': 47.252,
+          'status': 'Done'},
+          {'name': 'Generate Risk Management Report', 'startTime': '2024-11-22T01:54:21.862Z', 'duration': 0.777,
+          'status': 'Done'},
+           {'name': 'Fetch Generate Risk Management Report Result', 'startTime': '2024-11-22T01:54:36.888Z',
+           'duration': 0.958, 'status': 'Done'}
+        ]}}
+        """
+        query = ("query { "
+                 "scanProgress  ("
+                 f"scanId: \"{scan_id}\" "
+                 ")"
+                 "{ totalDuration, data { name, startTime, duration, status } }"
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2685,3 +2729,7 @@ def get_down_stream_remediation_by_scan_id(scan_id, include_broken_methods=True,
 
 def get_scan_info_by_scan_id(scan_id):
     return Sca().get_scan_info_by_scan_id(scan_id)
+
+
+def get_scan_progress_by_scan_id(scan_id):
+    return Sca().get_scan_progress_by_scan_id(scan_id)
