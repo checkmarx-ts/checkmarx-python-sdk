@@ -2312,6 +2312,53 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
+    def get_scan_info_by_scan_id(self, scan_id):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+
+        Returns:
+            example:
+            {
+                "scanInfo": {
+                    "hasWarnings": false,
+                    "totalManifestsCount": 1,
+                    "totalPackagesCount": 245,
+                    "identifiedBy": [
+                        {
+                            "matchType": "Filename",
+                            "count": 240
+                        },
+                        {
+                            "matchType": "Sha1",
+                            "count": 5
+                        }
+                    ],
+                    "manifests": [
+                        {
+                            "dependenciesCount": 309,
+                            "dependencyResolverStatus": "FullResults",
+                            "manifestPath": "pom.xml",
+                            "message": "",
+                            "resolvingModuleType": "Maven"
+                        }
+                    ],
+                    "deltaScan": false
+                }
+            }
+        """
+        query = ("query { "
+                 "scanInfo     ("
+                 f"scanId: \"{scan_id}\" "
+                 ")"
+                 "{hasWarnings, totalManifestsCount, totalPackagesCount, identifiedBy { matchType, count }, "
+                 "manifests { dependenciesCount, dependencyResolverStatus, manifestPath, message, resolvingModuleType},"
+                 "deltaScan }"
+                 "}")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -2634,3 +2681,7 @@ def get_package_licenses_by_scan_id(scan_id, take=0, skip=0):
 def get_down_stream_remediation_by_scan_id(scan_id, include_broken_methods=True, take=10, skip=0):
     return Sca().get_down_stream_remediation_by_scan_id(scan_id, include_broken_methods=include_broken_methods,
                                                         take=take, skip=skip)
+
+
+def get_scan_info_by_scan_id(scan_id):
+    return Sca().get_scan_info_by_scan_id(scan_id)
