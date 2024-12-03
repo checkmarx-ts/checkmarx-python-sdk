@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.0.9 - 2024-12-03
+* Fix Fail to create scan because of the user-agent header
+
 1.0.8 - 2024-12-03
 * Fix setup.py dependencies
 
