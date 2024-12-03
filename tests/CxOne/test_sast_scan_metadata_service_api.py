@@ -20,7 +20,7 @@ def test_get_metadata_of_scan():
 
 
 def test_get_engine_metrics_of_scan():
-    result = get_engine_metrics_of_scan(scan_id="ae8ae620-06bb-4c16-bb15-809270e0ccc6")
+    result = get_engine_metrics_of_scan(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7")
     assert result is not None
 
 

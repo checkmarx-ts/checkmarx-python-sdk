@@ -6,7 +6,7 @@ from CheckmarxPythonSDK.CxOne import (
     create_a_pre_signed_url_to_upload_files,
     upload_zip_content_for_scanning,
     get_project_id_by_name,
-    get_a_list_of_scan,
+    get_a_list_of_scans,
     get_all_scan_tags,
     get_summary_of_the_status_of_the_scans,
     get_the_list_of_available_config_as_code_template_files,
@@ -26,7 +26,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     ProjectInput,
 )
 
-new_project_name = "happy-test-2022-04-20"
+new_project_name = "webgoat"
 
 
 def test_ast_create_scan_by_upload_file():
@@ -62,7 +62,7 @@ def test_ast_create_scan_by_upload_file():
 
 def test_get_a_list_of_scan():
     project_id = get_project_id_by_name(name=new_project_name)
-    scans_collection = get_a_list_of_scan(project_id=project_id)
+    scans_collection = get_a_list_of_scans(project_id=project_id, branch='main', limit=5)
     assert len(scans_collection.scans) > 0
 
 
