@@ -44,6 +44,7 @@ setup(
         "python-dateutil>=2.8.2",
         "keyring>=23.9.3",
         "Deprecated>=1.2.13",
+        "gql[all]>=3.5.0",
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
