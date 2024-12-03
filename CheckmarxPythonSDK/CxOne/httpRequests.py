@@ -35,7 +35,7 @@ def get_data_from_config():
 get, post, put, patch, delete, head, gql = build_request_funcs(get_data_from_config)
 
 headers = {
-    "user-agent": f"Checkmarx Python SDK {__version__}"
+    # "user-agent": f"Checkmarx Python SDK {__version__}"
 }
 
 
