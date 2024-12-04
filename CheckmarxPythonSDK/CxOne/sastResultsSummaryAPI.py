@@ -73,7 +73,8 @@ def get_sast_aggregate_results(scan_id, group_by_field, language=None, status=No
     list_member_type_check(severity, str)
     list_member_type_check(query_ids, int)
 
-    relative_url = api_url + "/aggregate?scan-id={scan_id}"
+    relative_url = api_url + "/aggregate?"
+    relative_url += get_url_param("scan-id", scan_id)
     relative_url += get_url_param("group-by-field", group_by_field)
     relative_url += get_url_param("language", language)
     relative_url += get_url_param("status", status)
