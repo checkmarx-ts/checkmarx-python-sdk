@@ -4,5 +4,5 @@ from CheckmarxPythonSDK.CxOne import (
 
 
 def test_get_summary_for_many_scans():
-    response = get_summary_for_many_scans(scan_ids=["09ad7faf-74e5-415b-b81a-f4f209b736a4"])
+    response = get_summary_for_many_scans(scan_ids=["eff7552e-b7a4-4576-a1be-63e8236b6ab6"])
     assert response is not None
