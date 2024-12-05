@@ -31,6 +31,10 @@ from .cloudInsightsServiceAPI import (
     get_all_containers_for_an_account_id,
 )
 
+from .codeRepositoryProjectAPI import (
+    import_code_repository,
+)
+
 from .contributorsAPI import (
     get_allowed_and_current_contributors_for_the_current_tenant,
     get_contributors_details_for_current_tenant_exported_in_csv,

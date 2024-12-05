@@ -44,6 +44,7 @@ from .ProjectCounter import ProjectCounter
 from .ProjectInput import ProjectInput
 from .ProjectResponseModel import ProjectResponseModel
 from .ProjectsCollection import ProjectsCollection
+from .ProjectSettings import ProjectSettings
 from .Property import Property
 from .Queries import Queries
 from .QueriesResponse import QueriesResponse
@@ -67,9 +68,14 @@ from .ScanEngineVersion import ScanEngineVersion
 from .ScanInfo import ScanInfo
 from .ScanInfoCollection import ScanInfoCollection
 from .ScanInput import ScanInput
+from .Scanner import Scanner
 from .ScanParameter import ScanParameter
 from .ScansCollection import ScansCollection
 from .ScaPackageCounters import ScaPackageCounters
+from .Scm import Scm
+from .SCMImportInput import SCMImportInput
+from .ScmOrganization import ScmOrganization
+from .ScmProject import ScmProject
 from .SeverityCounter import SeverityCounter
 from .SeveritySummary import SeveritySummary
 from .SinkFileSummary import SinkFileSummary
