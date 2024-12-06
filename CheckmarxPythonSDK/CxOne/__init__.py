@@ -33,6 +33,7 @@ from .cloudInsightsServiceAPI import (
 
 from .codeRepositoryProjectAPI import (
     import_code_repository,
+    retrieve_import_status,
 )
 
 from .contributorsAPI import (

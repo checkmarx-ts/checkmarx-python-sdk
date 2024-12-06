@@ -8,7 +8,7 @@ from .dto import SCMImportInput
 api_url = "/api/repos-manager"
 
 
-def import_code_repository(scm_import_input):
+def import_code_repository(scm_import_input: SCMImportInput):
     """
 
     Args:
@@ -27,4 +27,19 @@ def import_code_repository(scm_import_input):
     type_check(scm_import_input, SCMImportInput)
     relative_url = api_url + "/scm-projects"
     response = post_request(relative_url=relative_url, data=json.dumps(scm_import_input.to_dict()))
+    return response.json()
+
+
+def retrieve_import_status(process_id: str):
+    """
+
+    Args:
+        process_id: The unique identifier of the import process for which you would like to check the status
+
+    Returns:
+
+    """
+    type_check(process_id, str)
+    relative_url = api_url + f"/scm-projects/import-status?process-id={process_id}"
+    response = get_request(relative_url=relative_url)
     return response.json()

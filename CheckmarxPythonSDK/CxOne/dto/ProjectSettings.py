@@ -7,10 +7,10 @@ class ProjectSettings(object):
     def __init__(self,
                  web_hook_enabled: bool,
                  decorate_pull_requests: bool,
-                 is_private_package: bool,
                  scanners: List[Scanner],
-                 tags: dict,
-                 groups: List[str]
+                 tags: dict = None,
+                 groups: List[str] = None,
+                 is_private_package: bool = None,
                  ):
         """
 
@@ -42,12 +42,15 @@ class ProjectSettings(object):
                 f")")
 
     def to_dict(self):
-        return {
+        result = {
             "decoratePullRequests": self.decoratePullRequests,
             "webhookEnabled": self.webhookEnabled,
             "scanners": [
                 scanner.to_dict() for scanner in self.scanners
-            ],
-            "tags": self.tags,
-            "groups": self.groups
+            ]
         }
+        if self.tags is not None:
+            result.update({"tags": self.tags})
+        if self.groups is not None:
+            result.update({"groups": self.groups})
+        return result

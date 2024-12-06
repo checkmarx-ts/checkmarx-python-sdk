@@ -1,6 +1,7 @@
 import os
 from CheckmarxPythonSDK.CxOne import (
     import_code_repository,
+    retrieve_import_status,
 )
 
 from CheckmarxPythonSDK.CxOne.dto import (
@@ -16,27 +17,40 @@ from CheckmarxPythonSDK.CxOne.dto import (
 def test_import_code_repository():
     scm_import_input = SCMImportInput(
         scm=Scm(token=os.getenv("GITHUB_TOKEN")),
-        organization=ScmOrganization(org_identity=os.getenv("GITHUB_ORG"), monitor_for_new_projects=True),
+        organization=ScmOrganization(org_identity="HappyY19", monitor_for_new_projects=False),
         default_project_settings=ProjectSettings(
-            web_hook_enabled=True,
-            decorate_pull_requests=True,
-            is_private_package=True,
+            web_hook_enabled=False,
+            decorate_pull_requests=False,
             scanners=[
-                Scanner(scanner_type="sast", auto_pr_enabled=True,
-                        incremental=True),
-                Scanner(scanner_type="sca", auto_pr_enabled=True, incremental=True)
-            ],
-            tags={"key": "value"},
-            groups=["AlphaTeam"]
+                Scanner(scanner_type="sast", incremental=False),
+                Scanner(scanner_type="sca", auto_pr_enabled=False),
+                Scanner(scanner_type="apisec"),
+                Scanner(scanner_type="kics"),
+            ]
         ),
-        scan_projects_after_import=True,
+        scan_projects_after_import=False,
         projects=[
             ScmProject(
                 scm_repository_url="https://github.com/HappyY19/cxclipy",
                 protected_branches=["main"],
                 branch_to_scan_upon_creation="main"
+            ),
+            ScmProject(
+                scm_repository_url="https://github.com/HappyY19/JavaVulnerableLab",
+                protected_branches=["master"],
+                branch_to_scan_upon_creation="master"
             )
         ]
     )
-    response = import_code_repository(scm_import_input)
-    assert response is not None
+    import_response = import_code_repository(scm_import_input)
+    assert import_response is not None
+
+    process_id = import_response.get("processId")
+    status_response = retrieve_import_status(process_id=process_id)
+    assert status_response is not None
+
+
+def test_retrieve_import_status():
+    process_id = 'affcc535-9df1-456a-9eea-9dde3876921a'
+    status_response = retrieve_import_status(process_id=process_id)
+    assert status_response is not None
