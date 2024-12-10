@@ -1,6 +1,10 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.1 - 2024-12-10
+* Add import_code_repository
+* Add retrieve_import_status
+
 1.1.0 - 2024-12-04
 * Fix get_sast_aggregate_results
 
