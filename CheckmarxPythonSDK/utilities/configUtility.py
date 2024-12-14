@@ -145,17 +145,17 @@ def get_config_info_from_environment_variables(prefix, option_list):
     def get_value(option):
         env_var = prefix + option
         if option in ["max_try", "timeout"]:
-            value = os.getenv(env_var)
+            value = os.getenv(env_var) or os.getenv(env_var.upper())
             if value:
                 value = int(value)
         elif option in ["verify"]:
-            value = os.getenv(env_var)
+            value = os.getenv(env_var) or os.getenv(env_var.upper())
             if value and value.lower() == "true":
                 value = True
             else:
                 value = False
         else:
-            value = os.getenv(env_var)
+            value = os.getenv(env_var) or os.getenv(env_var.upper())
         return value
     option_value_list = [get_value(option=option) for option in option_list]
     return dict(zip(option_list, option_value_list))
