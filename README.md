@@ -102,7 +102,7 @@ refresh_token, ignore client_secret, username, password. If you are going to use
 you must create a client with roles such as ast-scanner, manage-webhook, queries-editor, ast-viewer, manage-application,
 manage-project, then fill in your own client_id, client secret, username, password, ignore the refresh_token.
 
-### Option 2, using environment variables or command line arguments
+### Option 2, using environment variables (Upper Case or Lower Case) or command line arguments
 
 For CxSAST:
 
