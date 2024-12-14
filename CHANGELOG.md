@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.2 -2024-12-14
+* Add support environment variables upper case and lower case
+
 1.1.1 - 2024-12-10
 * Add import_code_repository
 * Add retrieve_import_status
