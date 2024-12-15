@@ -4,6 +4,7 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI import (
     create_a_new_user,
     get_number_of_users_by_given_criteria,
     delete_user,
+    get_users_profile,
 )
 
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
@@ -36,3 +37,8 @@ def test_create_and_delete_user():
     assert user_id is not None
     result = delete_user(realm=realm, user_id=user_id)
     assert result is True
+
+
+def test_get_users_profile():
+    result = get_users_profile(realm=realm)
+    assert result is not None

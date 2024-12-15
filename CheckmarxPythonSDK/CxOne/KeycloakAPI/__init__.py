@@ -5,6 +5,7 @@ from .UsersAPI import (
     create_a_new_user,
     get_number_of_users_by_given_criteria,
     delete_user,
+    get_users_profile,
 )
 
 from .GroupsAPI import (

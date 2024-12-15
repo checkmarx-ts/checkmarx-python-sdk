@@ -187,3 +187,17 @@ def delete_user(realm, user_id):
     if response.status_code == NO_CONTENT:
         result = True
     return result
+
+
+def get_users_profile(realm):
+    """
+
+    Args:
+        realm (str):
+
+    Returns:
+
+    """
+    relative_url = api_url + f"/{realm}/users/profile"
+    response = get_request(relative_url=relative_url)
+    return response.json()
