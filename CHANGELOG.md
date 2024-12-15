@@ -1,7 +1,10 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
-1.1.2 -2024-12-14
+1.1.3 - 2024-12-15
+* Add get_user_id_by_name, delete_user
+
+1.1.2 - 2024-12-14
 * Add support environment variables upper case and lower case
 
 1.1.1 - 2024-12-10
