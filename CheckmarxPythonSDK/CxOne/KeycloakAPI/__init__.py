@@ -1,7 +1,10 @@
 from .RootAPI import get_realms
 from .UsersAPI import (
     get_users,
-    create_a_new_user
+    get_user_id_by_name,
+    create_a_new_user,
+    get_number_of_users_by_given_criteria,
+    delete_user,
 )
 
 from .GroupsAPI import (
