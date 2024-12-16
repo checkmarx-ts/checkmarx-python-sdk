@@ -6,6 +6,9 @@ from .UsersAPI import (
     get_number_of_users_by_given_criteria,
     delete_user,
     get_users_profile,
+    get_users_profile_metadata,
+    get_user_by_id,
+    update_user_by_id,
 )
 
 from .GroupsAPI import (

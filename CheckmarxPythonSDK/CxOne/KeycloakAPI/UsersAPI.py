@@ -154,7 +154,6 @@ def get_number_of_users_by_given_criteria(realm, email=None, email_verified=None
     Returns:
         int
     """
-    result = 0
     relative_url = api_url + f"/{realm}/users/count"
     relative_url += get_url_param("email", email)
     relative_url += get_url_param("emailVerified", email_verified)
@@ -199,5 +198,61 @@ def get_users_profile(realm):
 
     """
     relative_url = api_url + f"/{realm}/users/profile"
-    response = get_request(relative_url=relative_url)
+    response = get_request(relative_url=relative_url, is_iam=True)
     return response.json()
+
+
+def get_users_profile_metadata(realm):
+    """
+
+    Args:
+        realm:
+
+    Returns:
+
+    """
+    relative_url = api_url + f"/{realm}/users/profile/metadata"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    return response.json()
+
+
+def get_user_by_id(realm, user_id):
+    """
+
+    Args:
+        realm (str):
+        user_id (str):
+
+    Returns:
+
+    """
+    type_check(realm, str)
+    type_check(user_id, str)
+    relative_url = api_url + f"/{realm}/users/{user_id}"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    return response.json()
+
+
+def update_user_by_id(realm, user_id, username, first_name, last_name, email,
+                      email_verified=True, user_enabled=True,
+                      totp=False, required_actions=None, manage_group_members_ship_access=True, view_access=True,
+                      map_roles_access=True, impersonate_access=True, manage_access=True, attributes=None):
+    result = False
+    relative_url = api_url + f"/{realm}/users/{user_id}"
+    data = {
+        "username": username, "firstName": first_name, "lastName": last_name, "email": email,
+        "emailVerified": email_verified, "enabled": user_enabled, "totp": totp,
+        "disableableCredentialTypes": [], "requiredActions": required_actions or [], "notBefore": 0,
+        "access": {
+            "manageGroupMembership": manage_group_members_ship_access, "view": view_access,
+            "mapRoles": map_roles_access, "impersonate": impersonate_access,
+            "manage": manage_access
+        },
+    }
+    if attributes:
+        data.update({"attributes": attributes})
+    data = json.dumps(data)
+    response = put_request(relative_url=relative_url, data=data, is_iam=True)
+    if response.status_code == NO_CONTENT:
+        result = True
+    return result
