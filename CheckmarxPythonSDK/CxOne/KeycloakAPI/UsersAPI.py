@@ -8,7 +8,7 @@ from .dto import UserRepresentation, construct_user
 
 
 def get_users(realm, brief_representation=False, email=None, email_verified=None, enabled=None, exact=None, first=None,
-              first_name=None, idp_alias=None, idp_user_id=None, last_name=None, max_result_size=100, search=None,
+              first_name=None, idp_alias=None, idp_user_id=None, last_name=None, max_result_size=1024, search=None,
               username=None):
     """
     Returns a stream of users, filtered according to query parameters
