@@ -1,6 +1,9 @@
 from CheckmarxPythonSDK.CxOne.KeycloakAPI import (
     get_users,
     get_user_id_by_name,
+    get_user_id_list_by_username_list,
+    get_user_id_by_email,
+    get_user_id_list_by_email_list,
     create_a_new_user,
     get_number_of_users_by_given_criteria,
     delete_user,
@@ -63,3 +66,18 @@ def test_update_user_by_id():
     result = update_user_by_id(realm=realm, user_id=user_id, username="aaa", first_name="cup", last_name="mug",
                                email="cup@mug.com")
     assert result is True
+
+
+def test_get_user_id_list_by_username_list():
+    user_ids = get_user_id_list_by_username_list(realm=realm, username_list=["aaa"])
+    assert len(user_ids) >= 1
+
+
+def test_get_user_id_by_email():
+    user_id = get_user_id_by_email(realm=realm, email="cup@mug.com")
+    assert user_id is not None
+
+
+def test_get_user_id_list_by_email_list():
+    user_id_list = get_user_id_list_by_email_list(realm=realm, email_list=["cup@mug.com"])
+    assert len(user_id_list) >= 1

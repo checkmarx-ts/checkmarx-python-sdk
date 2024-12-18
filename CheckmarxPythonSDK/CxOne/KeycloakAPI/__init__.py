@@ -2,6 +2,9 @@ from .RootAPI import get_realms
 from .UsersAPI import (
     get_users,
     get_user_id_by_name,
+    get_user_id_list_by_username_list,
+    get_user_id_by_email,
+    get_user_id_list_by_email_list,
     create_a_new_user,
     get_number_of_users_by_given_criteria,
     delete_user,

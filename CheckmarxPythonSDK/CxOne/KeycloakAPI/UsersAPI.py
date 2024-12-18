@@ -1,4 +1,5 @@
 import json
+from typing import List
 from ...utilities.compat import CREATED, OK, NO_CONTENT
 from ..httpRequests import get_request, post_request, put_request, delete_request
 from ..utilities import get_url_param, type_check
@@ -67,6 +68,24 @@ def get_users(realm, brief_representation=False, email=None, email_verified=None
     return [construct_user(user) for user in users]
 
 
+def _filter_user_id_by_name(users, username):
+    """
+
+    Args:
+        users (list of User):
+        username (str):
+
+    Returns:
+        str or None
+    """
+    users_by_name = list(filter(lambda r: r.username == username, users))
+    if not users_by_name:
+        return None
+    user = users_by_name[0]
+    user_id = user.id
+    return user_id
+
+
 def get_user_id_by_name(realm, username):
     """
 
@@ -75,15 +94,63 @@ def get_user_id_by_name(realm, username):
         username (str):
 
     Returns:
+        str
+    """
+    users = get_users(realm=realm)
+    user_id = _filter_user_id_by_name(users, username)
+    return user_id
+
+
+def get_user_id_list_by_username_list(realm: str, username_list: List[str]):
+    """
+
+    Args:
+        realm (str):
+        username_list (list of str):
+
+    Returns:
+        list of str
+    """
+    users = get_users(realm=realm)
+    return [_filter_user_id_by_name(users, username) for username in username_list]
+
+
+def _filter_user_id_by_email(users, email):
+    """
+
+    Args:
+        users:
+        email:
+
+    Returns:
 
     """
-    user_id = None
-    users = get_users(realm=realm)
-    users_by_name = list(filter(lambda r: r.username == username, users))
-    if len(users_by_name) > 0:
-        user = users_by_name[0]
-        user_id = user.id
+    users_by_email = list(filter(lambda r: r.email == email, users))
+    if not users_by_email:
+        return None
+    user = users_by_email[0]
+    user_id = user.id
     return user_id
+
+
+def get_user_id_by_email(realm, email):
+    """
+
+    Args:
+        realm (str):
+        email (str):
+
+    Returns:
+        str
+    """
+    users = get_users(realm=realm)
+    user_id = _filter_user_id_by_email(users, email)
+    return user_id
+
+
+def get_user_id_list_by_email_list(realm, email_list):
+    users = get_users(realm=realm)
+    return [_filter_user_id_by_email(users, email) for email in email_list]
 
 
 def create_a_new_user(realm, username, email, first_name, last_name, enabled=True, attributes=None, groups=None,
