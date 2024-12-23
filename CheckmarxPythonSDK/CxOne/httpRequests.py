@@ -14,8 +14,6 @@ def get_data_from_config():
     cert = config.get("cert")
     token_req_data = {
         "grant_type": "client_credentials",
-        "username": config.get("username"),
-        "password": config.get("password"),
         "client_id": config.get("client_id"),
         "client_secret": config.get("client_secret"),
     }
