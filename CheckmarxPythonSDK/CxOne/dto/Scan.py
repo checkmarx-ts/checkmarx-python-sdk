@@ -1,4 +1,5 @@
 # encoding: utf-8
+from CheckmarxPythonSDK.CxOne import projectsAPI
 class Scan(object):
     def __init__(self, scan_id, status, status_details, position_in_queue, project_id, branch, commit_id, commit_tag,
                  upload_url, created_at, updated_at, user_agent, initiator, tags, metadata):
@@ -37,6 +38,7 @@ class Scan(object):
         self.initiator = initiator
         self.tags = tags
         self.metadata = metadata
+        self.project_name = self.get_project_name() or None
 
     def __str__(self):
         return """Scan(id={}, status={}, statusDetails={}, positionInQueue={}, projectId={}, branch={}, commitId={},
@@ -58,3 +60,6 @@ class Scan(object):
             self.tags,
             self.metadata,
         )
+
+    def get_project_name(self):
+        return projectsAPI.get_a_project_by_id(self.projectId).name
