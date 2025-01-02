@@ -43,6 +43,8 @@ def __construct_scan(item):
         initiator=item.get("initiator"),
         tags=item.get("tags"),
         metadata=item.get("metadata"),
+        source_type = item.get("sourceType"),
+        source_origin = item.get("sourceOrigin")
     )
 
 def create_scan(scan_input):

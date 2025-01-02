@@ -2,7 +2,7 @@
 from CheckmarxPythonSDK.CxOne import projectsAPI
 class Scan(object):
     def __init__(self, scan_id, status, status_details, position_in_queue, project_id, branch, commit_id, commit_tag,
-                 upload_url, created_at, updated_at, user_agent, initiator, tags, metadata):
+                 upload_url, created_at, updated_at, user_agent, initiator, tags, metadata,source_type, source_origin):
         """
 
         Args:
@@ -38,12 +38,14 @@ class Scan(object):
         self.initiator = initiator
         self.tags = tags
         self.metadata = metadata
+        self.sourceType = source_type
+        self.sourceOrigin = source_origin
         self.project_name = self.get_project_name() or None
 
     def __str__(self):
         return """Scan(id={}, status={}, statusDetails={}, positionInQueue={}, projectId={}, branch={}, commitId={},
         commitTag={}, uploadUrl={}, createdAt={}, updatedAt={}, userAgent={}, initiator={}, tags={}, 
-        metadata={})""".format(
+        metadata={}, sourceType={},sourceOrigin={})""".format(
             self.id,
             self.status,
             self.statusDetails,
@@ -59,6 +61,8 @@ class Scan(object):
             self.initiator,
             self.tags,
             self.metadata,
+            self.sourceType,
+            self.sourceOrigin
         )
 
     def get_project_name(self):
