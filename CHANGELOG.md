@@ -1,6 +1,10 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.4 - 2025-01-14
+* Add vulnerabilityFixResolutionText for SCA API get_vulnerabilities_risks_by_scan_id
+* Add SCA API get_one_vulnerability
+
 1.1.3 - 2024-12-15
 * Add get_user_id_by_name, delete_user
 
