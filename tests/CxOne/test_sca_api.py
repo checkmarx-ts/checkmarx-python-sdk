@@ -36,6 +36,13 @@ def test_get_vulnerabilities_risks_by_scan_id():
     assert second_result is not None
 
 
+def test_get_one_vulnerability():
+    result = ScaAPI().get_one_vulnerability(scan_id="fd129816-5ef0-4111-959b-11f118e286fa",
+                                            vulnerability_id="CVE-2019-19919",
+                                            package_id="Npm-handlebars-4.0.5")
+    assert result is not None
+
+
 def test_get_supply_chain_risks_by_scan_id():
     result = ScaAPI().get_supply_chain_risks_by_scan_id(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7",
                                                         take=10, skip=0)

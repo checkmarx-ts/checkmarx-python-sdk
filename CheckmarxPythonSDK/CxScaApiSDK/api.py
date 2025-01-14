@@ -1965,8 +1965,51 @@ class Sca(object):
                  "cvss3 { attackComplexity, attackVector, availability, availabilityRequirement, baseScore, "
                  "confidentiality, confidentialityRequirement, exploitCodeMaturity, integrity, integrityRequirement, "
                  "privilegesRequired, remediationLevel, reportConfidence, scope, userInteraction }, "
+                 "vulnerabilityFixResolutionText,"
                  "pendingState, pendingChanges, packageState { type, value }, pendingScore, pendingSeverity,"
                  " isScoreOverridden } }"
+                 " }")
+        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        return response
+
+    def get_one_vulnerability(self, scan_id, vulnerability_id, package_id):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            vulnerability_id (str):
+            package_id (str):
+
+        Returns:
+
+        """
+        query = ("query { "
+                 "vulnerability  ("      
+                 f"scanId:  \"{scan_id}\", "
+                 f"vulnerabilityId:  \"{vulnerability_id}\", "
+                 f"packageId:  \"{package_id}\""
+                 ")"
+                 "{ packageState { type, value }, assignedPolicies, violatedPolicies, pendingChanges, pendingState, "
+                 "state, score, pendingScore, pendingSeverity, isScoreOverridden, morEntityProfilesApplied, credit, "
+                 "notes, isIgnored, cve, cwe, description, packageId, severity, type, published, isKevDataExists, "
+                 "isExploitDbDataExists, isVulnerabilityNew, detectionDate, relation, vulnerabilityFixResolutionText, "
+                 "cweInfo { title }, packageInfo { name, packageRepository, version }, isExploitable, exploitablePath "
+                 "{ methodMatch { fullName, line, namespace, shortName, sourceFile }, methodSourceCall { fullName, "
+                 "line, namespace, shortName, sourceFile } }, "
+                 "vulnerablePackagePath { id, isDevelopment, isResolved, "
+                 "name, version, vulnerabilityRiskLevel }, "
+                 "references { comment, type, url }, "
+                 "cvss2 { attackComplexity, attackVector, authentication, availability, availabilityRequirement,"
+                 " baseScore, collateralDamagePotential, confidentiality, confidentialityRequirement,"
+                 " exploitCodeMaturity, integrityImpact, integrityRequirement, remediationLevel, reportConfidence, "
+                 "targetDistribution, severity }, cvss3 { attackComplexity, attackVector, availability,"
+                 " availabilityRequirement, baseScore, confidentiality, confidentialityRequirement, "
+                 "exploitCodeMaturity, integrity, integrityRequirement, privilegesRequired, remediationLevel, "
+                 "reportConfidence, scope, userInteraction, severity }, "
+                 "cvss4 { attackComplexity, attackVector, attackRequirements, privilegesRequired, userInteraction, "
+                 "vulnerableSystemConfidentiality, vulnerableSystemIntegrity, vulnerableSystemAvailability, "
+                 "subsequentSystemConfidentiality, subsequentSystemIntegrity, subsequentSystemAvailability, "
+                 "baseScore, severity }, isEpssDataExists, epssData { cve, date, epss, percentile } }"
                  " }")
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
@@ -2665,6 +2708,10 @@ def get_number_of_legal_risks_by_scan_id(scan_id):
 def get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
     return Sca().get_vulnerabilities_risks_by_scan_id(scan_id, is_exploitable_path_enabled=is_exploitable_path_enabled,
                                                       take=take, skip=skip)
+
+
+def get_one_vulnerability(scan_id, vulnerability_id, package_id):
+    return Sca().get_one_vulnerability(scan_id=scan_id, vulnerability_id=vulnerability_id, package_id=package_id)
 
 
 def get_supply_chain_risks_by_scan_id(scan_id, take=10, skip=0):
