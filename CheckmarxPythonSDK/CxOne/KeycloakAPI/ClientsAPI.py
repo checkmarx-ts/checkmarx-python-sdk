@@ -20,10 +20,12 @@ def get_oauth_client_by_name(realm, client_name):
 
     return response
 
+
 def get_all_oauth_client_by_id(realm, client_id):
     relative_url = api_url + f"/{realm}/clients/{client_id}"
     response = get_request(relative_url=relative_url, is_iam=True)
     return response
+
 
 def create_oauth_client(realm, client_name):
     relative_url = api_url + f"/{realm}/clients"
@@ -162,6 +164,7 @@ def add_group_to_oauth_client(realm, service_account_user_id, group_id):
     response = put_request(relative_url=relative_url, data=put_data, is_iam=True)
 
     return response
+
 
 def generate_oauth_secret(realm, client_id):
     relative_url = api_url + f"/{realm}/clients/{client_id}/client-secret"
