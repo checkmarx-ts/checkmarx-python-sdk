@@ -573,7 +573,7 @@ class ProjectsAPI(object):
             CxError
         """
         result = False
-        if authentication not in ['Undefined', 'none', 'credentials', 'PAT', 'ssh']:
+        if authentication and authentication not in ['Undefined', 'none', 'credentials', 'PAT', 'ssh']:
             raise ValueError("Value error for parameter 'authentication', it should be one of the list ['Undefined', "
                              "'none', 'credentials', 'PAT', 'ssh'] ")
 
