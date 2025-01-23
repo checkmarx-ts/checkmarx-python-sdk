@@ -1,4 +1,16 @@
+from .ClientsAPI import (
+    get_all_oauth_clients,
+    get_oauth_client_by_name,
+    get_all_oauth_client_by_id,
+    create_oauth_client,
+    edit_auth_client,
+    get_oauth_service_account_user,
+    add_group_to_oauth_client,
+    generate_oauth_secret,
+    get_client_ast_app,
+)
 from .RootAPI import get_realms
+
 from .UsersAPI import (
     get_users,
     get_user_id_by_name,
@@ -31,4 +43,9 @@ from .GroupsAPI import (
 
 from .RoleMapperAPI import (
     get_role_mappings,
+)
+
+
+from .RolesAPI import (
+    get_all_roles_for_the_client,
 )
