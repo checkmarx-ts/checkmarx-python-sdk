@@ -9,12 +9,11 @@ class ClientPolicyConditionRepresentation:
                f"configuration={self.configuration} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "condition": self.condition,
             "configuration": self.configuration,
-        })
+        }
 
 
 def construct_client_policy_condition_representation(item):

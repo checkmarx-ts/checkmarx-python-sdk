@@ -21,9 +21,8 @@ class CxCustomRemoteSourceSettings(object):
         self.link = link
         self.credentials = credentials
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "path": self.path,
                 "preScanCommandId": self.pulling_command_id,
                 "credentials": {
@@ -31,7 +30,6 @@ class CxCustomRemoteSourceSettings(object):
                     "password": self.credentials.password
                 }
             }
-        )
 
     def __str__(self):
         return "CxCustomRemoteSourceSettings(path={}, pulling_command_id={}, link={}, credentials={})".format(

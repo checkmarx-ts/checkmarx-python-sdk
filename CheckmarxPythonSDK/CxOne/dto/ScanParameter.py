@@ -36,8 +36,7 @@ class ScanParameter:
                f"allowOverride={self.allowOverride} " \
                f")"
 
-    def get_post_data(self, return_raw_dict=False):
-        import json
+    def to_dict(self):
         data = {
             "key": self.key,
             "name": self.name,
@@ -49,10 +48,7 @@ class ScanParameter:
         }
         if self.valueType == "List":
             data.update({"valueTypeParams": self.valueTypeParams})
-        result = json.dumps(data)
-        if return_raw_dict:
-            result = data
-        return result
+        return data
 
 
 def construct_scan_parameter(item):

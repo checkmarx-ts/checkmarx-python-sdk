@@ -17,16 +17,15 @@ class SynchronizationResult:
                f"updated={self.updated} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "added": self.added,
             "failed": self.failed,
             "ignored": self.ignored,
             "removed": self.removed,
             "status": self.status,
             "updated": self.updated,
-        })
+        }
 
 
 def construct_synchronization_result(item):

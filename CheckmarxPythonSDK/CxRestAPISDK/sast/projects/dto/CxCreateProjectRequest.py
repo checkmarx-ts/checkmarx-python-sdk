@@ -20,19 +20,17 @@ class CxCreateProjectRequest(object):
         self.owning_team = team_id
         self.is_public = is_public
 
-    def get_post_data(self):
+    def to_dict(self):
         """
         get the data that will be posted to create a project with default configuration.
         :return:
             str
         """
-        return json.dumps(
-            {
+        return {
                 "name": self.name,
                 "owningTeam": self.owning_team,
                 "isPublic": self.is_public
             }
-        )
 
     def __str__(self):
         return "CxCreateProjectRequest(name={}, owning_team={}, is_public={})".format(

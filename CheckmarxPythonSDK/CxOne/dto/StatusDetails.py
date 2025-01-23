@@ -17,7 +17,7 @@ class StatusDetails(object):
             self.name, self.status, self.details
         )
 
-    def as_dict(self):
+    def to_dict(self):
         return {
             "name": self.name,
             "status": self.status,

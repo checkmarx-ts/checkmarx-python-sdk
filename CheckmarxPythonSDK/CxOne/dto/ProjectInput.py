@@ -1,5 +1,4 @@
 # encoding: utf-8
-import json
 from ..utilities import type_check, list_member_type_check
 
 
@@ -56,7 +55,7 @@ class ProjectInput(object):
             self.criticality,
         )
 
-    def get_post_data(self):
+    def to_dict(self):
         data = {}
         if self.name:
             data.update({"name": self.name})
@@ -72,5 +71,4 @@ class ProjectInput(object):
             data.update({"tags": self.tags})
         if self.criticality:
             data.update({"criticality": self.criticality})
-            
-        return json.dumps(data)
+        return data

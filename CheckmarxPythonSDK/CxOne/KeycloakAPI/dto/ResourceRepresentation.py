@@ -24,9 +24,8 @@ class ResourceRepresentation:
                f"uris={self.uris} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "id": self.id,
             "attributes": self.attributes,
             "displayName": self.displayName,
@@ -36,7 +35,7 @@ class ResourceRepresentation:
             "scopes": self.scopes,
             "type": self.type,
             "uris": self.uris,
-        })
+        }
 
 
 def construct_resource_representation(item):

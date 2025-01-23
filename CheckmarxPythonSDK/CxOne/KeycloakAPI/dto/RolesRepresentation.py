@@ -9,12 +9,11 @@ class RolesRepresentation:
                f"realm={self.realm} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "client": self.client,
             "realm": self.realm,
-        })
+        }
 
 
 def construct_roles_representation(item):

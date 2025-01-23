@@ -32,9 +32,8 @@ class PolicyRepresentation:
                f"type={self.type} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "config": self.config,
             "decisionStrategy": self.decisionStrategy,
             "description": self.description,
@@ -48,7 +47,7 @@ class PolicyRepresentation:
             "scopes": self.scopes,
             "scopesData": self.scopesData,
             "type": self.type,
-        })
+        }
 
 
 def construct_policy_representation(item):

@@ -13,14 +13,13 @@ class ProfileInfoRepresentation:
                f"previewFeatures={self.previewFeatures} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "disabledFeatures": self.disabledFeatures,
             "experimentalFeatures": self.experimentalFeatures,
             "name": self.name,
             "previewFeatures": self.previewFeatures,
-        })
+        }
 
 
 def construct_profile_info_representation(item):

@@ -19,9 +19,8 @@ class PartialImportRepresentation:
                f"users={self.users} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "clients": self.clients,
             "groups": self.groups,
             "identityProviders": self.identityProviders,
@@ -29,7 +28,7 @@ class PartialImportRepresentation:
             "policy": self.policy,
             "roles": self.roles,
             "users": self.users,
-        })
+        }
 
 
 def construct_partial_import_representation(item):

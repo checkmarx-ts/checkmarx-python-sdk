@@ -22,9 +22,8 @@ class RoleRepresentation:
                f"name={self.name} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "attributes": self.attributes,
             "clientRole": self.clientRole,
             "composite": self.composite,
@@ -33,7 +32,7 @@ class RoleRepresentation:
             "description": self.description,
             "id": self.id,
             "name": self.name,
-        })
+        }
 
 
 def construct_role_representation(item):

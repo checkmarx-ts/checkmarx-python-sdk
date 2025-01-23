@@ -17,7 +17,7 @@ class ScanConfig(object):
             self.type, self.value
         )
 
-    def as_dict(self):
+    def to_dict(self):
         if self.value:
             return {
                 "type": self.type,

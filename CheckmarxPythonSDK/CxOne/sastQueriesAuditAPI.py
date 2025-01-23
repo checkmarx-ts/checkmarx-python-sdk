@@ -1,3 +1,4 @@
+import json
 from .httpRequests import get_request, put_request
 from .utilities import get_url_param, type_check
 from .dto import Queries, Query, MethodParameter, MethodInfo, WorkspaceQuery
@@ -103,7 +104,7 @@ def update_query_source(level, workspace_query):
 
     is_successful = False
     relative_url = query_url + "/queries/{level}".format(level=level)
-    data = workspace_query.get_post_data()
+    data = json.dumps(workspace_query.to_dict())
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == OK:
         is_successful = True

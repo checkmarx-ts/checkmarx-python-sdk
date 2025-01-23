@@ -88,9 +88,8 @@ class ClientRepresentation:
                f"webOrigins={self.webOrigins} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "access": self.access,
             "adminUrl": self.adminUrl,
             "alwaysDisplayInConsole": self.alwaysDisplayInConsole,
@@ -129,7 +128,7 @@ class ClientRepresentation:
             "standardFlowEnabled": self.standardFlowEnabled,
             "surrogateAuthRequired": self.surrogateAuthRequired,
             "webOrigins": self.webOrigins,
-        })
+        }
 
 
 def construct_client_representation(item):

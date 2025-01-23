@@ -11,13 +11,12 @@ class ClientProfileRepresentation:
                f"name={self.name} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "description": self.description,
             "executors": self.executors,
             "name": self.name,
-        })
+        }
 
 
 def construct_client_profile_representation(item):

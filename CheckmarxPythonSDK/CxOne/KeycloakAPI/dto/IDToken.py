@@ -84,9 +84,8 @@ class IDToken:
                f"zoneinfo={self.zoneinfo} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "acr": self.acr,
             "address": self.address,
             "at_hash": self.at_hash,
@@ -125,7 +124,7 @@ class IDToken:
             "updated_at": self.updated_at,
             "website": self.website,
             "zoneinfo": self.zoneinfo,
-        })
+        }
 
 
 def construct_id_token(item):

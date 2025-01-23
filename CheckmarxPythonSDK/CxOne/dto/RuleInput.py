@@ -33,10 +33,8 @@ class RuleInput(object):
             type=self.type, value=self.value
         )
 
-    def get_post_data(self):
-        return json.dumps(
-            {
-                "type": self.type,
-                "value": self.value,
-            }
-        )
+    def to_dict(self):
+        return {
+            "type": self.type,
+            "value": self.value,
+        }

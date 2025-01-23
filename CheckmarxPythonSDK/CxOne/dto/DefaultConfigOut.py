@@ -27,16 +27,15 @@ class DefaultConfigOut:
                f"associatedProjects={self.associatedProjects} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
             "url": self.url,
             "isTenantDefault": self.isTenantDefault,
             "associatedProjects": self.associatedProjects,
-        })
+        }
 
 
 def construct_default_config_out(item):

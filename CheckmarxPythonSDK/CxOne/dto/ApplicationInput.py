@@ -1,5 +1,4 @@
 # encoding: utf-8
-import json
 from .RuleInput import RuleInput
 from ..utilities import (type_check, int_range_check, list_member_type_check)
 
@@ -37,7 +36,7 @@ class ApplicationInput(object):
             self.name, self.description, self.criticality, self.rules, self.tags
         )
 
-    def get_post_data(self):
+    def to_dict(self):
         data = {
             "name": self.name
         }
@@ -55,4 +54,4 @@ class ApplicationInput(object):
             })
         if self.tags:
             data.update({"tags": self.tags})
-        return json.dumps(data)
+        return data

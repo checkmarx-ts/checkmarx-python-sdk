@@ -9,12 +9,11 @@ class AccessTokenAccess:
                f"verify_caller={self.verify_caller} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "roles": self.roles,
             "verify_caller": self.verify_caller,
-        })
+        }
 
 
 def construct_access_token_access(item):

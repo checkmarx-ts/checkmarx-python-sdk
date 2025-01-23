@@ -20,7 +20,7 @@ class Credentials(object):
             self.username, self.type, self.value
         )
 
-    def as_dict(self):
+    def to_dict(self):
         return {
             "username": self.username,
             "type": self.type,

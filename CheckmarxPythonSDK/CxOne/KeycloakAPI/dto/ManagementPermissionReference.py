@@ -21,13 +21,12 @@ class ManagementPermissionReference:
                f"scopePermissions={self.scopePermissions} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "enabled": self.enabled,
             "resource": self.resource,
-            "scopePermissions": self.scopePermissions.get_post_data(),
-        })
+            "scopePermissions": self.scopePermissions.to_dict(),
+        }
 
 
 def construct_management_permission_reference(item):

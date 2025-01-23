@@ -16,9 +16,7 @@ class StartEnrich(object):
             self.upload_url
         )
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "uploadURL": self.upload_url,
             }
-        )

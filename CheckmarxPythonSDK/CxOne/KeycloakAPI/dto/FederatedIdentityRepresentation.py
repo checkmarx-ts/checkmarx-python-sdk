@@ -11,13 +11,12 @@ class FederatedIdentityRepresentation:
                f"userName={self.userName} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "identityProvider": self.identityProvider,
             "userId": self.userId,
             "userName": self.userName,
-        })
+        }
 
 
 def construct_federated_identity_representation(item):

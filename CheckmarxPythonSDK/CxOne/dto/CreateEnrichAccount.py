@@ -1,6 +1,3 @@
-import json
-
-
 class CreateEnrichAccount(object):
 
     def __init__(self, name, external_id):
@@ -18,10 +15,8 @@ class CreateEnrichAccount(object):
             self.name, self.external_id
         )
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "name": self.name,
                 "externalID": self.external_id
             }
-        )

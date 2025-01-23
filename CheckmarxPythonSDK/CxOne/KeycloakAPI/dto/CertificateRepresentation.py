@@ -13,14 +13,13 @@ class CertificateRepresentation:
                f"publicKey={self.publicKey} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "certificate": self.certificate,
             "kid": self.kid,
             "privateKey": self.privateKey,
             "publicKey": self.publicKey,
-        })
+        }
 
 
 def construct_certificate_representation(item):

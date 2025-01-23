@@ -7,11 +7,10 @@ class ClientPoliciesRepresentation:
                f"policies={self.policies} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "policies": self.policies,
-        })
+        }
 
 
 def construct_client_policies_representation(item):

@@ -28,16 +28,14 @@ class CxCreateScanSettingsRequestBody(object):
         self.before_scan_emails = before_scan_emails
         self.after_scan_emails = after_scan_emails
 
-    def get_post_data(self):
-        target_dict = {
+    def to_dict(self):
+        data = {
             "projectId": self.project_id,
             "presetId": self.preset_id,
             "engineConfigurationId": self.engine_configuration_id
         }
-
         if self.post_scan_action_id:
-            target_dict.update({"postScanActionId": self.post_scan_action_id})
-
+            data.update({"postScanActionId": self.post_scan_action_id})
         emails_dict = dict()
         if self.failed_scan_emails:
             emails_dict.update({"failedScan": self.failed_scan_emails})
@@ -45,11 +43,9 @@ class CxCreateScanSettingsRequestBody(object):
             emails_dict.update({"beforeScan": self.before_scan_emails})
         if self.after_scan_emails:
             emails_dict.update({"afterScan": self.after_scan_emails})
-
         if self.failed_scan_emails or self.before_scan_emails or self.after_scan_emails:
-            target_dict.update({"emailNotifications": emails_dict})
-
-        return json.dumps(target_dict)
+            data.update({"emailNotifications": emails_dict})
+        return data
 
     def __str__(self):
         return """CxCreateScanSettingsRequestBody(

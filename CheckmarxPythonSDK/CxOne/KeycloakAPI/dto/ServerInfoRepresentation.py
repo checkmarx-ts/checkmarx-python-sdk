@@ -35,9 +35,8 @@ class ServerInfoRepresentation:
                f"themes={self.themes} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "builtinProtocolMappers": self.builtinProtocolMappers,
             "clientImporters": self.clientImporters,
             "clientInstallations": self.clientInstallations,
@@ -52,7 +51,7 @@ class ServerInfoRepresentation:
             "socialProviders": self.socialProviders,
             "systemInfo": self.systemInfo,
             "themes": self.themes,
-        })
+        }
 
 
 def construct_server_info_representation(item):

@@ -8,11 +8,10 @@ class AccessTokenCertConf:
                f")"
 
 
-def get_post_data(self):
-    import json
-    return json.dumps({
+def to_dict(self):
+    return {
         "x5t#S256": self.x5t
-    })
+    }
 
 
 def construct_access_token_cert_conf(item):

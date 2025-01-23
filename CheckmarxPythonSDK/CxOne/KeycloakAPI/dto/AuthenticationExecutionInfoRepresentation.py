@@ -33,9 +33,8 @@ class AuthenticationExecutionInfoRepresentation:
                f"requirementChoices={self.requirementChoices} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "alias": self.alias,
             "authenticationConfig": self.authenticationConfig,
             "authenticationFlow": self.authenticationFlow,
@@ -49,7 +48,7 @@ class AuthenticationExecutionInfoRepresentation:
             "providerId": self.providerId,
             "requirement": self.requirement,
             "requirementChoices": self.requirementChoices,
-        })
+        }
 
 
 def construct_authentication_execution_info_representation(item):

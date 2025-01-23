@@ -1,5 +1,3 @@
-import json
-
 
 class ImportRequest(object):
 
@@ -18,10 +16,8 @@ class ImportRequest(object):
             self.project_id, self.upload_url
         )
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "projectId": self.project_id,
                 "uploadUrl": self.upload_url,
             }
-        )

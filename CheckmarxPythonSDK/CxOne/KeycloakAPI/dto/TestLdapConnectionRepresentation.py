@@ -24,9 +24,8 @@ class TestLdapConnectionRepresentation:
                f"useTruststoreSpi={self.useTruststoreSpi}" \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "action": self.action,
             "authType": self.authType,
             "bindCredential": self.bindCredential,
@@ -36,7 +35,7 @@ class TestLdapConnectionRepresentation:
             "connectionUrl": self.connectionUrl,
             "startTls": self.startTls,
             "useTruststoreSpi": self.useTruststoreSpi,
-        })
+        }
 
 
 def construct_test_ldap_connection_representation(item):

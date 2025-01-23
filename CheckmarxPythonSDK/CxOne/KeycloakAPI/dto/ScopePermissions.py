@@ -16,17 +16,14 @@ class ScopePermissions:
                f"manage_membership={self.manage_membership} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 'view': self.view,
                 'manage': self.manage,
                 'view-members': self.view_members,
                 'manage-members': self.manage_members,
                 'manage-membership': self.manage_membership
             }
-        )
 
 
 def construct_scope_permissions(item):

@@ -97,9 +97,8 @@ class AccessToken:
                f"zoneinfo={self.zoneinfo} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "acr": self.acr,
             "address": self.address,
             "allowed_origins": self.allowed_origins,
@@ -144,7 +143,7 @@ class AccessToken:
             "updated_at": self.updated_at,
             "website": self.website,
             "zoneinfo": self.zoneinfo,
-        })
+        }
 
 
 def construct_access_token(item):

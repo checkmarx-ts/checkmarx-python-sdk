@@ -19,14 +19,13 @@ class CxDefineDataRetentionDateRangeRequest(object):
         self.end_date = end_date
         self.duration_limit_in_hours = duration_limit_in_hours
 
-    def get_post_data(self):
-        return json.dumps(
-            {
-                "startDate": self.start_date,
-                "endDate": self.end_date,
-                "durationLimitInHours": self.duration_limit_in_hours
-            }
-        )
+    def to_dict(self):
+        return {
+            "startDate": self.start_date,
+            "endDate": self.end_date,
+            "durationLimitInHours": self.duration_limit_in_hours
+        }
+
 
     def __str__(self):
         return "CxDefineDataRetentionDateRangeRequest(start_date={}, end_date={}, duration_limit_in_hours={})".format(

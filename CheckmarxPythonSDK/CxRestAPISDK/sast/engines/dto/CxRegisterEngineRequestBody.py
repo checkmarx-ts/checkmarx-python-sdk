@@ -1,8 +1,4 @@
 # encoding: utf-8
-
-import json
-
-
 class CxRegisterEngineRequestBody(object):
     """
     the request body to register engine
@@ -25,8 +21,8 @@ class CxRegisterEngineRequestBody(object):
         self.is_blocked = is_blocked
         self.max_scans = max_scans
 
-    def get_post_data(self):
-        d = {
+    def to_dict(self):
+        data = {
             "name": self.name,
             "uri": self.uri,
             "minLoc": self.min_loc,
@@ -34,8 +30,8 @@ class CxRegisterEngineRequestBody(object):
             "isBlocked": self.is_blocked
         }
         if self.max_scans:
-            d.update({"maxScans": self.max_scans})
-        return json.dumps(d)
+            data.update({"maxScans": self.max_scans})
+        return data
 
     def __str__(self):
         return "CxRegisterEngineRequestBody(name={}, uri={}, min_loc={}, max_loc={}, is_blocked={})".format(

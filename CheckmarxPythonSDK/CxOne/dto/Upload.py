@@ -28,7 +28,7 @@ class Upload(object):
             self.branch, self.repo_url, self.upload_url
         )
 
-    def as_dict(self):
+    def to_dict(self):
         data = {"uploadUrl": self.upload_url}
         if self.branch:
             data.update({"branch": self.branch})

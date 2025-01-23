@@ -39,7 +39,7 @@ class Project(object):
             self.id, self.tags
         )
 
-    def as_dict(self):
+    def to_dict(self):
         data = {}
         if self.id:
             data.update({"id": self.id})

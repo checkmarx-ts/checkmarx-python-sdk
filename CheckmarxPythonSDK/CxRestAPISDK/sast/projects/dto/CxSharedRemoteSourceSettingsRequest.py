@@ -17,16 +17,14 @@ class CxSharedRemoteSourceSettingsRequest(object):
         self.paths = paths
         self.credentials = credentials
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "paths": self.paths,
                 "credentials": {
                     "userName": self.credentials.username,
                     "password": self.credentials.password
                 }
             }
-        )
 
     def __str__(self):
         return "CxSharedRemoteSourceSettingsRequest(paths={}, credentials={})".format(

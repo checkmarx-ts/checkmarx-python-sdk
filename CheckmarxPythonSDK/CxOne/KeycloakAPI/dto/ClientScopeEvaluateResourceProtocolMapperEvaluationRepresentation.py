@@ -17,16 +17,15 @@ class ClientScopeEvaluateResourceProtocolMapperEvaluationRepresentation:
                f"protocolMapper={self.protocolMapper} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "containerId": self.containerId,
             "containerName": self.containerName,
             "containerType": self.containerType,
             "mapperId": self.mapperId,
             "mapperName": self.mapperName,
             "protocolMapper": self.protocolMapper,
-        })
+        }
 
 
 def construct_client_scope_evaluate_resource_protocol_mapper_evaluation_representation(item):

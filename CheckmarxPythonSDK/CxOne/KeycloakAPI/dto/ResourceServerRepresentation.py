@@ -24,9 +24,8 @@ class ResourceServerRepresentation:
                f"scopes={self.scopes} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "allowRemoteResourceManagement": self.allowRemoteResourceManagement,
             "clientId": self.clientId,
             "decisionStrategy": self.decisionStrategy,
@@ -36,7 +35,7 @@ class ResourceServerRepresentation:
             "policyEnforcementMode": self.policyEnforcementMode,
             "resources": self.resources,
             "scopes": self.scopes,
-        })
+        }
 
 
 def construct_resource_server_representation(item):

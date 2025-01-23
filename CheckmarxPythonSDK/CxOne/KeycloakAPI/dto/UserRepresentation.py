@@ -54,9 +54,8 @@ class UserRepresentation:
                f"username={self.username}" \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "access": self.access,
             "attributes": self.attributes,
             "clientConsents": self.clientConsents,
@@ -80,7 +79,7 @@ class UserRepresentation:
             "self": self.self,
             "serviceAccountClientId": self.serviceAccountClientId,
             "username": self.username,
-        })
+        }
 
 
 def construct_user_representation(item):

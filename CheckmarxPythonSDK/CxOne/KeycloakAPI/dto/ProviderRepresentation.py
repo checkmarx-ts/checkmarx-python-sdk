@@ -9,12 +9,11 @@ class ProviderRepresentation:
                f"order={self.order} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "operationalInfo": self.operationalInfo,
             "order": self.order,
-        })
+        }
 
 
 def construct_provider_representation(item):

@@ -1,5 +1,4 @@
 # encoding: utf-8
-import json
 from .Git import Git
 from .Upload import Upload
 from .Project import Project
@@ -39,11 +38,11 @@ class ScanInput(object):
             self.type, self.handler, self.project, self.config, self.tags
         )
 
-    def get_post_data(self):
-        return json.dumps({
+    def to_dict(self):
+        return {
             "type": self.type,
-            "handler": self.handler.as_dict(),
-            "project": self.project.as_dict() if self.project else self.project,
-            "config": [config.as_dict() for config in self.config or []],
+            "handler": self.handler.to_dict(),
+            "project": self.project.to_dict() if self.project else self.project,
+            "config": [config.to_dict() for config in self.config or []],
             "tags": self.tags
-        })
+        }

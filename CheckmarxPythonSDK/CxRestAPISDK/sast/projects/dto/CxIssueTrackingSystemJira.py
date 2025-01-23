@@ -21,22 +21,20 @@ class CxIssueTrackingSystemJira(object):
         self.issue_type_id = issue_type_id
         self.fields = fields
 
-    def get_post_data(self):
-        return json.dumps(
-            {
-                "issueTrackingSystemId": self.issue_tracking_system_id,
-                "jiraProjectId": self.jira_project_id,
-                "issueType": {
-                    "id": self.issue_type_id,
-                    "fields": [
-                        {
-                            "id": field.id,
-                            "values": field.values
-                        } for field in self.fields
-                    ]
-                }
+    def to_dict(self):
+        return {
+            "issueTrackingSystemId": self.issue_tracking_system_id,
+            "jiraProjectId": self.jira_project_id,
+            "issueType": {
+                "id": self.issue_type_id,
+                "fields": [
+                    {
+                        "id": field.id,
+                        "values": field.values
+                    } for field in self.fields
+                ]
             }
-        )
+        }
 
     def __str__(self):
         return """CxIssueTrackingSystemJira(issue_tracking_system_id={}, jira_project_id={}, 

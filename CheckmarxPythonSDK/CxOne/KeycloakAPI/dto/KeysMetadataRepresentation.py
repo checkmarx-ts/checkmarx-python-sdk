@@ -9,12 +9,11 @@ class KeysMetadataRepresentation:
                f"keys={self.keys} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "active": self.active,
             "keys": self.keys,
-        })
+        }
 
 
 def construct_keys_metadata_representation(item):

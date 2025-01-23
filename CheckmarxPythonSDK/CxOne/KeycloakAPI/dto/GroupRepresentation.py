@@ -21,9 +21,8 @@ class GroupRepresentation:
                f"subGroups={self.subGroups} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "access": self.access,
             "attributes": self.attributes,
             "clientRoles": self.clientRoles,
@@ -32,7 +31,7 @@ class GroupRepresentation:
             "path": self.path,
             "realmRoles": self.realmRoles,
             "subGroups": self.subGroups,
-        })
+        }
 
 
 def construct_group_representation(item):

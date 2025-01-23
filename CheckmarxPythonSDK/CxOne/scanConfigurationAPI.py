@@ -43,7 +43,7 @@ def define_parameters_in_the_input_list_for_the_current_tenant(scan_parameters):
 
     result = False
     relative_url = api_url + "/tenant"
-    data = json.dumps([scan_parameter.get_post_data(return_raw_dict=True) for scan_parameter in scan_parameters])
+    data = json.dumps([scan_parameter.to_dict() for scan_parameter in scan_parameters])
     response = patch_request(relative_url=relative_url, data=data)
     if response.status == NO_CONTENT:
         result = True
@@ -107,7 +107,7 @@ def define_parameters_in_the_input_list_for_a_specific_project(project_id, scan_
     result = False
     type_check(project_id, str)
     relative_url = api_url + "/project?project-id=" + project_id
-    data = json.dumps([scan_parameter.get_post_data(return_raw_dict=True) for scan_parameter in scan_parameters])
+    data = json.dumps([scan_parameter.to_dict() for scan_parameter in scan_parameters])
     response = patch_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
         result = True
@@ -206,7 +206,7 @@ def create_a_default_config_for_the_sast_engine(default_config):
     result = False
     type_check(default_config, DefaultConfig)
     relative_url = api_url + "/sast/default-config"
-    data = default_config.get_post_data()
+    data = json.dumps(default_config.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
         result = True
@@ -250,7 +250,7 @@ def update_default_config_for_the_sast_engine(config_id, default_config):
     type_check(config_id, str)
     type_check(default_config, DefaultConfig)
     relative_url = api_url + "/sast/default-config/{id}".format(id=config_id)
-    data = default_config.get_post_data()
+    data = json.dumps(default_config.to_dict())
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
         result = True
@@ -285,6 +285,7 @@ def update_project_repo_url(project_id, repo_url):
     Returns:
 
     """
+    result = False
     type_check(project_id, str)
     type_check(repo_url, str)
     relative_url = api_url + "/project?project-id=" + project_id
@@ -316,6 +317,7 @@ def update_project_token(project_id, token):
     Returns:
 
     """
+    result = False
     type_check(project_id, str)
     type_check(token, str)
     relative_url = api_url + "/project?project-id=" + project_id

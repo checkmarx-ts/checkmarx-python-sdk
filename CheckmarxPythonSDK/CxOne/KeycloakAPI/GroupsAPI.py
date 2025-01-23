@@ -58,7 +58,7 @@ def create_group_set(realm, group_representation) -> bool:
     type_check(realm, str)
     type_check(group_representation, GroupRepresentation)
     relative_url = api_url + f"/{realm}/groups"
-    post_data = group_representation.get_post_data()
+    post_data = json.dumps(group_representation.to_dict())
     response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
     if response.status_code == CREATED:
         result = True
@@ -136,7 +136,7 @@ def update_group_by_id(realm, group_id, group_representation) -> bool:
     type_check(group_id, str)
     relative_url = api_url + f"/{realm}/groups/{group_id}"
     type_check(group_representation, GroupRepresentation)
-    post_data = group_representation.get_post_data()
+    post_data = json.dumps(group_representation.to_dict())
     response = put_request(relative_url=relative_url, data=post_data, is_iam=True)
     if response.status_code == NO_CONTENT:
         result = True
@@ -240,7 +240,7 @@ def update_group_permissions(realm, group_id, group_permissions):
     type_check(group_id, str)
     type_check(group_permissions, ManagementPermissionReference)
     relative_url = api_url + f"/{realm}/groups/{group_id}/management/permissions"
-    data = group_permissions.get_post_data()
+    data = json.dumps(group_permissions.to_dict())
     response = put_request(relative_url=relative_url, data=data, is_iam=True)
     if response.status_code == NO_CONTENT:
         result = True

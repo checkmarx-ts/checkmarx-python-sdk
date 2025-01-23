@@ -22,9 +22,8 @@ class CxPerforceSettings(object):
         self.link = link
         self.credentials = credentials
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "credentials": {
                     "userName": self.credentials.username,
                     "password": self.credentials.password,
@@ -36,7 +35,6 @@ class CxPerforceSettings(object):
                 "paths": self.paths,
                 "browseMode": self.browse_mode
             }
-        )
 
     def __str__(self):
         return "CxPerforceSettings(uri={}, paths={}, browse_mode={}, link={}, credentials={})".format(

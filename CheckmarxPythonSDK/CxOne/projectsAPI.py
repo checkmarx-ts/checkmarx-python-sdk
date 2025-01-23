@@ -11,8 +11,8 @@ from .dto import (
     SubsetScan,
 )
 
-
 api_url = "/api/projects"
+
 
 def __construct_project(project):
     return Project(
@@ -39,7 +39,7 @@ def create_a_project(project_input):
         Project
     """
     relative_url = api_url
-    data = project_input.get_post_data()
+    data = json.dumps(project_input.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
     return __construct_project(item)
@@ -287,7 +287,7 @@ def update_a_project(project_id, project_input):
     if not project_id:
         return False
     relative_url = api_url + "/{id}".format(id=project_id)
-    data = project_input.get_post_data()
+    data = json.dumps(project_input.to_dict())
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
         is_successful = True
@@ -311,6 +311,7 @@ def delete_a_project(project_id):
             is_successful = True
     return is_successful
 
+
 def update_project_group(project_id, groups):
     """
 
@@ -324,11 +325,12 @@ def update_project_group(project_id, groups):
     relative_url = f"/api/projects/{project_id}"
 
     project = get_request(relative_url=relative_url)
-    project_data = project.json()  
-    project_data['groups'] = groups  
+    project_data = project.json()
+    project_data['groups'] = groups
 
     response = put_request(relative_url=relative_url, data=json.dumps(project_data))
     return response
+
 
 def update_primary_branch(project_id, branch_name):
     """
@@ -342,11 +344,12 @@ def update_primary_branch(project_id, branch_name):
     relative_url = f"/api/projects/{project_id}"
 
     project = get_request(relative_url=relative_url)
-    project_data = project.json()  
-    project_data['mainBranch'] = branch_name  
+    project_data = project.json()
+    project_data['mainBranch'] = branch_name
 
     response = put_request(relative_url=relative_url, data=json.dumps(project_data))
     return response
+
 
 def add_project_single_tag(project_id, tag_key, tag_value):
     """
@@ -359,15 +362,16 @@ def add_project_single_tag(project_id, tag_key, tag_value):
         HTTP 204 No Content
     """
     relative_url = f"/api/projects/{project_id}"
-      
+
     project = get_request(relative_url=relative_url)
-    project_data = project.json()    
-    if 'tags' not in project_data:    
-        project_data['tags'] = {}  
-    project_data['tags'][tag_key] = tag_value  
-      
+    project_data = project.json()
+    if 'tags' not in project_data:
+        project_data['tags'] = {}
+    project_data['tags'][tag_key] = tag_value
+
     response = put_request(relative_url=relative_url, data=json.dumps(project_data))
-    return response  
+    return response
+
 
 def remove_project_single_tag(project_id, tag_key):
     """
@@ -375,19 +379,19 @@ def remove_project_single_tag(project_id, tag_key):
     Args:
         project_id (str):
         tag_key (str):
-        tag_value (str):
     Returns:
         HTTP 204 No Content
     """
     relative_url = f"/api/projects/{project_id}"
 
     project = get_request(relative_url=relative_url)
-    project_data = project.json()  
-    if 'tags' in project_data:  
+    project_data = project.json()
+    if 'tags' in project_data:
         project_data['tags'].pop(tag_key)
-        
+
     response = put_request(relative_url=relative_url, data=json.dumps(project_data))
     return response
+
 
 def update_project_single_tag(project_id, tag_key, tag_value):
     """
@@ -402,11 +406,10 @@ def update_project_single_tag(project_id, tag_key, tag_value):
     relative_url = f"/api/projects/{project_id}"
 
     project = get_request(relative_url=relative_url)
-    project_data = project.json()  
-    if 'tags' in project_data:  
+    project_data = project.json()
+    if 'tags' in project_data:
         project_data['tags'][tag_key] = tag_value
 
     # Update the project with the new tags  
     response = put_request(relative_url=relative_url, data=json.dumps(project_data))
     return response
-    

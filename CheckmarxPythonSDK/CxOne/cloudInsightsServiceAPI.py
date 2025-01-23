@@ -1,7 +1,8 @@
 # encoding: utf-8
+import json
 from .httpRequests import get_request, post_request, delete_request
-from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
-from .utilities import get_url_param, type_check, list_member_type_check
+from CheckmarxPythonSDK.utilities.compat import OK
+from .utilities import type_check
 from .dto import (
     CreateEnrichAccount,
     EnrichAccount,
@@ -24,7 +25,7 @@ def create_enrich_account(data):
     """
     type_check(data, CreateEnrichAccount)
     relative_url = api_url + "/accounts/enrich"
-    data = data.get_post_data()
+    data = json.dumps(data.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
     return EnrichAccount(
@@ -85,7 +86,7 @@ def start_enrichment(cloud_insights_account_id, start_enrich):
     type_check(start_enrich, StartEnrich)
 
     relative_url = api_url + "/accounts/{id}/enrich".format(id=cloud_insights_account_id)
-    post_data = start_enrich.get_post_data()
+    post_data = json.dumps(start_enrich.to_dict())
     response = post_request(relative_url=relative_url, data=post_data)
     item = response.json()
     return item.get("message")

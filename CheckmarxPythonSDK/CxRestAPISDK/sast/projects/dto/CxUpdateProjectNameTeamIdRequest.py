@@ -1,7 +1,3 @@
-# encoding: utf-8
-import json
-
-
 class CxUpdateProjectNameTeamIdRequest(object):
     """
     the request body to update project name and team id
@@ -17,17 +13,15 @@ class CxUpdateProjectNameTeamIdRequest(object):
         self.project_name = project_name
         self.owning_team = owning_team
 
-    def get_post_data(self):
+    def to_dict(self):
         """
 
         :return:
         """
-        return json.dumps(
-            {
+        return {
                 "name": self.project_name,
                 "owningTeam": self.owning_team
             }
-        )
 
     def __str__(self):
         return "CxUpdateProjectNameTeamIdRequest(project_name={}, owning_team={})".format(

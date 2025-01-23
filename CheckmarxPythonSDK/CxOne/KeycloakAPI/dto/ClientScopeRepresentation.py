@@ -17,16 +17,15 @@ class ClientScopeRepresentation:
                f"protocolMappers={self.protocolMappers} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "attributes": self.attributes,
             "description": self.description,
             "id": self.id,
             "name": self.name,
             "protocol": self.protocol,
             "protocolMappers": self.protocolMappers,
-        })
+        }
 
 
 def construct_client_scope_representation(item):

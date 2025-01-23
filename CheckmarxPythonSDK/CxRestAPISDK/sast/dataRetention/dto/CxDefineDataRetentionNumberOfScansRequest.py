@@ -17,13 +17,11 @@ class CxDefineDataRetentionNumberOfScansRequest(object):
         self.number_of_successful_scans_to_preserve = number_of_successful_scans_to_preserve
         self.duration_limit_in_hours = duration_limit_in_hours
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "numOfSuccessfulScansToPreserve": self.number_of_successful_scans_to_preserve,
                 "durationLimitInHours": self.duration_limit_in_hours
             }
-        )
 
     def __str__(self):
         return """CxDefineDataRetentionNumberOfScansRequest(number_of_successful_scans_to_preserve={},

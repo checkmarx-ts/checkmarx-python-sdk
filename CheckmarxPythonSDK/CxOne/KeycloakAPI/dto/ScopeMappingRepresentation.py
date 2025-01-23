@@ -13,14 +13,13 @@ class ScopeMappingRepresentation:
                f"self={self.self} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "client": self.client,
             "clientScope": self.clientScope,
             "roles": self.roles,
             "self": self.self,
-        })
+        }
 
 
 def construct_scope_mapping_representation(item):

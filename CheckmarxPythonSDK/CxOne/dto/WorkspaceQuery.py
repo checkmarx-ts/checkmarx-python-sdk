@@ -17,11 +17,9 @@ class WorkspaceQuery(object):
             self.path, self.name, self.source
         )
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "path": self.path,
                 "name": self.name,
                 "source": self.source,
             }
-        )

@@ -18,16 +18,15 @@ class KeyStoreConfig:
                f"storePassword={self.storePassword} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "format": self.format,
             "keyAlias": self.keyAlias,
             "keyPassword": self.keyPassword,
             "realmAlias": self.realmAlias,
             "realmCertificate": self.realmCertificate,
             "storePassword": self.storePassword,
-        })
+        }
 
 
 def construct_key_store_config(item):

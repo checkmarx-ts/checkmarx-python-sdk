@@ -22,9 +22,8 @@ class AuthenticationExecutionRepresentation:
                f"requirement={self.requirement} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "authenticator": self.authenticator,
             "authenticatorConfig": self.authenticatorConfig,
             "authenticatorFlow": self.authenticatorFlow,
@@ -33,7 +32,7 @@ class AuthenticationExecutionRepresentation:
             "parentFlow": self.parentFlow,
             "priority": self.priority,
             "requirement": self.requirement,
-        })
+        }
 
 
 def construct_authentication_execution_representation(item):

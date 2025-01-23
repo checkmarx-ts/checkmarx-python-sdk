@@ -1,8 +1,7 @@
 # encoding: utf-
 import json
-from .httpRequests import get_request, post_request, delete_request
-from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
-from .utilities import get_url_param, type_check, list_member_type_check
+from .httpRequests import get_request, post_request
+from .utilities import type_check
 from .dto import SCMImportInput
 
 api_url = "/api/repos-manager"
@@ -26,7 +25,8 @@ def import_code_repository(scm_import_input: SCMImportInput):
     """
     type_check(scm_import_input, SCMImportInput)
     relative_url = api_url + "/scm-projects"
-    response = post_request(relative_url=relative_url, data=json.dumps(scm_import_input.to_dict()))
+    data = json.dumps(scm_import_input.to_dict())
+    response = post_request(relative_url=relative_url, data=data)
     return response.json()
 
 

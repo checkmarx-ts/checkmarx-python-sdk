@@ -43,9 +43,8 @@ class SystemInfoRepresentation:
                f"version={self.version} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "fileEncoding": self.fileEncoding,
             "javaHome": self.javaHome,
             "javaRuntime": self.javaRuntime,
@@ -64,7 +63,7 @@ class SystemInfoRepresentation:
             "userName": self.userName,
             "userTimezone": self.userTimezone,
             "version": self.version,
-        })
+        }
 
 
 def construct_system_info_representation(item):

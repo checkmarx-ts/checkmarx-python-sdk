@@ -17,16 +17,15 @@ class AddressClaimSet:
                f"street_address={self.street_address} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "country": self.country,
             "formatted": self.formatted,
             "locality": self.locality,
             "postal_code": self.postal_code,
             "region": self.region,
             "street_address": self.street_address,
-        })
+        }
 
 
 def construct_address_claim_set(item):

@@ -15,15 +15,14 @@ class ProtocolMapperRepresentation:
                f"protocolMapper={self.protocolMapper} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "config": self.config,
             "id": self.id,
             "name": self.name,
             "protocol": self.protocol,
             "protocolMapper": self.protocolMapper,
-        })
+        }
 
 
 def construct_protocol_mapper_representation(item):

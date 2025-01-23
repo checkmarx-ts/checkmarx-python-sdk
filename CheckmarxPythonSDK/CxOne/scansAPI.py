@@ -55,7 +55,7 @@ def create_scan(scan_input):
     """
     type_check(scan_input, ScanInput)
     relative_url = api_url
-    data = scan_input.get_post_data()
+    data = json.dumps(scan_input.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
     return __construct_scan(item)
@@ -322,7 +322,7 @@ def sca_recalculate(project_id, branch):
         "config": [{"type": "sca", "value": {"enableContainersScan": True}}]
     })
 
-    response = post_request(relative_url=relative_url, data=(scan_data))
+    response = post_request(relative_url=relative_url, data=scan_data)
     return response
 
 
@@ -373,5 +373,5 @@ def scan_by_repo_url(project_id, repo_url, branch, engines, tag):
         else:
             print(f"Warning: Engine '{engine}' is not supported and will be ignored.")
 
-    response = post_request(relative_url=relative_url, data=json.dumps((scan_data)))
+    response = post_request(relative_url=relative_url, data=json.dumps(scan_data))
     return response

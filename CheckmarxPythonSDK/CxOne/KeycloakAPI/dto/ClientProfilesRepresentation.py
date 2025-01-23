@@ -9,12 +9,11 @@ class ClientProfilesRepresentation:
                f"profiles={self.profiles} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "globalProfiles": self.globalProfiles,
             "profiles": self.profiles,
-        })
+        }
 
 
 def construct_client_profiles_representation(item):

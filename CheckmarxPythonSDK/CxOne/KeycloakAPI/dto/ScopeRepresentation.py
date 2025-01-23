@@ -17,16 +17,15 @@ class ScopeRepresentation:
                f"resources={self.resources} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "displayName": self.displayName,
             "iconUri": self.iconUri,
             "id": self.id,
             "name": self.name,
             "policies": self.policies,
             "resources": self.resources,
-        })
+        }
 
 
 def construct_scope_representation(item):

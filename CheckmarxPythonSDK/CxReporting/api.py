@@ -1,4 +1,5 @@
 import time
+import json
 from .httpRequests import (get_request, post_request)
 from CheckmarxPythonSDK.utilities.compat import (OK, CREATED)
 
@@ -39,9 +40,8 @@ def create_a_new_report_request(report_request):
 
     if report_request and not isinstance(report_request, CreateReportDTO):
         return report_id
-
     relative_url = "/api/reports"
-    data = report_request.get_post_data()
+    data = json.dumps(report_request.to_dict())
     response = post_request(relative_url=relative_url, data=data, headers=headers)
     if response.status_code == CREATED:
         item = response.json()

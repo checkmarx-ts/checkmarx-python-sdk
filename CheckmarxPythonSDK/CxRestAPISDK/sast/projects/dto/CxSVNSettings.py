@@ -26,9 +26,8 @@ class CxSVNSettings(object):
         self.credentials = credentials
         self.private_key = private_key
 
-    def get_post_data(self):
-
-        target_dict = {
+    def to_dict(self):
+        data = {
             "uri": {
                 "absoluteUrl": self.uri.absolute_url,
                 "port": self.uri.port
@@ -39,11 +38,9 @@ class CxSVNSettings(object):
                 "password": self.credentials.password
             }
         }
-
         if self.private_key:
-            target_dict.update({"privateKey": self.private_key})
-
-        return json.dumps(target_dict)
+            data.update({"privateKey": self.private_key})
+        return data
 
     def __str__(self):
         return "CxSVNSettings(uri={}, paths={}, use_ssh={}, link={}, credentials={}, private_key={})".format(

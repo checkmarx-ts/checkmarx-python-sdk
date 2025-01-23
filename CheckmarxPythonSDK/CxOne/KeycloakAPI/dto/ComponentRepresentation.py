@@ -19,9 +19,8 @@ class ComponentRepresentation:
                f"subType={self.subType} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "config": self.config,
             "id": self.id,
             "name": self.name,
@@ -29,7 +28,7 @@ class ComponentRepresentation:
             "providerId": self.providerId,
             "providerType": self.providerType,
             "subType": self.subType,
-        })
+        }
 
 
 def construct_component_representation(item):

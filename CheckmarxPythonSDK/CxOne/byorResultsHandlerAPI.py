@@ -1,4 +1,5 @@
 # encoding: utf-8
+import json
 from .httpRequests import post_request
 from .utilities import type_check
 from .dto import (
@@ -20,7 +21,7 @@ def create_byor_import(import_request):
     """
     type_check(import_request, ImportRequest)
     relative_url = api_url + "/imports"
-    data = import_request.get_post_data()
+    data = json.dumps(import_request.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
     return ImportResults(import_id=item.get("importId"))

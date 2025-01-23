@@ -22,9 +22,8 @@ class UserFederationProviderRepresentation:
                f"providerName={self.providerName}" \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "changedSyncPeriod": self.changedSyncPeriod,
             "config": self.config,
             "displayName": self.displayName,
@@ -33,7 +32,7 @@ class UserFederationProviderRepresentation:
             "lastSync": self.lastSync,
             "priority": self.priority,
             "providerName": self.providerName,
-        })
+        }
 
 
 def construct_user_federation_provider_representation(item):

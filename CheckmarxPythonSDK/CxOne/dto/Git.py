@@ -35,7 +35,7 @@ class Git(object):
             self.branch, self.commit, self.tag, self.repo_url, self.credentials
         )
 
-    def as_dict(self):
+    def to_dict(self):
         data = {
             "repoUrl": self.repo_url,
             "branch": self.branch,
@@ -43,7 +43,7 @@ class Git(object):
             "tag": self.tag,
         }
         if self.credentials:
-            data.update({"credentials": self.credentials.as_dict()})
+            data.update({"credentials": self.credentials.to_dict()})
         else:
             data.update({"credentials": self.credentials})
         return data

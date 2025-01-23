@@ -13,14 +13,13 @@ class AuthenticatorConfigInfoRepresentation:
                f"providerId={self.providerId} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "helpText": self.helpText,
             "name": self.name,
             "properties": self.properties,
             "providerId": self.providerId,
-        })
+        }
 
 
 def construct_authenticator_config_info_representation(item):

@@ -1,8 +1,4 @@
 # encoding: utf-8
-
-import json
-
-
 class CxGitSettings(object):
     """
     git settings
@@ -23,16 +19,14 @@ class CxGitSettings(object):
         self.link = link
         self.private_key = private_key
 
-    def get_post_data(self):
-        target_dict = {
+    def to_dict(self):
+        data = {
             "url": self.url,
             "branch": self.branch,
         }
-
         if self.private_key:
-            target_dict.update({"privateKey": self.private_key})
-
-        return json.dumps(target_dict)
+            data.update({"privateKey": self.private_key})
+        return data
 
     def __str__(self):
         return "CxGitSettings(url={}, branch={}, use_ssh={}, link={})".format(

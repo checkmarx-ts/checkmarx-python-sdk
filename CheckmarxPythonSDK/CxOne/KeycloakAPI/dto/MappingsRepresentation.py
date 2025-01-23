@@ -9,12 +9,11 @@ class MappingsRepresentation:
                f"realmMappings={self.realmMappings} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "clientMappings": self.clientMappings,
             "realmMappings": self.realmMappings,
-        })
+        }
 
 
 def construct_mappings_representation(item):

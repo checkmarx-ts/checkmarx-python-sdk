@@ -1,4 +1,5 @@
 # encoding: utf-8
+import json
 from .httpRequests import get_request, post_request, put_request, delete_request
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED
 from .utilities import get_url_param, type_check, list_member_type_check
@@ -12,6 +13,7 @@ from .dto import (
 )
 
 api_url = "/api/applications"
+
 
 def __construct_application_rules(rules):
     rules = rules or []
@@ -50,7 +52,7 @@ def create_an_application(application_input):
     type_check(application_input, ApplicationInput)
 
     relative_url = api_url
-    data = application_input.get_post_data()
+    data = json.dumps(application_input.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     item = response.json()
     return CreatedApplication(
@@ -176,7 +178,7 @@ def update_an_application(application_id, application_input):
 
     is_successful = False
     relative_url = api_url + "/{id}".format(id=application_id)
-    data = application_input.get_post_data()
+    data = json.dumps(application_input.to_dict())
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code == NO_CONTENT:
         is_successful = True
@@ -217,7 +219,7 @@ def create_an_application_rule(application_id, rule_input):
 
     relative_url = api_url + "/{id}/project-rules".format(id=application_id)
     type_check(rule_input, RuleInput)
-    data = rule_input.get_post_data()
+    data = json.dumps(rule_input.to_dict())
     response = post_request(relative_url=relative_url, data=data)
     rule = response.json()
     return Rule(
@@ -288,7 +290,7 @@ def update_an_application_rule(application_id, rule_id, rule_input):
     relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
         id=application_id, rule_id=rule_id
     )
-    data = rule_input.get_post_data()
+    data = json.dumps(rule_input.to_dict())
     response = put_request(relative_url=relative_url, data=data)
     if response.status_code in (NO_CONTENT, CREATED):
         is_successful = True

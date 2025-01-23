@@ -51,9 +51,8 @@ class JsonNode:
                f"valueNode={self.valueNode} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "array": self.array,
             "bigDecimal": self.bigDecimal,
             "bigInteger": self.bigInteger,
@@ -76,7 +75,7 @@ class JsonNode:
             "short": self.short,
             "textual": self.textual,
             "valueNode": self.valueNode,
-        })
+        }
 
 
 def construct_json_node(item):

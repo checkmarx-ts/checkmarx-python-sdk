@@ -7,11 +7,10 @@ class AccessTokenAuthorization:
                f"permissions={self.permissions} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "permissions": self.permissions,
-        })
+        }
 
 
 def construct_access_token_authorization(item):

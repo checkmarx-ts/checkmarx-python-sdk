@@ -31,9 +31,8 @@ class IdentityProviderRepresentation:
                f"trustEmail={self.trustEmail} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "addReadTokenRoleOnCreate": self.addReadTokenRoleOnCreate,
             "alias": self.alias,
             "config": self.config,
@@ -46,7 +45,7 @@ class IdentityProviderRepresentation:
             "providerId": self.providerId,
             "storeToken": self.storeToken,
             "trustEmail": self.trustEmail,
-        })
+        }
 
 
 def construct_identity_provider_representation(item):

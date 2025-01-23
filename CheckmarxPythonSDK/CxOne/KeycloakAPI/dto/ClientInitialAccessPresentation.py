@@ -17,16 +17,15 @@ class ClientInitialAccessPresentation:
                f"token={self.token} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "count": self.count,
             "expiration": self.expiration,
             "id": self.id,
             "remainingCount": self.remainingCount,
             "timestamp": self.timestamp,
             "token": self.token,
-        })
+        }
 
 
 def construct_client_initial_access_presentation(item):

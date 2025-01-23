@@ -18,13 +18,12 @@ class DefaultConfig:
                f"url={self.url} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "name": self.name,
             "description": self.description,
             "url": self.url,
-        })
+        }
 
 
 def construct_default_config(item):

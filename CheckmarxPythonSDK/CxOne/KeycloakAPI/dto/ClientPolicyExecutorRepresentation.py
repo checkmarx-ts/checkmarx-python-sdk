@@ -9,12 +9,11 @@ class ClientPolicyExecutorRepresentation:
                f"executor={self.executor} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "configuration": self.configuration,
             "executor": self.executor,
-        })
+        }
 
 
 def construct_client_policy_executor_representation(item):

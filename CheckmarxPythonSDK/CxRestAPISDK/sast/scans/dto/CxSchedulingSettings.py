@@ -19,14 +19,12 @@ class CxSchedulingSettings(object):
         self.schedule_days = schedule_days
         self.schedule_time = schedule_time
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "scheduleType": self.schedule_type,
                 "scheduledDays": list(self.schedule_days),
                 "scheduleTime": self.schedule_time
             }
-        )
 
     def __str__(self):
         return "CxSchedulingSettings(schedule_type={}, schedule_days={}, schedule_time={})".format(

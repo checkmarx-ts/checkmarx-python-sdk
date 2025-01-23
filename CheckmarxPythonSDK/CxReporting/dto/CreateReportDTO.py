@@ -1,4 +1,3 @@
-import json
 from .FilterDTO import FilterDTO
 
 
@@ -66,9 +65,8 @@ class CreateReportDTO(object):
             self.templateId, self.entityId, self.reportName, self.filters, self.outputFormat
         )
 
-    def get_post_data(self):
-        return json.dumps(
-            {
+    def to_dict(self):
+        return {
                 "templateId": self.templateId,
                 "entityId": self.entityId,
                 "reportName": self.reportName,
@@ -82,4 +80,3 @@ class CreateReportDTO(object):
                 ],
                 "outputFormat": self.outputFormat
             }
-        )

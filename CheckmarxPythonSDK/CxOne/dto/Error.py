@@ -11,13 +11,12 @@ class Error:
                f"code={self.code} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "message": self.message,
             "type": self.type,
             "code": self.code,
-        })
+        }
 
 
 def construct_error(item):

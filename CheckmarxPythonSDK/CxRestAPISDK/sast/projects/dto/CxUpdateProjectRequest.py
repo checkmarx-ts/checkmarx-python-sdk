@@ -19,7 +19,7 @@ class CxUpdateProjectRequest(object):
         self.owning_team = team_id
         self.custom_fields = custom_fields
 
-    def get_post_data(self):
+    def to_dict(self):
         """
         the data of post http request body
         :return:
@@ -30,13 +30,11 @@ class CxUpdateProjectRequest(object):
             custom_fields = [{'id': cf.id, 'value': cf.value} for cf in self.custom_fields]
         else:
             custom_fields = []
-        return json.dumps(
-            {
+        return {
                 "name": self.name,
                 "owningTeam": self.owning_team,
                 "customFields": custom_fields
             }
-        )
 
     def __str__(self):
         return "CxUpdateProjectRequest(name={}, owning_team={}, custom_fields={})".format(

@@ -17,16 +17,15 @@ class ComponentExportRepresentation:
                f"subType={self.subType} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "config": self.config,
             "id": self.id,
             "name": self.name,
             "providerId": self.providerId,
             "subComponents": self.subComponents,
             "subType": self.subType,
-        })
+        }
 
 
 def construct_component_export_representation(item):

@@ -9,12 +9,11 @@ class GlobalRequestResult:
                f"successRequests={self.successRequests} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "failedRequests": self.failedRequests,
             "successRequests": self.successRequests,
-        })
+        }
 
 
 def construct_global_request_result(item):

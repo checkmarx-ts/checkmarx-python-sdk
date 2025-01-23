@@ -11,13 +11,12 @@ class MultivaluedHashMap:
                f"threshold={self.threshold} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "empty": self.empty,
             "loadFactor": self.loadFactor,
             "threshold": self.threshold,
-        })
+        }
 
 
 def construct_multivalued_hash_map(item):

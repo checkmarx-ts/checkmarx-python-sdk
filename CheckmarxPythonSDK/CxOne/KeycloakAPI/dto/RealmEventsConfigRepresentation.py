@@ -18,16 +18,15 @@ class RealmEventsConfigRepresentation:
                f"eventsListeners={self.eventsListeners} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "adminEventsDetailsEnabled": self.adminEventsDetailsEnabled,
             "adminEventsEnabled": self.adminEventsEnabled,
             "enabledEventTypes": self.enabledEventTypes,
             "eventsEnabled": self.eventsEnabled,
             "eventsExpiration": self.eventsExpiration,
             "eventsListeners": self.eventsListeners,
-        })
+        }
 
 
 def construct_realm_events_config_representation(item):

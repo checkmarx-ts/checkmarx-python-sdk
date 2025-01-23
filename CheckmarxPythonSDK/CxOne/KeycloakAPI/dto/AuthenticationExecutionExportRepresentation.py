@@ -20,9 +20,8 @@ class AuthenticationExecutionExportRepresentation:
                f"userSetupAllowed={self.userSetupAllowed} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "authenticator": self.authenticator,
             "authenticatorConfig": self.authenticatorConfig,
             "authenticatorFlow": self.authenticatorFlow,
@@ -30,7 +29,7 @@ class AuthenticationExecutionExportRepresentation:
             "priority": self.priority,
             "requirement": self.requirement,
             "userSetupAllowed": self.userSetupAllowed,
-        })
+        }
 
 
 def construct_authentication_execution_export_representation(item):

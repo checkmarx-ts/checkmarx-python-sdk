@@ -288,9 +288,8 @@ class RealmRepresentation:
                f"webAuthnPolicyUserVerificationRequirement={self.webAuthnPolicyUserVerificationRequirement} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "accessCodeLifespan": self.accessCodeLifespan,
             "accessCodeLifespanLogin": self.accessCodeLifespanLogin,
             "accessCodeLifespanUserAction": self.accessCodeLifespanUserAction,
@@ -414,7 +413,7 @@ class RealmRepresentation:
             "webAuthnPolicyRpId": self.webAuthnPolicyRpId,
             "webAuthnPolicySignatureAlgorithms": self.webAuthnPolicySignatureAlgorithms,
             "webAuthnPolicyUserVerificationRequirement": self.webAuthnPolicyUserVerificationRequirement,
-        })
+        }
 
 
 def construct_realm_representation(item):

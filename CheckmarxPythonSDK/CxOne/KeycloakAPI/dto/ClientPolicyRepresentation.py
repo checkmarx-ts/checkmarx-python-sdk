@@ -15,15 +15,14 @@ class ClientPolicyRepresentation:
                f"profiles={self.profiles} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "conditions": self.conditions,
             "description": self.description,
             "enabled": self.enabled,
             "name": self.name,
             "profiles": self.profiles,
-        })
+        }
 
 
 def construct_client_policy_representation(item):

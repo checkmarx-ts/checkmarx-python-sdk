@@ -19,9 +19,8 @@ class MemoryInfoRepresentation:
                f"usedFormated={self.usedFormated} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "free": self.free,
             "freeFormated": self.freeFormated,
             "freePercentage": self.freePercentage,
@@ -29,7 +28,7 @@ class MemoryInfoRepresentation:
             "totalFormated": self.totalFormated,
             "used": self.used,
             "usedFormated": self.usedFormated,
-        })
+        }
 
 
 def construct_memory_info_representation(item):

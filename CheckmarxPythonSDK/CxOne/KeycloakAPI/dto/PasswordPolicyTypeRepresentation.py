@@ -16,15 +16,14 @@ class PasswordPolicyTypeRepresentation:
                f"multipleSupported={self.multipleSupported} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "configType": self.configType,
             "defaultValue": self.defaultValue,
             "displayName": self.displayName,
             "id": self.id,
             "multipleSupported": self.multipleSupported,
-        })
+        }
 
 
 def construct_password_policy_type_representation(item):

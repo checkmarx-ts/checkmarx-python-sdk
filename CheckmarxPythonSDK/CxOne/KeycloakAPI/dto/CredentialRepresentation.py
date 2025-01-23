@@ -24,9 +24,8 @@ class CredentialRepresentation:
                f"value={self.value} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "createdDate": self.createdDate,
             "credentialData": self.credentialData,
             "id": self.id,
@@ -36,7 +35,7 @@ class CredentialRepresentation:
             "type": self.type,
             "userLabel": self.userLabel,
             "value": self.value,
-        })
+        }
 
 
 def construct_credential_representation(item):

@@ -13,14 +13,13 @@ class Permission:
                f"scopes={self.scopes} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "claims": self.claims,
             "rsid": self.rsid,
             "rsname": self.rsname,
             "scopes": self.scopes,
-        })
+        }
 
 
 def construct_permission(item):

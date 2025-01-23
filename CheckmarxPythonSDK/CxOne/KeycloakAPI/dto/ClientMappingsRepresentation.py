@@ -11,13 +11,12 @@ class ClientMappingsRepresentation:
                f"mappings={self.mappings} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "client": self.client,
             "id": self.id,
             "mappings": self.mappings,
-        })
+        }
 
 
 def construct_client_mappings_representation(item):

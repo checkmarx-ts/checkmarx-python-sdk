@@ -16,15 +16,14 @@ class UserFederationMapperRepresentation:
                f"name={self.name}" \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "config": self.config,
             "federationMapperType": self.federationMapperType,
             "federationProviderDisplayName": self.federationProviderDisplayName,
             "id": self.id,
             "name": self.name,
-        })
+        }
 
 
 def construct_user_federation_mapper_representation(item):

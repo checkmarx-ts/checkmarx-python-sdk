@@ -11,13 +11,12 @@ class AuthenticatorConfigRepresentation:
                f"id={self.id} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "alias": self.alias,
             "config": self.config,
             "id": self.id,
-        })
+        }
 
 
 def construct_authenticator_config_representation(item):

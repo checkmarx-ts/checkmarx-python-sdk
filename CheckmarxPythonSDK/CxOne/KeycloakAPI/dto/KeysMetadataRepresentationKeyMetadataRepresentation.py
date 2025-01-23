@@ -24,9 +24,8 @@ class KeysMetadataRepresentationKeyMetadataRepresentation:
                f"use={self.use} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "algorithm": self.algorithm,
             "certificate": self.certificate,
             "kid": self.kid,
@@ -36,7 +35,7 @@ class KeysMetadataRepresentationKeyMetadataRepresentation:
             "status": self.status,
             "type": self.type,
             "use": self.use,
-        })
+        }
 
 
 def construct_keys_metadata_representation_key_metadata_representation(item):

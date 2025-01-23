@@ -19,9 +19,8 @@ class RequiredActionProviderRepresentation:
                f"providerId={self.providerId} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "alias": self.alias,
             "config": self.config,
             "defaultAction": self.defaultAction,
@@ -29,7 +28,7 @@ class RequiredActionProviderRepresentation:
             "name": self.name,
             "priority": self.priority,
             "providerId": self.providerId,
-        })
+        }
 
 
 def construct_required_action_provider_representation(item):

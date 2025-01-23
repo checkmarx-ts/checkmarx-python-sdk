@@ -16,15 +16,14 @@ class IdentityProviderMapperRepresentation:
                f"name={self.name} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "config": self.config,
             "id": self.id,
             "identityProviderAlias": self.identityProviderAlias,
             "identityProviderMapper": self.identityProviderMapper,
             "name": self.name,
-        })
+        }
 
 
 def construct_identity_provider_mapper_representation(item):

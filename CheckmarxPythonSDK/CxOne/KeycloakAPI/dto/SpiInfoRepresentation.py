@@ -9,12 +9,11 @@ class SpiInfoRepresentation:
                f"providers={self.providers} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "internal": self.internal,
             "providers": self.providers,
-        })
+        }
 
 
 def construct_spi_info_representation(item):

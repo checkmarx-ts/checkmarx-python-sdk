@@ -20,9 +20,8 @@ class AuthenticationFlowRepresentation:
                f"topLevel={self.topLevel} " \
                f")"
 
-    def get_post_data(self):
-        import json
-        return json.dumps({
+    def to_dict(self):
+        return {
             "alias": self.alias,
             "authenticationExecutions": self.authenticationExecutions,
             "builtIn": self.builtIn,
@@ -30,7 +29,7 @@ class AuthenticationFlowRepresentation:
             "id": self.id,
             "providerId": self.providerId,
             "topLevel": self.topLevel,
-        })
+        }
 
 
 def construct_authentication_flow_representation(item):
