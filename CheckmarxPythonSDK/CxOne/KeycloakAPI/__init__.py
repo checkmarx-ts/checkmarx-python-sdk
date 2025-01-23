@@ -48,4 +48,9 @@ from .RoleMapperAPI import (
 
 from .RolesAPI import (
     get_all_roles_for_the_client,
+    create_a_role_for_the_client,
+    get_a_role_by_name,
+    update_a_role_by_id,
+    get_roles_children,
+    create_a_composite_role_children,
 )
