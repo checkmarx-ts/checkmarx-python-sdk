@@ -178,3 +178,153 @@ def generate_oauth_secret(realm, client_id):
 
     response = post_request(relative_url=relative_url, data=post_data, is_iam=True)
     return response
+
+
+def get_client_ast_app(realm):
+    """
+
+    Args:
+        realm:
+
+    Returns:
+
+        example
+
+        [
+            {
+                "id": "d3b60524-13a1-431a-a703-1d6d3d09f512",
+                "clientId": "ast-app",
+                "rootUrl": "https://sng.iam.checkmarx.net",
+                "adminUrl": "https://sng.iam.checkmarx.net/*",
+                "surrogateAuthRequired": false,
+                "enabled": true,
+                "alwaysDisplayInConsole": false,
+                "clientAuthenticatorType": "client-secret",
+                "redirectUris": [
+                    "https://sng.ast.checkmarx.net/*",
+                    "/*"
+                ],
+                "webOrigins": [
+                    "*",
+                    "/*"
+                ],
+                "notBefore": 0,
+                "bearerOnly": false,
+                "consentRequired": false,
+                "standardFlowEnabled": true,
+                "implicitFlowEnabled": true,
+                "directAccessGrantsEnabled": true,
+                "serviceAccountsEnabled": true,
+                "publicClient": true,
+                "frontchannelLogout": true,
+                "protocol": "openid-connect",
+                "attributes": {
+                    "saml.assertion.signature": "false",
+                    "security.admin.console": "true",
+                    "saml.force.post.binding": "false",
+                    "saml.multivalued.roles": "false",
+                    "saml.encrypt": "false",
+                    "post.logout.redirect.uris": "+",
+                    "saml.server.signature": "false",
+                    "saml.server.signature.keyinfo.ext": "false",
+                    "exclude.session.state.from.auth.response": "false",
+                    "saml_force_name_id_format": "false",
+                    "saml.client.signature": "false",
+                    "tls.client.certificate.bound.access.tokens": "false",
+                    "saml.authnstatement": "false",
+                    "display.on.consent.screen": "false",
+                    "secretExpDaysBeforeNotification": "10",
+                    "saml.onetimeuse.condition": "false"
+                },
+                "authenticationFlowBindingOverrides": {},
+                "fullScopeAllowed": true,
+                "nodeReRegistrationTimeout": -1,
+                "protocolMappers": [
+                    {
+                        "id": "76fcd170-9b8b-4991-8e69-38d9fdf80619",
+                        "name": "realm-management client roles",
+                        "protocol": "openid-connect",
+                        "protocolMapper": "oidc-usermodel-client-role-mapper",
+                        "consentRequired": false,
+                        "config": {
+                            "multivalued": "true",
+                            "user.attribute": "foo",
+                            "access.token.claim": "true",
+                            "claim.name": "resource_access.${client_id}.roles",
+                            "jsonType.label": "String",
+                            "usermodel.clientRoleMapping.clientId": "realm-management"
+                        }
+                    },
+                    {
+                        "id": "b359cb2c-ac34-428d-b7d9-8bd8453926a6",
+                        "name": "Client ID",
+                        "protocol": "openid-connect",
+                        "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                        "consentRequired": false,
+                        "config": {
+                            "user.session.note": "clientId",
+                            "userinfo.token.claim": "true",
+                            "id.token.claim": "true",
+                            "access.token.claim": "true",
+                            "claim.name": "clientId",
+                            "jsonType.label": "String"
+                        }
+                    },
+                    {
+                        "id": "aad7d17c-d733-4ed3-8c14-e11590a9678d",
+                        "name": "Client IP Address",
+                        "protocol": "openid-connect",
+                        "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                        "consentRequired": false,
+                        "config": {
+                            "user.session.note": "clientAddress",
+                            "userinfo.token.claim": "true",
+                            "id.token.claim": "true",
+                            "access.token.claim": "true",
+                            "claim.name": "clientAddress",
+                            "jsonType.label": "String"
+                        }
+                    },
+                    {
+                        "id": "470d9673-888e-4f6f-9f4a-1b6fd652c099",
+                        "name": "Client Host",
+                        "protocol": "openid-connect",
+                        "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                        "consentRequired": false,
+                        "config": {
+                            "user.session.note": "clientHost",
+                            "userinfo.token.claim": "true",
+                            "id.token.claim": "true",
+                            "access.token.claim": "true",
+                            "claim.name": "clientHost",
+                            "jsonType.label": "String"
+                        }
+                    }
+                ],
+                "defaultClientScopes": [
+                    "web-origins",
+                    "roles",
+                    "profile",
+                    "iam-api",
+                    "groups",
+                    "basic",
+                    "ast-api",
+                    "email"
+                ],
+                "optionalClientScopes": [
+                    "address",
+                    "phone",
+                    "microprofile-jwt"
+                ],
+                "access": {
+                    "view": true,
+                    "configure": true,
+                    "manage": true
+                }
+            }
+        ]
+    """
+    relative_url = api_url + f"/{realm}/clients?clientId=ast-app&max=1&search=true"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    response = response.json()
+    return response
