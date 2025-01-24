@@ -1,6 +1,7 @@
 class RoleRepresentation:
-    def __init__(self, attributes, client_role, composite, composites, container_id, description,
-                 role_representation_id, name):
+    def __init__(self, client_role, composite, container_id,
+                 role_representation_id, name,
+                 attributes=None, composites=None, description=None):
         self.attributes = attributes
         self.clientRole = client_role
         self.composite = composite
@@ -23,16 +24,20 @@ class RoleRepresentation:
                f")"
 
     def to_dict(self):
-        return {
-            "attributes": self.attributes,
+        data = {
             "clientRole": self.clientRole,
             "composite": self.composite,
-            "composites": self.composites,
             "containerId": self.containerId,
-            "description": self.description,
             "id": self.id,
             "name": self.name,
         }
+        if self.attributes:
+            data.update({"attributes": self.attributes})
+        if self.description:
+            data.update({"description": self.description})
+        if self.composites:
+            data.update({"composites": self.composites})
+        return data
 
 
 def construct_role_representation(item):
