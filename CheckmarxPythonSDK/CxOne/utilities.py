@@ -10,7 +10,7 @@ def get_url_param(url_param_key, value):
         str
     """
     result = ""
-    if not value:
+    if value is None:
         return result
     if isinstance(value, (str, int)):
         result += "&{param_key}={pram_value}".format(param_key=url_param_key, pram_value=value)
