@@ -1,6 +1,16 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.5 - 2025-01-24
+* Add get_all_roles_for_the_client
+* Add create_role_for_the_client
+* Add delete_role_by_name
+* Add get_role_by_name
+* Add update_role_by_id
+* Add get_roles_children
+* Add add_children_to_a_composite_role
+* Add get_all_roles_for_the_realm
+
 1.1.4 - 2025-01-14
 * Add vulnerabilityFixResolutionText for SCA API get_vulnerabilities_risks_by_scan_id
 * Add SCA API get_one_vulnerability
