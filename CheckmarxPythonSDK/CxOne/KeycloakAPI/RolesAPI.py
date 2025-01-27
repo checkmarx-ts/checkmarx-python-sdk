@@ -160,6 +160,22 @@ def get_roles_children(realm: str, role_id: str):
     return response
 
 
+def get_roles_children_iam(realm: str, role_id: str):
+    """
+
+    Args:
+        realm:
+        role_id:
+
+    Returns:
+
+    """
+    relative_url = api_url + f"/{realm}/roles-by-id/{role_id}/composites/realm"
+    response = get_request(relative_url=relative_url, is_iam=True)
+    response = response.json()
+    return response
+
+
 def add_children_to_a_composite_role(realm: str, role_id: str, children: List[RoleRepresentation]):
     """
 

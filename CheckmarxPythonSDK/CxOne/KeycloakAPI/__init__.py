@@ -53,6 +53,7 @@ from .RolesAPI import (
     get_role_by_name,
     update_role_by_id,
     get_roles_children,
+    get_roles_children_iam,
     add_children_to_a_composite_role,
     get_all_roles_for_the_realm,
 )

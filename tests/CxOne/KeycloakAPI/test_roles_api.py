@@ -5,6 +5,7 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI import (
     get_role_by_name,
     update_role_by_id,
     get_roles_children,
+    get_roles_children_iam,
     add_children_to_a_composite_role,
     get_all_roles_for_the_realm,
 )
@@ -60,6 +61,13 @@ def test_get_roles_children():
     role = get_role_by_name(realm=realm, client_id=client_id, role_name=role_name)
     role_id = role.get("id")
     children = get_roles_children(realm=realm, role_id=role_id)
+    assert children is not None
+
+
+def test_get_roles_children_iam():
+    role = get_role_by_name(realm=realm, client_id=client_id, role_name=role_name)
+    role_id = role.get("id")
+    children = get_roles_children_iam(realm=realm, role_id=role_id)
     assert children is not None
 
 
