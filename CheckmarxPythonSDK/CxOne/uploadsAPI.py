@@ -1,10 +1,12 @@
 # encoding: utf-8
 import requests
+import os
 
 from .httpRequests import post_request
 from CheckmarxPythonSDK.utilities.compat import OK
 from os.path import exists
 from CheckmarxPythonSDK.utilities.httpRequests import auth_header
+from requests_toolbelt import MultipartEncoder
 
 api_url = "/api/uploads"
 
@@ -47,10 +49,16 @@ def upload_zip_content_for_scanning(upload_link, zip_file_path):
     headers.update(
         {"Content-Type": "application/x-www-form-urlencoded"}
     )
-
-    with open(zip_file_path, 'rb') as data:
-        response = requests.put(url=url, data=data, headers=headers, verify=False)
-        if response.status_code == OK:
-            is_successful = True
+    file_name = os.path.basename(zip_file_path)
+    m = MultipartEncoder(
+        fields={
+            "zippedSource": (file_name, open(zip_file_path, 'rb'), "application/zip")
+        }
+    )
+    headers.update({"Content-Type": m.content_type})
+    # with open(zip_file_path, 'rb') as data:
+    response = requests.put(url=url, data=m, headers=headers, verify=False)
+    if response.status_code == OK:
+        is_successful = True
 
     return is_successful
