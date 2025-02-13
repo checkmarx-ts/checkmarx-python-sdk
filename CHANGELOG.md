@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.6 - 2025-02-13
+* Fix upload big file issue
+
 1.1.5 - 2025-01-24
 * Add get_all_roles_for_the_client
 * Add create_role_for_the_client
