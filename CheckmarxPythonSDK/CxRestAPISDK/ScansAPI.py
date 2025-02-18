@@ -341,7 +341,7 @@ class ScansAPI(object):
         return result
 
     @staticmethod
-    def get_statistics_results_by_scan_id(scan_id, api_version="1.0"):
+    def get_statistics_results_by_scan_id(scan_id, api_version="6.0"):
         """
         Get statistic results for a specific scan.
         This action can only be applied to finished scans.
@@ -364,6 +364,7 @@ class ScansAPI(object):
         if response.status_code == OK:
             item = response.json()
             result = CxStatisticsResult(
+                critical_severity=item.get("criticalSeverity"),
                 high_severity=item.get("highSeverity"),
                 medium_severity=item.get("mediumSeverity"),
                 low_severity=item.get("lowSeverity"),
