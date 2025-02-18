@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.7 - 2025-02-18
+* Add critical severity support get_statistics_results_by_scan_id version 6.0
+
 1.1.6 - 2025-02-13
 * Fix upload big file issue
 
