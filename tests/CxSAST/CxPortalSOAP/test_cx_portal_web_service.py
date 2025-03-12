@@ -194,12 +194,12 @@ def test_get_projects_display_data():
 
 
 def test_get_result_path():
-    response = get_result_path(scan_id=1000006, path_id=1)
+    response = get_result_path(scan_id=1000000, path_id=2)
     assert response["IsSuccesfull"] is True
 
 
 def test_get_results_for_scan():
-    response = get_results_for_scan(scan_id=1000006)
+    response = get_results_for_scan(scan_id=1000000)
     assert response["IsSuccesfull"] is True
 
 

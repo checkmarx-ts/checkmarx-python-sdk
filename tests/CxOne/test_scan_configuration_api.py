@@ -27,24 +27,54 @@ def test_define_parameters_in_the_input_list_for_the_current_tenant():
 
 
 def test_get_the_list_of_all_the_parameters_for_a_project():
-    project_id = "58b051e7-8c1f-437d-bbf1-d25800bd57f1"
+    project_id = "1b49ad6f-057f-400c-aa32-f6bc31caf242"
     scan_parameters = get_the_list_of_all_the_parameters_for_a_project(project_id=project_id)
     assert scan_parameters is not None
 
 
 def test_define_parameters_in_the_input_list_for_a_specific_project():
-    project_id = "58b051e7-8c1f-437d-bbf1-d25800bd57f1"
+    project_id = "1b49ad6f-057f-400c-aa32-f6bc31caf242"
     scan_parameters = [
         ScanParameter(
             key="scan.handler.git.repository",
             name="repository",
             category="git",
             origin_level="Project",
-            value="https://github.com/WebGoat/WebGoat.git",
+            value="https://github.com/CSPF-Founder/JavaVulnerableLab.git",
             value_type="String",
             value_type_params=None,
             allow_override=True
-        )
+        ),
+        ScanParameter(
+            key="scan.config.sca.ExploitablePath",
+            name="exploitablePath",
+            category="sca",
+            origin_level="Project",
+            value="false",
+            value_type="Bool",
+            value_type_params=None,
+            allow_override=True
+        ),
+        ScanParameter(
+            key="scan.config.sast.languageMode",
+            name="languageMode",
+            category="sast",
+            origin_level="Project",
+            value="primary",
+            value_type="List",
+            value_type_params=None,
+            allow_override=True
+        ),
+        ScanParameter(
+            key="scan.config.sca.LastSastScanTime",
+            name="lastSastScanTime",
+            category="sca",
+            origin_level="Project",
+            value="2",
+            value_type="Number",
+            value_type_params=None,
+            allow_override=True
+        ),
     ]
     is_successful = define_parameters_in_the_input_list_for_a_specific_project(
         project_id=project_id,
