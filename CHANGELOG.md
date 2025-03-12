@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.8 - 2025-03-12
+* Add get_scans_by_filters
+
 1.1.7 - 2025-02-18
 * Add critical severity support get_statistics_results_by_scan_id version 6.0
 
