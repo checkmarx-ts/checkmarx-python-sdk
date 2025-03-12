@@ -15,6 +15,8 @@ from CheckmarxPythonSDK.CxOne import (
     cancel_scan,
     delete_scan,
     get_a_detailed_workflow_of_a_scan,
+    get_a_list_of_scan,
+    get_scans_by_filters,
 )
 
 from CheckmarxPythonSDK.CxOne.dto import (
@@ -144,3 +146,8 @@ def test_delete_scan():
     time.sleep(60)
     is_successful = delete_scan(scan_id=scan_id)
     assert is_successful is True
+
+
+def test_get_scans_by_filters():
+    scans = get_scans_by_filters()
+    assert scans is not None

@@ -199,6 +199,7 @@ from .scansAPI import (
     cancel_scan,
     delete_scan,
     get_a_detailed_workflow_of_a_scan,
+    get_scans_by_filters,
 )
 
 from .uploadsAPI import (

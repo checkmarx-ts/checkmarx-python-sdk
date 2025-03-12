@@ -1,6 +1,6 @@
 # encoding: utf-8
 import json
-
+from typing import List
 from deprecated import deprecated
 from .httpRequests import get_request, post_request, delete_request, patch_request
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
@@ -95,9 +95,9 @@ def get_a_list_of_scans(offset=0, limit=20, scan_ids=None, groups=None, tags_key
                     (Case insensitive, OR operator for multiple statuses.)
                     Available values : Queued, Running, Completed, Failed, Partial, Canceled
         project_id (str): Filter results for scans of a single project, specified by project ID.
-                        (Exact match, case sensitive, mutually exclusive to 'project-ids'.)
+                        (Exact match, case-sensitive, mutually exclusive to 'project-ids'.)
         project_ids (`list` of str): Filter results for scans of multiple projects, specified by project IDs.
-                    (Exact match, case sensitive, OR operator for multiple IDs, mutually exclusive to 'project-id'.)
+                    (Exact match, case-sensitive, OR operator for multiple IDs, mutually exclusive to 'project-id'.)
         source_type (str): source_type from scans table. return zip or github
         source_origin (str): source_origin from scans table. return webapp or jenkins or etc.
         from_date (str): Filter for the earliest date and time of a scan for which you would like to show results.
@@ -376,4 +376,72 @@ def scan_by_repo_url(project_id, repo_url, branch, engines, tag):
             print(f"Warning: Engine '{engine}' is not supported and will be ignored.")
 
     response = post_request(relative_url=relative_url, data=json.dumps(scan_data))
+    return response
+
+
+def get_scans_by_filters(offset: int = 0, limit: int = 20, scan_ids: List[str] = None, tags_keys: List[str] = None,
+                         tags_values: List[str] = None, statuses=None,
+                         project_ids=None, project_names=None, branches=None, initiators=None, source_origins=None,
+                         source_types=None, search_id=None, sort_by=("+created_at", "+status")):
+    """
+
+    Args:
+        offset (int):  The number of results to skip before returning results
+        limit (int): The maximum number of results to return
+        scan_ids (List of str): Filter results by scan IDs. Only exact matches are returned. (OR operator is used for
+            multiple IDs.)
+        tags_keys (List of str): Filter by tag keys (of the key:value pairs) associated with your scans. (OR operator
+            is used for multiple keys.)
+        tags_values (List of str): Filter by tag keys (of the key:value pairs) associated with your scans. (OR operator
+            is used for multiple values.)
+        statuses (List of str): Filter results by scans' execution status. (Case insensitive, OR operator for multiple
+            statuses.)
+        project_ids (List of str): Filter results for scans of multiple projects, specified by project IDs. (Exact
+            match, case-sensitive, OR operator for multiple IDs, mutually exclusive to 'project-id'.)
+        project_names (List of str): Filter scans by their project name
+        branches (List of str): Filter results by the name of the Git branches.
+        initiators (List of str): Filter scans by their initiator
+        source_origins (List of str): Filter by scan origins.
+        source_types (List of str): Source_type from scans table. return zip or github
+        search_id (str): The scan searching with substring in all scan columns
+        sort_by (List of str): Sort results by the specified parameter. Enter '-/+' for ascending/descending order,
+        followed by the parameter.  [-created_at, +created_at, -status, +status, +branch, -branch, +initiator,
+            -initiator, +user_agent, -user_agent, +name, -name]
+
+    Returns:
+
+    """
+    relative_url = api_url + f"/byFilters"
+
+    if isinstance(sort_by, tuple):
+        sort_by = list(sort_by)
+    sort_by = ",".join(sort_by)
+    data = {
+      "offset": offset,
+      "limit": limit,
+      "sortBy": sort_by
+    }
+    if scan_ids:
+        data.update({"scan-ids": scan_ids})
+    if tags_keys:
+        data.update({"tags-keys": tags_keys})
+    if tags_values:
+        data.update({"tags-values": tags_values})
+    if statuses:
+        data.update({"statuses": statuses})
+    if project_ids:
+        data.update({"projectIDs": project_ids})
+    if project_names:
+        data.update({"project-names": project_names})
+    if branches:
+        data.update({"branches": branches})
+    if initiators:
+        data.update({"initiators": initiators})
+    if source_origins:
+        data.update({"source-origins": source_origins})
+    if source_types:
+        data.update({"source-types": source_types})
+    if search_id:
+        data.update({"searchID": search_id})
+    response = post_request(relative_url=relative_url, data=json.dumps(data))
     return response
