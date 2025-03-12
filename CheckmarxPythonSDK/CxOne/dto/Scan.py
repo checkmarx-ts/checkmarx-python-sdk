@@ -1,6 +1,11 @@
 # encoding: utf-8
+from typing import List
+from .StatusDetails import StatusDetails
+
+
 class Scan(object):
-    def __init__(self, scan_id, status, status_details, position_in_queue, project_id, branch, commit_id, commit_tag,
+    def __init__(self, scan_id, status, status_details: List[StatusDetails], position_in_queue, project_id, branch,
+                 commit_id, commit_tag,
                  upload_url, created_at, updated_at, user_agent, initiator, tags, metadata):
         """
 
@@ -9,7 +14,7 @@ class Scan(object):
             status (str): The execution status of the scan.
                     Enum:[ Queued, Running, Completed, Failed, Partial, Canceled ]
             status_details (`list` of `StatusDetails`):
-            position_in_queue (int): he position of the scan in the execution queue.
+            position_in_queue (int): the position of the scan in the execution queue.
             project_id (str): The associated project id
             branch (str): The git branch
             commit_id (str): The git commit id. Mutually exclusive to commitTag
