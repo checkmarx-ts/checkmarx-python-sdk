@@ -26,6 +26,8 @@ def __construct_scan(item):
                 name=detail.get("name"),
                 status=detail.get("status"),
                 details=detail.get("details"),
+                start_date=detail.get("startDate"),
+                end_date=detail.get("endDate"),
             )
             for detail in item.get("statusDetails") or []
         ],
