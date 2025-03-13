@@ -149,5 +149,5 @@ def test_delete_scan():
 
 
 def test_get_scans_by_filters():
-    scans = get_scans_by_filters()
+    scans = get_scans_by_filters(search_id="", sort_by=["-created_at"])
     assert scans is not None

@@ -33,6 +33,7 @@ def __construct_scan(item):
         ],
         position_in_queue=item.get("positionInQueue"),
         project_id=item.get("projectId"),
+        project_name=item.get("projectName"),
         branch=item.get("branch"),
         commit_id=item.get("commitId"),
         commit_tag=item.get("commitTag"),
@@ -43,6 +44,9 @@ def __construct_scan(item):
         initiator=item.get("initiator"),
         tags=item.get("tags"),
         metadata=item.get("metadata"),
+        engines=item.get("engines"),
+        source_type=item.get('sourceType'),
+        source_origin=item.get('sourceOrigin'),
     )
 
 
@@ -444,4 +448,9 @@ def get_scans_by_filters(offset: int = 0, limit: int = 20, scan_ids: List[str] =
     if search_id:
         data.update({"searchID": search_id})
     response = post_request(relative_url=relative_url, data=json.dumps(data))
-    return response
+    scans_collection = response.json()
+    return ScansCollection(
+        total_count=scans_collection.get("totalCount"),
+        filtered_total_count=scans_collection.get("filteredTotalCount"),
+        scans=[__construct_scan(item) for item in scans_collection.get("scans") or []]
+    )

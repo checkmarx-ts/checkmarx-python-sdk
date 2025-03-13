@@ -4,9 +4,12 @@ from .StatusDetails import StatusDetails
 
 
 class Scan(object):
-    def __init__(self, scan_id, status, status_details: List[StatusDetails], position_in_queue, project_id, branch,
+    def __init__(self, scan_id, status, status_details: List[StatusDetails], position_in_queue, project_id,
+                 project_name,
+                 branch,
                  commit_id, commit_tag,
-                 upload_url, created_at, updated_at, user_agent, initiator, tags, metadata):
+                 upload_url, created_at, updated_at, user_agent, initiator, tags, metadata, engines=None,
+                 source_type=None, source_origin=None):
         """
 
         Args:
@@ -16,6 +19,7 @@ class Scan(object):
             status_details (`list` of `StatusDetails`):
             position_in_queue (int): the position of the scan in the execution queue.
             project_id (str): The associated project id
+            project_name (str):
             branch (str): The git branch
             commit_id (str): The git commit id. Mutually exclusive to commitTag
             commit_tag (str): The git tag. Mutually exclusive to commitId
@@ -32,6 +36,7 @@ class Scan(object):
         self.statusDetails = status_details
         self.positionInQueue = position_in_queue
         self.projectId = project_id
+        self.projectName = project_name
         self.branch = branch
         self.commitId = commit_id
         self.commitTag = commit_tag
@@ -42,16 +47,21 @@ class Scan(object):
         self.initiator = initiator
         self.tags = tags
         self.metadata = metadata
+        self.engines = engines
+        self.sourceType = source_type
+        self.sourceOrigin = source_origin
 
     def __str__(self):
-        return """Scan(id={}, status={}, statusDetails={}, positionInQueue={}, projectId={}, branch={}, commitId={},
+        return """Scan(id={}, status={}, statusDetails={}, positionInQueue={}, projectId={}, projectName={}, branch={}, 
+        commitId={},
         commitTag={}, uploadUrl={}, createdAt={}, updatedAt={}, userAgent={}, initiator={}, tags={}, 
-        metadata={})""".format(
+        metadata={}, engines={}, sourceType={}, sourceOrigin={})""".format(
             self.id,
             self.status,
             self.statusDetails,
             self.positionInQueue,
             self.projectId,
+            self.projectName,
             self.branch,
             self.commitId,
             self.commitTag,
@@ -62,4 +72,7 @@ class Scan(object):
             self.initiator,
             self.tags,
             self.metadata,
+            self.engines,
+            self.sourceType,
+            self.sourceOrigin,
         )
