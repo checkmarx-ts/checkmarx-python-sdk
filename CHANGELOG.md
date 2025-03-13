@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.1.9 - 2025-03-13
+* Fix CxOne dto Scan
+
 1.1.8 - 2025-03-12
 * Add get_scans_by_filters
 
