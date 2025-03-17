@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.2.0 - 2025-03-17
+* use requests Session Object to reuse underlying TCP connection
+
 1.1.9 - 2025-03-13
 * Fix CxOne dto Scan
 
