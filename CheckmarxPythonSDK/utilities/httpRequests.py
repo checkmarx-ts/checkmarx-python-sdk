@@ -1,6 +1,8 @@
 # encoding: utf-8
 # For REST API, using Python requests package to initiate the requests, and get response
-import requests
+from urllib3.util import Retry
+from requests import Session
+from requests.adapters import HTTPAdapter
 import logging
 from CheckmarxPythonSDK.utilities.compat import (
     OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED, ACCEPTED
@@ -15,6 +17,16 @@ from gql.transport.exceptions import TransportServerError
 disable_warnings(InsecureRequestWarning)
 
 logger = logging.getLogger("CheckmarxPythonSDK")
+
+s = Session()
+retries = Retry(
+    total=3,
+    backoff_factor=0.1,
+    status_forcelist=[502, 503, 504],
+    allowed_methods={'POST'},
+)
+s.mount('https://', HTTPAdapter(max_retries=retries))
+s.mount('http://', HTTPAdapter(max_retries=retries))
 
 
 def request(method, url, params=None, data=None, json=None, files=None, auth=None, timeout=None, headers=None,
@@ -50,7 +62,7 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
     """
     for _ in range(3):
         try:
-            response = requests.request(method=method, url=url, params=params, data=data, json=json, files=files,
+            response = s.request(method=method, url=url, params=params, data=data, json=json, files=files,
                                         auth=auth, timeout=timeout, headers=headers, verify=verify, cert=cert,
                                         proxies=proxies)
             return response
