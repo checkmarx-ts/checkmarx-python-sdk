@@ -1,5 +1,7 @@
 Changelog
 All notable changes to this project will be documented in  this file.
+1.2.1 - 2025-03-21
+*Update SCA API get_vulnerabilities_risks_by_scan_id include cvss4
 
 1.2.0 - 2025-03-17
 * use requests Session Object to reuse underlying TCP connection
