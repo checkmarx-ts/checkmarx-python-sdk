@@ -1,5 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
+
+1.2.2 - 2025-04-03
+* Update utilities/httpRequests.py
+
 1.2.1 - 2025-03-21
 *Update SCA API get_vulnerabilities_risks_by_scan_id include cvss4
 
