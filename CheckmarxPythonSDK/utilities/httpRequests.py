@@ -21,9 +21,9 @@ logger = logging.getLogger("CheckmarxPythonSDK")
 s = Session()
 retries = Retry(
     total=3,
-    backoff_factor=0.1,
-    status_forcelist=[502, 503, 504],
-    allowed_methods={'POST'},
+    backoff_factor=1,
+    status_forcelist=[500, 502, 503, 504],
+    allowed_methods={'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'},
 )
 s.mount('https://', HTTPAdapter(max_retries=retries))
 s.mount('http://', HTTPAdapter(max_retries=retries))
