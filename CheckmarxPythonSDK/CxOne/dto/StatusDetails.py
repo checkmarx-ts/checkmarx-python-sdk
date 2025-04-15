@@ -7,6 +7,8 @@ class StatusDetails(object):
             name:
             status:
             details:
+            start_date:
+            end_date:
         """
         self.name = name
         self.status = status
@@ -16,7 +18,7 @@ class StatusDetails(object):
 
     def __str__(self):
         return """StatusDetails(name={}, status={}, details={}, start_date={},end_date={})""".format(
-            self.name, self.status, self.details
+            self.name, self.status, self.details, self.start_date, self.end_date
         )
 
     def as_dict(self):

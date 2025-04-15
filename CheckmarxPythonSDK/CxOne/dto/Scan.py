@@ -22,10 +22,16 @@ class Scan(object):
             initiator (str): An identifier of the user who created the scan.
             tags (dict): An object representing the scan tags in a key-value format
             metadata (dict): A JSON object containing info about the scan settings.
+            source_type (str): The type of source of the scan.
+            source_origin (str): The origin of the scan.
+            project_name (str): The name of the project.
         """
-        self.id = scan_id
+        self.scan_id = scan_id
         self.status = status
-        self.statusDetails = status_details
+        self.status_details = status_details
+        self.position_in_queue = position_in_queue
+        self.project_id = project_id
+        self.branch = branch
         self.positionInQueue = position_in_queue
         self.projectId = project_id
         self.branch = branch
@@ -40,12 +46,12 @@ class Scan(object):
         self.metadata = metadata
         self.sourceType = source_type
         self.sourceOrigin = source_origin
-        self.project_name = self.get_project_name() or None
+        self.project_name = self.get_project_name() or ""
 
     def __str__(self):
         return """Scan(id={}, status={}, statusDetails={}, positionInQueue={}, projectId={}, branch={}, commitId={},
         commitTag={}, uploadUrl={}, createdAt={}, updatedAt={}, userAgent={}, initiator={}, tags={}, 
-        metadata={}, sourceType={},sourceOrigin={})""".format(
+        metadata={}, sourceType={},sourceOrigin={}, project_name={})""".format(
             self.id,
             self.status,
             self.statusDetails,
@@ -62,7 +68,8 @@ class Scan(object):
             self.tags,
             self.metadata,
             self.sourceType,
-            self.sourceOrigin
+            self.sourceOrigin,
+            self.project_name
         )
 
     def get_project_name(self):
