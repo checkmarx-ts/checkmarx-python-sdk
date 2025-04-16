@@ -172,6 +172,26 @@ def github_import(github_org: str, auth_code: str, repos_from_request: List[dict
                        scan_ast_project=scan_ast_project)
 
 
+def gitlab_import(gitlab_org: str, auth_code: str, repos_from_request: List[dict],
+                  is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                  scan_ast_project: bool = False):
+    relative_url = f"/api/repos-manager/scms/3/orgs/{gitlab_org}/repos"
+    return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
+                       is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled,
+                       create_ast_project=create_ast_project,
+                       scan_ast_project=scan_ast_project)
+
+
+def azure_import(azure_org: str, auth_code: str, repos_from_request: List[dict],
+                 is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                 scan_ast_project: bool = False):
+    relative_url = f"/api/repos-manager/scms/3/orgs/{azure_org}/repos"
+    return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
+                       is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled,
+                       create_ast_project=create_ast_project,
+                       scan_ast_project=scan_ast_project)
+
+
 def construct_bitbucket_repo_request(
         http_repo_url, ssh_repo_url, branches, is_repo_admin=True, origin="BITBUCKET",
         kics_scanner_enabled=True, sast_incremental_scan=True, sast_scanner_enabled=True,
