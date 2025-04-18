@@ -10,6 +10,8 @@ from .dto import (
     RichProject,
     SubsetScan,
 )
+from typing import List
+
 
 api_url = "/api/projects"
 
@@ -27,6 +29,25 @@ def __construct_project(project):
         tags=project.get("tags"),
         criticality=project.get("criticality"),
     )
+
+
+def get_all_projects() -> List[Project]:
+    projects = []
+    offset = 0
+    limit = 100
+    page = 1
+    project_collection = get_a_list_of_projects(offset=offset, limit=limit)
+    total_count = int(project_collection.totalCount)
+    projects.extend(project_collection.projects)
+    if total_count > limit:
+        while True:
+            offset = page * limit
+            if offset >= total_count:
+                break
+            project_collection = get_a_list_of_projects(offset=offset, limit=limit)
+            page += 1
+            projects.extend(project_collection.projects)
+    return projects
 
 
 def create_a_project(project_input):
