@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.2.3 - 2025-04-18
+* Add repoManagerAPI
+
 1.2.2 - 2025-04-03
 * Update utilities/httpRequests.py
 
