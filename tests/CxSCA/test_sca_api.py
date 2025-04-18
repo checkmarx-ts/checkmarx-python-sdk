@@ -327,17 +327,17 @@ def test_get_scan_reports():
 
 
 def test_get_aggregated_risks():
-    resp = get_aggregated_risks("Python", "urllib3", "1.20")
+    resp = get_aggregated_risks("Python", "llama-index", "0.10.28")
     assert resp is not None
 
 
 def test_get_artifact_license():
-    resp = get_artifact_license("Python", "urllib3", "1.20")
+    resp = get_artifact_license("Python", "llama-index", "0.10.28")
     assert resp is not None
 
 
 def test_get_artifact_info():
-    resp = get_artifact_info("Python", "urllib3", "1.20")
+    resp = get_artifact_info("Python", "llama-index", "0.10.28")
     assert resp is not None
 
 
