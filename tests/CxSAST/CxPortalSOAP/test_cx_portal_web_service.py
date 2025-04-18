@@ -48,7 +48,7 @@ def test_create_new_preset():
 
 def test_create_scan_report():
     response = create_scan_report(
-        scan_id=1000005,
+        scan_id=1000013,
         report_type='PDF',
         results_per_vulnerability_maximum=500,
         display_categories_all=False,
