@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.2.4 - 2025-04-18
+* Add get_all_projects
+
 1.2.3 - 2025-04-18
 * Add repoManagerAPI
 
