@@ -1,33 +1,71 @@
 import json
-from .httpRequests import get_request, post_request, put_request, delete_request
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
-from CheckmarxPythonSDK.CxOne import (
-    get_all_projects,
-
-)
-from CheckmarxPythonSDK import logger
-from .utilities import get_url_param, type_check, list_member_type_check
-from .dto import (
-    ProjectInput,
-    Project,
-    ProjectsCollection,
-    RichProject,
-    SubsetScan,
-)
+from .httpRequests import get_request, post_request
 from typing import List
+
+origin_dict = {
+    "GITHUB": 1,
+    "GITLAB": 2,
+    "AZURE": 3,
+    "BITBUCKET": 4,
+}
+
+
+def get_repos(origin: str, organization: str, auth_code: str, is_user: bool = False, page: int = 1):
+    assert origin in origin_dict.keys()
+    relative_url = f"/api/repos-manager/scms/{origin_dict.get(origin)}/orgs/{organization}/repos"
+    params = {
+        "authCode": auth_code,
+        "isUser": str(is_user).lower(),
+        "page": page,
+    }
+    return get_request(relative_url=relative_url, params=params)
+
+
+def get_repo_branches(origin: str, organization: str, repo: str, auth_code: str, page: int = 1):
+    assert origin in origin_dict.keys()
+    relative_url = f"/api/repos-manager/scms/{origin_dict.get(origin)}/orgs/{organization}/repos/{repo}/branches"
+    params = {
+        "authCode": auth_code,
+        "page": page,
+    }
+    return get_request(relative_url=relative_url, params=params)
+
+def github_import(github_org: str, auth_code: str, repos_from_request: List[dict],
+                  is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                  scan_ast_project: bool = False):
+    """
+
+    Args:
+        github_org (str):
+        auth_code (str):
+        repos_from_request (List[dict]): the dict has url and default_branch keys
+        is_user (bool):
+        is_org_webhook_enabled (bool):
+        create_ast_project (bool):
+        scan_ast_project (bool):
+
+    Returns:
+
+    """
+    relative_url = f"/api/repos-manager/scms/1/orgs/{github_org}/asyncImport"
+    return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
+                       is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled,
+                       create_ast_project=create_ast_project,
+                       scan_ast_project=scan_ast_project)
 
 
 def construct_repo_request(
-        http_repo_url, ssh_repo_url, branches: List[dict] = None, is_repo_admin=True, origin="GITHUB",
+        http_repo_url, ssh_repo_url, id=None, branches: List[dict] = None, is_repo_admin=True, origin="GITHUB",
         kics_scanner_enabled=True, sast_incremental_scan=True, sast_scanner_enabled=True,
         api_sec_scanner_enabled=True, sca_scanner_enabled=True, webhook_enabled=True, pre_decoration_enabled=True,
         sca_auto_pr_enabled=True, container_scanner_enabled=True, ossf_score_card_scanner_enabled=True,
-        secrets_detection_scanner_enabled=True):
+        secrets_detection_scanner_enabled=True, name=None, project_id=None):
     """
 
     Args:
         http_repo_url:
         ssh_repo_url:
+        id:
         branches: example: [
                 {
                     "name": "master",
@@ -47,16 +85,20 @@ def construct_repo_request(
         container_scanner_enabled:
         ossf_score_card_scanner_enabled:
         secrets_detection_scanner_enabled:
+        name:
+        project_id:
 
     Returns:
 
     """
     http_repo_url = http_repo_url.replace(".git", "")
     org_repo_name = "/".join(http_repo_url.split("/")[3:])
+    if origin in ["AZURE", "BITBUCKET"]:
+        org_repo_name = "/".join(org_repo_name.split("/")[0:2])
     repo_name = org_repo_name.split("/")[1]
-    return {
-        "isRepoAdmin": is_repo_admin,
+    data = {
         "id": repo_name,
+        "isRepoAdmin": is_repo_admin,
         "name": org_repo_name,
         "origin": origin,
         "url": http_repo_url,
@@ -75,6 +117,14 @@ def construct_repo_request(
         "ossfSecoreCardScannerEnabled": ossf_score_card_scanner_enabled,
         "secretsDerectionScannerEnabled": secrets_detection_scanner_enabled
     }
+    if origin in ['GITLAB', "BITBUCKET"]:
+        data.update({"id": id})
+    if origin in ["AZURE"]:
+        data.update({
+            "id": id,
+            "projectId": project_id,
+        })
+    return data
 
 
 def construct_github_repo_request(
@@ -96,7 +146,7 @@ def construct_github_repo_request(
 
 
 def repo_import(relative_url: str, auth_code: str, repos_from_request: List[dict],
-                is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                is_user: bool = False, is_org_webhook_enabled: bool = False, create_ast_project: bool = True,
                 scan_ast_project: bool = False):
     """
 
@@ -148,34 +198,10 @@ def repo_import(relative_url: str, auth_code: str, repos_from_request: List[dict
     return response
 
 
-def github_import(github_org: str, auth_code: str, repos_from_request: List[dict],
-                  is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
-                  scan_ast_project: bool = False):
-    """
-
-    Args:
-        github_org (str):
-        auth_code (str):
-        repos_from_request (List[dict]): the dict has url and default_branch keys
-        is_user (bool):
-        is_org_webhook_enabled (bool):
-        create_ast_project (bool):
-        scan_ast_project (bool):
-
-    Returns:
-
-    """
-    relative_url = f"/api/repos-manager/scms/1/orgs/{github_org}/asyncImport"
-    return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
-                       is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled,
-                       create_ast_project=create_ast_project,
-                       scan_ast_project=scan_ast_project)
-
-
 def gitlab_import(gitlab_org: str, auth_code: str, repos_from_request: List[dict],
-                  is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                  is_user: bool = False, is_org_webhook_enabled: bool = False, create_ast_project: bool = True,
                   scan_ast_project: bool = False):
-    relative_url = f"/api/repos-manager/scms/3/orgs/{gitlab_org}/repos"
+    relative_url = f"/api/repos-manager/scms/2/orgs/{gitlab_org}/repos"
     return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
                        is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled,
                        create_ast_project=create_ast_project,
@@ -183,7 +209,7 @@ def gitlab_import(gitlab_org: str, auth_code: str, repos_from_request: List[dict
 
 
 def azure_import(azure_org: str, auth_code: str, repos_from_request: List[dict],
-                 is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                 is_user: bool = False, is_org_webhook_enabled: bool = False, create_ast_project: bool = True,
                  scan_ast_project: bool = False):
     relative_url = f"/api/repos-manager/scms/3/orgs/{azure_org}/repos"
     return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
@@ -237,7 +263,7 @@ def construct_bitbucket_repo_request(
 
 
 def bitbucket_import(bitbucket_org: str, auth_code: str, repos_from_request: List[dict],
-                     is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
+                     is_user: bool = False, is_org_webhook_enabled: bool = False, create_ast_project: bool = True,
                      scan_ast_project: bool = False):
     relative_url = f"api/repos-manager/scms/4/orgs/{bitbucket_org}/repos"
     return repo_import(relative_url=relative_url, auth_code=auth_code, repos_from_request=repos_from_request,
