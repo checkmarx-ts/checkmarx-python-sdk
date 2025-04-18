@@ -89,6 +89,7 @@ def create_new_preset(query_ids, name):
 
 
 def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None, results_severity_all=True,
+                       results_severity_criticl=True,
                        results_severity_high=True, results_severity_medium=True, results_severity_low=True,
                        results_severity_info=False, results_state_all=True, results_state_ids=None,
                        display_categories_all=True, display_categories_ids=None, results_assigned_to_all=True,
@@ -162,7 +163,9 @@ def create_scan_report(scan_id, report_type, queries_all=True, queries_ids=None,
         queries = factory.CxWSQueriesFilter(All=queries_all, IDs=query_ids)
 
         results_severity = factory.CxWSResultsSeverityFilter(
-            All=results_severity_all, High=results_severity_high, Medium=results_severity_medium,
+            All=results_severity_all,
+            Critical=results_severity_criticl,
+            High=results_severity_high, Medium=results_severity_medium,
             Low=results_severity_low, Info=results_severity_info
         )
 
