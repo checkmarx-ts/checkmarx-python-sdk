@@ -73,6 +73,7 @@ from .kicsResultsAPI import (
 from .policyInformationPointAPI import get_groups
 
 from .projectsAPI import (
+    get_all_projects,
     create_a_project,
     get_a_list_of_projects,
     get_project_id_by_name,
@@ -91,6 +92,20 @@ from .projectsOverviewAPI import (
 
 from .queryEditorAPI import (
     create_new_audit_session,
+)
+
+from .repoManagerAPI import (
+    get_repos,
+    get_repo_branches,
+    construct_repo_request,
+    construct_github_repo_request,
+    repo_import,
+    github_import,
+    gitlab_import,
+    azure_import,
+    construct_bitbucket_repo_request,
+    bitbucket_import,
+    get_job_status,
 )
 
 from .reportAPI import (

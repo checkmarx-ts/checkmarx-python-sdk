@@ -70,13 +70,15 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
             logger.error("Connection error. Retrying...")
 
 
-def head(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def head(url, params=None, files=None, data=None, json=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
         url (str):
         files :
         data :
+        json (dict):
+        params (dict):
         auth :
         timeout (float, tuple, optional):
         headers (dict):
@@ -87,17 +89,19 @@ def head(url, files=None, data=None, auth=None, timeout=None, headers=None, veri
     Returns:
 
     """
-    return request("HEAD", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
+    return request("HEAD", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout, headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def get(url, files=None, data=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def get(url, params=None, files=None, data=None, json=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
         url (str):
         files :
         data :
+        json:
+        params (dict):
         auth :
         timeout (float, tuple, optional):
         headers (dict):
@@ -108,16 +112,18 @@ def get(url, files=None, data=None, auth=None, timeout=None, headers=None, verif
     Returns:
 
     """
-    return request("GET", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
+    return request("GET", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout, headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def post(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def post(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
         url (str):
         data (dict):
+        json:
+        params (dict):
         files (dict):
         auth :
         timeout (float, tuple, optional):
@@ -128,16 +134,18 @@ def post(url, data, files=None, auth=None, timeout=None, headers=None, verify=Fa
 
     Returns:
     """
-    return request("POST", url, data=data, files=files, auth=auth, timeout=timeout, headers=headers,
+    return request("POST", url, params=params, data=data, json=json, files=files, auth=auth, timeout=timeout, headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def put(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def put(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
         url (str):
         data (dict, BinaryIO, StringIO):
+        json:
+        params (dict):
         files (dict):
         auth :
         timeout (float, tuple, optional):
@@ -148,16 +156,18 @@ def put(url, data, files=None, auth=None, timeout=None, headers=None, verify=Fal
 
     Returns:
     """
-    return request("PUT", url, data=data, files=files, auth=auth, timeout=timeout, headers=headers,
+    return request("PUT", url, params=params, data=data, json=json, files=files, auth=auth, timeout=timeout, headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def patch(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def patch(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
         url (str):
         data (dict):
+        json:
+        params (dict):
         files :
         auth :
         timeout (float, tuple, optional):
@@ -168,16 +178,18 @@ def patch(url, data, files=None, auth=None, timeout=None, headers=None, verify=F
 
     Returns:
     """
-    return request("PATCH", url, files=files, auth=auth, data=data, timeout=timeout, headers=headers,
+    return request("PATCH", url, params=params, files=files, auth=auth, data=data, json=json, timeout=timeout, headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def delete(url, data=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def delete(url, params=None, data=None, json=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
     """
 
     Args:
         url (str):
+        params (dict):
         data:
+        json:
         files:
         auth:
         timeout (float, tuple, optional):
@@ -189,7 +201,7 @@ def delete(url, data=None, files=None, auth=None, timeout=None, headers=None, ve
     Returns:
 
     """
-    return request("DELETE", url, files=files, data=data, auth=auth, timeout=timeout, headers=headers,
+    return request("DELETE", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout, headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
@@ -260,7 +272,7 @@ auth_header = {
 
 
 def retry_when_unauthorized(function_to_send_request, data, get_data_from_config, relative_url, files=None, auth=None,
-                            headers=(), is_iam=False):
+                            headers=(), json=None, params=None, is_iam=False):
     server_url, token_url, timeout, verify, cert, token_req_data, proxies = get_data_from_config()
     url = server_url + relative_url
     # is_iam is used for Access Control API
@@ -277,9 +289,10 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
         temp_header.update(auth_header)
     logger.debug(
         "first http request:"
-        "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, "
+        "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, json: {json}, params: {params}"
         "origin_headers: {origin_headers}, verify: {verify}, cert: {cert}, proxies: {proxies}".format(
             method=function_to_send_request.__name__, url=url, data=data, auth=auth, timeout=timeout,
+            json=json, params=params,
             origin_headers=temp_header, verify=verify, cert=cert, proxies=proxies
         )
     )
@@ -290,18 +303,23 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
         logger.debug(
             "http response status code is UNAUTHORIZED !\n."
             "renew token, and send second http request:"
-            "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, "
+            "method: {method}, url: {url}, data: {data}, auth: {auth}, timeout: {timeout}, json: {json}, "
+            "params: {params}"
             "new_auth_header: {new_auth_header}, verify: {verify}, cert: {cert}".format(
                 method=function_to_send_request.__name__, url=url, data=data, auth=auth, timeout=timeout,
+                json=json, params=params,
                 new_auth_header=temp_header, verify=verify,
                 cert=cert, proxies=proxies,
             )
         )
         return function_to_send_request(url=url, data=data, auth=auth, timeout=timeout, headers=temp_header,
-                                            files=files, verify=verify, cert=cert, proxies=proxies)
+                                        files=files, verify=verify, cert=cert, proxies=proxies, json=json,
+                                        params=params)
+
     try:
         response = function_to_send_request(url=url, data=data, auth=auth, timeout=timeout, headers=temp_header,
-                                            files=files, verify=verify, cert=cert, proxies=proxies)
+                                            files=files, verify=verify, cert=cert, proxies=proxies, json=json,
+                                            params=params)
     except TransportServerError:
         return update_token_and_try_again()
     if hasattr(response, 'status_code') and UNAUTHORIZED == response.status_code:
@@ -311,7 +329,7 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
 
 def build_request_funcs(get_data_from_config):
 
-    def head_request(relative_url, auth=None, headers=(), is_iam=False):
+    def head_request(relative_url, auth=None, headers=(), json=None, params=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=head,
             data=None,
@@ -319,10 +337,12 @@ def build_request_funcs(get_data_from_config):
             relative_url=relative_url,
             auth=auth,
             headers=headers,
+            json=json,
+            params=params,
             is_iam=is_iam,
         )
 
-    def get_request(relative_url, auth=None, headers=(), is_iam=False):
+    def get_request(relative_url, auth=None, headers=(), params=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=get,
             data=None,
@@ -330,10 +350,11 @@ def build_request_funcs(get_data_from_config):
             relative_url=relative_url,
             auth=auth,
             headers=headers,
+            params=params,
             is_iam=is_iam,
         )
 
-    def post_request(relative_url, data, files=None, auth=None, headers=(), is_iam=False):
+    def post_request(relative_url, data, files=None, auth=None, headers=(), params=None, json=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=post,
             data=data,
@@ -342,10 +363,12 @@ def build_request_funcs(get_data_from_config):
             files=files,
             auth=auth,
             headers=headers,
+            params=params,
+            json=json,
             is_iam=is_iam,
         )
 
-    def put_request(relative_url, data, files=None, auth=None, headers=(), is_iam=False):
+    def put_request(relative_url, data, files=None, auth=None, headers=(), params=None, json=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=put,
             data=data,
@@ -354,10 +377,12 @@ def build_request_funcs(get_data_from_config):
             files=files,
             auth=auth,
             headers=headers,
+            params=params,
+            json=json,
             is_iam=is_iam,
         )
 
-    def patch_request(relative_url, data, auth=None, headers=(), is_iam=False):
+    def patch_request(relative_url, data, auth=None, headers=(), params=None, json=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=patch,
             data=data,
@@ -365,10 +390,12 @@ def build_request_funcs(get_data_from_config):
             relative_url=relative_url,
             auth=auth,
             headers=headers,
+            params=params,
+            json=json,
             is_iam=is_iam,
         )
 
-    def delete_request(relative_url, data=None, auth=None, headers=(), is_iam=False):
+    def delete_request(relative_url, data=None, auth=None, headers=(), params=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=delete,
             data=data,
@@ -376,6 +403,7 @@ def build_request_funcs(get_data_from_config):
             relative_url=relative_url,
             auth=auth,
             headers=headers,
+            params=params,
             is_iam=is_iam,
         )
 
