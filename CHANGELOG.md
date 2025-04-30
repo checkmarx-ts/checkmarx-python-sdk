@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.2.5 - 2025-04-30
+* Update SCA API get_direct_third_party_packages_by_scan_id get_transitive_third_party_packages_by_scan_id
+
 1.2.4 - 2025-04-18
 * Add get_all_projects
 
