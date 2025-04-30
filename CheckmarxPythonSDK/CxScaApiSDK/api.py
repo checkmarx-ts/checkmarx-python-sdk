@@ -2069,7 +2069,8 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
-    def get_direct_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+    def get_direct_third_party_packages_by_scan_id(
+            self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0, is_private_dependency=False):
         """
             This is a GraphQL API
         Args:
@@ -2077,14 +2078,20 @@ class Sca(object):
             is_exploitable_path_enabled (bool):
             take (int):
             skip (int):
+            is_private_dependency (bool):
 
         Returns:
 
         """
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        private_dependency_operator = "neq"
+        if is_private_dependency:
+            private_dependency_operator = "eq"
         query = ("query { "
                  "packagesRows ("
-                 "where: {relation:{or:[{eq:\"Direct\"},{eq:\"Mixed\"}]},isPrivateDependency:{neq:true},"
+                 "where: {relation:{or:[{eq:\"Direct\"},{eq:\"Mixed\"}]},isPrivateDependency:{"
+                 f"{private_dependency_operator}:true"
+                 "},"
                  "isSaasProvider:{eq:false}}, "
                  f"take: {take}, "
                  f"skip: {skip}, "
@@ -2105,8 +2112,8 @@ class Sca(object):
         response = self.gql_request(relative_url=self.gql_relative_url, data=query)
         return response
 
-    def get_transitive_third_party_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10,
-                                                       skip=0):
+    def get_transitive_third_party_packages_by_scan_id(
+            self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0, is_private_dependency=False):
         """
             This is a GraphQL API
         Args:
@@ -2114,14 +2121,20 @@ class Sca(object):
             is_exploitable_path_enabled (bool):
             take (int):
             skip (int):
+            is_private_dependency (bool):
 
         Returns:
 
         """
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        private_dependency_operator = "neq"
+        if is_private_dependency:
+            private_dependency_operator = "eq"
         query = ("query { "
                  "packagesRows ("
-                 "where: {relation:{or:[{eq:\"Transitive\"},{eq:\"Mixed\"}]},isPrivateDependency:{neq:true}, "
+                 "where: {relation:{or:[{eq:\"Transitive\"},{eq:\"Mixed\"}]},isPrivateDependency:{"
+                 f"{private_dependency_operator}:true"
+                 "}, "
                  "isSaasProvider:{eq:false}}, "
                  f"take: {take}, "
                  f"skip: {skip}, "
