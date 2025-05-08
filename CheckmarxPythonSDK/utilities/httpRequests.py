@@ -205,7 +205,8 @@ def delete(url, params=None, data=None, json=None, files=None, auth=None, timeou
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def gql_(url, data, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def gql_(url, data, files=None, auth=None, timeout=None, headers=None, params=None,
+         json=None, verify=False, cert=None, proxies=None):
     # Select your transport with a defined url endpoint
     transport = RequestsHTTPTransport(url=url, auth=auth, timeout=timeout, headers=headers, verify=verify, retries=3,
                                       cert=cert, proxies=proxies)
