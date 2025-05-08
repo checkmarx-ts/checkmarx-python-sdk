@@ -30,6 +30,7 @@ def get_repo_branches(origin: str, organization: str, repo: str, auth_code: str,
     }
     return get_request(relative_url=relative_url, params=params)
 
+
 def github_import(github_org: str, auth_code: str, repos_from_request: List[dict],
                   is_user: bool = False, is_org_webhook_enabled: bool = True, create_ast_project: bool = True,
                   scan_ast_project: bool = False):
