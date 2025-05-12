@@ -24,17 +24,15 @@ def get_list_of_the_existing_query_repos():
     ]
 
 
-def get_sast_queries_presets(project_id=None):
+def get_sast_queries_presets():
     """
 
     Args:
-        project_id (str):
 
     Returns:
         list of Preset
     """
     relative_url = query_url + "/presets"
-    relative_url += get_url_param("project-id", project_id)
     response = get_request(relative_url=relative_url)
     presets = response.json()
     return [
