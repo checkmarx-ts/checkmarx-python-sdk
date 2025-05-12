@@ -65,7 +65,7 @@ def get_query_source(level, path):
 
     Args:
         level (str): corp or projectId
-        path (str): queries%2FCommon%2FCommon_High_Risk%2FSQL_Injection%2FSQL_Injectio.cs
+        path (str): queries/Common/Common_High_Risk/SQL_Injection/SQL_Injectio.cs
 
     Returns:
 
@@ -73,7 +73,7 @@ def get_query_source(level, path):
     type_check(level, str)
     type_check(path, str)
 
-    relative_url = query_url + "/query/{level}/{path}".format(level=level, path=path)
+    relative_url = query_url + "/queries/{level}/{path}".format(level=level, path=path)
     response = get_request(relative_url=relative_url)
     response = response.json()
     return Query(
