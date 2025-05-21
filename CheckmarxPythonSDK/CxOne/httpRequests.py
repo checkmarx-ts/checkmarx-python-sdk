@@ -38,7 +38,6 @@ def get_request(relative_url, params=None, headers=None, is_iam=False):
     Args:
         relative_url (str):
         params (dict):
-        json (dict):
         headers (dict):
         is_iam (bool): True if the endpoint is for Identity And Management
 
@@ -58,7 +57,7 @@ def post_request(relative_url, data=None, params=None, json=None, files=None, he
         relative_url (str):
         data (str):
         params (dict):
-        json (dict):
+        json (object):
         headers (dict):
         files:
         is_iam (bool): True if the endpoint is for Identity And Management
@@ -78,7 +77,7 @@ def put_request(relative_url, data=None, params=None, json=None, files=None, hea
         relative_url (str):
         data (str):
         params (dict):
-        json (dict):
+        json (object):
         headers (dict):
         files:
         is_iam (bool): True if the endpoint is for Identity And Management
@@ -98,7 +97,7 @@ def patch_request(relative_url, data=None, params=None, json=None, headers=None,
         relative_url (str):
         data (str):
         params (dict):
-        json (dict):
+        json (object):
         headers (dict):
         is_iam (bool): True if the endpoint is for Identity And Management
 
@@ -117,7 +116,7 @@ def delete_request(relative_url, data=None, params=None, json=None, headers=None
         relative_url (str):
         data (str):
         params (dict):
-        json (dict):
+        json (object):
         headers (dict):
         is_iam (bool): True if the endpoint is for Identity And Management
 
@@ -135,7 +134,7 @@ def head_request(relative_url, params=None, headers=None, json=None, is_iam=Fals
     Args:
         relative_url (str):
         params (dict):
-        json (dict);
+        json (object);
         headers (dict):
         is_iam (bool): True if the endpoint is for Identity And Management
 

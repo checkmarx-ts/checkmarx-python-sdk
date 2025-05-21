@@ -1,394 +1,386 @@
 # encoding: utf-8
 import json
 from .httpRequests import get_request, post_request, patch_request, put_request, delete_request
-from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT
+from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
 from .utilities import get_url_param, type_check, list_member_type_check
+from typing import List
 from .dto import (
     ProjectResponseModel,
     SeverityCounter,
     TotalCounters,
     EngineData,
     ProjectCounter,
+    ResultsSummaryTree,
+    ResultsResponse,
+    ResultResponse,
+    DebugMessageResponse,
+    DebugMessage,
+    AsyncRequestResponse,
+    SourcesTree,
+    QueriesTree,
+    QueryRequest,
+    Error,
+    SessionRequest,
+    SessionResponse,
+    QueryResponse,
+    AuditQuery,
+    RequestStatus,
+    CompilationResponse,
+    ExecutionResponse,
+    QueryBuilderMessage,
+    QueryBuilderPrompt,
 )
 
-api_url = "/api/query-editor"
+server_url = "/api/query-editor"
+paths_func_mapping = {
+    'create_new_audit_session': '/sessions',
+    'heath_check_to_ensure_audit_session_is_kept_alive': '/sessions/{sessionId}',
+    'delete_audit_session_with_specific_id': '/sessions/{sessionId}',
+    'get_the_logs_associated_to_the_audit_session': '/sessions/{sessionId}/logs',
+    'scan_the_audit_session_sources': '/sessions/{sessionId}/sources/scan',
+    'create/override_query': '/sessions/{sessionId}/queries',
+    'get_all_queries': '/sessions/{sessionId}/queries',
+    'get_data_of_a_specified_query': '/sessions/{sessionId}/queries/{editorQueryId}',
+    'delete_a_specified_custom_or_overridden_query': '/sessions/{sessionId}/queries/{editorQueryId}',
+    'update_specified_query_metadata': '/sessions/{sessionId}/queries/{editorQueryId}/metadata',
+    'update_multiple_query_sources': '/sessions/{sessionId}/queries/source',
+    'validate_the_queries_provided': '/sessions/{sessionId}/queries/validate',
+    'execute_the_queries_on_the_audit_session_scanned_project': '/sessions/{sessionId}/queries/run',
+    'check_the_status_of_a_specified_request': '/sessions/{sessionId}/requests/{requestId}',
+    'cancel_the_specified_request_execution': '/sessions/{sessionId}/requests/{requestId}/cancel',
+    'get_all_results_data_summary_tree_for_all_the_session_runs': '/sessions/{sessionId}/results',
+    'get_all_vulnerabilities_related_to_a_given_result': '/sessions/{sessionId}/results/{resultId}/vulnerabilities',
+    'get_specified_vulnerability_data_such_as_attack_vector': '/sessions/{sessionId}/results/{resultId}/vulnerabilities'
+                                                              '/{vulnerabilityId}',
+    'get_specified_result_debug_messages': '/sessions/{sessionId}/results/{resultId}/debug-messages',
+    'get_query_builder_history': '/sessions/{sessionId}/gpt',
+    'delete_query_builder_gpt_history': '/sessions/{sessionId}/gpt',
+    'process_query_builder_gpt_request': '/sessions/{sessionId}/gpt',
+}
 
 
-def create_new_audit_session(project_id, scan_id, upload_url, timeout=30, scanner="sast"):
-    """
-
-    Args:
-        project_id (str):
-        scan_id (str):
-        scanner (str):
-        timeout (int):
-        upload_url (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(project_id, str)
-    type_check(scan_id, str)
-    type_check(scanner, str)
-    type_check(timeout, int)
-    type_check(upload_url, str)
-
-    relative_url = api_url + "/sessions"
-    data = json.dumps(
-        {
-            "projectId": project_id,
-            "scanId": scan_id,
-            "scanner": scanner,
-            "timeout": timeout,
-            "uploadUrl": upload_url,
-        }
+def create_new_audit_session(request_body: SessionRequest) -> SessionResponse:
+    relative_url = server_url + paths_func_mapping.get("create_new_audit_session")
+    params = {}
+    response = post_request(relative_url=relative_url, params=params, json=request_body.to_dict())
+    response = response.json()
+    return SessionResponse(
+        id=response.get("id"),
+        data=response.get("data"),
     )
-    response = post_request(relative_url=relative_url, data=data)
-    if response.status_code == OK:
-        result = response.json()
-    return result
-    #     result = {
-    #         "id": "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d",
-    #         "data": {
-    #             "requestId": "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d",
-    #             "status": "Status_ALLOCATED",
-    #             "queryFilters": [
-    #                 "Java",
-    #                 "Javascript",
-    #                 "Common"
-    #             ],
-    #             "queryBuilder": True,
-    #             "applicationAssociation": False,
-    #             "projectName": "JavaVulnerabilities_Project",
-    #             "permissions": {
-    #                 "tenant": {
-    #                     "view": True,
-    #                     "update": True,
-    #                     "create": True,
-    #                     "delete": True
-    #                 },
-    #                 "application": {
-    #                     "view": False,
-    #                     "update": False,
-    #                     "create": False,
-    #                     "delete": False
-    #                 },
-    #                 "project": {
-    #                     "view": True,
-    #                     "update": True,
-    #                     "create": True,
-    #                     "delete": True
-    #                 }
-    #             }
-    #         }
-    #     }
-    # return result
 
 
-def health_check_audit_session(session_id):
-    """
-    Heath check to ensure Audit session is kept alive
-    Args:
-        session_id (str):
-
-    Returns:
-
-    """
-    is_successful = False
-    type_check(session_id, str)
-
-    relative_url = api_url + "/sessions/{sessionId}".format(sessionId=session_id)
-    response = patch_request(relative_url=relative_url, data="")
-    if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
-
-
-def delete_audit_session(session_id):
-    """
-    Delete Audit session with specific id
-    Args:
-        session_id (str):
-
-    Returns:
-
-    """
-    is_successful = False
-    type_check(session_id, str)
-
-    relative_url = api_url + "/sessions/{sessionId}".format(sessionId=session_id)
-    response = delete_request(relative_url=relative_url)
-    if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
-
-
-def get_audit_session_log(session_id):
-    """
-
-    Args:
-        session_id (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-
-    relative_url = api_url + "/sessions/{sessionId}/logs".format(sessionId=session_id)
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
-        result = response.content
-    return result
-
-
-def scan_audit_session_sources(session_id):
-    """
-    Scan the Audit Session sources
-    Args:
-        session_id (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-    relative_url = api_url + "/sessions/{sessionId}/sources/scan".format(sessionId=session_id)
-    response = post_request(relative_url=relative_url, data="")
-    if response.status_code == NO_CONTENT:
-        result = response.json().get("id")
-    return result
-
-
-def create_or_override_query(session_id, query_name, language, group, severity, executable, preset, cwe, description):
-    """
-    create/override query
-    Args:
-        session_id (str):
-        query_name (str):
-        language (str):
-        group (str):
-        severity (str):
-        executable (bool):
-        preset (list of str):
-        cwe (int):
-        description (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-    type_check(query_name, str)
-    type_check(language, str)
-    type_check(group, str)
-    type_check(severity, str)
-    type_check(executable, bool)
-    type_check(preset, list)
-    list_member_type_check(preset, str)
-    type_check(cwe, int)
-    type_check(description, str)
-
-    relative_url = api_url + "/sessions/{sessionId}/queries".format(sessionId=session_id)
-    data = json.dumps(
-        {
-            "name": query_name,
-            "language": language,
-            "group": group,
-            "severity": severity,
-            "executable": True,
-            "presets": preset,
-            "cwe": cwe,
-            "description": description,
-        }
+def heath_check_to_ensure_audit_session_is_kept_alive(session_id: str = None, request_body=None) -> bool:
+    relative_url = server_url + paths_func_mapping.get("heath_check_to_ensure_audit_session_is_kept_alive").format(
+        session_id
     )
-    response = post_request(relative_url=relative_url, data=data)
-    if response.status_code == OK:
-        result = response.json().get("id")
-    return result
+    params = {}
+    response = patch_request(relative_url=relative_url, params=params, json=request_body)
+    return response.status_code == NO_CONTENT
 
 
-def get_all_queries(session_id):
-    """
-
-    Args:
-        session_id (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-    relative_url = api_url + "/sessions/{sessionId}/queries".format(sessionId=session_id)
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
-        result = response.json()
-        #
-        # [
-        #     {
-        #         "isLeaf": false,
-        #         "title": "JavaScript",
-        #         "key": "javascript",
-        #         "children": [
-        #             {
-        #                 "isLeaf": false,
-        #                 "title": "Tenant",
-        #                 "key": "tenant",
-        #                 "children": [
-        #                     {
-        #                         "isLeaf": false,
-        #                         "title": "Common_Best_Coding_Practice",
-        #                         "key": "Common_Best_Coding_Practice",
-        #                         "children": [
-        #                             {
-        #                                 "isLeaf": true,
-        #                                 "title": "Assigning_instead_of_Comparing",
-        #                                 "key": "IFZXG2LHNZUW4Z27NFXHG5DFMFSF633GL5BW63LQMFZGS3TH",
-        #                                 "children": []
-        #                             },
-        #                             {
-        #                                 "isLeaf": true,
-        #                                 "title": "Comparing_instead_of_Assigning",
-        #                                 "key": "INXW24DBOJUW4Z27NFXHG5DFMFSF633GL5AXG43JM5XGS3TH",
-        #                                 "children": []
-        #                             },
-        #                             {
-        #                                 "isLeaf": true,
-        #                                 "title": "Declaration_Of_Catch_For_Generic_Exception",
-        #                                 "key": "IRSWG3DBOJQXI2LPNZPU6ZS7INQXIY3IL5DG64S7I5SW4ZLSNFRV6RLYMNSXA5DJN5XA",
-        #                                 "children": []
-        #                             },
-        #                             {
-        #                                 "isLeaf": true,
-        #                                 "title": "Detection_Of_Error_Condition_Without_Action",
-        #                                 "key": "IRSXIZLDORUW63S7J5TF6RLSOJXXEX2DN5XGI2LUNFXW4X2XNF2GQ33VORPUCY3UNFXW4",
-        #                                 "children": []
-        #                             },
-        #                             {
-        #                                 "isLeaf": true,
-        #                                 "title": "Hardcoded_Absolute_Path",
-        #                                 "key": "JBQXEZDDN5SGKZC7IFRHG33MOV2GKX2QMF2GQ",
-        #                                 "children": []
-        #                             },
-        #                             {
-        #                                 "isLeaf": true,
-        #                                 "title": "Insufficient_Logging_Of_Database_Actions",
-        #                                 "key": "JFXHG5LGMZUWG2LFNZ2F6TDPM5TWS3THL5HWMX2EMF2GCYTBONSV6QLDORUW63TT",
-        #                                 "children": []
-        #                             }
-        #                         ]
-        #                     }
-        #                 ]
-        #             }
-        #         ]
-        #     }
-        # ]
-    return result
+def delete_audit_session_with_specific_id(session_id: str = None) -> bool:
+    relative_url = server_url + paths_func_mapping.get("delete_audit_session_with_specific_id").format(session_id)
+    params = {}
+    response = delete_request(relative_url=relative_url, params=params)
+    return response.status_code == NO_CONTENT
 
 
-def get_data_of_specific_query(session_id, editor_query_id, include_metadata=False, include_source=False):
-    """
-
-    Args:
-        session_id (str):
-        editor_query_id (str):
-        include_metadata (bool):  Parameter to define if the metadata object should be included in the response.
-        include_source (bool): Parameter to define if the source of the query object should be included in the response.
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-    type_check(editor_query_id, str)
-    type_check(include_metadata, bool)
-    type_check(include_source, bool)
-
-    relative_url = api_url + ("/sessions/{sessionId}/queries/{editorQueryId}"
-                              "?includeMetadata={includeMetadata}&includeSource={includeSource}").format(
-        sessionId=session_id, editorQueryId=editor_query_id, includeMetadata=include_metadata,
-        includeSource=include_source
+def get_the_logs_associated_to_the_audit_session(session_id: str = None) -> str:
+    relative_url = server_url + paths_func_mapping.get("get_the_logs_associated_to_the_audit_session").format(
+        session_id
     )
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
-        result = response.json()
-        # result = {
-        #     "id": "2syswoof68vqZkernrZQJhjb9QwRZ4VxooQaVsFxbf3q0zQnGvjiVDev200INh08i3SircSio8adEE4G9niVbPZeA",
-        #     "name": "SQL_Injection",
-        #     "level": "project",
-        #     "path": "CSharp/CSharp_High_Risk/SQL_Injection",
-        #     "source": "result = Find_SQL_Injection();",
-        #     "metadata": {
-        #         "group": "CSharp_Low_Visibility",
-        #         "severity": "high",
-        #         "language": "CSharp",
-        #         "cwe": 566,
-        #         "description": 879,
-        #         "executable": true
-        #     }
-        # }
-    return result
+    params = {}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return response
 
 
-def delete_a_specific_query(session_id, editor_query_id):
-    """
-
-    Args:
-        session_id (str):
-        editor_query_id (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-    type_check(editor_query_id, str)
-    relative_url = api_url + "/sessions/{sessionId}/queries/{editorQueryId}".format(
-        sessionId=session_id, editorQueryId=editor_query_id
+def scan_the_audit_session_sources(session_id: str = None, request_body=None) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("scan_the_audit_session_sources").format(session_id)
+    params = {}
+    response = post_request(relative_url=relative_url, params=params, json=request_body)
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
     )
-    response = delete_request(relative_url=relative_url)
-    if response.status_code == OK:
-        result = response.json().get("id")
-    return result
 
 
-def update_specified_query_metadata(session_id, editor_query_id, severity):
-    """
-
-    Args:
-        session_id (str):
-        editor_query_id (str):
-        severity (str): "Critical"
-
-    Returns:
-
-    """
-    result = None
-    type_check(session_id, str)
-    type_check(editor_query_id, str)
-    relative_url = api_url + "/sessions/{sessionId}/queries/{editorQueryId}/metadata".format(
-        sessionId=session_id, editorQueryId=editor_query_id
+def create_or_override_query(request_body: QueryRequest, session_id: str = None) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("create_or_override_query").format(session_id)
+    params = {}
+    response = post_request(relative_url=relative_url, params=params, json=request_body)
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
     )
-    data = json.dumps(
-        {
-            "severity": severity
-        }
+
+
+def get_all_queries(session_id: str = None, level: str = None, ids: List[str] = None, filters: List[str] = None) \
+        -> List[QueriesTree]:
+    relative_url = server_url + paths_func_mapping.get("get_all_queries").format(session_id)
+    params = {"level": level, "ids": ids, "filters": filters}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return [
+        QueriesTree(
+            is_leaf=item.get("isLeaf"),
+            title=item.get("title"),
+            key=item.get("key"),
+            children=item.get("children"),
+        ) for item in response
+    ]
+
+
+def get_data_of_a_specified_query(session_id: str = None, editor_query_id: str = None, include_metadata: bool = None,
+                                  include_source: bool = None) -> QueryResponse:
+    relative_url = server_url + paths_func_mapping.get("get_data_of_a_specified_query").format(session_id)
+    params = {"editorQueryId": editor_query_id, "includeMetadata": include_metadata, "includeSource": include_source}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return QueryResponse(
+        id=response.get("id"),
+        name=response.get("name"),
+        level=response.get("level"),
+        path=response.get("path"),
+        source=response.get("source"),
+        metadata=response.get("metadata"),
     )
-    response = put_request(relative_url=relative_url, data=data)
-    if response.status_code == OK:
-        result = response.json().get("id")
-    return result
 
 
-def update_multiple_query_sources(session_id, audit_queries):
-    """
 
-    Args:
-        session_id (str):
-        audit_queries (AuditQueries):
+# def delete_a_specific_query(session_id, editor_query_id):
+#     """
+#
+#     Args:
+#         session_id (str):
+#         editor_query_id (str):
+#
+#     Returns:
+#
+#     """
+#     result = None
+#     type_check(session_id, str)
+#     type_check(editor_query_id, str)
+#     relative_url = api_url + "/sessions/{sessionId}/queries/{editorQueryId}".format(
+#         sessionId=session_id, editorQueryId=editor_query_id
+#     )
+#     response = delete_request(relative_url=relative_url)
+#     if response.status_code == OK:
+#         result = response.json().get("id")
+#     return result
+#
+#
+# def update_specified_query_metadata(session_id, editor_query_id, severity):
+#     """
+#
+#     Args:
+#         session_id (str):
+#         editor_query_id (str):
+#         severity (str): "Critical"
+#
+#     Returns:
+#
+#     """
+#     result = None
+#     type_check(session_id, str)
+#     type_check(editor_query_id, str)
+#     relative_url = api_url + "/sessions/{sessionId}/queries/{editorQueryId}/metadata".format(
+#         sessionId=session_id, editorQueryId=editor_query_id
+#     )
+#     data = json.dumps(
+#         {
+#             "severity": severity
+#         }
+#     )
+#     response = put_request(relative_url=relative_url, data=data)
+#     if response.status_code == OK:
+#         result = response.json().get("id")
+#     return result
 
-    Returns:
-        str
-    """
 
+def delete_a_specified_custom_or_overridden_query(session_id: str, editor_query_id: str) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("delete_a_specified_custom_or_overridden_query").format(
+        session_id, editor_query_id
+    )
+    params = {}
+    response = delete_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
+    )
+
+
+def update_specified_query_metadata(severity: str, session_id: str, editor_query_id: str) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("update_specified_query_metadata").format(
+        session_id, editor_query_id
+    )
+    params = {}
+    response = put_request(relative_url=relative_url, params=params, json={
+      "severity": severity
+    })
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
+    )
+
+
+def update_multiple_query_sources(request_body: List[AuditQuery], session_id: str = None) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("update_multiple_query_sources").format(session_id)
+    params = {}
+    response = put_request(relative_url=relative_url, params=params, json=[item.to_dict() for item in request_body])
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
+    )
+
+
+def validate_the_queries_provided(request_body: List[AuditQuery], session_id: str = None) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("validate_the_queries_provided").format(session_id)
+    params = {}
+    response = post_request(relative_url=relative_url, params=params, json=[item.to_dict() for item in request_body])
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
+    )
+
+
+def execute_the_queries_on_the_audit_session_scanned_project(request_body: List[AuditQuery],
+                                                             session_id: str = None) -> AsyncRequestResponse:
+    relative_url = server_url + paths_func_mapping.get("execute_the_queries_on_the_audit_session_scanned_project"
+                                                       ).format(session_id)
+    params = {}
+    response = post_request(relative_url=relative_url, params=params, json=[item.to_dict() for item in request_body])
+    response = response.json()
+    return AsyncRequestResponse(
+        id=response.get("id"),
+    )
+
+
+def check_the_status_of_a_specified_request(session_id: str = None, request_id: str = None) -> RequestStatus:
+    relative_url = server_url + paths_func_mapping.get("check_the_status_of_a_specified_request").format(
+        session_id, request_id
+    )
+    params = {}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return RequestStatus(
+        completed=response.get("completed"),
+        status=response.get("status"),
+        value=response.get("value"),
+    )
+
+
+def cancel_the_specified_request_execution(session_id: str = None, request_id: str = None, request_body=None) -> bool:
+    relative_url = server_url + paths_func_mapping.get("cancel_the_specified_request_execution").format(
+        session_id, request_id
+    )
+    params = {}
+    response = put_request(relative_url=relative_url, params=params, json=request_body)
+    return response.status_code == OK
+
+
+def get_all_results_data_summary_tree_for_all_the_session_runs(session_id: str = None, run_id: str = None,
+                                                               hide_empty: bool = None) -> List[ResultsSummaryTree]:
+    relative_url = server_url + paths_func_mapping.get("get_all_results_data_summary_tree_for_all_the_session_runs"
+                                                       ).format(session_id)
+    params = {"runId": run_id, "hideEmpty": hide_empty}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return [
+        ResultsSummaryTree(
+            is_leaf=item.get("isLeaf"),
+            title=item.get("title"),
+            key=item.get("key"),
+            children=item.get("children"),
+            data=item.get("data"),
+        ) for item in response
+    ]
+
+
+def get_all_vulnerabilities_related_to_a_given_result(
+        session_id: str = None, result_id: str = None, page_size: int = None,
+        current_page: int = None) -> ResultsResponse:
+    relative_url = server_url + paths_func_mapping.get("get_all_vulnerabilities_related_to_a_given_result").format(
+        session_id, result_id
+    )
+    params = {"pageSize": page_size, "currentPage": current_page}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return ResultsResponse(
+        data=response.get("data"),
+        total_count=response.get("totalCount"),
+    )
+
+
+def get_specified_vulnerability_data_such_as_attack_vector(session_id: str = None, result_id: str = None,
+                                                           vulnerability_id: str = None) -> ResultResponse:
+    relative_url = server_url + paths_func_mapping.get("get_specified_vulnerability_data_such_as_attack_vector").format(
+        session_id, result_id, vulnerability_id
+    )
+    params = {}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return ResultResponse(
+        vulnerability_id=response.get("vulnerabilityId"),
+        source_file=response.get("sourceFile"),
+        source_line=response.get("sourceLine"),
+        source_id=response.get("sourceId"),
+        source_name=response.get("sourceName"),
+        source_type=response.get("sourceType"),
+        destination_file=response.get("destinationFile"),
+        destination_line=response.get("destinationLine"),
+        destination_id=response.get("destinationId"),
+        destination_name=response.get("destinationName"),
+        destination_type=response.get("destinationType"),
+        state=response.get("state"),
+        path_size=response.get("pathSize"),
+    )
+
+
+def get_specified_result_debug_messages(session_id: str = None, result_id: str = None,
+                                        page_size: int = None, current_page: int = None) -> DebugMessageResponse:
+    relative_url = server_url + paths_func_mapping.get("get_specified_result_debug_messages").format(
+        session_id, result_id
+    )
+    params = {"pageSize": page_size, "currentPage": current_page}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return DebugMessageResponse(
+        data=response.get("data"),
+        total_count=response.get("totalCount"),
+    )
+
+
+def get_query_builder_history(session_id: str = None) -> List[QueryBuilderMessage]:
+    relative_url = server_url + paths_func_mapping.get("get_query_builder_history").format(session_id)
+    params = {}
+    response = get_request(relative_url=relative_url, params=params)
+    response = response.json()
+    return [
+        QueryBuilderMessage(
+            role=item.get("role"),
+            content=item.get("content"),
+        ) for item in response
+    ]
+
+
+def delete_query_builder_gpt_history(session_id: str = None) -> bool:
+    relative_url = server_url + paths_func_mapping.get("delete_query_builder_gpt_history").format(session_id)
+    params = {}
+    response = delete_request(relative_url=relative_url, params=params)
+    return response.status_code == NO_CONTENT
+
+
+def process_query_builder_gpt_request(request_body: QueryBuilderPrompt,
+                                      session_id: str = None) -> List[QueryBuilderMessage]:
+    relative_url = server_url + paths_func_mapping.get("process_query_builder_gpt_request").format(session_id)
+    params = {}
+    response = post_request(relative_url=relative_url, params=params, json=request_body)
+    response = response.json()
+    return [
+        QueryBuilderMessage(
+            role=item.get("role"),
+            content=item.get("content"),
+        ) for item in response
+    ]

@@ -19,7 +19,7 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
     GroupRepresentation
 )
 
-realm = "asean_2021_08"
+realm = "happy"
 
 
 def test_get_group_hierarchy():

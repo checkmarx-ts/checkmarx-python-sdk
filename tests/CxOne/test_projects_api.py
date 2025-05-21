@@ -1,4 +1,5 @@
 from CheckmarxPythonSDK.CxOne import (
+    get_all_projects,
     create_a_project,
     get_a_list_of_projects,
     get_project_id_by_name,
@@ -20,6 +21,11 @@ from CheckmarxPythonSDK.CxOne.dto import (
 )
 
 new_project_name = "happy-test-2024-09-10-11"
+
+
+def test_get_all_projects():
+    projects = get_all_projects()
+    assert projects is not None
 
 
 def test_create_a_project():

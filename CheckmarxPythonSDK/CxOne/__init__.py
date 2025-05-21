@@ -142,9 +142,28 @@ from .sastQueriesAPI import (
 
 from .sastQueriesAuditAPI import (
     get_all_queries,
+    create_new_query,
+    get_all_queries_search,
     get_queries_metadata,
     get_query_source,
+    delete_overridden_query,
     update_query_source,
+    create_new_session,
+    get_all_active_sessions_related_to_webaudit,
+    get_session_details,
+    delete_session_with_specific_id,
+    heath_check_to_ensure_session_is_kept_alive,
+    check_if_sast_engine_is_ready_to_use,
+    check_the_status_of_some_scan_related_requests,
+    detect_the_languages_of_the_project_to_scan,
+    scan_the_project_using_sast_engine,
+    compile_the_queries_of_the_scanned_project,
+    execute_the_queries_of_the_scanned_project,
+    cancel_the_queries_execution,
+    get_the_logs_associated_to_the_audit_session,
+    retrieve_gpt_history,
+    delete_gpt_history,
+    process_gpt_prompt_request,
 )
 
 from .sastQueriesAuditPresetsAPI import (

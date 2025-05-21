@@ -1,5 +1,5 @@
 class Query(object):
-    def __init__(self, source, level, path, modified, cwe, severity, is_executable, cx_description_id,
+    def __init__(self, id, source, level, path, modified, cwe, severity, is_executable, cx_description_id,
                  query_description_id):
         """
 
@@ -14,6 +14,7 @@ class Query(object):
             cx_description_id (int):
             query_description_id (str):
         """
+        self.id = id
         self.source = source
         self.level = level
         self.path = path
@@ -25,8 +26,9 @@ class Query(object):
         self.QueryDescriptionID = query_description_id
 
     def __str__(self):
-        return """Query(source={}, level={}, modified={}, Cwe={}, Severity={}, IsExecutable={}, CxDescriptionID={}, 
+        return """Query(id={}, source={}, level={}, modified={}, Cwe={}, Severity={}, IsExecutable={}, CxDescriptionID={}, 
         QueryDescriptionID={})""".format(
-            self.source, self.level, self.modified, self.Cwe, self.Severity, self.IsExecutable, self.CxDescriptionID,
+            self.id, self.source, self.level, self.modified, self.Cwe, self.Severity, self.IsExecutable,
+            self.CxDescriptionID,
             self.QueryDescriptionID
         )

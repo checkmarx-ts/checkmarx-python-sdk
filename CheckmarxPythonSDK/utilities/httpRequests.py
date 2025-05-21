@@ -14,6 +14,7 @@ from requests.exceptions import ConnectionError
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 from gql.transport.exceptions import TransportServerError
+
 disable_warnings(InsecureRequestWarning)
 
 logger = logging.getLogger("CheckmarxPythonSDK")
@@ -56,6 +57,7 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
                 man-in-the-middle (MitM) attacks. Setting verify to False may be useful during local development or
                 testing.
         cert (str, tuple, optional): if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        proxies (dict):
 
     Returns:
 
@@ -63,21 +65,22 @@ def request(method, url, params=None, data=None, json=None, files=None, auth=Non
     for _ in range(3):
         try:
             response = s.request(method=method, url=url, params=params, data=data, json=json, files=files,
-                                        auth=auth, timeout=timeout, headers=headers, verify=verify, cert=cert,
-                                        proxies=proxies)
+                                 auth=auth, timeout=timeout, headers=headers, verify=verify, cert=cert,
+                                 proxies=proxies)
             return response
         except ConnectionError:
             logger.error("Connection error. Retrying...")
 
 
-def head(url, params=None, files=None, data=None, json=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def head(url, params=None, files=None, data=None, json=None, auth=None, timeout=None, headers=None, verify=False,
+         cert=None, proxies=None):
     """
 
     Args:
         url (str):
         files :
         data :
-        json (dict):
+        json (object):
         params (dict):
         auth :
         timeout (float, tuple, optional):
@@ -89,40 +92,44 @@ def head(url, params=None, files=None, data=None, json=None, auth=None, timeout=
     Returns:
 
     """
-    return request("HEAD", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout, headers=headers,
+    return request("HEAD", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout,
+                   headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def get(url, params=None, files=None, data=None, json=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def get(url, params=None, files=None, data=None, json=None, auth=None, timeout=None, headers=None, verify=False,
+        cert=None, proxies=None):
     """
 
     Args:
         url (str):
         files :
         data :
-        json:
+        json (object):
         params (dict):
         auth :
         timeout (float, tuple, optional):
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
-         proxies (dict, optional):
+        proxies (dict, optional):
 
     Returns:
 
     """
-    return request("GET", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout, headers=headers,
+    return request("GET", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout,
+                   headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def post(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def post(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None,
+         proxies=None):
     """
 
     Args:
         url (str):
         data (dict):
-        json:
+        json (object):
         params (dict):
         files (dict):
         auth :
@@ -134,17 +141,19 @@ def post(url, data, json=None, params=None, files=None, auth=None, timeout=None,
 
     Returns:
     """
-    return request("POST", url, params=params, data=data, json=json, files=files, auth=auth, timeout=timeout, headers=headers,
+    return request("POST", url, params=params, data=data, json=json, files=files, auth=auth, timeout=timeout,
+                   headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def put(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def put(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None,
+        proxies=None):
     """
 
     Args:
         url (str):
         data (dict, BinaryIO, StringIO):
-        json:
+        json (object):
         params (dict):
         files (dict):
         auth :
@@ -156,17 +165,19 @@ def put(url, data, json=None, params=None, files=None, auth=None, timeout=None, 
 
     Returns:
     """
-    return request("PUT", url, params=params, data=data, json=json, files=files, auth=auth, timeout=timeout, headers=headers,
+    return request("PUT", url, params=params, data=data, json=json, files=files, auth=auth, timeout=timeout,
+                   headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def patch(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def patch(url, data, json=None, params=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None,
+          proxies=None):
     """
 
     Args:
         url (str):
         data (dict):
-        json:
+        json (object):
         params (dict):
         files :
         auth :
@@ -178,18 +189,20 @@ def patch(url, data, json=None, params=None, files=None, auth=None, timeout=None
 
     Returns:
     """
-    return request("PATCH", url, params=params, files=files, auth=auth, data=data, json=json, timeout=timeout, headers=headers,
+    return request("PATCH", url, params=params, files=files, auth=auth, data=data, json=json, timeout=timeout,
+                   headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
-def delete(url, params=None, data=None, json=None, files=None, auth=None, timeout=None, headers=None, verify=False, cert=None, proxies=None):
+def delete(url, params=None, data=None, json=None, files=None, auth=None, timeout=None, headers=None, verify=False,
+           cert=None, proxies=None):
     """
 
     Args:
         url (str):
         params (dict):
         data:
-        json:
+        json (object):
         files:
         auth:
         timeout (float, tuple, optional):
@@ -201,7 +214,8 @@ def delete(url, params=None, data=None, json=None, files=None, auth=None, timeou
     Returns:
 
     """
-    return request("DELETE", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout, headers=headers,
+    return request("DELETE", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout,
+                   headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
 
 
@@ -329,7 +343,6 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
 
 
 def build_request_funcs(get_data_from_config):
-
     def head_request(relative_url, auth=None, headers=(), json=None, params=None, is_iam=False):
         return retry_when_unauthorized(
             function_to_send_request=head,
@@ -418,6 +431,7 @@ def build_request_funcs(get_data_from_config):
             headers=headers,
             is_iam=is_iam,
         )
+
     return get_request, post_request, put_request, patch_request, delete_request, head_request, gql_request
 
 
