@@ -1,6 +1,6 @@
 from .config import config
 from CheckmarxPythonSDK.utilities.httpRequests import build_request_funcs, check_response
-from ..__version__ import __version__
+
 
 def get_data_from_config():
     server_url = config.get("server")
@@ -27,7 +27,7 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
-get, post, put, _, delete, _, gql = build_request_funcs(get_data_from_config)
+get, post, put, _, delete, _ = build_request_funcs(get_data_from_config)
 
 agent_headers = {
     "user-agent":
@@ -36,45 +36,37 @@ agent_headers = {
 }
 
 
-def get_request(relative_url, headers=None, is_iam=False):
+def get_request(relative_url, params=None, headers=None, is_iam=False):
     temp_headers = agent_headers.copy()
     if headers:
         temp_headers.update(headers)
-    response = get(relative_url, headers=temp_headers, is_iam=is_iam)
+    response = get(relative_url, params=params, headers=temp_headers, is_iam=is_iam)
     check_response(response)
     return response
 
 
-def post_request(relative_url, data, files=None, headers=None, is_iam=False):
+def post_request(relative_url, data, params=None, files=None, headers=None, is_iam=False):
     temp_headers = agent_headers.copy()
     if headers:
         temp_headers.update(headers)
-    response = post(relative_url, data, files=files, headers=temp_headers, is_iam=is_iam)
+    response = post(relative_url, data, params=params, files=files, headers=temp_headers, is_iam=is_iam)
     check_response(response)
     return response
 
 
-def put_request(relative_url, data, files=None, headers=None, is_iam=False):
+def put_request(relative_url, data, params=None, files=None, headers=None, is_iam=False):
     temp_headers = agent_headers.copy()
     if headers:
         temp_headers.update(headers)
-    response = put(relative_url, data, files=files, headers=temp_headers, is_iam=is_iam)
+    response = put(relative_url, data, params=params, files=files, headers=temp_headers, is_iam=is_iam)
     check_response(response)
     return response
 
 
-def delete_request(relative_url, data=None, headers=None, is_iam=False):
+def delete_request(relative_url, params=None, data=None, headers=None, is_iam=False):
     temp_headers = agent_headers.copy()
     if headers:
         temp_headers.update(headers)
-    response = delete(relative_url, data, headers=temp_headers, is_iam=is_iam)
+    response = delete(relative_url, data, params=params, headers=temp_headers, is_iam=is_iam)
     check_response(response)
-    return response
-
-
-def gql_request(relative_url, data, headers=None, is_iam=False):
-    temp_headers = agent_headers.copy()
-    if headers:
-        temp_headers.update(headers)
-    response = gql(relative_url, data=data, headers=temp_headers, is_iam=is_iam)
     return response

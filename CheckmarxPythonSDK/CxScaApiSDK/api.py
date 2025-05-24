@@ -5,7 +5,6 @@ from .httpRequests import (
     post_request as post_req,
     put_request as put_req,
     delete_request as delete_req,
-    gql_request as gql_req,
 )
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK, CREATED, ACCEPTED
 from CheckmarxPythonSDK.utilities.httpRequests import put, auth_header
@@ -14,13 +13,11 @@ from requests_toolbelt import MultipartEncoder
 
 class Sca(object):
 
-    def __init__(self, get_request=get_req, post_request=post_req, put_request=put_req, delete_request=delete_req,
-                 gql_request=gql_req):
+    def __init__(self, get_request=get_req, post_request=post_req, put_request=put_req, delete_request=delete_req):
         self.get_request = get_request
         self.post_request = post_request
         self.put_request = put_request
         self.delete_request = delete_request
-        self.gql_request = gql_request
         self.gql_relative_url = "/graphql/graphql"
 
     def get_all_projects(self, project_name=None):
@@ -1860,8 +1857,7 @@ class Sca(object):
                  ")"
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
-
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_supply_chain_risks_by_scan_id(self, scan_id):
@@ -1882,8 +1878,7 @@ class Sca(object):
                  ")"
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
-
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_outdated_packages_by_scan_id(self, scan_id):
@@ -1903,8 +1898,7 @@ class Sca(object):
                  ")"
                  "{ totalCount }"
                  "}")
-
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_legal_risks_by_scan_id(self, scan_id):
@@ -1925,8 +1919,7 @@ class Sca(object):
                  ")"
                  "{  totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
-
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
@@ -1970,7 +1963,7 @@ class Sca(object):
                  "subsequentSystemIntegrity, subsequentSystemAvailability }, pendingState, pendingChanges, "
                  "packageState { type, value }, pendingScore, pendingSeverity, isScoreOverridden } } "
                  " }")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_one_vulnerability(self, scan_id, vulnerability_id, package_id):
@@ -2012,7 +2005,7 @@ class Sca(object):
                  "subsequentSystemConfidentiality, subsequentSystemIntegrity, subsequentSystemAvailability, "
                  "baseScore, severity }, isEpssDataExists, epssData { cve, date, epss, percentile } }"
                  " }")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_supply_chain_risks_by_scan_id(self, scan_id, take=10, skip=0):
@@ -2040,7 +2033,7 @@ class Sca(object):
                  " publishDate, detectionDate, pendingState, pendingChanges, packageState { type, value }, "
                  "pendingScore, pendingSeverity, originalScore } }"
                  " }")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_legal_risks_by_scan_id(self, scan_id, take=10, skip=0):
@@ -2066,7 +2059,7 @@ class Sca(object):
                  " { totalCount, items { licenseName, packageId, violatedPolicies, packageName, packageVersion, "
                  "relation, score, severity, state, isTest, isDev, message } } "
                  " }")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_direct_third_party_packages_by_scan_id(
@@ -2109,7 +2102,7 @@ class Sca(object):
                  " critical, high, medium, low, none }, supplyChainRisksWithoutIgnored { critical, high, medium, low,"
                  " none } } }, totalCount } "
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_transitive_third_party_packages_by_scan_id(
@@ -2152,7 +2145,7 @@ class Sca(object):
                  " critical, high, medium, low, none }, supplyChainRisksWithoutIgnored { critical, high, medium, low,"
                  " none } } }, totalCount }"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
@@ -2173,7 +2166,7 @@ class Sca(object):
                  f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
                  "where: {}) { totalCount, totalDevCount, totalDevOrTestCount } "
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_direct_third_party_packages_by_scan_id(
@@ -2206,7 +2199,7 @@ class Sca(object):
                  "{ totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount}"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_transitive_third_party_packages_by_scan_id(
@@ -2240,7 +2233,7 @@ class Sca(object):
                  " { totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount } "
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_packages_used_for_accessing_saas_services(self, scan_id, is_exploitable_path_enabled=False):
@@ -2264,7 +2257,7 @@ class Sca(object):
                  " { totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount } "
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_container_packages_by_scan_id(self, scan_id, fetch_runtime_data=False, take=10, skip=0):
@@ -2293,7 +2286,7 @@ class Sca(object):
                  "{ totalCount, items { packageName, packageVersion, imageName, imageTag, identifiedBy, deploymentType,"
                  "runtimeUsage, imageOrigins, isMalicious, vulnerabilitiesCounter { high, medium, low } } }  "
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_container_vulnerabilities_by_scan_id(self, scan_id, fetch_runtime_data=False, take=10, skip=0):
@@ -2321,7 +2314,7 @@ class Sca(object):
                  ")"
                  "{totalCount, items {cve, cwe, name, version, published, severity, riskFactors {isMalicious, isUsed}}}"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_package_licenses_by_scan_id(self, scan_id, take=10, skip=0):
@@ -2349,7 +2342,7 @@ class Sca(object):
                  "package { link, numberOfLicensesInPackage, packageId, packageName, packageVersion }, "
                  "packageState { type, value } } }"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_down_stream_remediation_by_scan_id(self, scan_id, include_broken_methods=True, take=10, skip=0):
@@ -2380,7 +2373,7 @@ class Sca(object):
                  "effortEstimation, impact, hasExploitablePath, packages { name, version, criticalVulnerabilityCount,"
                  " highVulnerabilityCount, mediumVulnerabilityCount, lowVulnerabilityCount, parent { name, version}}}}}"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_scan_info_by_scan_id(self, scan_id):
@@ -2427,7 +2420,7 @@ class Sca(object):
                  "manifests { dependenciesCount, dependencyResolverStatus, manifestPath, message, resolvingModuleType},"
                  "deltaScan }"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_scan_progress_by_scan_id(self, scan_id):
@@ -2471,7 +2464,7 @@ class Sca(object):
                  ")"
                  "{ totalDuration, data { name, startTime, duration, status } }"
                  "}")
-        response = self.gql_request(relative_url=self.gql_relative_url, data=query)
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
 

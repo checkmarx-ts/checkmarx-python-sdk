@@ -29,7 +29,7 @@ def get_data_from_config():
     return server_url, token_url, timeout, verify_ssl_cert, cert, token_req_data, proxies
 
 
-get, post, put, patch, delete, head, gql = build_request_funcs(get_data_from_config)
+get, post, put, patch, delete, head = build_request_funcs(get_data_from_config)
 
 
 def get_request(relative_url, params=None, headers=None, is_iam=False):
@@ -144,9 +144,4 @@ def head_request(relative_url, params=None, headers=None, json=None, is_iam=Fals
 
     response = head(relative_url, params=params, json=json, is_iam=is_iam, headers=headers)
     check_response(response)
-    return response
-
-
-def gql_request(relative_url, data, headers=None, is_iam=False):
-    response = gql(relative_url, data=data, headers=headers, is_iam=is_iam)
     return response

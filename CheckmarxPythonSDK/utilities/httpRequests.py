@@ -1,5 +1,4 @@
 # encoding: utf-8
-# For REST API, using Python requests package to initiate the requests, and get response
 from urllib3.util import Retry
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -11,9 +10,6 @@ from CheckmarxPythonSDK.utilities.CxError import BadRequestError, NotFoundError,
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 from requests.exceptions import ConnectionError
-from gql import Client, gql
-from gql.transport.requests import RequestsHTTPTransport
-from gql.transport.exceptions import TransportServerError
 
 disable_warnings(InsecureRequestWarning)
 
@@ -137,7 +133,7 @@ def post(url, data, json=None, params=None, files=None, auth=None, timeout=None,
         headers (dict):
         verify (bool, str, optional):
         cert (str, tuple, optional):
-         proxies (dict, optional):
+        proxies (dict, optional):
 
     Returns:
     """
@@ -217,17 +213,6 @@ def delete(url, params=None, data=None, json=None, files=None, auth=None, timeou
     return request("DELETE", url, params=params, files=files, data=data, json=json, auth=auth, timeout=timeout,
                    headers=headers,
                    verify=verify, cert=cert, proxies=proxies)
-
-
-def gql_(url, data, files=None, auth=None, timeout=None, headers=None, params=None,
-         json=None, verify=False, cert=None, proxies=None):
-    # Select your transport with a defined url endpoint
-    transport = RequestsHTTPTransport(url=url, auth=auth, timeout=timeout, headers=headers, verify=verify, retries=3,
-                                      cert=cert, proxies=proxies)
-    # Create a GraphQL client using the defined transport
-    client = Client(transport=transport, fetch_schema_from_transport=False)
-    query = gql(data)
-    return client.execute(query)
 
 
 def get_new_token(token_url, request_data, timeout=None, verify_ssl_cert=False, cert=None, proxies=None):
@@ -335,7 +320,7 @@ def retry_when_unauthorized(function_to_send_request, data, get_data_from_config
         response = function_to_send_request(url=url, data=data, auth=auth, timeout=timeout, headers=temp_header,
                                             files=files, verify=verify, cert=cert, proxies=proxies, json=json,
                                             params=params)
-    except TransportServerError:
+    except Exception:
         return update_token_and_try_again()
     if hasattr(response, 'status_code') and UNAUTHORIZED == response.status_code:
         return update_token_and_try_again()
@@ -421,18 +406,7 @@ def build_request_funcs(get_data_from_config):
             is_iam=is_iam,
         )
 
-    def gql_request(relative_url, data=None, auth=None, headers=(), is_iam=False):
-        return retry_when_unauthorized(
-            function_to_send_request=gql_,
-            data=data,
-            get_data_from_config=get_data_from_config,
-            relative_url=relative_url,
-            auth=auth,
-            headers=headers,
-            is_iam=is_iam,
-        )
-
-    return get_request, post_request, put_request, patch_request, delete_request, head_request, gql_request
+    return get_request, post_request, put_request, patch_request, delete_request, head_request
 
 
 def check_response(response):
