@@ -13,6 +13,7 @@ from .BflTree import BflTree
 from .Category import Category
 from .CategoryType import CategoryType
 from .ChangeDetails import ChangeDetails, construct_change_details
+from .CommentJSON import CommentJSON
 from .CompilationResponse import CompilationResponse
 from .ComplianceSummary import ComplianceSummary
 from .Container import Container
@@ -44,6 +45,11 @@ from .LogItem import LogItem
 from .Metadata import Metadata
 from .MethodInfo import MethodInfo
 from .MethodParameter import MethodParameter
+from .PlatformSummary import PlatformSummary
+from .Predicate import Predicate
+from .PredicateHistory import PredicateHistory
+from .PredicateWithCommentJSON import PredicateWithCommentJSON
+from .PredicateWithCommentsJSON import PredicateWithCommentsJSON
 from .Preset import Preset
 from .PresetPaged import PresetPaged
 from .PresetSummary import PresetSummary
@@ -119,4 +125,5 @@ from .TimeStamp import TimeStamp
 from .TotalCounters import TotalCounters
 from .Tree import Tree
 from .Upload import Upload
+from .WebError import WebError
 from .WorkspaceQuery import WorkspaceQuery
