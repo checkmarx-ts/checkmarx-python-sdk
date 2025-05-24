@@ -58,11 +58,8 @@ from .healthCheckServiceAPI import (
 
 from .KeycloakAPI import (
     get_realms,
-
     get_users,
     create_a_new_user,
-
-
     get_group_hierarchy,
 )
 
@@ -92,6 +89,27 @@ from .projectsOverviewAPI import (
 
 from .queryEditorAPI import (
     create_new_audit_session,
+    heath_check_to_ensure_audit_session_is_kept_alive,
+    delete_audit_session_with_specific_id,
+    get_the_logs_associated_to_the_audit_session,
+    scan_the_audit_session_sources,
+    create_or_override_query,
+    get_all_queries,
+    get_data_of_a_specified_query,
+    delete_a_specified_custom_or_overridden_query,
+    update_specified_query_metadata,
+    update_multiple_query_sources,
+    validate_the_queries_provided,
+    execute_the_queries_on_the_audit_session_scanned_project,
+    check_the_status_of_a_specified_request,
+    cancel_the_specified_request_execution,
+    get_all_results_data_summary_tree_for_all_the_session_runs,
+    get_all_vulnerabilities_related_to_a_given_result,
+    get_specified_vulnerability_data_such_as_attack_vector,
+    get_specified_result_debug_messages,
+    get_query_builder_history,
+    delete_query_builder_gpt_history,
+    process_query_builder_gpt_request,
 )
 
 from .repoManagerAPI import (
@@ -188,10 +206,18 @@ from .sastResultsAPI import (
     get_sast_results_by_scan_id,
 )
 
+from .sastResultsPredicates import (
+    get_all_predicates_for_similarity_id,
+    get_latest_predicates_for_similarity_id,
+    predicate_severity_and_state_by_similarity_id_and_project_id,
+    update_predicate_comment_by_predicate_id,
+    recalculate_summary_counters,
+    delete_a_predicate_history,
+)
+
 from .sastResultsSummaryAPI import (
     get_sast_aggregate_results,
 )
-
 
 from .sastScanMetadataServiceAPI import (
     get_metadata_of_scans,
