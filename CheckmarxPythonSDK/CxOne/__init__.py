@@ -206,7 +206,7 @@ from .sastResultsAPI import (
     get_sast_results_by_scan_id,
 )
 
-from .sastResultsPredicates import (
+from .sastResultsPredicatesAPI import (
     get_all_predicates_for_similarity_id,
     get_latest_predicates_for_similarity_id,
     predicate_severity_and_state_by_similarity_id_and_project_id,
