@@ -70,12 +70,12 @@ def create_new_audit_session(request_body: SessionRequest) -> SessionResponse:
     )
 
 
-def heath_check_to_ensure_audit_session_is_kept_alive(session_id: str = None, request_body=None) -> bool:
+def heath_check_to_ensure_audit_session_is_kept_alive(session_id: str) -> bool:
     relative_url = server_url + paths_func_mapping.get("heath_check_to_ensure_audit_session_is_kept_alive").format(
         session_id
     )
     params = {}
-    response = patch_request(relative_url=relative_url, params=params, json=request_body)
+    response = patch_request(relative_url=relative_url, params=params, json=None)
     return response.status_code == NO_CONTENT
 
 
@@ -146,57 +146,6 @@ def get_data_of_a_specified_query(session_id: str = None, editor_query_id: str =
         source=response.get("source"),
         metadata=response.get("metadata"),
     )
-
-
-
-# def delete_a_specific_query(session_id, editor_query_id):
-#     """
-#
-#     Args:
-#         session_id (str):
-#         editor_query_id (str):
-#
-#     Returns:
-#
-#     """
-#     result = None
-#     type_check(session_id, str)
-#     type_check(editor_query_id, str)
-#     relative_url = api_url + "/sessions/{sessionId}/queries/{editorQueryId}".format(
-#         sessionId=session_id, editorQueryId=editor_query_id
-#     )
-#     response = delete_request(relative_url=relative_url)
-#     if response.status_code == OK:
-#         result = response.json().get("id")
-#     return result
-#
-#
-# def update_specified_query_metadata(session_id, editor_query_id, severity):
-#     """
-#
-#     Args:
-#         session_id (str):
-#         editor_query_id (str):
-#         severity (str): "Critical"
-#
-#     Returns:
-#
-#     """
-#     result = None
-#     type_check(session_id, str)
-#     type_check(editor_query_id, str)
-#     relative_url = api_url + "/sessions/{sessionId}/queries/{editorQueryId}/metadata".format(
-#         sessionId=session_id, editorQueryId=editor_query_id
-#     )
-#     data = json.dumps(
-#         {
-#             "severity": severity
-#         }
-#     )
-#     response = put_request(relative_url=relative_url, data=data)
-#     if response.status_code == OK:
-#         result = response.json().get("id")
-#     return result
 
 
 def delete_a_specified_custom_or_overridden_query(session_id: str, editor_query_id: str) -> AsyncRequestResponse:
