@@ -1,9 +1,9 @@
-import logging
 import sys
 import os
 import json
 from os.path import normpath, join, exists
 from requests.compat import is_py2
+from CheckmarxPythonSDK import logger
 
 if is_py2:
     import ConfigParser
@@ -15,7 +15,6 @@ else:
     configparser = configparser
 
 from optparse import (OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError)
-logger = logging.getLogger("CheckmarxPythonSDK")
 
 
 class PassThroughOptionParser(OptionParser):
