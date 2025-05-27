@@ -1,6 +1,7 @@
 # encoding: utf-8
 import datetime
-from CheckmarxPythonSDK import logger
+import logging
+logger = logging.getLogger("CheckmarxPythonSDK")
 
 
 class CxServerLicenseData(object):

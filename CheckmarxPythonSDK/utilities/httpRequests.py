@@ -1,8 +1,8 @@
 # encoding: utf-8
+import logging
 from urllib3.util import Retry
 from requests import Session
 from requests.adapters import HTTPAdapter
-from CheckmarxPythonSDK import logger
 from CheckmarxPythonSDK.utilities.compat import (
     OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED, ACCEPTED
 )
@@ -13,6 +13,7 @@ from requests.exceptions import ConnectionError
 
 disable_warnings(InsecureRequestWarning)
 
+logger = logging.getLogger("CheckmarxPythonSDK")
 
 s = Session()
 retries = Retry(

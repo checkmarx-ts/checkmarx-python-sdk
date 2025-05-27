@@ -1,9 +1,10 @@
 import sys
 import os
 import json
+import logging
 from os.path import normpath, join, exists
 from requests.compat import is_py2
-from CheckmarxPythonSDK import logger
+logger = logging.getLogger("CheckmarxPythonSDK")
 
 if is_py2:
     import ConfigParser
