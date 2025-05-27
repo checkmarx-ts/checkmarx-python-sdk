@@ -1,6 +1,6 @@
 
 class SessionRequest(object):
-    def __init__(self, project_id: str = None, scan_id: str = None, scanner: str = None, timeout: int = None,
+    def __init__(self, project_id: str, scan_id: str, scanner: str = "sast", timeout: int = None,
                  upload_url: str = None):
         self.projectId = project_id
         self.scanId = scan_id
@@ -14,10 +14,13 @@ class SessionRequest(object):
                 f"uploadUrl={self.uploadUrl})")
 
     def to_dict(self):
-        return {
+        data = {
             "projectId": self.projectId,
             "scanId": self.scanId,
             "scanner": self.scanner,
-            "timeout": self.timeout,
-            "uploadUrl": self.uploadUrl,
         }
+        if self.timeout:
+            data.update({"timeout": self.timeout})
+        if self.uploadUrl:
+            data.update({"uploadUrl": self.uploadUrl})
+        return data
