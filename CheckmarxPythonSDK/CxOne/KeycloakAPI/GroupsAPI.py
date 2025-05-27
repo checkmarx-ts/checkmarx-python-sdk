@@ -12,6 +12,9 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
     construct_management_permission_reference,
     ManagementPermissionReference,
 )
+from CheckmarxPythonSDK import (
+    logger
+)
 
 
 def get_group_hierarchy(realm, brief_representation=False, first=None, max_result_size=100, search=None) -> List[Group]:
@@ -189,6 +192,7 @@ def create_subgroup(realm, group_id, subgroup_name) -> bool:
         result = True
     return result
 
+
 def get_subgroup_by_id(realm, group_id):
     """
     Get a subgroup by group id.
@@ -203,6 +207,7 @@ def get_subgroup_by_id(realm, group_id):
     response = get_request(relative_url=relative_url)
     subgroups = response.json()
     return subgroups
+
 
 def get_group_permissions(realm, group_id) -> ManagementPermissionReference:
     """
@@ -298,3 +303,62 @@ def create_group(realm, group_name):
     if response.status_code == CREATED:
         result = True
     return result
+
+
+def get_or_create_groups(
+        group_full_name: str,
+        realm: str
+) -> str:
+    group = get_group_by_name(realm=realm, group_name=group_full_name)
+    if group:
+        group_id = group.id
+        logger.info(f"group {group_full_name} found. Its id is: {group_id}")
+        return group_id
+    logger.info(f"group {group_full_name} not found. It contains sub groups.")
+    group_id = create_all_groups(realm=realm, group_full_name=group_full_name)
+    logger.info(f"group {group_full_name} created, id: {group_id}")
+    return group_id
+
+
+def create_all_groups(realm, group_full_name) -> str:
+    group_names = group_full_name.split("/")
+    root_group_name = group_names[0]
+    root_group_id = create_root_group_if_not_exist(realm, root_group_name)
+    if len(group_names) == 1:
+        return root_group_id
+    group_id = create_sub_groups(
+        realm=realm,
+        group_names=group_names,
+        root_group_id=root_group_id
+    )
+    return group_id
+
+
+def create_sub_groups(realm, group_names, root_group_id) -> str:
+    parent_group_id = root_group_id
+    for index, group_name in enumerate(group_names):
+        if index == 0:
+            continue
+        group_path = "/".join(group_names[0: index + 1])
+        group = get_group_by_name(realm=realm, group_name=group_path)
+        if not group:
+            logger.info(f"current group: {group_path} does not exist, start create")
+            create_subgroup(realm=realm, group_id=parent_group_id, subgroup_name=group_name)
+            logger.info(f"finish create group: {group_path}")
+            group = get_group_by_name(realm=realm, group_name=group_path)
+        parent_group_id = group.id
+    return parent_group_id
+
+
+def create_root_group_if_not_exist(realm, root_group_name) -> str:
+    root_group = get_group_by_name(realm=realm, group_name=root_group_name)
+    if root_group:
+        root_group_id = root_group.id
+        logger.info(f"root group {root_group_name} exist. id: {root_group_id}")
+    else:
+        logger.info(f"root group not exist, start create root group")
+        create_group(realm=realm, group_name=root_group_name)
+        root_group = get_group_by_name(realm=realm, group_name=root_group_name)
+        root_group_id = root_group.id
+        logger.info(f"root group {root_group_name} created. id: {root_group_id}")
+    return root_group_id
