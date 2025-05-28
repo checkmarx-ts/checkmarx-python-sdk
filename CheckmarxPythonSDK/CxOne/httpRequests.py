@@ -109,21 +109,20 @@ def patch_request(relative_url, data=None, params=None, json=None, headers=None,
     return response
 
 
-def delete_request(relative_url, data=None, params=None, json=None, headers=None, is_iam=False):
+def delete_request(relative_url, data=None, params=None, headers=None, is_iam=False):
     """
 
     Args:
         relative_url (str):
         data (str):
         params (dict):
-        json (object):
         headers (dict):
         is_iam (bool): True if the endpoint is for Identity And Management
 
     Returns:
 
     """
-    response = delete(relative_url, data=data, params=params, json=json, is_iam=is_iam, headers=headers)
+    response = delete(relative_url, data=data, params=params, is_iam=is_iam, headers=headers)
     check_response(response)
     return response
 
