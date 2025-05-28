@@ -39,6 +39,7 @@ from .GroupsAPI import (
     update_group_permissions,
     get_group_members,
     create_group,
+    get_or_create_groups,
 )
 
 from .RoleMapperAPI import (
