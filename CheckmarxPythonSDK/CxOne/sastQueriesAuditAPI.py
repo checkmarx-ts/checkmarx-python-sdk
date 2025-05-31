@@ -210,8 +210,7 @@ def check_if_sast_engine_is_ready_to_use(session_id: str) -> SastStatus:
     )
 
 
-def check_the_status_of_some_scan_related_requests(session_id: str, status_type: int) -> type[
-        RequestStatusNotReady | RequestStatusDetectLanguages | CompilationResponse | ExecutionResponse]:
+def check_the_status_of_some_scan_related_requests(session_id: str, status_type: int):
     relative_url = server_url + paths_func_mapping.get("check_the_status_of_some_scan_related_requests").format(
         session_id=session_id)
     params = {"type": status_type}

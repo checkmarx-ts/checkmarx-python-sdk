@@ -3,8 +3,7 @@ from .ExecutionResponse import ExecutionResponse
 
 
 class RequestStatus(object):
-    def __init__(self, completed: bool = None, status: str = None, value: type[CompilationResponse
-                                                                               | ExecutionResponse] = None):
+    def __init__(self, completed: bool = None, status: str = None, value=None):
         self.completed = completed
         self.status = status
         self.value = value

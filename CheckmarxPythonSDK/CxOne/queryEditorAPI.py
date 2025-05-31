@@ -66,7 +66,8 @@ def create_new_audit_session(request_body: SessionRequest) -> SessionResponse:
     response = response.json()
     return SessionResponse(
         id=response.get("id"),
-        data=response.get("data"),
+        status=response.get("status"),
+        scan_id=response.get("scanId"),
     )
 
 
