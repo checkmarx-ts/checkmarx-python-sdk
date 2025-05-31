@@ -1,6 +1,11 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.2.8 - 2025-05-31
+* Fix type |, it is only supported since python 3.10
+* Remove get_password_from_keyring
+* Refactor dependencies
+
 1.2.7 - 2025-05-28
 * Add CxOne API queryEditorAPI sastResultsPredicatesAPI
 
