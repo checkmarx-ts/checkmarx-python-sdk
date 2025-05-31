@@ -192,24 +192,6 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
     return dict(zip(option_list, option_value_list))
 
 
-def get_password_from_keyring(section, username):
-    """
-
-    Args:
-        section (str):
-        username (str):
-
-    Returns:
-        str
-    """
-    import keyring
-    if sys.platform.startswith('win32'):
-        from keyring.backends import Windows
-        keyring.set_keyring(Windows.WinVaultKeyring())
-
-    return keyring.get_password(section, username)
-
-
 def get_config(config_default, section, prefix):
     """
 
@@ -251,9 +233,6 @@ def get_config(config_default, section, prefix):
     config.update(config_from_cli)
     logger.debug("override the config value, now the config value is: {}".format(config))
 
-    if os.getenv("use_keyring"):
-        logger.debug("there is environment variable use_keyring, get password from key ring")
-        config.update({"password": get_password_from_keyring(section=section, username=config.get("username"))})
     logger.debug("final config value is: {}".format(config))
     return config
 
