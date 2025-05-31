@@ -27,7 +27,6 @@ setup(
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     classifiers=[
-        'Programming Language :: Python :: 2.7',
         "Programming Language :: Python :: 3",
         'Programming Language :: Python :: 3.7',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -35,14 +34,11 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
+    python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, >=3.7',
     install_requires=[
-        "urllib3>=1.26.12",
         "requests>=2.28.1",
         "requests-toolbelt>=0.9.1",
         "zeep>=4.1.0",
-        "python-dateutil>=2.8.2",
-        "keyring>=23.9.3",
         "Deprecated>=1.2.13",
     ],
     extras_require={
