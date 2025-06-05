@@ -69,7 +69,7 @@ def test_get_direct_third_party_packages_by_scan_id():
     #                                                                     take=10, skip=10)
     # assert second_result is not None
     private_result = ScaAPI().get_direct_third_party_packages_by_scan_id(scan_id="87c696cf-89fb-4f23-bd13-1b569916fc70",
-                                                                        take=10, skip=0, is_private_dependency=True)
+                                                                        take=10, skip=0, is_private_dependency=False)
     assert private_result is not None
 
 
@@ -83,8 +83,17 @@ def test_get_transitive_third_party_packages_by_scan_id():
     # assert second_result is not None
     private_result = ScaAPI().get_transitive_third_party_packages_by_scan_id(
         scan_id="87c696cf-89fb-4f23-bd13-1b569916fc70",
-        take=10, skip=0, is_private_dependency=True)
+        take=10, skip=0, is_private_dependency=False)
     assert private_result is not None
+
+
+def test_get_package_details_by_scan_id_and_package_id():
+    result = ScaAPI().get_package_details_by_scan_id_and_package_id(
+        package_id="Maven-mysql:mysql-connector-java-5.1.26",
+        scan_id="999876c3-d120-4874-856f-ca3410c1c271",
+        is_exploitable_path_enabled=False
+    )
+    assert result is not None
 
 
 def test_get_number_of_packages_by_scan_id():
@@ -156,4 +165,8 @@ def test_get_scan_info_by_scan_id():
 
 def test_get_scan_progress_by_scan_id():
     result = ScaAPI().get_scan_progress_by_scan_id(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7")
+    assert result is not None
+
+def test_get_packages_of_a_scan():
+    result = ScaAPI().get_packages_of_a_scan(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7")
     assert result is not None
