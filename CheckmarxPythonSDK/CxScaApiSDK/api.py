@@ -2148,6 +2148,36 @@ class Sca(object):
         response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
+    def get_package_details_by_scan_id_and_package_id(self, scan_id, package_id, is_exploitable_path_enabled=False):
+        is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
+        query = ("query { "
+                 "package ("
+                 f"packageId: \"{package_id}\", "
+                 f"scanId: \"{scan_id}\", "
+                 f"isExploitablePathEnabled: {is_exploitable_path_enabled}"
+                 ") "
+                 "{ dummyRiskyVersion, isPotentialRiskyPackage, isIgnored, pendingChanges, morEntityProfilesApplied, "
+                 "isViolatingPolicy, name, packageId, remediationTaskId, isPrivateDependency, isUnresolved, matchType, "
+                 "locations, directDependenciesCount, transitiveDependenciesCount, releaseDate, version, "
+                 "packageRepository, isMalicious, isTest, isPluginDependency, isDev, isNpmVerified, isFramework, "
+                 "packageCredibility { contributorReputation, packageReliability, runTimeBehavior }, "
+                 "dependencyPath { id, name, version, isResolved, isDevelopment, vulnerabilityRiskLevel }, "
+                 "licenses { referenceType, reference, packageId, packageName, packageVersion, name, riskLevel, "
+                 "copyrightRiskLevel, patentRiskLevel, copyLeftType, riskScore, state }, "
+                 "outdatedModel { newestVersion, versionsInBetween, newestLibraryDate }, "
+                 "packageUsageModel { "
+                 " importsCalled { sourceFile, line, fullName, shortName }, "
+                 " methodsCalled { methodSourceCall { sourceFile, line, fullName, shortName } }, "
+                 " usageType, packageUsageComplexity }, "
+                 "risks { vulnerabilities { critical, high, medium, low, none }, "
+                 "legalRisk { critical, high, medium, low, none }, "
+                 "supplyChainRisks { critical, high, medium, low, none }, "
+                 "vulnerabilitiesWithoutIgnored { critical, high, medium, low, none }, "
+                 "supplyChainRisksWithoutIgnored { critical, high, medium, low, none } } }"
+                 "}")
+        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        return response
+
     def get_number_of_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
         """
             This is a GraphQL API
