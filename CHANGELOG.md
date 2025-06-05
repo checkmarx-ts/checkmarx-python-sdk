@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.2.9 - 2025-06-05
+* Add ScaAPI get_package_details_by_scan_id_and_package_id
+
 1.2.8 - 2025-05-31
 * Fix type |, it is only supported since python 3.10
 * Remove get_password_from_keyring
