@@ -112,3 +112,6 @@ venv_python2/
 # Emacs backup files
 *~
 .vscode
+
+build
+*.egg-info

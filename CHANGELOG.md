@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.3.0 - 2025-06-08
+* Refactor repoManagerAPI
+
 1.2.9 - 2025-06-05
 * Add ScaAPI get_package_details_by_scan_id_and_package_id
 

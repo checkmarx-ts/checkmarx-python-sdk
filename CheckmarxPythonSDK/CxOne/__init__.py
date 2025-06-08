@@ -116,14 +116,9 @@ from .repoManagerAPI import (
     get_repos,
     get_repo_branches,
     construct_repo_request,
-    construct_github_repo_request,
     repo_import,
-    github_import,
-    gitlab_import,
-    azure_import,
-    construct_bitbucket_repo_request,
-    bitbucket_import,
     get_job_status,
+    batch_import_github_repo,
 )
 
 from .reportAPI import (
