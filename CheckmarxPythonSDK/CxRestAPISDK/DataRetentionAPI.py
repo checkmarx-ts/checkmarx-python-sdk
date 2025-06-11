@@ -1,7 +1,6 @@
-# encoding: utf-8
+import calendar
 import json
-import datetime
-from dateutil.relativedelta import relativedelta
+from datetime import date, datetime, timedelta
 from .httpRequests import get_request, post_request, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 from .sast.projects.dto import CxLink
@@ -189,11 +188,22 @@ class DataRetentionAPI(object):
         Returns:
 
         """
-        start_date = datetime.date(1900, 1, 1)
+        start_date = date(1900, 1, 1)
         start_date = start_date.strftime("%Y-%m-%d")
 
-        the_last_day_of_this_month = datetime.date.today() + relativedelta(day=31)
-        end_date = the_last_day_of_this_month - relativedelta(months=num_months) + relativedelta(day=31)
+        today = datetime.now()
+        year = today.year
+        month = today.month
+        month -= num_months
+        while month < 1:
+            month += 12
+            year -= 1
+        next_month = month + 1
+        next_year = year
+        if next_month > 12:
+            next_month = 1
+            next_year += 1
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
         end_date = end_date.strftime("%Y-%m-%d")
 
         return DataRetentionAPI.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
