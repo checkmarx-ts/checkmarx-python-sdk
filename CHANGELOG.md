@@ -1,6 +1,9 @@
 Changelog
 All notable changes to this project will be documented in  this file.
 
+1.3.1 - 2025-06-11
+* Fix define_data_retention_by_rolling_months
+
 1.3.0 - 2025-06-08
 * Refactor repoManagerAPI
 
