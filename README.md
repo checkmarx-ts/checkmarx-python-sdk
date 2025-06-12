@@ -149,6 +149,17 @@ For CxOne:
 You can use command line option `--cx_debug true` to enable debug mode. In debug mode, it will print out how to load the
 configuration file and print every http request send out.
 
+# Configuration Override Sequence
+
+When you run your program with `--cx_debug` command line, it will log the override sequence.
+
+1.	Load default configuration, it will be a python dictionary
+2.	Read from ~/.Checkmarx/config.ini, override value by same key
+3.	Read from ~/.Checkmarx/config.json, override value by same key
+4.	Read from environment variables, override value by same key
+5.	Read from command line arguments, override value by same key
+6.	You have the final configuration.
+
 # Examples
  Please find example scripts from [examples folder](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
 
