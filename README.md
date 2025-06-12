@@ -160,6 +160,10 @@ When you run your program with `--cx_debug` command line, it will log the overri
 5.	Read from command line arguments, override value by same key
 6.	You have the final configuration.
 
+# python-dotenv
+
+If you are using python-dotenv, make sure your run `load_dotenv("./***.env", override=True)` before import any Checkmarx Python SDK function.
+
 # Examples
  Please find example scripts from [examples folder](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).
 
