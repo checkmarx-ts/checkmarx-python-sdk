@@ -50,9 +50,9 @@ def get_all_repos(origin: str, organization: str, auth_code: str, is_user: bool 
     return result
 
 
-def get_repo_branches(origin: str, organization: str, repo: str, auth_code: str, page: int = 1):
+def get_repo_branches(origin: str, organization: str, repo_name: str, auth_code: str, page: int = 1):
     origin = check_origin(origin)
-    relative_url = f"/api/repos-manager/scms/{origin_dict.get(origin)}/orgs/{organization}/repos/{repo}/branches"
+    relative_url = f"/api/repos-manager/scms/{origin_dict.get(origin)}/orgs/{organization}/repos/{repo_name}/branches"
     params = {
         "authCode": auth_code,
         "page": page,
@@ -60,13 +60,13 @@ def get_repo_branches(origin: str, organization: str, repo: str, auth_code: str,
     return get_request(relative_url=relative_url, params=params)
 
 
-def get_all_repo_branches(origin: str, organization: str, repo: str, auth_code: str):
+def get_all_repo_branches(origin: str, organization: str, repo_name: str, auth_code: str):
     origin = check_origin(origin)
     result = []
     page = 1
     while True:
         repos = get_repo_branches(
-            origin=origin, organization=organization, repo=repo, auth_code=auth_code, page=page
+            origin=origin, organization=organization, repo_name=repo_name, auth_code=auth_code, page=page
         ).json().get("branchWebDtoList")
         page += 1
         if not repos:
@@ -215,13 +215,12 @@ def get_job_status():
     return job_percentage
 
 
-def batch_import_github_repo(origin: str, organization: str, auth_code: str, chunk_size: int = 200,
-                             is_user: bool = False, is_org_webhook_enabled: bool = False,
-                             create_ast_project: bool = True, scan_ast_project: bool = False):
+def batch_import_repo(repos: List[dict], origin: str, organization: str, auth_code: str, chunk_size: int = 200,
+                      is_user: bool = False, is_org_webhook_enabled: bool = False,
+                      create_ast_project: bool = True, scan_ast_project: bool = False):
     origin = check_origin(origin)
     project_list = get_all_projects()
     project_name_list = [project.name for project in project_list]
-    repos = get_all_repos(origin=origin, organization=organization, auth_code=auth_code)
     repo_requests = []
     for repo in repos:
         repo_full_name = repo.get("fullName")
@@ -236,10 +235,7 @@ def batch_import_github_repo(origin: str, organization: str, auth_code: str, chu
                 branches=[{
                     "name": repo.get("defaultBranch"),
                     "isDefaultBranch": True
-                }] if origin != "BITBUCKET" else list(filter(
-                    lambda r: r.get("name") == "master",
-                    get_all_repo_branches(origin=origin, organization=organization, repo=repo, auth_code=auth_code)
-                )),
+                }],
                 origin=origin,
                 webhook_enabled=True,
             )
