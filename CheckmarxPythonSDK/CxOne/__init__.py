@@ -118,7 +118,7 @@ from .repoManagerAPI import (
     construct_repo_request,
     repo_import,
     get_job_status,
-    batch_import_github_repo,
+    batch_import_repo,
 )
 
 from .reportAPI import (
