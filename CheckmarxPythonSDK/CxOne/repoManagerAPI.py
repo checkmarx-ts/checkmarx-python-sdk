@@ -78,9 +78,9 @@ def get_all_repo_branches(origin: str, organization: str, repo_name: str, auth_c
 def construct_repo_request(
         http_repo_url, ssh_repo_url, id=None, branches: List[dict] = None, is_repo_admin=True, origin="GITHUB",
         kics_scanner_enabled=True, sast_incremental_scan=True, sast_scanner_enabled=True,
-        api_sec_scanner_enabled=True, sca_scanner_enabled=True, webhook_enabled=True, pre_decoration_enabled=True,
-        sca_auto_pr_enabled=True, container_scanner_enabled=True, ossf_score_card_scanner_enabled=True,
-        secrets_detection_scanner_enabled=True, name=None, project_id=None):
+        api_sec_scanner_enabled=True, sca_scanner_enabled=True, webhook_enabled=True, pr_decoration_enabled=True,
+        sca_auto_pr_enabled=False, container_scanner_enabled=True, ossf_score_card_scanner_enabled=True,
+        secrets_detection_scanner_enabled=True, project_id=None):
     """
 
     Args:
@@ -101,7 +101,7 @@ def construct_repo_request(
         api_sec_scanner_enabled:
         sca_scanner_enabled:
         webhook_enabled:
-        pre_decoration_enabled:
+        pr_decoration_enabled:
         sca_auto_pr_enabled:
         container_scanner_enabled:
         ossf_score_card_scanner_enabled:
@@ -130,7 +130,7 @@ def construct_repo_request(
         "apiSecScannerEnabled": api_sec_scanner_enabled,
         "scaScannerEnabled": sca_scanner_enabled,
         "webhookEnabled": webhook_enabled,
-        "prDecorationEnabled": pre_decoration_enabled,
+        "prDecorationEnabled": pr_decoration_enabled,
         "scaAutoPrEnabled": sca_auto_pr_enabled,
         "sshRepoUrl": ssh_repo_url,
         "sshState": "SKIPPED",
@@ -217,7 +217,13 @@ def get_job_status():
 
 def batch_import_repo(repos: List[dict], origin: str, organization: str, auth_code: str, chunk_size: int = 200,
                       is_user: bool = False, is_org_webhook_enabled: bool = False,
-                      create_ast_project: bool = True, scan_ast_project: bool = False):
+                      create_ast_project: bool = True, scan_ast_project: bool = False,
+                      kics_scanner_enabled=True, sast_incremental_scan=True, sast_scanner_enabled=True,
+                      api_sec_scanner_enabled=True, sca_scanner_enabled=True, webhook_enabled=True,
+                      pr_decoration_enabled=True,
+                      sca_auto_pr_enabled=False, container_scanner_enabled=True, ossf_score_card_scanner_enabled=True,
+                      secrets_detection_scanner_enabled=True
+                      ):
     origin = check_origin(origin)
     project_list = get_all_projects()
     project_name_list = [project.name for project in project_list]
@@ -237,7 +243,17 @@ def batch_import_repo(repos: List[dict], origin: str, organization: str, auth_co
                     "isDefaultBranch": True
                 }],
                 origin=origin,
-                webhook_enabled=True,
+                kics_scanner_enabled=kics_scanner_enabled,
+                sast_incremental_scan=sast_incremental_scan,
+                sast_scanner_enabled=sast_scanner_enabled,
+                api_sec_scanner_enabled=api_sec_scanner_enabled,
+                sca_scanner_enabled=sca_scanner_enabled,
+                webhook_enabled=webhook_enabled,
+                pr_decoration_enabled=pr_decoration_enabled,
+                sca_auto_pr_enabled=sca_auto_pr_enabled,
+                container_scanner_enabled=container_scanner_enabled,
+                ossf_score_card_scanner_enabled=ossf_score_card_scanner_enabled,
+                secrets_detection_scanner_enabled=secrets_detection_scanner_enabled,
             )
         )
     round_of_requests = math.ceil(len(repos) / chunk_size)
