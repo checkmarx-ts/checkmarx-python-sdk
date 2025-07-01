@@ -2,7 +2,7 @@ import math
 import json
 import time
 import logging
-from .httpRequests import get_request, post_request
+from .httpRequests import get_request, post_request, put_request
 from typing import List
 from requests.exceptions import ChunkedEncodingError
 from .projectsAPI import get_all_projects
@@ -264,3 +264,109 @@ def batch_import_repo(repos: List[dict], origin: str, organization: str, auth_co
                 logger.info(f"ChunkedEncodingError: {e}")
                 continue
         time.sleep(10)
+
+
+def get_repo_by_id(repo_id: int):
+    """
+
+    Args:
+        repo_id:
+
+    Returns:
+        example:
+        {
+    "id": "174896",
+    "url": "https://github.com/happy-cook/JavaVulnerableLab",
+    "webhookId": "555312209",
+    "webhookEnabled": true,
+    "prDecorationEnabled": false,
+    "isRepoAdmin": true,
+    "sastIncrementalScan": true,
+    "sastScannerEnabled": true,
+    "scaScannerEnabled": true,
+    "kicsScannerEnabled": true,
+    "apiSecScannerEnabled": true,
+    "containerScannerEnabled": true,
+    "ossfSecoreCardScannerEnabled": true,
+    "secretsDerectionScannerEnabled": true,
+    "privatePackage": false,
+    "branches": [
+        {
+            "name": "master",
+            "isDefaultBranch": true
+        }
+    ],
+    "sshRepoUrl": "git@github.com:happy-cook/JavaVulnerableLab.git",
+    "scmId": 1,
+    "scm": {
+        "typeName": "github"
+    },
+    "scaAutoPrEnabled": false,
+    "kicsAutoPrEnabled": false,
+    "sastAutoPrEnabled": false
+    }
+
+    """
+
+    relative_url = f"api/repos-manager/repo/{repo_id}"
+    response = get_request(relative_url)
+    return response.json()
+
+
+def update_repo_by_id(repo_id: int, project_id: str, pay_load: dict):
+    """
+
+    Args:
+        repo_id (int):
+        project_id (str):
+        pay_load (dict):
+            {
+            "branches":[{"name":"master","isDefaultBranch":true}],
+            "kicsScannerEnabled":true,
+            "sastIncrementalScan":true,
+            "sastScannerEnabled":true,
+            "scaScannerEnabled":true,
+            "apiSecScannerEnabled":true,
+            "url":"https://github.com/happy-cook/JavaVulnerableLab",
+            "webhookEnabled":true,
+            "prDecorationEnabled":false,
+            "secretsDerectionScannerEnabled":true,
+            "ossfSecoreCardScannerEnabled":true,
+            "scaAutoPrEnabled":false,
+            "webhookId":"555312209",
+            "sshRepoUrl":"git@github.com:happy-cook/JavaVulnerableLab.git",
+            "sshState":"SKIPPED",
+            "isRepoAdmin":true,
+            "containerScannerEnabled":true
+            }
+
+    Returns:
+
+    {
+    'id': '174896',
+    'url': 'https://github.com/happy-cook/JavaVulnerableLab',
+    'webhookId': '555312209',
+    'webhookEnabled': True,
+    'prDecorationEnabled': False,
+    'isRepoAdmin': True,
+    'sastIncrementalScan': True,
+    'sastScannerEnabled': True,
+    'scaScannerEnabled': True,
+    'kicsScannerEnabled': True,
+    'apiSecScannerEnabled': True,
+    'containerScannerEnabled': True,
+    'ossfSecoreCardScannerEnabled': True,
+    'secretsDerectionScannerEnabled': True,
+    'privatePackage': False,
+    'branches': [{'name': 'master', 'isDefaultBranch': True}],
+    'sshRepoUrl': 'git@github.com:happy-cook/JavaVulnerableLab.git',
+    'scmId': 1,
+    'scaAutoPrEnabled': False,
+    'kicsAutoPrEnabled': False,
+    'sastAutoPrEnabled': False
+    }
+
+    """
+    relative_url = f"api/repos-manager/repo/{repo_id}?projectId={project_id}"
+    response = put_request(relative_url=relative_url, json=pay_load)
+    return response.json()

@@ -5,6 +5,9 @@ from CheckmarxPythonSDK.CxOne import (
     construct_repo_request,
     repo_import,
     get_job_status,
+    batch_import_repo,
+    get_repo_by_id,
+    update_repo_by_id,
 )
 
 
@@ -98,3 +101,33 @@ def test_bitbucket_import():
     response = repo_import(origin=origin, organization=bitbucket_org, auth_code=auth_code,
                            repos_from_request=repo_requests)
     assert response.status_code == 200
+
+
+def test_get_repo_by_id():
+    result = get_repo_by_id(repo_id=174896)
+    assert result is not None
+
+
+def test_update_repo_by_id():
+    result = update_repo_by_id(repo_id=174896, project_id="62b18663-16c7-4da9-ab9f-c685120b31e3",
+                               pay_load={
+                                   "branches": [{"name": "master", "isDefaultBranch": True}],
+                                   "kicsScannerEnabled": True,
+                                   "sastIncrementalScan": True,
+                                   "sastScannerEnabled": True,
+                                   "scaScannerEnabled": True,
+                                   "apiSecScannerEnabled": True,
+                                   "url": "https://github.com/happy-cook/JavaVulnerableLab",
+                                   "webhookEnabled": True,
+                                   "prDecorationEnabled": False,
+                                   "secretsDerectionScannerEnabled": True,
+                                   "ossfSecoreCardScannerEnabled": True,
+                                   "scaAutoPrEnabled": False,
+                                   "webhookId": "555312209",
+                                   "sshRepoUrl": "git@github.com:happy-cook/JavaVulnerableLab.git",
+                                   "sshState": "SKIPPED",
+                                   "isRepoAdmin": True,
+                                   "containerScannerEnabled": True
+                               }
+                               )
+    assert result is not None

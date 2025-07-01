@@ -291,6 +291,11 @@ def get_a_project_by_id(project_id):
         updated_at=project.get("updatedAt"),
         tags=project.get("tags"),
         criticality=project.get("criticality"),
+        tenant_id=project.get("tenantId"),
+        scm_repo_id=project.get("scmRepoId"),
+        repo_id=project.get("repoId"),
+        private_package=project.get("privatePackage"),
+        imported_proj_name=project.get("imported_proj_name")
     )
 
 
