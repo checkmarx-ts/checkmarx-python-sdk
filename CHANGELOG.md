@@ -1,5 +1,10 @@
 Changelog
 All notable changes to this project will be documented in  this file.
+
+1.3.4 - 2025-07-01
+* Add get_repo_by_id update_repo_by_id
+* Update get_a_project_by_id
+
 1.3.3 - 2025-06-27
 * Fix batch_import_repo
 
