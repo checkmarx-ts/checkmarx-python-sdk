@@ -324,7 +324,7 @@ def get_repo_by_id(repo_id: int):
 
     """
 
-    relative_url = f"api/repos-manager/repo/{repo_id}"
+    relative_url = f"/api/repos-manager/repo/{repo_id}"
     response = get_request(relative_url)
     return response.json()
 
@@ -383,6 +383,6 @@ def update_repo_by_id(repo_id: int, project_id: str, pay_load: dict):
     }
 
     """
-    relative_url = f"api/repos-manager/repo/{repo_id}?projectId={project_id}"
+    relative_url = f"/api/repos-manager/repo/{repo_id}?projectId={project_id}"
     response = put_request(relative_url=relative_url, json=pay_load)
     return response.json()
