@@ -45,7 +45,7 @@ def define_parameters_in_the_input_list_for_the_current_tenant(scan_parameters):
     relative_url = api_url + "/tenant"
     data = json.dumps([scan_parameter.to_dict() for scan_parameter in scan_parameters])
     response = patch_request(relative_url=relative_url, data=data)
-    if response.status == NO_CONTENT:
+    if response.status_code == NO_CONTENT:
         result = True
     return result
 
@@ -62,7 +62,7 @@ def delete_parameters_for_a_tenant(config_keys):
     result = False
     relative_url = api_url + "/tenant?config-keys={}".format(config_keys)
     response = delete_request(relative_url=relative_url)
-    if response.status == NO_CONTENT:
+    if response.status_code == NO_CONTENT:
         result = True
     return result
 
