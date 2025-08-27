@@ -1,4 +1,4 @@
-requests==2.32.4
+requests==2.32.5
 requests-toolbelt==1.0.0
 zeep==4.3.1
 Deprecated==1.2.18
