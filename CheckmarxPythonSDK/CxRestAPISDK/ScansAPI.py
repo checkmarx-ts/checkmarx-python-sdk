@@ -1636,7 +1636,6 @@ class ScansAPI(object):
             )
         if lcid is not None:
             relative_url = relative_url + "&LCID={lcid}".format(lcid=lcid)
-        print(f'get_scan_results_in_paged_mode: relative_url={relative_url}')
         response = get_request(relative_url=relative_url)
         if response.status_code == OK:
             data = response.json()
