@@ -1,5 +1,8 @@
-Changelog
+# Changelog
 All notable changes to this project will be documented in  this file.
+1.3.7 - 2025-09-03
+* Fix bug: 'Response' object has no attribute 'status' when calling define_parameters_in_the_input_list_for_the_current_tenant() function.
+  
 1.3.6 - 2025-07-01
 * Fix get_repo_by_id update_repo_by_id
 
