@@ -28,7 +28,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     ProjectInput,
 )
 
-new_project_name = "JavaVulnerableLab"
+new_project_name = "happy-cook/JavaVulnerableLab"
 
 
 def test_ast_create_scan_by_upload_file():
@@ -64,7 +64,7 @@ def test_ast_create_scan_by_upload_file():
 
 def test_get_a_list_of_scan():
     project_id = get_project_id_by_name(name=new_project_name)
-    scans_collection = get_a_list_of_scans(project_id=project_id, branch='master', limit=5)
+    scans_collection = get_a_list_of_scans(project_id=project_id, branch='master', limit=1, sort=["-created_at"])
     assert len(scans_collection.scans) > 0
 
 

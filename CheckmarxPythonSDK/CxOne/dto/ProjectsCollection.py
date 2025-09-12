@@ -1,18 +1,20 @@
-# encoding: utf-8
-class ProjectsCollection(object):
-    def __init__(self, total_count, filtered_total_count, projects):
-        """
+from dataclasses import dataclass
+from typing import List
+from .Project import Project, construct_project
 
-        Args:
-            total_count (int): The number of total records
-            filtered_total_count (int): The number of total records matching the applied filter
-            projects: The projects returned with the filter applied
-        """
-        self.totalCount = total_count
-        self.filteredTotalCount = filtered_total_count
-        self.projects = projects
 
-    def __str__(self):
-        return """ProjectsCollection(total_count={}, filtered_total_count={}, projects={})""".format(
-            self.totalCount, self.filteredTotalCount, self.projects
+@dataclass
+class ProjectsCollection:
+    total_count: int = None
+    filtered_total_count: int = None
+    projects: List[Project] = None
+
+
+def construct_projects_collection(item):
+    return ProjectsCollection(
+            total_count=item.get("totalCount"),
+            filtered_total_count=item.get("filteredTotalCount"),
+            projects=[
+                construct_project(project) for project in item.get("projects") or []
+            ]
         )

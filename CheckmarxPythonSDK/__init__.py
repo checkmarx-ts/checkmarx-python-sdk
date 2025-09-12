@@ -1,4 +1,6 @@
 import logging
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
 from CheckmarxPythonSDK.utilities.configUtility import get_debug_command_line_arg
 
 # create logger
@@ -16,3 +18,5 @@ else:
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+
+disable_warnings(InsecureRequestWarning)

@@ -1,16 +1,26 @@
-import json
-from ...utilities.compat import CREATED, NO_CONTENT
-from ..httpRequests import get_request, post_request, put_request, delete_request
-from typing import List
-from ..utilities import get_url_param, type_check
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from ..utilities import type_check
 from .url import api_url
 
 
-def get_role_mappings(realm, group_id):
-    type_check(realm, str)
-    type_check(group_id, str)
+class RoleMapperAPI(object):
 
-    relative_url = api_url + f"/{realm}/groups/{group_id}/role-mappings"
-    response = get_request(relative_url=relative_url, is_iam=True)
-    response = response.json()
-    return response
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_role_mappings(self, realm: str, group_id: str) -> dict:
+        type_check(realm, str)
+        type_check(group_id, str)
+
+        relative_url = api_url + f"/{realm}/groups/{group_id}/role-mappings"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+def get_role_mappings(realm: str, group_id: str) -> dict:
+    return RoleMapperAPI().get_role_mappings(realm=realm, group_id=group_id)

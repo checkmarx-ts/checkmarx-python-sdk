@@ -1,105 +1,128 @@
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from typing import List
+from requests import Response
 import json
-from .httpRequests import get_request, post_request, put_request
-from .utilities import get_url_param, type_check
 from .dto import ImportItem, ImportItemWithLogs, LogItem
 from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 
 api_url = "/api/imports"
 
 
-def launches_import_from_sast_file(file_name, encryption_key, projects_mapping_file_name):
-    """
+class SastMigrationAPI(object):
 
-    Args:
-        file_name (str):
-        encryption_key (str):
-        projects_mapping_file_name (str):
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
 
-    Returns:
-        migration_id (str)
-    """
-    result = None
-    relative_url = api_url + "/"
-    data = json.dumps(
-        {
-            "fileName": file_name,
-            "encryptionKey": encryption_key,
-            "projectsMappingFileName": projects_mapping_file_name
-        }
-    )
-    response = post_request(relative_url=relative_url, data=data)
-    if response.status_code == ACCEPTED:
-        response = response.json()
-        result = response.get("migrationId")
-    return result
+    def launches_import_from_sast_file(
+            self, file_name: str, encryption_key: str, projects_mapping_file_name: str
+    ) -> str:
+        """
 
+        Args:
+            file_name (str):
+            encryption_key (str):
+            projects_mapping_file_name (str):
 
-def get_list_of_imports():
-    """
-
-    Returns:
-        list of ImportItem
-    """
-    result = None
-    relative_url = api_url + "/"
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
-        response = response.json()
-        result = [
-            ImportItem(
-                migration_id=item.get("id"),
-                status=item.get("status"),
-                created_at=item.get("created_at")
-            ) for item in response
-        ]
-    return result
-
-
-def get_info_about_import_by_id(migration_id):
-    """
-
-    Args:
-        migration_id (str):
-
-    Returns:
-
-    """
-    result = None
-    relative_url = api_url + f"/{migration_id}"
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
-        response = response.json()
-        result = ImportItemWithLogs(
-            migration_id=response.get("id"),
-            status=response.get("status"),
-            created_at=response.get("created_at"),
-            logs=[
-                LogItem(
-                    level=item.get("level"),
-                    msg=item.get("msg"),
-                    time=item.get("time"),
-                    error=item.get("error"),
-                    worker=item.get("worker"),
-                    raw_log=item.get("raw_log"),
-                ) for item in response.get("logs")
-            ]
+        Returns:
+            migration_id (str)
+        """
+        result = None
+        relative_url = api_url + "/"
+        data = json.dumps(
+            {
+                "fileName": file_name,
+                "encryptionKey": encryption_key,
+                "projectsMappingFileName": projects_mapping_file_name
+            }
         )
-    return result
+        response = self.api_client.post_request(relative_url=relative_url, data=data)
+        if response.status_code == ACCEPTED:
+            response = response.json()
+            result = response.get("migrationId")
+        return result
+
+    def get_list_of_imports(self) -> List[ImportItem]:
+        """
+
+        Returns:
+            List[ImportItem]
+        """
+        result = None
+        relative_url = api_url + "/"
+        response = self.api_client.get_request(relative_url=relative_url)
+        if response.status_code == OK:
+            response = response.json()
+            result = [
+                ImportItem(
+                    migration_id=item.get("id"),
+                    status=item.get("status"),
+                    created_at=item.get("created_at")
+                ) for item in response
+            ]
+        return result
+
+    def get_info_about_import_by_id(self, migration_id: str) -> ImportItemWithLogs:
+        """
+
+        Args:
+            migration_id (str):
+
+        Returns:
+            ImportItemWithLogs
+        """
+        result = None
+        relative_url = api_url + f"/{migration_id}"
+        response = self.api_client.get_request(relative_url=relative_url)
+        if response.status_code == OK:
+            response = response.json()
+            result = ImportItemWithLogs(
+                migration_id=response.get("id"),
+                status=response.get("status"),
+                created_at=response.get("created_at"),
+                logs=[
+                    LogItem(
+                        level=item.get("level"),
+                        msg=item.get("msg"),
+                        time=item.get("time"),
+                        error=item.get("error"),
+                        worker=item.get("worker"),
+                        raw_log=item.get("raw_log"),
+                    ) for item in response.get("logs")
+                ]
+            )
+        return result
+
+    def download_migration_logs(self, migration_id: str) -> Response:
+        """
+
+        Args:
+            migration_id (str):
+
+        Returns:
+            Response
+        """
+        relative_url = api_url + f"/{migration_id}/logs/download"
+        response = self.api_client.get_request(relative_url=relative_url)
+        return response
 
 
-def download_migration_logs(migration_id):
-    """
+def launches_import_from_sast_file(file_name: str, encryption_key: str, projects_mapping_file_name: str) -> str:
+    return SastMigrationAPI().launches_import_from_sast_file(
+        file_name=file_name, encryption_key=encryption_key, projects_mapping_file_name=projects_mapping_file_name
+    )
 
-    Args:
-        migration_id (str):
 
-    Returns:
+def get_list_of_imports() -> List[ImportItem]:
+    return SastMigrationAPI().get_list_of_imports()
 
-    """
-    result = None
-    relative_url = api_url + f"/{migration_id}/logs/download"
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
-        result = response
-    return result
 
+def get_info_about_import_by_id(migration_id: str) -> ImportItemWithLogs:
+    return SastMigrationAPI().get_info_about_import_by_id(migration_id=migration_id)
+
+
+def download_migration_logs(migration_id: str) -> Response:
+    return SastMigrationAPI().download_migration_logs(migration_id=migration_id)

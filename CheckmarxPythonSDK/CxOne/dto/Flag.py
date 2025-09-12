@@ -1,16 +1,11 @@
-# encoding utf-8
-class Flag(object):
-    def __init__(self, name, status, payload):
-        """
+from dataclasses import dataclass
 
-        Args:
-            name (str)
-            status (boolean)
-            payload (dict)
-        """
-        self.name = name
-        self.status = status
-        self.payload = payload
+
+@dataclass
+class Flag:
+    name: str = None
+    status: bool = None
+    payload: dict = None
 
     def __eq__(self, other):
 
@@ -22,7 +17,10 @@ class Flag(object):
 
         return self.name < other.name
 
-    def __str__(self):
-        return """Flag(name={name}, status={status}, payload={payload})""".format(
-            name=self.name, status=self.status, payload=self.payload
-        )
+
+def construct_feature_flag(item):
+    return Flag(
+        name=item.get("name"),
+        status=item.get("status"),
+        payload=item.get("payload")
+    )

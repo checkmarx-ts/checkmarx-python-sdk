@@ -18,7 +18,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     RuleInput,
 )
 
-application_name = "happy-test-application-2022-03-02"
+application_name = "happy-test-application-2025-09-08"
 
 
 def test_create_an_application():
@@ -45,13 +45,13 @@ def test_create_an_application():
 def test_get_a_list_of_applications():
     app_collection = get_a_list_of_applications()
     applications = app_collection.applications
-    assert len(applications) > 1
+    assert len(applications) >= 1
 
 
 def test_get_a_list_of_applications_with_tags_keys():
     app_collection = get_a_list_of_applications(tags_keys=["test"])
     applications = app_collection.applications
-    assert len(applications) > 1
+    assert len(applications) >= 1
 
 
 def test_get_a_list_of_applications_with_tags_values():

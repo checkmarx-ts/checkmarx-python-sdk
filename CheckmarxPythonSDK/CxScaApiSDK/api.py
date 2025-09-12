@@ -1,26 +1,27 @@
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxScaApiSDK.config import construct_configuration
+from typing import List
+from requests import Response
 import json
 import os
-from .httpRequests import (
-    get_request as get_req,
-    post_request as post_req,
-    put_request as put_req,
-    delete_request as delete_req,
-)
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK, CREATED, ACCEPTED
-from CheckmarxPythonSDK.utilities.httpRequests import put, auth_header
 from requests_toolbelt import MultipartEncoder
+agent_headers = {
+    "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/106.0.0.0 Safari/537.36",
+}
 
 
 class Sca(object):
-
-    def __init__(self, get_request=get_req, post_request=post_req, put_request=put_req, delete_request=delete_req):
-        self.get_request = get_request
-        self.post_request = post_request
-        self.put_request = put_request
-        self.delete_request = delete_request
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
         self.gql_relative_url = "/graphql/graphql"
 
-    def get_all_projects(self, project_name=None):
+    def get_all_projects(self, project_name: str = None) -> dict | List[dict]:
         """
 
         Args:
@@ -47,10 +48,10 @@ class Sca(object):
         if project_name:
             url += "?name={project_name}".format(project_name=project_name)
 
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def check_if_project_already_exists(self, project_name):
+    def check_if_project_already_exists(self, project_name: str) -> bool:
         """
 
         Args:
@@ -68,7 +69,7 @@ class Sca(object):
 
         return False
 
-    def create_a_new_project(self, project_name, assigned_teams=None):
+    def create_a_new_project(self, project_name: str, assigned_teams: List[str] = None) -> dict:
         """
 
         Args:
@@ -100,10 +101,10 @@ class Sca(object):
                 "AssignedTeams": assigned_teams
             }
         )
-        response = self.post_request(url, data)
+        response = self.api_client.post_request(url, data)
         return response.json()
 
-    def get_project_id_by_name(self, project_name):
+    def get_project_id_by_name(self, project_name: str | List[str]) -> str | List[str]:
         """
 
         Args:
@@ -119,20 +120,20 @@ class Sca(object):
             projects = self.get_all_projects()
             return [project.get("id") for project in projects if project.get("name") in project_name]
 
-    def get_project_by_id(self, project_id):
+    def get_project_by_id(self, project_id: str) -> dict:
         """
 
         Args:
             project_id (str):
 
         Returns:
-
+            dict
         """
         url = "/risk-management/projects/{id}".format(id=project_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def update_project(self, project_id, project_name=None, assigned_teams=None):
+    def update_project(self, project_id: str, project_name: str = None, assigned_teams: List[str] = None) -> bool:
         """
 
         Args:
@@ -152,12 +153,12 @@ class Sca(object):
             data.update({"AssignedTeams": assigned_teams})
 
         data = json.dumps(data)
-        response = self.put_request(relative_url=url, data=data)
+        response = self.api_client.put_request(relative_url=url, data=data)
         if response.status_code == NO_CONTENT:
             result = True
         return result
 
-    def delete_project(self, project_id):
+    def delete_project(self, project_id: str) -> bool:
         """
 
         Args:
@@ -168,12 +169,12 @@ class Sca(object):
         """
         result = False
         url = "/risk-management/projects/{id}".format(id=project_id)
-        response = self.delete_request(relative_url=url)
+        response = self.api_client.delete_request(relative_url=url)
         if response.status_code == NO_CONTENT:
             result = True
         return result
 
-    def get_all_scans_associated_with_a_project(self, project_id):
+    def get_all_scans_associated_with_a_project(self, project_id: str) -> List[dict]:
         """
 
         Args:
@@ -249,10 +250,10 @@ class Sca(object):
                 ]
         """
         url = "/risk-management/scans?projectId={project_id}".format(project_id=project_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_latest_scan_id_of_a_project(self, project_id):
+    def get_latest_scan_id_of_a_project(self, project_id: str) -> str:
         """
 
         Returns:
@@ -269,7 +270,7 @@ class Sca(object):
 
         return scan_id
 
-    def get_scan_by_id(self, scan_id):
+    def get_scan_by_id(self, scan_id: str) -> dict:
         """
 
         Args:
@@ -343,10 +344,10 @@ class Sca(object):
             }
         """
         url = "/risk-management/scans/{scanId}".format(scanId=scan_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_scan_status(self, scan_id):
+    def get_scan_status(self, scan_id: str) -> dict:
         """
 
         Args:
@@ -358,10 +359,10 @@ class Sca(object):
             sample: {'name': 'Done', 'message': None}
         """
         url = "/risk-management/scans/{scanId}/status".format(scanId=scan_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_scan_settings(self, scan_id):
+    def get_scan_settings(self, scan_id: str) -> dict:
         """
 
         Args:
@@ -378,10 +379,10 @@ class Sca(object):
                 }
         """
         url = "/risk-management/scans/{scanId}/settings".format(scanId=scan_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_risk_report_summary(self, project_id=None, size=10, skip=0):
+    def get_risk_report_summary(self, project_id: str = None, size: int = 10, skip: int = 0) -> List[dict]:
         """
 
         Args:
@@ -432,10 +433,10 @@ class Sca(object):
         if optionals:
             url += "?" + "&".join(optionals)
 
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_packages_of_a_scan(self, scan_id):
+    def get_packages_of_a_scan(self, scan_id: str) -> List[dict]:
         """
 
         Args:
@@ -594,10 +595,10 @@ class Sca(object):
 
         """
         url = "/risk-management/risk-reports/{scanId}/packages".format(scanId=scan_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_vulnerabilities_of_a_scan(self, scan_id):
+    def get_vulnerabilities_of_a_scan(self, scan_id: str) -> List[dict]:
         """
 
         Args:
@@ -660,10 +661,10 @@ class Sca(object):
                 ]
         """
         url = "/risk-management/risk-reports/{scanId}/vulnerabilities".format(scanId=scan_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_licenses_of_a_scan(self, scan_id):
+    def get_licenses_of_a_scan(self, scan_id: str) -> List[dict]:
         """
 
         Args:
@@ -689,10 +690,12 @@ class Sca(object):
             ]
         """
         url = "/risk-management/risk-reports/{scanId}/licenses".format(scanId=scan_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def ignore_a_vulnerability_for_a_specific_package_and_project(self, project_id, vulnerability_id, package_id):
+    def ignore_a_vulnerability_for_a_specific_package_and_project(
+            self, project_id: str, vulnerability_id: str, package_id: str
+    ) -> bool:
         """
 
         Args:
@@ -712,12 +715,14 @@ class Sca(object):
                 "PackageId": package_id
             }
         )
-        response = self.put_request(relative_url=url, data=data)
+        response = self.api_client.put_request(relative_url=url, data=data)
         if response.status_code == NO_CONTENT:
             is_successful = True
         return is_successful
 
-    def undo_the_ignore_state_of_an_ignored_vulnerability(self, project_id, vulnerability_id, package_id):
+    def undo_the_ignore_state_of_an_ignored_vulnerability(
+            self, project_id: str, vulnerability_id: str, package_id: str
+    ) -> bool:
         """
 
         Args:
@@ -737,12 +742,12 @@ class Sca(object):
                 "PackageId": package_id
             }
         )
-        response = self.put_request(relative_url=url, data=data)
+        response = self.api_client.put_request(relative_url=url, data=data)
         if response.status_code == NO_CONTENT:
             is_successful = True
         return is_successful
 
-    def get_settings_for_a_specific_project(self, project_id):
+    def get_settings_for_a_specific_project(self, project_id: str) -> dict:
         """
 
         Args:
@@ -755,10 +760,10 @@ class Sca(object):
             {'enableExploitablePath': False}
         """
         url = "/risk-management/settings/projects/{projectId}".format(projectId=project_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def update_settings_for_a_specific_project(self, project_id, enable_exploitable_path):
+    def update_settings_for_a_specific_project(self, project_id: str, enable_exploitable_path: bool) -> bool:
         """
 
         Args:
@@ -775,12 +780,12 @@ class Sca(object):
                 "EnableExploitablePath": enable_exploitable_path
             }
         )
-        response = self.put_request(relative_url=url, data=data)
+        response = self.api_client.put_request(relative_url=url, data=data)
         if response.status_code == NO_CONTENT:
             is_successful = True
         return is_successful
 
-    def generate_upload_link_for_scanning(self, project_id):
+    def generate_upload_link_for_scanning(self, project_id: str) -> str:
         """
             This function should be used together with the following functions:
                 * upload_zip_content_for_scanning
@@ -798,11 +803,10 @@ class Sca(object):
                 "projectId": project_id
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         return response.json().get("uploadUrl")
 
-    @staticmethod
-    def upload_zip_content_for_scanning(upload_link, zip_file_path):
+    def upload_zip_content_for_scanning(self, upload_link, zip_file_path) -> bool:
         """
             This function should be used together with the following functions:
                 * generate_upload_link_for_scanning
@@ -819,13 +823,13 @@ class Sca(object):
         url = "{uploadLink}".format(uploadLink=upload_link)
 
         with open(zip_file_path, 'rb') as data:
-            response = put(url=url, data=data)
+            response = self.api_client.put(url=url, data=data)
             if response.status_code == OK:
                 is_successful = True
 
         return is_successful
 
-    def scan_previously_uploaded_zip(self, project_id, uploaded_file_url):
+    def scan_previously_uploaded_zip(self, project_id: str, uploaded_file_url: str) -> str:
         """
             This function should be used together with the following functions:
                 * generate_upload_link_for_scanning
@@ -846,10 +850,10 @@ class Sca(object):
             }
         )
 
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         return response.json().get("scanId")
 
-    def generate_upload_link(self):
+    def generate_upload_link(self) -> str:
         """
             This function should be used together with the following functions:
                 * upload_zip_file
@@ -859,11 +863,10 @@ class Sca(object):
            uploadUrl (str)
         """
         url = "/api/uploads"
-        response = self.post_request(relative_url=url, data=None)
+        response = self.api_client.post_request(relative_url=url, data=None)
         return response.json().get("url")
 
-    @staticmethod
-    def upload_zip_file(upload_link, zip_file_path):
+    def upload_zip_file(self, upload_link: str, zip_file_path: str) -> bool:
         """
                 This function should be used together with the following functions:
                 * generate_upload_link
@@ -880,13 +883,13 @@ class Sca(object):
         url = "{uploadLink}".format(uploadLink=upload_link)
 
         with open(zip_file_path, 'rb') as data:
-            response = put(url=url, data=data, headers=auth_header)
+            response = self.api_client.put(url=url, data=data)
             if response.status_code == OK:
                 is_successful = True
 
         return is_successful
 
-    def scan_zip_file_or_github_file(self, project_id, project_type, handler_url):
+    def scan_zip_file_or_github_file(self, project_id: str, project_type: str, handler_url: str) -> str:
         """
             This function should be used together with the following functions:
                 * generate_upload_link
@@ -907,7 +910,7 @@ class Sca(object):
         if project_type not in ["git", "upload"]:
             raise ValueError("project_type should be git or upload")
 
-        response = self.post_request(relative_url=url, data=json.dumps({
+        response = self.api_client.post_request(relative_url=url, data=json.dumps({
             "project": {
                 "id": f"{project_id}",
                 "type": f"{project_type}",
@@ -920,7 +923,7 @@ class Sca(object):
             result = response.json().get("id")
         return result
 
-    def get_comments_associated_with_a_project(self, project_id):
+    def get_comments_associated_with_a_project(self, project_id: str) -> List[dict]:
         """
         Args:
             project_id (str):
@@ -948,11 +951,12 @@ class Sca(object):
         """
 
         url = "/risk-management/risk-metadata/{projectId}".format(projectId=project_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def comment_a_vulnerability_for_a_specific_package_and_project(self, project_id, vulnerability_id, package_id,
-                                                                   comment):
+    def comment_a_vulnerability_for_a_specific_package_and_project(
+            self, project_id: str, vulnerability_id: str, package_id: str, comment: str
+    ) -> bool:
         """
         Args:
             project_id (str):
@@ -973,12 +977,12 @@ class Sca(object):
                 "username": "NOT USED"
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             is_successful = True
         return is_successful
 
-    def get_states_associated_with_a_project(self, project_id):
+    def get_states_associated_with_a_project(self, project_id: str) -> List[dict]:
         """
         Args:
             project_id (str):
@@ -1004,11 +1008,12 @@ class Sca(object):
         """
 
         url = "/risk-management/risk-state/{projectId}".format(projectId=project_id)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def change_state_of_a_vulnerability_for_a_specific_package_and_project(self, project_id, vulnerability_id,
-                                                                           package_id, state):
+    def change_state_of_a_vulnerability_for_a_specific_package_and_project(
+            self, project_id: str, vulnerability_id: str, package_id: str, state: str
+    ) -> bool:
         """
         Args:
             project_id (str):
@@ -1028,12 +1033,12 @@ class Sca(object):
                 "vulnerabilityId": vulnerability_id
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             is_successful = True
         return is_successful
 
-    def get_scan_reports(self, scan_id, report_format="Json", data_types=("All",)):
+    def get_scan_reports(self, scan_id: str, report_format: str = "Json", data_types: List[str] = ("All",)) -> bytes:
         """
 
         Args:
@@ -1059,7 +1064,7 @@ class Sca(object):
                  SupplyChainRisks
 
         Returns:
-
+            bytes
         """
         if report_format not in ["Json", "Xml", "Pdf", "Csv", "CycloneDxJson", "CycloneDxXml"]:
             raise ValueError("parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml")
@@ -1072,10 +1077,10 @@ class Sca(object):
         url = "/risk-management/risk-reports/{scan_id}/export".format(scan_id=scan_id)
         url += "?format={report_format}".format(report_format=report_format)
         url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.content
 
-    def get_aggregated_risks(self, package_type, package_name, version):
+    def get_aggregated_risks(self, package_type: str, package_name: str, version: str) -> dict:
         """
             This is a public API
         Args:
@@ -1084,7 +1089,7 @@ class Sca(object):
             version:
 
         Returns:
-
+            dict
         """
         url = "/public/risk-aggregation/aggregated-risks"
         data = json.dumps({
@@ -1092,10 +1097,10 @@ class Sca(object):
             "version": version,
             "packageManager": package_type
         })
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         return response.json()
 
-    def get_artifact_license(self, package_type, package_name, version):
+    def get_artifact_license(self, package_type: str, package_name: str, version: str) -> dict:
         """
             This is a public API
         Args:
@@ -1104,13 +1109,13 @@ class Sca(object):
             version:
 
         Returns:
-
+            dict
         """
         url = "/public/packages/{}/{}/versions/{}/licenses".format(package_type, package_name, version)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_artifact_info(self, package_type, package_name, version):
+    def get_artifact_info(self, package_type: str, package_name: str, version: str) -> dict:
         """
             This is a public API
         Args:
@@ -1119,13 +1124,13 @@ class Sca(object):
             version:
 
         Returns:
-
+            dict
         """
         url = "/public/packages/{}/{}/versions/{}".format(package_type, package_name, version)
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         return response.json()
 
-    def get_suggest_private_package(self, package_type, package_name, version):
+    def get_suggest_private_package(self, package_type: str, package_name: str, version: str) -> dict:
         """
             This is a public API
         Args:
@@ -1143,12 +1148,13 @@ class Sca(object):
             "name": package_name,
             "version": version
         }])
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         return response.json()
 
-    def execute_action_on_package_vulnerabilities(self, package_name, package_manager, vulnerability_id,
-                                                  package_version,
-                                                  project_ids, actions):
+    def execute_action_on_package_vulnerabilities(
+            self, package_name: str, package_manager: str, vulnerability_id: str,
+            package_version: str, project_ids: List[str], actions: List[dict]
+    ) -> bool:
         """
 
         action is a dict with the following keys:
@@ -1173,7 +1179,6 @@ class Sca(object):
         Returns:
             bool
         """
-        result = False
         url = "/management-of-risk/package-vulnerabilities"
         data = json.dumps(
             {
@@ -1185,12 +1190,10 @@ class Sca(object):
                 "actions": actions
             }
         )
-        response = self.post_request(relative_url=url, data=data)
-        if response.status_code == CREATED:
-            result = True
-        return result
+        response = self.api_client.post_request(relative_url=url, data=data)
+        return response.status_code == CREATED
 
-    def evaluate_package_vulnerabilities(self, scan_id, entities):
+    def evaluate_package_vulnerabilities(self, scan_id: str, entities: List[dict]) -> List[dict]:
         """
 
         entity is a dict with the following keys:
@@ -1232,14 +1235,15 @@ class Sca(object):
                 "entities": entities
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def disable_an_action_of_package_vulnerability(self, package_name, package_version, package_manager,
-                                                   vulnerability_id,
-                                                   project_ids, action_type):
+    def disable_an_action_of_package_vulnerability(
+            self, package_name: str, package_version: str, package_manager: str,
+            vulnerability_id: str, project_ids: List[str], action_type: str
+    ) -> bool:
         """
 
         Args:
@@ -1252,7 +1256,7 @@ class Sca(object):
                 "MarkLicenseAsEffective", "AddLicense", "RemoveLicense"
 
         Returns:
-
+            bool
         """
         result = False
         url = "/management-of-risk/package-vulnerabilities/disable"
@@ -1266,12 +1270,12 @@ class Sca(object):
                 "actionType": action_type
             }
         )
-        response = self.post_request(relative_url=url, data=data)
-        if response.status_code == NO_CONTENT:
-            result = True
-        return result
+        response = self.api_client.post_request(relative_url=url, data=data)
+        return response.status_code == NO_CONTENT
 
-    def get_changes_of_package_vulnerabilities_of_a_project(self, project_id, from_when, skip, take):
+    def get_changes_of_package_vulnerabilities_of_a_project(
+            self, project_id: str, from_when: str, skip: int, take: int
+    ) -> dict:
         """
 
         Args:
@@ -1311,14 +1315,15 @@ class Sca(object):
                 "take": take
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def search_entity_profile_of_package_vulnerabilities(self, package_name, package_version, package_manager,
-                                                         vulnerability_id,
-                                                         project_id, action_type, to_when):
+    def search_entity_profile_of_package_vulnerabilities(
+            self, package_name: str, package_version: str, package_manager: str,
+            vulnerability_id: str, project_id: str, action_type: str, to_when: str
+    ) -> dict:
         """
 
         Args:
@@ -1371,14 +1376,15 @@ class Sca(object):
                 "to": to_when
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def execute_actions_on_supply_chain_risks(self, package_name, package_manager, supply_chain_risk_id,
-                                              package_version,
-                                              project_ids, actions):
+    def execute_actions_on_supply_chain_risks(
+            self, package_name: str, package_manager: str, supply_chain_risk_id: str,
+            package_version: str, project_ids: List[str], actions: List[dict]
+    ) -> bool:
         """
 
          action is a dict with the following keys:
@@ -1395,7 +1401,7 @@ class Sca(object):
             actions (list of dict):
 
         Returns:
-
+            bool
         """
 
         result = False
@@ -1410,12 +1416,10 @@ class Sca(object):
                 "actions": actions
             }
         )
-        response = self.post_request(relative_url=url, data=data)
-        if response.status_code == CREATED:
-            result = True
-        return result
+        response = self.api_client.post_request(relative_url=url, data=data)
+        return response.status_code == CREATED
 
-    def evaluate_supply_chain_risks(self, scan_id, entities):
+    def evaluate_supply_chain_risks(self, scan_id: str, entities: List[str]) -> List[dict]:
         """
 
         entity is a dict with the following keys:
@@ -1456,14 +1460,15 @@ class Sca(object):
                 "entities": entities
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == CREATED:
             result = response.json()
         return result
 
-    def disable_an_action_for_a_supply_chain_risk(self, package_name, package_version, package_manager,
-                                                  supply_chain_risk_id,
-                                                  project_ids, action_type):
+    def disable_an_action_for_a_supply_chain_risk(
+            self, package_name: str, package_version: str, package_manager: str,
+            supply_chain_risk_id: str, project_ids: List[str], action_type:str
+    ) -> bool:
         """
 
         Args:
@@ -1475,7 +1480,7 @@ class Sca(object):
             action_type (str): "ChangeState"
 
         Returns:
-
+            bool
         """
         result = False
         url = "/management-of-risk/package-supply-chain-risks/disable"
@@ -1489,12 +1494,10 @@ class Sca(object):
                 "actionType": action_type
             }
         )
-        response = self.post_request(relative_url=url, data=data)
-        if response.status_code == NO_CONTENT:
-            result = True
-        return result
+        response = self.api_client.post_request(relative_url=url, data=data)
+        return response.status_code == NO_CONTENT
 
-    def get_changes_of_supply_chain_risk(self, project_id, from_when, skip, take):
+    def get_changes_of_supply_chain_risk(self, project_id: str, from_when: str, skip: int, take: int) -> dict:
         """
 
         Args:
@@ -1532,13 +1535,15 @@ class Sca(object):
                 "take": take
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def search_entity_profile_of_package_supply_chain_risks(self, package_name, package_version, package_manager,
-                                                            supply_chain_risk_id, project_id, action_type, to_when):
+    def search_entity_profile_of_package_supply_chain_risks(
+            self, package_name: str, package_version: str, package_manager: str,
+            supply_chain_risk_id: str, project_id: str, action_type: str, to_when: str
+    ) -> dict:
         """
 
         Args:
@@ -1589,12 +1594,14 @@ class Sca(object):
                 "to": to_when
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def execute_actions_on_package_license(self, package_id, license_name, project_ids, actions):
+    def execute_actions_on_package_license(
+            self, package_id: str, license_name: str, project_ids: str, actions: List[dict]
+    ) -> bool:
         """
 
         action is a dict with following keys:
@@ -1621,12 +1628,12 @@ class Sca(object):
                 "actions": actions
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == CREATED:
             result = True
         return result
 
-    def evaluate_package_licenses(self, entities, scan_id):
+    def evaluate_package_licenses(self, entities: List[dict], scan_id: str) -> List[dict]:
         """
 
         entity is a dict: for example
@@ -1684,12 +1691,14 @@ class Sca(object):
                 "scanId": scan_id
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def search_entity_profiles_of_package_licenses(self, package_id, license_name, project_id, action_type, to_when):
+    def search_entity_profiles_of_package_licenses(
+            self, package_id: str, license_name: str, project_id: str, action_type: str, to_when: str
+    ) -> dict:
         """
 
         Args:
@@ -1735,13 +1744,15 @@ class Sca(object):
                 "to": to_when
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def create_sbom_report(self, scan_id, file_format, hide_dev_and_test_dependencies=False,
-                           show_only_effective_licenses=False):
+    def create_sbom_report(
+            self, scan_id: str, file_format: str, hide_dev_and_test_dependencies: bool = False,
+            show_only_effective_licenses: bool = False
+    ) -> str:
         """
 
         Args:
@@ -1771,12 +1782,12 @@ class Sca(object):
                 "FileFormat": f"{file_format}"
             }
         )
-        response = self.post_request(relative_url=url, data=data)
+        response = self.api_client.post_request(relative_url=url, data=data)
         if response.status_code == ACCEPTED:
             result = response.json().get("exportId")
         return result
 
-    def get_sbom_report_creation_status(self, export_id):
+    def get_sbom_report_creation_status(self, export_id: str) -> dict:
         """
 
         Args:
@@ -1784,24 +1795,24 @@ class Sca(object):
                      link.
 
         Returns:
-
+            dict
         """
         result = None
         url = f"/export/requests?exportId={export_id}"
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def get_sbom_supported_file_formats(self):
+    def get_sbom_supported_file_formats(self) -> dict:
         result = None
         url = f"export/file-formats"
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def run_file_analysis(self, file_path_to_analyze, analysis_type="sbom"):
+    def run_file_analysis(self, file_path_to_analyze: str, analysis_type: str = "sbom") -> str:
         """
 
         Args:
@@ -1809,7 +1820,7 @@ class Sca(object):
             analysis_type (str):
 
         Returns:
-
+            str
         """
         request_id = None
         url = f"/analysis/requests/?AnalysisType={analysis_type}"
@@ -1823,20 +1834,22 @@ class Sca(object):
             }
         )
         headers = {"Content-Type": m.content_type}
-        response = self.post_request(relative_url=url, data=m, headers=headers)
+        response = self.api_client.post_request(relative_url=url, data=m, headers=headers)
         if response.status_code == ACCEPTED:
             request_id = response.json().get("requestId")
         return request_id
 
-    def retrieve_analysis_result(self, request_id):
+    def retrieve_analysis_result(self, request_id: str) -> dict:
         result = None
         url = f"/analysis/requests/{request_id}"
-        response = self.get_request(relative_url=url)
+        response = self.api_client.get_request(relative_url=url)
         if response.status_code == OK:
             result = response.json()
         return result
 
-    def get_number_of_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+    def get_number_of_vulnerabilities_risks_by_scan_id(
+            self, scan_id: str, is_exploitable_path_enabled: bool = False
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -1857,10 +1870,10 @@ class Sca(object):
                  ")"
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_number_of_supply_chain_risks_by_scan_id(self, scan_id):
+    def get_number_of_supply_chain_risks_by_scan_id(self, scan_id: str) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -1878,10 +1891,10 @@ class Sca(object):
                  ")"
                  "{ totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_number_of_outdated_packages_by_scan_id(self, scan_id):
+    def get_number_of_outdated_packages_by_scan_id(self, scan_id: str) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -1898,10 +1911,10 @@ class Sca(object):
                  ")"
                  "{ totalCount }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_number_of_legal_risks_by_scan_id(self, scan_id):
+    def get_number_of_legal_risks_by_scan_id(self, scan_id: str) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -1919,10 +1932,12 @@ class Sca(object):
                  ")"
                  "{  totalCount, risksLevelCounts { critical, high, medium, low, none, empty } }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_vulnerabilities_risks_by_scan_id(self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0):
+    def get_vulnerabilities_risks_by_scan_id(
+            self, scan_id: str, is_exploitable_path_enabled: bool = False, take: int = 10, skip: int = 0
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -1932,7 +1947,7 @@ class Sca(object):
             skip (int):
 
         Returns:
-
+            dict
         """
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
@@ -1963,10 +1978,10 @@ class Sca(object):
                  "subsequentSystemIntegrity, subsequentSystemAvailability }, pendingState, pendingChanges, "
                  "packageState { type, value }, pendingScore, pendingSeverity, isScoreOverridden } } "
                  " }")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_one_vulnerability(self, scan_id, vulnerability_id, package_id):
+    def get_one_vulnerability(self, scan_id: str, vulnerability_id: str, package_id: str) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -1975,7 +1990,7 @@ class Sca(object):
             package_id (str):
 
         Returns:
-
+            Response
         """
         query = ("query { "
                  "vulnerability  ("      
@@ -2005,10 +2020,10 @@ class Sca(object):
                  "subsequentSystemConfidentiality, subsequentSystemIntegrity, subsequentSystemAvailability, "
                  "baseScore, severity }, isEpssDataExists, epssData { cve, date, epss, percentile } }"
                  " }")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_supply_chain_risks_by_scan_id(self, scan_id, take=10, skip=0):
+    def get_supply_chain_risks_by_scan_id(self, scan_id: str, take: int = 10, skip: int = 0) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2033,10 +2048,10 @@ class Sca(object):
                  " publishDate, detectionDate, pendingState, pendingChanges, packageState { type, value }, "
                  "pendingScore, pendingSeverity, originalScore } }"
                  " }")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_legal_risks_by_scan_id(self, scan_id, take=10, skip=0):
+    def get_legal_risks_by_scan_id(self, scan_id: str, take: int = 10, skip: int = 0) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2059,11 +2074,13 @@ class Sca(object):
                  " { totalCount, items { licenseName, packageId, violatedPolicies, packageName, packageVersion, "
                  "relation, score, severity, state, isTest, isDev, message } } "
                  " }")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_direct_third_party_packages_by_scan_id(
-            self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0, is_private_dependency=False):
+            self, scan_id: str, is_exploitable_path_enabled: bool = False, take: int = 10, skip: int = 0,
+            is_private_dependency: bool = False
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2074,7 +2091,7 @@ class Sca(object):
             is_private_dependency (bool):
 
         Returns:
-
+            dict
         """
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         private_dependency_operator = "neq"
@@ -2102,11 +2119,13 @@ class Sca(object):
                  " critical, high, medium, low, none }, supplyChainRisksWithoutIgnored { critical, high, medium, low,"
                  " none } } }, totalCount } "
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_transitive_third_party_packages_by_scan_id(
-            self, scan_id, is_exploitable_path_enabled=False, take=10, skip=0, is_private_dependency=False):
+            self, scan_id: str, is_exploitable_path_enabled: bool = False, take: int = 10, skip: int = 0,
+            is_private_dependency: bool = False
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2145,10 +2164,12 @@ class Sca(object):
                  " critical, high, medium, low, none }, supplyChainRisksWithoutIgnored { critical, high, medium, low,"
                  " none } } }, totalCount }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_package_details_by_scan_id_and_package_id(self, scan_id, package_id, is_exploitable_path_enabled=False):
+    def get_package_details_by_scan_id_and_package_id(
+            self, scan_id: str, package_id: str, is_exploitable_path_enabled: bool = False
+    ) -> Response:
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
         query = ("query { "
                  "package ("
@@ -2175,10 +2196,10 @@ class Sca(object):
                  "vulnerabilitiesWithoutIgnored { critical, high, medium, low, none }, "
                  "supplyChainRisksWithoutIgnored { critical, high, medium, low, none } } }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_number_of_packages_by_scan_id(self, scan_id, is_exploitable_path_enabled=False):
+    def get_number_of_packages_by_scan_id(self, scan_id: str, is_exploitable_path_enabled: bool = False) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2196,11 +2217,12 @@ class Sca(object):
                  f"isExploitablePathEnabled: {is_exploitable_path_enabled}, "
                  "where: {}) { totalCount, totalDevCount, totalDevOrTestCount } "
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_direct_third_party_packages_by_scan_id(
-            self, scan_id, is_exploitable_path_enabled=False, is_private_dependency=False):
+            self, scan_id: str, is_exploitable_path_enabled: bool = False, is_private_dependency: bool = False
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2229,11 +2251,12 @@ class Sca(object):
                  "{ totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount}"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
     def get_number_of_transitive_third_party_packages_by_scan_id(
-            self, scan_id, is_exploitable_path_enabled=False, is_private_dependency=False):
+            self, scan_id: str, is_exploitable_path_enabled: bool = False, is_private_dependency: bool = False
+    ) -> Response:
         """
         This is a GraphQL API
         Args:
@@ -2263,10 +2286,12 @@ class Sca(object):
                  " { totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount } "
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_number_of_packages_used_for_accessing_saas_services(self, scan_id, is_exploitable_path_enabled=False):
+    def get_number_of_packages_used_for_accessing_saas_services(
+            self, scan_id: str, is_exploitable_path_enabled: bool = False
+    ) -> Response:
         """
         This is a GraphQL API
         Args:
@@ -2274,7 +2299,7 @@ class Sca(object):
             is_exploitable_path_enabled (bool):
 
         Returns:
-
+            Response
         """
 
         is_exploitable_path_enabled = "true" if is_exploitable_path_enabled else "false"
@@ -2287,10 +2312,12 @@ class Sca(object):
                  " { totalCount, totalDevCount, totalPolicyViolationsCount, maxVulnerabilitiesCount, "
                  "hasMaliciousPackage, totalDevOrTestCount } "
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_container_packages_by_scan_id(self, scan_id, fetch_runtime_data=False, take=10, skip=0):
+    def get_container_packages_by_scan_id(
+            self, scan_id: str, fetch_runtime_data: bool = False, take: int = 10, skip: int = 0
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2316,10 +2343,12 @@ class Sca(object):
                  "{ totalCount, items { packageName, packageVersion, imageName, imageTag, identifiedBy, deploymentType,"
                  "runtimeUsage, imageOrigins, isMalicious, vulnerabilitiesCounter { high, medium, low } } }  "
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_container_vulnerabilities_by_scan_id(self, scan_id, fetch_runtime_data=False, take=10, skip=0):
+    def get_container_vulnerabilities_by_scan_id(
+            self, scan_id: str, fetch_runtime_data: bool = False, take: int = 10, skip: int = 0
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2344,10 +2373,10 @@ class Sca(object):
                  ")"
                  "{totalCount, items {cve, cwe, name, version, published, severity, riskFactors {isMalicious, isUsed}}}"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_package_licenses_by_scan_id(self, scan_id, take=10, skip=0):
+    def get_package_licenses_by_scan_id(self, scan_id: str, take: int = 10, skip: int = 0) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2372,10 +2401,12 @@ class Sca(object):
                  "package { link, numberOfLicensesInPackage, packageId, packageName, packageVersion }, "
                  "packageState { type, value } } }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_down_stream_remediation_by_scan_id(self, scan_id, include_broken_methods=True, take=10, skip=0):
+    def get_down_stream_remediation_by_scan_id(
+            self, scan_id: str, include_broken_methods: bool = True, take: int = 10, skip: int = 0
+    ) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2403,10 +2434,10 @@ class Sca(object):
                  "effortEstimation, impact, hasExploitablePath, packages { name, version, criticalVulnerabilityCount,"
                  " highVulnerabilityCount, mediumVulnerabilityCount, lowVulnerabilityCount, parent { name, version}}}}}"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_scan_info_by_scan_id(self, scan_id):
+    def get_scan_info_by_scan_id(self, scan_id: str) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2450,10 +2481,10 @@ class Sca(object):
                  "manifests { dependenciesCount, dependencyResolverStatus, manifestPath, message, resolvingModuleType},"
                  "deltaScan }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
-    def get_scan_progress_by_scan_id(self, scan_id):
+    def get_scan_progress_by_scan_id(self, scan_id: str) -> Response:
         """
             This is a GraphQL API
         Args:
@@ -2494,7 +2525,7 @@ class Sca(object):
                  ")"
                  "{ totalDuration, data { name, startTime, duration, status } }"
                  "}")
-        response = self.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
 
 

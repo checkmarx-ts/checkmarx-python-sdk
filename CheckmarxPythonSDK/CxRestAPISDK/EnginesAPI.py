@@ -1,6 +1,7 @@
-# encoding: utf-8
 import json
-from .httpRequests import get_request, post_request, put_request, patch_request, delete_request, get_headers
+from typing import List
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
 from .sast.projects.dto import CxLink
 from .sast.engines.dto import (CxEngineServer, CxEngineConfiguration, CxEngineDedication, CxEngineServerStatus)
@@ -41,8 +42,14 @@ class EnginesAPI(object):
     """
     engines API
     """
-    @staticmethod
-    def get_all_engine_server_details(api_version="5.0"):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_all_engine_server_details(self, api_version: str = "5.0") -> List[CxEngineServer]:
         """
         GET /sast/engineServers Gets details of all Engine Servers
         Args:
@@ -58,15 +65,14 @@ class EnginesAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/sast/engineServers"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 construct_engine_server(item) for item in response.json()
             ]
         return result
 
-    @staticmethod
-    def get_engine_id_by_name(engine_name):
+    def get_engine_id_by_name(self, engine_name: str) -> int:
         """
 
         Args:
@@ -75,12 +81,14 @@ class EnginesAPI(object):
         Returns:
             int: engine id
         """
-        all_engine_servers = EnginesAPI.get_all_engine_server_details()
+        all_engine_servers = self.get_all_engine_server_details()
         a_dict = {item.name: item.id for item in all_engine_servers}
         return a_dict.get(engine_name)
 
-    @staticmethod
-    def register_engine(name, uri, min_loc, max_loc, is_blocked, max_scans, dedications=None, api_version="5.0"):
+    def register_engine(
+            self, name: str, uri: str, min_loc: int, max_loc: int, is_blocked: bool,
+            max_scans: int, dedications: List[CxEngineDedication] = None, api_version: str = "5.0"
+    ) -> CxEngineServer:
         """
         POST  /sast/engineServers  Registers an Engine Server
         Args:
@@ -123,7 +131,8 @@ class EnginesAPI(object):
             }
         )
         relative_url = "/cxrestapi/sast/engineServers"
-        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        response = self.api_client.post_request(
+            relative_url=relative_url, data=post_data, headers=get_headers(api_version))
         if response.status_code == CREATED:
             a_dict = response.json()
             result = CxEngineServer(
@@ -135,8 +144,7 @@ class EnginesAPI(object):
             )
         return result
 
-    @staticmethod
-    def unregister_engine_by_engine_id(engine_id, api_version="5.0"):
+    def unregister_engine_by_engine_id(self, engine_id: int, api_version: str = "5.0") -> bool:
         """
         DELETE /sast/engineServers/{id} Unregister an existing engine server.
 
@@ -152,15 +160,11 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        result = False
         relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
-        response = delete_request(relative_url=relative_url, headers=get_headers(api_version))
-        if response.status_code == NO_CONTENT:
-            result = True
-        return result
+        response = self.api_client.delete_request(relative_url=relative_url, headers=get_headers(api_version))
+        return response.status_code == NO_CONTENT
 
-    @staticmethod
-    def get_engine_details(engine_id, api_version="5.0"):
+    def get_engine_details(self, engine_id: int, api_version: str = "5.0") -> CxEngineServer:
         """
         GET /sast/engineServers/{id} Get details of a specific engine server by Id.
 
@@ -178,15 +182,17 @@ class EnginesAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/sast/engineServers/{id}".format(id=engine_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             item = response.json()
             result = construct_engine_server(item)
         return result
 
-    @staticmethod
-    def update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked, max_scans=None, dedications=None,
-                             api_version="5.0"):
+    def update_engine_server(
+            self, engine_id: int, name: str, uri: str, min_loc: int, max_loc: int, is_blocked: bool,
+            max_scans: int = None, dedications: List[CxEngineDedication] = None,
+            api_version: str = "5.0"
+    ) -> CxEngineServer:
         """
         PUT /sast/engineServers/{id}  Update an existing engine server's configuration
                                         and enables to change certain parameters.
@@ -232,7 +238,8 @@ class EnginesAPI(object):
                 "maxScans": max_scans
             }
         )
-        response = put_request(relative_url=relative_url, data=put_data, headers=get_headers(api_version))
+        response = self.api_client.put_request(
+            relative_url=relative_url, data=put_data, headers=get_headers(api_version))
         if response.status_code == OK:
             a_dict = response.json()
             result = CxEngineServer(
@@ -244,10 +251,11 @@ class EnginesAPI(object):
             )
         return result
 
-    @staticmethod
-    def update_an_engine_server_by_edit_single_field(engine_id, name=None, uri=None, min_loc=None, max_loc=None,
-                                                     is_blocked=None, max_scans=None, dedications=None,
-                                                     api_version="5.0"):
+    def update_an_engine_server_by_edit_single_field(
+            self, engine_id: int, name: str = None, uri: str = None, min_loc: int = None, max_loc: int = None,
+            is_blocked: bool = None, max_scans: int = None, dedications: List[CxEngineDedication] = None,
+            api_version: str = "5.0"
+    ) -> bool:
         """
         PATCH  sast/engineServers/{id}
         Args:
@@ -269,7 +277,6 @@ class EnginesAPI(object):
             NotFoundError
             CxError
         """
-        result = False
         if dedications:
             if not isinstance(dedications, list):
                 raise ValueError("parameter dedications should be a list of CxEngineDedication")
@@ -295,13 +302,11 @@ class EnginesAPI(object):
                     item.to_dict() for item in dedications
                 ]})
         patch_data = json.dumps(data)
-        response = patch_request(relative_url=relative_url, data=patch_data, headers=get_headers(api_version))
-        if response.status_code == NO_CONTENT:
-            result = True
-        return result
+        response = self.api_client.patch_request(
+            relative_url=relative_url, data=patch_data, headers=get_headers(api_version))
+        return response.status_code == NO_CONTENT
 
-    @staticmethod
-    def get_all_engine_configurations(api_version="1.0"):
+    def get_all_engine_configurations(self, api_version: str = "1.0") -> List[CxEngineConfiguration]:
         """
         GET /sast/engineConfigurations Get the engine servers configuration list.
 
@@ -319,7 +324,7 @@ class EnginesAPI(object):
         """
         result = []
         relative_url = "/cxrestapi/sast/engineConfigurations"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxEngineConfiguration(
@@ -329,8 +334,7 @@ class EnginesAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_engine_configuration_id_by_name(engine_configuration_name):
+    def get_engine_configuration_id_by_name(self, engine_configuration_name: str) -> int:
         """
 
         Args:
@@ -339,12 +343,11 @@ class EnginesAPI(object):
         Returns:
             int: engine configuration id
         """
-        all_engine_configurations = EnginesAPI.get_all_engine_configurations()
+        all_engine_configurations = self.get_all_engine_configurations()
         a_dict = {item.name: item.id for item in all_engine_configurations}
         return a_dict.get(engine_configuration_name)
 
-    @staticmethod
-    def get_engine_configuration_by_id(configuration_id, api_version="1.0"):
+    def get_engine_configuration_by_id(self, configuration_id: int, api_version: str = "1.0") -> CxEngineConfiguration:
         """
         GET /sast/engineConfigurations/{id} Get a specific engine configuration by configuration Id.
 
@@ -362,7 +365,7 @@ class EnginesAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/sast/engineConfigurations/{id}".format(id=configuration_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_dict = response.json()
             result = CxEngineConfiguration(

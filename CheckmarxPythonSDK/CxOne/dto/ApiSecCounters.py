@@ -1,32 +1,33 @@
-class ApiSecCounters(object):
-    def __init__(self, severity_counters, status_counters, state_counters, severity_status_counters,
-                 source_file_counters, age_counters, total_counter, files_scanned_counter):
-        """
+from dataclasses import dataclass
+from typing import List
 
-        Args:
-            severity_counters (list of dict):
-            status_counters (dict):
-            state_counters (list of dict):
-            severity_status_counters (dict):
-            source_file_counters (dict):
-            age_counters (dict):
-            total_counter (int):
-            files_scanned_counter (int):
-        """
-        self.severityCounters = severity_counters
-        self.statusCounters = status_counters
-        self.stateCounters = state_counters
-        self.severityStatusCounters = severity_status_counters
-        self.sourceFileCounters = source_file_counters
-        self.ageCounters = age_counters
-        self.totalCounter = total_counter
-        self.filesScannedCounter = files_scanned_counter
 
-    def __str__(self):
-        return """ApiSecCounters(severityCounters={}, statusCounters={}, stateCounters={},
-        severityStatusCounters={}, sourceFileCounters={}, ageCounters={}, totalCounter={}, 
-        filesScannedCounter={})""".format(
-            self.severityCounters, self.statusCounters, self.stateCounters,
-            self.severityStatusCounters, self.sourceFileCounters, self.ageCounters, self.totalCounter,
-            self.filesScannedCounter
-        )
+@dataclass
+class ApiSecCounters:
+    severity_counters: List[dict] = None
+    status_counters: List[dict] = None
+    state_counters: List[dict] = None
+    custom_state_counters: List[dict] = None
+    severity_status_counters: List[dict] = None
+    source_file_counters: List[dict] = None
+    age_counters: List[dict] = None
+    risk_level: str = None
+    files_scanned_counter: int = None
+    total_counter: int = None
+    api_sec_total: int = None
+
+
+def construct_api_sec_counters(item):
+    return ApiSecCounters(
+        severity_counters=item.get("severityCounters"),
+        status_counters=item.get("statusCounters"),
+        state_counters=item.get("stateCounters"),
+        custom_state_counters=item.get("customStateCounters"),
+        severity_status_counters=item.get("severityStatusCounters"),
+        source_file_counters=item.get("sourceFileCounters"),
+        age_counters=item.get("ageCounters"),
+        risk_level=item.get("riskLevel"),
+        files_scanned_counter=item.get("filesScannedCounter"),
+        total_counter=item.get("totalCounter"),
+        api_sec_total=item.get("apiSecTotal"),
+    )

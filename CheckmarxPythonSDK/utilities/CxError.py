@@ -1,4 +1,7 @@
 # encoding: utf-8
+from CheckmarxPythonSDK.utilities.compat import (
+    OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED, ACCEPTED
+)
 
 
 class CxError(Exception):
@@ -44,3 +47,28 @@ class NotFoundError(CxError):
 
     def __str__(self):
         return "NotFoundError(http_code=404, msg={}).".format(self.msg)
+
+
+def check_response_status_code(response):
+    """
+    Just to be backward compatible with old code.
+    Args:
+        response:
+
+    Returns:
+
+    """
+    status_code = response.status_code
+    if status_code in [OK, CREATED, NO_CONTENT, ACCEPTED]:
+        return
+    elif status_code == BAD_REQUEST:
+        raise BadRequestError(response.text)
+    elif status_code == NOT_FOUND:
+        raise NotFoundError()
+    elif status_code == FORBIDDEN:
+        raise CxError(
+            response.text + " Please check the scope in your configuration file, please check if you have permission",
+            status_code
+        )
+    else:
+        raise CxError(response.text, status_code)

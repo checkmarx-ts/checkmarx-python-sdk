@@ -1,42 +1,39 @@
+from dataclasses import dataclass
+from typing import List
+from .TotalCounters import TotalCounters, construct_total_counters
+from .EngineData import EngineData, construct_engine_data
+
+
+@dataclass
 class ProjectResponseModel(object):
+    project_id: str = None  # The ID of the project.
+    project_name: str = None  # The name of the project.
+    source_origin: str = None  # The origin of the project source.
+    last_scan_date: str = None  # The date of the last scan.
+    source_type: str = None  # The type of project source.
+    tags: dict = None  # A map of project tags.
+    groups_ids: List[str] = None  # An array of group IDs associated with the project.
+    risk_level: str = None  # The overall risk level of the project.
+    repo_id: int = None  # The ID of the repository associated with the project.
+    scm_repo_id: str = None  # The ID of the SCM repository associated with the project.
+    total_counters: TotalCounters = None
+    engines_data: List[EngineData] = None
 
-    def __init__(self, project_id=None, project_name=None, source_origin=None, last_scan_date=None, source_type=None,
-                 tags=None, groups_ids=None, risk_level=None, repo_id=None, scm_repo_id=None, total_counters=None,
-                 engines_data=None):
-        """
 
-        Args:
-            project_id (str): The ID of the project.
-            project_name (str): The name of the project.
-            source_origin (str): The origin of the project source.
-            last_scan_date (str): The date of the last scan.
-            source_type (str): The type of project source.
-            tags (dict): 	A map of project tags.
-            groups_ids (list of str): An array of group IDs associated with the project.
-            risk_level (str): The overall risk level of the project.
-            repo_id (int): The ID of the repository associated with the project.
-            scm_repo_id (str): The ID of the SCM repository associated with the project.
-            total_counters (TotalCounters):
-            engines_data (list of EngineData):
-        """
-        self.project_id = project_id
-        self.project_name = project_name
-        self.source_origin = source_origin
-        self.last_scan_date = last_scan_date
-        self.source_type = source_type
-        self.tags = tags
-        self.groups_ids = groups_ids
-        self.risk_level = risk_level
-        self.repo_id = repo_id
-        self.scm_repo_id = scm_repo_id
-        self.total_counters = total_counters
-        self.engines_data = engines_data
-
-    def __str__(self):
-        return """ProjectResponseModel(project_id={}, project_name={}, source_origin={}, last_scan_date={}, 
-        source_type={}, tags={}, groups_ids={}, risk_level={}, repo_id={}, scm_repo_id={}, total_counters={},
-        engines_data={})""".format(
-            self.project_id, self.project_name, self.source_origin, self.last_scan_date,
-            self.source_type, self.tags, self.groups_ids, self.risk_level, self.repo_id, self.scm_repo_id,
-            self.total_counters, self.engines_data
-        )
+def construct_project_response(item):
+    return ProjectResponseModel(
+        project_id=item.get("projectId"),
+        project_name=item.get("projectName"),
+        source_origin=item.get("sourceOrigin"),
+        last_scan_date=item.get("lastScanDate"),
+        source_type=item.get("sourceType"),
+        tags=item.get("tags"),
+        groups_ids=item.get("groupIds"),
+        risk_level=item.get("riskLevel"),
+        repo_id=item.get("repoId"),
+        scm_repo_id=item.get("scmRepoId"),
+        total_counters=construct_total_counters(item),
+        engines_data=[
+            construct_engine_data(engine_data) for engine_data in item.get("enginesData")
+        ],
+    )

@@ -12,7 +12,7 @@ from CheckmarxPythonSDK.CxOne.KeycloakAPI import (
     update_group_permissions,
     get_group_members,
     create_group,
-
+    get_or_create_groups,
 )
 
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
@@ -39,7 +39,7 @@ def test_create_group_set():
 
 
 def test_get_group_by_name():
-    group_name = "CSM-Group"
+    group_name = "AlphaTeam"
     group = get_group_by_name(realm=realm, group_name=group_name)
     assert group is not None
 
@@ -113,3 +113,8 @@ def test_get_group_members():
 
 # def test_add_group_role():
 #     add_group_role()
+
+
+def test_get_or_create_groups():
+    group_id = get_or_create_groups( group_full_name="happy/test", realm="happy")
+    assert group_id is not None

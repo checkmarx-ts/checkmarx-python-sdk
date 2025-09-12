@@ -1,12 +1,18 @@
-# encoding: utf-8
-from .httpRequests import get_request, get_headers
+from typing import List
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK
 
 
 class QueriesAPI(object):
 
-    @staticmethod
-    def get_the_full_description_of_the_query(query_id, api_version="3.0"):
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_the_full_description_of_the_query(self, query_id: int, api_version: str = "3.0") -> str:
         """
 
         Args:
@@ -23,13 +29,14 @@ class QueriesAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/queries/{queryid}/cxDescription".format(queryid=query_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def get_query_id_and_query_version_code(language, query_name, severity="High", api_version="4.0"):
+    def get_query_id_and_query_version_code(
+            self, language: str, query_name: str, severity: str = "High", api_version: str = "4.0"
+    ) -> dict:
         """
 
         Args:
@@ -65,13 +72,12 @@ class QueriesAPI(object):
         relative_url += "language={language}&severity={severity}&queryName={query_name}".format(
             language=language, severity=severity, query_name=query_name
         )
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def get_preset_detail(preset_id, api_version="5.0"):
+    def get_preset_detail(self, preset_id: int, api_version: str = "5.0") -> List[dict]:
         """
         Gets query information of specific preset
         Args:
@@ -92,7 +98,7 @@ class QueriesAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/sast/presetDetails/{id}".format(id=preset_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result

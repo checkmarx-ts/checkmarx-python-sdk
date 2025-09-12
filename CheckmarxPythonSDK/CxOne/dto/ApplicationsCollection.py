@@ -1,23 +1,20 @@
-# encoding: utf-8
-from .Application import Application
+from dataclasses import dataclass
+from typing import List
+from .Application import Application, construct_application
 
 
-class ApplicationsCollection(object):
-    def __init__(self, total_count, filtered_total_count, applications):
-        """
+@dataclass
+class ApplicationsCollection:
+    total_count: int = None
+    filtered_total_count: int = None
+    applications: List[Application] = None
 
-        Args:
-            total_count (int):
-            filtered_total_count (int):
-            applications (`list` of `Application`):
-        """
-        self.totalCount = total_count
-        self.filteredTotalCount = filtered_total_count
-        self.applications = applications
 
-    def __str__(self):
-        return """ApplicationsCollection(totalCount={totalCount}, filteredTotalCount={filteredTotalCount}, 
-        applications={applications})""".format(
-            totalCount=self.totalCount, filteredTotalCount=self.filteredTotalCount,
-            applications=self.applications
-        )
+def construct_applications_collection(item):
+    return ApplicationsCollection(
+        total_count=item.get("totalCount"),
+        filtered_total_count=item.get("filteredTotalCount"),
+        applications=[
+            construct_application(application) for application in item.get("applications")
+        ]
+    )

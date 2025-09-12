@@ -1,20 +1,21 @@
-from .AuditEventLink import AuditEventLink
-from .AuditEvent import AuditEvent
+from .AuditEventLink import AuditEventLink, construct_audit_event_link
+from .AuditEvent import AuditEvent, construct_audit_event
+from dataclasses import dataclass
+from typing import List
 
 
-class AuditEvents(object):
+@dataclass
+class AuditEvents:
+    links: List[AuditEventLink] = None
+    events: List[AuditEvent] = None
 
-    def __init__(self, links, events):
-        """
 
-        Args:
-            links (list of AuditEventLink):
-            events (list of AuditEvent):
-        """
-        self.links = links
-        self.events = events
-
-    def __str__(self):
-        return """AuditEvents(links={}, events={})""".format(
-            self.links, self.events
-        )
+def construct_audit_events(item):
+    return AuditEvents(
+        links=[
+            construct_audit_event_link(link) for link in item.get("links", [])
+        ],
+        events=[
+            construct_audit_event(event) for event in item.get("events", [])
+        ],
+    )

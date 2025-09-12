@@ -1,5 +1,6 @@
-# encoding: utf-8
-from .httpRequests import get_request, get_headers
+from typing import List
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK
 from .sast.projects.dto import CxCustomTask
 from .sast.projects.dto import CxLink
@@ -9,8 +10,14 @@ class CustomTasksAPI(object):
     """
     REST API: custom tasks
     """
-    @staticmethod
-    def get_all_custom_tasks(api_version="1.0"):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_all_custom_tasks(self, api_version: str = "1.0") -> List[CxCustomTask]:
         """
         REST API: get all custom tasks
 
@@ -28,7 +35,7 @@ class CustomTasksAPI(object):
         """
         result = []
         relative_url = "/cxrestapi/customTasks"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_list = response.json()
             result = [
@@ -45,8 +52,7 @@ class CustomTasksAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_custom_task_id_by_name(task_name):
+    def get_custom_task_id_by_name(self, task_name: str) -> int:
         """
 
         Args:
@@ -55,14 +61,13 @@ class CustomTasksAPI(object):
         Returns:
             int: custom task id
         """
-        custom_tasks = CustomTasksAPI.get_all_custom_tasks()
+        custom_tasks = self.get_all_custom_tasks()
         a_dict = {
             item.name: item.id for item in custom_tasks
         }
         return a_dict.get(task_name)
 
-    @staticmethod
-    def get_custom_task_by_id(task_id, api_version="1.0"):
+    def get_custom_task_by_id(self, task_id: int, api_version: str = "1.0") -> CxCustomTask:
         """
 
         Args:
@@ -79,7 +84,7 @@ class CustomTasksAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/customTasks/{id}".format(id=task_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_dict = response.json()
             result = CxCustomTask(
@@ -94,8 +99,7 @@ class CustomTasksAPI(object):
             )
         return result
 
-    @staticmethod
-    def get_custom_task_by_name(task_name, api_version="1.0"):
+    def get_custom_task_by_name(self, task_name: str, api_version: str = "1.0") -> CxCustomTask:
         """
 
         Args:
@@ -112,7 +116,7 @@ class CustomTasksAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/customTasks/name/{name}".format(name=task_name)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_list = response.json()
             if a_list:

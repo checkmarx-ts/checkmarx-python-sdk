@@ -66,6 +66,7 @@ def test_get_all_oidc_clients():
     oidc_clients = ac.get_all_oidc_clients()
     assert len(oidc_clients) > 0
 
+
 def test_get_all_permissions():
     ac = AccessControlAPI()
     resp = ac.get_all_permissions()
@@ -184,16 +185,17 @@ def test_get_details_of_saml_role_mappings():
 def test_set_saml_group_and_role_mapping_details():
     ac = AccessControlAPI()
     sample_role_mapping_details = [
-              {
-                "roleName": "SAST Scanner",
-                "samlAttributeValue": "IT"
-              }
-            ]
+        {
+            "roleName": "SAST Scanner",
+            "samlAttributeValue": "IT"
+        }
+    ]
     is_successful = ac.set_saml_group_and_role_mapping_details(
         saml_identity_provider_id=1,
         sample_role_mapping_details=sample_role_mapping_details
     )
     assert is_successful is True
+
 
 def test_get_saml_service_provider_metadata():
     ac = AccessControlAPI()
@@ -226,23 +228,24 @@ def test_get_details_of_saml_team_mappings():
 def test_set_saml_group_and_team_mapping_details():
     ac = AccessControlAPI()
     saml_team_mapping_details = [
-         {
+        {
             "teamFullPath": "/CxServer/CompanyOne/AC_TEAM_ONE",
             "samlAttributeValue": "IT"
-         },
-         {
+        },
+        {
             "teamFullPath": "/CxServer/CompanyOne/AC_TEAM_TWO",
             "samlAttributeValue": "Sales"
-         },
-         {
+        },
+        {
             "teamFullPath": "/CxServer/CompanyTwo/AC_Dev_Team",
             "samlAttributeValue": "IT"
-         }
-        ]
+        }
+    ]
     is_successful = ac.set_saml_group_and_team_mapping_details(
         saml_identity_provider_id=1, saml_team_mapping_details=saml_team_mapping_details
     )
     assert is_successful is True
+
 
 def test_get_all_service_providers():
     ac = AccessControlAPI()
@@ -631,4 +634,3 @@ def test_delete_a_windows_domain():
     windows_domain_id = ac.get_windows_domain_id_by_name(name=name)
     is_successful = ac.delete_a_windows_domain(windows_domain_id=windows_domain_id)
     assert is_successful is True
-

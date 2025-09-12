@@ -1,6 +1,7 @@
-from .httpRequests import get_request
-from .utilities import get_url_param, type_check, list_member_type_check
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from typing import List
+from .utilities import type_check, list_member_type_check
 from .dto import (
     ScanInfoCollection,
     ScanInfo,
@@ -61,89 +62,83 @@ def construct_engine_metric(engine_metrics):
     )
 
 
-def get_metadata_of_scans(scan_ids):
-    """
+class SastScanMetadataServiceAPI(object):
 
-    Args:
-        scan_ids (list of str):
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
 
-    Returns:
+    def get_metadata_of_scans(self, scan_ids: List[str]) -> ScanInfoCollection:
+        """
 
-    """
-    result = None
-    type_check(scan_ids, list)
-    list_member_type_check(scan_ids, str)
-    relative_url = api_url + "/"
-    relative_url += "?" + get_url_param("scan-ids", scan_ids)
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
+        Args:
+            scan_ids (list of str):
+
+        Returns:
+            ScanInfoCollection
+        """
+        type_check(scan_ids, list)
+        list_member_type_check(scan_ids, str)
+        relative_url = api_url
+        params = {"scan-ids": scan_ids}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
-        result = ScanInfoCollection(
+        return ScanInfoCollection(
             total_count=response.get("totalCount"),
             scans=[
                 construct_scan_info(scan_info) for scan_info in response.get("scans")
             ],
             missing=response.get("missing")
         )
-    return result
 
+    def get_metadata_of_scan(self, scan_id: str) -> ScanInfo:
+        """
 
-def get_metadata_of_scan(scan_id):
-    """
+       Args:
+           scan_id (str):
 
-    Args:
-        scan_id (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(scan_id, str)
-    relative_url = api_url + f"/{scan_id}"
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
+       Returns:
+            ScanInfo
+       """
+        type_check(scan_id, str)
+        relative_url = api_url + f"/{scan_id}"
+        response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        result = construct_scan_info(scan_info=response)
-    return result
+        return construct_scan_info(scan_info=response)
 
+    def get_engine_metrics_of_scan(self, scan_id: str) -> EngineMetrics:
+        """
 
-def get_engine_metrics_of_scan(scan_id):
-    """
+        Args:
+            scan_id (str):
 
-    Args:
-        scan_id (str):
-
-    Returns:
-
-    """
-    result = None
-    type_check(scan_id, str)
-    relative_url = api_url + f"/{scan_id}/metrics"
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
+        Returns:
+            EngineMetrics
+        """
+        type_check(scan_id, str)
+        relative_url = api_url + f"/{scan_id}/metrics"
+        response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        result = construct_engine_metric(engine_metrics=response)
-    return result
+        return construct_engine_metric(engine_metrics=response)
 
+    def get_engine_versions_of_scan(self, scan_ids: List[str]) -> List[ScanEngineVersion]:
+        """
 
-def get_engine_versions_of_scan(scan_ids):
-    """
+         Args:
+             scan_ids (list of str):
 
-    Args:
-        scan_ids (list of str):
-
-    Returns:
-        list of ScanEngineVersion
-    """
-    result = None
-    type_check(scan_ids, list)
-    list_member_type_check(scan_ids, str)
-    relative_url = api_url + "/engine-version"
-    relative_url += "?" + get_url_param("scan-ids", scan_ids)
-    response = get_request(relative_url=relative_url)
-    if response.status_code == OK:
+         Returns:
+             list of ScanEngineVersion
+         """
+        type_check(scan_ids, list)
+        list_member_type_check(scan_ids, str)
+        relative_url = api_url + "/engine-version"
+        params = {"scan-ids": scan_ids}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
-        result = [
+        return [
             ScanEngineVersion(
                 scan_id=item.get("scanId"),
                 project_id=item.get("projectId"),
@@ -151,4 +146,19 @@ def get_engine_versions_of_scan(scan_ids):
                 engine_version=item.get("engineVersion")
             ) for item in response
         ]
-    return result
+
+
+def get_metadata_of_scans(scan_ids: List[str]) -> ScanInfoCollection:
+    return SastScanMetadataServiceAPI().get_metadata_of_scans(scan_ids=scan_ids)
+
+
+def get_metadata_of_scan(scan_id: str) -> ScanInfo:
+    return SastScanMetadataServiceAPI().get_metadata_of_scan(scan_id=scan_id)
+
+
+def get_engine_metrics_of_scan(scan_id: str) -> EngineMetrics:
+    return SastScanMetadataServiceAPI().get_engine_metrics_of_scan(scan_id=scan_id)
+
+
+def get_engine_versions_of_scan(scan_ids: List[str]) -> List[ScanEngineVersion]:
+    return SastScanMetadataServiceAPI().get_engine_versions_of_scan(scan_ids=scan_ids)

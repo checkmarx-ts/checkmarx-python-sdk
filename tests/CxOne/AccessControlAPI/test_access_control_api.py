@@ -6,7 +6,7 @@ from CheckmarxPythonSDK.CxOne.AccessControlAPI import (
     # get_api_keys,
 )
 
-realm = "asean_2021_08"
+realm = "happy"
 
 
 def test_get_groups():
@@ -21,7 +21,7 @@ def test_get_sub_group():
 
 
 def test_get_users():
-    users = get_users(realm=realm, term=None)
+    users = get_users(realm=realm, term="name")
     assert len(users) > 1
 
 

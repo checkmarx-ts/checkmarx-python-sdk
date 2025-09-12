@@ -56,12 +56,13 @@ def test_get_project_details_by_id():
 
 def test_update_project_by_id():
     projects_api = ProjectsAPI()
-    project_name = "test1"
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
+    # project_name = "test1"
+    # project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
 
-    branched_project_name = "test_update"
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(branched_project_name, team_full_name)
-    team_id = TeamAPI().get_team_id_by_team_full_name(team_full_name)
+    branched_project_name = "JavaVulnerableLab-2025-6-17-ova-file"
+    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(branched_project_name, "/CxServer/Test")
+    # projects_api.delete_project_if_exists_by_project_name_and_team_full_name(branched_project_name, team_full_name)
+    team_id = TeamAPI().get_team_id_by_team_full_name("/CxServer/Dev/team1")
     if project_id:
         result = projects_api.update_project_by_id(project_id, project_name=branched_project_name, team_id=team_id)
         assert result is True

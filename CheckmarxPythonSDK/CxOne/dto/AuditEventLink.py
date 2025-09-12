@@ -1,18 +1,16 @@
-class AuditEventLink(object):
+from dataclasses import dataclass
 
-    def __init__(self, event_date, url, crc):
-        """
 
-        Args:
-            event_date (str):
-            url (str):
-            crc (str):
-        """
-        self.event_date = event_date
-        self.url = url
-        self.crc = crc
+@dataclass
+class AuditEventLink:
+    event_date: str = None
+    url: str = None
+    crc: str = None
 
-    def __str__(self):
-        return """AuditEventLink(event_date={}, url={}, crc={})""".format(
-            self.event_date, self.url, self.crc
-        )
+
+def construct_audit_event_link(item):
+    return AuditEventLink(
+        event_date=item.get("eventDate"),
+        url=item.get("url"),
+        crc=item.get("crc"),
+    )

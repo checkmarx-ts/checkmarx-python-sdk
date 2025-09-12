@@ -1,14 +1,16 @@
-class TotalCounters(object):
+from dataclasses import dataclass
+from .SeverityCounter import SeverityCounter, construct_severity_counter
+from typing import List
 
-    def __init__(self, severity_counters):
-        """
 
-        Args:
-            severity_counters (list of SeverityCounter):
-        """
-        self.severity_counters = severity_counters
+@dataclass
+class TotalCounters:
+    severity_counters: List[SeverityCounter]
 
-    def __str__(self):
-        return """TotalCounters(severity_counters={})""".format(
-            self.severity_counters
-        )
+
+def construct_total_counters(item):
+    return TotalCounters(
+        severity_counters=[
+           construct_severity_counter(severity_counter) for severity_counter in item.get("severityCounters")
+        ]
+    )

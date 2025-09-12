@@ -1,320 +1,313 @@
 # encoding: utf-8
-import json
-from .httpRequests import get_request, post_request, put_request, delete_request
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED
-from .utilities import get_url_param, type_check, list_member_type_check
+from .utilities import type_check
 from .dto import (
-    Application,
+    Application, construct_application_rules, construct_application,
     ApplicationInput,
     ApplicationsCollection,
     CreatedApplication,
     Rule,
     RuleInput,
 )
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from typing import List
 
 api_url = "/api/applications"
 
 
-def __construct_application_rules(rules):
-    rules = rules or []
-    return [
-        Rule(
+class ApplicationsAPI(object):
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def create_an_application(self, application_input: ApplicationInput) -> CreatedApplication:
+        """
+
+       Args:
+           application_input (`ApplicationInput`):
+
+       Returns:
+           `CreatedApplication`
+       """
+        type_check(application_input, ApplicationInput)
+        relative_url = api_url
+        response = self.api_client.post_request(relative_url=relative_url, json=application_input.to_dict())
+        item = response.json()
+        return CreatedApplication(
+            application_id=item.get("id"),
+            name=item.get("name"),
+            description=item.get("description"),
+            criticality=item.get("criticality"),
+            rules=construct_application_rules(item.get("rules")),
+            tags=item.get("tags"),
+            created_at=item.get("createdAt"),
+            updated_at=item.get("updatedAt")
+        )
+
+    def get_a_list_of_applications(
+            self, offset: int = 0, limit: int = 20, name: str = None, tags_keys: List[str] = None,
+            tags_values: List[str] = None
+    ) -> ApplicationsCollection:
+        """
+
+        Args:
+           offset (int): The number of items to skip before starting to collect the result set
+                       Default value : 0
+           limit (int):  The number of items to return
+                       Default value : 20
+           name (str): Application name, can be filtered by partial name.
+           tags_keys (`list` of `str`): Application tags, filter by the keys in the tags map
+                                   (OR operation between the items)
+           tags_values (`list` of `str`): Application tags, filter by the values in the tags map
+                                   (OR operation between the items)
+
+       Returns:
+           `ApplicationsCollection`
+       """
+        relative_url = api_url
+        params = {"offset": offset, "limit": limit, "name": name, "tags-keys": tags_keys, "tags-values": tags_values}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
+        app_collection = response.json()
+        return ApplicationsCollection(
+            total_count=app_collection.get("totalCount"),
+            filtered_total_count=app_collection.get("filteredTotalCount"),
+            applications=[
+                construct_application(app) for app in app_collection.get("applications")
+            ]
+        )
+
+    def get_application_id_by_name(self, name: str) -> str:
+        """
+
+        Args:
+            name (str): application name
+
+        Returns:
+
+        """
+        type_check(name, str)
+        application_id = None
+        app_collection = self.get_a_list_of_applications(name=name)
+        applications = app_collection.applications
+        if applications:
+            application_id = applications[0].application_id
+        return application_id
+
+    def get_all_application_tags(self) -> dict:
+        """
+
+        Returns:
+            dict
+            example: {
+              "test": [],
+              "priority": [
+                "high",
+                "low"
+              ]
+            }
+        """
+        relative_url = api_url + "/tags"
+        response = self.api_client.get_request(relative_url=relative_url)
+        return response.json()
+
+    def get_an_application_by_id(self, application_id: str) -> Application:
+        """
+
+        Args:
+            application_id (str):
+
+        Returns:
+            `Application`
+        """
+        type_check(application_id, str)
+        relative_url = api_url + "/{id}".format(id=application_id)
+        response = self.api_client.get_request(relative_url=relative_url)
+        app = response.json()
+        return construct_application(app)
+
+    def update_an_application(self, application_id: str, application_input: ApplicationInput) -> bool:
+        """
+
+        Args:
+            application_id (str):
+            application_input (`ApplicationInput`):
+
+        Returns:
+            bool
+        """
+        type_check(application_id, str)
+        type_check(application_input, ApplicationInput)
+        relative_url = api_url + "/{id}".format(id=application_id)
+        response = self.api_client.put_request(relative_url=relative_url, json=application_input.to_dict())
+        return response.status_code == NO_CONTENT
+
+    def delete_an_application(self, application_id: str) -> bool:
+        """
+
+        Args:
+            application_id (str):
+
+        Returns:
+            bool
+        """
+        type_check(application_id, str)
+
+        relative_url = api_url + "/{id}".format(id=application_id)
+        response = self.api_client.delete_request(relative_url=relative_url)
+        return response.status_code == NO_CONTENT
+
+    def create_an_application_rule(self, application_id: str, rule_input: RuleInput) -> Rule:
+        """
+
+        Args:
+            application_id (str):
+            rule_input(`RuleInput`)
+
+        Returns:
+            `Rule`
+        """
+        type_check(application_id, str)
+        type_check(rule_input, RuleInput)
+        relative_url = api_url + "/{id}/project-rules".format(id=application_id)
+        type_check(rule_input, RuleInput)
+        response = self.api_client.post_request(relative_url=relative_url, json=rule_input.to_dict())
+        rule = response.json()
+        return Rule(
             rule_id=rule.get("id"),
             rule_type=rule.get("type"),
             value=rule.get("value")
-        ) for rule in rules
-    ]
+        )
+
+    def get_a_list_of_rules_for_a_specific_application(self, application_id: str) -> List[Rule]:
+        """
+
+        Args:
+            application_id (str):
+
+        Returns:
+            `list` of `Rule`
+        """
+        type_check(application_id, str)
+        relative_url = api_url + "/{id}/project-rules".format(id=application_id)
+        response = self.api_client.get_request(relative_url=relative_url)
+        rules = response.json()
+        return construct_application_rules(rules)
+
+    def get_an_application_rule(self, application_id: str, rule_id: str) -> Rule:
+        """
+
+        Args:
+            application_id (str):
+            rule_id (str):
+
+        Returns:
+            `Rule`
+        """
+        type_check(application_id, str)
+        type_check(rule_id, str)
+        relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
+            id=application_id, rule_id=rule_id
+        )
+        response = self.api_client.get_request(relative_url=relative_url)
+        rule = response.json()
+        return Rule(
+            rule_id=rule.get("id"),
+            rule_type=rule.get("type"),
+            value=rule.get("value")
+        )
+
+    def update_an_application_rule(self, application_id: str, rule_id: str, rule_input: RuleInput) -> bool:
+        """
+
+        Args:
+            application_id (str):
+            rule_id (str):
+            rule_input (`RuleInput`):
+
+        Returns:
+           bool
+        """
+        type_check(application_id, str)
+        type_check(rule_id, str)
+        type_check(rule_input, RuleInput)
+        is_successful = False
+        relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
+            id=application_id, rule_id=rule_id
+        )
+        response = self.api_client.put_request(relative_url=relative_url, json=rule_input.to_dict())
+        if response.status_code in (NO_CONTENT, CREATED):
+            is_successful = True
+        return is_successful
+
+    def delete_an_application_rule(self, application_id: str, rule_id: str) -> bool:
+        """
+
+        Args:
+            application_id (str):
+            rule_id (str):
+
+        Returns:
+            bool
+        """
+        type_check(application_id, str)
+        type_check(rule_id, str)
+        relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
+            id=application_id, rule_id=rule_id
+        )
+        response = self.api_client.delete_request(relative_url=relative_url)
+        return response.status_code == NO_CONTENT
 
 
-def __construct_application(app):
-    return Application(
-        application_id=app.get("id"),
-        name=app.get("name"),
-        description=app.get("description"),
-        criticality=app.get("criticality"),
-        rules=__construct_application_rules(app.get("rules")),
-        project_ids=app.get("projectIds"),
-        created_at=app.get("createdAt"),
-        updated_at=app.get("updatedAt"),
-        tags=app.get("tags")
+def create_an_application(application_input: ApplicationInput) -> CreatedApplication:
+    return ApplicationsAPI().create_an_application(application_input)
+
+
+def get_a_list_of_applications(
+        offset: int = 0, limit: int = 20, name: str = None, tags_keys: List[str] = None, tags_values: List[str] = None
+) -> ApplicationsCollection:
+    return ApplicationsAPI().get_a_list_of_applications(
+        offset=offset, limit=limit, name=name, tags_keys=tags_keys, tags_values=tags_values
     )
 
 
-def create_an_application(application_input):
-    """
-
-    Args:
-        application_input (`ApplicationInput`):
-
-    Returns:
-        `CreatedApplication`
-    """
-    type_check(application_input, ApplicationInput)
-
-    relative_url = api_url
-    data = json.dumps(application_input.to_dict())
-    response = post_request(relative_url=relative_url, data=data)
-    item = response.json()
-    return CreatedApplication(
-        application_id=item.get("id"),
-        name=item.get("name"),
-        description=item.get("description"),
-        criticality=item.get("criticality"),
-        rules=__construct_application_rules(item.get("rules")),
-        tags=item.get("tags"),
-        created_at=item.get("createdAt"),
-        updated_at=item.get("updatedAt")
-    )
+def get_application_id_by_name(name: str) -> str:
+    return ApplicationsAPI().get_application_id_by_name(name=name)
 
 
-def get_a_list_of_applications(offset=0, limit=20, name=None, tags_keys=None, tags_values=None):
-    """
-
-    Args:
-        offset (int): The number of items to skip before starting to collect the result set
-                    Default value : 0
-        limit (int):  The number of items to return
-                    Default value : 20
-        name (str): Application name, can be filtered by partial name.
-        tags_keys (`list` of `str`): Application tags, filter by the keys in the tags map
-                                (OR operation between the items)
-        tags_values (`list` of `str`): Application tags, filter by the values in the tags map
-                                (OR operation between the items)
-
-    Returns:
-        `ApplicationsCollection`
-    """
-    type_check(offset, int)
-    type_check(limit, int)
-    type_check(name, str)
-    type_check(tags_keys, list)
-    type_check(tags_values, list)
-    list_member_type_check(tags_keys, str)
-    list_member_type_check(tags_values, str)
-
-    relative_url = api_url + "?offset={offset}&limit={limit}".format(offset=offset, limit=limit)
-    relative_url += get_url_param("name", name)
-    relative_url += get_url_param("tags-keys", tags_keys)
-    relative_url += get_url_param("tags-values", tags_values)
-    response = get_request(relative_url=relative_url)
-    app_collection = response.json()
-    return ApplicationsCollection(
-        total_count=app_collection.get("totalCount"),
-        filtered_total_count=app_collection.get("filteredTotalCount"),
-        applications=[
-            __construct_application(app) for app in app_collection.get("applications")
-        ]
-    )
+def get_all_application_tags() -> dict:
+    return ApplicationsAPI().get_all_application_tags()
 
 
-def get_application_id_by_name(name):
-    """
-
-    Args:
-        name (str): application name
-
-    Returns:
-
-    """
-    type_check(name, str)
-
-    application_id = None
-    app_collection = get_a_list_of_applications(name=name)
-    applications = app_collection.applications
-    if applications:
-        application_id = applications[0].id
-    return application_id
+def get_an_application_by_id(application_id: str) -> Application:
+    return ApplicationsAPI().get_an_application_by_id(application_id)
 
 
-def get_all_application_tags():
-    """
-
-    Returns:
-        dict
-        example: {
-          "test": [
-            ""
-          ],
-          "priority": [
-            "high",
-            "low"
-          ]
-        }
-    """
-    relative_url = api_url + "/tags"
-    response = get_request(relative_url=relative_url)
-    return response.json()
+def update_an_application(application_id: str, application_input: ApplicationInput) -> bool:
+    return ApplicationsAPI().update_an_application(application_id, application_input)
 
 
-def get_an_application_by_id(application_id):
-    """
-
-    Args:
-        application_id (str):
-
-    Returns:
-        `Application`
-    """
-    type_check(application_id, str)
-
-    relative_url = api_url + "/{id}".format(id=application_id)
-    response = get_request(relative_url=relative_url)
-    app = response.json()
-    return __construct_application(app)
+def delete_an_application(application_id: str) -> bool:
+    return ApplicationsAPI().delete_an_application(application_id)
 
 
-def update_an_application(application_id, application_input):
-    """
-
-    Args:
-        application_id (str):
-        application_input (`ApplicationInput`):
-
-    Returns:
-        bool
-    """
-    type_check(application_id, str)
-    type_check(application_input, ApplicationInput)
-
-    is_successful = False
-    relative_url = api_url + "/{id}".format(id=application_id)
-    data = json.dumps(application_input.to_dict())
-    response = put_request(relative_url=relative_url, data=data)
-    if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
+def create_an_application_rule(application_id: str, rule_input: RuleInput) -> Rule:
+    return ApplicationsAPI().create_an_application_rule(application_id, rule_input)
 
 
-def delete_an_application(application_id):
-    """
-
-    Args:
-        application_id (str):
-
-    Returns:
-
-    """
-    type_check(application_id, str)
-
-    is_successful = False
-    relative_url = api_url + "/{id}".format(id=application_id)
-    response = delete_request(relative_url=relative_url)
-    if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
+def get_a_list_of_rules_for_a_specific_application(application_id: str) -> List[Rule]:
+    return ApplicationsAPI().get_a_list_of_rules_for_a_specific_application(application_id)
 
 
-def create_an_application_rule(application_id, rule_input):
-    """
-
-    Args:
-        application_id (str):
-        rule_input(`RuleInput`)
-
-    Returns:
-        `Rule`
-    """
-    type_check(application_id, str)
-    type_check(rule_input, RuleInput)
-
-    relative_url = api_url + "/{id}/project-rules".format(id=application_id)
-    type_check(rule_input, RuleInput)
-    data = json.dumps(rule_input.to_dict())
-    response = post_request(relative_url=relative_url, data=data)
-    rule = response.json()
-    return Rule(
-        rule_id=rule.get("id"),
-        rule_type=rule.get("type"),
-        value=rule.get("value")
-    )
+def get_an_application_rule(application_id: str, rule_id: str) -> Rule:
+    return ApplicationsAPI().get_an_application_rule(application_id, rule_id)
 
 
-def get_a_list_of_rules_for_a_specific_application(application_id):
-    """
-
-    Args:
-        application_id (str):
-
-    Returns:
-        `list` of `Rule`
-    """
-    type_check(application_id, str)
-
-    relative_url = api_url + "/{id}/project-rules".format(id=application_id)
-    response = get_request(relative_url=relative_url)
-    rules = response.json()
-    return __construct_application_rules(rules)
+def update_an_application_rule(application_id: str, rule_id: str, rule_input: RuleInput) -> bool:
+    return ApplicationsAPI().update_an_application_rule(application_id, rule_id, rule_input)
 
 
-def get_an_application_rule(application_id, rule_id):
-    """
-
-    Args:
-        application_id (str):
-        rule_id (str):
-
-    Returns:
-        `Rule`
-    """
-    type_check(application_id, str)
-    type_check(rule_id, str)
-
-    relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
-        id=application_id, rule_id=rule_id
-    )
-    response = get_request(relative_url=relative_url)
-    rule = response.json()
-    return Rule(
-        rule_id=rule.get("id"),
-        rule_type=rule.get("type"),
-        value=rule.get("value")
-    )
-
-
-def update_an_application_rule(application_id, rule_id, rule_input):
-    """
-
-    Args:
-        application_id (str):
-        rule_id (str):
-        rule_input (`RuleInput`):
-
-    Returns:
-       `Rule`
-    """
-    type_check(application_id, str)
-    type_check(rule_id, str)
-    type_check(rule_input, RuleInput)
-
-    is_successful = False
-    relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
-        id=application_id, rule_id=rule_id
-    )
-    data = json.dumps(rule_input.to_dict())
-    response = put_request(relative_url=relative_url, data=data)
-    if response.status_code in (NO_CONTENT, CREATED):
-        is_successful = True
-    return is_successful
-
-
-def delete_an_application_rule(application_id, rule_id):
-    """
-
-    Args:
-        application_id (str):
-        rule_id (str):
-
-    Returns:
-        bool
-    """
-    type_check(application_id, str)
-    type_check(rule_id, str)
-
-    is_successful = False
-    relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
-        id=application_id, rule_id=rule_id
-    )
-    response = delete_request(relative_url=relative_url)
-    if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
+def delete_an_application_rule(application_id: str, rule_id: str) -> bool:
+    return ApplicationsAPI().delete_an_application_rule(application_id, rule_id)

@@ -2,7 +2,6 @@ import csv
 from itertools import groupby
 from copy import deepcopy
 
-from CheckmarxPythonSDK.CxRestAPISDK.config import config
 from .ProjectsODataAPI import (get_all_projects_id_name, get_all_projects_id_name_and_team_id_name)
 from .ScansODataAPI import (
     get_all_scan_id_of_a_project,
@@ -10,6 +9,7 @@ from .ScansODataAPI import (
     get_last_full_scan_id_of_a_project
 )
 from .ResultsODataAPI import (
+    ResultsODataAPI,
     get_results_group_by_query_id_and_add_count_json_format,
     get_results_for_a_specific_scan_id_with_query_language_state,
 )
@@ -204,12 +204,9 @@ def get_result(project, filter_false_positive=False, threshold=0):
                 "ProjectId": project_id,
                 "ProjectName": project_name,
                 "ScanId": last_scan_id,
-                "DirectLink": config.get("base_url") + """/cxwebclient/ViewerMain.aspx"""
-                """?scanid={scanId}&projectid={projectId}&pathid={pathId}""".format(
-                    scanId=last_scan_id,
-                    projectId=project_id,
-                    pathId=result.get("PathId"),
-                )
+                "DirectLink": f"{ResultsODataAPI().api_client.configuration.server_base_url}/cxwebclient"
+                              f"/ViewerMain.aspx?scanid={last_scan_id}&projectid={project_id}"
+                              f"&pathid={result.get("PathId")}"
             }
         )
 

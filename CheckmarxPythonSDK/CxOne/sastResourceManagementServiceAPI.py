@@ -1,7 +1,9 @@
-from .httpRequests import get_request, delete_request
-from .utilities import get_url_param, type_check, list_member_type_check
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from typing import List
+from .utilities import type_check, list_member_type_check
 from .dto import SastScan, Property
-from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 
 api_url = "/api/sast-rm"
 
@@ -23,66 +25,87 @@ def construct_sast_scan(item):
     )
 
 
-def get_sast_scan_allocation_info(scan_id):
-    """
+class SastResourceManagementServiceAPI(object):
 
-    Args:
-        scan_id (str):
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
 
-    Returns:
+    def get_sast_scan_allocation_info(self, scan_id) -> SastScan:
+        """
 
-    """
-    relative_url = api_url + "/scans/{id}".format(id=scan_id)
-    response = get_request(relative_url=relative_url)
-    item = response.json()
-    return construct_sast_scan(item)
+        Args:
+            scan_id (str):
+
+        Returns:
+            SastScan
+        """
+        relative_url = api_url + "/scans/{id}".format(id=scan_id)
+        response = self.api_client.get_request(relative_url=relative_url)
+        item = response.json()
+        return construct_sast_scan(item)
+
+    def delete_sast_scan(self, scan_id: str) -> bool:
+        """
+
+        Args:
+            scan_id (str):
+
+        Returns:
+            bool
+        """
+        is_successful = False
+        relative_url = api_url + "/scans/{id}".format(id=scan_id)
+        response = self.api_client.delete_request(relative_url=relative_url)
+        if response.status_code == NO_CONTENT:
+            is_successful = True
+        return is_successful
+
+    def get_sast_scans(
+            self, offset: int = 0, limit: int = 20, ids: List[str] = None, with_deleted: bool = None
+    ) -> dict:
+        """
+
+        Args:
+            offset (int): The number of items to skip before starting to collect the result set.
+            limit (int): The number of items to return.
+            ids (list of str): Ids of scans to return.
+            with_deleted (bool): If deleted scans should be included in result.
+
+        Returns:
+            dict
+        """
+        type_check(offset, int)
+        type_check(limit, int)
+        type_check(ids, list)
+        list_member_type_check(ids, str)
+        type_check(with_deleted, bool)
+
+        relative_url = api_url + "/scans"
+        params = {"offset": offset, "limit": limit, "ids": ids, "with-deleted": with_deleted}
+        response = self.api_client.get_request(relative_url=relative_url, json=params)
+        item = response.json()
+        return {
+            "totalCount": 0,
+            "scans": [
+                construct_sast_scan(scan) for scan in item.get("scans")
+            ]
+        }
 
 
-def delete_sast_scan(scan_id):
-    """
-
-    Args:
-        scan_id (str):
-
-    Returns:
-
-    """
-    is_successful = False
-    relative_url = api_url + "/scans/{id}".format(id=scan_id)
-    response = delete_request(relative_url=relative_url)
-    if response.status_code == NO_CONTENT:
-        is_successful = True
-    return is_successful
+def get_sast_scan_allocation_info(scan_id) -> SastScan:
+    return SastResourceManagementServiceAPI().get_sast_scan_allocation_info(scan_id=scan_id)
 
 
-def get_sast_scans(offset=0, limit=20, ids=None, with_deleted=None):
-    """
+def delete_sast_scan(scan_id: str) -> bool:
+    return SastResourceManagementServiceAPI().delete_sast_scan(scan_id=scan_id)
 
-    Args:
-        offset (int): The number of items to skip before starting to collect the result set.
-        limit (int): The number of items to return.
-        ids (list of str): Ids of scans to return.
-        with_deleted (bool): If deleted scans should be included in result.
 
-    Returns:
-
-    """
-    type_check(offset, int)
-    type_check(limit, int)
-    type_check(ids, list)
-    list_member_type_check(ids, str)
-    type_check(with_deleted, bool)
-
-    relative_url = api_url + "/scans?offset={}&limit={}".format(
-        offset, limit
+def get_sast_scans(
+        offset: int = 0, limit: int = 20, ids: List[str] = None, with_deleted: bool = None
+) -> dict:
+    return SastResourceManagementServiceAPI().get_sast_scans(
+        offset=offset, limit=limit, ids=ids, with_deleted=with_deleted
     )
-    relative_url += get_url_param("ids", ids)
-    relative_url += get_url_param("with-deleted", with_deleted)
-    response = get_request(relative_url=relative_url)
-    item = response.json()
-    return {
-        "totalCount": 0,
-        "scans": [
-            construct_sast_scan(scan) for scan in item.get("scans")
-        ]
-    }

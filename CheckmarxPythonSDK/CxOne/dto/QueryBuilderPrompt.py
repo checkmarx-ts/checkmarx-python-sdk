@@ -5,3 +5,8 @@ class QueryBuilderPrompt(object):
 
     def __str__(self):
         return f"QueryBuilderPrompt(prompt={self.prompt})"
+
+    def to_dict(self):
+        return {
+            "prompt": self.prompt
+        }

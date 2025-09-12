@@ -1,5 +1,6 @@
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
-from .httpRequests import get_request, post_request, put_request, delete_request
 from .dto import (
     Queries,
     Query,
@@ -13,292 +14,500 @@ from .dto import (
     Sessions,
     Session,
     SastStatus,
-    RequestStatusNotReady,
-    RequestStatusDetectLanguages,
     AuditQuery,
-    CompilationResponse,
-    ExecutionResponse,
     GPTMessage
 )
 
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
 
-server_url = "/api/cx-audit"
-paths_func_mapping = {
-    'get_all_queries': '/queries',
-    'create_new_query': '/query-editor/sessions/{session_id}/queries',
-    'get_all_queries_search': '/queries/{session_id}/search',
-    'get_queries_metadata': '/queries/metadata',
-    'get_query_source': '/queries/{level}/{path}',
-    'delete_overridden_query': '/queries/{level}/{path}',
-    'update_query_source': '/queries/{session_id}/{level}',
-    'create_new_session': '/sessions',
-    'get_all_active_sessions_related_to_webaudit': '/sessions',
-    'get_session_details': '/sessions/{id}',
-    'delete_session_with_specific_id': '/sessions/{session_id}',
-    'heath_check_to_ensure_session_is_kept_alive': '/sessions/{session_id}',
-    'check_if_sast_engine_is_ready_to_use': '/sessions/{session_id}/sast-status',
-    'check_the_status_of_some_scan_related_requests': '/sessions/{session_id}/request-status',
-    'detect_the_languages_of_the_project_to_scan': '/sessions/{session_id}/project/languages',
-    'scan_the_project_using_sast_engine': '/sessions/{session_id}/project/scan',
-    'compile_the_queries_of_the_scanned_project': '/sessions/{session_id}/queries/compile',
-    'execute_the_queries_of_the_scanned_project': '/sessions/{session_id}/queries/run',
-    'cancel_the_queries_execution': '/sessions/{session_id}/queries/cancel',
-    'get_the_logs_associated_to_the_audit_session': '/sessions/{session_id}/logs',
-    'retrieve_gpt_history': '/gpt/{session_id}',
-    'delete_gpt_history': '/gpt/{session_id}',
-    'process_gpt_prompt_request': '/gpt/{session_id}'
-}
+api_url = "/api/cx-audit"
+
+
+class SastQueriesAuditAPI(object):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_all_queries(self, project_id: str = None) -> List[Queries]:
+        """
+
+        Args:
+            project_id (str):
+
+        Returns:
+            List[Queries]
+        """
+        relative_url = f"{api_url}/queries"
+        params = {"projectId": project_id}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
+        response = response.json()
+        return [
+            Queries(
+                id=item.get("Id"),
+                name=item.get("name"),
+                group=item.get("group"),
+                level=item.get("level"),
+                lang=item.get("lang"),
+                is_executable=item.get("isExecutable"),
+            ) for item in response
+        ]
+
+    def create_new_query(self, session_id: str, data: QueryRequest) -> bool:
+        """
+
+        Args:
+            session_id (str):
+            data (QueryRequest):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/query-editor/sessions/{session_id}/queries"
+        response = self.api_client.post_request(relative_url=relative_url, json=data.to_dict())
+        return response.status_code == OK
+
+    def get_all_queries_search(self, session_id: str) -> List[QuerySearch]:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            List[QuerySearch]
+        """
+        relative_url = f"{api_url}/queries/{session_id}/search"
+        response = self.api_client.get_request(relative_url=relative_url)
+        response = response.json()
+        return [
+            QuerySearch(
+                query=item.get("query"),
+                results=item.get("results"),
+            ) for item in response
+        ]
+
+    def get_queries_metadata(self) -> List[MethodInfo]:
+        """
+
+        Returns:
+            List[MethodInfo]
+        """
+        relative_url = f"{api_url}/queries/metadata"
+        response = self.api_client.get_request(relative_url=relative_url)
+        response = response.json()
+        return [
+            MethodInfo(
+                lang=item.get("lang"),
+                name=item.get("name"),
+                member_of=item.get("memberOf"),
+                documentation=item.get("documentation"),
+                return_type=item.get("returnType"),
+                kind=item.get("kind"),
+                parameters=[
+                    MethodParameter(
+                        name=m.get("name"),
+                        label=m.get("label"),
+                        documentation=m.get("documentation"),
+                    ) for m in item.get("parameters") or []
+                ]
+            ) for item in response
+        ]
+
+    def get_query_source(self, level: str, path: str) -> Query:
+        """
+
+        Args:
+            level (str):
+            path (str):
+
+        Returns:
+           Query
+        """
+        relative_url = f"{api_url}/queries/{level}/{path}"
+        response = self.api_client.get_request(relative_url=relative_url)
+        response = response.json()
+        return Query(
+            id=response.get("id"),
+            source=response.get("source"),
+            level=response.get("level"),
+            path=response.get("path"),
+            modified=response.get("modified"),
+            cwe=response.get("cwe"),
+            severity=response.get("severity"),
+            is_executable=response.get("isExecutable"),
+            cx_description_id=response.get("cxDescriptionID"),
+            query_description_id=response.get("queryDescriptionID"),
+        )
+
+    def delete_overridden_query(self, level: str, path: str) -> bool:
+        """
+
+        Args:
+            level (str):
+            path (str):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/queries/{level}/{path}"
+        response = self.api_client.delete_request(relative_url=relative_url)
+        return response.status_code == NO_CONTENT
+
+    def update_query_source(self, data: List[WorkspaceQuery], session_id: str, level: str) -> bool:
+        """
+
+        Args:
+            data (List[WorkspaceQuery]):
+            session_id (str):
+            level (str):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/queries/{session_id}/{level}"
+        response = self.api_client.put_request(relative_url=relative_url, json=[query.to_dict() for query in data])
+        return response.status_code == OK
+
+    def create_new_session(self, data: SessionRequest) -> SessionResponse:
+        """
+
+        Args:
+            data (SessionRequest):
+
+        Returns:
+            SessionResponse
+        """
+        relative_url = f"{api_url}/sessions"
+        response = self.api_client.post_request(relative_url=relative_url, json=data.to_dict())
+        response = response.json()
+        return SessionResponse(
+            id=response.get("id"),
+            status=response.get("status"),
+            scan_id=response.get("scanId"),
+        )
+
+    def get_all_active_sessions_related_to_web_audit(self, project_id: str = None, scan_id: str = None) -> Sessions:
+        """
+
+        Args:
+            project_id (str):
+            scan_id (str):
+
+        Returns:
+            Sessions
+        """
+        relative_url = f"{api_url}/sessions"
+        params = {"projectId": project_id, "scanId": scan_id}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
+        response = response.json()
+        return Sessions(
+            available=response.get("available"),
+            metadata=response.get("metadata"),
+        )
+
+    def get_session_details(self, session_id: str) -> Session:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            Session
+        """
+        relative_url = f"{api_url}/sessions/{session_id}"
+        response = self.api_client.get_request(relative_url=relative_url)
+        response = response.json()
+        return Session(
+            session_id=response.get("session_id"),
+            tenant_id=response.get("tenant_id"),
+            project_id=response.get("project_id"),
+            source_id=response.get("source_id"),
+            worker_info=response.get("worker_info"),
+            status=response.get("status"),
+        )
+
+    def delete_session_with_specific_id(self, session_id: str) -> bool:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/sessions/{session_id}"
+        response = self.api_client.delete_request(relative_url=relative_url)
+        return response.status_code == NO_CONTENT
+
+    def health_check_to_ensure_session_is_kept_alive(self, session_id: str) -> bool:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/sessions/{session_id}"
+        response = self.api_client.post_request(relative_url=relative_url)
+        return response.status_code == NO_CONTENT
+
+    def check_if_sast_engine_is_ready_to_use(self, session_id: str) -> SastStatus:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            SastStatus
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/sast-status"
+        response = self.api_client.get_request(relative_url=relative_url)
+        response = response.json()
+        return SastStatus(
+            ready=response.get("ready"),
+            message=response.get("message"),
+        )
+
+    def check_the_status_of_some_scan_related_requests(self, session_id: str, status_type: int) -> dict:
+        """
+
+        Args:
+            session_id (str):
+            status_type (int):
+
+        Returns:
+            dict
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/request-status"
+        params = {"type": status_type}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
+        return response.json()
+
+    def detect_the_languages_of_the_project_to_scan(self, session_id: str) -> int:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            int
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/project/languages"
+        response = self.api_client.get_request(relative_url=relative_url)
+        return response.json()
+
+    def scan_the_project_using_sast_engine(self, session_id: str) -> int:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            int
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/project/scan"
+        response = self.api_client.get_request(relative_url=relative_url)
+        return response.json()
+
+    def compile_the_queries_of_the_scanned_project(self, data: List[AuditQuery], session_id: str) -> int:
+        """
+
+        Args:
+            data (List[AuditQuery]):
+            session_id (str):
+
+        Returns:
+            int
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/queries/compile"
+        response = self.api_client.post_request(relative_url=relative_url, json=[query.to_dict() for query in data])
+        return response.json()
+
+    def execute_the_queries_of_the_scanned_project(self, data: List[AuditQuery], session_id: str) -> int:
+        """
+
+        Args:
+            data (List[AuditQuery]):
+            session_id (str):
+
+        Returns:
+            int
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/queries/run"
+        response = self.api_client.post_request(relative_url=relative_url, json=[query.to_dict() for query in data])
+        return response.json()
+
+    def cancel_the_queries_execution(self, session_id: str) -> bool:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/queries/cancel"
+        response = self.api_client.get_request(relative_url=relative_url)
+        return response.status_code == OK
+
+    def get_the_logs_associated_to_the_audit_session(self, session_id: str) -> str:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            str
+        """
+        relative_url = f"{api_url}/sessions/{session_id}/logs"
+        response = self.api_client.get_request(relative_url=relative_url)
+        return response.json()
+
+    def retrieve_gpt_history(self, session_id: str) -> List[GPTMessage]:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            List[GPTMessage]
+        """
+        relative_url = f"{api_url}/gpt/{session_id}"
+        response = self.api_client.get_request(relative_url=relative_url)
+        response = response.json()
+        return [
+            GPTMessage(
+                role=item.get("role"),
+                content=item.get("content"),
+            ) for item in response
+        ]
+
+    def delete_gpt_history(self, session_id: str) -> bool:
+        """
+
+        Args:
+            session_id (str):
+
+        Returns:
+            bool
+        """
+        relative_url = f"{api_url}/gpt/{session_id}"
+        response = self.api_client.delete_request(relative_url=relative_url)
+        return response.status_code == NO_CONTENT
+
+    def process_gpt_prompt_request(self, data: dict, session_id: str) -> List[GPTMessage]:
+        """
+
+        Args:
+            data (dict):
+            session_id (str):
+
+        Returns:
+            List[GPTMessage]
+        """
+        relative_url = f"{api_url}/gpt/{session_id}"
+        response = self.api_client.post_request(relative_url=relative_url, json=data)
+        response = response.json()
+        return [
+            GPTMessage(
+                role=item.get("role"),
+                content=item.get("content"),
+            ) for item in response
+        ]
 
 
 def get_all_queries(project_id: str = None) -> List[Queries]:
-    relative_url = server_url + paths_func_mapping.get("get_all_queries")
-    params = {"projectId": project_id}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return [
-        Queries(
-            id=item.get("Id"),
-            name=item.get("name"),
-            group=item.get("group"),
-            level=item.get("level"),
-            lang=item.get("lang"),
-            is_executable=item.get("isExecutable"),
-        ) for item in response
-    ]
+    return SastQueriesAuditAPI().get_all_queries(project_id=project_id)
 
 
-def create_new_query(session_id: str, request_body: QueryRequest) -> bool:
-    relative_url = server_url + paths_func_mapping.get("create_new_query").format(session_id=session_id)
-    params = {}
-    response = post_request(relative_url=relative_url, params=params, json=request_body)
-    return response.status_code == OK
+def create_new_query(session_id: str, data: QueryRequest) -> bool:
+    return SastQueriesAuditAPI().create_new_query(session_id=session_id, data=data)
 
 
 def get_all_queries_search(session_id: str) -> List[QuerySearch]:
-    relative_url = server_url + paths_func_mapping.get("get_all_queries_search").format(session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return [
-        QuerySearch(
-            query=item.get("query"),
-            results=item.get("results"),
-        ) for item in response
-    ]
+    return SastQueriesAuditAPI().get_all_queries_search(session_id=session_id)
 
 
 def get_queries_metadata() -> List[MethodInfo]:
-    relative_url = server_url + paths_func_mapping.get("get_queries_metadata")
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return [
-        MethodInfo(
-            lang=item.get("lang"),
-            name=item.get("name"),
-            member_of=item.get("memberOf"),
-            documentation=item.get("documentation"),
-            return_type=item.get("returnType"),
-            kind=item.get("kind"),
-            parameters=[
-                MethodParameter(
-                    name=m.get("name"),
-                    label=m.get("label"),
-                    documentation=m.get("documentation"),
-                ) for m in item.get("parameters") or []
-            ]
-        ) for item in response
-    ]
+    return SastQueriesAuditAPI().get_queries_metadata()
 
 
 def get_query_source(level: str, path: str) -> Query:
-    relative_url = server_url + paths_func_mapping.get("get_query_source").format(level=level, path=path)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return Query(
-        id=response.get("id"),
-        source=response.get("source"),
-        level=response.get("level"),
-        path=response.get("path"),
-        modified=response.get("modified"),
-        cwe=response.get("cwe"),
-        severity=response.get("severity"),
-        is_executable=response.get("isExecutable"),
-        cx_description_id=response.get("cxDescriptionID"),
-        query_description_id=response.get("queryDescriptionID"),
-    )
+    return SastQueriesAuditAPI().get_query_source(level=level, path=path)
 
 
 def delete_overridden_query(level: str, path: str) -> bool:
-    relative_url = server_url + paths_func_mapping.get("delete_overridden_query").format(level=level, path=path)
-    params = {}
-    response = delete_request(relative_url=relative_url, params=params)
-    return response.status_code == NO_CONTENT
+    return SastQueriesAuditAPI().delete_overridden_query(level=level, path=path)
 
 
-def update_query_source(request_body: List[WorkspaceQuery], session_id: str, level: str) -> bool:
-    relative_url = server_url + paths_func_mapping.get("update_query_source").format(session_id=session_id, level=level)
-    params = {}
-    response = put_request(relative_url=relative_url, params=params, json=request_body)
-    return response.status_code == OK
+def update_query_source(data: List[WorkspaceQuery], session_id: str, level: str) -> bool:
+    return SastQueriesAuditAPI().update_query_source(data=data, session_id=session_id, level=level)
 
 
-def create_new_session(request_body: SessionRequest) -> SessionResponse:
-    relative_url = server_url + paths_func_mapping.get("create_new_session")
-    params = {}
-    response = post_request(relative_url=relative_url, params=params, json=request_body)
-    response = response.json()
-    return SessionResponse(
-        id=response.get("id"),
-        status=response.get("status"),
-        scan_id=response.get("scanId"),
-    )
+def create_new_session(data: SessionRequest) -> SessionResponse:
+    return SastQueriesAuditAPI().create_new_session(data=data)
 
 
-def get_all_active_sessions_related_to_webaudit(project_id: str = None, scan_id: str = None) -> Sessions:
-    relative_url = server_url + paths_func_mapping.get("get_all_active_sessions_related_to_webaudit")
-    params = {"projectId": project_id, "scanId": scan_id}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return Sessions(
-        available=response.get("available"),
-        metadata=response.get("metadata"),
-    )
+def get_all_active_sessions_related_to_web_audit(project_id: str = None, scan_id: str = None) -> Sessions:
+    return SastQueriesAuditAPI().get_all_active_sessions_related_to_web_audit(project_id=project_id, scan_id=scan_id)
 
 
 def get_session_details(session_id: str) -> Session:
-    relative_url = server_url + paths_func_mapping.get("get_session_details").format(session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return Session(
-        session_id=response.get("session_id"),
-        tenant_id=response.get("tenant_id"),
-        project_id=response.get("project_id"),
-        source_id=response.get("source_id"),
-        worker_info=response.get("worker_info"),
-        status=response.get("status"),
-    )
+    return SastQueriesAuditAPI().get_session_details(session_id=session_id)
 
 
 def delete_session_with_specific_id(session_id: str) -> bool:
-    relative_url = server_url + paths_func_mapping.get("delete_session_with_specific_id").format(session_id=session_id)
-    params = {}
-    response = delete_request(relative_url=relative_url, params=params)
-    return response.status_code == NO_CONTENT
+    return SastQueriesAuditAPI().delete_session_with_specific_id(session_id=session_id)
 
 
-def heath_check_to_ensure_session_is_kept_alive(session_id: str, request_body=None) -> bool:
-    relative_url = server_url + paths_func_mapping.get("heath_check_to_ensure_session_is_kept_alive").format(
-        session_id=session_id)
-    params = {}
-    response = post_request(relative_url=relative_url, params=params, json=request_body)
-    return response.status_code == NO_CONTENT
+def health_check_to_ensure_session_is_kept_alive(session_id: str) -> bool:
+    return SastQueriesAuditAPI().health_check_to_ensure_session_is_kept_alive(session_id=session_id)
 
 
 def check_if_sast_engine_is_ready_to_use(session_id: str) -> SastStatus:
-    relative_url = server_url + paths_func_mapping.get("check_if_sast_engine_is_ready_to_use").format(
-        session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return SastStatus(
-        ready=response.get("ready"),
-        message=response.get("message"),
-    )
+    return SastQueriesAuditAPI().check_if_sast_engine_is_ready_to_use(session_id=session_id)
 
 
 def check_the_status_of_some_scan_related_requests(session_id: str, status_type: int):
-    relative_url = server_url + paths_func_mapping.get("check_the_status_of_some_scan_related_requests").format(
-        session_id=session_id)
-    params = {"type": status_type}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return response
+    return SastQueriesAuditAPI().check_the_status_of_some_scan_related_requests(
+        session_id=session_id, status_type=status_type
+    )
 
 
 def detect_the_languages_of_the_project_to_scan(session_id: str) -> int:
-    relative_url = server_url + paths_func_mapping.get("detect_the_languages_of_the_project_to_scan").format(
-        session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return response
+    return SastQueriesAuditAPI().detect_the_languages_of_the_project_to_scan(session_id=session_id)
 
 
 def scan_the_project_using_sast_engine(session_id: str) -> int:
-    relative_url = server_url + paths_func_mapping.get("scan_the_project_using_sast_engine").format(
-        session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return response
+    return SastQueriesAuditAPI().scan_the_project_using_sast_engine(session_id=session_id)
 
 
-def compile_the_queries_of_the_scanned_project(request_body: List[AuditQuery], session_id: str) -> int:
-    relative_url = server_url + paths_func_mapping.get("compile_the_queries_of_the_scanned_project").format(
-        session_id=session_id)
-    params = {}
-    response = post_request(relative_url=relative_url, params=params, json=request_body)
-    response = response.json()
-    return response
+def compile_the_queries_of_the_scanned_project(data: List[AuditQuery], session_id: str) -> int:
+    return SastQueriesAuditAPI().compile_the_queries_of_the_scanned_project(data=data, session_id=session_id)
 
 
-def execute_the_queries_of_the_scanned_project(request_body: List[AuditQuery], session_id: str) -> int:
-    relative_url = server_url + paths_func_mapping.get("execute_the_queries_of_the_scanned_project").format(
-        session_id=session_id)
-    params = {}
-    response = post_request(relative_url=relative_url, params=params, json=request_body)
-    response = response.json()
-    return response
+def execute_the_queries_of_the_scanned_project(data: List[AuditQuery], session_id: str) -> int:
+    return SastQueriesAuditAPI().execute_the_queries_of_the_scanned_project(data=data, session_id=session_id)
 
 
 def cancel_the_queries_execution(session_id: str) -> bool:
-    relative_url = server_url + paths_func_mapping.get("cancel_the_queries_execution").format(session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    return response.status_code == OK
+    return SastQueriesAuditAPI().cancel_the_queries_execution(session_id=session_id)
 
 
 def get_the_logs_associated_to_the_audit_session(session_id: str) -> str:
-    relative_url = server_url + paths_func_mapping.get("get_the_logs_associated_to_the_audit_session").format(
-        session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return response
+    return SastQueriesAuditAPI().get_the_logs_associated_to_the_audit_session(session_id=session_id)
 
 
 def retrieve_gpt_history(session_id: str) -> List[GPTMessage]:
-    relative_url = server_url + paths_func_mapping.get("retrieve_gpt_history").format(session_id=session_id)
-    params = {}
-    response = get_request(relative_url=relative_url, params=params)
-    response = response.json()
-    return [
-        GPTMessage(
-            role=item.get("role"),
-            content=item.get("content"),
-        ) for item in response
-    ]
+    return SastQueriesAuditAPI().retrieve_gpt_history(session_id=session_id)
 
 
 def delete_gpt_history(session_id: str) -> bool:
-    relative_url = server_url + paths_func_mapping.get("delete_gpt_history").format(session_id=session_id)
-    params = {}
-    response = delete_request(relative_url=relative_url, params=params)
-    return response.status_code == NO_CONTENT
+    return SastQueriesAuditAPI().delete_gpt_history(session_id=session_id)
 
 
-def process_gpt_prompt_request(request_body: dict, session_id: str) -> List[GPTMessage]:
-    relative_url = server_url + paths_func_mapping.get("process_gpt_prompt_request").format(session_id=session_id)
-    params = {}
-    response = post_request(relative_url=relative_url, params=params, json=request_body)
-    response = response.json()
-    return [
-        GPTMessage(
-            role=item.get("role"),
-            content=item.get("content"),
-        ) for item in response
-    ]
+def process_gpt_prompt_request(data: dict, session_id: str) -> List[GPTMessage]:
+    return SastQueriesAuditAPI().process_gpt_prompt_request(data=data, session_id=session_id)

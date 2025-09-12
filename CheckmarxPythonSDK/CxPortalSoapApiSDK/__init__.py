@@ -1,4 +1,5 @@
 from .CxPortalWebService import (
+    CxPortalWebService,
     add_license_expiration_notification,
     create_new_preset,
     create_scan_report,
@@ -34,6 +35,7 @@ from .CxPortalWebService import (
 )
 
 from .CxAuditWebService import (
+    CxAuditWebService,
     get_files_extensions,
     get_source_code_for_scan,
     upload_queries,

@@ -16,6 +16,6 @@ def test_create_a_custom_state():
 
 
 def test_delete_a_custom_state():
-    custom_state_id = get_all_custom_states()[0].get("id")
-    response = delete_a_custom_state(id=custom_state_id)
+    custom_state_id = get_all_custom_states()[0].id
+    response = delete_a_custom_state(custom_state_id=custom_state_id)
     assert response is not None

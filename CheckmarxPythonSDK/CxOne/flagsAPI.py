@@ -1,16 +1,10 @@
-# encoding: utf-8
-import json
-import requests
-import time
-import os
-from CheckmarxPythonSDK.CxOne.httpRequests import get_request, post_request
-from CheckmarxPythonSDK.CxOne.config import config
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .utilities import type_check, list_member_type_check
 from .dto import (
-    Flag,
+    Flag, construct_feature_flag,
 )
-
-base_url = config.get("server")
+from typing import List
 
 api_url = f"/api/flags/"
 
@@ -23,44 +17,53 @@ def __construct_flag(flag):
     )
 
 
-def get_all_feature_flags(ids=None):
-    """
-    Args:
-         ids (`list`)
+class FeatureFlagAPI(object):
 
-    Returns:
-        `list` of `Flag`
-    """
-    type_check(ids, (list, tuple))
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
 
-    list_member_type_check(ids, str)
+    def get_all_feature_flags(self, ids: List[str] = None) -> List[Flag]:
+        """
+        Args:
+             ids (`list`) (comma separated)
 
-    relative_url = f"{api_url}"
-    # We can't use get_url_param() because it assumes that this is not
-    # the first query parameter.
-    if ids:
-        relative_url += f"?ids={','.join(ids)}"
+        Returns:
+            `list` of `Flag`
+        """
+        type_check(ids, (list, tuple))
+        list_member_type_check(ids, str)
+        relative_url = api_url
+        # We can't use get_url_param() because it assumes that this is not
+        # the first query parameter.
+        # if ids:
+        #     relative_url += f"?ids={','.join(ids)}"
+        params = {"ids": ",".join(ids)}
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
+        item = response.json()
+        return [construct_feature_flag(flag) for flag in item]
 
-    response = get_request(relative_url=relative_url)
+    def get_feature_flag(self, name: str) -> Flag:
+        """
 
-    flags = response.json()
-    return [__construct_flag(flag) for flag in flags]
+        Args:
+            name (`str`)
+
+        Returns:
+            `Flag`
+        """
+        type_check(name, str)
+        relative_url = f"{api_url}{name}"
+        response = self.api_client.get_request(relative_url=relative_url)
+        item = response.json()
+        return construct_feature_flag(item)
 
 
-def get_feature_flag(name):
-    """
+def get_all_feature_flags(ids: List[str] = None) -> List[Flag]:
+    return FeatureFlagAPI().get_all_feature_flags(ids=ids)
 
-    Args:
-        name (`str`)
 
-    Returns:
-        `Flag`
-    """
-    type_check(name, str)
-
-    relative_url = f"{api_url}{name}"
-
-    response = get_request(relative_url=relative_url)
-
-    flag = response.json()
-    return __construct_flag(flag)
+def get_feature_flag(name: str) -> Flag:
+    return FeatureFlagAPI().get_feature_flag(name=name)

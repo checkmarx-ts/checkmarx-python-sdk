@@ -3,8 +3,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_feature_flag
 )
 
-def test_get_all_feature_flags_no_args():
 
+def test_get_all_feature_flags_no_args():
     flags = get_all_feature_flags()
     assert flags is not None
     assert type(flags) is list

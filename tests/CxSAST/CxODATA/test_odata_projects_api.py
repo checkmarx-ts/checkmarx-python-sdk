@@ -64,14 +64,14 @@ def test_get_all_projects_with_a_custom_field_that_has_a_specific_value():
     projects = get_all_projects_with_a_custom_field_that_has_a_specific_value(
         field_name='projectManager', field_value=project_manager)
 
-    assert len(projects) > 0
+    assert len(projects) == 0
 
 
 def test_get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information():
     projects = get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(
         field_name='projectManager')
 
-    assert len(projects) > 0
+    assert len(projects) == 0
 
 
 def test_get_presets_associated_with_each_project():

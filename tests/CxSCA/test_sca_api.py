@@ -71,7 +71,7 @@ def test_check_if_project_already_exists():
 
 
 def test_create_a_new_project():
-    project = create_a_new_project(project_name=project_name)
+    project = create_a_new_project(project_name=project_name, assigned_teams=["/CxServer/Team1/Team3"])
     assert project.get("id") is not None
 
 
@@ -327,7 +327,9 @@ def test_get_scan_reports():
 
 
 def test_get_aggregated_risks():
-    resp = get_aggregated_risks("Python", "llama-index", "0.10.28")
+    # resp = get_aggregated_risks("Python", "llama-index", "0.10.28")
+    # assert resp is not None
+    resp = get_aggregated_risks("Go", "argoproj%2Fargo-cd", "v1.8.7")
     assert resp is not None
 
 
@@ -337,7 +339,9 @@ def test_get_artifact_license():
 
 
 def test_get_artifact_info():
-    resp = get_artifact_info("Python", "llama-index", "0.10.28")
+    # resp = get_artifact_info("Python", "llama-index", "0.10.28")
+    # assert resp is not None
+    resp = get_artifact_info("Go", "argoproj%2Fargo-cd", "v1.8.7")
     assert resp is not None
 
 

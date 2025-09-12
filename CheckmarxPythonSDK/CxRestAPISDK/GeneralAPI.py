@@ -1,24 +1,28 @@
 # encoding: utf-8
-import json
-
-from .httpRequests import get_request, post_request, patch_request, delete_request, get_headers
-from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT, ACCEPTED
+from typing import List
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
+from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, ACCEPTED
 from .sast.general.dto import CxServerLicenseData, CxSupportedLanguage, CxTranslationInput, CxUserPersistence
 
 
-class GeneralAPI:
+class GeneralAPI(object):
     """
     CxSAST general API
     """
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
 
-    @staticmethod
-    def get_server_license_data(api_version="4.0"):
+    def get_server_license_data(self, api_version: str = "4.0") -> CxServerLicenseData:
         """
         Returns the CxSAST server's license data
         """
         result = None
         relative_url = "/cxrestapi/serverLicenseData"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             json = response.json()
             result = CxServerLicenseData(
@@ -44,8 +48,7 @@ class GeneralAPI:
             )
         return result
 
-    @staticmethod
-    def get_server_system_version(api_version="1.1"):
+    def get_server_system_version(self, api_version: str = "1.1") -> dict:
         """
         Returns version, hotfix number and engine pack version
         Returns:
@@ -57,13 +60,12 @@ class GeneralAPI:
         """
         result = None
         relative_url = "/cxrestapi/system/version"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def get_result_states(api_version="4.0"):
+    def get_result_states(self, api_version: str = "4.0") -> List[dict]:
         """
 
         Args:
@@ -333,13 +335,14 @@ class GeneralAPI:
 """
         result = None
         relative_url = "/cxrestapi/sast/resultStates"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def create_result_state(translation_inputs, permission, api_version="4.0"):
+    def create_result_state(
+            self, translation_inputs: CxTranslationInput, permission: str, api_version: str = "4.0"
+    ) -> int:
         """
 
         Args:
@@ -350,7 +353,6 @@ class GeneralAPI:
         Returns:
             Id of result state(int)
         """
-        result = None
         if translation_inputs and not isinstance(translation_inputs, (list, tuple)):
             raise ValueError("translation_inputs should be list or tuple")
         for item in translation_inputs:
@@ -358,20 +360,20 @@ class GeneralAPI:
                 raise ValueError("member of translation_inputs should be CxTranslationInput")
 
         result = None
-        post_data = json.dumps(
-            {
+        post_data = {
                 "names": [item.to_dict() for item in translation_inputs],
                 "permission": permission
             }
-        )
         relative_url = "/cxrestapi/sast/resultStates"
-        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        response = self.api_client.post_request(
+            relative_url=relative_url, json=post_data, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json().get("id")
         return result
 
-    @staticmethod
-    def update_result_state(state_id, translation_inputs, permission, api_version="4.0"):
+    def update_result_state(
+            self, state_id: int, translation_inputs: CxTranslationInput, permission: str, api_version: str = "4.0"
+    ) -> bool:
         """
 
         Args:
@@ -383,26 +385,21 @@ class GeneralAPI:
         Returns:
             bool
         """
-        is_successful = False
         if translation_inputs and not isinstance(translation_inputs, (list, tuple)):
             raise ValueError("translation_inputs should be list or tuple")
         for item in translation_inputs:
             if item and not isinstance(item, CxTranslationInput):
                 raise ValueError("member of translation_inputs should be CxTranslationInput")
-        patch_data = json.dumps(
-            {
+        patch_data = {
                 "names": [item.to_dict() for item in translation_inputs],
                 "permission": permission
             }
-        )
         relative_url = "/cxrestapi/sast/resultStates/{id}".format(id=state_id)
-        response = patch_request(relative_url=relative_url, data=patch_data, headers=get_headers(api_version))
-        if response.status_code == NO_CONTENT:
-            is_successful = True
-        return is_successful
+        response = self.api_client.patch_request(
+            relative_url=relative_url, json=patch_data, headers=get_headers(api_version))
+        return response.status_code == NO_CONTENT
 
-    @staticmethod
-    def delete_result_state(state_id, api_version="4.0"):
+    def delete_result_state(self, state_id: str, api_version: str = "4.0") -> bool:
         """
 
         Args:
@@ -411,15 +408,11 @@ class GeneralAPI:
         Returns:
             bool
         """
-        is_successful = False
         relative_url = "/cxrestapi/sast/resultStates/{id}".format(id=state_id)
-        response = delete_request(relative_url=relative_url, headers=get_headers(api_version))
-        if response.status_code == ACCEPTED:
-            is_successful = True
-        return is_successful
+        response = self.api_client.delete_request(relative_url=relative_url, headers=get_headers(api_version))
+        return response.status_code == ACCEPTED
 
-    @staticmethod
-    def get_all_scheduled_jobs(api_version="4.0"):
+    def get_all_scheduled_jobs(self, api_version: str = "4.0") -> List[dict]:
         """
 
         Args:
@@ -430,15 +423,11 @@ class GeneralAPI:
             example:
             [{'projectId': 8, 'projectName': 'jvl_git', 'scanDays': ['Sunday'], 'scanTime': '12:00 上午'}]
         """
-        result = None
         relative_url = "/cxrestapi/sast/scheduledJobs"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
-        if response.status_code == OK:
-            result = response.json()
-        return result
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
+        return response.status_code == OK
 
-    @staticmethod
-    def get_user_persistence_data_for_current_user(persistence_keys, api_version="5.0"):
+    def get_user_persistence_data_for_current_user(self, persistence_keys: List[str], api_version: str = "5.0") -> List:
         """
         Gets user persistence data for current user
         Args:
@@ -457,13 +446,14 @@ class GeneralAPI:
         relative_url = "/cxrestapi/userPersistence?"
         relative_url += "&".join(["persistenceKeys={}".format(item) for item in persistence_keys])
 
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def update_persistence_data_for_current_user(persistence_items, api_version="5.0"):
+    def update_persistence_data_for_current_user(
+            self, persistence_items: List[CxUserPersistence], api_version: str = "5.0"
+    ) -> bool:
         """
         Updates an existing user persistence data for current user
         Args:
@@ -473,24 +463,17 @@ class GeneralAPI:
         Returns:
 
         """
-        is_successful = False
         if persistence_items and not isinstance(persistence_items, list):
             raise ValueError("parameter persistence_items should be a list of CxUserPersistence")
         for item in persistence_items:
             if item and not isinstance(item, CxUserPersistence):
                 raise ValueError("member in parameter persistence_items should be CxUserPersistence")
-        result = None
         relative_url = "/cxrestapi/userPersistence"
-        data = json.dumps(
-            [item.to_dict() for item in persistence_items]
-        )
-        response = patch_request(relative_url=relative_url, data=data, headers=get_headers(api_version))
-        if response.status_code == OK:
-            is_successful = True
-        return is_successful
+        data = [item.to_dict() for item in persistence_items]
+        response = self.api_client.patch_request(relative_url=relative_url, json=data, headers=get_headers(api_version))
+        return response.status_code == OK
 
-    @staticmethod
-    def get_audit_trail_for_roles(from_date, to_date, api_version="5.0"):
+    def get_audit_trail_for_roles(self, from_date: str, to_date: str, api_version: str = "5.0") -> List[dict]:
         """
 
         Args:
@@ -515,13 +498,12 @@ class GeneralAPI:
         relative_url = "/cxrestapi/sast/roles/auditTrail?fromDate={fromDate}&toDate={toDate}".format(
             fromDate=from_date, toDate=to_date
         )
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def get_audit_trail_for_teams(from_date, to_date, api_version="5.0"):
+    def get_audit_trail_for_teams(self, from_date: str, to_date: str, api_version: str = "5.0") -> List[dict]:
         """
 
         Args:
@@ -546,13 +528,12 @@ class GeneralAPI:
         relative_url = "/cxrestapi/sast/teams/auditTrail?fromDate={fromDate}&toDate={toDate}".format(
             fromDate=from_date, toDate=to_date
         )
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def get_audit_trail_for_presets(from_date, to_date, api_version="5.0"):
+    def get_audit_trail_for_presets(self, from_date: str, to_date: str, api_version: str = "5.0") -> List[dict]:
         """
 
         Args:
@@ -580,13 +561,14 @@ class GeneralAPI:
         relative_url = "/cxrestapi/sast/presets/auditTrail?fromDate={fromDate}&toDate={toDate}".format(
             fromDate=from_date, toDate=to_date
         )
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result
 
-    @staticmethod
-    def get_audit_trail_for_results(from_date, to_date, update_type="ALL", api_version="5.0"):
+    def get_audit_trail_for_results(
+            self, from_date: str, to_date: str, update_type: str = "ALL", api_version: str = "5.0"
+    ) -> List[dict]:
         """
 
         Args:
@@ -619,7 +601,7 @@ class GeneralAPI:
                         "&toDate={toDate}").format(
             updateType=update_type, fromDate=from_date, toDate=to_date
         )
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
         return result

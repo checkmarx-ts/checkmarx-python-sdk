@@ -3,17 +3,9 @@ import os
 import json
 import logging
 from os.path import normpath, join, exists
-from requests.compat import is_py2
 logger = logging.getLogger("CheckmarxPythonSDK")
 
-if is_py2:
-    import ConfigParser
-
-    configparser = ConfigParser
-else:
-    import configparser
-
-    configparser = configparser
+import configparser
 
 from optparse import (OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError)
 
@@ -37,24 +29,24 @@ class PassThroughOptionParser(OptionParser):
                 largs.append(e.opt_str)
 
 
-def get_config_path(file_extention=".ini"):
+def get_config_path(file_extension=".ini"):
     """
 
     By default, the configuration file path is "~/.Checkmarx/config.ini".
     otherwise, check environment variable "checkmarx_config_path", if exists, override the previous one
     finally, check command line option "--checkmarx_config_path", if exists, override the previous one
     Args:
-        file_extention (str)
+        file_extension (str)
 
     Returns:
         config_file_path (str)
     """
-    if file_extention not in [".ini", ".json"]:
+    if file_extension not in [".ini", ".json"]:
         raise ValueError("configuration file extention file can only be .ini or .json")
 
     home_directory = os.path.expanduser("~")
     # the absolute path of the file config.ini
-    relative_file_path = ".Checkmarx/config" + file_extention
+    relative_file_path = ".Checkmarx/config" + file_extension
     config_file_path = normpath(join(home_directory, relative_file_path))
 
     # check environment variable "checkmarx_config_path", if exists, override the previous one
@@ -119,7 +111,7 @@ def get_config_info_from_config_ini_file(section, option_list):
 
 def get_config_info_from_config_json_file(section, option_list):
 
-    config_file_path = get_config_path(file_extention=".json")
+    config_file_path = get_config_path(file_extension=".json")
 
     if not exists(config_file_path) or not config_file_path.endswith(".json"):
         return {}
@@ -232,7 +224,7 @@ def get_config(config_default, section, prefix):
     logger.debug("config_from_cli: {}".format(config_from_cli))
     config.update(config_from_cli)
     logger.debug("override the config value, now the config value is: {}".format(config))
-
+    config = clean_null_terms(config)
     logger.debug("final config value is: {}".format(config))
     return config
 

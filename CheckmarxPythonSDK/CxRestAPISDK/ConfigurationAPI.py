@@ -1,6 +1,7 @@
-# encoding: utf-8
+from typing import List
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 import json
-from .httpRequests import get_request, put_request, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK
 from .sast.configuration.dto import CxSASTConfig
 
@@ -9,8 +10,14 @@ class ConfigurationAPI(object):
     """
     CxSAST configuration API
     """
-    @staticmethod
-    def get_cx_component_configuration_settings(group, api_version="1.0"):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_cx_component_configuration_settings(self, group: str, api_version: str = "1.0") -> List[CxSASTConfig]:
         """
 
         Args:
@@ -34,7 +41,7 @@ class ConfigurationAPI(object):
         """
         result = []
         relative_url = "/cxrestapi/configurationsExtended/{group}".format(group=group)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxSASTConfig(
@@ -45,8 +52,9 @@ class ConfigurationAPI(object):
             ]
         return result
 
-    @staticmethod
-    def update_cx_component_configuration_settings(group, key_value_list, api_version="1.0"):
+    def update_cx_component_configuration_settings(
+            self, group: str, key_value_list: List[dict] | List[CxSASTConfig], api_version: str = "1.0"
+    ) -> bool:
         """
 
         Warnings: Depending on the changed settings, in order to take effect,
@@ -65,7 +73,6 @@ class ConfigurationAPI(object):
         Returns:
             bool
         """
-        result = False
         relative_url = "/cxrestapi/configurationsExtended/{group}".format(group=group)
 
         temp_list = []
@@ -81,7 +88,7 @@ class ConfigurationAPI(object):
                 "value": item.get("value"),
             } for item in temp_list
         ])
-        response = put_request(relative_url=relative_url, data=put_data, headers=get_headers(api_version))
-        if response.status_code == OK:
-            result = True
-        return result
+        response = self.api_client.put_request(
+            relative_url=relative_url, data=put_data, headers=get_headers(api_version)
+        )
+        return response.status_code == OK

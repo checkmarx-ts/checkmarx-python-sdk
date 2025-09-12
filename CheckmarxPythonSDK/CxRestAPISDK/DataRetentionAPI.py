@@ -1,7 +1,7 @@
-import calendar
 import json
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 from datetime import date, datetime, timedelta
-from .httpRequests import get_request, post_request, get_headers
 from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 from .sast.projects.dto import CxLink
 from .sast.dataRetention.dto import (
@@ -15,8 +15,14 @@ class DataRetentionAPI(object):
     """
     data retention API
     """
-    @staticmethod
-    def stop_data_retention(api_version="1.0"):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def stop_data_retention(self, api_version: str = "1.0") -> bool:
         """
         Stop the data retention (global)
         Args:
@@ -32,13 +38,14 @@ class DataRetentionAPI(object):
         """
         result = False
         relative_url = "/cxrestapi/sast/dataRetention/stop"
-        response = post_request(relative_url=relative_url, data=None, headers=get_headers(api_version))
+        response = self.api_client.post_request(relative_url=relative_url, data=None, headers=get_headers(api_version))
         if response.status_code == ACCEPTED:
             result = True
         return result
 
-    @staticmethod
-    def define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version="1.0"):
+    def define_data_retention_date_range(
+            self, start_date: str, end_date: str, duration_limit_in_hours: int, api_version: str = "1.0"
+    ) -> CxDefineDataRetentionResponse:
         """
         Define the global setting for data retention by date range
 
@@ -65,7 +72,8 @@ class DataRetentionAPI(object):
                 "durationLimitInHours": duration_limit_in_hours
             }
         )
-        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        response = self.api_client.post_request(
+            relative_url=relative_url, data=post_data, headers=get_headers(api_version))
         if response.status_code == ACCEPTED:
             if response.text:
                 a_dict = response.json()
@@ -78,9 +86,12 @@ class DataRetentionAPI(object):
                 )
         return result
 
-    @staticmethod
-    def define_data_retention_by_number_of_scans(number_of_successful_scans_to_preserve, duration_limit_in_hours,
-                                                 api_version="1.0"):
+    def define_data_retention_by_number_of_scans(
+            self,
+            number_of_successful_scans_to_preserve: int,
+            duration_limit_in_hours: int,
+            api_version: str = "1.0"
+    ) -> CxDefineDataRetentionResponse:
         """
         Define the global setting for the data retention by number of scans.
 
@@ -105,7 +116,8 @@ class DataRetentionAPI(object):
                 "durationLimitInHours": duration_limit_in_hours
             }
         )
-        response = post_request(relative_url=relative_url, data=post_data, headers=get_headers(api_version))
+        response = self.api_client.post_request(
+            relative_url=relative_url, data=post_data, headers=get_headers(api_version))
         if response.status_code == ACCEPTED:
             if response.text:
                 a_dict = response.json()
@@ -118,8 +130,9 @@ class DataRetentionAPI(object):
                 )
         return result
 
-    @staticmethod
-    def get_data_retention_request_status(request_id, api_version="1.0"):
+    def get_data_retention_request_status(
+            self, request_id: int, api_version: str = "1.0"
+    ) -> CxDataRetentionRequestStatus:
         """
         This one does not work!!!
         Get status details of a specific data retention request.
@@ -138,7 +151,7 @@ class DataRetentionAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/sast/dataRetention/{requestId}/status".format(requestId=request_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_dict = response.json()
             result = CxDataRetentionRequestStatus(
@@ -154,8 +167,9 @@ class DataRetentionAPI(object):
             )
         return result
 
-    @staticmethod
-    def define_data_retention_by_rolling_date(num_days, duration_limit_in_hours, api_version="1.0"):
+    def define_data_retention_by_rolling_date(
+            self, num_days: int, duration_limit_in_hours: int, api_version: str = "1.0"
+    ) -> CxDefineDataRetentionResponse:
         """
 
         Args:
@@ -166,18 +180,15 @@ class DataRetentionAPI(object):
         Returns:
 
         """
-        start_date = datetime.date(1900, 1, 1)
-        start_date = start_date.strftime("%Y-%m-%d")
+        start_date = date(1900, 1, 1).strftime("%Y-%m-%d")
+        time_delta = timedelta(days=num_days)
+        end_date = (date.today() - time_delta).strftime("%Y-%m-%d")
 
-        time_delta = datetime.timedelta(days=num_days)
-        end_date = datetime.date.today() - time_delta
-        end_date = end_date.strftime("%Y-%m-%d")
+        return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)
 
-        return DataRetentionAPI.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
-                                                                 api_version)
-
-    @staticmethod
-    def define_data_retention_by_rolling_months(num_months, duration_limit_in_hours, api_version="1.0"):
+    def define_data_retention_by_rolling_months(
+            self, num_months: int, duration_limit_in_hours: int, api_version: str = "1.0"
+    ) -> CxDefineDataRetentionResponse:
         """
 
         Args:
@@ -206,5 +217,4 @@ class DataRetentionAPI(object):
         end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
         end_date = end_date.strftime("%Y-%m-%d")
 
-        return DataRetentionAPI.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours,
-                                                                 api_version)
+        return self.define_data_retention_date_range(start_date, end_date, duration_limit_in_hours, api_version)

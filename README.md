@@ -46,7 +46,7 @@ Even if you install the SDK using **pip**, you might still want to download or c
 
 ### Option 1, using config.ini file: 
 ```buildoutcfg
-[checkmarx]
+[CxSAST]
 base_url = http://localhost:80
 username = ******
 password = ******
@@ -54,11 +54,7 @@ grant_type = password
 scope = sast_rest_api
 client_id = resource_owner_client
 client_secret = 014DF517-39D1-4453-B7B3-9930C563627C
-url =  %(base_url)s/cxrestapi
-scan_preset = Checkmarx Default
-configuration = Default Configuration
-team_full_name = /CxServer
-max_try = 3
+
 
 [CxSCA]
 access_control_url = https://platform.checkmarx.net

@@ -1,48 +1,40 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import List
+
+
+@dataclass
 class Project(object):
-
-    def __init__(self, project_id=None, name=None, groups=None, repo_url=None, main_branch=None, origin=None,
-                 created_at=None, updated_at=None, tags=None, criticality=3):
-        """
-
-        Args:
-            project_id (str, optional): A unique identifier for the project. For 'upload' projects, a value must be entered.
-                For 'git' projects, this field can be empty and the repository URL will be designated as the project ID.
-            name (str): The project name
-            groups (list of str): The groups authorized for this project
-            repo_url (str): The representative repository URL
-            main_branch (str): The Git main branch
-            origin (str): The origin of project
-            created_at (str):
-            updated_at (str)
-            tags (dict):
-            criticality (int):
-                minimum: 1
-                maximum: 5
-                default: 3
-                example: 3
-                Criticality level of the project
-        """
-        self.id = project_id
-        self.name = name
-        self.groups = groups
-        self.repoUrl = repo_url
-        self.mainBranch = main_branch
-        self.origin = origin
-        self.createdAt = created_at
-        self.updatedAt = updated_at
-        self.tags = tags
-        self.criticality = criticality
-
-    def __str__(self):
-        return """Project(id={}, tags={})""".format(
-            self.id, self.tags
-        )
+    project_id: str = None  # A unique identifier for the project. For 'upload' projects, a value must be entered.
+    # For 'git' projects, this field can be empty and the repository URL will be designated as the project ID.
+    name: str = None  # The project name
+    groups: List[str] = None  # The groups authorized for this project
+    repo_url: str = None  # The representative repository URL
+    main_branch: str = None  # The Git main branch
+    origin: str = None  # The origin of project
+    created_at: str = None
+    updated_at: str = None
+    tags: dict = None
+    criticality: int = 3  # minimum: 1 maximum: 5 default: 3 example: 3 Criticality level of the project
 
     def to_dict(self):
         data = {}
-        if self.id:
-            data.update({"id": self.id})
+        if self.project_id:
+            data.update({"id": self.project_id})
         if self.tags:
             data.update({"tags": self.tags})
         return data
+
+
+def construct_project(item):
+    return Project(
+        project_id=item.get("id"),
+        name=item.get("name"),
+        groups=item.get("groups"),
+        repo_url=item.get("repoUrl"),
+        main_branch=item.get("mainBranch"),
+        origin=item.get("origin"),
+        created_at=item.get("createdAt"),
+        updated_at=item.get("updatedAt"),
+        tags=item.get("tags"),
+        criticality=item.get("criticality"),
+    )

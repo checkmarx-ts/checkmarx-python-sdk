@@ -20,6 +20,7 @@ from .ResultsODataAPI import (
     get_results_group_by_query_id_and_add_count_json_format,
     get_results_for_a_specific_scan_id_with_similarity_ids,
     get_number_of_results_for_a_specific_scan_id_with_result_state,
+    get_similarity_ids_of_a_scan,
 )
 from .ScansODataAPI import (
     get_all_data_for_a_specific_scan_id,

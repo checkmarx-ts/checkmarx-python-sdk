@@ -1,28 +1,24 @@
-class AuditEvent(object):
+from dataclasses import dataclass
 
-    def __init__(self, event_date, event_type, audit_resource, action_type, action_user_id, ip_address, data):
-        """
 
-        Args:
-            event_date (str):
-            event_type (str):
-            audit_resource (str):
-            action_type (str):
-            action_user_id (str):
-            ip_address (str):
-            data (dict):
-        """
-        self.event_date = event_date
-        self.event_type = event_type
-        self.audit_resource = audit_resource
-        self.action_type = action_type
-        self.action_user_id = action_user_id
-        self.ip_address = ip_address
-        self.data = data
+@dataclass
+class AuditEvent:
+    event_date: str = None
+    event_type: str = None
+    audit_resource: str = None
+    action_type: str = None
+    action_user_id: str = None
+    ip_address: str = None
+    data: dict = None
 
-    def __str__(self):
-        return """AuditEvent(event_date={}, event_type={}, audit_resource={}, action_type={}, action_user_id={}, 
-        ip_address={}, data={})""".format(
-            self.event_date, self.event_type, self.audit_resource, self.action_type, self.action_user_id,
-            self.ip_address, self.data
-        )
+
+def construct_audit_event(item):
+    return AuditEvent(
+                event_date=item.get("eventDate"),
+                event_type=item.get("eventType"),
+                audit_resource=item.get("auditResource"),
+                action_type=item.get("actionType"),
+                action_user_id=item.get("actionUserId"),
+                ip_address=item.get("ipAddress"),
+                data=item.get("data")
+            )

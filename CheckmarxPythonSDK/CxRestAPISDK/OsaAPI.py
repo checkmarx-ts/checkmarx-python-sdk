@@ -1,6 +1,7 @@
-# encoding: utf-8
+from typing import List
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 import os
-from .httpRequests import get_request, post_request, get_headers
 from requests_toolbelt import MultipartEncoder
 from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 from .osa.dto import (
@@ -14,8 +15,16 @@ class OsaAPI(object):
     """
     osa rest api
     """
-    @staticmethod
-    def get_all_osa_scan_details_for_project(project_id=None, page=1, items_per_page=100, api_version="1.0"):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def get_all_osa_scan_details_for_project(
+            self, project_id: int = None, page: int = 1, items_per_page: int = 100, api_version: str = "1.0"
+    ) -> List[CxOsaScanDetail]:
         """
         Get basic scan details for all CxOSA scans associated with a specified project Id.
         v8.4.2 and up
@@ -44,7 +53,7 @@ class OsaAPI(object):
         if optionals:
             relative_url += "&"
             relative_url += "&".join(optionals)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxOsaScanDetail(
@@ -64,8 +73,7 @@ class OsaAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_last_osa_scan_id_of_a_project(project_id, succeeded=True):
+    def get_last_osa_scan_id_of_a_project(self, project_id: int, succeeded: bool = True) -> str:
         """
 
         Args:
@@ -78,7 +86,7 @@ class OsaAPI(object):
         osa_scan_id = None
 
         if project_id:
-            all_osa_scan_details = OsaAPI.get_all_osa_scan_details_for_project(project_id)
+            all_osa_scan_details = self.get_all_osa_scan_details_for_project(project_id)
 
             if all_osa_scan_details and len(all_osa_scan_details) > 0:
                 if succeeded:
@@ -90,8 +98,7 @@ class OsaAPI(object):
 
         return osa_scan_id
 
-    @staticmethod
-    def get_osa_scan_by_scan_id(scan_id, api_version="1.0"):
+    def get_osa_scan_by_scan_id(self, scan_id: str, api_version: str = "1.0") -> CxOsaScanDetail:
         """
         Get CxOSA scan details for the specified CxOSA scan Id.
         v8.4.2 and up
@@ -110,7 +117,7 @@ class OsaAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/osa/scans/{scanId}".format(scanId=scan_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_dict = response.json()
             result = CxOsaScanDetail(
@@ -129,8 +136,9 @@ class OsaAPI(object):
             )
         return result
 
-    @staticmethod
-    def create_an_osa_scan_request(project_id, zipped_source_path, origin="REST API", api_version="1.0"):
+    def create_an_osa_scan_request(
+            self, project_id: int, zipped_source_path: str, origin: str = "REST API", api_version: str = "1.0"
+    ) -> str:
         """
         Create a new OSA scan request.
         v8.4.2 and up
@@ -160,13 +168,13 @@ class OsaAPI(object):
         )
         headers = {"Content-Type": m.content_type}
         relative_url = "/cxrestapi/osa/scans" + "?projectId={project_id}".format(project_id=project_id)
-        response = post_request(relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
+        response = self.api_client.post_request(
+            relative_url=relative_url, data=m, headers=get_headers(api_version, headers))
         if response.status_code == ACCEPTED:
             result = response.json().get("scanId")
         return result
 
-    @staticmethod
-    def get_all_osa_file_extensions(api_version="1.0"):
+    def get_all_osa_file_extensions(self, api_version: str = "1.0") -> str:
         """
         Get all CxOSA file extension information.
         v8.6.0 and up
@@ -185,13 +193,12 @@ class OsaAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/osa/fileextensions"
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.text
         return result
 
-    @staticmethod
-    def get_osa_licenses_by_id(scan_id, api_version="1.0"):
+    def get_osa_licenses_by_id(self, scan_id: str, api_version: str = "1.0") -> List[CxOsaLicense]:
         """
         Get all OSA license details for the specified OSA scan Id.
         v8.6.0 and up
@@ -211,7 +218,7 @@ class OsaAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/osa/licenses" + "?scanId={scan_id}".format(scan_id=scan_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxOsaLicense(
@@ -230,8 +237,9 @@ class OsaAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_osa_scan_libraries(scan_id, page=1, items_per_page=100, api_version="1.0"):
+    def get_osa_scan_libraries(
+            self, scan_id: str, page: int = 1, items_per_page: int = 100, api_version: str = "1.0"
+    ) -> List[CxOsaLibrary]:
         """
         Get all the used libraries details for the specified CxOSA scan Id.
         Supported v8.6.0 and up
@@ -262,7 +270,7 @@ class OsaAPI(object):
         if optionals:
             relative_url += "&"
             relative_url += "&".join(optionals)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxOsaLibrary(
@@ -308,9 +316,11 @@ class OsaAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_osa_scan_vulnerabilities_by_id(scan_id, page=1, items_per_page=100, library_id=None,
-                                           state_id=None, comment=None, since=None, until=None, api_version="1.0"):
+    def get_osa_scan_vulnerabilities_by_id(
+            self, scan_id: str, page: int = 1, items_per_page: int = 100, library_id: str = None,
+            state_id: int = None, comment: str = None, since: int = None, until: int = None,
+            api_version: str = "1.0"
+    ) -> List[CxOsaVulnerability]:
         """
         Get all the vulnerabilities for the specified CxOSA scan Id.
         v8.4.2 and up
@@ -357,7 +367,7 @@ class OsaAPI(object):
             if optionals:
                 relative_url += "&"
                 relative_url += "&".join(optionals)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxOsaVulnerability(
@@ -386,8 +396,7 @@ class OsaAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_first_vulnerability_id(scan_id):
+    def get_first_vulnerability_id(self, scan_id: str) -> str:
         """
 
         Args:
@@ -397,13 +406,14 @@ class OsaAPI(object):
             str: vulnerability id
         """
         vulnerability_id = None
-        vulnerabilities = OsaAPI.get_osa_scan_vulnerabilities_by_id(scan_id)
+        vulnerabilities = self.get_osa_scan_vulnerabilities_by_id(scan_id)
         if vulnerabilities and len(vulnerabilities):
             vulnerability_id = vulnerabilities[0].id
         return vulnerability_id
 
-    @staticmethod
-    def get_osa_scan_vulnerability_comments_by_id(vulnerability_id, project_id, api_version="1.0"):
+    def get_osa_scan_vulnerability_comments_by_id(
+            self, vulnerability_id: str, project_id: int, api_version: str = "1.0"
+    ) -> List[CxOsaVulnerabilityComment]:
         """
         Get existing comments for vulnerabilities according to Vulnerability Id and Project Id.
         v9.0 and up
@@ -427,7 +437,7 @@ class OsaAPI(object):
             vulnerabilityId=vulnerability_id,
             project_id=project_id
         )
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = [
                 CxOsaVulnerabilityComment(
@@ -438,8 +448,7 @@ class OsaAPI(object):
             ]
         return result
 
-    @staticmethod
-    def get_osa_scan_summary_report(scan_id, api_version="1.0"):
+    def get_osa_scan_summary_report(self, scan_id: str, api_version: str = "1.0") -> CxOsaSummaryReport:
         """
         Generate a new summary report (.json) for the specified OSA scan Id.
         v8.4.2 and up
@@ -458,7 +467,7 @@ class OsaAPI(object):
         """
         result = None
         relative_url = "/cxrestapi/osa/reports" + "?scanId=" + str(scan_id)
-        response = get_request(relative_url=relative_url, headers=get_headers(api_version))
+        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             a_dict = response.json()
             result = CxOsaSummaryReport(

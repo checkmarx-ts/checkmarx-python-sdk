@@ -1,16 +1,14 @@
-class SeverityCounter(object):
+from dataclasses import dataclass
 
-    def __init__(self, severity, counter):
-        """
 
-        Args:
-            severity (str): The severity level of the vulnerability.
-            counter (int): The number of vulnerabilities found at this severity level.
-        """
-        self.severity = severity
-        self.counter = counter
+@dataclass
+class SeverityCounter:
+    severity: str = None  # The severity level of the vulnerability.
+    counter: int = None  # The number of vulnerabilities found at this severity level.
 
-    def __str__(self):
-        return """SeverityCounter(severity={}, counter={})""".format(
-            self.severity, self.counter
-        )
+
+def construct_severity_counter(item):
+    return SeverityCounter(
+        severity=item.get("severity"),
+        counter=item.get("counter"),
+    )

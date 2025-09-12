@@ -1,21 +1,15 @@
 from CheckmarxPythonSDK.CxAccessControl.AccessControl import AccessControl
-from .httpRequests import (
-        get_request as get,
-        post_request as post,
-        put_request as put,
-        delete_request as delete
-)
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxScaApiSDK.config import construct_configuration
 
 
 class AccessControlAPI(AccessControl):
-    def __init__(self, get_request=get, post_request=post, put_request=put, delete_request=delete, is_iam=True):
-        AccessControl.__init__(self, get_request=get, post_request=post, put_request=put, delete_request=delete,
-                               is_iam=is_iam)
-        self.get_request = get_request
-        self.post_request = post_request
-        self.put_request = put_request
-        self.delete_request = delete_request
+    def __init__(self, api_client: ApiClient = None, is_iam=True):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
         self.is_iam = is_iam
+        AccessControl.__init__(self, api_client=api_client, is_iam=is_iam)
 
     def __str__(self):
         return """AccessControlAPI()"""
