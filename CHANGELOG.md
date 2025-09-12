@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.4.2 - 2025-09-12
+* Fix CxONe UploadingAPI upload_zip_content_for_scanning
+
 1.4.1 - 2025-09-12
 * Fix CxONe UploadingAPI upload_zip_content_for_scanning
 
