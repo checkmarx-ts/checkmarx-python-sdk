@@ -53,7 +53,7 @@ class UploadsAPI(object):
             }
         )
         headers.update({"Content-Type": m.content_type})
-        response = self.api_client.put_request(relative_url=relative_url, data=m, headers=headers, verify=False)
+        response = self.api_client.put_request(relative_url=relative_url, data=m, headers=headers)
         return response.status_code == OK
 
 

@@ -12,7 +12,6 @@ from CheckmarxPythonSDK.utilities.compat import (
 
 def create_session() -> Session:
     session = Session()
-    session.verify = False
     retries = Retry(
         total=3,
         backoff_factor=1,
