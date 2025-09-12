@@ -44,7 +44,6 @@ class UploadsAPI(object):
         """
         if not zip_file_path or not exists(zip_file_path):
             print("zip file path: {} does not exist".format(zip_file_path))
-        relative_url = "/".join(upload_link.split("/")[3:])
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         file_name = os.path.basename(zip_file_path)
         m = MultipartEncoder(
@@ -53,7 +52,7 @@ class UploadsAPI(object):
             }
         )
         headers.update({"Content-Type": m.content_type})
-        response = self.api_client.put_request(relative_url=relative_url, data=m, headers=headers)
+        response = self.api_client.put(url=upload_link, data=m, headers=headers)
         return response.status_code == OK
 
 
