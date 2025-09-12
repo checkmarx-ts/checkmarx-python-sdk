@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.4.0 - 2025-09-12
+* Fix configUtility
+
 1.3.9 - 2025-09-12
 * Fix: ssl cert verification now default to True
 
