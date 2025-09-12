@@ -142,10 +142,10 @@ def get_config_info_from_environment_variables(prefix, option_list):
                 value = int(value)
         elif option in ["verify"]:
             value = os.getenv(env_var) or os.getenv(env_var.upper())
-            if value and value.lower() == "true":
-                value = True
-            else:
+            if value and value.lower() == "false":
                 value = False
+            else:
+                value = True
         else:
             value = os.getenv(env_var) or os.getenv(env_var.upper())
         return value
@@ -169,10 +169,10 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
                 value = int(value)
         elif option in ["verify"]:
             value = options.__getattribute__(cli_var)
-            if value and value.lower() == "true":
-                value = True
-            else:
+            if value and value.lower() == "false":
                 value = False
+            else:
+                value = True
         else:
             value = options.__getattribute__(cli_var)
         return value
