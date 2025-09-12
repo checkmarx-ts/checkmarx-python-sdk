@@ -15,7 +15,7 @@ def construct_configuration() -> Configuration:
         "password": None,
         "refresh_token": None,
         "timeout": 60,
-        "verify": False,
+        "verify": True,
         "cert": None,
         "proxy": None,
     }

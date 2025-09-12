@@ -11,7 +11,7 @@ def construct_configuration() -> Configuration:
         "password": None,
         "scope": "sca_api access_control_api",
         "timeout": 60,
-        "verify": False,
+        "verify": True,
         "cert": None,
         "proxy": None,
     }

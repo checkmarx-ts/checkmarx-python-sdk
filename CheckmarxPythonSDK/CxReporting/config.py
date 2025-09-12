@@ -13,7 +13,7 @@ def construct_configuration() -> Configuration:
         "client_id": "reporting_service_api",
         "client_secret": "014DF517-39D1-4453-B7B3-9930C563627C",
         "timeout": 60,
-        "verify": False,
+        "verify": True,
         "cert": None,
         "proxy": None,
     }

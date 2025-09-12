@@ -17,7 +17,7 @@ def construct_configuration() -> Configuration:
         "max_try": 2,
         "report_folder": None,
         "timeout": 59,
-        "verify": False,
+        "verify": True,
         "cert": None,
         "proxy": None,
     }
