@@ -15,11 +15,12 @@ from urllib3.util.ssl_ import create_urllib3_context
 class CustomTLSAdapter(HTTPAdapter):
     def init_poolmanager(self, *args, **kwargs):
         ctx = create_urllib3_context()
-        # 明确设置协议版本
+        ctx.options |= ssl.OP_NO_SSLv2
+        ctx.options |= ssl.OP_NO_SSLv3
+        ctx.options |= ssl.OP_NO_TLSv1
+        ctx.options |= ssl.OP_NO_TLSv1_1
         ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ctx.maximum_version = ssl.TLSVersion.TLSv1_3
-        # 禁用压缩以避免某些EOF问题
-        ctx.options |= ssl.OP_NO_COMPRESSION
         kwargs['ssl_context'] = ctx
         return super().init_poolmanager(*args, **kwargs)
 
@@ -32,9 +33,7 @@ def create_session() -> Session:
         status_forcelist=[500, 502, 503, 504],
         allowed_methods={'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'},
     )
-    adapter = CustomTLSAdapter(max_retries=retries)
-    session.mount('https://', adapter)
-    # session.mount('https://', HTTPAdapter(max_retries=retries))
+    session.mount('https://', CustomTLSAdapter(max_retries=retries))
     session.mount('http://', HTTPAdapter(max_retries=retries))
     return session
 
