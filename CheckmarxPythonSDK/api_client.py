@@ -105,7 +105,7 @@ def retry_when_unauthorized(max_retries: int = 1):
                 try:
                     token = self.token_manager.get_token()
 
-                    headers = kwargs.get('headers', {})
+                    headers = kwargs.get('headers', {}) or {}
                     headers['Authorization'] = f'Bearer {token}'
                     kwargs['headers'] = headers
 
@@ -184,7 +184,8 @@ class ApiClient(object):
             url = access_control_url + relative_url
         return url
 
-    def head(self, url, auth=None, headers=(), json=None, params=None):
+    @retry_when_unauthorized(max_retries=2)
+    def head(self, url, auth=None, headers=None, json=None, params=None):
         response = self.session.request(
             "HEAD", url, params=params, json=json, auth=auth,
             timeout=self.configuration.timeout,
@@ -194,7 +195,8 @@ class ApiClient(object):
         check_response(response)
         return response
 
-    def get(self, url, auth=None, headers=(), params=None):
+    @retry_when_unauthorized(max_retries=2)
+    def get(self, url, auth=None, headers=None, params=None):
         response = self.session.request(
             "GET", url, params=params, auth=auth,
             timeout=self.configuration.timeout,
@@ -204,7 +206,8 @@ class ApiClient(object):
         check_response(response)
         return response
 
-    def post(self, url, data=None, files=None, auth=None, headers=(), params=None, json=None):
+    @retry_when_unauthorized(max_retries=2)
+    def post(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
         response = self.session.request(
             "POST", url, params=params, files=files, data=data, json=json, auth=auth,
             timeout=self.configuration.timeout,
@@ -214,7 +217,8 @@ class ApiClient(object):
         check_response(response)
         return response
 
-    def put(self, url, data=None, files=None, auth=None, headers=(), params=None, json=None):
+    @retry_when_unauthorized(max_retries=2)
+    def put(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
         response = self.session.request(
             "PUT", url, params=params, files=files, data=data, json=json, auth=auth,
             timeout=self.configuration.timeout,
@@ -224,7 +228,8 @@ class ApiClient(object):
         check_response(response)
         return response
 
-    def patch(self, url, data=None, auth=None, headers=(), params=None, json=None):
+    @retry_when_unauthorized(max_retries=2)
+    def patch(self, url, data=None, auth=None, headers=None, params=None, json=None):
         response = self.session.request(
             "PATCH", url, params=params, data=data, json=json, auth=auth,
             timeout=self.configuration.timeout,
@@ -234,7 +239,8 @@ class ApiClient(object):
         check_response(response)
         return response
 
-    def delete(self, url, data=None, auth=None, headers=(), params=None):
+    @retry_when_unauthorized(max_retries=2)
+    def delete(self, url, data=None, auth=None, headers=None, params=None):
         response = self.session.request(
             "DELETE", url, params=params, data=data, auth=auth,
             timeout=self.configuration.timeout,
@@ -244,35 +250,29 @@ class ApiClient(object):
         check_response(response)
         return response
 
-    @retry_when_unauthorized(max_retries=2)
-    def head_request(self, relative_url, auth=None, headers=(), json=None, params=None, is_iam=False):
+    def head_request(self, relative_url, auth=None, headers=None, json=None, params=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.head(url=url, auth=auth, headers=headers, json=json, params=params)
 
-    @retry_when_unauthorized(max_retries=2)
-    def get_request(self, relative_url, auth=None, headers=(), params=None, is_iam=False):
+    def get_request(self, relative_url, auth=None, headers=None, params=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.get(url=url, auth=auth, headers=headers, params=params)
 
-    @retry_when_unauthorized(max_retries=2)
-    def post_request(self, relative_url, data=None, files=None, auth=None, headers=(), params=None, json=None,
+    def post_request(self, relative_url, data=None, files=None, auth=None, headers=None, params=None, json=None,
                      is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.post(url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
 
-    @retry_when_unauthorized(max_retries=2)
     def put_request(
-            self, relative_url, data=None, files=None, auth=None, headers=(), params=None, json=None, is_iam=False
+            self, relative_url, data=None, files=None, auth=None, headers=None, params=None, json=None, is_iam=False
     ):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.put(url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
 
-    @retry_when_unauthorized(max_retries=2)
-    def patch_request(self, relative_url, data=None, auth=None, headers=(), params=None, json=None, is_iam=False):
+    def patch_request(self, relative_url, data=None, auth=None, headers=None, params=None, json=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.patch(url=url, data=data, auth=auth, headers=headers, params=params, json=json)
 
-    @retry_when_unauthorized(max_retries=2)
-    def delete_request(self, relative_url, data=None, auth=None, headers=(), params=None, is_iam=False):
+    def delete_request(self, relative_url, data=None, auth=None, headers=None, params=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.delete(url=url, data=data, auth=auth, headers=headers, params=params)
