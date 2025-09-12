@@ -18,7 +18,7 @@ from .sast.scans.dto import (
     CxScanResultAttackVectorByBFL, construct_attack_vector, construct_scan_result_node, CxScanResultLabelsFields,
     CxScanStatistics, CxScanFileCountOfLanguage, CxLanguageStatistic, CxScanParsedFiles, CxScanParsedFilesMetric,
     CxScanFailedQueries, CxScanFailedGeneralQueries, CxScanSucceededGeneralQueries, CxPostScanActionConditions,
-    CxScanResultAttackVector
+    CxScanResultAttackVector, CxScanResultsPage
 )
 
 
@@ -1603,4 +1603,33 @@ class ScansAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
         if response.status_code == OK:
             result = response.json()
+        return result
+
+    def get_scan_results_in_paged_mode(self, scan_id, offset, limit, lcid=None):
+        """
+        Args:
+            scan_id (int): Unique ID of a scan
+            offset  (int): Page offset
+            limit   (int): Page size
+            lcid    (int): Language Id
+
+        Returns:
+            :obj:CxScnResultsResponse
+
+        Raises:
+        """
+        result = None
+        relative_url = "/cxrestapi/sast/results" \
+            "?scanId={scanId}&offset={offset}&limit={limit}".format(
+                scanId=scan_id,
+                offset=offset,
+                limit=limit
+            )
+        if lcid is not None:
+            relative_url = relative_url + "&LCID={lcid}".format(lcid=lcid)
+        response = self.api_client.get_request(relative_url=relative_url)
+        if response.status_code == OK:
+            data = response.json()
+            result = CxScanResultsPage.from_dict(data)
+
         return result

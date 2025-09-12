@@ -22,10 +22,12 @@ from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
 from .CxScanQueueDetail import CxScanQueueDetail
 from .CxScanReportStatus import CxScanReportStatus
 from .CxScanReportXmlContent import CxScanReportXmlContent
+from .CxScanResult import CxScanResult
 from .CxScanResultAttackVector import CxScanResultAttackVector
 from .CxScanResultAttackVectorByBFL import CxScanResultAttackVectorByBFL
 from .CxScanResultLabelsFields import CxScanResultLabelsFields
 from .CxScanResultNode import CxScanResultNode
+from .CxScanResultsPage import CxScanResultsPage
 from .CxScanStage import CxScanStage
 from .CxScanState import CxScanState
 from .CxScanStatistics import CxScanStatistics
