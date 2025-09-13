@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.4.5 - 2025-09-13
+* Fix verify with self-signed certificate
+
 1.4.4 - 2025-09-12
 * Fix api_client headers issue
 
