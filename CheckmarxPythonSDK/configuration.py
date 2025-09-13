@@ -15,7 +15,7 @@ class Configuration:
     client_secret: str = None
     api_key: str = None
     timeout: int = 60
-    verify_ssl_cert: bool = False
+    verify_ssl_cert: bool | str = True
     cert: str = None  # path to client certificate
     proxies: dict = None
     debug_mode: bool = False

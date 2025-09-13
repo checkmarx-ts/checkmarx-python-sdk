@@ -24,7 +24,9 @@ def construct_configuration() -> Configuration:
     }
     old_config = get_config(config_default=config_default, section="checkmarx", prefix="cxsast_")
     new_config = get_config(config_default=config_default, section="CxSAST", prefix="cxsast_")
-    config = old_config | new_config
+    config = old_config
+    if new_config.get("base_url"):
+        config = new_config
     return Configuration(
                 server_base_url=config.get("base_url"),
                 token_url=f"{config.get("base_url")}/cxrestapi/auth/identity/connect/token",
