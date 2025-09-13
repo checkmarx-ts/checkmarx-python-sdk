@@ -25,7 +25,7 @@ def construct_configuration() -> Configuration:
                 password=config.get("password"),
                 scope=config.get("scope"),
                 timeout=config.get("timeout"),
-                verify_ssl_cert=config.get("verify"),
+                verify=config.get("verify"),
                 cert=config.get("cert"),
                 proxies={
                     "http": config.get("proxy"),

@@ -158,7 +158,18 @@ When you run your program with `--cx_debug` command line, it will log the overri
 
 # python-dotenv
 
-If you are using python-dotenv, make sure your run `load_dotenv("./<Your-File-Name>.env", override=True)` before import any Checkmarx Python SDK function.
+If you are using python-dotenv, make sure your run `load_dotenv("./<Your-File-Name>.env", override=True)` before import 
+any Checkmarx Python SDK function.
+
+# Connect to multiple systems at the same time
+
+Now each API class has been refactored to accept an api_client(class ApiClient) with configuration (class Configuration).
+You can pass different api_client with different configuration for each API class.
+
+# CxSAST self-signed certificate
+For CxSAST self-signed certificate, you can use the verify in configuration as a string, which is a path to the public 
+key of your self-signed certificate. The public key of the self-signed certificate can be exported from browser. Please
+export it as a .cert or .pem file.
 
 # Examples
  Please find example scripts from [examples folder](https://github.com/checkmarx-ts/checkmarx-python-sdk/tree/master/examples).

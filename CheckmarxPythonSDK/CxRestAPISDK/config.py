@@ -37,7 +37,7 @@ def construct_configuration() -> Configuration:
                 client_id=config.get("client_id"),
                 client_secret=config.get("client_secret"),
                 timeout=config.get("timeout"),
-                verify_ssl_cert=config.get("verify"),
+                verify=config.get("verify"),
                 cert=config.get("cert"),
                 proxies={
                     "http": config.get("proxy"),
