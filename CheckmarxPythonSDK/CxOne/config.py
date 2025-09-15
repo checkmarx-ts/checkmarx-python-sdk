@@ -23,8 +23,10 @@ def construct_configuration() -> Configuration:
     return Configuration(
                 server_base_url=config.get("server"),
                 iam_base_url=config.get("access_control_url"),
-                token_url=f"{config.get("access_control_url")}/auth/realms"
-                          f"/{config.get("tenant_name")}/protocol/openid-connect/token",
+                token_url=(
+                    f"{config.get('access_control_url')}/auth/realms"
+                    f"/{config.get('tenant_name')}/protocol/openid-connect/token"
+                ),
                 tenant_name=config.get("tenant_name"),
                 grant_type=config.get("grant_type"),
                 client_id=config.get("client_id"),
