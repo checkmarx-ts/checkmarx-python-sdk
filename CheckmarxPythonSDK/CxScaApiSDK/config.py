@@ -19,7 +19,7 @@ def construct_configuration() -> Configuration:
     return Configuration(
                 server_base_url=config.get("server"),
                 iam_base_url=config.get("access_control_url"),
-                token_url=f"{config.get("access_control_url")}/identity/connect/token",
+                token_url=f"{config.get('access_control_url')}/identity/connect/token",
                 tenant_name=config.get("account"),
                 username=config.get("username"),
                 password=config.get("password"),
