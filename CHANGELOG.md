@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.4.7 - 2025-09-16
+* Fix config f-string issue
+
 1.4.6 - 2025-09-13
 * Refactor verify ssl cert, make the name align in sdk
 
