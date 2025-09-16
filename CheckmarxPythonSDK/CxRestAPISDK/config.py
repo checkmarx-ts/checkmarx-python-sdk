@@ -29,7 +29,7 @@ def construct_configuration() -> Configuration:
         config = new_config
     return Configuration(
                 server_base_url=config.get("base_url"),
-                token_url=f"{config.get("base_url")}/cxrestapi/auth/identity/connect/token",
+                token_url=f"{config.get('base_url')}/cxrestapi/auth/identity/connect/token",
                 username=config.get("username"),
                 password=config.get("password"),
                 grant_type=config.get("grant_type"),
