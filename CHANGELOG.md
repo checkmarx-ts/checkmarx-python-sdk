@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in  this file.
 1.4.8 - 2025-09-17
 * Fix feature Flag API
-* Refactor api_client CustomTLSAdapter
+* Refactor api_client CustomTLSAdapter
 
 1.4.7 - 2025-09-16
 * Fix config f-string issue
