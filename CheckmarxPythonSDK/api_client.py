@@ -13,16 +13,29 @@ from urllib3.util.ssl_ import create_urllib3_context
 
 
 class CustomTLSAdapter(HTTPAdapter):
+    def __init__(self, *args, **kwargs):
+        self.ssl_context = None
+        super().__init__(*args, **kwargs)
+
     def init_poolmanager(self, *args, **kwargs):
-        ctx = create_urllib3_context()
-        ctx.options |= ssl.OP_NO_SSLv2
-        ctx.options |= ssl.OP_NO_SSLv3
-        ctx.options |= ssl.OP_NO_TLSv1
-        ctx.options |= ssl.OP_NO_TLSv1_1
-        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
-        ctx.maximum_version = ssl.TLSVersion.TLSv1_3
-        kwargs['ssl_context'] = ctx
+        if self.ssl_context is None:
+            ctx = create_urllib3_context()
+            ctx.options |= ssl.OP_NO_SSLv2
+            ctx.options |= ssl.OP_NO_SSLv3
+            ctx.options |= ssl.OP_NO_TLSv1
+            ctx.options |= ssl.OP_NO_TLSv1_1
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+            ctx.maximum_version = ssl.TLSVersion.TLSv1_3
+            self.ssl_context = ctx
+        kwargs['ssl_context'] = self.ssl_context
         return super().init_poolmanager(*args, **kwargs)
+
+    def send(self, request, **kwargs):
+        # If verify=False is passed to the request, disable hostname checking
+        verify = kwargs.get('verify', True)
+        if not verify and self.ssl_context:
+            self.ssl_context.check_hostname = False
+        return super().send(request, **kwargs)
 
 
 def create_session() -> Session:
