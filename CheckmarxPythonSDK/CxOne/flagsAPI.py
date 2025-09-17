@@ -36,11 +36,7 @@ class FeatureFlagAPI(object):
         type_check(ids, (list, tuple))
         list_member_type_check(ids, str)
         relative_url = api_url
-        # We can't use get_url_param() because it assumes that this is not
-        # the first query parameter.
-        # if ids:
-        #     relative_url += f"?ids={','.join(ids)}"
-        params = {"ids": ",".join(ids)}
+        params = {"ids": ",".join(ids)} if ids else None
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         item = response.json()
         return [construct_feature_flag(flag) for flag in item]
