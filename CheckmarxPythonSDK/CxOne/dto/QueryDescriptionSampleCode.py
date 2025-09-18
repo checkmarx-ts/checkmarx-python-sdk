@@ -1,17 +1,23 @@
-class QueryDescriptionSampleCode(object):
-    def __init__(self, programming_language, code, title):
-        """
+from dataclasses import dataclass
 
-        Args:
-            programming_language (str):
-            code (str):
-            title (str):
-        """
-        self.progLanguage = programming_language
-        self.code = code
-        self.title = title
 
-    def __str__(self):
-        return """QueryDescriptionSampleCode(progLanguage={}, code={}, title={})""".format(
-            self.progLanguage, self.code, self.title
-        )
+@dataclass
+class QueryDescriptionSampleCode:
+    """
+
+    Args:
+        programming_language (str):
+        code (str):
+        title (str):
+    """
+    programming_language: str
+    code: str
+    title: str
+
+
+def construct_query_description_sample_code(item):
+    return QueryDescriptionSampleCode(
+        programming_language=item.get("progLanguage"),
+        code=item.get("code"),
+        title=item.get("title")
+    )

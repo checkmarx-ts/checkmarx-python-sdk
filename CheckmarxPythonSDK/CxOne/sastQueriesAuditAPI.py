@@ -2,20 +2,19 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from .dto import (
-    Queries,
-    Query,
-    QuerySearch,
-    MethodInfo,
-    MethodParameter,
+    Queries, construct_queries,
+    Query, construct_query,
+    QuerySearch, construct_query_search,
+    MethodInfo, construct_method_info,
     QueryRequest,
     WorkspaceQuery,
     SessionRequest,
-    SessionResponse,
-    Sessions,
-    Session,
-    SastStatus,
+    SessionResponse, construct_session_response,
+    Sessions, construct_sessions,
+    Session, construct_session,
+    SastStatus, construct_sast_status,
     AuditQuery,
-    GPTMessage
+    GPTMessage, construct_gpt_message,
 )
 
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
@@ -45,14 +44,7 @@ class SastQueriesAuditAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return [
-            Queries(
-                id=item.get("Id"),
-                name=item.get("name"),
-                group=item.get("group"),
-                level=item.get("level"),
-                lang=item.get("lang"),
-                is_executable=item.get("isExecutable"),
-            ) for item in response
+            construct_queries(item) for item in response or []
         ]
 
     def create_new_query(self, session_id: str, data: QueryRequest) -> bool:
@@ -82,10 +74,7 @@ class SastQueriesAuditAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
         return [
-            QuerySearch(
-                query=item.get("query"),
-                results=item.get("results"),
-            ) for item in response
+            construct_query_search(item) for item in response or []
         ]
 
     def get_queries_metadata(self) -> List[MethodInfo]:
@@ -98,21 +87,7 @@ class SastQueriesAuditAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
         return [
-            MethodInfo(
-                lang=item.get("lang"),
-                name=item.get("name"),
-                member_of=item.get("memberOf"),
-                documentation=item.get("documentation"),
-                return_type=item.get("returnType"),
-                kind=item.get("kind"),
-                parameters=[
-                    MethodParameter(
-                        name=m.get("name"),
-                        label=m.get("label"),
-                        documentation=m.get("documentation"),
-                    ) for m in item.get("parameters") or []
-                ]
-            ) for item in response
+           construct_method_info(item) for item in response or []
         ]
 
     def get_query_source(self, level: str, path: str) -> Query:
@@ -128,18 +103,7 @@ class SastQueriesAuditAPI(object):
         relative_url = f"{api_url}/queries/{level}/{path}"
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        return Query(
-            id=response.get("id"),
-            source=response.get("source"),
-            level=response.get("level"),
-            path=response.get("path"),
-            modified=response.get("modified"),
-            cwe=response.get("cwe"),
-            severity=response.get("severity"),
-            is_executable=response.get("isExecutable"),
-            cx_description_id=response.get("cxDescriptionID"),
-            query_description_id=response.get("queryDescriptionID"),
-        )
+        return construct_query(response)
 
     def delete_overridden_query(self, level: str, path: str) -> bool:
         """
@@ -182,11 +146,7 @@ class SastQueriesAuditAPI(object):
         relative_url = f"{api_url}/sessions"
         response = self.api_client.post_request(relative_url=relative_url, json=data.to_dict())
         response = response.json()
-        return SessionResponse(
-            id=response.get("id"),
-            status=response.get("status"),
-            scan_id=response.get("scanId"),
-        )
+        return construct_session_response(response)
 
     def get_all_active_sessions_related_to_web_audit(self, project_id: str = None, scan_id: str = None) -> Sessions:
         """
@@ -202,10 +162,7 @@ class SastQueriesAuditAPI(object):
         params = {"projectId": project_id, "scanId": scan_id}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
-        return Sessions(
-            available=response.get("available"),
-            metadata=response.get("metadata"),
-        )
+        return construct_sessions(response)
 
     def get_session_details(self, session_id: str) -> Session:
         """
@@ -219,14 +176,7 @@ class SastQueriesAuditAPI(object):
         relative_url = f"{api_url}/sessions/{session_id}"
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        return Session(
-            session_id=response.get("session_id"),
-            tenant_id=response.get("tenant_id"),
-            project_id=response.get("project_id"),
-            source_id=response.get("source_id"),
-            worker_info=response.get("worker_info"),
-            status=response.get("status"),
-        )
+        return construct_session(response)
 
     def delete_session_with_specific_id(self, session_id: str) -> bool:
         """
@@ -266,10 +216,7 @@ class SastQueriesAuditAPI(object):
         relative_url = f"{api_url}/sessions/{session_id}/sast-status"
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        return SastStatus(
-            ready=response.get("ready"),
-            message=response.get("message"),
-        )
+        return construct_sast_status(response)
 
     def check_the_status_of_some_scan_related_requests(self, session_id: str, status_type: int) -> dict:
         """
@@ -379,10 +326,7 @@ class SastQueriesAuditAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
         return [
-            GPTMessage(
-                role=item.get("role"),
-                content=item.get("content"),
-            ) for item in response
+            construct_gpt_message(item) for item in response or []
         ]
 
     def delete_gpt_history(self, session_id: str) -> bool:
@@ -412,10 +356,7 @@ class SastQueriesAuditAPI(object):
         response = self.api_client.post_request(relative_url=relative_url, json=data)
         response = response.json()
         return [
-            GPTMessage(
-                role=item.get("role"),
-                content=item.get("content"),
-            ) for item in response
+            construct_gpt_message(item) for item in response or []
         ]
 
 

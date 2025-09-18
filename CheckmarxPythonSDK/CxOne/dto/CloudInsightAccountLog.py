@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CloudInsightAccountLog(object):
+class CloudInsightAccountLog:
     id: str = None
     event_type: str = None
     description: str = None

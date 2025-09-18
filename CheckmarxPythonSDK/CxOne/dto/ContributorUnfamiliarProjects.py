@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ContributorUnfamiliarProjects(object):
+class ContributorUnfamiliarProjects:
     unfamiliar_projects: int  # Number of projects scanned in the last 90 days where contributors couldn't be counted.
 
 

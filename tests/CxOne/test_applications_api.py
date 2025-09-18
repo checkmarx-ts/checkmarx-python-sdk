@@ -29,7 +29,7 @@ def test_create_an_application():
         name=application_name,
         rules=[
             RuleInput(
-                rule_type="project.name.contains",
+                type="project.name.contains",
                 value="test"
             )
         ],
@@ -84,7 +84,7 @@ def test_update_an_application():
         description="happy test 2022-03-08",
         rules=[
             RuleInput(
-                rule_type="project.name.contains",
+                type="project.name.contains",
                 value="test"
             )
         ],
@@ -102,7 +102,7 @@ def test_update_an_application():
 def test_create_an_application_rule():
     application_id = get_application_id_by_name(name=application_name)
     rule_input = RuleInput(
-        rule_type="project.name.contains",
+        type="project.name.contains",
         value="happy"
     )
     application_rule = create_an_application_rule(application_id, rule_input=rule_input)
@@ -130,7 +130,7 @@ def test_update_an_application_rule():
     if application_rules:
         rule_id = application_rules[-1].id
         rule_input = RuleInput(
-            rule_type="project.name.contains",
+            type="project.name.contains",
             value="happy1"
         )
         application_rule = update_an_application_rule(

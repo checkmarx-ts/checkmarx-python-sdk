@@ -2,7 +2,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_health_of_the_database,
     get_health_of_the_in_memory_db,
     get_health_of_the_message_queue,
-    get_health_of_the_object_stroe_including_all_buckets,
+    get_health_of_the_object_store_including_all_buckets,
     get_health_of_the_logging,
     get_health_of_the_scan_flow,
     get_health_of_the_sast_engines,
@@ -24,8 +24,8 @@ def test_get_health_of_the_message_queue():
     assert health_check is not None
 
 
-def test_get_health_of_the_object_stroe_including_all_buckets():
-    health_check = get_health_of_the_object_stroe_including_all_buckets()
+def test_get_health_of_the_object_store_including_all_buckets():
+    health_check = get_health_of_the_object_store_including_all_buckets()
     assert health_check is not None
 
 

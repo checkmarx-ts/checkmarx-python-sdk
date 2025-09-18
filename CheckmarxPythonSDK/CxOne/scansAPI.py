@@ -9,46 +9,12 @@ from .utilities import (type_check, list_member_type_check)
 
 from .dto import (
     ScanInput,
-    Scan,
-    StatusDetails,
-    ScansCollection,
-    TaskInfo,
+    Scan, construct_scan,
+    ScansCollection, construct_scans_collection,
+    TaskInfo, construct_task_info,
 )
 
 api_url = "/api/scans"
-
-
-def construct_scan(item):
-    return Scan(
-        scan_id=item.get("id"),
-        status=item.get("status"),
-        status_details=[
-            StatusDetails(
-                name=detail.get("name"),
-                status=detail.get("status"),
-                details=detail.get("details"),
-                start_date=detail.get("startDate"),
-                end_date=detail.get("endDate"),
-            )
-            for detail in item.get("statusDetails") or []
-        ],
-        position_in_queue=item.get("positionInQueue"),
-        project_id=item.get("projectId"),
-        project_name=item.get("projectName"),
-        branch=item.get("branch"),
-        commit_id=item.get("commitId"),
-        commit_tag=item.get("commitTag"),
-        upload_url=item.get("uploadUrl"),
-        created_at=item.get("createdAt"),
-        updated_at=item.get("updatedAt"),
-        user_agent=item.get("userAgent"),
-        initiator=item.get("initiator"),
-        tags=item.get("tags"),
-        metadata=item.get("metadata"),
-        engines=item.get("engines"),
-        source_type=item.get('sourceType'),
-        source_origin=item.get('sourceOrigin'),
-    )
 
 
 class ScansAPI(object):
@@ -173,16 +139,12 @@ class ScansAPI(object):
             "offset": offset, "limit": limit, "scan-ids": scan_ids, "groups": groups, "tags-keys": tags_keys,
             "tags-values": tags_values, "statuses": statuses, "project-id": project_id, "project-ids": project_ids,
             "source-type": source_type, "source-origin": source_origin, "from-date": from_date,
-            "sort": ",".join(sort), "field": field, "search": search, "to-date": to_date,
+            "sort": ",".join(sort) if sort else None, "field": field, "search": search, "to-date": to_date,
             "project-names": project_names, "initiators": initiators, "branch": branch, "branches": branches,
         }
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         scans_collection = response.json()
-        return ScansCollection(
-            total_count=scans_collection.get("totalCount"),
-            filtered_total_count=scans_collection.get("filteredTotalCount"),
-            scans=[construct_scan(item) for item in scans_collection.get("scans") or []]
-        )
+        return construct_scans_collection(scans_collection)
 
     def get_all_scan_tags(self) -> dict:
         """
@@ -273,11 +235,7 @@ class ScansAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         items = response.json()
         return [
-            TaskInfo(
-                source=item.get("Source"),
-                timestamp=item.get("Timestamp"),
-                info=item.get("Info"),
-            ) for item in items or []
+            construct_task_info(item) for item in items or []
         ]
 
     def sca_recalculate(self, project_id: str, branch: str) -> Response:
@@ -391,7 +349,7 @@ class ScansAPI(object):
         relative_url = api_url + f"/byFilters"
         if isinstance(sort_by, tuple):
             sort_by = list(sort_by)
-        sort_by = ",".join(sort_by)
+        sort_by = ",".join(sort_by) if sort_by else None
         data = {
             "offset": offset,
             "limit": limit,
@@ -421,11 +379,7 @@ class ScansAPI(object):
             data.update({"searchID": search_id})
         response = self.api_client.post_request(relative_url=relative_url, data=json.dumps(data))
         scans_collection = response.json()
-        return ScansCollection(
-            total_count=scans_collection.get("totalCount"),
-            filtered_total_count=scans_collection.get("filteredTotalCount"),
-            scans=[construct_scan(item) for item in scans_collection.get("scans") or []]
-        )
+        return construct_scans_collection(scans_collection)
 
 
 def create_scan(scan_input: ScanInput) -> Scan:

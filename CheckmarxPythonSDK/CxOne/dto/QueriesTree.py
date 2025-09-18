@@ -1,13 +1,22 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from typing import List
 
 
-class QueriesTree(object):
-    def __init__(self, is_leaf: bool = None, title: str = None, key: str = None, children: List[QueriesTree] = None):
-        self.isLeaf = is_leaf
-        self.title = title
-        self.key = key
-        self.children = children
+@dataclass
+class QueriesTree:
+    is_leaf: bool = None
+    title: str = None
+    key: str = None
+    children: List[QueriesTree] = None
 
-    def __str__(self):
-        return f"QueriesTree(isLeaf={self.isLeaf}, title={self.title}, key={self.key}, children={self.children})"
+
+def construct_queries_tree(item):
+    return QueriesTree(
+        is_leaf=item.get("isLeaf"),
+        title=item.get("title"),
+        key=item.get("key"),
+        children=[
+            construct_queries_tree(child) for child in item.get("children", [])
+        ]
+    )

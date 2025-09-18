@@ -58,7 +58,7 @@ def construct_client(item):
         full_scope_allowed=item.get("fullScopeAllowed"),
         node_re_registration_timeout=item.get("nodeReRegistrationTimeout"),
         protocol_mappers=[
-            construct_protocol_mappers_representation(item.get("protocolMappers"))
+            construct_protocol_mappers_representation(mapper) for mapper in item.get("protocolMappers", [])
         ],
         default_client_scopes=item.get("defaultClientScopes"),
     )

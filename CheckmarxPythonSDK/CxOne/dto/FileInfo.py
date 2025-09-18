@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class FileInfo(object):
+class FileInfo:
     name: str = None  # Name of the file or directory.
     mod_time: str = None  # The time that the file or directory was last modified.
     size: str = None  # The size of the file or directory.

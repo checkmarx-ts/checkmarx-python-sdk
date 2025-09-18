@@ -1,53 +1,44 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class ScanParameter:
-    def __init__(self, key, name, category, origin_level, value, value_type, value_type_params, allow_override):
-        """
+    """
 
-        Args:
-            key (str): Parameter key
-            name (str): Name of the parameter
-            category (str): The category to which the parameter belongs
-            origin_level (str): The level on configuration in which the parameter is set
-                    [ Environment, Tenant, Project, ConfigAsCode, Scan ]
-            value (str): The value of the parameter
-            value_type (str): Describes the type of object this parameter represents
-                    [ String, List, Bool, Block, Secret ]
-            value_type_params (str, optional): Describes the possible list values of a list type parameter
-            allow_override (bool): Determines whether parameter can be overridden by parameters from higher levels
+     Args:
+         key (str): Parameter key
+         name (str): Name of the parameter
+         category (str): The category to which the parameter belongs
+         origin_level (str): The level on configuration in which the parameter is set
+                 [ Environment, Tenant, Project, ConfigAsCode, Scan ]
+         value (str): The value of the parameter
+         value_type (str): Describes the type of object this parameter represents
+                 [ String, List, Bool, Block, Secret ]
+         value_type_params (str, optional): Describes the possible list values of a list type parameter
+         allow_override (bool): Determines whether parameter can be overridden by parameters from higher levels
 
-        """
-        self.key = key
-        self.name = name
-        self.category = category
-        self.originLevel = origin_level
-        self.value = value
-        self.valueType = value_type
-        self.valueTypeParams = value_type_params
-        self.allowOverride = allow_override
-
-    def __str__(self):
-        return f"ScanParameter(" \
-               f"key={self.key} " \
-               f"name={self.name} " \
-               f"category={self.category} " \
-               f"originLevel={self.originLevel} " \
-               f"value={self.value} " \
-               f"valueType={self.valueType} " \
-               f"valueTypeParams={self.valueTypeParams} " \
-               f"allowOverride={self.allowOverride} " \
-               f")"
+     """
+    key: str
+    name: str
+    category: str
+    origin_level: str
+    value: str
+    value_type: str
+    value_type_params: str
+    allow_override: bool
 
     def to_dict(self):
         data = {
             "key": self.key,
             "name": self.name,
             "category": self.category,
-            "originLevel": self.originLevel,
+            "originLevel": self.origin_level,
             "value": self.value,
-            "valueType": self.valueType,
-            "allowOverride": self.allowOverride,
+            "valueType": self.value_type,
+            "allowOverride": self.allow_override,
         }
-        if self.valueType == "List":
-            data.update({"valueTypeParams": self.valueTypeParams})
+        if self.value_type == "List":
+            data.update({"valueTypeParams": self.value_type_params})
         return data
 
 

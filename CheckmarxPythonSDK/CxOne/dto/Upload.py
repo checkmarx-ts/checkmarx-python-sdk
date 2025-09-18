@@ -1,32 +1,19 @@
-# encoding: utf-8
-from ..utilities import type_check
+from dataclasses import dataclass
 
 
-class Upload(object):
+@dataclass
+class Upload:
     """
-    Upload handler for scan
+
+    Args:
+        upload_url (str): The URL pointing to the location of the uploaded file to scan.
+                        Note: the URL was generated using POST /api/uploads.
+        branch (str): The representative branch.
+        repo_url (str): The representative repository URL.
     """
-    def __init__(self, upload_url, branch=None, repo_url=None):
-        """
-
-        Args:
-            upload_url (str): The URL pointing to the location of the uploaded file to scan.
-                            Note: the URL was generated using POST /api/uploads.
-            branch (str): The representative branch.
-            repo_url (str): The representive repository URL.
-        """
-        type_check(upload_url, str)
-        type_check(branch, str)
-        type_check(repo_url, str)
-
-        self.branch = branch
-        self.repo_url = repo_url
-        self.upload_url = upload_url
-
-    def __str__(self):
-        return """Upload(branch={}, repo_url={}, upload_url={})""".format(
-            self.branch, self.repo_url, self.upload_url
-        )
+    upload_url: str
+    branch: str = None
+    repo_url: str = None
 
     def to_dict(self):
         data = {"uploadUrl": self.upload_url}

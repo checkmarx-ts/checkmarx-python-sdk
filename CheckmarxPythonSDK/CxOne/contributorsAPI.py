@@ -1,7 +1,7 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
-    Contributors,
+    Contributors, construct_contributors,
     ContributorInsights, construct_contributor_insights,
     ContributorUnfamiliarProjects, construct_contributor_unfamiliar_projects,
 
@@ -27,10 +27,7 @@ class ContributorsAPI(object):
         relative_url = api_url
         response = self.api_client.get_request(relative_url=relative_url)
         item = response.json()
-        return Contributors(
-            allowed_contributors=item.get("allowedContributors"),
-            current_contributors=item.get("currentContributors")
-        )
+        return construct_contributors(item)
 
     def get_contributors_details_for_current_tenant_exported_in_csv(self) -> bytes:
         """

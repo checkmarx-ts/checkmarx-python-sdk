@@ -1,8 +1,14 @@
+from dataclasses import dataclass
 
-class QueryBuilderMessage(object):
-    def __init__(self, role: str = None, content: str = None):
-        self.role = role
-        self.content = content
 
-    def __str__(self):
-        return f"QueryBuilderMessage(role={self.role}, content={self.content})"
+@dataclass
+class QueryBuilderMessage:
+    role: str = None
+    content: str = None
+
+
+def construct_query_builder_message(item):
+    return QueryBuilderMessage(
+        role=item.get("role"),
+        content=item.get("content")
+    )

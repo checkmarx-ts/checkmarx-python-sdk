@@ -1,16 +1,20 @@
-class ProjectCounter(object):
+from dataclasses import dataclass
 
-    def __init__(self, value, count):
-        """
 
-        Args:
-            value (str):
-            count (int):
-        """
-        self.value = value
-        self.count = count
+@dataclass
+class ProjectCounter:
+    """
 
-    def __str__(self):
-        return """ProjectCounter(value={}, count={})""".format(
-            self.value, self.count
-        )
+      Attributes:
+          value (str):
+          count (int):
+      """
+    value: str = None
+    count: int = None
+
+
+def construct_project_counter(item):
+    return ProjectCounter(
+        value=item.get("value"),
+        count=item.get("count")
+    )

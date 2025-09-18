@@ -1,21 +1,18 @@
-# encoding: utf-8
-class ScanConfig(object):
-    def __init__(self, scan_type, value=None):
-        """
+from dataclasses import dataclass
 
-        Args:
-            scan_type (str): The type of scanners run on the scan.
-                    Enum: [ sca, sast, kics, system ]
-            value (dict): An object representing the configuration in a key-value format. Relevant only for SAST scans.
-                    example:  { "incremental": "true", "presetName": "Default" }
-        """
-        self.type = scan_type
-        self.value = value
 
-    def __str__(self):
-        return """ScanConfig(type={}, value={})""".format(
-            self.type, self.value
-        )
+@dataclass
+class ScanConfig:
+    """
+
+    Args:
+        type (str): The type of scanners run on the scan.
+                Enum: [ sca, sast, kics, system ]
+        value (dict): An object representing the configuration in a key-value format. Relevant only for SAST scans.
+                example:  { "incremental": "true", "presetName": "Default" }
+    """
+    type: str = None
+    value: dict = None
 
     def to_dict(self):
         if self.value:

@@ -1,11 +1,18 @@
+from dataclasses import dataclass
 from typing import List
-from .ResultResponse import ResultResponse
+from .ResultResponse import ResultResponse, construct_result_response
 
 
-class ResultsResponse(object):
-    def __init__(self, data: List[ResultResponse] = None, total_count: int = None):
-        self.data = data
-        self.totalCount = total_count
+@dataclass
+class ResultsResponse:
+    data: List[ResultResponse] = None
+    total_count: int = None
 
-    def __str__(self):
-        return f"ResultsResponse(data={self.data}, totalCount={self.totalCount})"
+
+def construct_results_response(item):
+    return ResultsResponse(
+        data=[
+            construct_result_response(result) for result in item.get("data", [])
+        ],
+        total_count=item.get("totalCount")
+    )

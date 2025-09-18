@@ -1,15 +1,20 @@
-class SinkFileSummary(object):
-    def __init__(self, sink_file, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            sink_file (str):
-            count (int):
-        """
-        self.sinkFile = sink_file
-        self.count = count
 
-    def __str__(self):
-        return """SinkFileSummary(sinkFile={}, count={})""".format(
-            self.sinkFile, self.count
-        )
+@dataclass
+class SinkFileSummary:
+    """
+
+    Args:
+        sink_file (str):
+        count (int):
+    """
+    sink_file: str
+    count: int
+
+
+def construct_sink_file_summary(item):
+    return SinkFileSummary(
+        sink_file=item.get("sinkFile"),
+        count=item.get("count")
+    )

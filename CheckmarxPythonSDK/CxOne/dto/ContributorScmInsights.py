@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ContributorScmInsights(object):
+class ContributorScmInsights:
     project_count: int = None
     contributor_count: int = None
 

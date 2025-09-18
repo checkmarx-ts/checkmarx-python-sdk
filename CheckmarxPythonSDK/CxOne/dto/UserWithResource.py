@@ -27,7 +27,7 @@ def construct_user_with_resource(item):
             {
                 "id": role.get("id"),
                 "name": role.get("name")
-            } for role in item.get("baseRoles")
+            } for role in item.get("baseRoles", [])
         ],
         groups=item.get("groups"),
         resources=[
@@ -36,6 +36,6 @@ def construct_user_with_resource(item):
                 "applicationsCount": resource.get("applicationsCount"),
                 "projectsCount": resource.get("projectsCount"),
                 "tenantCount": resource.get("tenantCount")
-            } for resource in item.get("resources")
+            } for resource in item.get("resources", [])
         ]
     )

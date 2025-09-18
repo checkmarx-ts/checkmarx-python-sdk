@@ -6,8 +6,8 @@ from .dto import (
     ProjectInput,
     Project, construct_project,
     ProjectsCollection, construct_projects_collection,
-    RichProject,
-    SubsetScan,
+    RichProject, construct_rich_project,
+    construct_subset_scan
 )
 from typing import List
 
@@ -124,7 +124,7 @@ class ProjectsAPI(object):
         projects = response.projects
         if not projects:
             return None
-        return projects[0].project_id
+        return projects[0].id
 
     def get_all_project_tags(self) -> dict:
         """
@@ -211,18 +211,7 @@ class ProjectsAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         project_scan_map = response.json()
         return {
-            project_id: SubsetScan(
-                scan_id=value.get("id"),
-                created_at=value.get("createdAt"),
-                updated_at=value.get("updatedAt"),
-                status=value.get("status"),
-                user_agent=value.get("userAgent"),
-                initiator=value.get("initiator"),
-                branch=value.get("branch"),
-                engines=value.get("engines"),
-                source_type=value.get("sourceType"),
-                source_origin=value.get("sourceOrigin")
-            ) if value else None
+            project_id: construct_subset_scan(value) if value else None
             for project_id, value in project_scan_map.items()
         }
 
@@ -269,24 +258,7 @@ class ProjectsAPI(object):
         relative_url = api_url + f"/{project_id}"
         response = self.api_client.get_request(relative_url=relative_url)
         project = response.json()
-        return RichProject(
-            project_id=project.get("id"),
-            name=project.get("name"),
-            application_ids=project.get("applicationIds"),
-            groups=project.get("groups"),
-            repo_url=project.get("repoUrl"),
-            main_branch=project.get("mainBranch"),
-            origin=project.get("origin"),
-            created_at=project.get("createdAt"),
-            updated_at=project.get("updatedAt"),
-            tags=project.get("tags"),
-            criticality=project.get("criticality"),
-            tenant_id=project.get("tenantId"),
-            scm_repo_id=project.get("scmRepoId"),
-            repo_id=project.get("repoId"),
-            private_package=project.get("privatePackage"),
-            imported_proj_name=project.get("imported_proj_name")
-        )
+        return construct_rich_project(project)
 
     def update_a_project(self, project_id: str, project_input: ProjectInput) -> bool:
         """

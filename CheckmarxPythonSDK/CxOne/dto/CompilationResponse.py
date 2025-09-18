@@ -1,9 +1,13 @@
 from typing import List
+from dataclasses import dataclass
 
 
-class CompilationResponse(object):
-    def __init__(self, failed_queries: List[dict] = None):
-        self.failed_queries = failed_queries
+@dataclass
+class CompilationResponse:
+    failed_queries: List[dict] = None
 
-    def __str__(self):
-        return f"CompilationResponse(failed_queries={self.failed_queries})"
+
+def construct_compilation_response(item):
+    return CompilationResponse(
+        failed_queries=item.get("failedQueries")
+    )

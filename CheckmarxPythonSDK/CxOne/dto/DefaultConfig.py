@@ -1,22 +1,18 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class DefaultConfig:
-    def __init__(self, name, description, url):
-        """
+    """
 
-        Args:
-            name (str): Name of the default config
-            description (str): Description of the default config
-            url (str): Url for the default config file
-        """
-        self.name = name
-        self.description = description
-        self.url = url
-
-    def __str__(self):
-        return f"DefaultConfig(" \
-               f"name={self.name} " \
-               f"description={self.description} " \
-               f"url={self.url} " \
-               f")"
+    Attributes:
+        name (str): Name of the default config
+        description (str): Description of the default config
+        url (str): Url for the default config file
+    """
+    name: str
+    description: str
+    url: str
 
     def to_dict(self):
         return {

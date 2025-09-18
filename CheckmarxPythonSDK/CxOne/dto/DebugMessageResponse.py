@@ -1,11 +1,16 @@
+from dataclasses import dataclass
 from typing import List
 from .DebugMessage import DebugMessage
 
 
-class DebugMessageResponse(object):
-    def __init__(self, data: List[DebugMessage] = None, total_count: int = None):
-        self.data = data
-        self.totalCount = total_count
+@dataclass
+class DebugMessageResponse:
+    data: List[DebugMessage] = None
+    total_count: int = None
 
-    def __str__(self):
-        return f"DebugMessageResponse(data={self.data}, totalCount={self.totalCount})"
+
+def construct_debug_message_response(item):
+    return DebugMessageResponse(
+        data=item.get("data"),
+        total_count=item.get("totalCount")
+    )

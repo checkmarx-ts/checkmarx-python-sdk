@@ -2,7 +2,12 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from .utilities import type_check, list_member_type_check
-from .dto import PresetPaged, PresetSummary, QueryDetails, Preset
+from .dto import (
+    PresetPaged, construct_preset_paged,
+    PresetSummary, construct_preset_summary,
+    QueryDetails, construct_query_details,
+    Preset, construct_preset
+)
 from CheckmarxPythonSDK.utilities.compat import OK
 
 api_url = "/api/presets"
@@ -47,20 +52,7 @@ class SastQueriesAuditPresetsAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         if response.status_code == OK:
             response = response.json()
-            result = PresetPaged(
-                total_count=response.get("totalCount"),
-                presets=[
-                    PresetSummary(
-                        preset_id=preset.get("id"),
-                        name=preset.get("name"),
-                        description=preset.get("description"),
-                        associated_projects=preset.get("associatedProjects"),
-                        custom=preset.get("custom"),
-                        is_tenant_default=preset.get("isTenantDefault"),
-                        is_migrated=preset.get("isMigrated"),
-                    ) for preset in response.get("presets")
-                ],
-            )
+            result = construct_preset_paged(response)
         return result
 
     def create_new_preset(self, name: str, description: str, query_ids: List[str]) -> dict:
@@ -108,16 +100,7 @@ class SastQueriesAuditPresetsAPI(object):
         if response.status_code == OK:
             response = response.json()
             result = [
-                QueryDetails(
-                    query_id=query.get("queryID"),
-                    cwe_id=query.get("cweID"),
-                    language=query.get("language"),
-                    group=query.get("group"),
-                    query_name=query.get("queryName"),
-                    severity=query.get("severity"),
-                    query_description_id=query.get("queryDescriptionId"),
-                    custom=query.get("custom")
-                ) for query in response
+                construct_query_details(query) for query in response or []
             ]
         return result
 
@@ -136,13 +119,7 @@ class SastQueriesAuditPresetsAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         if response.status_code == OK:
             response = response.json()
-            result = Preset(
-                preset_id=response.get("id"),
-                name=response.get("name"),
-                description=response.get("description"),
-                custom=response.get("custom"),
-                query_ids=response.get("queryIds")
-            )
+            result = construct_preset(response)
         return result
 
     def update_a_preset(self, preset_id: int, name: str, description: str = None, query_ids: List[str] = None) -> dict:
@@ -213,15 +190,7 @@ class SastQueriesAuditPresetsAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         if response.status_code == OK:
             response = response.json()
-            result = PresetSummary(
-                preset_id=response.get("id"),
-                name=response.get("name"),
-                description=response.get("description"),
-                associated_projects=response.get("associatedProjects"),
-                custom=response.get("custom"),
-                is_tenant_default=response.get("isTenantDefault"),
-                is_migrated=response.get("isMigrated"),
-            )
+            result = construct_preset_summary(response)
         return result
 
     def clone_preset(self, preset_id: int, name: str, description: str) -> dict:

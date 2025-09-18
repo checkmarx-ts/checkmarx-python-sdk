@@ -15,6 +15,6 @@ def construct_applications_collection(item):
         total_count=item.get("totalCount"),
         filtered_total_count=item.get("filteredTotalCount"),
         applications=[
-            construct_application(application) for application in item.get("applications")
+            construct_application(application) for application in item.get("applications", [])
         ]
     )

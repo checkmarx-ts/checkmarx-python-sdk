@@ -2,7 +2,7 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from .utilities import type_check, list_member_type_check
-from .dto import Result
+from .dto import construct_result
 
 api_url = "/api/results"
 
@@ -57,30 +57,13 @@ class ScannersResultsAPI(object):
         relative_url = api_url
         params = {
             "scan-id": scan_id, "severity": severity, "state": state, "status": status, "offset": offset,
-            "limit": limit, "sort": ",".join(sort)
+            "limit": limit, "sort": ",".join(sort) if sort else None
         }
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return {
             "results": [
-                Result(
-                    result_type=result.get("type"),
-                    result_id=result.get("id"),
-                    similarity_id=result.get('similarityId'),
-                    status=result.get("status"),
-                    state=result.get("state"),
-                    severity=result.get("severity"),
-                    confidence_level=result.get("confidenceLevel"),
-                    created=result.get("created"),
-                    first_found_at=result.get("firstFoundAt"),
-                    found_at=result.get("foundAt"),
-                    update_at=result.get("updateAt"),
-                    first_scan_id=result.get('firstScanId'),
-                    description=result.get("description"),
-                    data=result.get("data"),
-                    comments=result.get("comments"),
-                    vulnerability_details=result.get('vulnerabilityDetails'),
-                ) for result in response.get("results") or []
+                construct_result(result) for result in response.get("results") or []
             ],
             "totalCount": response.get("totalCount"),
         }

@@ -1,15 +1,23 @@
+from dataclasses import dataclass
 from typing import List
-from .PredicateWithCommentJSON import PredicateWithCommentJSON
+from .PredicateWithCommentJSON import PredicateWithCommentJSON, construct_predicate_with_comment_json
 
 
-class PredicateHistory(object):
-    def __init__(self, similarity_id: str = None, project_id: str = None,
-                 predicates: List[PredicateWithCommentJSON] = None, total_count: int = None):
-        self.similarityId = similarity_id
-        self.projectId = project_id
-        self.predicates = predicates
-        self.totalCount = total_count
+@dataclass
+class PredicateHistory:
 
-    def __str__(self):
-        return (f"PredicateHistory(similarityId={self.similarityId}, projectId={self.projectId}, "
-                f"predicates={self.predicates}, totalCount={self.totalCount})")
+    similarity_id: str = None
+    project_id: str = None
+    predicates: List[PredicateWithCommentJSON] = None
+    total_count: int = None
+
+
+def construct_predicate_history(item):
+    return PredicateHistory(
+        similarity_id=item.get("similarityId"),
+        project_id=item.get("projectId"),
+        predicates=[
+           construct_predicate_with_comment_json(predicate) for predicate in item.get("predicates", [])
+        ],
+        total_count=item.get("totalCount")
+    )

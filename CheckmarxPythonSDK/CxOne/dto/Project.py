@@ -3,8 +3,8 @@ from typing import List
 
 
 @dataclass
-class Project(object):
-    project_id: str = None  # A unique identifier for the project. For 'upload' projects, a value must be entered.
+class Project:
+    id: str = None  # A unique identifier for the project. For 'upload' projects, a value must be entered.
     # For 'git' projects, this field can be empty and the repository URL will be designated as the project ID.
     name: str = None  # The project name
     groups: List[str] = None  # The groups authorized for this project
@@ -18,8 +18,8 @@ class Project(object):
 
     def to_dict(self):
         data = {}
-        if self.project_id:
-            data.update({"id": self.project_id})
+        if self.id:
+            data.update({"id": self.id})
         if self.tags:
             data.update({"tags": self.tags})
         return data
@@ -27,7 +27,7 @@ class Project(object):
 
 def construct_project(item):
     return Project(
-        project_id=item.get("id"),
+        id=item.get("id"),
         name=item.get("name"),
         groups=item.get("groups"),
         repo_url=item.get("repoUrl"),

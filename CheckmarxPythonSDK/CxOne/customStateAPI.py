@@ -43,7 +43,9 @@ class CustomStateAPI(object):
         params = {"include-deleted": include_deleted}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         item = response.json()
-        return [construct_custom_state(custom_state) for custom_state in item]
+        return [
+            construct_custom_state(custom_state) for custom_state in item or []
+        ]
 
     def create_a_custom_state(self, name: str) -> Response:
         response = self.api_client.post_request(relative_url=api_url, json={"name": name})

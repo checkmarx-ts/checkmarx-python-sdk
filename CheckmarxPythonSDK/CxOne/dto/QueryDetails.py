@@ -1,35 +1,38 @@
-class QueryDetails(object):
+from dataclasses import dataclass
 
-    def __init__(self, query_id, cwe_id, language, group, query_name, severity, query_description_id, custom):
-        """
 
-        Args:
-            query_id (str):
-            cwe_id (int):
-            language (str):
-            group (str):
-            query_name (str):
-            severity (str):
-            query_description_id (int):
-            custom (bool):
-        """
-        self.query_id = query_id
-        self.cwe_id = cwe_id
-        self.language = language
-        self.group = group
-        self.query_name = query_name
-        self.severity = severity
-        self.query_description_id = query_description_id
-        self.custom = custom
+@dataclass
+class QueryDetails:
+    """
 
-    def __str__(self):
-        return f"""QueryDetails(
-        query_id={self.query_id},
-        cwe_id={self.cwe_id},
-        language={self.language},
-        group={self.group},
-        query_name={self.query_name},
-        severity={self.severity},
-        query_description_id={self.query_description_id},
-        custom={self.custom},
-        )"""
+    Attributes:
+        id (str):
+        cwe_id (int):
+        language (str):
+        group (str):
+        query_name (str):
+        severity (str):
+        query_description_id (int):
+        custom (bool):
+    """
+    id: str
+    cwe_id: int
+    language: str
+    group: str
+    query_name: str
+    severity: str
+    query_description_id: int
+    custom: bool
+
+
+def construct_query_details(item):
+    return QueryDetails(
+        id=item.get("id"),
+        cwe_id=item.get("cweID"),
+        language=item.get("language"),
+        group=item.get("group"),
+        query_name=item.get("queryName"),
+        severity=item.get("severity"),
+        query_description_id=item.get("queryDescriptionId"),
+        custom=item.get("custom")
+    )

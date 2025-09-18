@@ -26,8 +26,8 @@ def construct_user(item):
         email=item.get("email"),
         email_verified=item.get("emailVerified"),
         enabled=item.get("enabled"),
-        groups=[group for group in item.get("groups")],
-        roles=[role for role in item.get("roles")],
-        required_actions=[action for action in item.get("requiredActions")],
+        groups=item.get("groups"),
+        roles=item.get("roles"),
+        required_actions=item.get("requiredActions"),
         created_timestamp=item.get("createdTimestamp"),
     )

@@ -13,6 +13,6 @@ def construct_project_response_collection(item):
     return ProjectResponseCollection(
         total_count=item.get("totalCount"),
         projects=[
-            construct_project_response(project_response) for project_response in item.get("projects")
+            construct_project_response(project_response) for project_response in item.get("projects", [])
         ],
     )

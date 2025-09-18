@@ -4,7 +4,7 @@ from .CloudInsightAccountLog import CloudInsightAccountLog, construct_cloud_insi
 
 
 @dataclass
-class PaginatedAccountLogsListResponse(object):
+class PaginatedAccountLogsListResponse:
     data: List[CloudInsightAccountLog] = None
     total: int = None
     current_page: int = None
@@ -13,7 +13,9 @@ class PaginatedAccountLogsListResponse(object):
 
 def construct_paginated_account_logs_list_response(item):
     return PaginatedAccountLogsListResponse(
-        data=[construct_cloud_insight_account_log(account_log) for account_log in item.get("data")],
+        data=[
+            construct_cloud_insight_account_log(account_log) for account_log in item.get("data", [])
+        ],
         total=item.get("total"),
         current_page=item.get("currentPage"),
         last_page=item.get("lastPage"),

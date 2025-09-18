@@ -5,7 +5,7 @@ from CheckmarxPythonSDK.CxOne import (
     predicate_severity_and_state_by_similarity_id_and_project_id,
     update_predicate_comment_by_predicate_id,
     recalculate_summary_counters,
-    delete_a_predicate_history
+    delete_a_predicate_history,
 )
 
 from CheckmarxPythonSDK.CxOne.dto import (
@@ -48,7 +48,7 @@ def test_predicate_severity_and_state_by_similarity_id_and_project_id():
     request_body: List[dict] = [{"similarityId": "491614176", "projectId": "c1ae5825-486a-43a5-b454-67fefd1f2545",
                                  "scanId": "8eb0b33d-ccf0-44dc-897b-46867d130a40", "severity": "HIGH",
                                  "state": "CONFIRMED", "comment": "test"}]
-    result = predicate_severity_and_state_by_similarity_id_and_project_id(request_body=request_body)
+    result = predicate_severity_and_state_by_similarity_id_and_project_id(data=request_body)
     assert result is not None
 
 
@@ -61,7 +61,7 @@ def test_update_predicate_comment_by_predicate_id():
             "comment": "update predicate comment"
         }
     ]
-    result = update_predicate_comment_by_predicate_id(request_body=request_body)
+    result = update_predicate_comment_by_predicate_id(data=request_body)
     assert result is not None
 
 
@@ -70,7 +70,7 @@ def test_recalculate_summary_counters():
         "projectId": "c1ae5825-486a-43a5-b454-67fefd1f2545",
         "scanId": "8eb0b33d-ccf0-44dc-897b-46867d130a40"
     }
-    result = recalculate_summary_counters(request_body=request_body)
+    result = recalculate_summary_counters(data=request_body)
     assert result is True
 
 

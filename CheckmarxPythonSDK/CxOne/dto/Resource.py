@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Resource(object):
+class Resource:
     id: str = None
     name: str = None
     type: str = None

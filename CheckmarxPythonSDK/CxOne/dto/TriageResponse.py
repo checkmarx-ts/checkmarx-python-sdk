@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class TriageResponse(object):
+class TriageResponse:
     result_id: str = None
     project_id: str = None
     state: str = None

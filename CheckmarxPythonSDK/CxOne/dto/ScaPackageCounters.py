@@ -1,42 +1,52 @@
-class ScaPackageCounters(object):
-    def __init__(self, severity_counters, status_counters, state_counters, severity_status_counters,
-                 source_file_counters, age_counters, total_counter, files_scanned_counter, outdated_counter,
-                 risk_level_counters, license_counters, package_counters):
-        """
+from dataclasses import dataclass
+from typing import List
 
-        Args:
-            severity_counters (list of dict):
-            status_counters (list of dict):
-            state_counters (list of dict):
-            severity_status_counters (list of dict):
-            source_file_counters (list of dict):
-            age_counters (list of dict):
-            total_counter (int):
-            files_scanned_counter (int):
-            outdated_counter (int):
-            risk_level_counters (list of dict):
-            license_counters (list of dict):
-            package_counters (list of dict):
-        """
-        self.severityCounters = severity_counters
-        self.statusCounters = status_counters
-        self.stateCounters = state_counters
-        self.severityStatusCounters = severity_status_counters
-        self.sourceFileCounters = source_file_counters
-        self.ageCounters = age_counters
-        self.totalCounter = total_counter
-        self.filesScannedCounter = files_scanned_counter
-        self.outdatedCounter = outdated_counter
-        self.riskLevelCounters = risk_level_counters
-        self.licenseCounters = license_counters
-        self.packageCounters = package_counters
 
-    def __str__(self):
-        return """ScaPackageCounters(severityCounters={}, statusCounters={}, stateCounters={}, 
-        severityStatusCounters={}, sourceFileCounters={}, ageCounters={}, totalCounter={}, filesScannedCounter={},
-        outdatedCounter={}, riskLevelCounters={}, licenseCounters={}, packageCounters={})""".format(
-            self.severityCounters, self.statusCounters, self.stateCounters,
-            self.severityStatusCounters, self.sourceFileCounters, self.ageCounters, self.totalCounter,
-            self.filesScannedCounter, self.outdatedCounter, self.riskLevelCounters, self.licenseCounters,
-            self.packageCounters
-        )
+@dataclass
+class ScaPackageCounters:
+    """
+
+    Args:
+        severity_counters (list of dict):
+        status_counters (list of dict):
+        state_counters (list of dict):
+        severity_status_counters (list of dict):
+        source_file_counters (list of dict):
+        age_counters (list of dict):
+        total_counter (int):
+        files_scanned_counter (int):
+        outdated_counter (int):
+        risk_level_counters (list of dict):
+        license_counters (list of dict):
+        package_counters (list of dict):
+    """
+
+    severity_counters: List[dict]
+    status_counters: List[dict]
+    state_counters: List[dict]
+    severity_status_counters: List[dict]
+    source_file_counters: List[dict]
+    age_counters: List[dict]
+    total_counter: int
+    files_scanned_counter: List[dict]
+    outdated_counter: int
+    risk_level_counters: List[dict]
+    license_counters: List[dict]
+    package_counters: List[dict]
+
+
+def construct_sca_package_counters(item):
+    return ScaPackageCounters(
+        severity_counters=item.get("severityCounters"),
+        status_counters=item.get("statusCounters"),
+        state_counters=item.get("stateCounters"),
+        severity_status_counters=item.get("severityStatusCounters"),
+        source_file_counters=item.get("sourceFileCounters"),
+        age_counters=item.get("ageCounters"),
+        total_counter=item.get("totalCounter"),
+        files_scanned_counter=item.get("filesScannedCounter"),
+        outdated_counter=item.get("outdatedCounter"),
+        risk_level_counters=item.get("riskLevelCounters"),
+        license_counters=item.get("licenseCounters"),
+        package_counters=item.get("packageCounters")
+    )

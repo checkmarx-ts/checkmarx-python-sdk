@@ -1,10 +1,16 @@
+from dataclasses import dataclass
 
-class DebugMessage(object):
-    def __init__(self, message_line: int = None, debug_message: str = None, timestamp: str = None):
-        self.messageLine = message_line
-        self.debugMessage = debug_message
-        self.timestamp = timestamp
 
-    def __str__(self):
-        return (f"DebugMessage(messageLine={self.messageLine}, "
-                f"debugMessage={self.debugMessage}, timestamp={self.timestamp})")
+@dataclass
+class DebugMessage:
+    message_line: int = None
+    debug_message: str = None
+    timestamp: str = None
+
+
+def construct_debug_message(item):
+    return DebugMessage(
+        message_line=item.get("messageLine"),
+        debug_message=item.get("debugMessage"),
+        timestamp=item.get("timestamp")
+    )

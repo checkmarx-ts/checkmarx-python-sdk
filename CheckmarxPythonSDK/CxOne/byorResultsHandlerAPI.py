@@ -4,7 +4,7 @@ from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .utilities import type_check
 from .dto import (
     ImportRequest,
-    ImportResults,
+    ImportResults, construct_import_results,
     TriageRequest,
     TriageResponse, construct_triage_response,
 )
@@ -33,7 +33,7 @@ class ByorResultsHandlerAPI(object):
         relative_url = api_url + "/imports"
         response = self.api_client.post_request(relative_url=relative_url, json=import_request.to_dict())
         item = response.json()
-        return ImportResults(import_id=item.get("importId"))
+        return construct_import_results(item)
 
     def save_triage(self, triage_request: TriageRequest) -> bool:
         """

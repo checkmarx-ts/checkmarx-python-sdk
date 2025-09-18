@@ -511,8 +511,8 @@ class ProjectsAPI(object):
         relative_url = "/cxrestapi/projects/{id}/sourceCode/excludeSettings".format(id=project_id)
         put_data = json.dumps(
             {
-                "excludeFoldersPattern": ",".join(exclude_folders_pattern),
-                "excludeFilesPattern": ",".join(exclude_files_pattern),
+                "excludeFoldersPattern": ",".join(exclude_folders_pattern) if exclude_folders_pattern else None,
+                "excludeFilesPattern": ",".join(exclude_files_pattern) if exclude_files_pattern else None,
             }
         )
         response = self.api_client.put_request(

@@ -210,7 +210,8 @@ class CloudInsightsServiceAPI(object):
         relative_url = api_url + f"/accounts/{account_id}/resources"
         params = {
             "image-name": image_name, "image-short-name": image_short_name, "public-exposed": public_exposed,
-            "search": search, "cluster-name": ",".join(cluster_names), "asset-type": ",".join(asset_types),
+            "search": search, "cluster-name": ",".join(cluster_names) if cluster_names else None,
+            "asset-type": ",".join(asset_types) if asset_types else None,
             "resource-type": resource_type,
             "offset": offset, "limit": limit, "order-column": order_column, "order-direction": order_direction,
         }

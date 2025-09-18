@@ -1,15 +1,20 @@
-class SourceNodeSummary(object):
-    def __init__(self, source_node, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            source_node (str):
-            count (int):
-        """
-        self.sourceNode = source_node
-        self.count = count
 
-    def __str__(self):
-        return """SourceNodeSummary(sourceNode={}, count={})""".format(
-            self.sourceNode, self.count
-        )
+@dataclass
+class SourceNodeSummary:
+    """
+
+    Args:
+        source_node (str):
+        count (int):
+    """
+    source_node: str
+    count: int
+
+
+def construct_source_node_summary(item):
+    return SourceNodeSummary(
+        source_node=item.get("sourceNode"),
+        count=item.get("count")
+    )

@@ -5,7 +5,7 @@ from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .utilities import type_check
 from .dto import (
     ImportRequest,
-    ImportResults,
+    ImportResults, construct_import_results,
     ByorJob, construct_byor_job,
     ByorJobPatchRequest,
 )
@@ -34,7 +34,7 @@ class ByorResultsHandlerV2API(object):
         relative_url = api_url + "/imports"
         response = self.api_client.post_request(relative_url=relative_url, json=import_request.to_dict())
         item = response.json()
-        return ImportResults(import_id=item.get("importId"))
+        return construct_import_results(item)
 
     def get_job_by_id(self, job_id: str) -> ByorJob:
         """

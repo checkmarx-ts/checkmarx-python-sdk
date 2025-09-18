@@ -5,8 +5,8 @@ from .utilities import type_check, list_member_type_check
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 from .dto import (
     DefaultConfig,
-    DefaultConfigOut,
-    ScanParameter,
+    DefaultConfigOut, construct_default_config_out,
+    ScanParameter, construct_scan_parameter,
 )
 
 api_url = "/api/configuration"
@@ -30,16 +30,7 @@ class ScanConfigurationAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
         return [
-            ScanParameter(
-                key=item.get("key"),
-                name=item.get("name"),
-                category=item.get("category"),
-                origin_level=item.get("originLevel"),
-                value=item.get("value"),
-                value_type=item.get("valueType"),
-                value_type_params=item.get("valueTypeParams"),
-                allow_override=item.get("allowOverride")
-            ) for item in response
+            construct_scan_parameter(item) for item in response
         ]
 
     def define_parameters_in_the_input_list_for_the_current_tenant(self, scan_parameters: List[ScanParameter]) -> bool:
@@ -56,7 +47,9 @@ class ScanConfigurationAPI(object):
         relative_url = api_url + "/tenant"
         response = self.api_client.patch_request(
             relative_url=relative_url,
-            json=[scan_parameter.to_dict() for scan_parameter in scan_parameters]
+            json=[
+                scan_parameter.to_dict() for scan_parameter in scan_parameters
+            ]
         )
         return response.status_code == NO_CONTENT
 
@@ -89,16 +82,7 @@ class ScanConfigurationAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return [
-            ScanParameter(
-                key=item.get("key"),
-                name=item.get("name"),
-                category=item.get("category"),
-                origin_level=item.get("originLevel"),
-                value=item.get("value"),
-                value_type=item.get("valueType"),
-                value_type_params=item.get("valueTypeParams"),
-                allow_override=item.get("allowOverride")
-            ) for item in response
+            construct_scan_parameter(item) for item in response or []
         ]
 
     def define_parameters_in_the_input_list_for_a_specific_project(
@@ -160,16 +144,7 @@ class ScanConfigurationAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return [
-            ScanParameter(
-                key=item.get("key"),
-                name=item.get("name"),
-                category=item.get("category"),
-                origin_level=item.get("originLevel"),
-                value=item.get("value"),
-                value_type=item.get("valueType"),
-                value_type_params=item.get("valueTypeParams"),
-                allow_override=item.get("allowOverride")
-            ) for item in response
+            construct_scan_parameter(item) for item in response or []
         ]
 
     def get_all_default_configs_for_the_tenant(
@@ -194,14 +169,7 @@ class ScanConfigurationAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
         return [
-            DefaultConfigOut(
-                default_config_out_id=item.get("id"),
-                name=item.get("name"),
-                description=item.get("description"),
-                url=item.get("url"),
-                is_tenant_default=item.get("isTenantDefault"),
-                associated_projects=item.get("associatedProjects")
-            ) for item in response
+            construct_default_config_out(item) for item in response or []
         ]
 
     def create_a_default_config_for_the_sast_engine(self, default_config: DefaultConfig) -> bool:
@@ -231,14 +199,7 @@ class ScanConfigurationAPI(object):
         relative_url = api_url + "/sast/default-config/{id}".format(id=config_id)
         response = self.api_client.get_request(relative_url=relative_url)
         item = response.json()
-        return DefaultConfigOut(
-            default_config_out_id=item.get("id"),
-            name=item.get("name"),
-            description=item.get("description"),
-            url=item.get("url"),
-            is_tenant_default=item.get("isTenantDefault"),
-            associated_projects=item.get("associatedProjects")
-        )
+        return construct_default_config_out(item)
 
     def update_default_config_for_the_sast_engine(self, config_id: str, default_config: DefaultConfig) -> bool:
         """

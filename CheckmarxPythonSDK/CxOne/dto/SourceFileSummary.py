@@ -1,15 +1,20 @@
-class SourceFileSummary(object):
-    def __init__(self, source_file, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            source_file (str):
-            count (int):
-        """
-        self.sourceFile = source_file
-        self.count = count
 
-    def __str__(self):
-        return """SourceFileSummary(sourceFile={}, count={})""".format(
-            self.sourceFile, self.count
-        )
+@dataclass
+class SourceFileSummary:
+    """
+
+    Args:
+        source_file (str):
+        count (int):
+    """
+    source_file: str
+    count: int
+
+
+def construct_source_file_summary(item):
+    return SourceFileSummary(
+        source_file=item.get("sourceFile"),
+        count=item.get("count")
+    )

@@ -110,12 +110,12 @@ def test_ast_create_scan_by_git():
         project = create_a_project(ProjectInput(name=new_project_name))
         project_id = project.id
     scan_input = ScanInput(
-        scan_type="git",
+        type="git",
         handler=Git(
             repo_url="https://github.com/CSPF-Founder/JavaVulnerableLab.git",
             branch="master",
         ),
-        project=Project(project_id=project_id),
+        project=Project(id=project_id),
         configs=[
             ScanConfig("sast", {"incremental": "false", "presetName": "ASA Premium"}),
             ScanConfig("sca"),

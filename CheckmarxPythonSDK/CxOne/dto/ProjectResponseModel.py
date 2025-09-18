@@ -5,7 +5,7 @@ from .EngineData import EngineData, construct_engine_data
 
 
 @dataclass
-class ProjectResponseModel(object):
+class ProjectResponseModel:
     project_id: str = None  # The ID of the project.
     project_name: str = None  # The name of the project.
     source_origin: str = None  # The origin of the project source.
@@ -34,6 +34,6 @@ def construct_project_response(item):
         scm_repo_id=item.get("scmRepoId"),
         total_counters=construct_total_counters(item),
         engines_data=[
-            construct_engine_data(engine_data) for engine_data in item.get("enginesData")
+            construct_engine_data(engine_data) for engine_data in item.get("enginesData", [])
         ],
     )

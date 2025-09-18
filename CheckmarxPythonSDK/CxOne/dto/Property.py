@@ -1,16 +1,20 @@
-class Property(object):
+from dataclasses import dataclass
 
-    def __init__(self, key, value):
-        """
 
-        Args:
-            key (str):
-            value (value):
-        """
-        self.key = key
-        self.value = value
+@dataclass
+class Property:
+    """
 
-    def __str__(self):
-        return """Property(key={}, value={})""".format(
-            self.key, self.value
-        )
+    Args:
+        key (str):
+        value (str):
+    """
+    key: str = None
+    value: str = None
+
+
+def construct_property(item):
+    return Property(
+        key=item.get("key"),
+        value=item.get("value")
+    )

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CloudInsightContainer(object):
+class CloudInsightContainer:
     container_id: str = None
     cluster_name: str = None
     container_name: str = None

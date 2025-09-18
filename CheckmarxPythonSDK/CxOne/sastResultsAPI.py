@@ -159,7 +159,7 @@ class SastResultsAPI(object):
             "first-found-at": first_found_at, "first-found-at-operation": first_found_at_operation,
             "preset-id": preset_id, "result-id": result_id, "category": category, "search": search,
             "include-nodes": include_nodes, "apply-predicates": apply_predicates,
-            "offset": offset, "limit": limit, "sort": ",".join(sort),
+            "offset": offset, "limit": limit, "sort": ",".join(sort) if sort else None
         }
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()

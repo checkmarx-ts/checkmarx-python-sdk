@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ByorJob(object):
+class ByorJob:
     id: str = None
     project_id: str = None
     status: str = None

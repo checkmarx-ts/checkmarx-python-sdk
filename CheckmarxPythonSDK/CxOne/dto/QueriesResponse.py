@@ -1,17 +1,23 @@
-class QueriesResponse(object):
-    def __init__(self, name, is_active, last_modified):
-        """
+from dataclasses import dataclass
 
-        Args:
-            name (str):
-            is_active (bool):
-            last_modified (str):
-        """
-        self.name = name
-        self.isActive = is_active
-        self.lastModified = last_modified
 
-    def __str__(self):
-        return """QueriesResponse(name={}, isActive={}, lastModified={})""".format(
-            self.name, self.isActive, self.lastModified
-        )
+@dataclass
+class QueriesResponse:
+    """
+
+    Args:
+        name (str):
+        is_active (bool):
+        last_modified (str):
+    """
+    name: str = None
+    is_active: bool = None
+    last_modified: str = None
+
+
+def construct_queries_response(item):
+    return QueriesResponse(
+        name=item.get("name"),
+        is_active=item.get("isActive"),
+        last_modified=item.get("lastModified")
+    )

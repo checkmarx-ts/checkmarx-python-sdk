@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class KicsResult(object):
+class KicsResult:
     kics_result_id: str = None  # ID of the result
     similarity_id: int = None  # ID of the Similarity feature (Indicator to identify a result by its first and last
     # nodes

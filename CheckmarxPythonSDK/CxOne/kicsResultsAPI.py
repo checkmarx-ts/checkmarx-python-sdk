@@ -54,7 +54,7 @@ class KicsResultsAPI(object):
         list_member_type_check(sort, str)
         relative_url = api_url
         params = {"scan-id": scan_id, "severity": severity, "status": "status", "offset": offset, "limit": limit,
-                  "sort": ",".join(sort)}
+                  "sort": ",".join(sort) if sort else None}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         item = response.json()
         return construct_kics_result_collection(item)

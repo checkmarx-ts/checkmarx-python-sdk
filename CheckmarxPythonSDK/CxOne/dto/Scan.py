@@ -1,78 +1,74 @@
-# encoding: utf-8
 from typing import List
-from .StatusDetails import StatusDetails
+from .StatusDetails import StatusDetails, construct_status_details
+from dataclasses import dataclass
 
 
-class Scan(object):
-    def __init__(self, scan_id, status, status_details: List[StatusDetails], position_in_queue, project_id,
-                 project_name,
-                 branch,
-                 commit_id, commit_tag,
-                 upload_url, created_at, updated_at, user_agent, initiator, tags, metadata, engines=None,
-                 source_type=None, source_origin=None):
-        """
+@dataclass
+class Scan:
+    """
 
-        Args:
-            scan_id (str): The unique identifier of the scan.
-            status (str): The execution status of the scan.
-                    Enum:[ Queued, Running, Completed, Failed, Partial, Canceled ]
-            status_details (`list` of `StatusDetails`):
-            position_in_queue (int): the position of the scan in the execution queue.
-            project_id (str): The associated project id
-            project_name (str):
-            branch (str): The git branch
-            commit_id (str): The git commit id. Mutually exclusive to commitTag
-            commit_tag (str): The git tag. Mutually exclusive to commitId
-            upload_url (str): The URL pointing to the location of the uploaded file that was scanned.
-            created_at (str): The date and time that the scan was created.
-            updated_at (str): The date and time that the scan was created.
-            user_agent (str): The user-agent header of the tool/platform that initiated the scan
-            initiator (str): An identifier of the user who created the scan.
-            tags (dict): An object representing the scan tags in a key-value format
-            metadata (dict): A JSON object containing info about the scan settings.
-        """
-        self.id = scan_id
-        self.status = status
-        self.statusDetails = status_details
-        self.positionInQueue = position_in_queue
-        self.projectId = project_id
-        self.projectName = project_name
-        self.branch = branch
-        self.commitId = commit_id
-        self.commitTag = commit_tag
-        self.uploadUrl = upload_url
-        self.createdAt = created_at
-        self.updatedAt = updated_at
-        self.userAgent = user_agent
-        self.initiator = initiator
-        self.tags = tags
-        self.metadata = metadata
-        self.engines = engines
-        self.sourceType = source_type
-        self.sourceOrigin = source_origin
+    Args:
+        id (str): The unique identifier of the scan.
+        status (str): The execution status of the scan.
+                Enum:[ Queued, Running, Completed, Failed, Partial, Canceled ]
+        status_details (`list` of `StatusDetails`):
+        position_in_queue (int): the position of the scan in the execution queue.
+        project_id (str): The associated project id
+        project_name (str):
+        branch (str): The git branch
+        commit_id (str): The git commit id. Mutually exclusive to commitTag
+        commit_tag (str): The git tag. Mutually exclusive to commitId
+        upload_url (str): The URL pointing to the location of the uploaded file that was scanned.
+        created_at (str): The date and time that the scan was created.
+        updated_at (str): The date and time that the scan was created.
+        user_agent (str): The user-agent header of the tool/platform that initiated the scan
+        initiator (str): An identifier of the user who created the scan.
+        tags (dict): An object representing the scan tags in a key-value format
+        metadata (dict): A JSON object containing info about the scan settings.
+    """
 
-    def __str__(self):
-        return """Scan(id={}, status={}, statusDetails={}, positionInQueue={}, projectId={}, projectName={}, branch={}, 
-        commitId={},
-        commitTag={}, uploadUrl={}, createdAt={}, updatedAt={}, userAgent={}, initiator={}, tags={}, 
-        metadata={}, engines={}, sourceType={}, sourceOrigin={})""".format(
-            self.id,
-            self.status,
-            self.statusDetails,
-            self.positionInQueue,
-            self.projectId,
-            self.projectName,
-            self.branch,
-            self.commitId,
-            self.commitTag,
-            self.uploadUrl,
-            self.createdAt,
-            self.updatedAt,
-            self.userAgent,
-            self.initiator,
-            self.tags,
-            self.metadata,
-            self.engines,
-            self.sourceType,
-            self.sourceOrigin,
-        )
+    id: str
+    status: str
+    status_details: List[StatusDetails]
+    position_in_queue: int
+    project_id: str
+    project_name: str
+    branch: str
+    commit_id: str
+    commit_tag: str
+    upload_url: str
+    created_at: str
+    updated_at: str
+    user_agent: str
+    initiator: str
+    tags: dict
+    metadata: dict
+    engines: List[str] = None
+    source_type: str = None
+    source_origin: str = None
+
+
+def construct_scan(item):
+    return Scan(
+        id=item.get("id"),
+        status=item.get("status"),
+        status_details=[
+            construct_status_details(detail) for detail in item.get("statusDetails", [])
+        ],
+        position_in_queue=item.get("positionInQueue"),
+        project_id=item.get("projectId"),
+        project_name=item.get("projectName"),
+        branch=item.get("branch"),
+        commit_id=item.get("commitId"),
+        commit_tag=item.get("commitTag"),
+        upload_url=item.get("uploadUrl"),
+        created_at=item.get("createdAt"),
+        updated_at=item.get("updatedAt"),
+        user_agent=item.get("userAgent"),
+        initiator=item.get("initiator"),
+        tags=item.get("tags"),
+        metadata=item.get("metadata"),
+        engines=item.get("engines"),
+        source_type=item.get("sourceType"),
+        source_origin=item.get("sourceOrigin")
+    )

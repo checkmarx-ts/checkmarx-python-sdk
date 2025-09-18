@@ -1,8 +1,14 @@
+from dataclasses import dataclass
 
-class RequestStatusNotReady(object):
-    def __init__(self, completed: bool = None, value: dict = None):
-        self.completed = completed
-        self.value = value
 
-    def __str__(self):
-        return f"RequestStatusNotReady(completed={self.completed}, value={self.value})"
+@dataclass
+class RequestStatusNotReady:
+    completed: bool = None
+    value: dict = None
+
+
+def construct_request_status_not_ready(item):
+    return RequestStatusNotReady(
+        completed=item.get("completed"),
+        value=item.get("value")
+    )

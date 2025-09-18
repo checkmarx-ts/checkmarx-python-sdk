@@ -1,54 +1,54 @@
-class ScanInfo(object):
+from dataclasses import dataclass
 
-    def __init__(self, scan_id, project_id, loc, file_count, is_incremental, is_incremental_canceled,
-                 incremental_cancel_reason, based_id, added_files_count, changed_files_count, deleted_files_count,
-                 change_percentage, query_preset):
-        """
 
-        Args:
-            scan_id (str):
-            project_id (str):
-            loc (int):
-            file_count (int):
-            is_incremental (bool):
-            is_incremental_canceled (bool):
-            incremental_cancel_reason (str):
-            based_id (str):
-            added_files_count (int):
-            changed_files_count (int):
-            deleted_files_count (int):
-            change_percentage (float):
-            query_preset (str):
-        """
-        self.scan_id = scan_id
-        self.project_id = project_id
-        self.loc = loc
-        self.file_count = file_count
-        self.is_incremental = is_incremental
-        self.is_incremental_canceled = is_incremental_canceled
-        self.incremental_cancel_reason = incremental_cancel_reason
-        self.based_id = based_id
-        self.added_files_count = added_files_count
-        self.changed_files_count = changed_files_count
-        self.deleted_files_count = deleted_files_count
-        self.change_percentage = change_percentage
-        self.query_preset = query_preset
+@dataclass
+class ScanInfo:
+    """
 
-    def __str__(self):
-        return f"""
-        ScanInfo(
-        scan_id={self.scan_id}, 
-        project_id={self.project_id}, 
-        loc={self.loc}, 
-        file_count={self.file_count}, 
-        is_incremental={self.is_incremental}, 
-        is_incremental_canceled={self.is_incremental_canceled}, 
-        incremental_cancel_reason={self.incremental_cancel_reason}, 
-        based_id={self.based_id}, 
-        added_files_count={self.added_files_count}, 
-        changed_files_count={self.changed_files_count}, 
-        deleted_files_count={self.deleted_files_count}, 
-        change_percentage={self.change_percentage}, 
-        query_preset={self.query_preset}
-        )
-        """
+    Attributes:
+        scan_id (str):
+        project_id (str):
+        loc (int):
+        file_count (int):
+        is_incremental (bool):
+        is_incremental_canceled (bool):
+        incremental_cancel_reason (str):
+        based_id (str):
+        added_files_count (int):
+        changed_files_count (int):
+        deleted_files_count (int):
+        change_percentage (float):
+        query_preset (str):
+    """
+
+    scan_id: str
+    project_id: str
+    loc: int
+    file_count: int
+    is_incremental: bool
+    is_incremental_canceled: bool
+    incremental_cancel_reason: str
+    based_id: str
+    added_files_count: int
+    changed_files_count: int
+    deleted_files_count: int
+    change_percentage: float
+    query_preset: str
+
+
+def construct_scan_info(item):
+    return ScanInfo(
+        scan_id=item.get("scanId"),
+        project_id=item.get("projectId"),
+        loc=item.get("loc"),
+        file_count=item.get("fileCount"),
+        is_incremental=item.get("isIncremental"),
+        is_incremental_canceled=item.get("isIncrementalCanceled"),
+        incremental_cancel_reason=item.get("incrementalCancelReason"),
+        based_id=item.get("baseId"),
+        added_files_count=item.get("addedFilesCount"),
+        changed_files_count=item.get("changedFilesCount"),
+        deleted_files_count=item.get("deletedFilesCount"),
+        change_percentage=item.get("changePercent"),
+        query_preset=item.get("queryPreset")
+    )

@@ -85,7 +85,7 @@ class SastResourceManagementServiceAPI(object):
 
         relative_url = api_url + "/scans"
         params = {"offset": offset, "limit": limit, "ids": ids, "with-deleted": with_deleted}
-        response = self.api_client.get_request(relative_url=relative_url, json=params)
+        response = self.api_client.get_request(relative_url=relative_url, params=params)
         item = response.json()
         return {
             "totalCount": 0,

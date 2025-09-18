@@ -1,17 +1,24 @@
-class SubCheck(object):
-    def __init__(self, name, success, errors):
-        """
+from dataclasses import dataclass
+from typing import List
 
-        Args:
-            name (str):
-            success (bool):
-            errors (list of str):
-        """
-        self.name = name
-        self.success = success
-        self.errors = errors
 
-    def __str__(self):
-        return """SubCheck(name={}, success={}, errors={})""".format(
-            self.name, self.success, self.errors
-        )
+@dataclass
+class SubCheck:
+    """
+
+    Args:
+        name (str):
+        success (bool):
+        errors (list of str):
+    """
+    name: str
+    success: bool
+    errors: List[str]
+
+
+def construct_sub_check(item):
+    return SubCheck(
+        name=item.get("name"),
+        success=item.get("success"),
+        errors=item.get("errors")
+    )

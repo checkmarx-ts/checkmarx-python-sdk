@@ -2,11 +2,11 @@
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED
 from .utilities import type_check
 from .dto import (
-    Application, construct_application_rules, construct_application,
+    Application, construct_application,
     ApplicationInput,
-    ApplicationsCollection,
-    CreatedApplication,
-    Rule,
+    ApplicationsCollection, construct_applications_collection,
+    CreatedApplication, construct_created_application,
+    Rule, construct_rule,
     RuleInput,
 )
 from CheckmarxPythonSDK.api_client import ApiClient
@@ -36,16 +36,7 @@ class ApplicationsAPI(object):
         relative_url = api_url
         response = self.api_client.post_request(relative_url=relative_url, json=application_input.to_dict())
         item = response.json()
-        return CreatedApplication(
-            application_id=item.get("id"),
-            name=item.get("name"),
-            description=item.get("description"),
-            criticality=item.get("criticality"),
-            rules=construct_application_rules(item.get("rules")),
-            tags=item.get("tags"),
-            created_at=item.get("createdAt"),
-            updated_at=item.get("updatedAt")
-        )
+        return construct_created_application(item)
 
     def get_a_list_of_applications(
             self, offset: int = 0, limit: int = 20, name: str = None, tags_keys: List[str] = None,
@@ -70,14 +61,8 @@ class ApplicationsAPI(object):
         relative_url = api_url
         params = {"offset": offset, "limit": limit, "name": name, "tags-keys": tags_keys, "tags-values": tags_values}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
-        app_collection = response.json()
-        return ApplicationsCollection(
-            total_count=app_collection.get("totalCount"),
-            filtered_total_count=app_collection.get("filteredTotalCount"),
-            applications=[
-                construct_application(app) for app in app_collection.get("applications")
-            ]
-        )
+        item = response.json()
+        return construct_applications_collection(item)
 
     def get_application_id_by_name(self, name: str) -> str:
         """
@@ -93,7 +78,7 @@ class ApplicationsAPI(object):
         app_collection = self.get_a_list_of_applications(name=name)
         applications = app_collection.applications
         if applications:
-            application_id = applications[0].application_id
+            application_id = applications[0].id
         return application_id
 
     def get_all_application_tags(self) -> dict:
@@ -174,12 +159,8 @@ class ApplicationsAPI(object):
         relative_url = api_url + "/{id}/project-rules".format(id=application_id)
         type_check(rule_input, RuleInput)
         response = self.api_client.post_request(relative_url=relative_url, json=rule_input.to_dict())
-        rule = response.json()
-        return Rule(
-            rule_id=rule.get("id"),
-            rule_type=rule.get("type"),
-            value=rule.get("value")
-        )
+        item = response.json()
+        return construct_rule(item)
 
     def get_a_list_of_rules_for_a_specific_application(self, application_id: str) -> List[Rule]:
         """
@@ -194,7 +175,7 @@ class ApplicationsAPI(object):
         relative_url = api_url + "/{id}/project-rules".format(id=application_id)
         response = self.api_client.get_request(relative_url=relative_url)
         rules = response.json()
-        return construct_application_rules(rules)
+        return [construct_rule(rule) for rule in rules or []]
 
     def get_an_application_rule(self, application_id: str, rule_id: str) -> Rule:
         """
@@ -212,12 +193,8 @@ class ApplicationsAPI(object):
             id=application_id, rule_id=rule_id
         )
         response = self.api_client.get_request(relative_url=relative_url)
-        rule = response.json()
-        return Rule(
-            rule_id=rule.get("id"),
-            rule_type=rule.get("type"),
-            value=rule.get("value")
-        )
+        item = response.json()
+        return construct_rule(item)
 
     def update_an_application_rule(self, application_id: str, rule_id: str, rule_input: RuleInput) -> bool:
         """
@@ -233,14 +210,11 @@ class ApplicationsAPI(object):
         type_check(application_id, str)
         type_check(rule_id, str)
         type_check(rule_input, RuleInput)
-        is_successful = False
         relative_url = api_url + "/{id}/project-rules/{rule_id}".format(
             id=application_id, rule_id=rule_id
         )
         response = self.api_client.put_request(relative_url=relative_url, json=rule_input.to_dict())
-        if response.status_code in (NO_CONTENT, CREATED):
-            is_successful = True
-        return is_successful
+        return response.status_code in (NO_CONTENT, CREATED)
 
     def delete_an_application_rule(self, application_id: str, rule_id: str) -> bool:
         """

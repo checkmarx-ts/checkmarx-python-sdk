@@ -13,6 +13,6 @@ def construct_groups_response(item):
     return GroupsResponse(
         total=item.get("total"),
         groups=[
-            construct_group_representation(group) for group in item.get("groups")
+            construct_group_representation(group) for group in item.get("groups", [])
         ]
     )

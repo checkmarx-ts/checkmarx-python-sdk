@@ -2,7 +2,12 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from .utilities import type_check, list_member_type_check
-from .dto import QueriesResponse, Preset, QueryDescription, QueryDescriptionSampleCode, Category, CategoryType
+from .dto import (
+    QueriesResponse, construct_queries_response,
+    Preset, construct_preset,
+    QueryDescription, construct_query_description,
+    CategoryType, construct_category_type,
+)
 from CheckmarxPythonSDK.utilities.compat import OK
 
 query_url = "/api/queries"
@@ -26,11 +31,7 @@ class SastQueriesAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         queries = response.json()
         return [
-            QueriesResponse(
-                name=item.get("name"),
-                is_active=item.get("isActive"),
-                last_modified=item.get("lastModified"),
-            ) for item in queries
+            construct_queries_response(item) for item in queries or []
         ]
 
     def get_sast_queries_presets(self) -> List[Preset]:
@@ -45,10 +46,7 @@ class SastQueriesAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         presets = response.json()
         return [
-            Preset(
-                preset_id=item.get("id"),
-                name=item.get("name"),
-            ) for item in presets
+            construct_preset(item) for item in presets or []
         ]
 
     def get_sast_query_description(self, ids: List[str]) -> List[QueryDescription]:
@@ -69,20 +67,7 @@ class SastQueriesAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return [
-            QueryDescription(
-                query_description_id=item.get("queryDescriptionId"),
-                result_description=item.get("resultDescription"),
-                risk=item.get("risk"),
-                cause=item.get("cause"),
-                general_recommendations=item.get("generalRecommendations"),
-                samples=[
-                    QueryDescriptionSampleCode(
-                        programming_language=sample.get("progLanguage"),
-                        code=sample.get("code"),
-                        title=sample.get("title"),
-                    ) for sample in item.get("samples") or []
-                ],
-            ) for item in response or []
+            construct_query_description(item) for item in response or []
         ]
 
     def get_mapping_between_ast_and_sast_query_ids(self) -> List[dict]:
@@ -132,19 +117,7 @@ class SastQueriesAPI(object):
         if response.status_code == OK:
             response = response.json()
             result = [
-                CategoryType(
-                    category_type_id=item.get("id"),
-                    name=item.get("name"),
-                    sast_id=item.get("sastId"),
-                    order=item.get("order"),
-                    categories=[
-                        Category(
-                            category_id=category.get("id"),
-                            name=category.get("name"),
-                            sast_id=category.get("sastId"),
-                        ) for category in item.get("categories", []) or []
-                    ]
-                ) for item in response
+                construct_category_type(item) for item in response
             ]
         return result
 

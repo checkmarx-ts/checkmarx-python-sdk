@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ByorJobPatchRequest(object):
+class ByorJobPatchRequest:
     status: str = None  # Canceled is the only valid input.
 
     def to_dict(self):

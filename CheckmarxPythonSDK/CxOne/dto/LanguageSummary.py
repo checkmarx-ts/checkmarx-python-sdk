@@ -1,15 +1,20 @@
-class LanguageSummary(object):
-    def __init__(self, language, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            language (str):
-            count (int):
-        """
-        self.language = language
-        self.count = count
 
-    def __str__(self):
-        return """LanguageSummary(language={}, count={})""".format(
-            self.language, self.count
-        )
+@dataclass
+class LanguageSummary:
+    """
+
+    Args:
+        language (str):
+        count (int):
+    """
+    language: str
+    count: int
+
+
+def construct_language_summary(item):
+    return LanguageSummary(
+        language=item.get("language"),
+        count=item.get("count")
+    )

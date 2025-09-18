@@ -4,9 +4,9 @@ from typing import List
 
 @dataclass
 class AddAssignmentRoles:
-    entity_id: str
-    resource_id: str
-    entity_roles: List[str]
+    entity_id: str = None
+    resource_id: str = None
+    entity_roles: List[str] = None
 
     def to_dict(self):
         return {

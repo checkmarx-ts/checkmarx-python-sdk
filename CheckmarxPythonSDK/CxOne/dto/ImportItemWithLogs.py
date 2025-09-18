@@ -1,23 +1,30 @@
-class ImportItemWithLogs(object):
+from dataclasses import dataclass
+from .LogItem import LogItem, construct_log_item
+from typing import List
 
-    def __init__(self, migration_id, status, created_at, logs):
-        """
 
-        Args:
-            migration_id (str):
-            status (str): pending, running, completed, failed
-            created_at (str):
-            logs (list of LogItem):
-        """
-        self.migration_id = migration_id
-        self.status = status
-        self.created_at = created_at
-        self.logs = logs
+@dataclass
+class ImportItemWithLogs:
+    """
 
-    def __str__(self):
-        return f"""ImportItemWithLogs(
-        migration_id={self.migration_id},
-        status={self.status},
-        created_at={self.created_at},
-        logs={self.logs},
-        )"""
+    Args:
+        migration_id (str):
+        status (str): pending, running, completed, failed
+        created_at (str):
+        logs (list of LogItem):
+    """
+    migration_id: str
+    status: str
+    created_at: str
+    logs: List[LogItem]
+
+
+def construct_import_item_with_logs(item):
+    return ImportItemWithLogs(
+        migration_id=item.get("migrationId"),
+        status=item.get("status"),
+        created_at=item.get("createdAt"),
+        logs=[
+            construct_log_item(log_item) for log_item in item.get("logs", [])
+        ]
+    )

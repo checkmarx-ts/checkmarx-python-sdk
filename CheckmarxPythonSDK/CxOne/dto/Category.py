@@ -1,20 +1,24 @@
-class Category(object):
+from dataclasses import dataclass
 
-    def __init__(self, category_id, name, sast_id):
-        """
 
-        Args:
-            category_id (int):
-            name (str):
-            sast_id (int):
-        """
-        self.category_id = category_id
-        self.name = name
-        self.sast_id = sast_id
+@dataclass
+class Category:
+    """
+    Attributes:
+        id (int):
+        name (str):
+        sast_id (int):
 
-    def __str__(self):
-        return """Category(
-        category_id={self.category_id},
-        name={self.name},
-        sast_id={self.sast_id},
-        )"""
+    """
+
+    id: int = None
+    name: str = None
+    sast_id: int = None
+
+
+def construct_category(item):
+    return Category(
+        id=item.get("id"),
+        name=item.get("name"),
+        sast_id=item.get("sastId")
+    )

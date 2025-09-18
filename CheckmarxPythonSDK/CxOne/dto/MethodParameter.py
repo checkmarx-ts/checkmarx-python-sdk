@@ -1,17 +1,23 @@
-class MethodParameter(object):
-    def __init__(self, name, label, documentation):
-        """
+from dataclasses import dataclass
 
-        Args:
-            name (str):
-            label (str):
-            documentation (str):
-        """
-        self.name = name
-        self.label = label
-        self.documentation = documentation
 
-    def __str__(self):
-        return """MethodParameter(name={}, label={}, documentation={})""".format(
-            self.name, self.label, self.documentation
-        )
+@dataclass
+class MethodParameter:
+    """
+
+    Args:
+        name (str):
+        label (str):
+        documentation (str):
+    """
+    name: str
+    label: str
+    documentation: str
+
+
+def construct_method_parameter(item):
+    return MethodParameter(
+        name=item.get("name"),
+        label=item.get("label"),
+        documentation=item.get("documentation")
+    )

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import TypedDict
 
 
@@ -6,16 +7,25 @@ class WorkerInfo(TypedDict):
     worker_address: str
 
 
-class Session(object):
-    def __init__(self, session_id: str = None, tenant_id: str = None, project_id: str = None, source_id: str = None,
-                 worker_info: WorkerInfo = None, status: int = None):
-        self.session_id = session_id
-        self.tenant_id = tenant_id
-        self.project_id = project_id
-        self.source_id = source_id
-        self.worker_info = worker_info
-        self.status = status
+@dataclass
+class Session:
+    session_id: str = None
+    tenant_id: str = None
+    project_id: str = None
+    source_id: str = None
+    worker_info: WorkerInfo = None
+    status: int = None
 
-    def __str__(self):
-        return (f"Session(session_id={self.session_id}, tenant_id={self.tenant_id}, project_id={self.project_id}, "
-                f"source_id={self.source_id}, worker_info={self.worker_info}, status={self.status})")
+
+def construct_session(item):
+    return Session(
+        session_id=item.get("sessionId"),
+        tenant_id=item.get("tenantId"),
+        project_id=item.get("projectId"),
+        source_id=item.get("sourceId"),
+        worker_info=WorkerInfo(
+            worker_id=item.get("workerInfo").get("worker_id"),
+            worker_address=item.get("workerInfo").get("worker_address")
+        ),
+        status=item.get("status")
+    )

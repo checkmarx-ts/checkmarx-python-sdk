@@ -289,7 +289,9 @@ from .sastResultsPredicatesAPI import (
     get_all_predicates_for_similarity_id,
     get_latest_predicates_for_similarity_id,
     predicate_severity_and_state_by_similarity_id_and_project_id,
+    update_predicate_comment_by_predicate_id,
     recalculate_summary_counters,
+    delete_a_predicate_history,
 )
 from .sastResultsSummaryAPI import (
     SastResultsSummaryAPI,

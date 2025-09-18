@@ -1,21 +1,18 @@
-import json
-class WorkspaceQuery(object):
-    def __init__(self, path, name, source):
-        """
+from dataclasses import dataclass
 
-        Args:
-            path (str):
-            name (str):
-            source (str):
-        """
-        self.path = path
-        self.name = name
-        self.source = source
 
-    def __str__(self):
-        return """WorkspaceQuery(path={}, name={}, source={})""".format(
-            self.path, self.name, self.source
-        )
+@dataclass
+class WorkspaceQuery:
+    """
+
+    Args:
+        path (str):
+        name (str):
+        source (str):
+    """
+    path: str
+    name: str
+    source: str
 
     def to_dict(self):
         return {

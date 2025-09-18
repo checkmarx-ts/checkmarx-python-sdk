@@ -1,16 +1,21 @@
-class Contributors(object):
+from dataclasses import dataclass
 
-    def __init__(self, allowed_contributors, current_contributors):
-        """
 
-        Args:
-            allowed_contributors (int):
-            current_contributors (int):
-        """
-        self.allowed_contributors = allowed_contributors
-        self.current_contributors = current_contributors
+@dataclass
+class Contributors:
+    """
 
-    def __str__(self):
-        return """Contributors(allowed_contributors={}, current_contributors={})""".format(
-            self.allowed_contributors, self.current_contributors
-        )
+    Attributes:
+        allowed_contributors (int):
+        current_contributors (int):
+    """
+
+    allowed_contributors: int
+    current_contributors: int
+
+
+def construct_contributors(item):
+    return Contributors(
+        allowed_contributors=item.get("allowedContributors"),
+        current_contributors=item.get("currentContributors")
+    )

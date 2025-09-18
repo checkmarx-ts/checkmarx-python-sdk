@@ -1,11 +1,18 @@
+from dataclasses import dataclass
 from typing import List
-from .Session import Session
+from .Session import Session, construct_session
 
 
-class Sessions(object):
-    def __init__(self, available: bool = None, metadata: List[Session] = None):
-        self.available = available
-        self.metadata = metadata
+@dataclass
+class Sessions:
+    available: bool = None
+    metadata: List[Session] = None
 
-    def __str__(self):
-        return f"Sessions(available={self.available}, metadata={self.metadata})"
+
+def construct_sessions(item):
+    return Sessions(
+        available=item.get("available"),
+        metadata=[
+            construct_session(session) for session in item.get("metadata", [])
+        ]
+    )

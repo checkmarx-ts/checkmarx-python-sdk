@@ -3,7 +3,7 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .utilities import type_check, list_member_type_check
 from typing import List
 from .dto import (
-    ProjectCounter,
+    ProjectCounter, construct_project_counter,
     ProjectResponseCollection, construct_project_response_collection,
 )
 
@@ -78,7 +78,7 @@ class ProjectsOverviewAPI(object):
             "offset": offset, "limit": limit, "name": name, "scan-origin": scan_origin, "source-type": source_type,
             "group-ids": group_ids, "tag-keys": tag_keys, "tag-values": tag_values, "risk-level": risk_level,
             "from-date": from_date, "to-date": to_date, "is-deployed": is_deployed, "is-public": is_public,
-            "sort": ",".join(sort),
+            "sort": ",".join(sort) if sort else None,
         }
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return construct_project_response_collection(response.json())
@@ -141,10 +141,7 @@ class ProjectsOverviewAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         item = response.json()
         return [
-            ProjectCounter(
-                value=project_counter.get("value"),
-                count=project_counter.get("count"),
-            ) for project_counter in item.get("projectsCounters")
+            construct_project_counter(project_counter) for project_counter in item.get("projectsCounters")
         ]
 
 

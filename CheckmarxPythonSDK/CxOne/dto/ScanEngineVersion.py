@@ -1,23 +1,26 @@
-class ScanEngineVersion(object):
+from dataclasses import dataclass
 
-    def __init__(self, scan_id, project_id, tenant_id, engine_version):
-        """
 
-        Args:
-            scan_id:
-            project_id:
-            tenant_id:
-            engine_version:
-        """
-        self.scan_id = scan_id
-        self.project_id = project_id
-        self.tenant_id = tenant_id
-        self.engine_version = engine_version
+@dataclass
+class ScanEngineVersion:
+    """
 
-    def __str__(self):
-        return """ScanEngineVersion(
-        scan_id={self.scan_id},
-        project_id={self.project_id},
-        tenant_id={self.tenant_id},
-        engine_version={self.engine_version},
-        )"""
+    Attributes:
+        scan_id (str):
+        project_id (str):
+        tenant_id (str):
+        engine_version (str):
+    """
+    scan_id: str
+    project_id: str
+    tenant_id: str
+    engine_version: str
+
+
+def construct_scan_engine_version(item):
+    return ScanEngineVersion(
+        scan_id=item.get("scanId"),
+        project_id=item.get("projectId"),
+        tenant_id=item.get("tenantId"),
+        engine_version=item.get("engineVersion")
+    )

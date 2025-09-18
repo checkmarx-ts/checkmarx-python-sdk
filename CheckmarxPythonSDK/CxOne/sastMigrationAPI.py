@@ -3,7 +3,10 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from requests import Response
 import json
-from .dto import ImportItem, ImportItemWithLogs, LogItem
+from .dto import (
+    ImportItem, construct_import_item,
+    ImportItemWithLogs, construct_import_item_with_logs,
+)
 from CheckmarxPythonSDK.utilities.compat import OK, ACCEPTED
 
 api_url = "/api/imports"
@@ -57,11 +60,7 @@ class SastMigrationAPI(object):
         if response.status_code == OK:
             response = response.json()
             result = [
-                ImportItem(
-                    migration_id=item.get("id"),
-                    status=item.get("status"),
-                    created_at=item.get("created_at")
-                ) for item in response
+                construct_import_item(item) for item in response
             ]
         return result
 
@@ -79,21 +78,7 @@ class SastMigrationAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         if response.status_code == OK:
             response = response.json()
-            result = ImportItemWithLogs(
-                migration_id=response.get("id"),
-                status=response.get("status"),
-                created_at=response.get("created_at"),
-                logs=[
-                    LogItem(
-                        level=item.get("level"),
-                        msg=item.get("msg"),
-                        time=item.get("time"),
-                        error=item.get("error"),
-                        worker=item.get("worker"),
-                        raw_log=item.get("raw_log"),
-                    ) for item in response.get("logs")
-                ]
-            )
+            result = construct_import_item_with_logs(response)
         return result
 
     def download_migration_logs(self, migration_id: str) -> Response:

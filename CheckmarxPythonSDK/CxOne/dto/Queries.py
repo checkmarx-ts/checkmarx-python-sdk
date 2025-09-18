@@ -1,21 +1,24 @@
-class Queries(object):
-    def __init__(self, id: int = None, name: str = None, group: str = None, level: str = None, lang: str = None,
-                 modify: str = None, is_executable: bool = None):
-        self.id = id
-        self.name = name
-        self.group = group
-        self.level = level
-        self.lang = lang
-        self.modify = modify
-        self.isExecutable = is_executable
+from dataclasses import dataclass
 
-    def __str__(self):
-        return f"""Queries(
-        id={self.id}, 
-        name={self.name}, 
-        group={self.group}, 
-        level={self.level}, 
-        lang={self.lang}, 
-        modify={self.modify}, 
-        isExecutable={self.isExecutable}
-        )"""
+
+@dataclass
+class Queries:
+    id: int = None
+    name: str = None
+    group: str = None
+    level: str = None
+    lang: str = None
+    modify: str = None
+    is_executable: bool = None
+
+
+def construct_queries(item):
+    return Queries(
+        id=item.get("id"),
+        name=item.get("name"),
+        group=item.get("group"),
+        level=item.get("level"),
+        lang=item.get("lang"),
+        modify=item.get("modify"),
+        is_executable=item.get("isExecutable")
+    )

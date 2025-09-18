@@ -1,9 +1,16 @@
+from dataclasses import dataclass
 
-class SessionResponse(object):
-    def __init__(self, id: str = None, status: str = None, scan_id: str = None):
-        self.id = id
-        self.status = status
-        self.scanId = scan_id
 
-    def __str__(self):
-        return f"SessionResponse(id={self.id}, status={self.status}, scanId={self.scanId})"
+@dataclass
+class SessionResponse:
+    id: str = None
+    status: str = None
+    scan_id: str = None
+
+
+def construct_session_response(item):
+    return SessionResponse(
+        id=item.get("id"),
+        status=item.get("status"),
+        scan_id=item.get("scanId")
+    )

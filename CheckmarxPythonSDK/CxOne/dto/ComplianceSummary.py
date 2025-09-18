@@ -1,15 +1,20 @@
-class ComplianceSummary(object):
-    def __init__(self, compliance, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            compliance (str):
-            count (int):
-        """
-        self.compliance = compliance
-        self.count = count
 
-    def __str__(self):
-        return """ComplianceSummary(compliance={}, count={})""".format(
-            self.compliance, self.count
-        )
+@dataclass
+class ComplianceSummary:
+    """
+
+    Attributes:
+        compliance (str):
+        count (int):
+    """
+    compliance: str
+    count: int
+
+
+def construct_compliance_summary(item):
+    return ComplianceSummary(
+        compliance=item.get("compliance"),
+        count=item.get("count")
+    )

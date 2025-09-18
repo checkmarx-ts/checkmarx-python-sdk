@@ -1,39 +1,39 @@
-from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
+from dataclasses import dataclass
+from typing import List
+from .QueryDescriptionSampleCode import QueryDescriptionSampleCode, construct_query_description_sample_code
 
 
-class QueryDescription(object):
-    def __init__(self, query_description_id, result_description, risk, cause, general_recommendations, samples,
-                 example=None, best_fix_location=None):
-        """
+@dataclass
+class QueryDescription:
+    """
 
-        Args:
-            query_description_id (str):
-            result_description (str):
-            risk (str):
-            cause (str):
-            general_recommendations (str):
-            samples (list of QueryDescriptionSampleCode):
-            example (str):
-            best_fix_location (str):
-        """
-        self.queryDescriptionId = query_description_id
-        self.resultDescription = result_description
-        self.risk = risk
-        self.cause = cause
-        self.generalRecommendations = general_recommendations
-        self.sample = samples
-        self.example = example
-        self.bestFixLocation = best_fix_location
+    Args:
+        query_id (str):
+        query_name (str):
+        result_description (str):
+        risk (str):
+        cause (str):
+        general_recommendations (str):
+        sample (list of QueryDescriptionSampleCode):
+    """
+    query_id: str
+    query_name: str
+    result_description: str
+    risk: str
+    cause: str
+    general_recommendations: str
+    sample: List[QueryDescriptionSampleCode]
 
-    def __str__(self):
-        return """QueryDescription(queryDescriptionId={}, resultDescription={}, risk={}, cause={}, 
-        generalRecommendations={}, sample={}, example={}, bestFixLocation={})""".format(
-            self.queryDescriptionId,
-            self.resultDescription,
-            self.risk,
-            self.cause,
-            self.generalRecommendations,
-            self.sample,
-            self.example,
-            self.bestFixLocation,
-        )
+
+def construct_query_description(item):
+    return QueryDescription(
+        query_id=item.get("queryId"),
+        query_name=item.get("queryName"),
+        result_description=item.get("resultDescription"),
+        risk=item.get("risk"),
+        cause=item.get("cause"),
+        general_recommendations=item.get("generalRecommendations"),
+        sample=[
+            construct_query_description_sample_code(sample_code) for sample_code in item.get("sample", [])
+        ]
+    )

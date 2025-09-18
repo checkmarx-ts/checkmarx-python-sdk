@@ -1,48 +1,43 @@
-class ResultNode(object):
-    def __init__(self, column, file_name, full_name, length, line, method_line, method, name, dom_type, node_hash=None):
-        """
-
-        Args:
-            column (int): Column position of the node
-            file_name (str): Full file name of the containing source file
-            full_name (str): FQN of the node
-            length (int): Length of the node
-            line (int): Line position of the node
-            method_line (int): Line position of the containing method,
-            method (str):
-            name (str): node name
-            dom_type (str): node DomType
-            node_hash (str):
-        """
-        self.column = column
-        self.fileName = file_name
-        self.fullName = full_name
-        self.length = length
-        self.line = line
-        self.methodLine = method_line
-        self.method = method
-        self.name = name
-        self.domType = dom_type
-        self.nodeHash = node_hash
-
-    def __str__(self):
-        return """ResultNode(column={}, fileName={}, fullName={}, length={}, line={}, methodLine={}, method={}, name={},
-        domType={}, nodeHash={})""".format(
-            self.column, self.fileName, self.fullName, self.length, self.line, self.methodLine, self.method, self.name,
-            self.domType, self.nodeHash
-        )
+from dataclasses import dataclass
 
 
-def construct_result_node(node):
+@dataclass
+class ResultNode:
+    """
+    Attributes:
+        column (int): Column position of the node
+        file_name (str): Full file name of the containing source file
+        full_name (str): FQN of the node
+        length (int): Length of the node
+        line (int): Line position of the node
+        method_line (int): Line position of the containing method,
+        method (str):
+        name (str): node name
+        dom_type (str): node DomType
+        node_hash (str):
+    """
+    column: int
+    file_name: str
+    full_name: str
+    length: int
+    line: int
+    method_line: int
+    method: str
+    name: str
+    dom_type: str
+    node_hash: str = None
+
+
+def construct_result_node(item):
     return ResultNode(
-        column=node.get("column"),
-        file_name=node.get('fileName'),
-        full_name=node.get('fullName'),
-        length=node.get('length'),
-        line=node.get('line'),
-        method_line=node.get('methodLine'),
-        method=node.get("method"),
-        name=node.get('name'),
-        dom_type=node.get('domType'),
-        node_hash=node.get("nodeHash"),
+        column=item.get("column"),
+        file_name=item.get('fileName'),
+        full_name=item.get('fullName'),
+        length=item.get('length'),
+        line=item.get('line'),
+        method_line=item.get('methodLine'),
+        method=item.get("method"),
+        name=item.get('name'),
+        dom_type=item.get('domType'),
+        node_hash=item.get("nodeHash"),
     )

@@ -3,20 +3,20 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT
 from typing import List
 from .dto import (
-    ResultsSummaryTree,
-    ResultsResponse,
-    ResultResponse,
-    DebugMessageResponse,
-    AsyncRequestResponse,
-    QueriesTree,
+    ResultsSummaryTree, construct_results_summary_tree,
+    ResultsResponse, construct_results_response,
+    ResultResponse, construct_result_response,
+    DebugMessageResponse, construct_debug_message_response,
+    AsyncRequestResponse, construct_async_request_response,
+    QueriesTree, construct_queries_tree,
     QueryRequest,
     SessionRequest,
-    SessionResponse,
-    QueryResponse,
+    SessionResponse, construct_session_response,
+    QueryResponse, construct_query_response,
     AuditQuery,
-    RequestStatus,
-    QueryBuilderMessage,
-    QueryBuilderPrompt,
+    RequestStatus, construct_request_status,
+    QueryBuilderMessage, construct_query_builder_message,
+    QueryBuilderPrompt
 )
 
 api_url = "/api/query-editor"
@@ -41,8 +41,8 @@ class QueryEditorAPI(object):
         """
         relative_url = f"{api_url}/sessions"
         response = self.api_client.post_request(relative_url=relative_url, json=data.to_dict())
-        response = response.json()
-        return SessionResponse(id=response.get("id"), status=response.get("status"), scan_id=response.get("scanId"))
+        item = response.json()
+        return construct_session_response(item)
 
     def heath_check_to_ensure_audit_session_is_kept_alive(self, session_id: str) -> bool:
         """
@@ -94,8 +94,8 @@ class QueryEditorAPI(object):
         """
         relative_url = f"{api_url}/sessions/{session_id}/sources/scan"
         response = self.api_client.post_request(relative_url=relative_url)
-        response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        item = response.json()
+        return construct_async_request_response(item)
 
     def create_or_override_query(self, data: QueryRequest, session_id: str) -> AsyncRequestResponse:
         """
@@ -109,8 +109,8 @@ class QueryEditorAPI(object):
         """
         relative_url = f"{api_url}/sessions/{session_id}/queries"
         response = self.api_client.post_request(relative_url=relative_url, json=data.to_dict())
-        response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        item = response.json()
+        return construct_async_request_response(item)
 
     def get_all_queries(
             self, session_id: str, level: str = None, ids: List[str] = None, filters: List[str] = None,
@@ -131,9 +131,7 @@ class QueryEditorAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return [
-            QueriesTree(
-                is_leaf=item.get("isLeaf"), title=item.get("title"), key=item.get("key"), children=item.get("children")
-            ) for item in response
+            construct_queries_tree(item) for item in response or []
         ]
 
     def get_data_of_a_specified_query(
@@ -155,14 +153,7 @@ class QueryEditorAPI(object):
         params = {"includeMetadata": include_metadata, "includeSource": include_source}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
-        return QueryResponse(
-            id=response.get("id"),
-            name=response.get("name"),
-            level=response.get("level"),
-            path=response.get("path"),
-            source=response.get("source"),
-            metadata=response.get("metadata"),
-        )
+        return construct_query_response(response)
 
     def delete_a_specified_custom_or_overridden_query(
             self, session_id: str, editor_query_id: str
@@ -181,7 +172,7 @@ class QueryEditorAPI(object):
             relative_url=relative_url
         )
         response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        return construct_async_request_response(response)
 
     def update_specified_query_metadata(
             self, severity: str, session_id: str, editor_query_id: str
@@ -199,19 +190,19 @@ class QueryEditorAPI(object):
         relative_url = f"{api_url}/sessions/{session_id}/queries/{editor_query_id}/metadata"
         response = self.api_client.put_request(relative_url=relative_url, json={"severity": severity})
         response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        return construct_async_request_response(response)
 
     def update_multiple_query_sources(self, data: List[AuditQuery], session_id: str) -> AsyncRequestResponse:
         relative_url = f"{api_url}/sessions/{session_id}/queries/source"
         response = self.api_client.put_request(relative_url=relative_url, json=[item.to_dict() for item in data])
         response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        return construct_async_request_response(response)
 
     def validate_the_queries_provided(self, data: List[AuditQuery], session_id: str) -> AsyncRequestResponse:
         relative_url = f"{api_url}/sessions/{session_id}/queries/validate"
         response = self.api_client.post_request(relative_url=relative_url, json=[item.to_dict() for item in data])
         response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        return construct_async_request_response(response)
 
     def execute_the_queries_on_the_audit_session_scanned_project(
             self, data: List[AuditQuery], session_id: str
@@ -219,7 +210,7 @@ class QueryEditorAPI(object):
         relative_url = f"{api_url}/sessions/{session_id}/queries/run"
         response = self.api_client.post_request(relative_url=relative_url, json=[item.to_dict() for item in data])
         response = response.json()
-        return AsyncRequestResponse(id=response.get("id"))
+        return construct_async_request_response(response)
 
     def check_the_status_of_a_specified_request(
             self, session_id: str, request_id: str = None
@@ -227,11 +218,7 @@ class QueryEditorAPI(object):
         relative_url = f"{api_url}/sessions/{session_id}/requests/{request_id}"
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        return RequestStatus(
-            completed=response.get("completed"),
-            status=response.get("status"),
-            value=response.get("value"),
-        )
+        return construct_request_status(response)
 
     def cancel_the_specified_request_execution(self, session_id: str, request_id: str = None) -> bool:
         relative_url = f"{api_url}/sessions/{session_id}/requests/{request_id}/cancel"
@@ -256,13 +243,7 @@ class QueryEditorAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
         return [
-            ResultsSummaryTree(
-                is_leaf=item.get("isLeaf"),
-                title=item.get("title"),
-                key=item.get("key"),
-                children=item.get("children"),
-                data=item.get("data"),
-            ) for item in response
+            construct_results_summary_tree(item) for item in response or []
         ]
 
     def get_all_vulnerabilities_related_to_a_given_result(
@@ -283,7 +264,7 @@ class QueryEditorAPI(object):
         params = {"pageSize": page_size, "currentPage": current_page}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
-        return ResultsResponse(data=response.get("data"), total_count=response.get("totalCount"))
+        return construct_results_response(response)
 
     def get_specified_vulnerability_data_such_as_attack_vector(
             self, session_id: str, result_id: str, vulnerability_id: str,
@@ -291,21 +272,7 @@ class QueryEditorAPI(object):
         relative_url = f"{api_url}/sessions/{session_id}/results/{result_id}/vulnerabilities/{vulnerability_id}"
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
-        return ResultResponse(
-            vulnerability_id=response.get("vulnerabilityId"),
-            source_file=response.get("sourceFile"),
-            source_line=response.get("sourceLine"),
-            source_id=response.get("sourceId"),
-            source_name=response.get("sourceName"),
-            source_type=response.get("sourceType"),
-            destination_file=response.get("destinationFile"),
-            destination_line=response.get("destinationLine"),
-            destination_id=response.get("destinationId"),
-            destination_name=response.get("destinationName"),
-            destination_type=response.get("destinationType"),
-            state=response.get("state"),
-            path_size=response.get("pathSize"),
-        )
+        return construct_result_response(response)
 
     def get_specified_result_debug_messages(
             self, session_id: str, result_id: str, page_size: int = 1000, current_page: int = 1
@@ -314,7 +281,7 @@ class QueryEditorAPI(object):
         params = {"pageSize": page_size, "currentPage": current_page}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         response = response.json()
-        return DebugMessageResponse(data=response.get("data"), total_count=response.get("totalCount"))
+        return construct_debug_message_response(response)
 
     def get_query_builder_history(
             self, session_id: str
@@ -331,10 +298,7 @@ class QueryEditorAPI(object):
         response = self.api_client.get_request(relative_url=relative_url)
         response = response.json()
         return [
-            QueryBuilderMessage(
-                role=item.get("role"),
-                content=item.get("content"),
-            ) for item in response
+            construct_query_builder_message(item) for item in response or []
         ]
 
     def delete_query_builder_gpt_history(
@@ -361,10 +325,7 @@ class QueryEditorAPI(object):
         response = self.api_client.post_request(relative_url=relative_url, json=data.to_dict())
         response = response.json()
         return [
-            QueryBuilderMessage(
-                role=item.get("role"),
-                content=item.get("content"),
-            ) for item in response
+            construct_query_builder_message(item) for item in response or []
         ]
 
 

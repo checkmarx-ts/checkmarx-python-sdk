@@ -114,7 +114,7 @@ class AccessManagementAPI(object):
             AssignmentsForResource
         """
         relative_url = f"{api_url}/resource-assignments"
-        params = {"resource-ids": ",".join(resource_ids)}
+        params = {"resource-ids": ",".join(resource_ids) if resource_ids else None}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return construct_assignments_for_resource(response.json())
 
@@ -164,7 +164,8 @@ class AccessManagementAPI(object):
             Assignment
         """
         relative_url = f"{api_url}/entities-for"
-        params = {"resource-id": resource_id, "resource-type": resource_type, "entity-types": ",".join(entity_types)}
+        params = {"resource-id": resource_id, "resource-type": resource_type,
+                  "entity-types": ",".join(entity_types) if entity_types else None}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return construct_assignment(response.json())
 
@@ -190,7 +191,8 @@ class AccessManagementAPI(object):
         """
         relative_url = f"{api_url}/entities-for/extended"
         params = {
-            "resource-id": resource_id, "resource-type": resource_type, "entity-types": ",".join(entity_types),
+            "resource-id": resource_id, "resource-type": resource_type,
+            "entity-types": ",".join(entity_types) if entity_types else None,
             "sort-by": sort_by, "order": order, "limit": limit, "offset": offset, "search": search
         }
         response = self.api_client.get_request(relative_url=relative_url, params=params)
@@ -209,7 +211,7 @@ class AccessManagementAPI(object):
             List[Assignment]
         """
         relative_url = f"{api_url}/resources-for"
-        params = {"entity-id": entity_id, "resource-types": ",".join(resource_types)}
+        params = {"entity-id": entity_id, "resource-types": ",".join(resource_types) if resource_types else None}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [construct_assignment(assignment) for assignment in response.json()]
 
@@ -246,7 +248,7 @@ class AccessManagementAPI(object):
             bool
         """
         relative_url = f"{api_url}/has-access-to-groups"
-        params = {"group-ids": ",".join(group_ids), "project-id": project_id}
+        params = {"group-ids": ",".join(group_ids) if group_ids else None, "project-id": project_id}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return response.status_code == OK
 
@@ -269,7 +271,7 @@ class AccessManagementAPI(object):
             ResourcesResponse
         """
         relative_url = f"{api_url}/get-resources"
-        params = {"resource-types": ",".join(resource_types), "action": action}
+        params = {"resource-types": ",".join(resource_types) if resource_types else None, "action": action}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return construct_resources_response(response.json())
 
@@ -304,7 +306,8 @@ class AccessManagementAPI(object):
         """Get a list of users with the resources assigned to each user."""
         relative_url = f"{api_url}/users-resources"
         params = {
-            "search": search, "base-roles": ",".join(base_roles), "username": ",".join(usernames),
+            "search": search, "base-roles": ",".join(base_roles) if base_roles else None,
+            "username": ",".join(usernames) if usernames else None,
             "empty-assignments": empty_assignments, "no-groups": no_groups, "created-from": created_from,
             "created-to": created_to, "sort-by": sort_by, "order": order, "limit": limit, "offset": offset
         }
@@ -342,7 +345,8 @@ class AccessManagementAPI(object):
         """
         relative_url = f"{api_url}/clients-resources"
         params = {
-            "search": search, "base-roles": base_roles, "client-id": ",".join(client_ids),
+            "search": search, "base-roles": ",".join(base_roles) if base_roles else None,
+            "client-id": ",".join(client_ids) if client_ids else None,
             "empty-assignments": empty_assignments, "sort-by": sort_by, "order": order,
             "limit": limit, "offset": offset, "no-groups": no_groups, "created-from": created_from,
             "created-to": created_to
@@ -381,7 +385,8 @@ class AccessManagementAPI(object):
         """
         relative_url = f"{api_url}/groups-resources"
         params = {
-            "search": search, "base-roles": base_roles, "name": ",".join(names), "empty-assignments": empty_assignments,
+            "search": search, "base-roles": ",".join(base_roles) if base_roles else None,
+            "name": ",".join(names) if names else None, "empty-assignments": empty_assignments,
             "no-members": no_members, "sort-by": sort_by, "created-from": created_from, "created-to": created_to,
             "order": order, "limit": limit, "offset": offset
         }
@@ -504,7 +509,7 @@ class AccessManagementAPI(object):
         return construct_groups_response(response.json())
 
     def retrieve_groups(
-            self, limit: int = None, offset: int = None, search: str = None, ids: List[str] = None
+            self, limit: int = None, offset: int = None, search: str = None, ids: List[str] = ()
     ) -> List[Group]:
         """
         Get info about user groups in the tenant account

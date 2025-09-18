@@ -1,33 +1,35 @@
-class PresetSummary(object):
+from dataclasses import dataclass
 
-    def __init__(self, preset_id=None, name=None, description=None, associated_projects=None, custom=None,
-                 is_tenant_default=None, is_migrated=None):
-        """
 
-        Args:
-            preset_id:
-            name:
-            description:
-            associated_projects:
-            custom:
-            is_tenant_default:
-            is_migrated:
-        """
-        self.preset_id = preset_id
-        self.name = name
-        self.description = description
-        self.associated_projects = associated_projects
-        self.custom = custom
-        self.is_tenant_default = is_tenant_default
-        self.is_migrated = is_migrated
+@dataclass
+class PresetSummary:
+    """
 
-    def __str__(self):
-        return f"""PresetSummary(
-        preset_id={self.preset_id},
-        name={self.name},
-        description={self.description},
-        associated_projects={self.associated_projects},
-        custom={self.custom},
-        is_tenant_default={self.is_tenant_default},
-        is_migrated={self.is_migrated},
-        )"""
+    Attributes:
+        id (int):
+        name (str):
+        description (str):
+        associated_projects (int):
+        custom (bool):
+        is_tenant_default (bool):
+        is_migrated (bool):
+    """
+    id: int = None
+    name: str = None
+    description: str = None
+    associated_projects: int = None
+    custom: bool = None,
+    is_tenant_default: bool = None
+    is_migrated: bool = None
+
+
+def construct_preset_summary(item):
+    return PresetSummary(
+        id=item.get("id"),
+        name=item.get("name"),
+        description=item.get("description"),
+        associated_projects=item.get("associatedProjects"),
+        custom=item.get("custom"),
+        is_tenant_default=item.get("isTenantDefault"),
+        is_migrated=item.get("isMigrated")
+    )

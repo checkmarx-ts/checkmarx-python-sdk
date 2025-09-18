@@ -4,7 +4,7 @@ from .AssignmentsWithBaseRoles import AssignmentsWithBaseRoles, construct_assign
 
 
 @dataclass
-class EntitiesForExtendedResponse(object):
+class EntitiesForExtendedResponse:
     total_count: int = None
     filtered_total_count: int = None
     assignments: List[AssignmentsWithBaseRoles] = None
@@ -15,7 +15,6 @@ def construct_entities_for_extended_response(item):
         total_count=item.get("totalCount"),
         filtered_total_count=item.get("filteredTotalCount"),
         assignments=[
-            construct_assignments_with_base_roles(assignment)
-            for assignment in item.get("assignments")
+            construct_assignments_with_base_roles(assignment) for assignment in item.get("assignments", [])
         ]
     )

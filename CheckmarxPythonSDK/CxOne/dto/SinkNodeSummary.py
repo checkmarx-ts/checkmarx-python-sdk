@@ -1,15 +1,20 @@
-class SinkNodeSummary(object):
-    def __init__(self, sink_node, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            sink_node (str):
-            count (int):
-        """
-        self.sinkNode = sink_node
-        self.count = count
 
-    def __str__(self):
-        return """SinkNodeSummary(sinkNode={}, count={})""".format(
-            self.sinkNode, self.count
-        )
+@dataclass
+class SinkNodeSummary:
+    """
+
+    Args:
+        sink_node (str):
+        count (int):
+    """
+    sink_node: str
+    count: int
+
+
+def construct_sink_node_summary(item):
+    return SinkNodeSummary(
+        sink_node=item.get("sinkNode"),
+        count=item.get("count")
+    )

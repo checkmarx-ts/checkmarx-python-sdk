@@ -1,17 +1,23 @@
-from .Metadata import Metadata
+from dataclasses import dataclass
+from .Metadata import Metadata, construct_metadata
 
 
-class QueryResponse(object):
-    def __init__(self, id: str = None, name: str = None, level: str = None, path: str = None, source: str = None,
-                 metadata: Metadata = None):
-        self.id = id
-        self.name = name
-        self.level = level
-        self.path = path
-        self.source = source
-        self.metadata = metadata
+@dataclass
+class QueryResponse:
+    id: str = None
+    name: str = None
+    level: str = None
+    path: str = None
+    source: str = None
+    metadata: Metadata = None
 
-    def __str__(self):
-        return (f"QueryResponse(id={self.id}, name={self.name}, level={self.level}, "
-                f"path={self.path}, source={self.source}, "
-                f"metadata={self.metadata})")
+
+def construct_query_response(item):
+    return QueryResponse(
+        id=item.get("id"),
+        name=item.get("name"),
+        level=item.get("level"),
+        path=item.get("path"),
+        source=item.get("source"),
+        metadata=construct_metadata(item.get("metadata"))
+    )

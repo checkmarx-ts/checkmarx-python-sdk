@@ -38,7 +38,6 @@ class SastResultsPredicatesAPI(object):
         response = self.api_client.post_request(relative_url=relative_url, json=data)
         return response.status_code == CREATED
 
-    @deprecated(version='1.2.6', reason='This endpoint is not supported')
     def update_predicate_comment_by_predicate_id(self, data: List[dict]) -> bool:
         relative_url = f"{api_url}/"
         response = self.api_client.patch_request(relative_url=relative_url, json=data)
@@ -49,7 +48,6 @@ class SastResultsPredicatesAPI(object):
         response = self.api_client.post_request(relative_url=relative_url, json=data)
         return response.status_code == OK
 
-    @deprecated(version='1.2.6', reason='This endpoint is not supported')
     def delete_a_predicate_history(self, similarity_id: str, project_id: str, predicate_id: str) -> bool:
         relative_url = f"{api_url}/{similarity_id}/{project_id}/{predicate_id}"
         response = self.api_client.delete_request(relative_url=relative_url)
@@ -76,5 +74,17 @@ def predicate_severity_and_state_by_similarity_id_and_project_id(data: List[dict
     return SastResultsPredicatesAPI().predicate_severity_and_state_by_similarity_id_and_project_id(data=data)
 
 
+def update_predicate_comment_by_predicate_id(data: List[dict]) -> bool:
+    return SastResultsPredicatesAPI().update_predicate_comment_by_predicate_id(data=data)
+
+
 def recalculate_summary_counters(data: dict) -> bool:
     return SastResultsPredicatesAPI().recalculate_summary_counters(data=data)
+
+
+def delete_a_predicate_history(similarity_id: str, project_id: str, predicate_id: str) -> bool:
+    return SastResultsPredicatesAPI().delete_a_predicate_history(
+        similarity_id=similarity_id,
+        project_id=project_id,
+        predicate_id=predicate_id
+    )

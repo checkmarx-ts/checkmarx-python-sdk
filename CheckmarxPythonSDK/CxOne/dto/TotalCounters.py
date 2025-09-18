@@ -11,6 +11,6 @@ class TotalCounters:
 def construct_total_counters(item):
     return TotalCounters(
         severity_counters=[
-           construct_severity_counter(severity_counter) for severity_counter in item.get("severityCounters")
+           construct_severity_counter(severity_counter) for severity_counter in item.get("severityCounters", [])
         ]
     )

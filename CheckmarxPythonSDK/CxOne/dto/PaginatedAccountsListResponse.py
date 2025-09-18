@@ -4,7 +4,7 @@ from .CloudInsightAccount import CloudInsightAccount, construct_cloud_insight_ac
 
 
 @dataclass
-class PaginatedAccountsListResponse(object):
+class PaginatedAccountsListResponse:
     data: List[CloudInsightAccount] = None
     total: int = None
     current_page: int = None
@@ -14,7 +14,7 @@ class PaginatedAccountsListResponse(object):
 def construct_paginated_accounts_list_response(item):
     return {
             "data": [
-                construct_cloud_insight_account(account) for account in item.get("data", []) or []
+                construct_cloud_insight_account(account) for account in item.get("data", [])
             ],
             "total": item.get("total"),
             "currentPage": item.get("currentPage"),

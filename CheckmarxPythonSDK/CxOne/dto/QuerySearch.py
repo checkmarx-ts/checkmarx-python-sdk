@@ -1,12 +1,19 @@
+from dataclasses import dataclass
 from typing import List
-from .Queries import Queries
-from .QueryResult import QueryResult
+from .Queries import Queries, construct_queries
+from .QueryResult import QueryResult, construct_query_result
 
 
-class QuerySearch(object):
-    def __init__(self, query: Queries = None, results: List[QueryResult] = None):
-        self.query = query
-        self.results = results
+@dataclass
+class QuerySearch:
+    query: Queries = None
+    results: List[QueryResult] = None
 
-    def __str__(self):
-        return f"QuerySearch(query={self.query}, results={self.results})"
+
+def construct_query_search(item):
+    return QuerySearch(
+        query=construct_queries(item.get("query")),
+        results=[
+            construct_query_result(query_result) for query_result in item.get("results", [])
+        ]
+    )

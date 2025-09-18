@@ -1,15 +1,20 @@
-class StatusSummary(object):
-    def __init__(self, status, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            status (str): Status enum of a result Enum: [ NEW, RECURRENT ]
-            count (int):
-        """
-        self.status = status
-        self.count = count
 
-    def __str__(self):
-        return """StatusSummary(status={}, count={})""".format(
-            self.status, self.count
-        )
+@dataclass
+class StatusSummary:
+    """
+
+    Args:
+        status (str): Status enum of a result Enum: [ NEW, RECURRENT ]
+        count (int):
+    """
+    status: str
+    count: int
+
+
+def construct_status_summary(item):
+    return StatusSummary(
+        status=item.get("status"),
+        count=item.get("count")
+    )

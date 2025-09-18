@@ -1,43 +1,45 @@
-# encoding: utf-8
-class SubsetScan(object):
-    def __init__(self, scan_id, created_at, updated_at, status, user_agent, initiator, branch, engines, source_type,
-                 source_origin):
-        """
+from dataclasses import dataclass
+from typing import List
 
-        Args:
-            scan_id (str): A unique identifier for a scan
-            created_at (str):
-            updated_at (str):
-            status (str):
-            user_agent (str): The user-agent header that created the scan
-            initiator (str): The user name that created the scan
-            branch (str): The scan branch
-            engines (list of str): 	The scan engines
-            source_type (str): The scan last Source type (e.g. zip, github, gitlab)
-            source_origin (str): The scan last origin (e.g. Jenkins, Checkmarx AST, Github action, Github Webhook)
-        """
-        self.id = scan_id
-        self.createdAt = created_at
-        self.updatedAt = updated_at
-        self.status = status
-        self.userAgent = user_agent
-        self.initiator = initiator
-        self.branch = branch
-        self.engines = engines
-        self.sourceType = source_type
-        self.sourceOrigin = source_origin
 
-    def __str__(self):
-        return """SubsetScan(id={}, createdAt={}, updatedAt={}, status={}, userAgent={}, initiator={}, branch={},
-        engines={}, sourceType={}，sourceOrigin={})""".format(
-            self.id,
-            self.createdAt,
-            self.updatedAt,
-            self.status,
-            self.userAgent,
-            self.initiator,
-            self.branch,
-            self.engines,
-            self.sourceType,
-            self.sourceOrigin,
-        )
+@dataclass
+class SubsetScan:
+    """
+
+    Args:
+        id (str): A unique identifier for a scan
+        created_at (str):
+        updated_at (str):
+        status (str):
+        user_agent (str): The user-agent header that created the scan
+        initiator (str): The username that created the scan
+        branch (str): The scan branch
+        engines (list of str): 	The scan engines
+        source_type (str): The scan last Source type (e.g. zip, github, gitlab)
+        source_origin (str): The scan last origin (e.g. Jenkins, Checkmarx AST, Github action, Github Webhook)
+    """
+    id: str
+    created_at: str
+    updated_at: str
+    status: str
+    user_agent: str
+    initiator: str
+    branch: str
+    engines: List[str]
+    source_type: str
+    source_origin: str
+
+
+def construct_subset_scan(item):
+    return SubsetScan(
+        id=item.get("id"),
+        created_at=item.get("createdAt"),
+        updated_at=item.get("updatedAt"),
+        status=item.get("status"),
+        user_agent=item.get("userAgent"),
+        initiator=item.get("initiator"),
+        branch=item.get("branch"),
+        engines=item.get("engines"),
+        source_type=item.get("sourceType"),
+        source_origin=item.get("sourceOrigin")
+    )

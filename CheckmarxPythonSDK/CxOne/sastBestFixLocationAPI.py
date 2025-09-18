@@ -2,7 +2,7 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from .utilities import type_check, list_member_type_check
-from .dto import BflTree, SastResult, construct_result_node
+from .dto import BflTree, construct_sast_result, construct_result_node
 
 api_url = "/api/bfl"
 
@@ -56,31 +56,10 @@ class SastBestFixLocationAPI(object):
             "totalCount": response.get("totalCount"),
             "trees": [
                 BflTree(
-                    tree_id=tree.get("id"),
+                    id=tree.get("id"),
                     bfl=construct_result_node(tree.get("bfl")),
                     results=[
-                        SastResult(
-                            result_id=result.get('uniqueID'),
-                            result_hash=result.get("resultHash"),
-                            query_id=result.get("queryID"),
-                            query_name=result.get("queryName"),
-                            language_name=result.get("languageName"),
-                            query_group=result.get("group"),
-                            cwe_id=result.get("cweID"),
-                            severity=result.get("severity"),
-                            similarity_id=result.get("similarityID"),
-                            confidence_level=result.get("confidenceLevel"),
-                            compliances=result.get("compliances"),
-                            first_scan_id=result.get("firstScanID"),
-                            first_found_at=result.get("firstFoundAt"),
-                            path_system_id_by_simi_and_files_paths=result.get('pathSystemID'),
-                            status=result.get("status"),
-                            found_at=result.get("foundAt"),
-                            nodes=[
-                                construct_result_node(node) for node in result.get("nodes") or []
-                            ],
-                            state=result.get("state"),
-                        ) for result in tree.get('results') or []
+                        construct_sast_result(result) for result in tree.get('results') or []
                     ],
                     additional_properties=tree.get("additionalProperties"),
                 ) for tree in response.get("trees") or []

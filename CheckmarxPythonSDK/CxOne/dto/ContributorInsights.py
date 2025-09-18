@@ -3,7 +3,7 @@ from .ContributorScmInsights import ContributorScmInsights, construct_contributo
 
 
 @dataclass
-class ContributorInsights(object):
+class ContributorInsights:
     total: int = None
     max: int = None
     github: ContributorScmInsights = None

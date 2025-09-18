@@ -1,34 +1,44 @@
-class Query(object):
-    def __init__(self, id, source, level, path, modified, cwe, severity, is_executable, cx_description_id,
-                 query_description_id):
-        """
+from dataclasses import dataclass
 
-        Args:
-            source (str):
-            level (str):
-            path (str):
-            modified (str):
-            cwe (int):
-            severity (int):
-            is_executable (bool):
-            cx_description_id (int):
-            query_description_id (str):
-        """
-        self.id = id
-        self.source = source
-        self.level = level
-        self.path = path
-        self.modified = modified
-        self.Cwe = cwe
-        self.Severity = severity
-        self.IsExecutable = is_executable
-        self.CxDescriptionID = cx_description_id
-        self.QueryDescriptionID = query_description_id
 
-    def __str__(self):
-        return """Query(id={}, source={}, level={}, modified={}, Cwe={}, Severity={}, IsExecutable={}, CxDescriptionID={}, 
-        QueryDescriptionID={})""".format(
-            self.id, self.source, self.level, self.modified, self.Cwe, self.Severity, self.IsExecutable,
-            self.CxDescriptionID,
-            self.QueryDescriptionID
-        )
+@dataclass
+class Query:
+    """
+
+    Attributes:
+        id (int):
+        source (str):
+        level (str):
+        path (str):
+        modified (str):
+        cwe (int):
+        severity (int):
+        is_executable (bool):
+        cx_description_id (int):
+        query_description_id (str):
+   """
+    id: int = None
+    source: str = None
+    level: str = None
+    path: str = None
+    modified: str = None
+    cwe: int = None
+    severity: int = None
+    is_executable: bool = None
+    cx_description_id: int = None
+    query_description_id: str = None
+
+
+def construct_query(item):
+    return Query(
+        id=item.get("id"),
+        source=item.get("source"),
+        level=item.get("level"),
+        path=item.get("path"),
+        modified=item.get("modified"),
+        cwe=item.get("cwe"),
+        severity=item.get("severity"),
+        is_executable=item.get("isExecutable"),
+        cx_description_id=item.get("cxDescriptionID"),
+        query_description_id=item.get("queryDescriptionID")
+    )

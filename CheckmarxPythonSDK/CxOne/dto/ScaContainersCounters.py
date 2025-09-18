@@ -1,33 +1,37 @@
-class ScaContainersCounters(object):
-    def __init__(self, total_packages_counter, total_vulnerabilities_counter, severity_vulnerabilities_counters,
-                 state_vulnerabilities_counters, status_vulnerabilities_counters, age_vulnerabilities_counters,
-                 package_vulnerabilities_counters):
-        """
+from dataclasses import dataclass
+from typing import List
 
-        Args:
-            total_packages_counter (int):
-            total_vulnerabilities_counter (int):
-            severity_vulnerabilities_counters (list of dict):
-            state_vulnerabilities_counters (list of dict):
-            status_vulnerabilities_counters (list of dict):
-            age_vulnerabilities_counters (list of dict):
-            package_vulnerabilities_counters (list of dict):
-        """
-        self.totalPackagesCounter = total_packages_counter
-        self.totalVulnerabilitiesCounter = total_vulnerabilities_counter
-        self.severityVulnerabilitiesCounters = severity_vulnerabilities_counters
-        self.stateVulnerabilitiesCounters = state_vulnerabilities_counters
-        self.statusVulnerabilitiesCounters = status_vulnerabilities_counters
-        self.ageVulnerabilitiesCounters = age_vulnerabilities_counters
-        self.packageVulnerabilitiesCounters = package_vulnerabilities_counters
 
-    def __str__(self):
-        return """ScaContainersCounters(totalPackagesCounter={}, totalVulnerabilitiesCounter={},
-        severityVulnerabilitiesCounters={}, stateVulnerabilitiesCounters={}, 
-        statusVulnerabilitiesCounters={}, ageVulnerabilitiesCounters={},
-        packageVulnerabilitiesCounters={})""".format(
-            self.totalPackagesCounter, self.totalVulnerabilitiesCounter,
-            self.severityVulnerabilitiesCounters, self.stateVulnerabilitiesCounters,
-            self.statusVulnerabilitiesCounters, self.ageVulnerabilitiesCounters,
-            self.packageVulnerabilitiesCounters
-        )
+@dataclass
+class ScaContainersCounters:
+    """
+
+    Args:
+        total_packages_counter (int):
+        total_vulnerabilities_counter (int):
+        severity_vulnerabilities_counters (list of dict):
+        state_vulnerabilities_counters (list of dict):
+        status_vulnerabilities_counters (list of dict):
+        age_vulnerabilities_counters (list of dict):
+        package_vulnerabilities_counters (list of dict):
+    """
+
+    total_packages_counter: int
+    total_vulnerabilities_counter: int
+    severity_vulnerabilities_counters: List[dict]
+    state_vulnerabilities_counters: List[dict]
+    status_vulnerabilities_counters: List[dict]
+    age_vulnerabilities_counters: List[dict]
+    package_vulnerabilities_counters: List[dict]
+
+
+def construct_sca_containers_counters(item):
+    return ScaContainersCounters(
+        total_packages_counter=item.get("totalPackagesCounter"),
+        total_vulnerabilities_counter=item.get("totalVulnerabilitiesCounter"),
+        severity_vulnerabilities_counters=item.get("severityVulnerabilitiesCounters"),
+        state_vulnerabilities_counters=item.get("stateVulnerabilitiesCounters"),
+        status_vulnerabilities_counters=item.get("statusVulnerabilitiesCounters"),
+        age_vulnerabilities_counters=item.get("ageVulnerabilitiesCounters"),
+        package_vulnerabilities_counters=item.get("packageVulnerabilitiesCounters")
+    )

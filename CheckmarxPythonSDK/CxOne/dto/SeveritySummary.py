@@ -1,15 +1,20 @@
-class SeveritySummary(object):
-    def __init__(self, severity, count):
-        """
+from dataclasses import dataclass
 
-        Args:
-            severity (str): Severity enum of a result. Enum: [ HIGH, MEDIUM, LOW, INFO ]
-            count (int):
-        """
-        self.severity = severity
-        self.count = count
 
-    def __str__(self):
-        return """SeveritySummary(severity={}, count={})""".format(
-            self.severity, self.count
-        )
+@dataclass
+class SeveritySummary:
+    """
+
+    Args:
+        severity (str): Severity enum of a result. Enum: [ HIGH, MEDIUM, LOW, INFO ]
+        count (int):
+    """
+    severity: str
+    count: int
+
+
+def construct_severity_summary(item):
+    return SeveritySummary(
+        severity=item.get("severity"),
+        count=item.get("count")
+    )

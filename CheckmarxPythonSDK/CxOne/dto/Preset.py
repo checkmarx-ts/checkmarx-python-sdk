@@ -1,22 +1,30 @@
-class Preset(object):
-    def __init__(self, preset_id=None, name=None, description=None, custom=None, query_ids=None):
-        """
+from dataclasses import dataclass
+from typing import List
 
-        Args:
-            preset_id (int):
-            name (str):
-        """
-        self.id = preset_id
-        self.name = name
-        self.description = description
-        self.custom = custom
-        self.query_ids = query_ids
 
-    def __str__(self):
-        return f"""Preset(
-        id={self.id}, 
-        name={self.name},
-        description={self.description},
-        custom={self.custom},
-        query_ids={self.query_ids},
-        )"""
+@dataclass
+class Preset:
+    """
+
+    Args:
+        id (int):
+        name (str):
+        description (str):
+        custom (bool):
+        query_ids (List[str])
+    """
+    id: str = None
+    name: str = None
+    description: str = None
+    custom: bool = None
+    query_ids: List[str] = None
+
+
+def construct_preset(item):
+    return Preset(
+        id=item.get("id"),
+        name=item.get("name"),
+        description=item.get("description"),
+        custom=item.get("custom"),
+        query_ids=item.get("queryIds")
+    )

@@ -1,10 +1,15 @@
+from dataclasses import dataclass
 from typing import List
 
 
-class RequestStatusDetectLanguages(object):
-    def __init__(self, completed: bool = None, value: List[str] = None):
-        self.completed = completed
-        self.value = value
+@dataclass
+class RequestStatusDetectLanguages:
+    completed: bool = None
+    value: List[str] = None
 
-    def __str__(self):
-        return f"RequestStatusDetectLanguages(completed={self.completed}, value={self.value})"
+
+def construct_request_status_detect_languages(item):
+    return RequestStatusDetectLanguages(
+        completed=item.get("completed"),
+        value=item.get("value")
+    )

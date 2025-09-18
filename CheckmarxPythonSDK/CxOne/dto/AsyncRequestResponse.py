@@ -1,12 +1,17 @@
+from dataclasses import dataclass
 
-class AsyncRequestResponse(object):
-    def __init__(self, id: str = None):
-        self.id = id
 
-    def __str__(self):
-        return f"AsyncRequestResponse(id={self.id})"
+@dataclass
+class AsyncRequestResponse:
+    id: str = None
 
     def to_dict(self):
         return {
             "id": self.id
         }
+
+
+def construct_async_request_response(item):
+    return AsyncRequestResponse(
+        id=item.get("id")
+    )

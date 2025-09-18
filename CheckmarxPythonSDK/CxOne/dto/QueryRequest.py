@@ -1,21 +1,19 @@
-from .Metadata import Metadata
+from dataclasses import dataclass
+from .Metadata import Metadata, construct_metadata
 
 
-class QueryRequest(object):
-    def __init__(self, path: str = None, name: str = None, source: str = None, metadata: Metadata = None):
-        self.path = path
-        self.name = name
-        self.source = source
-        self.metadata = metadata
-
-    def __str__(self):
-        return f"QueryRequest(path={self.path}, name={self.name}, source={self.source}, metadata={self.metadata})"
+@dataclass
+class QueryRequest:
+    path: str = None
+    name: str = None
+    source: str = None
+    metadata: Metadata = None
 
     def to_dict(self):
         return {
           "path": self.path,
           "name": self.name,
           "source": self.source,
-          "metadata": self.metadata
+          "metadata": construct_metadata(self.metadata)
         }
 

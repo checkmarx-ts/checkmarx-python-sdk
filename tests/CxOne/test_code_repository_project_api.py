@@ -23,10 +23,10 @@ def test_import_code_repository():
             web_hook_enabled=False,
             decorate_pull_requests=False,
             scanners=[
-                Scanner(scanner_type="sast", incremental=False),
-                Scanner(scanner_type="sca", auto_pr_enabled=False),
-                Scanner(scanner_type="apisec"),
-                Scanner(scanner_type="kics"),
+                Scanner(type="sast", incremental=False),
+                Scanner(type="sca", auto_pr_enabled=False),
+                Scanner(type="apisec"),
+                Scanner(type="kics"),
             ]
         ),
         scan_projects_after_import=False,

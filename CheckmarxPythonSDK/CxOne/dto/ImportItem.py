@@ -1,20 +1,23 @@
-class ImportItem(object):
+from dataclasses import dataclass
 
-    def __init__(self, migration_id, status, created_at):
-        """
 
-        Args:
-            migration_id (str):
-            status (str): pending, running, completed, failed
-            created_at (str):
-        """
-        self.migration_id = migration_id
-        self.status = status
-        self.created_at = created_at
+@dataclass
+class ImportItem:
+    """
 
-    def __str__(self):
-        return f"""ImportItem(
-        migration_id={self.migration_id},
-        status={self.status},
-        created_at={self.created_at},
-        )"""
+    Args:
+        migration_id (str):
+        status (str): pending, running, completed, failed
+        created_at (str):
+    """
+    migration_id: str
+    status: str
+    created_at: str
+
+
+def construct_import_item(item):
+    return ImportItem(
+        migration_id=item.get("migrationId"),
+        status=item.get("status"),
+        created_at=item.get("createdAt")
+    )

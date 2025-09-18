@@ -55,14 +55,9 @@ class AccessControl:
         Returns:
             list[User]
         """
-        result = []
         relative_url = self.sast_ac + "/AssignableUsers"
         response = self.api_client.get_request(relative_url=relative_url, is_iam=self.is_iam)
-        if response.status_code == OK:
-            result = [
-                construct_user(item) for item in response.json()
-            ]
-        return result
+        return [construct_user(item) for item in response.json() or []]
 
     def get_all_authentication_providers(self) -> List[AuthenticationProvider]:
         """

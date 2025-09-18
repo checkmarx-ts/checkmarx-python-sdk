@@ -1,31 +1,39 @@
-from .Property import Property
+from dataclasses import dataclass
+from .Property import Property, construct_property
+from typing import List
 
 
-class SastScan(object):
+@dataclass
+class SastScan:
+    """
 
-    def __init__(self, scan_id, state, queue_at, allocated_at, running_at, engine, properties):
-        """
+    Attributes:
+        scan_id (str):
+        state (str):
+        queue_at (str):
+        allocated_at (str):
+        running_at (str):
+        engine (str):
+        properties (list of Property):
+    """
+    scan_id: str
+    state: str
+    queue_at: str
+    allocated_at: str
+    running_at: str
+    engine: str
+    properties: List[Property]
 
-        Args:
-            scan_id (str):
-            state (str):
-            queue_at (str):
-            allocated_at (str):
-            running_at (str):
-            engine (str):
-            properties (list of Property):
-        """
-        self.scan_id = scan_id
-        self.state = state
-        self.queue_at = queue_at
-        self.allocated_at = allocated_at
-        self.running_at = running_at
-        self.engine = engine
-        self.properties = properties
 
-    def __str__(self):
-        return """SastScan(scan_id={}, state={}, queue_at={}, allocated_at={}, running_at={}, engine={}, 
-        properties={})""".format(
-            self.scan_id, self.state, self.queue_at, self.allocated_at, self.running_at, self.engine,
-            self.properties
-        )
+def construct_sast_scan(item):
+    return SastScan(
+        scan_id=item.get("scanId"),
+        state=item.get("state"),
+        queue_at=item.get("queueAt"),
+        allocated_at=item.get("allocatedAt"),
+        running_at=item.get("runningAt"),
+        engine=item.get("engine"),
+        properties=[
+            construct_property(scan_property) for scan_property in item.get("properties", [])
+        ]
+    )
