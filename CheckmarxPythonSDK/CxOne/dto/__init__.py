@@ -178,4 +178,9 @@ from .User import User, construct_user
 from .UsersWithResourcesResponse import UsersWithResourcesResponse, construct_users_with_resources_response
 from .UserWithResource import UserWithResource, construct_user_with_resource
 from .WebError import WebError, construct_web_error
+from .WebHook import WebHook, construct_web_hook
+from .WebHookConfig import WebHookConfig, construct_web_hook_config
+from .WebHookEvent import WebHookEvent
+from .WebHookInput import WebHookInput
+from .WebHooksCollection import WebHooksCollection, construct_web_hooks_collection
 from .WorkspaceQuery import WorkspaceQuery
