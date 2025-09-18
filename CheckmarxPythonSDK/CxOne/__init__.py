@@ -348,3 +348,9 @@ from .uploadsAPI import (
     create_a_pre_signed_url_to_upload_files,
     upload_zip_content_for_scanning,
 )
+from .versionsAPI import (
+    VersionsAPI
+)
+from .webhookAPI import (
+    WebHookAPI
+)
