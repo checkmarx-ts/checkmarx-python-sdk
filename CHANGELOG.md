@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.4.9 - 2025-09-18
+* Refactor all CxOne dto class to python dataclass
+
 1.4.8 - 2025-09-17
 * Fix feature Flag API
 * Refactor api_client CustomTLSAdapter
