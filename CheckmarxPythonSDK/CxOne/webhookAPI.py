@@ -2,12 +2,10 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.CxOne.dto import (
     WebHookInput,
-    WebHookEvent,
-    WebHookConfig,
     WebHook, construct_web_hook,
     WebHooksCollection, construct_web_hooks_collection
 )
-from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
 
 api_url = "/api/webhooks"
 
@@ -108,7 +106,7 @@ class WebHookAPI(object):
 
         relative_url = f"{api_url}/{webhook_id}"
         response = self.api_client.patch_request(relative_url=relative_url, json=webhook_input.to_dict())
-        return response.status_code == CREATED
+        return response.status_code == NO_CONTENT
 
     def delete_webhook_by_id(self, webhook_id: str) -> bool:
         """
@@ -122,4 +120,4 @@ class WebHookAPI(object):
 
         relative_url = f"{api_url}/{webhook_id}"
         response = self.api_client.delete_request(relative_url=relative_url)
-        return response.status_code == CREATED
+        return response.status_code == NO_CONTENT
