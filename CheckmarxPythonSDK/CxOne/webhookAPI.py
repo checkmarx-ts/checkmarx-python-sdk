@@ -25,7 +25,7 @@ class WebHookAPI(object):
             webhook_input (WebHookInput):
 
         Returns:
-            bool
+            WebHook
         """
         relative_url = f"{api_url}/tenant"
         response = self.api_client.post_request(relative_url=relative_url, json=webhook_input.to_dict())
