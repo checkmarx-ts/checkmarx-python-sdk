@@ -15,6 +15,6 @@ def construct_projects_collection(item):
             total_count=item.get("totalCount"),
             filtered_total_count=item.get("filteredTotalCount"),
             projects=[
-                construct_project(project) for project in item.get("projects", [])
+                construct_project(project) for project in (item.get("projects") or [])
             ]
         )

@@ -75,14 +75,16 @@ class CodeRepositoryProjectImportAPI(object):
         params = {"process-id": process_id}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         item = response.json()
-        return {
-          "migrationStatus": item.get("migrationStatus"),
-          "summary": item.get("summary"),
-          "totalProjects": item.get("totalProjects"),
-          "migratedProjects": item.get("migratedProjects"),
-          "successfulProjectsList": item.get("successfulProjectsList"),
-          "failedProjectList": item.get("failedProjectList")
+
+        response_data = {
+          "currentPhase": item.get("currentPhase"),
+          "percentage": item.get("percentage"),
         }
+
+        if "result" in item:
+            response_data["result"] = item["result"]
+
+        return response_data
 
 
 def import_code_repository(scm_import_input: SCMImportInput) -> dict:
