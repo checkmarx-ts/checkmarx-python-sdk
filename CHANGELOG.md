@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.5.1 - 2025-10-21
+* Fix retrieve_import_status
+
 1.5.0 - 2025-09-18
 * Add VersionsAPI, WebHookAPI
 
