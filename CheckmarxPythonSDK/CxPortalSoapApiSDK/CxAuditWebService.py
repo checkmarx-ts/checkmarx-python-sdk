@@ -1,5 +1,5 @@
 from CheckmarxPythonSDK.configuration import Configuration
-from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration
+from CheckmarxPythonSDK.CxPortalSoapApiSDK.config import construct_configuration
 from .zeepClient import ZeepClient
 
 
