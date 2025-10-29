@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.5.2 - 2025-10-29
+* Fix zeep client infinite loop
+
 1.5.1 - 2025-10-21
 * Fix retrieve_import_status
 
