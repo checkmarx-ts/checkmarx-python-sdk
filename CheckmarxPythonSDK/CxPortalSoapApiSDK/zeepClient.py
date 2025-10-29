@@ -30,6 +30,7 @@ def retry_when_unauthorized(max_retries: int = 1):
                          or '12563' in response.ErrorMessage
                          or 'Invalid_Token' in response.ErrorMessage):
                     self.token_manager.refresh_token()
+                retries += 1
             raise Exception("Max retries exceeded")
 
         return wrapper
