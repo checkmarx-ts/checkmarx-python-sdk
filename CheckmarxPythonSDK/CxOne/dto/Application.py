@@ -23,7 +23,7 @@ def construct_application(item):
         description=item.get("description"),
         criticality=item.get("criticality"),
         rules=[
-            construct_rule(rule) for rule in item.get("rules", [])
+            construct_rule(rule) for rule in (item.get("rules") or [])
         ],
         project_ids=item.get("projectIds"),
         created_at=item.get("createdAt"),
