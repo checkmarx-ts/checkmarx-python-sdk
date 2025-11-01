@@ -39,6 +39,8 @@ class RichProject:
             default: 3
             example: 3
             Criticality level of the project
+        repo_id (int): The id of the repository
+        scm_repo_id (str): The SCM repository id
     """
 
     id: str
@@ -51,8 +53,9 @@ class RichProject:
     created_at: str = None
     updated_at: str = None
     tags: dict = None
-    criticality: int = 3,
-
+    criticality: int = 3
+    repo_id: int = None
+    scm_repo_id: str = None
 
 def construct_rich_project(item):
     return RichProject(
@@ -66,5 +69,7 @@ def construct_rich_project(item):
         created_at=item.get("createdAt"),
         updated_at=item.get("updatedAt"),
         tags=item.get("tags"),
-        criticality=item.get("criticality")
+        criticality=item.get("criticality"),
+        repo_id=item.get("repoId"),
+        scm_repo_id=item.get("scmRepoId")
     )

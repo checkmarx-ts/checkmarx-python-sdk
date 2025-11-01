@@ -35,7 +35,7 @@ def construct_created_application(item):
         description=item.get("description"),
         criticality=item.get("criticality"),
         rules=[
-            construct_rule(rule) for rule in item.get("rules", [])
+            construct_rule(rule) for rule in (item.get("rules") or [])
         ],
         tags=item.get("tags"),
         created_at=item.get("createdAt"),
