@@ -1,8 +1,8 @@
 # Checkmarx Python SDK
 
-This is wrapper using Python for CxSAST and CxOSA REST API, Portal SOAP API, CxSAST ODATA API, CxSCA REST API. 
+This is wrapper using Python for CxOne, CxSAST and CxOSA REST API, Portal SOAP API, CxSAST ODATA API, CxSCA REST API. 
 
-By using this SDK, Checkmarx users will be able to do automatic scanning with CxSAST, CxOSA, and CxSCA.
+By using this SDK, Checkmarx users will be able to do automatic scanning with CxOne, CxSAST, CxOSA, and CxSCA.
 
 [![Downloads](https://static.pepy.tech/badge/CheckmarxPythonSDK/month)](https://static.pepy.tech/badge/CheckmarxPythonSDK/month)
 [![Supported Versions](https://img.shields.io/pypi/pyversions/CheckmarxPythonSDK.svg)](https://pypi.org/project/CheckmarxPythonSDK)
