@@ -19,7 +19,7 @@ from .dto import (
     EntityRolesRequest,
     CreateRoleRequest,
     GroupsResponse, construct_groups_response,
-    Group,
+    Group, construct_group,
     User, construct_user,
     Client, construct_client,
     construct_internal_user,
@@ -526,7 +526,7 @@ class AccessManagementAPI(object):
         relative_url = f"{api_url}/groups"
         params = {"limit": limit, "offset": offset, "search": search, "ids": ",".join(ids)}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
-        return [construct_groups_response(group) for group in response.json()]
+        return [construct_group(group) for group in response.json()]
 
     def retrieve_users(
             self, limit: int = None, offset: int = None, search: str = None

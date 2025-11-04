@@ -194,7 +194,7 @@ class ApiClient(object):
             http_fqdn_list = self.configuration.token_url.split("/")[0:3]
             http_fqdn_list.pop(1)
             access_control_url = "//".join(http_fqdn_list)
-            url = access_control_url + relative_url
+            url = access_control_url.rstrip('/') + '/' + relative_url.lstrip('/')
         return url
 
     @retry_when_unauthorized(max_retries=2)
