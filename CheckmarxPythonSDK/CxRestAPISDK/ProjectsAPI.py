@@ -131,7 +131,7 @@ class ProjectsAPI(object):
             if all_projects and len(all_projects) > 0:
                 project_id = all_projects[0].project_id
             return project_id
-        except NotFoundError:
+        except (NotFoundError, ValueError):
             return None
 
     def get_project_details_by_id(self, project_id: int, api_version: str = "5.0") -> CxProject:
