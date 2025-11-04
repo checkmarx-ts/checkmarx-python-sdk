@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.5.4 - 2025-11-04
+* Refactor using typing.Union instead of operator |
+* lower the supported python version to 3.9
+
 1.5.3 - 2025-10-29
 * Fix soap config imports
 
