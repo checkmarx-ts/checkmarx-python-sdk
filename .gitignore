@@ -115,3 +115,4 @@ venv_python2/
 
 build
 *.egg-info
+*.zip
