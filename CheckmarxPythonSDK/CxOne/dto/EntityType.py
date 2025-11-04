@@ -1,4 +1,4 @@
-from enum import StrEnum
+from .StrEnum import StrEnum
 
 
 class EntityType(StrEnum):
