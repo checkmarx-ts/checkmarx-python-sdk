@@ -76,7 +76,7 @@ class ProjectsAPI(object):
             project_name (str):  Specifies the name of the project
             team_id (int, str): Specifies the id of the team that owns the project
                                 default to the id of the team full name in config.ini
-            is_public (boolean): Specifies whether the project is public or not
+            is_public (bool): Specifies whether the project is public or not
                                 default True
             api_version (str, optional):
 
@@ -272,7 +272,7 @@ class ProjectsAPI(object):
         project_id = self.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
 
         if not project_id:
-            project = self.create_project_with_default_configuration(project_name, team_id, True)
+            project = self.create_project_with_default_configuration(project_name, team_id, is_public=True)
             if project:
                 project_id = project.id
 
