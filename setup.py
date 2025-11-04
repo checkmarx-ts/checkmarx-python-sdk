@@ -36,10 +36,10 @@ setup(
     ],
     python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, >=3.7',
     install_requires=[
-        "requests>=2.32.5",
-        "requests-toolbelt>=1.0.0",
-        "zeep>=4.3.2",
-        "Deprecated>=1.3.1",
+        "requests>=2.13.0",
+        "requests-toolbelt>=0.9.1",
+        "zeep>=4.1.0",
+        "Deprecated>=1.2.13",
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
