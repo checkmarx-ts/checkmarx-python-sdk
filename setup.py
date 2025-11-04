@@ -28,18 +28,18 @@ setup(
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
-        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.9',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
-    python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, >=3.11',
+    python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, >=3.9',
     install_requires=[
-        "requests>=2.28.1",
-        "requests-toolbelt>=0.9.1",
-        "zeep>=4.1.0",
-        "Deprecated>=1.2.13",
+        "requests>=2.32.5",
+        "requests-toolbelt>=1.0.0",
+        "zeep>=4.3.2",
+        "Deprecated>=1.3.1",
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
