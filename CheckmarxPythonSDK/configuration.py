@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Union
 
 
 @dataclass
@@ -15,7 +16,7 @@ class Configuration:
     client_secret: str = None
     api_key: str = None
     timeout: int = 60
-    verify: bool | str = True
+    verify: Union[bool, str] = True
     cert: str = None  # path to client certificate
     proxies: dict = None
     debug_mode: bool = False

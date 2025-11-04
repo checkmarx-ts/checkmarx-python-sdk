@@ -1,6 +1,6 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxScaApiSDK.config import construct_configuration
-from typing import List
+from typing import List, Union
 from requests import Response
 import json
 import os
@@ -21,7 +21,7 @@ class Sca(object):
         self.api_client = api_client
         self.gql_relative_url = "/graphql/graphql"
 
-    def get_all_projects(self, project_name: str = None) -> dict | List[dict]:
+    def get_all_projects(self, project_name: str = None) -> Union[dict, List[dict]]:
         """
 
         Args:
@@ -104,7 +104,7 @@ class Sca(object):
         response = self.api_client.post_request(url, data)
         return response.json()
 
-    def get_project_id_by_name(self, project_name: str | List[str]) -> str | List[str]:
+    def get_project_id_by_name(self, project_name: Union[str, List[str]]) -> Union[str, List[str]]:
         """
 
         Args:

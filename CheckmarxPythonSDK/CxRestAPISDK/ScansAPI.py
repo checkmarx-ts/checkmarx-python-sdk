@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 import os
@@ -159,7 +159,7 @@ class ScansAPI(object):
     def get_last_scan_id_of_a_project(
             self, project_id: int, only_finished_scans: bool = False, only_completed_scans: bool = True,
             only_real_scans: bool = True, only_full_scans: bool = True, only_public_scans: bool = True
-    ) -> int | None:
+    ) -> Union[int, None]:
         """
         get the last scan id of a project
 
@@ -1111,7 +1111,7 @@ class ScansAPI(object):
             run_post_scan_min_severity: int = None,
             post_scan_action_arguments: str = None,
             api_version: str = "5.0"
-    ) -> CxCreateNewScanResponse | None:
+    ) -> Union[CxCreateNewScanResponse, None]:
         """
 
         Args:

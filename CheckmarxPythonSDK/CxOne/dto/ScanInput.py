@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 from .Git import Git
 from .Upload import Upload
 from .Project import Project
@@ -18,7 +18,7 @@ class ScanInput:
         tags (dict): A JSON object containing a list of the tags associated with the scan, in key-value format.
     """
     type: str
-    handler: Git | Upload
+    handler: Union[Git, Upload]
     project: Project = None
     configs: List[ScanConfig] = None
     tags: dict = None

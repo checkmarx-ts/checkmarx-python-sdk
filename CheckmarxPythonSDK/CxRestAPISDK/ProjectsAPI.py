@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 import os
@@ -31,7 +31,7 @@ class ProjectsAPI(object):
         self.api_client = api_client
 
     def get_all_project_details(
-            self, project_name: str = None, team_id: str | int = None,
+            self, project_name: str = None, team_id: Union[str, int, None] = None,
             show_also_deleted_projects: bool = False, api_version: str = "5.0"
     ) -> List[CxProject]:
         """
@@ -67,7 +67,7 @@ class ProjectsAPI(object):
         return result
 
     def create_project_with_default_configuration(
-            self, project_name: str, team_id: int | str, is_public: bool = True, api_version: str = "5.0"
+            self, project_name: str, team_id: Union[int, str], is_public: bool = True, api_version: str = "5.0"
     ) -> CxCreateProjectResponse:
         """
         REST API: create project
@@ -112,14 +112,12 @@ class ProjectsAPI(object):
 
     def get_project_id_by_project_name_and_team_full_name(
             self, project_name: str, team_full_name: str
-    ) -> int | None:
+    ) -> Union[int, None]:
         """
-        utility provided by SDK: get project id by project name, and team full name
-
+        get project id by project name, and team full name
         Args:
             project_name (str): project name under one team, different teams may have projects of the same name
             team_full_name (str): for example "/CxServer/SP/Company/Users"
-
         Returns:
             int: project id， if project not exists, return None
         """
@@ -161,7 +159,7 @@ class ProjectsAPI(object):
         return result
 
     def update_project_by_id(
-            self, project_id: int, project_name: str, team_id: int | str, custom_fields: List[CxCustomField] = (),
+            self, project_id: int, project_name: str, team_id: Union[int, str], custom_fields: List[CxCustomField] = (),
             api_version: str = "5.0"
     ) -> bool:
         """

@@ -3,7 +3,7 @@ from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration
 import time
 import json
 from CheckmarxPythonSDK.utilities.compat import (OK, CREATED)
-
+from typing import Union
 from .dto import (
     CreateReportDTO,
 )
@@ -35,7 +35,7 @@ class CxReporting(object):
             report_content = response.content
         return report_content
 
-    def create_a_new_report_request(self, report_request: CreateReportDTO) -> int | None:
+    def create_a_new_report_request(self, report_request: CreateReportDTO) -> Union[int, None]:
         """
 
         Args:
@@ -76,7 +76,7 @@ class CxReporting(object):
             report_status = item.get("reportStatus")
         return report_status
 
-    def get_report(self, report_request: CreateReportDTO) -> bytes | None:
+    def get_report(self, report_request: CreateReportDTO) -> Union[bytes, None]:
         """
 
         Args:
@@ -113,5 +113,5 @@ def retrieve_the_status_of_a_specific_report(report_id: int) -> str:
     return CxReporting().retrieve_the_status_of_a_specific_report(report_id=report_id)
 
 
-def get_report(report_request: CreateReportDTO) -> bytes | None:
+def get_report(report_request: CreateReportDTO) -> Union[bytes, None]:
     return CxReporting().get_report(report_request=report_request)

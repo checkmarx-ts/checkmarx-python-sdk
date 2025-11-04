@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxRestAPISDK.config import construct_configuration, get_headers
 import json
@@ -53,7 +53,7 @@ class ConfigurationAPI(object):
         return result
 
     def update_cx_component_configuration_settings(
-            self, group: str, key_value_list: List[dict] | List[CxSASTConfig], api_version: str = "1.0"
+            self, group: str, key_value_list: Union[List[dict], List[CxSASTConfig]], api_version: str = "1.0"
     ) -> bool:
         """
 

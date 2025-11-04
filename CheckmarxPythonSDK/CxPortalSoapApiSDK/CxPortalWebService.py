@@ -5,7 +5,7 @@
     Start from 9.0, Portal SOAP API needs Bear Token for authentication
 """
 from os.path import exists
-from typing import List
+from typing import List, Union
 from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.CxPortalSoapApiSDK.config import construct_configuration
 from .zeepClient import ZeepClient
@@ -621,7 +621,7 @@ class CxPortalWebService(object):
     def get_query_id_by_language_group_and_query_name(
             query_collections: List[dict], language: str, package_type_name: str, package_name: str,
             query_name: str
-    ) -> int | None:
+    ) -> Union[int, None]:
         """
 
         Args:
@@ -689,7 +689,7 @@ class CxPortalWebService(object):
 
     def get_name_of_user_who_marked_false_positive_from_comments_history(
             self, scan_id: int, path_id: int
-    ) -> str | None:
+    ) -> Union[str, None]:
         """
 
         Args:
@@ -975,7 +975,7 @@ class CxPortalWebService(object):
         version = int(version)
         return version
 
-    def import_preset(self, imported_file_path: str) -> dict | None:
+    def import_preset(self, imported_file_path: str) -> Union[dict, None]:
         """
 
         Args:
@@ -998,7 +998,7 @@ class CxPortalWebService(object):
             "importQueryStatus": response["importQueryStatus"]
         }
 
-    def import_queries(self, imported_file_path: str) -> dict | None:
+    def import_queries(self, imported_file_path: str) -> Union[dict, None]:
         """
 
             Args:
@@ -1192,9 +1192,9 @@ def get_query_collection() -> dict:
 def get_query_id_by_language_group_and_query_name(
             query_collections: List[dict], language: str, package_type_name: str, package_name: str,
             query_name: str
-    ) -> int | None:
+    ) -> Union[int, None]:
     return CxPortalWebService().get_query_id_by_language_group_and_query_name(
-        query_collections=query_collections, language=language, package_type_name=package_name,
+        query_collections=query_collections, language=language, package_type_name=package_type_name,
         package_name=package_name, query_name=query_name
     )
 
@@ -1209,7 +1209,7 @@ def get_cx_description_by_query_id():
 
 def get_name_of_user_who_marked_false_positive_from_comments_history(
             scan_id: int, path_id: int
-    ) -> str | None:
+    ) -> Union[str, None]:
     return CxPortalWebService().get_name_of_user_who_marked_false_positive_from_comments_history(
         scan_id=scan_id, path_id=path_id
     )
@@ -1251,11 +1251,11 @@ def get_version_number_as_int() -> int:
     return CxPortalWebService().get_version_number_as_int()
 
 
-def import_preset(imported_file_path: str) -> dict | None:
+def import_preset(imported_file_path: str) -> Union[dict, None]:
     return CxPortalWebService().import_preset(imported_file_path=imported_file_path)
 
 
-def import_queries(imported_file_path: str) -> dict | None:
+def import_queries(imported_file_path: str) -> Union[dict, None]:
     return CxPortalWebService().import_queries(imported_file_path=imported_file_path)
 
 

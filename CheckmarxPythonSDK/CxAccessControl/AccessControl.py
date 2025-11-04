@@ -1,7 +1,7 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 import os
 import json
-from typing import List
+from typing import List, Union
 from requests_toolbelt import MultipartEncoder
 
 from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT, CREATED
@@ -1076,7 +1076,7 @@ class AccessControl:
             ]
         return result
 
-    def get_role_id_by_name(self, name: str | List[str]) -> int | List[int] | None:
+    def get_role_id_by_name(self, name: Union[str, List[str]]) -> Union[int, List[int], None]:
         """
 
         Args:

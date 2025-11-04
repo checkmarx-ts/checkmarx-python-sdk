@@ -9,7 +9,7 @@ from .dto import (
     RichProject, construct_rich_project,
     construct_subset_scan
 )
-from typing import List
+from typing import List, Union
 
 api_url = "/api/projects"
 
@@ -110,7 +110,7 @@ class ProjectsAPI(object):
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return construct_projects_collection(response.json())
 
-    def get_project_id_by_name(self, name: str) -> str | None:
+    def get_project_id_by_name(self, name: str) -> Union[str, None]:
         """
 
         Args:
@@ -401,7 +401,7 @@ def get_a_list_of_projects(
     )
 
 
-def get_project_id_by_name(name) -> str | None:
+def get_project_id_by_name(name) -> Union[str, None]:
     return ProjectsAPI().get_project_id_by_name(name=name)
 
 

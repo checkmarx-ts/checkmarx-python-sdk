@@ -1,7 +1,7 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 import json
-from typing import List
+from typing import List, Union
 from ...utilities.compat import CREATED, OK, NO_CONTENT
 from ..utilities import get_url_param, type_check
 from .url import api_url
@@ -83,7 +83,7 @@ class UsersAPI(object):
         return [construct_user(user) for user in users]
 
     @staticmethod
-    def filter_user_id_by_name(users: List[User], username: str) -> str | None:
+    def filter_user_id_by_name(users: List[User], username: str) -> Union[str, None]:
         """
 
         Args:
@@ -386,7 +386,7 @@ def get_users(
     )
 
 
-def filter_user_id_by_name(users: List[User], username: str) -> str | None:
+def filter_user_id_by_name(users: List[User], username: str) -> Union[str, None]:
     return UsersAPI().filter_user_id_by_name(users=users, username=username)
 
 

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxODataApiSDK.config import construct_configuration
 
@@ -42,7 +42,7 @@ class ResultsODataAPI(object):
 
     def get_the_query_that_was_run_for_a_particular_unique_scan_result(
             self, result_id: int, scan_id: int
-    ) -> str | None:
+    ) -> Union[str, None]:
         """
         Requested result: selects a particular unique scan result and lists the query (SQL Injection, etc.) that was run
 
@@ -304,7 +304,7 @@ def get_results_for_a_specific_scan_id(scan_id: int) -> List[dict]:
 
 def get_the_query_that_was_run_for_a_particular_unique_scan_result(
         result_id: int, scan_id: int
-) -> str | None:
+) -> Union[str, None]:
     return ResultsODataAPI().get_the_query_that_was_run_for_a_particular_unique_scan_result(
         result_id=result_id, scan_id=scan_id
     )
