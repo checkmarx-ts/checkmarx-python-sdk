@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.5.5 - 2025-11-04
+* lower the supported python version to 3.7
+
 1.5.4 - 2025-11-04
 * Refactor using typing.Union instead of operator |
 * lower the supported python version to 3.9
