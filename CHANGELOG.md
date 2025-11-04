@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.5.7 - 2025-11-04
+* Refactor setup.py
+
 1.5.6 - 2025-11-04
 * Fix DTO null rules parsing and field mapping
 
