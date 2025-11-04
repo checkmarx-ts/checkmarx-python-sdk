@@ -24,7 +24,6 @@ from os.path import normpath, join, dirname, exists
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
-from CheckmarxPythonSDK.CxRestAPISDK.config import config
 
 
 def scan_from_local(team_full_name, project_name, report_type, zip_file_path, report_folder=None):
@@ -138,8 +137,9 @@ def scan_from_local(team_full_name, project_name, report_type, zip_file_path, re
 
 
 if __name__ == "__main__":
-    scan_from_local(team_full_name="/CxServer",
-                    project_name="jvl_local",
-                    report_type="XML",
-                    zip_file_path=normpath(join(os.path.dirname(__file__), "JavaVulnerableLab-master.zip")),
-                    report_folder=config.get("report_folder"))
+    scan_from_local(
+        team_full_name="/CxServer",
+        project_name="jvl_local",
+        report_type="XML",
+        zip_file_path=normpath(join(os.path.dirname(__file__), "JavaVulnerableLab.zip")),
+    )
