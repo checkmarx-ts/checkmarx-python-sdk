@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.6.0 - 2025-11-05
+* use certifi/cacert.pem to verify ssl if verify is set to True
+
 1.5.9 - 2025-11-04
 * Refactor self defined StrEnum
 
