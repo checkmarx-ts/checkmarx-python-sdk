@@ -1,3 +1,4 @@
+import certifi
 import functools
 import requests
 from typing import Callable
@@ -177,10 +178,10 @@ class ApiClient(object):
 
     def refresh_token(self):
         auth_response = requests.post(
-            self.configuration.token_url,
+            url=self.configuration.token_url,
             data=self.token_req_data,
             timeout=self.configuration.timeout,
-            verify=self.configuration.verify,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
             cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
@@ -202,7 +203,9 @@ class ApiClient(object):
         response = self.session.request(
             "HEAD", url, params=params, json=json, auth=auth,
             timeout=self.configuration.timeout,
-            headers=headers, verify=self.configuration.verify, cert=self.configuration.cert,
+            headers=headers,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
+            cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
         check_response(response)
@@ -213,7 +216,9 @@ class ApiClient(object):
         response = self.session.request(
             "GET", url, params=params, auth=auth,
             timeout=self.configuration.timeout,
-            headers=headers, verify=self.configuration.verify, cert=self.configuration.cert,
+            headers=headers,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
+            cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
         check_response(response)
@@ -224,7 +229,9 @@ class ApiClient(object):
         response = self.session.request(
             "POST", url, params=params, files=files, data=data, json=json, auth=auth,
             timeout=self.configuration.timeout,
-            headers=headers, verify=self.configuration.verify, cert=self.configuration.cert,
+            headers=headers,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
+            cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
         check_response(response)
@@ -235,7 +242,9 @@ class ApiClient(object):
         response = self.session.request(
             "PUT", url, params=params, files=files, data=data, json=json, auth=auth,
             timeout=self.configuration.timeout,
-            headers=headers, verify=self.configuration.verify, cert=self.configuration.cert,
+            headers=headers,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
+            cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
         check_response(response)
@@ -246,7 +255,9 @@ class ApiClient(object):
         response = self.session.request(
             "PATCH", url, params=params, data=data, json=json, auth=auth,
             timeout=self.configuration.timeout,
-            headers=headers, verify=self.configuration.verify, cert=self.configuration.cert,
+            headers=headers,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
+            cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
         check_response(response)
@@ -257,7 +268,9 @@ class ApiClient(object):
         response = self.session.request(
             "DELETE", url, params=params, data=data, auth=auth,
             timeout=self.configuration.timeout,
-            headers=headers, verify=self.configuration.verify, cert=self.configuration.cert,
+            headers=headers,
+            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
+            cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
         check_response(response)
