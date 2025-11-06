@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.6.1 - 2025-11-06
+* Add the get_warnings_of_a_scan method (SCA) 
+
 1.6.0 - 2025-11-05
 * use certifi/cacert.pem to verify ssl if verify is set to True
 
