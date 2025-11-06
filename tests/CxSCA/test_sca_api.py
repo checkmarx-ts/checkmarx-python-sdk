@@ -16,6 +16,7 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     get_packages_of_a_scan,
     get_vulnerabilities_of_a_scan,
     get_licenses_of_a_scan,
+    get_warnings_of_a_scan,
     ignore_a_vulnerability_for_a_specific_package_and_project,
     undo_the_ignore_state_of_an_ignored_vulnerability,
     get_settings_for_a_specific_project,
@@ -173,6 +174,21 @@ def test_get_licenses_of_a_scan():
     scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
     licenses = get_licenses_of_a_scan(scan_id=scan_id)
     assert len(licenses) > 0
+
+
+def test_get_warnings_of_a_scan():
+    # No warnings
+    project_id = get_project_id_by_name(project_name)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
+    warnings = get_warnings_of_a_scan(scan_id=scan_id)
+    assert len(warnings) == 0
+
+    # One warning
+    other_project_name = 'build-master'
+    project_id = get_project_id_by_name(other_project_name)
+    scan_id = get_latest_scan_id_of_a_project(project_id=project_id)
+    warnings = get_warnings_of_a_scan(scan_id=scan_id)
+    assert len(warnings) == 1
 
 
 def test_ignore_a_vulnerability_for_a_specific_package_and_project():

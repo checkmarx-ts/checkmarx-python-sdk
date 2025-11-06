@@ -693,6 +693,29 @@ class Sca(object):
         response = self.api_client.get_request(relative_url=url)
         return response.json()
 
+    def get_warnings_of_a_scan(self, scan_id: str) -> List[dict]:
+        """
+
+        Args:
+            scan_id (str):
+
+        Returns:
+            list of dict
+
+            sample:
+                [
+                  {
+                    "warningCode": "FailedToResolve",
+                    "affectedFiles": [
+                      "application\\build.gradle"
+                    ]
+                  }
+                ]
+        """
+        url = "/risk-management/risk-reports/{scanId}/warnings".format(scanId=scan_id)
+        response = self.api_client.get_request(relative_url=url)
+        return response.json()
+
     def ignore_a_vulnerability_for_a_specific_package_and_project(
             self, project_id: str, vulnerability_id: str, package_id: str
     ) -> bool:
@@ -2591,6 +2614,10 @@ def get_vulnerabilities_of_a_scan(scan_id):
 
 def get_licenses_of_a_scan(scan_id):
     return Sca().get_licenses_of_a_scan(scan_id=scan_id)
+
+
+def get_warnings_of_a_scan(scan_id):
+    return Sca().get_warnings_of_a_scan(scan_id=scan_id)
 
 
 def ignore_a_vulnerability_for_a_specific_package_and_project(project_id, vulnerability_id, package_id):

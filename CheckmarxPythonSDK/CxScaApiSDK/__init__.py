@@ -15,6 +15,7 @@ from .api import (
     get_packages_of_a_scan,
     get_vulnerabilities_of_a_scan,
     get_licenses_of_a_scan,
+    get_warnings_of_a_scan,
     ignore_a_vulnerability_for_a_specific_package_and_project,
     undo_the_ignore_state_of_an_ignored_vulnerability,
     get_settings_for_a_specific_project,
