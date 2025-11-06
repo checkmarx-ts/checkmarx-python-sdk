@@ -20,14 +20,24 @@ class AccessControlAPI(object):
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-    def get_groups(self, realm: str, group_name: str = None, limit: int = None, ids: str = None) -> List[AstIdWithName]:
+    def get_groups(
+            self,
+            realm: str,
+            group_name: str = None,
+            limit: int = 10,
+            first: int = 0,
+            max: int = 10000,
+            ids: List[str] = None
+    ) -> List[AstIdWithName]:
         """
 
         Args:
             realm (str):
             group_name (str): Used for searching the groups by name or by part of name.
-            limit (int): Max amount of returned record. Applied if groupName param defined.
-            ids (str): Ids of groups separated with comma. Has priority over the groupName parameter
+            limit (int): Max amount of returned record. Applied if groupName param defined. Default value : 10
+            first (int): Element to start from. Always applied. Default value : 0
+            max (int): Max number of items. Always applied. Default value : 10000
+            ids (List[str]): Ids of groups separated with comma. Has priority over the groupName parameter
 
         Returns:
             List[AstIdWithName]
@@ -36,11 +46,15 @@ class AccessControlAPI(object):
         type_check(group_name, str)
         type_check(limit, int)
         type_check(ids, str)
-        relative_url = api_url + f"/{realm}/pip/groups?"
-        relative_url += get_url_param("groupName", group_name)
-        relative_url += get_url_param("limit", limit)
-        relative_url += get_url_param("ids", ids)
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        relative_url = api_url + f"/{realm}/pip/groups"
+        params = {
+            "groupName": group_name,
+            "limit": limit,
+            "first": first,
+            "max": max,
+            "ids": ids if ids is None else ",".join(ids),
+        }
+        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
         item_list = response.json()
         return [construct_ast_id_with_name(item) for item in item_list]
 
