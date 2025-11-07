@@ -8,6 +8,8 @@ from .Assignment import Assignment, construct_assignment
 from .AssignmentInput import AssignmentInput
 from .AssignmentsForResource import AssignmentsForResource, construct_assignments_for_resource
 from .AssignmentsWithBaseRoles import AssignmentsWithBaseRoles, construct_assignments_with_base_roles
+from .AstIdWithName import AstIdWithName, construct_ast_id_with_name
+from .AstUser import AstUser, construct_ast_user
 from .AsyncRequestResponse import AsyncRequestResponse, construct_async_request_response
 from .AuditEvent import AuditEvent, construct_audit_event
 from .AuditEventLink import AuditEventLink, construct_audit_event_link
