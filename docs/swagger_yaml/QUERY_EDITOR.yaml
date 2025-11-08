@@ -1,0 +1,1891 @@
+openapi: 3.0.3
+info:
+  title: QueryEditor
+  description: |-
+    This is the Query Editor REST API (engines: SAST & IACS)
+  termsOfService: https://checkmarx.com/de/legal-terms/
+  version: 2.0.0
+externalDocs:
+  description: Find out more about Checkmarx
+  url: https://checkmarx.com
+tags:
+  - name: sessions
+    description: Audit Session
+  - name: sources
+    description: Audit Sources
+  - name: queries
+    description: Audit Queries
+  - name: requests
+    description: Audit Requests
+  - name: results
+    description: Audit Results
+  - name: assistant
+    description: Audit Query Builder
+paths:
+  "/sessions":
+    post:
+      tags:
+        - sessions
+      summary: Create new Audit session
+      operationId: CreateSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+              examples:
+                postSessions:
+                  $ref: "#/components/examples/postSessions_200"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}":
+    patch:
+      tags:
+        - sessions
+      summary: Heath check to ensure Audit session is kept alive
+      operationId: PingSession
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "204":
+          description: The resource was checked successfully.
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - sessions
+      summary: Delete Audit session with specific id
+      operationId: DeleteSession
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "204":
+          description: The resource was deleted successfully.
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/logs":
+    get:
+      tags:
+        - sessions
+      summary: Get the logs associated to the Audit session
+      operationId: GetLogs
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/zip:
+              schema:
+                format: binary
+            text/plain:
+              schema:
+                type: string
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              example: attachment; filename="name.zip"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/sources/scan":
+    post:
+      tags:
+        - sources
+      summary: Scan the Audit Session sources
+      operationId: ScanProject
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                scanAudit:
+                  $ref: "#/components/examples/scanAuditPost_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/queries":
+    post:
+      tags:
+        - queries
+      summary: Create/Override query
+      operationId: CreateQuery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQueryRequest"
+            examples:
+              createQuery:
+                $ref: "#/components/examples/createQuery_request"
+              overrideQuery:
+                $ref: "#/components/examples/overrideQuery_request"
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                createNewQuery:
+                  $ref: "#/components/examples/createQuery_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      tags:
+        - queries
+      summary: Get all queries
+      operationId: GetQueries
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/level"
+        - $ref: "#/components/parameters/ids"
+        - $ref: "#/components/parameters/filters"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueriesTree"
+              examples:
+                getAllQueries:
+                  $ref: "#/components/examples/getAllQueries_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/queries/{editorQueryId}":
+    get:
+      tags:
+        - queries
+      summary: Get data of a specified query
+      operationId: GetQuery
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/editorQueryId"
+        - $ref: "#/components/parameters/includeMetadata"
+        - $ref: "#/components/parameters/includeSource"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/QueryResponse"
+              examples:
+                getQueryDetails:
+                  $ref: "#/components/examples/getQueryDetails_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+    delete:
+      tags:
+        - queries
+      summary: Delete a specified custom/overridden query
+      operationId: DeleteQuery
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/editorQueryId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                createNewQuery:
+                  $ref: "#/components/examples/deleteQuery_200"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/queries/{editorQueryId}/metadata":
+    put:
+      tags:
+        - queries
+      summary: Update specified query metadata
+      operationId: PutQueryMetadata
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/editorQueryId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AsyncRequestResponse"
+            examples:
+              putQueryMetadata:
+                $ref: "#/components/examples/putQueryMetadata_200"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                putQueryMetadataResponse:
+                  $ref: "#/components/examples/putQueryMetadataResponse_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/queries/source":
+    put:
+      tags:
+        - queries
+      summary: Update multiple query sources
+      operationId: PutQuerySource
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuditQueries"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                putQuerySource:
+                  $ref: "#/components/examples/putQuerySource_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/queries/validate":
+    post:
+      tags:
+        - queries
+      summary: Validate the queries provided
+      operationId: ValidateQueries
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditQuery"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                validateQuery:
+                  $ref: "#/components/examples/validateQuery_200"
+        "202":
+          $ref: "#/components/responses/202"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/queries/run":
+    post:
+      tags:
+        - queries
+      summary: Execute the queries on the Audit session scanned project
+      operationId: RunQueries
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditQuery"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/AsyncRequestResponse"
+              examples:
+                runQueries:
+                  $ref: "#/components/examples/runQueries_200"
+        "202":
+          $ref: "#/components/responses/202"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/requests/{requestId}":
+    get:
+      tags:
+        - requests
+      summary: Check the status of a specified request
+      operationId: CheckRequestStatus
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/RequestStatus"
+              examples:
+                requestStatusNotReadyExample:
+                  $ref: "#/components/examples/requestStatusNotReady_200"
+                createQueryResponseExample:
+                  $ref: "#/components/examples/createQueryResponse_200"
+                deleteStatusNotReadyExample:
+                  $ref: "#/components/examples/deleteQueryResponse_200"
+                updateQueryResponseExample:
+                  $ref: "#/components/examples/updateQueryResponse_200"
+                compilationResponseExample:
+                  $ref: "#/components/examples/compilationResponse_200"
+                executionResponseExample:
+                  $ref: "#/components/examples/executionResponse_200"
+                detectLanguagesResponseExample:
+                  $ref: "#/components/examples/detectLanguagesResponse_200"
+        "202":
+          $ref: "#/components/responses/202"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/requests/{requestId}/cancel":
+    put:
+      tags:
+        - requests
+      summary: Cancel the specified request execution
+      operationId: CancelRequest
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/requestId"
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{sessionId}/results":
+    get:
+      tags:
+        - results
+      summary: Get all results data summary tree for all the session runs
+      operationId: GetResults
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/runId"
+        - $ref: "#/components/parameters/hideEmpty"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResultsSummaryTree"
+              examples:
+                getResultsTree:
+                  $ref: "#/components/examples/getResultsSummaryTree_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/results/{resultId}/vulnerabilities":
+    get:
+      tags:
+        - results
+      summary: Get all vulnerabilities related to a given result
+      operationId: GetResult
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/resultId"
+        - $ref: "#/components/parameters/pageSize"
+        - $ref: "#/components/parameters/currentPage"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/ResultsResponse"
+              examples:
+                getResultsResponse:
+                  $ref: "#/components/examples/getResultsResponse_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/results/{resultId}/vulnerabilities/{vulnerabilityId}":
+    get:
+      tags:
+        - results
+      summary: Get specified vulnerability data such as attack vector
+      operationId: GetVulnerabilityResult
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/resultId"
+        - $ref: "#/components/parameters/vulnerabilityId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/ResultResponse"
+              examples:
+                getVulnerabilityResponse:
+                  $ref: "#/components/examples/getVulnerabilityResponse_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/results/{resultId}/debug-messages":
+    get:
+      tags:
+        - results
+      summary: Get specified result debug messages
+      operationId: GetDebugMessages
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/resultId"
+        - $ref: "#/components/parameters/pageSize"
+        - $ref: "#/components/parameters/currentPage"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/DebugMessageResponse"
+              examples:
+                getDebugMessageResponse:
+                  $ref: "#/components/examples/getDebugMessageResponse_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions/{sessionId}/gpt":
+    get:
+      tags:
+        - assistant
+      summary: Get Query Builder history
+      description: Get GPT history for the given SessionId.
+      operationId: getGPTHistory
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueryBuilderMessage"
+              examples:
+                getGPTHistoryResponse:
+                  $ref: "#/components/examples/getQueryBuilderHistory_200"
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - assistant
+      summary: Delete Query Builder (GPT) history
+      description: Delete Query Builder (GPT) history for the given SessionId.
+      operationId: deleteGPTHistory
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+    post:
+      tags:
+        - assistant
+      summary: Process Query Builder (GPT) request.
+      description: Process a Query Builder (GPT) prompt request for the given SessionId.
+      operationId: processGPTRequest
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryBuilderPrompt"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueryBuilderMessage"
+              examples:
+                getGPTHistoryResponse:
+                  $ref: "#/components/examples/getQueryBuilderHistory_200"
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+components:
+  parameters:
+    sessionId:
+      in: path
+      required: true
+      name: sessionId
+      description: The session ID
+      example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+      schema:
+        type: string
+        format: uuid
+    layoutType:
+      in: path
+      required: true
+      name: layoutType
+      description: The Layout Type
+      example: createQuery
+      schema:
+        type: string
+        enum: [createQuery, editQuery, resultsTable]
+    sourceId:
+      in: path
+      required: true
+      name: sourceId
+      description: The full path of the source code file
+      example: /cmd/main.go
+      schema:
+        type: string
+        example: /cmd/main.go
+    editorQueryId:
+      in: path
+      required: true
+      name: editorQueryId
+      example: 123123123312312
+      schema:
+        type: string
+    requestId:
+      in: path
+      required: true
+      name: requestId
+      description: The request ID
+      example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+      schema:
+        type: string
+        format: uuid
+    resultId:
+      in: path
+      required: true
+      name: resultId
+      example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+      schema:
+        type: string
+    vulnerabilityId:
+      in: path
+      required: true
+      name: vulnerabilityId
+      example: 123123123312312
+      schema:
+        type: string
+    pageSize:
+      in: query
+      required: false
+      name: pageSize
+      example: 10
+      schema:
+        type: integer
+    currentPage:
+      in: query
+      required: false
+      name: currentPage
+      example: 1
+      schema:
+        type: integer
+    level:
+      in: query
+      required: false
+      name: level
+      example: tenant
+      schema:
+        type: string
+      description: Parameter to filter queries by its level.
+    ids:
+      in: query
+      name: ids
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: Parameter to filter queries by its IDs.
+    filters:
+      in: query
+      name: filters
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: Parameter to define the filters of queries. Language on SAST or Technology on IaC.
+    includeMetadata:
+      in: query
+      name: includeMetadata
+      schema:
+        type: boolean
+        default: false
+      description: Parameter to define if the metadata object should be included in the response.
+      required: false
+    includeSource:
+      in: query
+      name: includeSource
+      schema:
+        type: boolean
+        default: false
+      description: Parameter to define if the source of the query object should be included in the response.
+      required: false
+    runId:
+      in: query
+      name: runId
+      example: '0cbcb480-7411-11ee-b962-0242ac120002'
+      schema:
+        type: string
+      description: Parameter to filter results by the query execution run id.
+      required: false
+    hideEmpty:
+      in: query
+      name: hideEmpty
+      schema:
+        type: boolean
+        default: false
+      description: Parameter to hide queries that have 0 results.
+      required: false
+    projectId:
+      in: query
+      name: projectId
+      required: true
+      example: "58d5807b-bd11-4ec3-93ef-e3ca36c40b0f"
+      description: The Project Identififier
+      schema:
+        type: string
+  responses:
+    "202":
+      description: Accepted
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            operationCancelResponse:
+              $ref: "#/components/examples/operationCancelResponse_202"
+    "204":
+      description: No Content
+    "400":
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            badRequestResponse:
+              $ref: "#/components/examples/badRequestResponse_400"
+    "401":
+      description: "Unauthorized, Access token is missing or invalid"
+    "403":
+      description: "Forbidden"
+    "404":
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            notFoundResponse:
+              $ref: "#/components/examples/notFoundResponse_404"
+    "500":
+      description: "Internal Server Error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            internalServerErrorResponse:
+              $ref: "#/components/examples/internalServerErrorResponse_500"
+  schemas:
+    ResultsSummaryTree:
+      type: object
+      properties:
+        isLeaf:
+          type: boolean
+          example: false
+        title:
+          type: string
+          example: High
+        key:
+          type: string
+          example: High
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultsSummaryTree"
+        data:
+          $ref: "#/components/schemas/ResultsTreeData"
+    ResultsTreeData: # dictionary
+      type: object
+      description: "Data related to the result"
+      additionalProperties:
+        type: string
+        example: "high"
+    ResultsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultResponse"
+        totalCount:
+          type: integer
+          example: 50
+    ResultResponse:
+      type: object
+      additionalProperties: true
+      example:
+        vulnerabilityId: "8a290068-4883-4289-a0aa-ef03d7cf4d09"
+        sourceFile: "LoginPage.cs"
+        sourceLine: 10
+        sourceId: 99
+        sourceName: "Login"
+        sourceType: "MethodInvokeExpr"
+        destinationFile: "LoginPage.cs"
+        destinationLine: 10
+        destinationId: 99
+        destinationName: "Login"
+        destinationType: "MethodInvokeExpr"
+        state: "To Verify"
+        pathSize: 4
+    DebugMessageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DebugMessage"
+        totalCount:
+          type: integer
+          example: 50
+    DebugMessage:
+      type: object
+      properties:
+        messageLine:
+          type: integer
+          example: 200
+        debugMessage:
+          type: string
+          example: var x = 2
+        timestamp:
+          type: string
+          format: date-time
+    AsyncRequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ddba1a3d-79b3-4663-a265-4b278a5d7b14
+          format: uuid
+    SourcesTree:
+      type: object
+      properties:
+        isLeaf:
+          type: boolean
+          example: false
+        title:
+          type: string
+          example: bookstore
+        key:
+          type: string
+          example: bookstore
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourcesTree"
+    QueriesTree:
+      type: object
+      properties:
+        isLeaf:
+          type: boolean
+          example: false
+        title:
+          type: string
+          example: CSharp_High_Risk
+        key:
+          type: string
+          example: CSharp_High_Risk
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/QueriesTree"
+    CreateQueryRequest:
+      type: object
+      additionalProperties: true
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+          example: error message
+    SessionRequest:
+      type: object
+      properties:
+        projectId:
+          type: string
+          example: "58d5807b-bd11-4ec3-93ef-e3ca36c40b0f"
+          format: uuid
+        scanId:
+          type: string
+          example: "737c64f3-0c86-4cae-9e27-e2ef0b221a90"
+          format: uuid
+        scanner:
+          type: string
+          description: "This value indicated the scanner that started the Audit session"
+          example: "sast"
+        timeout:
+          type: integer
+          description: "The custom timeout, in seconds, for this session"
+          example: 30
+          default: 3600
+        uploadUrl:
+          type: string
+          format: uri
+          description: "If we are creating a session from a .zip file we must provide the upload URL generated from the insertion of the sources on repostore"
+          example: "https://cx.one.com/storage/uploads/75d4fe35-965a-4506-b226-e0155ec84c34/231d5d89-4cf2-45e5-8cb0-6be6b072548b"
+    SessionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The session ID"
+          example: "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d"
+          format: uuid
+        data:
+          $ref: "#/components/schemas/SessionData"
+    SessionData: # dictionary
+      type: object
+      description: "Data related to the session"
+      additionalProperties: true
+    QueryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '2syswoof68vqZkernrZQJhjb9QwRZ4VxooQaVsFxbf3q0zQnGvjiVDev200INh08i3SircSio8adEE4G9niVbPZeA'
+        name:
+          type: string
+          example: SQL_Injection
+        level:
+          type: string
+          example: corp
+        path:
+          type: string
+          example: Go/Go_High_Risk/SQL_Injection
+        source:
+          type: string
+          example: CxList list = Find_SQL_Injection();
+        metadata:
+          $ref: "#/components/schemas/MetadataItem"
+    MetadataItem: # dictionary
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        language: CSharp
+        group: CSharp_High_Risk
+    AuditQueries:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuditQuery"
+    AuditQuery:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "IN4C2R3PFVDW6X2INFTWQX2SNFZWWLKTKFGF6SLONJSWG5DJN5XA===="
+        source:
+          type: string
+          example: "result = Find_Interactive_Inputs()"
+    RequestStatus:
+      type: object
+      properties:
+        completed:
+          type: boolean
+          example: false
+        status:
+          type: string
+          enum: [Finished, Failed, Canceled]
+          example: Canceled
+        value:
+          oneOf:
+            - $ref: "#/components/schemas/CompilationResponse"
+            - $ref: "#/components/schemas/ExecutionResponse"
+    CompilationResponse:
+      type: object
+      properties:
+        failed_queries:
+          type: array
+          items:
+            type: object
+            properties:
+              query_id:
+                type: integer
+                example: 346558629760677672
+              error:
+                type: array
+                items:
+                  type: object
+                  description: Compilation error
+                  properties:
+                    line:
+                      type: integer
+                      example: 1
+                    startColumn:
+                      type: integer
+                      example: 20
+                    endColumn:
+                      type: integer
+                      example: 30
+                    message:
+                      type: string
+                      example: "; expected"
+                    code:
+                      type: string
+                      example: "CS1002"
+    ExecutionResponse:
+      type: object
+      properties:
+        scanId:
+          type: string
+          description: This is the same as the session ID
+          example: "47ed33f6-0c25-43c1-bc1b-01e8aad108b1"
+        timeStamp:
+          type: object
+          properties:
+            seconds:
+              type: integer
+              example: 1638200593
+            nanos:
+              type: integer
+              example: 760898100
+        queries:
+          type: array
+          items:
+            type: object
+            properties:
+              info:
+                description: Query metadata
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: -7467647684143290674
+                  queryName:
+                    type: string
+                    example: Command_Injection
+                  languageName:
+                    type: string
+                    example: Python
+                  packageName:
+                    type: string
+                    example: Cx
+                  groupName:
+                    type: string
+                    example: Python_High_Risk
+                  severity:
+                    type: string
+                    enum: [Information, Warning, Serious, Critical, Metrics]
+                    example: Critical
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    similarityId:
+                      type: integer
+                      example: -1170245052
+                    uniqueId:
+                      type: integer
+                      example: -1170245052
+                    nodes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          nodeId:
+                            type: integer
+                            example: 1235
+                          line:
+                            type: integer
+                            example: 6
+                          column:
+                            type: integer
+                            example: 1
+                          length:
+                            type: integer
+                            example: 7
+                          fileName:
+                            type: string
+                            example: "/vulpy-master/bad/brute.py"
+                          name:
+                            type: string
+                            description: The short name
+                            example: program
+                          typeName:
+                            type: string
+                            example: "object"
+                          domType:
+                            type: string
+                            example: "UnknownReference"
+                          fullName:
+                            type: string
+                            example: CxPYNS_77b27dbc.program
+                          definitions:
+                            type: string
+                            example: "1"
+                          methodLine:
+                            type: integer
+                            example: 6
+    QueryBuilderMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          description: 'This is the Query Builder (GPT) role'
+          example: "assistant"
+        content:
+          type: string
+          description: 'This is the Query Builder (GPT) message content'
+          example: "Sure, here's a simple example of a Checkmarx Query Language (CxQL) query that would check for variables with \"creditCard\" in the name being assigned values that match the pattern for a credit card number. Note that this is a rudimentary example, and real world situations would likely require a more complex query.\n\n```CxQL\nCxList creditCardStrings = All.FindByRegex(@\"\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})\\b\");\n\nCxList creditCardVariables = All.FindByShortName(\"*creditCard*\");\n\nCxList possibleCreditCardStores = creditCardVariables.FindByAssignmentSide(CxList.AssignmentSide.Left);\nCxList creditCardAssignments = creditCardStrings.GetAssigner();\n\nresult = possibleCreditCardStores * creditCardAssignments;\n```\nThis will look for any assignments where the variable's short name includes \"creditCard\" and the assigned value matches the regex pattern for credit card numbers. Any such assignment is returned as a possible plain text storage of a credit card number.\n\nPlease note that this example produces a high amount of false positives as it focuses on the variable name rather than the actual stored value. A practical implementation is a lot more complex as it should consider encrypted card values, values coming from secure tokens, etc."
+    QueryBuilderPrompt:
+      type: object
+      properties:
+        prompt:
+          type: string
+          example: "Can you generate a Checkmarx query that will find if credit card numbers are stored as plain text?"
+  examples:
+    postLayout_request:
+      summary: Post Layout Request
+      description: An example for a Layout Post Request.
+      value:
+        name: "MyQuery"
+        language: "Javascript"
+        group: "group-1"
+        severity: "critical"
+        executable: true
+        presets: ["0", "2"]
+        cwe: 123
+        description: 456
+    postLayout_resultsTable:
+      summary: Post Layout Results Table (Code 200)
+      description: An example for a Layout Post Endpoint.
+      value:
+        properties:
+          - title: 'Source File'
+            key: 'sourceFile'
+          - title: 'Source Line'
+            key: 'sourceLine'
+          - title: 'Source Id'
+            key: 'sourceId'
+          - title: 'Source Name'
+            key: 'sourceName'
+          - title: 'Source Type'
+            key: 'sourceType'
+          - title: 'Destination File'
+            key: 'destinationFile'
+          - title: 'Destination Line'
+            key: 'destinationLine'
+          - title: 'Destination Id'
+            key: 'destinationId'
+          - title: 'Destination Name'
+            key: 'destinationName'
+          - title: 'Destination Type'
+            key: 'destinationType'
+          - title: 'State'
+            key: 'state'
+          - title: 'Path Length'
+            key: 'pathSize'
+        dependencies: []
+    postLayout_createQuery:
+      summary: Post Layout Create Query Form (Code 200)
+      description: An example for a Layout Post Endpoint.
+      value:
+        properties:
+          - title: 'General Settings'
+            initialExpanded: true
+            entries:
+              - label: 'Query Name'
+                name: 'name'
+                type: 'text'
+                placeholder: 'Enter Query Name'
+                required: true
+                rules:
+                  - pattern: '^[a-zA-Z][a-zA-Z_]*$'
+                    type: 'string'
+                    message: 'Only letters & underscores, starting with a letter.'
+              - label: 'Language'
+                type: 'select'
+                placeholder: 'Select Language'
+                required: true
+                options:
+                  - value: 'Javascript'
+                    label: 'Javascript'
+                  - value: '.NET'
+                    label: '.NET'
+                  - value: 'GO'
+                    label: 'GO'
+                  - value: 'Typescript'
+                    label: 'Typescript'
+              - label: 'Group Name'
+                name: 'group'
+                type: 'select'
+                placeholder: 'Select Group Name'
+                required: true
+                readonly: true
+                options:
+                  - value: 'group-1'
+                    label: 'Group 1'
+                  - value: 'group-2'
+                    label: 'Group 2'
+                  - value: 'group-3'
+                    label: 'Group 3'
+                  - value: 'group-4'
+                    label: 'Group 4'
+                  - value: 'group-5'
+                    label: 'Group 5'
+              - label: 'Severity'
+                type: 'select'
+                placeholder: 'Select Severity'
+                required: true
+                options:
+                  - value: 'critical'
+                    label: 'Critical'
+                    icon: 'critical'
+                  - value: 'high'
+                    label: 'High'
+                    icon: 'high'
+                  - value: 'medium'
+                    label: 'Medium'
+                    icon: 'medium'
+                  - value: 'low'
+                    label: 'Low'
+                    icon: 'low'
+              - label: 'Executable'
+                type: 'switch'
+          - title: 'Advanced Settings'
+            subTitle: '(Optional)'
+            initialExpanded: false
+            entries:
+              - label: 'Presets'
+                type: 'chip-menu'
+                placeholder: 'Select Preset'
+                options:
+                  - key: '0'
+                    label: '1st menu item'
+                  - key: '1'
+                    label: '2st menu item'
+                  - key: '2'
+                    label: '3st menu item'
+                  - key: '3'
+                    label: '4st menu item'
+                  - key: '4'
+                    label: '5st menu item'
+              - label: 'CWE ID'
+                name: 'cwe'
+                type: 'integer'
+                placeholder: 'Enter CWE ID'
+              - label: 'Description ID'
+                name: 'description'
+                type: 'integer'
+                placeholder: 'Enter Description ID'
+        dependencies: ["language"]
+    postSessions_200:
+      summary: Post Sessions (Code 200)
+      description: An example for an Audit Session Post Endpoint.
+      value:
+        id: "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d"
+        data:
+          requestId: "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d"
+          status: "Status_ALLOCATED"
+          queryFilters: ["Java", "Javascript", "Common"]
+          queryBuilder: true
+          applicationAssociation: false
+          projectName: "JavaVulnerabilities_Project"
+          permissions:
+            tenant:
+              view: true
+              update: true
+              create: true
+              delete: true
+            application:
+              view: false
+              update: false
+              create: false
+              delete: false
+            project:
+              view: true
+              update: true
+              create: true
+              delete: true
+    auditSources_200:
+      summary: Get Audit Sources Sample (Code 200)
+      description: An example for Get Audit Sources Endpoint.
+      value:
+        - isLeaf: false
+          title: "AllScanTypes"
+          key: "/AllScanTypes"
+          children:
+            - isLeaf: false
+              title: "src"
+              key: "/AllScanTypes/src"
+              children:
+                - isLeaf: true
+                  title: "Dockerfile"
+                  key: "/AllScanTypes/src/Dockerfile"
+                  children: []
+                - isLeaf: true
+                  title: "pom.xml"
+                  key: "/AllScanTypes/src/pom.xml"
+                  children: []
+            - isLeaf: true
+              title: "README.md"
+              key: "/AllScanTypes/README.md"
+              children: []
+    sourceCode_200:
+      summary: Get Audit Sources Sample (Code 200)
+      description: An example for Audit Sources Get Endpoint.
+      value: |-
+        package main
+
+        import "fmt"
+
+        func main() {
+          fmt.Println("hello world")
+        }
+    scanAuditPost_200:
+      summary: Scan the Audit Session (Code 200)
+      description: An example for Scan Audit Session sources POST Endpoint.
+      value:
+        id: "ddba1a3d-79b3-4663-a265-4b278a5d7b14"
+    createQuery_request:
+      summary: Post Create Query Request
+      description: An example for a Create Query Post Request.
+      value:
+        name: "MyQuery"
+        language: "Javascript"
+        group: "group-1"
+        severity: "critical"
+        executable: true
+        presets: ["0", "2"]
+        cwe: 123
+        description: 456
+    overrideQuery_request:
+      summary: Post Override Query Request
+      description: An example for a Override Query (Project) Post Request.
+      value:
+        name: "SQL_Injection"
+        language: "Javascript"
+        group: "CSharp_High_Risk"
+        severity: "critical"
+        executable: true
+        presets: ["0", "2"]
+        cwe: 123
+        description: 456
+        level: "65209b84-2de0-40be-9e5a-e21ac658f977"
+    createQuery_200:
+      summary: Create a new Query (Code 200)
+      description: An example for Create a New Query Post Endpoint.
+      value:
+        id: "5cc46f82-8f9f-11ee-b9d1-0242ac120002"
+    deleteQuery_200:
+      summary: Delete a Query (Code 200)
+      description: An example for Delete a Query Delete Endpoint.
+      value:
+        id: "4233cd92-8fa0-11ee-b9d1-0242ac120002"
+    putQueryMetadataResponse_200:
+      summary: Put Metadata Query Response (Code 200)
+      description: An example for Put Metadata Query Response Endpoint.
+      value:
+        id: "4233cd92-8fa0-11ee-b9d1-0242ac120002"
+    putQueryMetadata_200:
+      summary: Put query metadata request (Code 200)
+      description: An example for an update of the query metadata asyncronous response.
+      value:
+        severity: "Critical"
+    putQuerySource_200:
+      summary: Put query source request (Code 200)
+      description: An example for an update of the query source asyncronous response.
+      value:
+        id: "ee80e7f6-8fa0-11ee-b9d1-0242ac120002"
+    getAllQueries_200:
+      summary: Get All Queries (Code 200)
+      description: An example for Get All Queries Endpoint.
+      value:
+        - isLeaf: false
+          title: "JavaScript"
+          key: "javascript"
+          children:
+            - isLeaf: false
+              title: "Tenant"
+              key: "tenant"
+              children:
+                - isLeaf: false
+                  title: "Common_Best_Coding_Practice"
+                  key: "Common_Best_Coding_Practice"
+                  children:
+                    - isLeaf: true
+                      title: "Assigning_instead_of_Comparing"
+                      key: "IFZXG2LHNZUW4Z27NFXHG5DFMFSF633GL5BW63LQMFZGS3TH"
+                      children: []
+                    - isLeaf: true
+                      title: "Comparing_instead_of_Assigning"
+                      key: "INXW24DBOJUW4Z27NFXHG5DFMFSF633GL5AXG43JM5XGS3TH"
+                      children: []
+                    - isLeaf: true
+                      title: "Declaration_Of_Catch_For_Generic_Exception"
+                      key: "IRSWG3DBOJQXI2LPNZPU6ZS7INQXIY3IL5DG64S7I5SW4ZLSNFRV6RLYMNSXA5DJN5XA"
+                      children: []
+                    - isLeaf: true
+                      title: "Detection_Of_Error_Condition_Without_Action"
+                      key: "IRSXIZLDORUW63S7J5TF6RLSOJXXEX2DN5XGI2LUNFXW4X2XNF2GQ33VORPUCY3UNFXW4"
+                      children: []
+                    - isLeaf: true
+                      title: "Hardcoded_Absolute_Path"
+                      key: "JBQXEZDDN5SGKZC7IFRHG33MOV2GKX2QMF2GQ"
+                      children: []
+                    - isLeaf: true
+                      title: "Insufficient_Logging_Of_Database_Actions"
+                      key: "JFXHG5LGMZUWG2LFNZ2F6TDPM5TWS3THL5HWMX2EMF2GCYTBONSV6QLDORUW63TT"
+                      children: []
+    getQueryDetails_200:
+      summary: Get Query Data details (Code 200)
+      description: An example for Get Query Data Endpoint.
+      value:
+        id: '2syswoof68vqZkernrZQJhjb9QwRZ4VxooQaVsFxbf3q0zQnGvjiVDev200INh08i3SircSio8adEE4G9niVbPZeA'
+        name: SQL_Injection
+        level: project
+        path: CSharp/CSharp_High_Risk/SQL_Injection
+        source: result = Find_SQL_Injection();
+        metadata:
+          group: 'CSharp_Low_Visibility'
+          severity: 'high'
+          language: 'CSharp'
+          cwe: 566
+          description: 879
+          executable: true
+    validateQuery_200:
+      summary: Validate the query provided (Code 200)
+      description: An example for Validate Query Post Endpoint.
+      value:
+        id: a4082a9a-847e-11ee-b962-0242ac120002
+    runQueries_200:
+      summary: Execute the queries on the Audit session scanned project (Code 200)
+      description: An example for Run Queries Get Endpoint.
+      value:
+        id: 9e061db4-847e-11ee-b962-0242ac120002
+    getResultsSummaryTree_200:
+      summary: Get results summary tree for the a query run execution (Code 200)
+      description: An example for Get Results Tree Endpoint.
+      value:
+        - isLeaf: false
+          title: "Run 1"
+          key: "0cbcb480-7411-11ee-b962-0242ac120002"
+          children:
+            - isLeaf: false
+              title: "Javascript"
+              key: "0cbcb480-7411-11ee-b962-0242ac120002_Javascript"
+              children:
+                - isLeaf: true
+                  title: "SQL_Injection (10)"
+                  key: "resultid1"
+                  data:
+                    severity: "high"
+                  children: []
+        - isLeaf: false
+          title: "Run 2"
+          key: "2cd5f204-7411-11ee-b962-0242ac120002"
+          children:
+            - isLeaf: false
+              title: "Javascript"
+              key: "2cd5f204-7411-11ee-b962-0242ac120002_Javascript"
+              children:
+                - isLeaf: true
+                  title: "SQL_Injection (1)"
+                  key: "resultid2"
+                  data:
+                    severity: "high"
+                  children: []
+    getResultsResponse_200:
+      summary: Get all vulnerabilities data for the a given result id (Code 200)
+      description: An example for Get Vulnerabilities Reponse data Endpoint.
+      value:
+        data:
+          - vulnerabilityId: "8a290068-4883-4289-a0aa-ef03d7cf4d09"
+            sourceFile: "LoginPage.cs"
+            sourceLine: 10
+            sourceId: 99
+            sourceName: "Login"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "LoginPage.cs"
+            destinationLine: 10
+            destinationId: 99
+            destinationName: "Login"
+            destinationType: "MethodInvokeExpr"
+            state: "To Verify"
+            pathSize: 4
+          - vulnerabilityId: "d9421dc4-1e6d-4e26-b384-1dbc4772f779"
+            sourceFile: "UserInput.cs"
+            sourceLine: 24
+            sourceId: 100
+            sourceName: "GetUserInput"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "Validation.cs"
+            destinationLine: 78
+            destinationId: 101
+            destinationName: "ValidateInput"
+            destinationType: "MethodInvokeExpr"
+            state: "Confirmed"
+            pathSize: 3
+          - vulnerabilityId: "d1adadf7-ecbb-48de-beab-9e360c290fe8"
+            sourceFile: "Database.cs"
+            sourceLine: 15
+            sourceId: 102
+            sourceName: "ConnectDB"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "Database.cs"
+            destinationLine: 20
+            destinationId: 103
+            destinationName: "DisconnectDB"
+            destinationType: "MethodInvokeExpr"
+            state: "Fixed"
+            pathSize: 2
+          - vulnerabilityId: "cbe7af73-4de1-41ee-bfd3-521f45f77266"
+            sourceFile: "SessionManager.cs"
+            sourceLine: 30
+            sourceId: 104
+            sourceName: "CreateSession"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "SessionManager.cs"
+            destinationLine: 45
+            destinationId: 105
+            destinationName: "DestroySession"
+            destinationType: "MethodInvokeExpr"
+            state: "Won't Fix"
+            pathSize: 6
+          - vulnerabilityId: "24a85520-76d8-4b76-9cc9-4561aeb02515"
+            sourceFile: "Authenticator.cs"
+            sourceLine: 52
+            sourceId: 106
+            sourceName: "Authenticate"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "Logger.cs"
+            destinationLine: 67
+            destinationId: 107
+            destinationName: "LogEvent"
+            destinationType: "MethodInvokeExpr"
+            state: "Reviewed"
+            pathSize: 5
+          - vulnerabilityId: "9e6ca0a7-6cb6-4329-bb68-4f6bd342c6c9"
+            sourceFile: "Permission.cs"
+            sourceLine: 42
+            sourceId: 108
+            sourceName: "CheckPermission"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "Permission.cs"
+            destinationLine: 55
+            destinationId: 109
+            destinationName: "GrantPermission"
+            destinationType: "MethodInvokeExpr"
+            state: "Duplicate"
+            pathSize: 1
+          - vulnerabilityId: "e49b59dd-8c4e-4a6d-8aeb-fa4e3038b4e7"
+            sourceFile: "ErrorHandler.cs"
+            sourceLine: 60
+            sourceId: 110
+            sourceName: "HandleError"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "Notification.cs"
+            destinationLine: 75
+            destinationId: 111
+            destinationName: "NotifyUser"
+            destinationType: "MethodInvokeExpr"
+            state: "New"
+            pathSize: 7
+          - vulnerabilityId: "965f690f-87c2-4a7c-b7be-d44c71af4066"
+            sourceFile: "Encryption.cs"
+            sourceLine: 33
+            sourceId: 112
+            sourceName: "EncryptData"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "Decryption.cs"
+            destinationLine: 48
+            destinationId: 113
+            destinationName: "DecryptData"
+            destinationType: "MethodInvokeExpr"
+            state: "Reopened"
+            pathSize: 8
+          - vulnerabilityId: "25dfa98f-2a7b-40cd-be77-5d31addb05fd"
+            sourceFile: "APIController.cs"
+            sourceLine: 27
+            sourceId: 114
+            sourceName: "SendRequest"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "APIController.cs"
+            destinationLine: 40
+            destinationId: 115
+            destinationName: "ReceiveResponse"
+            destinationType: "MethodInvokeExpr"
+            state: "Closed"
+            pathSize: 9
+          - vulnerabilityId: "91b55ec3-9549-48e8-b767-5fa446eda9ea"
+            sourceFile: "UserManager.cs"
+            sourceLine: 18
+            sourceId: 116
+            sourceName: "CreateUser"
+            sourceType: "MethodInvokeExpr"
+            destinationFile: "UserManager.cs"
+            destinationLine: 25
+            destinationId: 117
+            destinationName: "DeleteUser"
+            destinationType: "MethodInvokeExpr"
+            state: "Deferred"
+            pathSize: 10
+        totalCount: 50
+    getVulnerabilityResponse_200:
+      summary: Get a specific vulnerability data to fill the attack vector (Code 200)
+      description: An example for Get Vulnerability Result Reponse data Endpoint.
+      value:
+        sourceFile: "LoginPage.cs"
+        sourceLine: 10
+        sourceId: 99
+        sourceName: "Login"
+        sourceType: "MethodInvokeExpr"
+        destinationFile: "LoginPage.cs"
+        destinationLine: 10
+        destinationId: 99
+        destinationName: "Login"
+        destinationType: "MethodInvokeExpr"
+        state: "To Verify"
+        pathSize: 4
+        nodes:
+          - name: "login"
+            fullName: "LoginPage.Controls.login"
+            typeName: "string"
+            line: 40
+            column: 72
+            length: 5
+            domType: "UnknownReference"
+            nodeId: 680
+    getDebugMessageResponse_200:
+      summary: Get specified result debug messages (Code 200)
+      description: An example for Get a Specified Result Debug Messages Endpoint.
+      value:
+        data:
+          - messageLine: 200
+            debugMessage: "var x = 2"
+            timestamp: "2023-08-24T09:24:18.169Z"
+          - messageLine: 201
+            debugMessage: "x += 1"
+            timestamp: "2023-08-24T09:24:19.169Z"
+          - messageLine: 202
+            debugMessage: "console.log(x)"
+            timestamp: "2023-08-24T09:24:20.169Z"
+          - messageLine: 203
+            debugMessage: "if (x > 2) { x = 0; }"
+            timestamp: "2023-08-24T09:24:21.169Z"
+          - messageLine: 204
+            debugMessage: "x *= 3"
+            timestamp: "2023-08-24T09:24:22.169Z"
+          - messageLine: 205
+            debugMessage: "x /= 4"
+            timestamp: "2023-08-24T09:24:23.169Z"
+          - messageLine: 206
+            debugMessage: "x -= 2"
+            timestamp: "2023-08-24T09:24:24.169Z"
+          - messageLine: 207
+            debugMessage: "return x"
+            timestamp: "2023-08-24T09:24:25.169Z"
+          - messageLine: 208
+            debugMessage: "function reset() { x = 0; }"
+            timestamp: "2023-08-24T09:24:26.169Z"
+          - messageLine: 209
+            debugMessage: "x = Math.pow(x, 2)"
+            timestamp: "2023-08-24T09:24:27.169Z"
+        totalCount: 50
+    requestStatusNotReady_200:
+      summary: Request status not ready (Code 200)
+      description: An example for Check Not Ready Request Status Get Endpoint.
+      value:
+        completed: false
+        value:
+          ready: false
+          message: "The SAST Engine is not ready yet"
+    createQueryResponse_200:
+      summary: Create Query Response request status (Code 200)
+      description: An example for Check Create Query Response Request Status Get Endpoint.
+      value:
+        completed: true
+        status: Finished
+        value:
+          id: "2syswoof68vqZkernrZQJhjb9QwRZ4VxooQaVsFxbf3q0zQnGvjiVDev200INh08i3SircSio8adEE4G9niVbPZeA"
+    deleteQueryResponse_200:
+      summary: Delete Query Response request status (Code 200)
+      description: An example for Check Delete Query Response Request Status Get Endpoint.
+      value:
+        completed: true
+        status: Finished
+    updateQueryResponse_200:
+      summary: Update Query Response request status (Code 200)
+      description: An example for Check Update Query Response Request Status Get Endpoint.
+      value:
+        completed: true
+        status: Finished
+    compilationResponse_200:
+      summary: Compilation Response request status (Code 200)
+      description: An example for Check Compilation Response Request Status Get Endpoint.
+      value:
+        completed: true
+        status: Finished
+        value:
+          failed_queries:
+            - query_id: 346558629760677700
+              error:
+                - line: 1
+                  startColumn: 20
+                  endColumn: 30
+                  message: "; expected"
+                  code: "CS1002"
+            - query_id: 346558629760677812
+              error:
+                - line: 5
+                  startColumn: 22
+                  endColumn: 0
+                  message: "; expected"
+                  code: "CS1002"
+    executionResponse_200:
+      summary: Execution Response request status (Code 200)
+      description: An example for Check Execution Response Request Status Get Endpoint.
+      value:
+        completed: true
+        status: Finished
+        value:
+          scanId: "47ed33f6-0c25-43c1-bc1b-01e8aad108b1"
+          timestamp: "2023-08-24T09:24:18.169Z"
+          seconds: 1638200593
+          nanos: 760898100
+          queries:
+            - info:
+                id: -7467647684143290000
+                queryName: "Command_Injection"
+                languageName: "CSharp"
+                groupName: "CSharp_High_Risk"
+                severity: "Critical"
+                results:
+                  - similarityId: -1170245052
+                    uniqueId: -1170245052
+                    nodes:
+                      - nodeId: 1235
+                        line: 1
+                        column: 23
+                        length: 7
+                        fileName: "/vulcs-master/bad/brute.cs"
+                        name: "program"
+                        typeName: {}
+                        domType: "UnknownReference"
+                        fullName: "CxCSNS_77b27dbc.program"
+                        definitions: "1"
+                        methodLine: 6
+            - info:
+                id: -7467647684143290123
+                queryName: "SQL_Injection"
+                languageName: "CSharp"
+                groupName: "CSharp_High_Risk"
+                severity: "Critical"
+                results:
+                  - similarityId: -1170245053
+                    uniqueId: -1170245053
+                    nodes:
+                      - nodeId: 1235
+                        line: 5
+                        column: 23
+                        length: 7
+                        fileName: "/vulcs-master/bad/brute2.cs"
+                        name: "program2"
+                        typeName: {}
+                        domType: "UnknownReference"
+                        fullName: "CxCSNS_77b27dbc.program2"
+                        definitions: "1"
+                        methodLine: 6
+    detectLanguagesResponse_200:
+      summary: Detect Languages Response request status (Code 200)
+      description: An example for Detect Languages Response Request Status Get Endpoint.
+      value:
+        completed: true
+        status: Finished
+        value: ["CSharp", "JavaScript", "VbNet", "VbScript", "Common"]
+    getQueryBuilderHistory_200:
+      summary: Get Query Builder (GPT) history (Code 200)
+      description: An example of an Query Builder (GPT) history endpoint.
+      value:
+        - role: "assistant"
+          content: "Sure, here's a simple example of a Checkmarx Query Language (CxQL) query that would check for variables with \"creditCard\" in the name being assigned values that match the pattern for a credit card number. Note that this is a rudimentary example, and real world situations would likely require a more complex query.\n\n```CxQL\nCxList creditCardStrings = All.FindByRegex(@\"\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})\\b\");\n\nCxList creditCardVariables = All.FindByShortName(\"*creditCard*\");\n\nCxList possibleCreditCardStores = creditCardVariables.FindByAssignmentSide(CxList.AssignmentSide.Left);\nCxList creditCardAssignments = creditCardStrings.GetAssigner();\n\nresult = possibleCreditCardStores * creditCardAssignments;\n```\nThis will look for any assignments where the variable's short name includes \"creditCard\" and the assigned value matches the regex pattern for credit card numbers. Any such assignment is returned as a possible plain text storage of a credit card number.\n\nPlease note that this example produces a high amount of false positives as it focuses on the variable name rather than the actual stored value. A practical implementation is a lot more complex as it should consider encrypted card values, values coming from secure tokens, etc."
+    operationCancelResponse_202:
+      summary: Operation cancel request (Code 202)
+      description: An example of operation cancel Endpoint.
+      value:
+        code: 759
+        message: "The operation was canceled."
+    badRequestResponse_400:
+      summary: Bad request (Code 400)
+      description: An example of bad request Endpoint.
+      value:
+        code: 400
+        message: "The request has invalid arguments."
+    notFoundResponse_404:
+      summary: Not found request (Code 404)
+      description: An example of not found request Endpoint.
+      value:
+        code: 404
+        message: "Invalid request."
+    internalServerErrorResponse_500:
+      summary: Internal Server Error request (Code 500)
+      description: An example of an internal server error Endpoint.
+      value:
+        code: 757
+        message: "Failed to cancel operation."
+    postUploadUrl_200:
+      summary: Upload ZIP file URL (200)
+      description: An example of an upload zip file URL Endpoint.
+      value:
+        sourcesUrl: "https://cx.one.com/storage/uploads/75d4fe35-965a-4506-b226-e0155ec84c34/231d5d89-4cf2-45e5-8cb0-6be6b072548b"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/query-editor
+security:
+  - Login: []

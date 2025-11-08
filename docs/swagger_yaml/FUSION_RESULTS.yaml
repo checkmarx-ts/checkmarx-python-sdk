@@ -1,0 +1,580 @@
+openapi: 3.0.2
+info:
+  description: "Fusion Results Service REST API"
+  version: 1.0.0
+  title: "Fusion Results Service"
+tags:
+  - name: results
+    description: Results by application ID using various informational segments
+paths:
+  /applications:
+    get:
+      summary: Get a list of scanned applications
+      tags:
+        - results
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/applicationIdCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        default:
+          $ref: '#/components/responses/default'
+  /applications/{id}/summary:
+    get:
+      summary: Summary of MicroServices and Cloud Resources type and count
+      tags:
+        - results
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - in: query
+          name: action
+          explode: true
+          schema:
+            type: array
+            maxItems: 3
+            items:
+              type: string
+            description: >-
+              filter results by action.
+        - in: query
+          name: access
+          explode: true
+          schema:
+            type: array
+            maxItems: 3
+            items:
+              type: string
+            description: >-
+              filter results by access.
+        - in: query
+          name: category
+          explode: true
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+            description: >-
+              filter results by category.
+        - in: query
+          name: language
+          explode: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+            description: >-
+              filter results by language.
+        - in: query
+          name: type
+          explode: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+            description: >-
+              filter results by resource type.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/applicationSummary'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        default:
+          $ref: '#/components/responses/default'
+  /applications/{id}/resources:
+    get:
+      summary: Cloud resources for an application with a list of project ids that use that resource
+      tags:
+        - results
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - in: query
+          name: access
+          explode: true
+          schema:
+            type: array
+            maxItems: 3
+            items:
+              type: string
+            description: >-
+              filter results by access.
+        - in: query
+          name: category
+          explode: true
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+            description: >-
+              filter results by category.
+        - in: query
+          name: type
+          explode: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+            description: >-
+              filter results by resource type.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/resourcesCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        default:
+          $ref: '#/components/responses/default'
+  /applications/{id}/microservices:
+    get:
+      summary: Microservices for an application with a list of resources that are in use by the service
+      tags:
+        - results
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - in: query
+          name: action
+          explode: true
+          schema:
+            type: array
+            maxItems: 3
+            items:
+              type: string
+            description: >-
+              filter results by action.
+        - in: query
+          name: language
+          explode: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+            description: >-
+              filter results by language.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/microServicesCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        default:
+          $ref: '#/components/responses/default'
+  /applications/{id}/risk-scores:
+    get:
+      summary: Updated risk score results for an application with a list of requested cx one scans
+      tags:
+        - results
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - in: query
+          name: cxone-scan-ids
+          explode: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+            description: >-
+              list of scan ids.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/riskScoreResultsCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        default:
+          $ref: '#/components/responses/default'
+components:
+  schemas:
+    resource:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of resource
+        access:
+          type: string
+          description: Access type
+        filename:
+          type: string
+          description: Name of file
+        type:
+          type: string
+          description: Type of resource
+        category:
+          type: string
+          description: Category of resource
+        actions:
+          type: array
+          maxItems: 3
+          description: Actions performed with resource
+          items:
+            type: string
+      additionalProperties: true
+    applicationIdCollection:
+      type: object
+      description: An object representing a collection of application IDs
+      properties:
+        applications:
+          type: array
+          maxItems: 100
+          description: The results for the app-id requested and with filters applied
+          items:
+            type: string
+            format: uuid
+    applicationSummary:
+      type: object
+      description: Metadata about application's Microservices and Cloud Resources count of different types of data
+      properties:
+        microservices:
+          $ref: '#/components/schemas/microservicesMetaData'
+        cloudResources:
+          $ref: '#/components/schemas/cloudResourcesMetadata'
+    microservicesMetaData:
+      type: object
+      description: Metadata for microservices
+      properties:
+        count:
+          type: integer
+          format: int32
+          description: Amount of microservices whose data is returns (may use filters)
+          example: 12
+        language:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            Java: 5
+            Javascript: 6
+            Go: 1
+        actions:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            read: 5
+            write: 7
+    cloudResourcesMetadata:
+      type: object
+      description: Metadata for cloud resources
+      properties:
+        count:
+          type: integer
+          format: int32
+          description: Amount of cloud resources whose data is returns (may use filters)
+          example: 15
+        type:
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            AWS::SQS::QUEUE: 5
+            AWS::S3::Bucket: 10
+        access:
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            Public: 5
+            Private: 10
+        category:
+          additionalProperties:
+            type: integer
+            format: int32
+          example:
+            Queue: 5
+            Storage: 10
+    resourcesCollection:
+      type: object
+      description: an object representing a collection of resources for an application
+      properties:
+        appId:
+          type: string
+          format: uuid
+          description: App's __uuid__ which the following results belong to
+        scanId:
+          type: string
+          format: uuid
+          description: Scan's __uuid__ which the following results belong to
+        scanTime:
+          type: string
+          format: date-time
+        resources:
+          type: array
+          maxItems: 100
+          description: Collection of resources for an application
+          items:
+            $ref: '#/components/schemas/resourceWithProjects'
+    resourceWithProjects:
+      allOf:
+        - $ref: '#/components/schemas/resource'
+        - type: object
+          properties:
+            projects:
+              description: Project IDs who use this resource
+              type: array
+              maxItems: 100
+              items:
+                $ref: '#/components/schemas/projectsWithPriorities'
+    projectsWithPriorities:
+      type: object
+      description: moo
+      properties:
+        projectId:
+          type: string
+          format: uuid
+          description: Project IDs who use this resource
+        priorityQueries:
+          type: array
+          maxItems: 500
+          description: Priority queries
+          items:
+            $ref: '#/components/schemas/priorityQuery'
+    riskScoreResultsCollection:
+      type: object
+      description: an object representing a collection of risk score results for an application
+      properties:
+        totalCount:
+          type: number
+          format: uint32
+          description: total number of results
+        results:
+          type: array
+          maxItems: 100
+          description: collection of risk score results for an application
+          items:
+            $ref: '#/components/schemas/riskScoreResultsResult'
+    riskScoreResultsResult:
+      type: object
+      description: an object representing a collection of risk score results for an application
+      properties:
+        resultId:
+          type: string
+          description: Unique result id
+        fusionScanId:
+          type: string
+          format: uuid
+          description: Unique definition of Fusion scan
+        tenantId:
+          type: string
+          description: tenant id
+        vulnerabilityEngine:
+          type: string
+          description: in case of exploitable path --> SCA
+        correlatedEngine:
+          type: string
+          description: in case of exploitable path --> SAST
+        oldRiskValue:
+          type: number
+          format: float
+          description: old risk score value
+        newRiskValue:
+          type: number
+          format: float
+          description: old risk score value
+        scanId:
+          type: string
+          format: uuid
+          description: A unique identifier for a scan of vulnerability engine scan
+        resultInfo:
+          type: string
+          description: explanation about reason of changing result score
+        projectId:
+          type: string
+          format: uuid
+          description: result belong to this project
+    microServicesCollection:
+      type: object
+      description: an object representing a collection of microservices for an application
+      properties:
+        appId:
+          type: string
+          format: uuid
+          description: App's __uuid__ which the following results belong to
+        scanId:
+          type: string
+          format: uuid
+          description: Scan's __uuid__ which the following results belong to
+        scanTime:
+          type: string
+          format: date-time
+        microservices:
+          type: array
+          maxItems: 100
+          description: collection of microservices for an application
+          items:
+            $ref: '#/components/schemas/microserviceWithResources'
+    microserviceWithResources:
+      type: object
+      description: some
+      properties:
+        projectId:
+          type: string
+          format: uuid
+          description: Microservice's __uuid__
+        language:
+          type: string
+          description: Optional data if a SAST result is part of this result
+        resources:
+          type: array
+          maxItems: 100
+          description: collection of resources used by the microservice
+          items:
+            $ref: '#/components/schemas/resourceWithPriorities'
+    resourceWithPriorities:
+      allOf:
+        - $ref: '#/components/schemas/resource'
+        - type: object
+          properties:
+            priorityQueries:
+              description: Priority queries
+              type: array
+              maxItems: 500
+              items:
+                $ref: '#/components/schemas/priorityQuery'
+          additionalProperties: true
+      additionalProperties: true
+    priorityQuery:
+      type: object
+      description: another moo
+      properties:
+        queryName:
+          type: string
+        queryId:
+          type: string
+        resultId:
+          type: string
+          example: v9N8kUKyV6UcD7oriPwUMAeYgd8%253D
+        additionalData:
+          type: string
+        score:
+          type: integer
+          format: int32
+          example: 4
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A message describing the error
+        type:
+          type: string
+          description: The type of the error
+        code:
+          type: integer
+          format: int32
+          description: The error code
+  responses:
+    '400':
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: Unauthorized, Access token is missing or invalid
+    '403':
+      description: Forbidden
+    '404':
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    'default':
+      description: Unexpected error
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 20
+        example: 20
+      description: The max. number of results to return
+    offset:
+      in: query
+      name: offset
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+        example: 0
+      description: The number of results to skip before returning results
+    appId:
+      name: id
+      in: path
+      description: The application id
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/correlation/results
+security:
+  - Login: []

@@ -1,0 +1,152 @@
+openapi: 3.0.2
+info:
+  title: Kics Scan Metadata Service
+  version: 1.0.0
+paths:
+  "/":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scanInfoCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  "/{scan-id}":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: scan-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scanInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    scanInfo:
+      type: object
+      properties:
+        scanId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+        loc:
+          type: integer
+        fileCount:
+          type: integer
+    scanInfoCollection:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: The number of records matching the applied filter.
+        scans:
+          type: array
+          description: Scans of that specific group.
+          items:
+            $ref: '#/components/schemas/scanInfo'
+        missing:
+          type: array
+          description: List of scan ids that wasn't found.
+          items:
+            type: string
+            format: uuid
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/kics-metadata
+security:
+  - Login: []

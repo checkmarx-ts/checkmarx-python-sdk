@@ -1,0 +1,2520 @@
+openapi: 3.0.2
+info:
+  title: Access Management Service
+  description: |
+    The Access Management APIs are used for managing access to specific resources in your tenant account.
+
+    An admin user can use the POST `Create an assignment` API to create an "assignment". An "assignment" specifies one or more "entities" (user, group or OAuth Client) and grants them permission to access specific "resources" (tenant, application or project). You can also specify "roles" that designate the permissions for this assignment. If not specified, then each user is has the permissions specified in his "base role".
+
+    Each role comprises a series of permissions that specify the precise actions that he is authorized to take. The system comes with a set of preconfigured (out-of-the-box) "System Roles". In addition you can create custom roles based on the granular permissions that are available in the system.
+
+    ## Phase 2 Features
+
+    This API includes Phase 2 endpoints that provide enhanced functionality:
+
+    - **Bulk Operations**: Create multiple assignments, manage multiple roles efficiently
+    - **Role Management**: Advanced role creation, updates, and deletion capabilities
+    - **Base Role Management**: Comprehensive base role assignment and management
+    - **Internal Entities Management**: Fast access to internal AM storage for improved performance
+    - **Entity Resources**: Enhanced reporting of entities and their assigned resources
+    - **Advanced Entity Management**: Detailed effective permissions retrieval and management
+
+    ### Phase 2 Endpoint Categories
+
+    - **Bulk Assignment Operations**: `/assignments`, `/assignments/roles`
+    - **Role Management**: `/roles`, `/roles/{id}`, `/permissions`
+    - **Base Role Operations**: `/base-roles/{id}/*`
+    - **Internal Entities Management**: `/internal/users`, `/internal/groups`, `/internal/clients`
+    - **Entity Resources**: `/users-resources`, `/clients-resources`, `/groups-resources`
+    - **Advanced Entity Management**: `/my-groups`, `/effective-permissions`
+  version: 1.0.0
+paths:
+  /:
+    post:
+      tags:
+        - Access Management
+      summary: Create an assignment
+      description: 'Use this API to create an "assignment". An "assignment" specifies one or more "entities" (user, group, or OAuth Client) and grants them permission to access specific  "resources" (tenant, application or project). You can also specify "roles" that designate the permissions for this assignment. If not specified, the tenant wide permission for each user is applied. The request body is a JSON object that defines  all of the relevant parameters for the assignment.'
+      operationId: createAssignment
+      requestBody:
+        description: Assignment data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentInput'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        409:
+          $ref: '#/components/responses/409'
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Access Management
+      summary: Delete an assignment
+      description: Delete an assignment. This revokes all permissions associated with the assignment.
+      operationId: deleteAssignment
+      parameters:
+        - name: entity-id
+          in: query
+          description: The unique identifier of the entity (user, group or client) for which the assignment will be deleted.
+          required: true
+          schema:
+            type: string
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource (tenant, application or project) for which the assignment will be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Access Management
+      summary: Retrieve an assignment
+      description: Get detailed information about a specific assignment.
+      operationId: getAssignment
+      parameters:
+        - name: entity-id
+          in: query
+          description: The unique identifier of the entity (user, group or client)
+          required: true
+          schema:
+            type: string
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource (tenant, application or project)
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Access Management
+      summary: Update assignment roles - Phase 2 only
+      parameters:
+        - name: entity-id
+          in: query
+          description: The unique identifier of the entity (user, group or client) that is being updated
+          required: true
+          schema:
+            type: string
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource (tenant, application or project)
+          required: true
+          schema:
+            type: string
+      description: Update the roles assinged to the entity for the specificed assignment.
+      operationId: UpdateEntityRoles
+      requestBody:
+        description: Specify the new roles that will be assigned to the entity for this assignment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityRolesRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /resource-assignments:
+    get:
+      tags:
+        - Access Management
+      summary: Retrieve resource assignments
+      description: Retrieves detailed information about each assignment that exists for specific resources.
+      operationId: GetAssignmentsForResources
+      parameters:
+        - name: resource-ids
+          in: query
+          description: The unique identifiers of one or more resources (comma separated)
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentsForResource'
+        400:
+          $ref: '#/components/responses/400'
+        409:
+          $ref: '#/components/responses/409'
+        500:
+          $ref: '#/components/responses/500'
+  /assignments:
+    post:
+      tags:
+        - Phase 2 - Bulk Operations
+      summary: Create multiple assignments
+      description: Use this API to create multiple assignments with one action. Specify one or more "entities" (user, usergroup, or OAuth Client) and one or more "resources" (tenant, application or project) to which they are given access. Also, specify the "roles" that designate the permissions for all of the assignments created with this action. If not specified, then the default "base" role is applied for each entity. The request body is a JSON object that defines all of the relevant parameters for the assignments.
+      operationId: createMultipleAssignments
+      requestBody:
+        description: Create multiple assignments
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultipleAssignmentInput'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        409:
+          $ref: '#/components/responses/409'
+        500:
+          $ref: '#/components/responses/500'
+  /assignments/roles:
+    post:
+      tags:
+        - Phase 2 - Bulk Operations
+      summary: Add roles to assignment
+      operationId: AddEntityRoles
+      requestBody:
+        description: Add roles to an existing assignment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAssignmentRoles'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        409:
+          $ref: '#/components/responses/409'
+        500:
+          $ref: '#/components/responses/500'
+  /available-groups:
+    get:
+      tags:
+        - Entity Management
+      summary: Retrieve user's or client available groups
+      description: Get a list of groups available for user/client on project/global level.
+      operationId: GetEntityAvailableGroups
+      parameters:
+        - name: project-id
+          in: query
+          description: The unique identifier of the project. If not provided, check access on tenant level.
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: search
+          in: query
+          description: Search by group name
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: "The maximum number of results to return (default: 100, maximum: 100)"
+          required: false
+          schema:
+            type: number
+            default: 100
+            maximum: 100
+        - name: offset
+          in: query
+          description: The number of pages to skip before starting to return results. The number of results per page is defined by the value of `limit`.
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: Success, returns list of group paths
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGroupsResponse'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /groups:
+    get:
+      tags:
+        - Entity Management
+      summary: Retrieve groups
+      description: Get info about user groups in the tenant account
+      operationId: getGroups
+      parameters:
+        - name: limit
+          in: query
+          description: "The maximum number of results to return (default: 10)"
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: The number of pages to skip before starting to return results. The number of results per page is defined by the value of `limit`.
+          required: false
+          schema:
+            type: number
+        - name: search
+          in: query
+          description: Search by group name
+          required: false
+          schema:
+            type: string
+        - name: ids
+          in: query
+          description: Filter by group IDs (comma separated)
+          required: false
+          schema:
+            type: string
+        - name: briefRepresentation
+          in: query
+          description: Controls the level of detail in the response. When true (default), returns only basic group information (id, name, briefName). When false, includes additional fields such as roles, attributes, and other metadata for comprehensive group details.
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /users:
+    get:
+      tags:
+        - Entity Management
+      summary: Retrieve users
+      description: Get info about users in the tenant account.
+      operationId: getUsers
+      parameters:
+        - name: limit
+          in: query
+          description: "The maximum number of results to return (default: 10)"
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: The number of pages to skip before starting to return results. The number of results per page is defined by the value of `limit`.
+          required: false
+          schema:
+            type: number
+        - name: search
+          in: query
+          description: Search by user name, firstname, lastname or email
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /clients:
+    get:
+      tags:
+        - Entity Management
+      summary: Retrieve clients
+      description: Get info about OAuth clients in the tenant account
+      operationId: getClients
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /entities-for:
+    get:
+      tags:
+        - Access Management
+      summary: Retrieve entities
+      description: Get a list of entities that are assigned to a specific resource
+      operationId: getEntitiesFor
+      parameters:
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource
+          required: true
+          schema:
+            type: string
+        - name: resource-type
+          in: query
+          description: The type of resource (tenant, application or project)
+          example: 'project'
+          required: true
+          schema:
+            type: string
+        - name: entity-types
+          in: query
+          description: Comma separate list of entity types (user, group or client) to return. Default:Returns all entities. present.
+          example: 'user,group'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /entities-for/extended:
+    get:
+      tags:
+        - Phase 2 - Advanced Entity Management
+      summary: Retrieve extended entities for resource
+      description: Get a list of more detailed information about the entities assigned to the resource.
+      operationId: getEntitiesForExtended
+      parameters:
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource
+          required: true
+          schema:
+            type: string
+        - name: resource-type
+          in: query
+          description: The type of resource (tenant, application or project)
+          example: 'project'
+          required: true
+          schema:
+            type: string
+        - name: entity-types
+          in: query
+          description: Comma separate list of entity types (user, group or client) to return. Default:Returns all entities. present.
+          example: 'user,group'
+          required: false
+          schema:
+            type: string
+        - name: sort-by
+          in: query
+          description: Field for sorting the data
+          required: false
+          schema:
+            type: string
+            enum: ['entity_name']
+            default: 'entity_name'
+        - name: order
+          in: query
+          description: Order records by username
+          required: false
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+            default: 'asc'
+        - name: limit
+          in: query
+          description: "Max number of records (default: 10, maximum: 100)"
+          required: false
+          schema:
+            type: number
+            default: 10
+            maximum: 100
+        - name: offset
+          in: query
+          description: Start from
+          required: false
+          schema:
+            type: number
+            default: 0
+        - name: search
+          in: query
+          description: Search by entity name
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntitiesForExtendedResponse'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /resources-for:
+    get:
+      tags:
+        - Access Management
+      summary: Retrieve resources
+      description: Get a list of resources to which a specific entity is assigned
+      operationId: getResourcesFor
+      parameters:
+        - name: entity-id
+          in: query
+          description: The unique identifier of the entity (user, group or client)
+          required: true
+          schema:
+            type: string
+        - name: resource-types
+          in: query
+          description: Comma separated list of resource types for which results will be returned. Defatult:Results are returned for all types of resources.
+          example: 'project,tenant'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        400:
+          $ref: '#/components/responses/400'
+        405:
+          $ref: '#/components/responses/405'
+        500:
+          $ref: '#/components/responses/500'
+  /has-access:
+    get:
+      tags:
+        - Access Management
+      summary: Check access
+      description: Check if the current user (as identified by JWT token) has permission to do a particular action on a particular resource.
+      operationId: hasAccess
+      parameters:
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource
+          required: true
+          schema:
+            type: string
+        - name: resource-type
+          in: query
+          description: The type of resource. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
+          example: 'project'
+          required: true
+          schema:
+            type: string
+            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global']
+        - name: action
+          in: query
+          description: The action for which you are checking if permission is granted. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasAccess'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /has-access-to-groups:
+    get:
+      tags:
+        - Access Management
+      summary: Check access to requested groups
+      description: Check if the current user (as identified by JWT token) has permission to do a particular action on particular groups.
+      operationId: hasAccessToGroups
+      parameters:
+        - name: group-ids
+          in: query
+          description: The list of unique identifiers of groups (with coma separator)
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: project-id
+          in: query
+          description: The unique identifier of project. If provided it checks at Project level otherwise on Tenant
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasAccess'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /has-batch-access:
+    get:
+      tags:
+        - Access Management
+      summary: Check access to resource for batch of actions
+      description: Check if the current user (as identified by JWT token) has permission to do a particular actions on a particular resource.
+      operationId: hasBatchAccess
+      parameters:
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource
+          required: true
+          schema:
+            type: string
+        - name: resource-type
+          in: query
+          description: The type of resource. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
+          example: 'project'
+          required: true
+          schema:
+            type: string
+            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global']
+        - name: actions
+          in: query
+          description: The actions for which you are checking if permission is granted. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasBatchAccess'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /get-resources:
+    get:
+      tags:
+        - Access Management
+      summary: Retrieve accessible resources
+      description: Get a list of resources that are assigned to the current user (as identified by JWT token).
+      operationId: getResources
+      parameters:
+        - name: resource-types
+          in: query
+          description: The type of resource for which you are retrieving a list of accessible resources. Multiple types can be submitted (comma separated). The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
+          example: 'project,application'
+          required: true
+          schema:
+            type: string
+            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global']
+        - name: action
+          in: query
+          description: The action for which you are checking for accessible resources. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetResourcesResponse'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /my-groups:
+    get:
+      tags:
+        - Phase 2 - Advanced User Management
+      summary: Retrieve user's or client groups
+      description: Get a list of user/client groups to which the current user (as identified by JWT token) is assigned. Search for clients groups only available for phase 2.
+      operationId: getEntityGroups
+      parameters:
+        - name: include-subgroups
+          in: query
+          description: Set param to 'true' to include subgroups in the response
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: search
+          in: query
+          description: Search by group name
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: "The maximum number of results to return (default: 10)"
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: The number of pages to skip before starting to return results. The number of results per page is defined by the value of `limit`.
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: Success, returns list of group paths
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGroupsResponse'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /internal/users:
+    get:
+      tags:
+        - Phase 2 - Internal Entities Management
+      summary: Retrieve users from internal AM storage
+      description: Get info about users in the tenant account.<br>This returns the same info as `/users` but it gets results more quickly because it draws the info from our internal Access Management database.
+      operationId: getInternalUsers
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InternalUser'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /internal/groups:
+    get:
+      tags:
+        - Phase 2 - Internal Entities Management
+      summary: Retrieve groups from internal AM storage
+      description: Get info about OAuth clients in the tenant account.<br>This returns the same info as `/clients` but it gets results more quickly because it draws the info from our internal Access Management database.
+      operationId: getInternalGroups
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InternalGroup'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /internal/clients:
+    get:
+      tags:
+        - Phase 2 - Internal Entities Management
+      summary: Retrieve clients from internal AM storage
+      description: Get AM clients
+      operationId: getInternalClients
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InternalClient'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /base-roles/{entityID}:
+    get:
+      tags:
+        - Phase 2 - Base Role Management
+      summary: Retrieve entity's base roles
+      parameters:
+        - name: entityID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      description: Get the base roles for a specific entity (user, group or client). 'Base roles' are the set of permissions granted to the entity by default for assignments in which no roles were designated.
+      operationId: GetBaseRolesForEntity
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseRolesResponse'
+        401:
+          $ref: '#/components/responses/401'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Phase 2 - Base Role Management
+      summary: Update base roles for an entity
+      parameters:
+        - name: entityID
+          in: path
+          description: The unique identifier of the entity (user, group or client)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      description: Update the base roles for the specified entity. This will overwrite the existing base roles.<br>'Base roles' are the set of permissions granted to the entity by default for assignments in which no roles were designated.
+      operationId: UpdateBaseRoles
+      requestBody:
+        description: New base roles for the entity
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseRolesRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Phase 2 - Base Role Management
+      summary: Assign base roles to an entity
+      description: Add base roles to the specified entity. If the entity already has base roles, this will add additional roles without overwriting the existing roles. The body is an array of role IDs.<br>'Base roles' are the set of permissions granted to the entity by default for assignments in which no roles were designated.
+      operationId: AssignBaseRoles
+      parameters:
+        - name: entityID
+          in: path
+          required: true
+          description: The unique identifier of the entity (user, group or client)
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: New base roles for the entity. Submit an array of role IDs
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseRolesRequest'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Phase 2 - Base Role Management
+      summary: Delete base roles for an entity
+      description: Delete the base roles for a specific entity
+      operationId: DeleteBaseRoles
+      parameters:
+        - name: entityID
+          in: path
+          description: The unique identifier of the entity (user, group or client)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /base-roles/{entityID}/by-name:
+    post:
+      tags:
+        - Phase 2 - Base Role Management
+      summary: Assign base roles by role name
+      description: Add base roles to the specified entity. If the entity already has base roles, this will add additional roles without overwriting the existing roles. The body is an array of role names.<br>'Base roles' are the set of permissions granted to the entity by default for assignments in which no roles were designated.
+      operationId: AssignBaseRolesByName
+      parameters:
+        - name: entityID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: New base roles for the entity. Submit an array of role names.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseRolesRequest'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /base-roles/{entityID}/by-name/unassign:
+    post:
+      tags:
+        - Phase 2 - Base Role Management
+      summary: Unassign base roles by role name
+      description: Revoke base roles from an entity by specifying the role names.
+      operationId: UnassignBaseRolesByName
+      parameters:
+        - name: entityID
+          in: path
+          description: The unique identifier of the entity (user, group or client)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Base roles to be revoked from the entity. Submit an array of role names.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseRolesRequest'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /roles:
+    get:
+      tags:
+        - Phase 2 - Role Management
+      summary: Retrieve roles
+      description: Get info about roles in the tenant account.
+      operationId: getRoles
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoleWithDetails'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Phase 2 - Role Management
+      summary: Create a role
+      description: 'Creates a new role, specifying the series of permssions that are assigned to the new role. Roles can then be assigned to entities (user, group or client) in the context of assignment creation.<br>The request body is a JSON object that defines all of the relevant parameters for the role.<br>Note: You can obtain a complete list of available permissions using `GET /permissions`.'
+      operationId: createRole
+      requestBody:
+        description: Role data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /roles/{roleId}:
+    get:
+      tags:
+        - Phase 2 - Role Management
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Retrieve role
+      description: Get information about a specific role, specified by roleId.
+      operationId: getRole
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleWithDetails'
+        401:
+          $ref: '#/components/responses/401'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Phase 2 - Role Management
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update a role
+      description: 'Edit the configuration of an existing role. The body content is the same as for the POST method.<br>Note:  All parameters are overwritten by the new configuration. If you would like to add permissions to a role, you need to submit all of the current permissions as well as the new permissions that are being added.<br>Note: System roles (out-of-the-box) cannot be updated.'
+      operationId: updateRole
+      requestBody:
+        description: Role data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Phase 2 - Role Management
+      summary: Delete a role
+      description: 'Deletes a role.<br>Note: System roles (out-of-the-box cannot be deleted).'
+      operationId: deleteRole
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /permissions:
+    get:
+      tags:
+        - Phase 2 - Role Management
+      summary: Retrieve permissions
+      description: Get info about all of the permissions that are available in the system.
+      operationId: getPermissions
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionsResponse'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  /users-resources:
+    get:
+      tags:
+        - Phase 2 - Entity Resources
+      summary: Retrieve users with resources
+      description: Get a list of users with the resources assigned to each user.
+      operationId: getUsersWithResources
+      parameters:
+        - name: search
+          in: query
+          description: Search by username, firstName, lastName. Returns results that start with the search value.
+          required: false
+          schema:
+            type: string
+        - name: base-roles
+          in: query
+          description: Filter by base roles, separated with a comma (filter by one role or another).
+          example: 'ast-admin,manage-roles'
+          required: false
+          schema:
+            type: string
+        - name: username
+          in: query
+          description: Filter by usernames, separated with a comma (filter by one username or another).
+          example: 'username1,username2'
+          required: false
+          schema:
+            type: string
+        - name: empty-assignments
+          in: query
+          description: Filter users by assignment status. When true, returns only users with no assignments. When false, returns only users with assignments. If not specified, returns all users regardless of assignment status.
+          example: 'true'
+          required: false
+          schema:
+            type: boolean
+        - name: no-groups
+          in: query
+          description: Filter users by group membership. Set to "true" to show only users without groups, "false" to show only users with groups. If not set, all users will be returned.
+          example: 'true'
+          required: false
+          schema:
+            type: boolean
+        - name: created-from
+          in: query
+          description: Filter users by creation date. Use to specify the start date. Date format YYYY-MM-DDTHH:mm:ss
+          example: '2025-01-31T12:00:00'
+          required: false
+          schema:
+            type: string
+        - name: created-to
+          in: query
+          description: Filter users by creation date. Use to specify the end date. Date format YYYY-MM-DDTHH:mm:ss
+          example: '2025-01-31T12:00:00'
+          required: false
+          schema:
+            type: string
+        - name: sort-by
+          in: query
+          description: Field for sorting the data
+          required: false
+          schema:
+            type: string
+            enum: ['created-at', 'username']
+            default: 'created-at'
+        - name: order
+          in: query
+          description: Order records by username
+          required: false
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+            default: 'asc'
+        - name: limit
+          in: query
+          description: Max number of records
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: Start from
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUsersWithResourcesResponse'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          $ref: '#/components/responses/500'
+  /clients-resources:
+    get:
+      tags:
+        - Phase 2 - Entity Resources
+      summary: Retrieve clients with resources
+      description: Get a list of clients and the resources assigned to each client.
+      operationId: getClientsWithResources
+      parameters:
+        - name: search
+          in: query
+          description: Search the clients which client-id starts with the search value
+          required: false
+          schema:
+            type: string
+        - name: base-roles
+          in: query
+          description: Filter by base roles, separated with a comma (filter by one role or another).
+          example: 'ast-admin,manage-roles'
+          required: false
+          schema:
+            type: string
+        - name: client-id
+          in: query
+          description: Filter by values of client-id, separated with a comma (filter by one client-id or another).
+          example: 'client1,client2'
+          required: false
+          schema:
+            type: string
+        - name: empty-assignments
+          in: query
+          description: Filter users by assignment status. When true, returns only users with no assignments. When false, returns only users with assignments. If not specified, returns all users regardless of assignment status.
+          example: 'true'
+          required: false
+          schema:
+            type: boolean
+        - name: sort-by
+          in: query
+          description: Field for sorting the data
+          required: false
+          schema:
+            type: string
+            enum: ['created-at', 'client-id']
+            default: 'created-at'
+        - name: order
+          in: query
+          description: Order records by client-id
+          required: false
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+            default: 'asc'
+        - name: limit
+          in: query
+          description: "The maximum number of results to return (default: 10)"
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: The number of pages to skip before starting to return results. The number of results per page is defined by the value of `limit`.
+          required: false
+          schema:
+            type: number
+        - name: no-groups
+          in: query
+          description: Filter clients by group membership. Set to "true" to show only clients without groups, "false" to show only clients with groups. If not set, all clients will be returned.
+          example: 'true'
+          required: false
+          schema:
+            type: boolean
+        - name: created-from
+          in: query
+          description: Filter clients by creation date. Use to specify the start date. Date format YYYY-MM-DDTHH:mm:ss
+          example: '2025-01-31T12:00:00'
+          required: false
+          schema:
+            type: string
+        - name: created-to
+          in: query
+          description: Filter clients by creation date. Use to specify the end date. Date format YYYY-MM-DDTHH:mm:ss
+          example: '2025-01-31T12:00:00'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetClientsWithResourcesResponse'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          $ref: '#/components/responses/500'
+  /groups-resources:
+    get:
+      tags:
+        - Phase 2 - Entity Resources
+      summary: Retrieve groups with resources
+      description: Get a list of groups with resources assigned to each group.
+      operationId: getGroupsWithResources
+      parameters:
+        - name: search
+          in: query
+          description: Search the groups which names starts with the search value
+          required: false
+          schema:
+            type: string
+        - name: base-roles
+          in: query
+          description: Filter by base roles, separated with a comma (filter by one role or another).
+          example: 'ast-admin,manage-roles'
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter by values of name, separated with a comma (filter by one name or another).
+          example: 'name1,name2'
+          required: false
+          schema:
+            type: string
+        - name: empty-assignments
+          in: query
+          description: Filter users by assignment status. When true, returns only users with no assignments. When false, returns only users with assignments. If not specified, returns all users regardless of assignment status.
+          example: 'true'
+          required: false
+          schema:
+            type: boolean
+        - name: no-members
+          in: query
+          description: Filter groups by user/client membership. Set to "true" to show only groups without members, "false" to show only groups with members. If not set, all groups will be returned.
+          example: 'true'
+          required: false
+          schema:
+            type: boolean
+        - name: sort-by
+          in: query
+          description: Field for sorting the data
+          required: false
+          schema:
+            type: string
+            enum: ['created-at', 'name']
+            default: 'created-at'
+        - name: created-from
+          in: query
+          description: Filter clients by creation date. Use to specify the start date. Date format YYYY-MM-DDTHH:mm:ss
+          example: '2025-01-31T12:00:00'
+          required: false
+          schema:
+            type: string
+        - name: created-to
+          in: query
+          description: Filter clients by creation date. Use to specify the end date. Date format YYYY-MM-DDTHH:mm:ss
+          example: '2025-01-31T12:00:00'
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: Order records by group name
+          required: false
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+            default: 'asc'
+        - name: limit
+          in: query
+          description: Max number of records
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: Start from
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGroupsWithResourcesResponse'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          $ref: '#/components/responses/500'
+  /effective-permissions/{entityId}:
+    get:
+      tags:
+        - Phase 2 - Advanced User Management
+      summary: Get a list of permissions of entity for resource
+      description: Get a list of permissions of an entity (user, client, group) for a specific resource (project, program, tenant group, global/tenant) without specifying where they were assigned from
+      operationId: getEffectivePermissionsToResource
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: entity-type
+          in: query
+          description: The type of entity
+          example: 'user'
+          required: true
+          schema:
+            type: string
+            enum: ['user', 'client', 'group']
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource. Not required if resource-type is tenant/global.
+          required: false
+          schema:
+            type: string
+        - name: resource-type
+          in: query
+          description: The type of resource
+          example: 'project'
+          required: true
+          schema:
+            type: string
+            enum: ['project', 'application', 'tenantgroup', 'tenant', 'global']
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectivePermissionsForResourceResponse'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /applications:
+    get:
+      tags:
+        - Access Management
+      summary: Get a list of applications by action for user/client
+      description: Get a list of applications for an entity (user, client) by a specific action (permission).
+      operationId: getApplications
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Application name, can be filtered by partial name.
+        - name: tags-keys
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Application tags, filter by the keys in the tags map (OR operation between the items)
+        - name: tags-values
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Application tags, filter by the values in the tags map (OR operation between the items)
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationsResponse'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /projects:
+    get:
+      tags:
+        - Access Management
+      summary: Get a list of projects by action for user/client
+      description: Get a list of projects for an entity (user, client) by a specific action (permission).
+      operationId: getProjects
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: "The number of items to return (default: 20)"
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Project name, can be filtered by partial name. Mutually exclusive to names and name-regex
+        - in: query
+          name: tags-keys
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Project tags, filter by the keys in the tags map (OR operation between the items)
+        - in: query
+          name: tags-values
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Project tags, filter by the values in the tags map (OR operation between the items)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/ProjectsResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    AssignmentInput:
+      required:
+        - entityID
+        - entityType
+        - resourceID
+        - resourceType
+      type: object
+      properties:
+        entityID:
+          type: string
+          description: The unique identifier of the entity (user, group, client)
+        entityType:
+          type: string
+          description: The type of entity for which access is being checked. Valid values are 'group', 'user', or 'client'.
+          enum: ['group', 'user', 'client']
+        resourceID:
+          type: string
+          description: The unique identifier of the resource
+        resourceType:
+          type: string
+          description: Type of resource
+          enum: ['application', 'project', 'tenant']
+        entityRoles:
+          description: 'Optional for AM phase 1. The roles assigned to the entity for this resource.<br>Note: If no role is assigned, then the default "base" role is applied.'
+          type: array
+          items:
+            type: string
+    AssignmentsForResource:
+      type: object
+      properties:
+        resourceID:
+          type: string
+          description: The unique identifier of the resource
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+    Assignment:
+      type: object
+      properties:
+        tenantID:
+          type: string
+          description: ID of the tenant
+        entityID:
+          type: string
+          description: The unique identifier of the entity
+        originEntityID:
+          type: string
+          nullable: true
+          description: Can be present for client assignment only, represents actual ID of the corresponding client
+        entityType:
+          type: string
+          description: Type of the entity
+          enum: ['group', 'user', 'client']
+        entityName:
+          type: string
+          description: Human-readable name of the entity
+        entityRoles:
+          description: 'The roles assigned to the entity for this resource.<br>Note: If no role is assigned, then the default "base" role is applied.'
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        resourceID:
+          type: string
+          description: The unique identifier of the resource
+        resourceType:
+          type: string
+          description: They type of resource
+          enum: ['application', 'project', 'tenant']
+        resourceName:
+          type: string
+          description: Human-readable name of the resource
+    MultipleAssignmentInput:
+      type: object
+      properties:
+        entityType:
+          type: string
+          description: The type of entity for which access is being checked. Valid values are 'group', 'user', or 'client'.
+          enum: ['group', 'user', 'client']
+        resourceType:
+          type: string
+          description: The type of resource for which access is being checked. Valid values are 'application', 'project', or 'tenant'.
+          enum: ['application', 'project', 'tenant']
+        entityRoles:
+          description: 'The roles assigned for these assignments.<br>Note: If no role is assigned, then the default "base" role is applied for each entity.'
+          type: array
+          items:
+            type: string
+        entities:
+          type: array
+          items:
+            type: string
+        resources:
+          type: array
+          items:
+            type: string
+    AddAssignmentRoles:
+      type: object
+      properties:
+        entityId:
+          type: string
+          description: The unique identifier of the entity
+        resourceId:
+          type: string
+          description: The unique identifier of the resource
+        entityRoles:
+          type: array
+          description: 'The roles that you would like to assign to the entity for this resource.'
+          items:
+            type: string
+    HasAccess:
+      type: object
+      properties:
+        accessGranted:
+          type: boolean
+          description: Access to the resource is granted or not
+    HasBatchAccess:
+      type: object
+      properties:
+        actionAccess:
+          type: array
+          items:
+            type: boolean
+            description: Access to the resource with action is granted or not
+    GetResourcesResponse:
+      type: object
+      properties:
+        all:
+          type: boolean
+          description: All resources are available to the user
+        resources:
+          type: array
+          items:
+            type: object
+            properties:
+              resourceId:
+                type: string
+              resourceType:
+                type: string
+                description: The type of resource
+                enum: [project, application, tenantgroup, tenant, global]
+    GetUsersWithResourcesResponse:
+      type: object
+      properties:
+        totalCount:
+          type: number
+        filteredCount:
+          type: number
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              username:
+                type: string
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              createdAt:
+                type: string
+              baseRoles:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+              groups:
+                type: array
+                items:
+                  type: string
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    total:
+                      type: number
+                    applicationsCount:
+                      type: number
+                    projectsCount:
+                      type: number
+                    tenantCount:
+                      type: number
+    GetClientsWithResourcesResponse:
+      type: object
+      properties:
+        totalCount:
+          type: number
+        filteredCount:
+          type: number
+        clients:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              clientId:
+                type: string
+              iamId:
+                type: string
+              createdAt:
+                type: string
+              groupIds:
+                type: array
+                items:
+                  type: string
+              baseRoles:
+                type: array
+                items:
+                  type: string
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    type:
+                      type: string
+                      enum: [project, application, tenant]
+                    name:
+                      type: string
+                    roles:
+                      type: array
+                      items:
+                        type: string
+    GetGroupsWithResourcesResponse:
+      type: object
+      properties:
+        totalCount:
+          type: number
+        filteredCount:
+          type: number
+        groups:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              path:
+                type: string
+              createdAt:
+                type: string
+              baseRoles:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+              members:
+                type: object
+                properties:
+                  totalCount:
+                    type: number
+                  usersCount:
+                    type: number
+                  clientsCount:
+                    type: number
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    type:
+                      type: string
+                      enum: [project, application, tenant]
+                    name:
+                      type: string
+                    roles:
+                      type: array
+                      items:
+                        type: string
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantID:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        systemRole:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    BaseRolesResponse:
+      type: object
+      properties:
+        tenantID:
+          type: string
+        entityID:
+          type: string
+        baseRoles:
+          type: array
+          items:
+            type: string
+    BaseRolesRequest:
+      type: object
+      properties:
+        baseRoles:
+          type: array
+          items:
+            type: string
+    RoleWithDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantID:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        systemRole:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        customPermissions:
+          description: "A list of custom permissions IDs. If no custom permissions are found, the field will return null."
+          type: array
+          items:
+            type: string
+        attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the permission
+        name:
+          type: string
+          description: The name of the permission
+        description:
+          type: string
+          description: A description of what this permission allows
+        childIds:
+          type: array
+          description: List of child permission IDs
+          items:
+            type: string
+        parentIds:
+          type: array
+          description: List of parent permission IDs
+          items:
+            type: string
+        category:
+          type: string
+          description: The permission category
+    EntityRolesRequest:
+      type: object
+      properties:
+        newEntityRoles:
+          type: array
+          description: Specify the roles for this assignment.<br>Note:This overwrites all existing roles.
+          items:
+            type: string
+    CreateRoleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    Error:
+      required:
+        - message
+        - type
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          example: 'ERROR'
+        code:
+          description: Refer to the code of the service for error code transcriptions.
+          type: integer
+          format: int32
+          example: 1
+    GetGroupsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The total number of groups returned in the response.
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupRepresentation'
+    GroupRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the group
+        name:
+          type: string
+          description: The name of the group
+        briefName:
+          type: string
+          description: A brief name for the group
+        roles:
+          type: array
+          description: Role names of directly assigned CxOne roles. Only included when briefRepresentation parameter is set to false.
+          items:
+            type: string
+        attributes:
+          type: array
+          description: Group attributes such as createdBy and createdAt. Only included when briefRepresentation parameter is set to false.
+          items:
+            type: object
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        enabled:
+          type: boolean
+        groups:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        requiredActions:
+          type: array
+          items:
+            type: string
+        createdTimestamp:
+          type: integer
+          format: int64
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+        clientId:
+          type: string
+        rootUrl:
+          type: string
+        adminUrl:
+          type: string
+        surrogateAuthRequired:
+          type: boolean
+        enabled:
+          type: boolean
+        alwaysDisplayInConsole:
+          type: boolean
+        clientAuthenticatorType:
+          type: string
+        redirectUris:
+          type: array
+          items:
+            type: string
+        notBefore:
+          type: integer
+          format: int64
+        bearerOnly:
+          type: boolean
+        consentRequired:
+          type: boolean
+        standardFlowEnabled:
+          type: boolean
+        implicitFlowEnabled:
+          type: boolean
+        directAccessGrantsEnabled:
+          type: boolean
+        serviceAccountsEnabled:
+          type: boolean
+        publicClient:
+          type: boolean
+        frontchannelLogout:
+          type: boolean
+        protocol:
+          type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+        authenticationFlowBindingOverrides:
+          type: object
+          additionalProperties:
+            type: string
+        fullScopeAllowed:
+          type: boolean
+        nodeReRegistrationTimeout:
+          type: integer
+          format: int64
+        protocolMappers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtocolMappersRepresentation'
+        defaultClientScopes:
+          type: array
+          items:
+            type: string
+    InternalUser:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+    InternalGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    InternalClient:
+      type: object
+      properties:
+        id:
+          type: string
+        clientId:
+          type: string
+        protocol:
+          type: string
+    ProtocolMappersRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        protocol:
+          type: string
+        protocolMapper:
+          type: string
+        consentRequired:
+          type: boolean
+        config:
+          type: object
+          additionalProperties:
+            type: string
+    EffectivePermissionsForResourceResponse:
+      type: object
+      properties:
+        entityId:
+          type: string
+        entityType:
+          type: string
+        resourceId:
+          type: string
+        resourceType:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+    EntitiesForExtendedResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records matching the applied filter
+        assignments:
+          type: array
+          description: The assignments with entities for resource
+          items:
+            type: object
+            properties:
+              resourceID:
+                type: string
+                description: The unique identifier of the resource
+              resourceName:
+                type: string
+                description: Human-readable name of the resource
+              resourceType:
+                type: string
+                description: The type of resource
+                enum: ['application', 'project', 'tenant']
+              entityID:
+                type: string
+                description: The unique identifier of the entity
+              entityName:
+                type: string
+                description: Human-readable name of the entity
+              entityRoles:
+                description: 'The roles assigned to the entity for this resource.<br>Note: If no role is assigned, then the default "base" role is applied.'
+                type: array
+                items:
+                  type: string
+              entityType:
+                type: string
+                description: Type of the entity
+                enum: ['group', 'user', 'client']
+              effectivePermissionsCount:
+                type: integer
+                description: The total count of effective permissions granted to the entity for the specified resource.
+              baseRoles:
+                type: array
+                description: Role names of only directly assigned  base roles
+                items:
+                  type: string
+    rule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: ["project.name.in", "project.name.starts-with", "project.name.contains", "project.name.regex", "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists"]
+          example: project.tag.key-value.exists
+        value:
+          type: string
+          example: "key;value"
+          description: value of the rule, correlating to the rule type. key-value, and list of ids, should be separated by semicolon (e.g 'key;value', 'id1;id2').
+    application:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for an application
+        name:
+          type: string
+          description: The application name
+        description:
+          type: string
+          description: A description of the application
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 1
+          example: 1
+          description: Criticality level of the application
+        rules:
+          type: array
+          description: Application rules
+          items:
+            type: object
+        projectIds:
+          type: array
+          description: List of project IDs associated with this application
+          items:
+            type: string
+        tags:
+          type: object
+          description: Application tags
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApplicationsResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records matching the applied filter
+        applications:
+          type: array
+          description: The applications returned with the filter applied
+          items:
+            $ref: '#/components/schemas/application'
+    project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for a project"
+        name:
+          type: string
+          description: "The project name"
+        tenantId:
+          type: string
+          description: "A unique identifier for a tenant project belongs to"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          description: The groups authorized for this project
+          items:
+            type: string
+        tags:
+          type: object
+          description: Project tags
+        repoUrl:
+          type: string
+          description: The representative repository URL
+        mainBranch:
+          type: string
+          description: The Git main branch
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the project
+        privatePackage:
+          type: boolean
+          description: Whether the project is a private package
+        imported_proj_name:
+          type: string
+          description: The name of the imported project
+        applicationIds:
+          type: array
+          description: List of application IDs associated with this project
+          items:
+            type: string
+    ProjectsResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: The number of records after applying filters
+        projects:
+          type: array
+          description: The projects returned with the filter applied
+          items:
+            $ref: '#/components/schemas/project'
+    PermissionsResponse:
+      type: object
+      properties:
+        staticPermissions:
+          type: array
+          description: List of static permissions available in the system
+          items:
+            $ref: '#/components/schemas/Permission'
+        customPermissions:
+          type: array
+          description: List of custom permissions available in the system
+          items:
+            $ref: '#/components/schemas/CustomPermission'
+    CustomPermission:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the custom permission
+        tenant_id:
+          type: string
+          description: The tenant ID this custom permission belongs to
+        name:
+          type: string
+          description: The name of the custom permission
+        category:
+          type: string
+          description: The permission category
+        description:
+          type: string
+          description: A description of what this custom permission allows
+  responses:
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    405:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/access-management
+security:
+  - Login: []

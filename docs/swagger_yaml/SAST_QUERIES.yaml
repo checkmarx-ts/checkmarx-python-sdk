@@ -1,0 +1,243 @@
+openapi: 3.0.2
+info:
+  title: SAST Queries API
+  description: API's related to SAST queries
+  version: 1.0.0
+paths:
+  "/mappings":
+    get:
+      tags:
+        - Sast queries
+      summary: Lists mapping between AST and SAST queries ids
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MappingsFile"
+        "401":
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/presets":
+    get:
+      tags:
+        - Sast queries
+      summary: Get sast queries presets
+      description: Get all sast queries presets
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Preset"
+        "401":
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/preset/{scanID}":
+    get:
+      tags:
+        - Sast queries
+      summary: Get sast queries preset for a specific scan
+      description: Get preset for scan
+      parameters:
+        - in: path
+          name: scanID
+          schema:
+            type: string
+          required: true
+          description: ID of the scan for which preset is requested
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresetWithoutName"
+        "401":
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/categories-types":
+    get:
+      tags:
+        - Sast queries
+      summary: Get sast queries categories
+      description: Get all sast queries categories
+      parameters:
+        - in: query
+          name: filter-by-standard
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: If true, only standard categories will be returned. If false, all categories will be returned.
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryType"
+        "401":
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/descriptions":
+    get:
+      tags:
+        - Sast query descriptions
+      summary: Get sast query description
+      description: Get sast query description by query id's
+      parameters:
+        - in: query
+          name: ids
+          required: true
+          description: list of query ids
+          schema:
+            type: array
+            maxItems: 10000
+            items:
+              type: number
+              format: uint64
+      responses:
+        "200":
+          description: list of descriptions associated to each of the given query ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueryDescription"
+        "401":
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Preset:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+    PresetWithoutName:
+      type: object
+      properties:
+        id:
+          type: number
+    CategoryType:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        sastId:
+          type: number
+        order:
+          type: number
+        isStandard:
+          type: boolean
+        categories:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Category"
+    Category:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        sastId:
+          type: number
+    QueryDescription:
+      type: object
+      properties:
+        queryId:
+          type: string
+        queryName:
+          type: string
+        queryDescriptionId:
+          type: string
+          deprecated: true
+        resultDescription:
+          type: string
+          example: An attacker can exploit missing input validation to modify the commands sent to the database. This will allow the attacker to read, change or delete sensitive data.
+        risk:
+          type: string
+        cause:
+          type: string
+        generalRecommendations:
+          type: string
+        sample:
+          type: array
+          items:
+            type: object
+            properties:
+              progLanguage:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+    MappingsFile:
+      type: object
+      properties:
+        mappings:
+          type: array
+          items:
+            $ref: "#/components/schemas/QueryIdMapping"
+    QueryIdMapping:
+      type: object
+      properties:
+        astId:
+          type: string
+        sastId:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/queries
+security:
+  - Login: []

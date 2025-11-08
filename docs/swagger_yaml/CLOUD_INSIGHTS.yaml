@@ -1,0 +1,925 @@
+openapi: 3.1.0
+info:
+  description: "Cloud Insights service REST API"
+  title: "Cloud Insights service"
+  version: 1.0.0
+paths:
+  "/accounts/enrich":
+    post:
+      tags:
+        - Accounts
+      summary: Create a new enrich account
+      operationId: createEnrichAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnrichAccount'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/EnrichAccount'
+        '500':
+          $ref: '#/components/responses/EnrichAccountError'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Accounts
+      summary: Get a list of Cloud Insights accounts for a specific externalID
+      operationId: getAllAccounts
+      parameters:
+        - $ref: "#/components/parameters/externalIdParameter"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/CurrentPageParam"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/PaginatedAccountsListResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/accounts/{id}/enrich":
+    post:
+      tags:
+        - Accounts
+      summary: Start enrichment
+      operationId: startEnrich
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartEnrich'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          $ref: '#/components/responses/EnrichError'
+        '400':
+          $ref: '#/components/responses/EnrichErrorBadRequest'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/v2/accounts/{id}/enrich":
+    post:
+      tags:
+        - Accounts
+      summary: Start an async enrichment
+      operationId: startEnrichV2
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartEnrich'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/EnrichV2Response'
+        '500':
+          $ref: '#/components/responses/EnrichError'
+        '400':
+          $ref: '#/components/responses/EnrichErrorBadRequest'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/accounts/{id}":
+    get:
+      tags:
+        - Accounts
+      summary: Get a Cloud Insights account
+      operationId: getAccount
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Accounts
+      summary: Delete a Cloud Insights account
+      operationId: deleteAccount
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+      responses:
+        '200':
+          description: Ok
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/accounts/{id}/logs":
+    get:
+      tags:
+        - Accounts
+      summary: Get account logs
+      operationId: getAccountLogs
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+        - $ref: "#/components/parameters/syncIdParameter"
+        - $ref: "#/components/parameters/EventTypeParam"
+        - $ref: "#/components/parameters/StatusParam"
+        - $ref: "#/components/parameters/DescriptionParam"
+        - $ref: "#/components/parameters/CreatedAtStartParam"
+        - $ref: "#/components/parameters/CreatedAtEndParam"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/PaginatedAccountLogsListResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/accounts/{id}/logs/{logId}":
+    get:
+      tags:
+        - Accounts
+      summary: Get account logs by Id
+      operationId: getAccountLogsById
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+        - $ref: "#/components/parameters/accountLogIdParameter"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/AccountLogDetails'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/accounts/{id}/containers":
+    get:
+      tags:
+        - Containers
+      summary: Get a list of all containers for an account id
+      operationId: getContainersByAccountId
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/CurrentPageParam"
+        - $ref: "#/components/parameters/ImageNameParam"
+        - $ref: "#/components/parameters/ImageShortNameParam"
+        - $ref: "#/components/parameters/ProjectNameParam"
+        - $ref: "#/components/parameters/RepoUrlNameParam"
+        - $ref: "#/components/parameters/ClusterNameParam"
+        - $ref: "#/components/parameters/PublicExposedParam"
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/clusterIdParameter"
+        - $ref: "#/components/parameters/OrderColumnParam"
+        - $ref: "#/components/parameters/OrderDirectionParam"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/PaginatedContainersListResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/accounts/{id}/resources":
+    get:
+      tags:
+        - Resources
+      summary: Get list of resources filtered by group
+      operationId: listResourcesByGroup
+      parameters:
+        - $ref: "#/components/parameters/accountIdParameter"
+        - $ref: "#/components/parameters/ImageNameParam"
+        - $ref: "#/components/parameters/ImageShortNameParam"
+        - $ref: "#/components/parameters/PublicExposedParam"
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/MultipleClusterNameParam"
+        - $ref: "#/components/parameters/MultipleAssetTypeParam"
+        - $ref: "#/components/parameters/ResourceTypeParam"
+        - $ref: "#/components/parameters/CurrentPageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/OrderColumnParam"
+        - $ref: "#/components/parameters/OrderDirectionParam"
+        - $ref: "#/components/parameters/IsIgnoredImageParam"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/PaginatedResourcesList'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    PaginatedAccountsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+          description: list of returned objects
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: currentPage
+    PaginatedContainersListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Container'
+          description: list of returned objects
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: currentPage
+    PaginatedAccountLogsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountLog'
+          description: list of account logs
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: currentPage
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for an account
+        name:
+          type: string
+          description: The account name
+        credentials:
+          type: object
+          description: The account credentials to connect to the provider
+        accountType:
+          type: integer
+          description: The type of account
+        tenantId:
+          type: string
+          description: The tenantId where the account belongs to
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastScanDate:
+          type: string
+          format: date-time
+        nextScanDate:
+          type: string
+          format: date-time
+    AccountLog:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for an account log
+        eventType:
+          type: string
+          description: Indicates whether the event is "Incoming" or "Outgoing"
+        description:
+          type: string
+          description: Indicates whether the event was a manual sync or a scheduled sync
+        details:
+          type: string
+          description: Short description about what happened in the event (e.g. number of containers stored)
+        tenantId:
+          type: string
+          description: The tenantId where the account belongs to
+        accountId:
+          type: string
+          description: The Cloud Insights account id where the logs belongs to
+        status:
+          type: string
+          description: Indicates the status of the event, either "success" or "failed"
+        syncId:
+          type: string
+          description: A unique identifier for an account process (e.g. account discovery, account enrichment)
+        createdAt:
+          type: string
+          format: date-time
+    AccountLogDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A unique identifier for an account log
+        eventType:
+          type: string
+          enum: [Incoming, Outgoing]
+          description: Indicates whether the event is "Incoming" or "Outgoing"
+        description:
+          type: string
+          description: Indicates whether the event was a manual sync or a scheduled sync
+        details:
+          type: string
+          description: Short description about what happened in the event (e.g. number of containers stored)
+        createdAt:
+          type: string
+          format: date-time
+          description: The time the log was created
+        status:
+          type: string
+          description: Indicates the status of the event, either "success" or "failed"
+        syncId:
+          type: string
+          description: A unique identifier for an account process (e.g. account discovery, account enrichment)
+        operationType:
+          type: string
+          enum: [dast_enrichment, dast_enrichment_error, sast_enrichment, sast_enrichment_error, generic_account_sync, generic_account_sync_error, no_operation_data]
+          description: Which operation was realized
+        operationDetails:
+          description: The details about the realized operation
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/LogConnectorOperationDetails'
+            - $ref: '#/components/schemas/LogConnectorOperationDetailsError'
+            - $ref: '#/components/schemas/LogSastNotifierOperationDetails'
+            - $ref: '#/components/schemas/LogSastNotifierOperationDetailsError'
+            - $ref: '#/components/schemas/LogDastNotifierOperationDetails'
+            - $ref: '#/components/schemas/LogDastNotifierOperationDetailsError'
+            - $ref: '#/components/schemas/LogNoOperationData'
+    CreateEnrichAccount:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The account name
+        externalID:
+          type: string
+          description: A unique identifier provided by Checkmarx
+    EnrichAccount:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The account name
+        accountID:
+          type: string
+          description: A unique identifier to the enrichment account
+    GenericResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A message with the description of the response
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+    enrichAccountError:
+      type: string
+    enrichError:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A message with the description of the enrichment process result
+    StartEnrich:
+      type: object
+      properties:
+        uploadURL:
+          type: string
+          description: URL obtained from the uploads service
+    EnrichV2Response:
+      type: object
+      properties:
+        syncId:
+          type: string
+          description: A generated UUID for the sync
+    Container:
+      type: object
+      properties:
+        containerId:
+          type: string
+          format: uuid4
+          description: A unique identifier for an container
+        clusterName:
+          type: string
+          description: The cluster name where the container is running
+        containerName:
+          type: string
+          description: The container name
+        publicExposed:
+          type: boolean
+          description: Is public exposed container
+        image:
+          type: string
+          description: The image name
+        imageShortname:
+          type: string
+          description: The image short name
+        project:
+          description: The project associated with the image
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for a resource
+        name:
+          type: string
+          description: The resource name
+        type:
+          $ref: '#/components/schemas/ResourceType'
+          description: The resource type
+        clusterName:
+          type: string
+          description: The name of the group where the resource is running
+        assetType:
+          type: string
+          $ref: '#/components/schemas/AssetType'
+        publicExposed:
+          type: boolean
+          description: Is public exposed resource
+        image:
+          type: string
+          description: The image name
+        imageShortname:
+          type: string
+          description: The image short name
+        imageSha:
+          type: string
+          description: The image sha value
+        imageName:
+          type: string
+          description: The image name value
+        imageRegistry:
+          type: string
+          description: The image registry value
+        imageTag:
+          type: string
+          description: The image tag value
+        replicaCount:
+          type: number
+          description: The number of replicas
+        tags:
+          type: object
+          description: The tags metadata associated with the resource
+    AssetType:
+      type: string
+      description: The asset type
+      enum:
+        - "ECS"
+        - "Kubernetes"
+    ResourceType:
+      type: string
+      description: The resource type
+      enum:
+        - "CONTAINER"
+    LogEventType:
+      type: string
+      description: The type of the event
+      enum:
+        - "Incoming"
+        - "Outgoing"
+    LogStatus:
+      type: string
+      description: The status of the process
+      enum:
+        - "Success"
+        - "Failed"
+    LogDescription:
+      type: string
+      description: Whether the event was scheduled or manual sync
+      enum:
+        - "Sync"
+        - "Scheduled"
+    PaginatedResourcesList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+          description: list of resources
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: currentPage
+    LogNoOperationData:
+      type: object
+      properties:
+        message:
+          type: string
+          description: No operation data
+    LogConnectorOperationDetails:
+      type: object
+      properties:
+        numberOfContainers:
+          type: integer
+        numberOfMatches:
+          type: integer
+        ignoredContainers:
+          type: integer
+    LogSastNotifierOperationDetails:
+      type: object
+      properties:
+        scanId:
+          type: string
+        externalId:
+          type: string
+        systemActivityID:
+          type: string
+        totalOfVulnerabilities:
+          type: string
+        projectName:
+          type: string
+        repoUrl:
+          type: string
+        repoBranch:
+          type: string
+    LogSastNotifierOperationDetailsError:
+      type: object
+      properties:
+        scanId:
+          type: string
+        externalId:
+          type: string
+        systemActivityID:
+          type: string
+        repoUrl:
+          type: string
+        repoBranch:
+          type: string
+        projectName:
+          type: string
+        shortDescription:
+          type: string
+        detailedErrorInfo:
+          type: string
+    LogDastNotifierOperationDetails:
+      type: object
+      properties:
+        scanId:
+          type: string
+        externalId:
+          type: string
+        systemActivityID:
+          type: string
+        totalOfVulnerabilities:
+          type: string
+        appEndpoint:
+          type: string
+    LogDastNotifierOperationDetailsError:
+      type: object
+      properties:
+        scanId:
+          type: string
+        externalId:
+          type: string
+        systemActivityID:
+          type: string
+        appEndpoint:
+          type: string
+        shortDescription:
+          type: string
+        detailedErrorInfo:
+          type: string
+    LogConnectorOperationDetailsError:
+      type: object
+      properties:
+        shortDescription:
+          type: string
+        detailedErrorInfo:
+          type: string
+  responses:
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '500':
+      description: "Internal server error"
+    '404':
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    'EnrichAccountError':
+      description: "Internal Server error"
+      content:
+        application/json; version=1.0:
+          schema:
+            type: object
+            properties:
+              message:
+                $ref: '#/components/schemas/enrichAccountError'
+          examples:
+            "Account creation error":
+              value:
+                "message": "Error creating account"
+    'EnrichErrorBadRequest':
+      description: "Bad request error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/enrichError'
+          examples:
+            "Account does not exist":
+              value:
+                "message": "Account does not exist"
+            "Invalid file extension":
+              value:
+                "message": "File format error"
+            "Invalid fields in JSON file":
+              value:
+                "message": "JSON schema validation failed: (root): externalID is required; clusters.0: name is required; clusters.0.pods.0.containers.0: image is required;"
+    'EnrichError':
+      description: "Internal Server error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/enrichError'
+          examples:
+            "Max file size exceeded":
+              value:
+                "message": "Filesize exceeds max size: 20000000 bytes"
+            "Invalid uploadURL":
+              value:
+                "message": "Error getting file: The specified key does not exist."
+  parameters:
+    externalIdParameter:
+      name: external-id
+      in: query
+      description: A unique identifier provided by Checkmarx
+      required: true
+      schema:
+        type: string
+    accountIdParameter:
+      name: id
+      in: path
+      description: Cloud Insights account ID
+      required: true
+      schema:
+        type: string
+        format: uuid4
+    accountLogIdParameter:
+      name: id
+      in: path
+      description: Cloud Insights Log ID
+      required: true
+      schema:
+        type: string
+        format: uuid4
+    syncIdParameter:
+      name: id
+      in: query
+      description: Sync ID filter
+      required: false
+      schema:
+        type: string
+        format: uuid4
+    clusterIdParameter:
+      name: cluster-id
+      in: query
+      description: cluster ID
+      required: false
+      schema:
+        type: string
+        format: uuid4
+    LimitParam:
+      name: limit
+      in: query
+      description: Limit the number of results
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    CurrentPageParam:
+      name: offset
+      in: query
+      description: Offset the results
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    SearchParam:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+    ClusterNameParam:
+      name: cluster-name
+      in: query
+      required: false
+      schema:
+        type: string
+    PublicExposedParam:
+      name: public-exposed
+      in: query
+      required: false
+      schema:
+        type: string
+    ProjectNameParam:
+      name: project-name
+      in: query
+      required: false
+      schema:
+        type: string
+    RepoUrlNameParam:
+      name: repo-url
+      in: query
+      required: false
+      schema:
+        type: string
+    OrderColumnParam:
+      name: order-column
+      in: query
+      required: false
+      schema:
+        type: string
+    OrderDirectionParam:
+      name: order-direction
+      in: query
+      required: false
+      schema:
+        type: string
+    GroupByParam:
+      name: group-by
+      in: query
+      required: false
+      schema:
+        type: string
+    ImageNameParam:
+      name: image-name
+      in: query
+      required: false
+      schema:
+        type: string
+    ImageShortNameParam:
+      name: image-short-name
+      in: query
+      required: false
+      schema:
+        type: string
+    MultipleClusterNameParam:
+      name: cluster-name
+      in: query
+      description: Filter by cluster names (comma-separated)
+      required: false
+      style: form
+      schema:
+        type: array
+        items:
+          type: string
+    MultipleAssetTypeParam:
+      name: asset-type
+      in: query
+      description: Filter by asset types (comma-separated)
+      required: false
+      style: form
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/AssetType'
+    ResourceTypeParam:
+      name: resource-type
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/ResourceType'
+    EventTypeParam:
+      name: eventType
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/LogEventType'
+    StatusParam:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/LogStatus'
+    DescriptionParam:
+      name: description
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/LogDescription'
+    CreatedAtStartParam:
+      name: createdAtStart
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Start of the creation date range in ISO 8601 format (e.g., 2025-08-10T00:00:00Z).
+    CreatedAtEndParam:
+      name: createdAtEnd
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: End of the creation date range in ISO 8601 format (e.g., 2025-08-12T23:59:59Z).
+    IsIgnoredImageParam:
+      name: is-ignored-image
+      in: query
+      description: Filter ignored or not ignored images
+      required: false
+      style: form
+      schema:
+        type: array
+        items:
+          type: bool
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/cnas
+security:
+  - Login: []

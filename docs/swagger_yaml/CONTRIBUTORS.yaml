@@ -1,0 +1,218 @@
+openapi: 3.0.2
+info:
+  title: Contributors API
+  description: Contributors APIs
+  version: 1.0.0
+paths:
+  '/':
+    get:
+      tags:
+        - Contributors
+      summary: get allowed and current contributors for the current tenant
+      operationId: getResultsByScan
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allowedContributors:
+                    type: integer
+                  currentContributors:
+                    type: integer
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/csv':
+    get:
+      tags:
+        - Contributors
+      summary: get contributors details for current tenant exported in csv
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/csv: {}
+        '400':
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/insights':
+    get:
+      tags:
+        - Contributors
+      summary: get contributor insights for current tenant
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  max:
+                    type: integer
+                  github:
+                    $ref: '#/components/schemas/ScmInsights'
+                  gitlab:
+                    $ref: '#/components/schemas/ScmInsights'
+                  azure:
+                    $ref: '#/components/schemas/ScmInsights'
+                  bitbucket:
+                    $ref: '#/components/schemas/ScmInsights'
+                  other:
+                    $ref: '#/components/schemas/ScmInsights'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/unfamiliar_projects':
+    get:
+      tags:
+        - Contributors
+      summary: get number of projects scanned in the last 90 days where contributors couldn't be counted
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unfamiliarProjects:
+                    type: integer
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/unfamiliar_projects/csv':
+    get:
+      tags:
+        - Contributors
+      summary: get details about projects where contributors couldn't be counted for current tenant exported in csv
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/csv: {}
+        '400':
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+components:
+  schemas:
+    Contributors:
+      type: object
+      properties:
+        allowedContributors:
+          type: integer
+          description: Number of contributors described in the license.
+        currentContributors:
+          type: integer
+          description: Number of contributors in all scanned projects.
+    ScmInsights:
+      type: object
+      properties:
+        projectCount:
+          type: integer
+        contributorCount:
+          type: integer
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+    UnfamiliarProjects:
+      type: object
+      properties:
+        unfamiliarProjects:
+          type: integer
+          description: Number of projects scanned in the last 90 days where contributors couldn't be counted.
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/contributors
+security:
+  - Login: []

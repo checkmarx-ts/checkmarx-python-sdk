@@ -1,0 +1,482 @@
+openapi: 3.0.2
+info:
+  title: Data Retention API
+  description: API's related to Data Retention
+  version: 1.0.0
+paths:
+  "/":
+    get:
+      tags:
+        - Data Retention
+      summary: Get a data retention processes list
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of processes to skip before returning processes"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+            example: 100
+          description: "The maximum number of processes to return"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigListResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/tenant":
+    post:
+      tags:
+        - Data Retention
+      summary: Start a data retention process for tenant
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/Config'
+            examples:
+              ScansToKeep:
+                $ref: '#/components/examples/ScansToKeep'
+              DateRange:
+                $ref: '#/components/examples/DateRange'
+            encoding:
+              DataRetentionConfig:
+                contentType: application/json
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartProcessResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "409":
+          description: process is already in progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          $ref: "#/components/responses/500"
+  "/{id}/abort":
+    post:
+      tags:
+        - Data Retention
+      summary: Abort a data retention process
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        "200":
+          description: successful operation
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/{id}/status":
+    get:
+      tags:
+        - Data Retention
+      summary: Get the status of a data retention process
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of status details to skip before returning"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+            example: 100
+          description: "The maximum number of status details to return"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/scans/lock":
+    post:
+      tags:
+        - Scans
+      summary: Lock Scans
+      description: Lock specific scans to prevent them from being deleted during data retention processes.
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/Scans'
+            encoding:
+              Scans:
+                contentType: application/json
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LockScansResponse"
+        400:
+          description: Bad Request
+  "/scans/unlock":
+    post:
+      tags:
+        - Scans
+      summary: Unlock Scans
+      description: Unlock previously locked scans to allow them to be deleted during data retention processes.
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/Scans'
+            encoding:
+              Scans:
+                contentType: application/json
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockScansResponse"
+        400:
+          description: Bad Request
+  "/scans/locked":
+    get:
+      tags:
+        - Scans
+      parameters:
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the earliest date and time of a scan for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the latest date and time of a scan for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of processes to skip before returning processes"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+            example: 100
+          description: "The maximum number of processes to return"
+      summary: Get the list of locked scans
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LockedScansListResponse"
+        "400":
+          description: invalid params
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+components:
+  schemas:
+    Config:
+      description: "A JSON object containing the configuration to create a data retention process"
+      type: object
+      oneOf:
+        - properties:
+            toDate:
+              type: string
+              format: date-time
+              description: "The date to retain data until"
+            fromDate:
+              type: string
+              format: date-time
+              description: "The date to retain data from"
+          required:
+            - toDate
+            - fromDate
+        - properties:
+            scansToKeep:
+              type: integer
+              description: "Number of successfull scans to keep per project"
+          required:
+            - scansToKeep
+    StartProcessResponse:
+      description: "A JSON object containing the ID of the created data retention process returned by create data retention process request"
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "The data retention config ID"
+    StatusDetailsResponse:
+      description: "A JSON object containing the status of a data retention process for a project"
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        status:
+          description: "The status of the data retention process"
+          $ref: '#/components/schemas/StatusEnum'
+    StatusResponse:
+      description: "A JSON object containing the list of projects and their status for a data retention process"
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "The data retention config ID"
+        status:
+          description: "The status of the data retention process"
+          $ref: '#/components/schemas/StatusEnum'
+        statusDetails:
+          type: string
+        totalDetailsCount:
+          type: integer
+          description: "The total number of data retention processes for config id"
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusDetailsResponse'
+    ConfigResponse:
+      description: "A JSON object containing the data retention process configuration"
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          description: "The status of the data retention process"
+          $ref: '#/components/schemas/StatusEnum'
+        createdAt:
+          type: string
+          format: date-time
+    ConfigListResponse:
+      description: "A JSON object containing the list of data retention processes by the GET configs request."
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: "The total number of data retention processes"
+        configs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConfigResponse"
+    LockedScansListResponse:
+      description: "A JSON object containing the list of locked scans"
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: "The total number of locked scans"
+        filteredCount:
+          type: integer
+          description: "The filtered number of locked scans"
+        lockedScans:
+          type: array
+          items:
+            type: object
+            properties:
+              scanId:
+                type: string
+                example: "12345"
+              lockedDate:
+                type: string
+                format: date-time
+                example: "2024-06-04T12:00:00Z"
+    LockScansResponse:
+      description: "A JSON object containing the list of scan that was locked"
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Scans locked successfully"
+        lockedScans:
+          type: array
+          items:
+            type: string
+            example: "0f984c06-fe68-4541-98eb-062396765fd4"
+        failedAttempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedAttempt'
+    FailedAttempt:
+      description: "A JSON object containing the list of scan that failed to lock or unlock"
+      type: object
+      properties:
+        scanID:
+          type: string
+          example: "0f984c06-fe68-4541-98eb-062396765fd4"
+        reason:
+          type: string
+    UnlockScansResponse:
+      description: "A JSON object containing the list of scan that was unlocked"
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Scans unlocked successfully"
+        unlockedScans:
+          type: array
+          items:
+            type: string
+            example: "0f984c06-fe68-4541-98eb-062396765fd4"
+        failedAttempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedAttempt'
+    Error:
+      description: "A JSON object containing an error message"
+      type: object
+      properties:
+        status:
+          type: integer
+          format: integer
+        message:
+          type: string
+    StatusEnum:
+      type: string
+      enum:
+        - Pending
+        - Allocating
+        - InProgress
+        - Completed
+        - Failed
+        - Aborted
+    Scans:
+      description: "A JSON object containing the scan ids to lock or unlock"
+      type: object
+      oneOf:
+        - properties:
+            scanIds:
+              type: array
+              items:
+                type: string
+                format: uuid
+                pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              minItems: 1
+              maxItems: 100
+          required:
+            - scanIds
+  parameters:
+    id:
+      name: id
+      in: path
+      description: "The data retention config ID"
+      required: true
+      schema:
+        type: string
+        format: uuid
+  examples:
+    ScansToKeep:
+      value:
+        scansToKeep: 10
+    DateRange:
+      value:
+        toDate: "2023-01-01T00:00:00Z"
+        fromDate: "2022-01-01T00:00:00Z"
+  responses:
+    "400":
+      description: invalid params
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "401":
+      description: unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "403":
+      description: forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "404":
+      description: not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "500":
+      description: internal error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/data-retention
+security:
+  - Login: []

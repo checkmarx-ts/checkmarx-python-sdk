@@ -1,0 +1,118 @@
+openapi: 3.0.2
+info:
+  description: "CxAST Versions service REST API"
+  version: 1.0.0
+  title: "Versions Service"
+paths:
+  /:
+    get:
+      tags:
+        - Get versions
+      summary: "Get versions from engines"
+      description: "Returns versions of engines"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/versionsOut'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    versionsOut:
+      type: object
+      description: "Versions response"
+      properties:
+        SAST:
+          type: string
+          description: "SAST engine version"
+          example: "9.5.0"
+        KICS:
+          type: string
+          description: "IaC Security (KICS) engine version"
+          example: "1.6.0"
+        CxOne:
+          type: string
+          description: "CxOne version"
+          example: "2.91.7"
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "A message describing the error"
+        type:
+          type: string
+          description: "The type of the error"
+        code:
+          type: integer
+          description: "The error code"
+  responses:
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '500':
+      description: "Internal Server Error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/versions
+security:
+  - Login: []

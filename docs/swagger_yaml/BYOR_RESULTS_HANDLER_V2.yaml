@@ -1,0 +1,225 @@
+openapi: 3.0.2
+info:
+  description: Bring your own results handler service
+  title: BYOR Results Handler
+  version: 2.0.0
+paths:
+  "/imports":
+    post:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/importRequest"
+            encoding:
+              resultUpdate:
+                contentType: application/json
+      responses:
+        '202':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/importResults'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  "/jobs/{id}":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: "#/components/parameters/idPath"
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getJob'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    patch:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: "#/components/parameters/idPath"
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/patchRequest"
+            encoding:
+              resultUpdate:
+                contentType: application/json
+      responses:
+        '204':
+          description: ""
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    importRequest:
+      type: object
+      properties:
+        projectId:
+          type: string
+          description: The id of the project for which the results are being imported
+        uploadUrl:
+          type: string
+          description: The url to upload the file
+    importResults:
+      type: object
+      properties:
+        importId:
+          type: string
+          description: The id of the new import
+    getJob:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "The id of the import"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        projectId:
+          type: string
+          format: uuid
+          description: "The id of the project that the import belongs to"
+          example: "40ff967a-7b3c-412f-a0f7-76010cc43f6f"
+        status:
+          type: string
+          enum: [Importing, Done, Import Failed, Canceling, Import Canceled]
+          description: "Current status of the import"
+          readOnly: true
+          example: "Importing"
+        percentage:
+          type: string
+          description: "Current percentage of the import"
+          example: "10"
+        error:
+          type: string
+          description: "Reason for import failure(only shown in case import fails)"
+          example: "file size exceeds limit"
+      required: [id, projectId, status, percentage]
+    patchRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'Canceled'
+          description: 'Canceled is the only valid input.'
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    idPath:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+        format: uuid
+        description: "Unique identifier for the import job"
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    projectId:
+      in: query
+      name: project-id
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '4c979e02-0ba6-4fc0-99f3-613bc75dcff0'
+      description: "Returning triage specified by project ID. (Exact match, case sensitive)"
+    resultId:
+      in: query
+      name: result-id
+      required: true
+      schema:
+        type: string
+        example: 'nvUf%2F9rb6K9gRivhiy8Q9C3x6fk%3D'
+      description: "Returning triage specified by encoded result ID. (Exact match, case sensitive)"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/v2/byor
+security:
+  - Login: []

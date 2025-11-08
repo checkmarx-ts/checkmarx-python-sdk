@@ -1,0 +1,579 @@
+openapi: 3.0.2
+info:
+  description: "CxAST Applications service REST API"
+  version: 1.0.0
+  title: "Applications Service"
+paths:
+  /:
+    post:
+      tags:
+        - Applications
+      summary: Create an application
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/applicationInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/createdApplication'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the created Application
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Applications
+      summary: Get a list of applications
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Application name, can be filtered by partial name.
+        - in: query
+          name: tags-keys
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Application tags, filter by the keys in the tags map (OR operation between the items)
+        - in: query
+          name: tags-values
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Application tags, filter by the values in the tags map (OR operation between the items)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/applicationsCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /tags:
+    get:
+      tags:
+        - Applications
+      summary: Get all tags
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: object
+                example:
+                  "test": [""]
+                  "priority": ["high", "low"]
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}:
+    get:
+      tags:
+        - Applications
+      summary: Get an application
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/application'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    put:
+      tags:
+        - Applications
+      summary: Update an application
+      description: "Update application. All parameters are overed by the input sent."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/applicationInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the updated Application
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Applications
+      summary: Delete an application
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}/project-rules:
+    post:
+      tags:
+        - Application Rules
+      summary: Create an application rule
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/ruleInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/rule'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the created Rule
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Application Rules
+      summary: Get a list of rules for a specific applications
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/rule'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}/project-rules/{rule-id}:
+    get:
+      tags:
+        - Application Rules
+      summary: Get an application rule
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/pathRuleId'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/rule'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    put:
+      tags:
+        - Application Rules
+      summary: Update an application rule
+      description: "Create or Update application rule. If update, all parameters are overed by the input sent"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/pathRuleId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/ruleInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: Created, if resource does not exist
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/rule'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the created Rule
+        '204':
+          description: No Content
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the updated Rule
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Application Rules
+      summary: Delete an application rule
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+        - $ref: '#/components/parameters/pathRuleId'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    ruleInput:
+      properties:
+        type:
+          type: string
+          enum: ["project.name.in", "project.name.starts-with", "project.name.contains", "project.name.regex", "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists"]
+          example: project.tag.key-value.exists
+        value:
+          type: string
+          example: "key;value"
+          description: value of the rule, correlating to the rule type. key-value, and list of ids, should be separated by semicolon (e.g 'key;value', 'id1;id2').
+    rule:
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: ["project.name.in", "project.name.starts-with", "project.name.contains", "project.name.regex", "project.tag.key.exists", "project.tag.value.exists", "project.tag.key-value.exists"]
+          example: project.tag.key-value.exists
+        value:
+          type: string
+          example: "key;value"
+          description: value of the rule, correlating to the rule type. key-value, and list of ids, should be separated by semicolon (e.g 'key;value', 'id1;id2').
+    applicationInput:
+      properties:
+        name:
+          type: string
+          description: The application name
+        description:
+          type: string
+          description: "A description of the application"
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the application
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ruleInput'
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Application tags
+    createdApplication:
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for an application"
+        name:
+          type: string
+          description: The application name
+        description:
+          type: string
+          description: "A description of the application"
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the application
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/rule'
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Application tags
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    application:
+      properties:
+        id:
+          type: string
+          description: A unique identifier for an application
+        name:
+          type: string
+          description: The application name
+        description:
+          type: string
+          description: A description of the application
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the application
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/rule'
+        projectIds:
+          type: array
+          items:
+            type: string
+          description: Project ids
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Application tags
+    applicationsCollection:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records matching the applied filter
+        applications:
+          type: array
+          description: The applications returned with the filter applied
+          items:
+            $ref: '#/components/schemas/application'
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+  responses:
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    pathId:
+      name: id
+      in: path
+      description: application Id
+      required: true
+      schema:
+        type: string
+    pathRuleId:
+      name: rule-id
+      in: path
+      description: rule Id
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/applications
+security:
+  - Login: []

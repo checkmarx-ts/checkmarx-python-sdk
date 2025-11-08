@@ -1,0 +1,628 @@
+openapi: 3.0.2
+info:
+  description: "CxAST ScanConfiguration service REST API"
+  version: 1.0.0
+  title: "ScanConfiguration Service"
+paths:
+  /tenant:
+    get:
+      tags:
+        - Configuration
+      summary: "Gets the list of all the parameters defined for the current tenant"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/scanParameter'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    patch:
+      tags:
+        - Configuration
+      summary: "Defines parameters in the input list for a the current tenant"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        description: "A list of parameters that we would like to add / update in the configuration"
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/setParameter'
+      responses:
+        '204':
+          description: "No Content"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Configuration
+      summary: "Deletes parameters for a tenant"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: config-keys
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: "No Content"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /project:
+    get:
+      tags:
+        - Configuration
+      summary: "Gets the list of all the parameters defined for a project"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/scanParameter'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    patch:
+      tags:
+        - Configuration
+      summary: "Defines parameters in the input list for a specific project"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "A list of parameters that we would like to add / update in the configuration"
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/setParameter'
+      responses:
+        '204':
+          description: "No Content"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Configuration
+      summary: "Deletes parameters for a specific project"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: config-keys
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: "No Content"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /scan:
+    get:
+      tags:
+        - Configuration
+      summary: "Gets the list of all parameters that will be used in the scan run"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: scan-id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/scanParameter'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /sast/default-config:
+    get:
+      tags:
+        - Sast default config
+      summary: "Get all default configs for the tenant"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: name
+          description: Filter by default config name
+          schema:
+            type: string
+        - in: query
+          name: exact_match
+          description: Forces the filter query to be an exact match instead
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/defaultConfigOut'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      tags:
+        - Sast default config
+      summary: "Creates a default config for the sast engine"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        description: "The default config for the sast engine"
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/defaultConfig'
+      responses:
+        '204':
+          description: "No Content"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /sast/default-config/{config-id}:
+    get:
+      tags:
+        - Sast default config
+      summary: "Get sast default config by id"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: config-id
+          in: path
+          description: config-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/defaultConfigOut'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    put:
+      tags:
+        - Sast default config
+      summary: "Update default config for the sast engine"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: config-id
+          in: path
+          description: config-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: "The default config for the sast engine"
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/defaultConfig'
+      responses:
+        '204':
+          description: "No Content"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Sast default config
+      summary: "Deletes a sast default config"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: config-id
+          in: path
+          description: config-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: "No Content"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /view-settings/{view-key}:
+    get:
+      tags:
+        - View settings
+      summary: "Get view settings by view key"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: view-key
+          in: path
+          description: view-key
+          required: true
+          schema:
+            type: string
+            enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/viewSettingsOut'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - View settings
+      summary: "Delete view settings by view key"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: view-key
+          in: path
+          description: view-key
+          required: true
+          schema:
+            type: string
+            enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
+      responses:
+        '204':
+          description: "No Content"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /view-settings:
+    post:
+      tags:
+        - View settings
+      summary: "Create view settings"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        description: "The configs for a given view"
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/viewSettings'
+      responses:
+        '204':
+          description: "No Content"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    put:
+      tags:
+        - View settings
+      summary: "Update view settings"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        description: "The configs for a given view"
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/viewSettings'
+      responses:
+        '204':
+          description: "No Content"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    scanParameter:
+      type: object
+      description: "A parameter of the scan configuration"
+      properties:
+        key:
+          type: string
+          description: "Parameter key"
+        name:
+          type: string
+          description: "Name of the parameter"
+        category:
+          type: string
+          description: "The category to which the parameter belongs"
+        originLevel:
+          type: string
+          enum: ["Environment", "Tenant", "Project", "ConfigAsCode", "Scan"]
+          description: "The level on configuration in which the parameter is set"
+        value:
+          type: string
+          description: "The value of the parameter"
+        valueType:
+          type: string
+          enum: ["String", "List", "Bool", "Block", "Secret", "Multi"]
+          description: "Describes the type of object this parameter represents"
+        valueTypeParams:
+          type: string
+          description: "Describes the possible list values of a list type parameter"
+        allowOverride:
+          type: boolean
+          description: "Determines whether parameter can be overridden by parameters from higher levels"
+    setParameter:
+      type: object
+      description: "A parameter of the scan configuration"
+      properties:
+        key:
+          type: string
+          description: "Parameter key"
+        value:
+          type: string
+          description: "The value of the parameter"
+        allowOverride:
+          type: boolean
+          description: "Determines whether parameter can be overridden by parameters from higher levels"
+    defaultConfig:
+      type: object
+      description: "A default config"
+      properties:
+        name:
+          type: string
+          description: "Name of the default config"
+        description:
+          type: string
+          description: "Description of the default config"
+        url:
+          type: string
+          description: "Url for the default config file"
+    defaultConfigOut:
+      type: object
+      description: "A default config"
+      properties:
+        id:
+          type: string
+          description: "Id of the default config"
+        name:
+          type: string
+          description: "Name of the default config"
+        description:
+          type: string
+          description: "Description of the default config"
+        url:
+          type: string
+          description: "Url for the default config file"
+        isTenantDefault:
+          type: boolean
+          description: "Boolean when in use by tenant"
+        associatedProjects:
+          type: integer
+          description: "The number of associated projects"
+    viewSettingsOut:
+      type: object
+      description: "A view settings response"
+      properties:
+        view:
+          type: string
+          enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
+          description: "A view key"
+        config:
+          type: object
+          description: "View settings config"
+    viewSettings:
+      type: object
+      description: "A view settings response"
+      properties:
+        view:
+          description: "A view key"
+          type: string
+          enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
+        config:
+          type: object
+          description: "View settings config"
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "A message describing the error"
+        type:
+          type: string
+          description: "The type of the error"
+        code:
+          type: integer
+          description: "The error code"
+  responses:
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    limit:
+      name: limit
+      in: query
+      description: Limits the number of returned results
+      required: false
+      schema:
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+    offset:
+      name: offset
+      in: query
+      description: Offset from which start returned results
+      required: false
+      schema:
+        type: integer
+        default: 0
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/configuration
+security:
+  - Login: []

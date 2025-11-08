@@ -1,0 +1,784 @@
+openapi: 3.0.1
+info:
+  contact: {}
+  title: SSCS API
+  version: "1.0"
+paths:
+  /predicates/{similarity-id}:
+    get:
+      operationId: GetPredicatesHistory
+      parameters:
+        - description: string valid
+          in: path
+          name: similarity-id
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          explode: false
+          in: query
+          name: project-ids
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredicateHistory'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+  /projects:
+    get:
+      operationId: GetProjects
+      parameters:
+        - description: int valid
+          in: query
+          name: pageSize
+          schema:
+            type: integer
+        - description: int valid
+          in: query
+          name: currentPage
+          schema:
+            type: integer
+        - description: string valid
+          in: query
+          name: filters
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: sort
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projects'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+  /projects/{project}:
+    get:
+      operationId: GetProject
+      parameters:
+        - description: string valid
+          in: path
+          name: project
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: scan
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+  /results/{project}/{scan}/{engine}:
+    get:
+      operationId: GetEngineResultsByProject
+      parameters:
+        - description: string valid
+          in: path
+          name: project
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: path
+          name: engine
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: path
+          name: scan
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: filters
+          schema:
+            type: string
+        - description: int valid
+          in: query
+          name: pageSize
+          schema:
+            type: integer
+        - description: int valid
+          in: query
+          name: currentPage
+          schema:
+            type: integer
+        - description: string valid
+          in: query
+          name: sort
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EngineResults'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+  /results/{project}/{scan}/{engine}/groups/{column}:
+    get:
+      operationId: GetGroupsByProjectScan
+      parameters:
+        - description: string valid
+          in: path
+          name: project
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: path
+          name: scan
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: path
+          name: engine
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: path
+          name: column
+          required: true
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: search
+          schema:
+            type: string
+        - description: string valid
+          in: query
+          name: filters
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+  /scans/{scan}/scan-overview:
+    get:
+      operationId: GetScanOverview
+      parameters:
+        - description: string valid
+          in: path
+          name: scan
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanOverview'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+components:
+  schemas:
+    Engine:
+      enum:
+        - 2ms
+        - Scorecard
+      type: string
+      x-enum-varnames:
+        - TooMS
+        - Scorecard
+    EngineFailure:
+      example:
+        scannedAt: scannedAt
+        scanId: scanId
+        name: 2ms
+      properties:
+        name:
+          $ref: '#/components/schemas/Engine'
+        scanId:
+          type: string
+        scannedAt:
+          type: string
+      type: object
+    EngineFullName:
+      enum:
+        - Secret Detection
+        - Scorecard
+      type: string
+      x-enum-varnames:
+        - TooMSFullName
+        - ScorecardFullName
+    EngineOverview:
+      example:
+        riskSummary:
+          key: 0
+        name: 2ms
+        totalRisks: 6
+        fullName: Secret Detection
+        status: Completed
+      properties:
+        fullName:
+          $ref: '#/components/schemas/EngineFullName'
+        name:
+          $ref: '#/components/schemas/Engine'
+        riskSummary:
+          additionalProperties:
+            type: integer
+          type: object
+        status:
+          $ref: '#/components/schemas/ScanStatus'
+        totalRisks:
+          type: integer
+      type: object
+    EngineResult:
+      example:
+        severity: critical
+        path: path
+        remediation: remediation
+        remediationAdditional: remediationAdditional
+        remediationLink: remediationLink
+        id: id
+        validity: Valid
+        lineContent: lineContent
+        lineNumber: 0
+        ruleId: ruleId
+      properties:
+        id:
+          type: string
+        lineContent:
+          type: string
+        lineNumber:
+          type: integer
+        path:
+          type: string
+        remediation:
+          type: string
+        remediationAdditional:
+          type: string
+        remediationLink:
+          type: string
+        ruleId:
+          type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
+        validity:
+          $ref: '#/components/schemas/Validity'
+      type: object
+    EngineResults:
+      example:
+        entries:
+          - severity: critical
+            path: path
+            remediation: remediation
+            remediationAdditional: remediationAdditional
+            remediationLink: remediationLink
+            id: id
+            validity: Valid
+            lineContent: lineContent
+            lineNumber: 0
+            ruleId: ruleId
+          - severity: critical
+            path: path
+            remediation: remediation
+            remediationAdditional: remediationAdditional
+            remediationLink: remediationLink
+            id: id
+            validity: Valid
+            lineContent: lineContent
+            lineNumber: 0
+            ruleId: ruleId
+        totalCount: 6
+      properties:
+        entries:
+          items:
+            $ref: '#/components/schemas/EngineResult'
+          type: array
+        totalCount:
+          type: integer
+      type: object
+    Group:
+      example:
+        metadata:
+          ruleName: ruleName
+          ruleDescription: ruleDescription
+        count: 0
+        columnValue: columnValue
+      properties:
+        columnValue:
+          type: string
+        count:
+          type: integer
+        metadata:
+          $ref: '#/components/schemas/RuleInfo'
+      type: object
+    Groups:
+      example:
+        entries:
+          - metadata:
+              ruleName: ruleName
+              ruleDescription: ruleDescription
+            count: 0
+            columnValue: columnValue
+          - metadata:
+              ruleName: ruleName
+              ruleDescription: ruleDescription
+            count: 0
+            columnValue: columnValue
+      properties:
+        entries:
+          items:
+            $ref: '#/components/schemas/Group'
+          type: array
+      type: object
+    PredicateAPI:
+      example:
+        severity: critical
+        createdAt: createdAt
+        createdBy: createdBy
+        stateName: stateName
+        stateId: 0
+        comment: comment
+        id: id
+        projectId: projectId
+        similarityId: similarityId
+      properties:
+        comment:
+          type: string
+        createdAt:
+          type: string
+        createdBy:
+          type: string
+        id:
+          type: string
+        projectId:
+          type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
+        similarityId:
+          type: string
+        stateId:
+          $ref: '#/components/schemas/State'
+        stateName:
+          type: string
+      type: object
+    PredicateHistory:
+      example:
+        predicates:
+          - severity: critical
+            createdAt: createdAt
+            createdBy: createdBy
+            stateName: stateName
+            stateId: 0
+            comment: comment
+            id: id
+            projectId: projectId
+            similarityId: similarityId
+          - severity: critical
+            createdAt: createdAt
+            createdBy: createdBy
+            stateName: stateName
+            stateId: 0
+            comment: comment
+            id: id
+            projectId: projectId
+            similarityId: similarityId
+        totalCount: 6
+        projectId: projectId
+        similarityId: similarityId
+      properties:
+        predicates:
+          items:
+            $ref: '#/components/schemas/PredicateAPI'
+          type: array
+        projectId:
+          type: string
+        similarityId:
+          type: string
+        totalCount:
+          type: integer
+      type: object
+    Project:
+      example:
+        slsaStep:
+          - Source
+          - Source
+        riskLevel:
+          key: 6
+        engines:
+          key: 0
+        enginesFailures:
+          - scannedAt: scannedAt
+            scanId: scanId
+            name: 2ms
+          - scannedAt: scannedAt
+            scanId: scanId
+            name: 2ms
+        lastScanMetadata:
+          scannedAt: scannedAt
+          id: id
+        name: name
+        id: id
+      properties:
+        engines:
+          additionalProperties:
+            type: integer
+          type: object
+        enginesFailures:
+          items:
+            $ref: '#/components/schemas/EngineFailure'
+          type: array
+        id:
+          type: string
+        lastScanMetadata:
+          $ref: '#/components/schemas/ScanInfo'
+        name:
+          type: string
+        riskLevel:
+          additionalProperties:
+            type: integer
+          type: object
+        slsaStep:
+          items:
+            $ref: '#/components/schemas/SlsaStep'
+          type: array
+      type: object
+    Projects:
+      example:
+        entries:
+          - slsaStep:
+              - Source
+              - Source
+            riskLevel:
+              key: 6
+            engines:
+              key: 0
+            enginesFailures:
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+            lastScanMetadata:
+              scannedAt: scannedAt
+              id: id
+            name: name
+            id: id
+          - slsaStep:
+              - Source
+              - Source
+            riskLevel:
+              key: 6
+            engines:
+              key: 0
+            enginesFailures:
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+            lastScanMetadata:
+              scannedAt: scannedAt
+              id: id
+            name: name
+            id: id
+        totalFilteredCount: 5
+        totalCount: 1
+      properties:
+        entries:
+          items:
+            $ref: '#/components/schemas/Project'
+          type: array
+        totalCount:
+          type: integer
+        totalFilteredCount:
+          type: integer
+      type: object
+    RuleInfo:
+      example:
+        ruleName: ruleName
+        ruleDescription: ruleDescription
+      properties:
+        ruleDescription:
+          type: string
+        ruleName:
+          type: string
+      type: object
+    ScanInfo:
+      example:
+        scannedAt: scannedAt
+        id: id
+      properties:
+        id:
+          type: string
+        scannedAt:
+          type: string
+      type: object
+    ScanOverview:
+      example:
+        riskSummary:
+          key: 1
+        totalRisks: 5
+        id: id
+        projectId: projectId
+        engineOverviews:
+          - riskSummary:
+              key: 0
+            name: 2ms
+            totalRisks: 6
+            fullName: Secret Detection
+            status: Completed
+          - riskSummary:
+              key: 0
+            name: 2ms
+            totalRisks: 6
+            fullName: Secret Detection
+            status: Completed
+        status: null
+      properties:
+        engineOverviews:
+          items:
+            $ref: '#/components/schemas/EngineOverview'
+          type: array
+        id:
+          type: string
+        projectId:
+          type: string
+        riskSummary:
+          additionalProperties:
+            type: integer
+          type: object
+        status:
+          $ref: '#/components/schemas/ScanStatus'
+        totalRisks:
+          type: integer
+      type: object
+    ScanStatus:
+      enum:
+        - Completed
+        - Partial
+        - Failed
+        - Running
+      type: string
+      x-enum-varnames:
+        - Completed
+        - Partial
+        - Failed
+        - Running
+    Severity:
+      enum:
+        - critical
+        - high
+        - medium
+        - low
+        - info
+      type: string
+      x-enum-varnames:
+        - Critical
+        - High
+        - Medium
+        - Low
+        - Info
+    SlsaStep:
+      enum:
+        - Source
+        - Build
+        - Package
+        - Dependencies
+      type: string
+      x-enum-varnames:
+        - Source
+        - Build
+        - Package
+        - Dependencies
+    State:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      type: integer
+      x-enum-varnames:
+        - ToVerify
+        - NotExploitable
+        - ProposedNotExploitable
+        - Confirmed
+        - Urgent
+    Validity:
+      enum:
+        - Valid
+        - Unknown
+        - Invalid
+      type: string
+      x-enum-varnames:
+        - Valid
+        - Unknown
+        - Invalid
+    Error:
+      example:
+        code: 1
+        message: message
+        type: type
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        type:
+          type: string
+      type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+x-original-swagger-version: "2.0"
+servers:
+  - url: /api/micro-engines
+security:
+  - Login: []

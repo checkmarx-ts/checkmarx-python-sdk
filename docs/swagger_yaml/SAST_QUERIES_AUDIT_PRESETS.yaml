@@ -1,0 +1,442 @@
+openapi: 3.0.2
+info:
+  title: Preset Management API
+  version: 1.0.0
+paths:
+  "/":
+    get:
+      tags:
+        - Presets
+      summary: List presets
+      parameters:
+        - in: query
+          name: offset
+          required: false
+          example: 25
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          name: limit
+          required: false
+          example: 0
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - in: query
+          name: exact_match
+          required: false
+          example: false
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: include_details
+          required: false
+          example: false
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: name
+          required: false
+          example: "Checkmarx Default"
+          schema:
+            type: string
+            pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
+            maxLength: 30
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/PresetPaged"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+    post:
+      tags:
+        - Presets
+      summary: Create a new preset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Preset"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/PresetOK"
+        "400":
+          description: The name of the preset is invalid, or trying to update a system preset
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/queries":
+    get:
+      tags:
+        - Presets
+      summary: List queries executables
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueryDetails"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+  "/{id}":
+    get:
+      tags:
+        - Presets
+      summary: Get preset by ID
+      parameters:
+        - in: path
+          required: true
+          name: id
+          example: 1234
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PresetDetails"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+    put:
+      tags:
+        - Presets
+      summary: Updates a preset
+      parameters:
+        - in: path
+          required: true
+          name: id
+          example: 1234
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Preset"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/PresetOK"
+        "400":
+          description: The name of the preset is invalid, or trying to update a system preset
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+    delete:
+      tags:
+        - Presets
+      summary: Delete a preset by ID
+      parameters:
+        - in: path
+          required: true
+          name: id
+          example: 1234
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Preset was deleted
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/{id}/summary":
+    get:
+      tags:
+        - Presets
+      summary: Get preset summary by ID
+      parameters:
+        - in: path
+          required: true
+          name: id
+          example: 1234
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PresetSummary"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+  "/{id}/clone":
+    post:
+      tags:
+        - Presets
+      summary: Clone preset
+      parameters:
+        - in: path
+          required: true
+          name: id
+          example: 1234
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresetClone"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/PresetOK"
+        "400":
+          description: The name of the preset is invalid, or trying to update a system preset
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/{id}/add-query":
+    put:
+      tags:
+        - Presets
+      summary: Add Query to Preset
+      parameters:
+        - in: path
+          required: true
+          name: id
+          example: 1234
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresetQuery"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/PresetOK"
+        "400":
+          description: The name of the preset is invalid, or trying to update a system preset
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+components:
+  responses:
+    "401":
+      description: "Unauthorized, Access token is missing or invalid"
+    "403":
+      description: "Forbidden"
+    "404":
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "400":
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "200":
+      description: "Preset created/updated"
+    "500":
+      description: "Internal Server Error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Preset:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "High only"
+          pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
+          maxLength: 30
+        description:
+          type: string
+          example: "Queries with high severity only"
+        queryIds:
+          type: array
+          items:
+            type: string
+          example: ["123456", "654321"]
+    PresetSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "High only"
+          pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
+          maxLength: 30
+        description:
+          type: string
+          example: "Queries with high severity only"
+        associatedProjects:
+          type: integer
+          example: 10
+        custom:
+          type: boolean
+          example: true
+        isTenantDefault:
+          type: boolean
+          example: true
+        isMigrated:
+          type: boolean
+          example: false
+    PresetPaged:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          example: 100
+        presets:
+          type: array
+          items:
+            $ref: "#/components/schemas/PresetSummary"
+    PresetClone:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "High only"
+          pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
+          maxLength: 30
+        description:
+          type: string
+          example: "Queries with high severity only"
+    PresetOK:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123456
+        message:
+          type: string
+          example: "preset saved"
+    PresetQuery:
+      type: object
+      properties:
+        queryPath:
+          type: string
+          example: "queries/Java/Java_High_Risk/Sql_injection/Sql_Injection.cs"
+    QueryDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "987321654"
+        cweID:
+          type: integer
+          example: 123456
+        language:
+          type: string
+          example: Go
+        group:
+          type: string
+          example: Go_High_Risk
+        queryName:
+          type: string
+          example: "SQL_Injection"
+          pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
+          maxLength: 30
+        severity:
+          type: string
+          example: "HIGH"
+        queryDescriptionId:
+          type: integer
+          example: 123456
+        custom:
+          type: boolean
+          example: true
+    PresetDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "High only"
+          pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
+          maxLength: 30
+        description:
+          type: string
+          example: "Queries with high severity only"
+        custom:
+          type: boolean
+          example: true
+        queryIds:
+          type: array
+          items:
+            type: string
+          example: ["10", "432"]
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/presets
+security:
+  - Login: []

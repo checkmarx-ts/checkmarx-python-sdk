@@ -1,0 +1,987 @@
+openapi: 3.0.2
+info:
+  title: Access Control API
+  version: 1.0.0
+servers:
+  - url: /auth/realms/{realm}
+    variables:
+      realm:
+        default: organization
+        description: Realm name. The OTP should be enabled for this realm.
+paths:
+  /forget-all-devices:
+    post:
+      tags:
+        - Forget Device
+      summary: Forget All Devices
+      responses:
+        200:
+          description: Forget All Devices performed successfully
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /forget-device:
+    get:
+      tags:
+        - Forget Device
+      summary: Forget Device
+      description: "Perform 'Forget Device' functionality. <i><br/>Please, pay attention that Swagger UI and Swagger Editor always follow redirects. To see 3xx responses, test the requests using non-browser tools such as curl. You can copy curl commands from Swagger UI. Add to the curl command the the flag <b>-i</b> or flag <b>--location</b>.</i>"
+      parameters:
+        - name: redirect_uri
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        302:
+          description: Success and redirect to redirect_uri
+          headers:
+            Location:
+              description: Target URI.
+              schema:
+                type: string
+                format: uri
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+  /reset-otp:
+    get:
+      tags:
+        - MFA
+      summary: Request MFA reset by admin
+      parameters:
+        - name: execution
+          in: query
+          schema:
+            type: string
+        - name: client_id
+          in: query
+          schema:
+            type: string
+        - name: tab_id
+          in: query
+          schema:
+            type: string
+      responses:
+        302:
+          description: Success (MFA reset request is sent to realm admin) and redirect to logout
+          headers:
+            Location:
+              description: Target URI.
+              schema:
+                type: string
+                format: uri
+        400:
+          $ref: "#/components/responses/400"
+    post:
+      tags:
+        - MFA
+      summary: Reset MFA (OTP)
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: User Id whose OTP need to be reset
+                  format: uuid
+      responses:
+        200:
+          description: OTP reset successfully
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+  /pip/groups:
+    get:
+      tags:
+        - PIP
+      summary: Get groups
+      description: "Get list of groups"
+      parameters:
+        - name: term
+          in: query
+          required: false
+          schema:
+            type: string
+          deprecated: true
+          description: Deprecated, use `groupName` query parameter instead.
+        - name: groupName
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Used for searching the groups by name or by part of name.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Max amount of returned record. Applied if groupName param defined.
+        - name: first
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Element to start from. Always applied.
+        - name: max
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10000
+          description: Max number of items. Always applied.
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Ids of groups separated with comma. Has priority over the groupName parameter
+      responses:
+        200:
+          description: List of groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AstIdWithName"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+  /pip/users:
+    get:
+      tags:
+        - PIP
+      summary: Get users
+      description: "Get list of users"
+      parameters:
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: Max amount of returned records
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AstIdWithName"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+  /pip/users/group/{groupId}:
+    get:
+      tags:
+        - PIP
+      summary: Get users by groups
+      description: "Get list of users by groups"
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AstUser"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+  /group-manager:
+    get:
+      tags:
+        - Group Managers
+      summary: Get groups managed by logged in user
+      responses:
+        200:
+          description: List of groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupRepresentation"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          description: Forbidden, if logged in user does not have "query-groups" role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Realm not found, or user not found by provided access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/500"
+  /group-manager/users:
+    get:
+      tags:
+        - Group Managers
+      summary: Get group managers by group
+      parameters:
+        - name: groupId
+          in: query
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserRepresentation"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          description: Forbidden, if logged in user does not have "manage-groups" role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Realm not found, or group not found by groupId parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/500"
+  /group-manager/assign:
+    post:
+      tags:
+        - Group Managers
+      summary: Assign group manager to group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupManagerRequest"
+      responses:
+        204:
+          description: Group manager assigned successfully
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          description: Forbidden, if logged in user does not have "manage-groups" role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Realm not found, or group not found by groupId from payload, or no users found by userIds from payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/500"
+  /group-manager/unassign:
+    post:
+      tags:
+        - Group Managers
+      summary: Unassign group manager from group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupManagerRequest"
+      responses:
+        204:
+          description: Group manager unassigned successfully
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          description: Forbidden, if logged in user does not have "manage-groups" role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Realm not found, or group not found by groupId from payload, or no users found by userIds from payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/500"
+  /api-keys:
+    get:
+      tags:
+        - API Keys
+      summary: Get API keys
+      parameters:
+        - name: first
+          in: query
+          schema:
+            type: integer
+        - name: max
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of API keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserSession"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+    post:
+      tags:
+        - API Keys
+      summary: Create API key
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/CreateApiKeyRequest"
+      responses:
+        200:
+          description: Created API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AstApiKey"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /api-keys/count:
+    get:
+      tags:
+        - API Keys
+      summary: Get API keys count
+      responses:
+        200:
+          description: Count of API keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Count"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /api-keys/{sessionId}:
+    delete:
+      tags:
+        - API Keys
+      summary: Revoke API key
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          description: Session ID
+          schema:
+            type: string
+      responses:
+        200:
+          description: API key revoked
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /owner:
+    get:
+      tags:
+        - Realm Owner
+      summary: Get realm owner
+      responses:
+        200:
+          description: Realm owner data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AstRealmOwner"
+        401:
+          $ref: "#/components/responses/401"
+    post:
+      tags:
+        - Realm Owner
+      summary: Set realm owner
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/SetRealmOwnerRequest"
+      responses:
+        200:
+          description: Realm owner set successfully
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get users
+      parameters:
+        - name: first
+          in: query
+          schema:
+            type: integer
+        - name: max
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: order
+          in: query
+          schema:
+            type: string
+        - name: withoutGroups
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AstUser"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /users/count:
+    get:
+      tags:
+        - Users
+      summary: Get users count
+      responses:
+        200:
+          description: Count of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Count"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /user-roles:
+    get:
+      tags:
+        - Users
+      summary: Get logged in user's roles
+      responses:
+        200:
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Role"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+  /token-exchange:
+    get:
+      tags:
+        - Token Exchange
+      summary: Exchange On-Premise access token to Cloud access token
+      responses:
+        200:
+          description: Cloud access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessTokenResponse"
+        401:
+          $ref: "#/components/responses/401"
+        405:
+          $ref: "#/components/responses/405"
+        500:
+          $ref: "#/components/responses/500"
+  /token-exchange/federation:
+    post:
+      tags:
+        - Token Exchange
+      summary: Setup Token Exchange federation
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Cloud realm username
+                password:
+                  type: string
+                  description: Cloud realm password
+                otp:
+                  type: string
+                  description: Cloud realm MFA (OTP)
+      responses:
+        200:
+          description: Token Exchange federation set up successfully
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        405:
+          $ref: "#/components/responses/405"
+        500:
+          $ref: "#/components/responses/500"
+  /service-token:
+    post:
+      tags:
+        - Token Exchange
+      summary: Exchange access token to service token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetRealm:
+                  type: string
+                  required: true
+                  description: Target realm name, whose token is required
+                serviceUser:
+                  type: string
+                  description: If set token is generated for active service user in target realm
+      responses:
+        200:
+          description: Service token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+  /bulk-entities/find:
+    post:
+      tags:
+        - Bulk Entities
+      summary: Fetch entities data by provided ids
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [ids, type]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  description: IDs of required entities
+                type:
+                  type: string
+                  enum: [user, group, client]
+                  description: Type of entity
+      responses:
+        200:
+          description: Data of requested entitis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        500:
+          $ref: "#/components/responses/500"
+
+components:
+  schemas:
+    AstIdWithName:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Name"
+    AstUser:
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: "username"
+        firstName:
+          type: string
+          example: "FirstName"
+        lastName:
+          type: string
+          example: "LastName"
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean  
+        lastLogin:
+          type: string
+          format: datetime
+        roles:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+        requiredActions:
+          type: array
+          items:
+            type: string    
+    AstRealmOwner:
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: "username"
+        firstName:
+          type: string
+          example: "FirstName"
+        lastName:
+          type: string
+          example: "LastName"
+        email:
+          type: string
+          format: email
+        activated:
+          type: boolean
+    SetRealmOwnerRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          required: true
+        realm:
+          type: string
+    CreateApiKeyRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Short description of what this token is for.
+        expirationPeriod:
+          description: Expiration period since creation date. In days.
+          type: integer
+          minimum: 30
+          maximum: 365
+        notificationEmails:
+          description: Email Addresses for Expiration Notifications of API Keys. Limit 50 emails.
+          type: array
+          items:
+            type: string
+    GroupManagerRequest:
+      type: object
+      properties:
+        groupId:
+          type: string
+          required: true
+        userIds:
+          type: array
+          required: true
+          items:
+            type: string
+    CredentialRepresentation:
+      type: object
+      properties:
+        createdDate:
+          type: integer
+          format: int64
+        credentialData:
+          type: string
+        id:
+          type: string
+        priority:
+          type: integer
+          format: int32
+        secretData:
+          type: string
+        temporary:
+          type: boolean
+        type:
+          type: string
+        userLabel:
+          type: string
+        value:
+          type: string
+    GroupRepresentation:
+      type: object
+      properties:
+        access:
+          type: object
+          additionalProperties: true
+        attributes:
+          type: object
+          additionalProperties: true
+        clientRoles:
+          type: object
+          additionalProperties: true
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+        realmRoles:
+          type: array
+          items:
+            type: string
+        subGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupRepresentation'
+    UserSession:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        userId:
+          type: string
+        ipAddress:
+          type: string
+        start:
+          type: integer
+        lastAccess:
+          type: integer
+        clients:
+          type: object
+        note:
+          type: string
+        expiration:
+          type: number
+    UserRepresentation:
+      type: object
+      properties:
+        access:
+          type: object
+          additionalProperties: true
+        attributes:
+          type: object
+          additionalProperties: true
+        clientConsents:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserConsentRepresentation'
+        clientRoles:
+          type: object
+          additionalProperties: true
+        createdTimestamp:
+          type: integer
+          format: int64
+        credentials:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialRepresentation'
+    UserConsentRepresentation:
+      type: object
+      properties:
+        clientId:
+          type: string
+        createdDate:
+          type: integer
+          format: int64
+        grantedClientScopes:
+          type: array
+          items:
+            type: string
+        lastUpdatedDate:
+          type: integer
+          format: int64
+    AstApiKey:
+      type: object
+      properties:
+        client:
+          type: string
+          required: true
+        key:
+          type: string
+          required: true
+    Count:
+      type: object
+      properties:
+        count:
+          type: integer
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        composite:
+          type: boolean
+        clientRole:
+          type: boolean
+        containerId:
+          type: string
+    AccessTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: number
+        refresh_expires_in:
+          type: number
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+        not-before-policy:
+          type: number
+        session_state:
+          type: string
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+  responses:
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    401:
+      description: Unauthorized
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    405:
+      description: Method Not Allowed
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  securitySchemes:
+    access_token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - access_token: []

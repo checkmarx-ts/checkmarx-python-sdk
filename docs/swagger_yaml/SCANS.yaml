@@ -1,0 +1,957 @@
+openapi: 3.0.2
+info:
+  description: "CxAST Scans service REST API"
+  version: 1.0.0
+  title: "Scans Service"
+paths:
+  /:
+    post:
+      tags:
+        - Scans
+      summary: "Run a scan from a zip archive or Git repo"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/scanInput'
+            encoding:
+              scan:
+                contentType: application/json
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/scan'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: "A URL referring to the location where details about the created scan can be retrieved"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Scans
+      summary: "Get a list of scans, with detailed information about each scan. You can limit the results by using pagination and/or setting filters."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of results to skip before returning results"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: "The maximum number of results to return"
+        - in: query
+          name: scan-ids
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: "Filter results by scan IDs. Only exact matches are returned. (OR operator is used for multiple IDs.)"
+        - in: query
+          name: groups
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: "Filter results by groups assigned to the project. Only exact matches are returned. (OR operator is used for multiple groups.)"
+        - in: query
+          name: tags-keys
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Filter by tag keys (of the key:value pairs) associated with your scans. (OR operator is used for multiple keys.)
+        - in: query
+          name: tags-values
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Filter by tag keys (of the key:value pairs) associated with your scans. (OR operator is used for multiple values.)
+        - in: query
+          name: statuses
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/status'
+          description: "Filter results by scans' execution status. (Case insensitive, OR operator for multiple statuses.)"
+        - in: query
+          name: project-id
+          schema:
+            type: string
+          description: "Filter results for scans of a single project, specified by project ID. (Exact match, case sensitive, mutually exclusive to 'project-ids'.)"
+        - in: query
+          name: project-ids
+          schema:
+            type: string
+          description: "Filter results for scans of multiple projects, specified by project IDs. (Exact match, case sensitive, OR operator for multiple IDs, mutually exclusive to 'project-id'.)"
+        - in: query
+          name: source-types
+          schema:
+            type: array
+            items:
+              type: string
+          description: "source_type from scans table. return zip or github"
+        - in: query
+          name: source-origins
+          schema:
+            type: array
+            items:
+              type: string
+          description: "source_origin from scans table. return webapp or jenkins or etc."
+        - in: query
+          name: from-date
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the earliest date and time of a scan for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: sort
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 3
+            uniqueItems: true
+            items:
+              type: string
+              enum: [-created_at, +created_at, -status, +status, +branch, -branch, +initiator, -initiator, +user_agent, -user_agent, +name, -name]
+            default:
+              - +created_at
+              - +status
+          required: false
+          description: Sort results by the specified parameter. Enter '-/+' for ascending/descending order, followed by the parameter.
+        - in: query
+          name: field
+          schema:
+            type: array
+            maxItems: 1
+            uniqueItems: true
+            items:
+              type: string
+              enum: [project-names, scan-ids, tags-keys, tags-values, branches, statuses, initiators, source-origins, source-types]
+            default:
+              - scan-ids
+          required: false
+          description: "The filter"
+        - in: query
+          name: search
+          schema:
+            type: string
+            maxItems: 1
+            uniqueItems: true
+          required: false
+          description: "The scan searching with substring in all scan columns"
+        - in: query
+          name: to-date
+          schema:
+            type: string
+            format: date-time
+          description: Filter for the latest date and time of a scan for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)
+        - in: query
+          name: project-names
+          schema:
+            type: array
+            items:
+              type: string
+          description: "Filter scans by their project name"
+        - in: query
+          name: initiators
+          schema:
+            type: array
+            items:
+              type: string
+          description: "Filter scans by their initiator"
+        - in: query
+          name: branch
+          schema:
+            type: string
+          description: "Filter results by the name of the Git branch. Old naming."
+        - in: query
+          name: branches
+          schema:
+            type: array
+            items:
+              type: string
+          description: "Filter results by the name of the Git branches"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/scansCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /need-recalculation:
+    put:
+      tags:
+        - Set need recalculation
+      summary: "Set for last scan need recalculation flag"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/needRecalculationInput'
+            encoding:
+              scan:
+                contentType: application/json
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/needRecalculationOutput'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /recalculate:
+    post:
+      tags:
+        - Scan recalculation
+      summary: "Run a last scan recalculation"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/recalculateInput'
+            encoding:
+              scan:
+                contentType: application/json
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/scan'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: "A URL referring to the location where details about the created scan can be retrieved"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /tags:
+    get:
+      tags:
+        - Scans
+      summary: "Get all scan tags in your account"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: object
+                example:
+                  "test": [""]
+                  "priority": ["high", "low"]
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /fieldValues:
+    get:
+      tags:
+        - Scans
+      summary: "Get values for fields"
+      description: "Get a list of all values in your tenant account for specific fields (e.g., project name, scan ID etc.).<br>Note: This can be used to identify options for filter selection."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of results to skip before returning results"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: "The maximum number of results to return"
+        - in: query
+          name: field
+          required: true
+          schema:
+            type: string
+            enum: [project-names, scan-ids, tags-keys, tags-values, branches, statuses, initiators, source-origins, source-types]
+          description: Specify the field for which you would like to retrieve a list of values in your account
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                description: Returns a list of all values that exist in your account for the specified field. <br>For example, if you run this API for the`statuses` field and there are scans in your account in all possible statuses other than `Queued` and `Running`, then the following results are returned.
+                items:
+                  type: string
+                  example: ["Partial", "Failed", "Completed", "Canceled"]
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /summary:
+    get:
+      tags:
+        - Scans
+      summary: "Get a summary of the status of the scans in your account."
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                properties:
+                  status:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                    example:
+                      "Canceled": 15
+                      "Completed": 200
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /templates:
+    get:
+      tags:
+        - Scans
+      summary: "Get the list of the available config-as-code template files that are under the dedicated directory."
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                properties:
+                  directory:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/fileInfo'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /templates/{file-name}:
+    get:
+      tags:
+        - Scans
+      summary: "Get the config as code template file. example: '/templates/config.yml'"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: file-name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}:
+    get:
+      tags:
+        - Scans
+      summary: "Get details about a specific scan, including the current status of the scan."
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/scan'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    patch:
+      tags:
+        - Scans
+      summary: "Cancel a scan"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              properties:
+                status:
+                  type: string
+                  example: 'Canceled'
+                  description: 'Canceled is the only valid input.'
+            encoding:
+              scan:
+                contentType: application/json
+      responses:
+        '204':
+          description: "No Content"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Scans
+      summary: "Delete a scan"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '204':
+          description: "No Content"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}/tags:
+    put:
+      tags:
+        - Scan tags
+      summary: "Modify scan tags"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/modifyScanTagsInput'
+            encoding:
+              scan:
+                contentType: application/json
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Scan tags
+      summary: "Get scan tags"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: object
+                    additionalProperties:
+                      type: string
+                example:
+                  tags:
+                    tagkey1: "tagvalue1"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}/workflow:
+    get:
+      tags:
+        - Scans
+      summary: "Get a detailed workflow for a scan"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/workflow'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    scan:
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the scan."
+        status:
+          $ref: '#/components/schemas/status'
+        statusDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/statusDetails'
+        positionInQueue:
+          type: integer
+          description: "The position of the scan in the execution queue."
+        projectId:
+          type: string
+          description: "The associated project id"
+        branch:
+          type: string
+          description: "The git branch"
+        commitId:
+          type: string
+          description: "The git commit id. Mutually exclusive to commitTag"
+        commitTag:
+          type: string
+          description: "The git tag. Mutually exclusive to commitId"
+        uploadUrl:
+          type: string
+          description: "The URL pointing to the location of the uploaded file that was scanned."
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time that the scan was created."
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time that the scan was created."
+        userAgent:
+          type: string
+          description: "The user-agent header of the tool/platform that initiated the scan."
+        initiator:
+          type: string
+          description: "An identifier of the user who created the scan."
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: "An object representing the scan tags in a key-value format"
+        metadata:
+          type: object
+          description: "A JSON object containing info about the scan settings."
+    scanInput:
+      properties:
+        type:
+          type: string
+          enum: [upload, git]
+          description: "The type of the scan."
+        handler:
+          type: object
+          description: "A JSON object containing info about the 'handler' of the scan submission."
+          oneOf:
+            - $ref: '#/components/schemas/git'
+            - $ref: '#/components/schemas/upload'
+        project:
+          $ref: '#/components/schemas/project'
+        config:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: "The type of scanners run on the scan."
+                enum: [sca, sast, kics, microengines, containers, system]
+                example: sast
+              value:
+                type: object
+                description: "An object representing the configuration in a key-value format. Relevant only for SAST scans. "
+                additionalProperties:
+                  type: string
+                example:
+                  incremental: 'true'
+                  presetName: "Default"
+                  baseBranch: "master"
+        tags:
+          type: object
+          description: "A JSON object containing a list of the tags associated with the scan, in key-value format."
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+    modifyScanTagsInput:
+      properties:
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          description: "A JSON object containing a list of the tags associated with the scan, in key-value format."
+          example:
+            "test": ""
+            "priority": "high"
+    needRecalculationInput:
+      properties:
+        project_id:
+          type: string
+          description: "Project id"
+        branch:
+          type: string
+          description: "Current branch"
+        engine:
+          type: string
+          description: "Current engine"
+        scan_id:
+          type: string
+          description: "Scan id"
+    needRecalculationOutput:
+      properties:
+        project_id:
+          type: string
+          description: "Project id"
+        branch:
+          type: string
+          description: "Current branch"
+        engine:
+          type: string
+          description: "Current engine"
+        scan_id:
+          type: string
+          description: "Scan id"
+        status:
+          type: string
+          description: "Recalculate status"
+    recalculateInput:
+      properties:
+        project_id:
+          type: string
+          description: "Project id"
+        branch:
+          type: string
+          description: "Current branch"
+        engines:
+          type: array
+          items:
+            type: string
+    project:
+      description: "A JSON object representing the project to scan."
+      type: object
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for the project. For 'upload' projects, a value must be entered. For 'git' projects, this field can be empty and the repository URL will be designated as the project ID."
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: "A JSON object specifying the project tags, in key-value format. Note: Whatever tags you include here, even an empty field, will overwrite the tags currently assigned to the project."
+    scansCollection:
+      type: object
+      description: "An JSON object containing the list of scans returned by the GET scans request."
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: "The total number of scans in your account."
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: "The number of scan results returned, based the applied filters."
+        scans:
+          type: array
+          description: "An array containing the scan results returned, based on the applied filters."
+          items:
+            $ref: '#/components/schemas/scan'
+    git:
+      properties:
+        branch:
+          type: string
+          description: "The Git branch of the project to be scanned."
+        commit:
+          type: string
+          description: "The ID of the Git commit version to be scanned. Mutually exclusive to 'tag'."
+        tag:
+          type: string
+          description: "The tag of the Git commit version to be scanned. Mutually exclusive to 'commit'."
+        repoUrl:
+          type: string
+          description: "The URL of the Git repository to be scanned."
+        credentials:
+          type: object
+          description: "A JSON object containing the credentials for the Git repo."
+          properties:
+            username:
+              type: string
+              description: "The user name required for accessing the Git repository."
+            type:
+              type: string
+              enum: [apiKey, password, ssh, JWT]
+              description: "The type of credentials used for accessing the Git repository."
+            value:
+              type: string
+              description: "The credentials used for accessing the Git repository."
+        skipSubModules:
+          type: boolean
+          description: "Indicates whether to skip the Git submodules."
+    upload:
+      properties:
+        branch:
+          type: string
+          description: "The representative branch."
+        repoUrl:
+          type: string
+          description: "The representive repository URL."
+        uploadUrl:
+          type: string
+          description: "The URL pointing to the location of the uploaded file to scan. Note: the URL was generated using POST /api/uploads."
+    status:
+      type: string
+      enum: ["Queued", "Running", "Completed", "Failed", "Partial", "Canceled"]
+      description: "The execution status of the scan."
+    statusDetails:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: "Name of the area status relates to"
+            enum: ["general", "sast", "sca", "kics", "apisec"]
+          status:
+            type: string
+            enum: ["Completed", "Failed", "Canceled"]
+          details:
+            type: string
+            description: "Additional information such as error message"
+          startDate:
+            type: string
+            format: date-time
+            description: "The date and time that the scan was created."
+          endDate:
+            type: string
+            format: date-time
+            description: "The date and time that the scan was finished."
+    workflow:
+      type: array
+      items:
+        $ref: '#/components/schemas/taskInfo'
+    taskInfo:
+      type: object
+      properties:
+        source:
+          type: string
+          description: "The service that generated the task event."
+        timestamp:
+          type: string
+          format: date-time
+          description: "The time of the task event."
+        info:
+          type: string
+          description: "An informative message describing the task event."
+    fileInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the file or directory."
+        modTime:
+          type: string
+          format: date-time
+          description: "The time that the file or directory was last modified."
+        size:
+          type: integer
+          description: "The size of the file or directory."
+        isDir:
+          type: boolean
+          description: "Indicates whether the entry in this directory a file or a directory."
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "A message describing the error"
+        type:
+          type: string
+          description: "The type of the error"
+        code:
+          type: integer
+          description: "The error code"
+  responses:
+    '401':
+      description: "Unauthorized, access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "This ID is used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "The API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    pathId:
+      name: id
+      in: path
+      description: "The scan ID"
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/scans
+security:
+  - Login: []

@@ -1,0 +1,306 @@
+openapi: 3.0.2
+info:
+  title: Kics Results API
+  description: Kics Scans results APIs
+  version: 1.0.0
+paths:
+  '/':
+    get:
+      tags:
+        - KICS Scans Results
+      summary: get KICS results for a specific scan
+      description: "Scan ID is a required query param. You can limit results by using pagination and/or setting filters.<br>Note: An AND operator is applied between filters, and an OR operator is applied to multiple values for each filter."
+      operationId: getKICSResultsByScan
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: Filter results by scan ID
+        - in: query
+          name: severity
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SeverityEnum'
+          required: false
+          description: Filter by severity
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/StatusEnum'
+          required: false
+          description: Filter by status
+        - in: query
+          name: source-file
+          schema:
+            type: string
+          required: false
+          description: Filter by source file name
+        - in: query
+          name: apply-predicates
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, the results show changes made to predicates. If false, the raw predicate values will be returned.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The maximum number of results to return
+        - in: query
+          name: sort
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 3
+            uniqueItems: true
+            items:
+              type: string
+              enum: [-severity, +severity, -status, +status, -firstfoundat, +firstfoundat, -foundat, +foundat, -firstscanid, +firstscanid]
+            default:
+              - +status
+              - +severity
+          required: false
+          description: Sort results by the specified parameter. Enter '-/+' for ascending/descending order, followed by the parameter.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KicsResult'
+                  totalCount:
+                    type: integer
+        '400':
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+components:
+  schemas:
+    KicsResult:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the result
+        similarityID:
+          type: integer
+          description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        firstScanID:
+          type: string
+          description: The scanID of the scan in which the result (based on SimilarityID) was first identified in this project
+        firstFoundAt:
+          type: string
+          format: date
+          description: The date and time that this result (based on SimilarityID) was first identified in this tenant
+        foundAt:
+          type: string
+          format: date
+          description: The date and time that this result was identified
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        state:
+          $ref: '#/components/schemas/StateEnum'
+        stateId:
+          type: integer
+          description: ID of the state.
+        type:
+          type: string
+          default: infrastructure
+        queryID:
+          type: integer
+          description: The ID of the query that generated this result (i.e. the vulnerability that was identified)
+        queryName:
+          type: string
+          description: The name of the query/vulnerability
+        group:
+          type: string
+          description: The name of the query/vulnerability group
+        queryUrl:
+          type: string
+          format: uri
+          description: The name of the query/vulnerability
+        fileName:
+          type: string
+          description: Query group name
+        line:
+          type: integer
+          description: Query group name
+        platform:
+          type: string
+          description: Query group name
+        issueType:
+          type: string
+          description: Query group name
+        searchKey:
+          type: string
+          description: Query group name
+        searchValue:
+          type: integer
+          description: Query group name
+        expectedValue:
+          type: string
+          description: Query group name
+        actualValue:
+          type: string
+          description: Query group name
+        value:
+          type: string
+          description: Query group name
+        description:
+          type: string
+          description: Query group name
+        comments:
+          type: string
+          description: Query group name
+        category:
+          type: string
+          description: Query group name
+        resourceName:
+          type: string
+          description: Resource name
+        resourceType:
+          type: string
+          description: Resource type
+    ResultNode:
+      type: object
+      properties:
+        column:
+          type: integer
+          description: Column position of the node
+        fileName:
+          type: string
+          description: The name of the file in which the node is located
+        fullName:
+          type: string
+          description: The FQN (Fully Qualified Name) designated by Checkmarx for this node, based on the text/content
+        length:
+          type: integer
+          description: The number of characters in the node
+        line:
+          type: integer
+          description: The line number of the beginning of the node
+        methodLine:
+          type: integer
+          description: The line position in the source code containing the method
+        name:
+          type: string
+          description: The name designated by Checkmarx for this node, based on the text/content
+        domType:
+          type: string
+          description: The DOM type of the node
+        nodeSystemID:
+          type: string
+          description: Please use "nodeHash" instead
+          deprecated: true
+        nodeHash:
+          type: string
+          description: ID of the customer tenant
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+    StateEnum:
+      type: string
+      description: state enum of a result.
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    SeverityEnum:
+      type: string
+      description: Severity enum of a result
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    StatusEnum:
+      type: string
+      description: Status enum of a result
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    OperationEnum:
+      type: string
+      description: Operation type
+      enum:
+        - CONTAINS
+        - NOT_CONTAINS
+        - EQUAL
+        - NOT_EQUAL
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/kics-results
+security:
+  - Login: []

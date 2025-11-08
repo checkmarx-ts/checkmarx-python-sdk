@@ -1,0 +1,103 @@
+openapi: 3.0.2
+info:
+  title: Enum Values
+  description: These APIs are used to retrieve a list of possible values for each of the result parameter enums.
+  version: 1.0.0
+paths:
+  '/states':
+    get:
+      tags:
+        - Enum Values
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+      summary: get states list
+      operationId: getStatesList
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["TO_VERIFY", "NOT_EXPLOITABLE", "PROPOSED_NOT_EXPLOITABLE", "CONFIRMED", "URGENT"]
+  '/statuses':
+    get:
+      tags:
+        - Enum Values
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+      summary: get statuses list
+      operationId: getStatusesList
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["NEW", "RECURRENT", "FIXED"]
+  '/severities':
+    get:
+      tags:
+        - Enum Values
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+      summary: get severities list
+      operationId: getSeveritiesList
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]
+components:
+  parameters:
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationId:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    version:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/lists
+security:
+  - Login: []

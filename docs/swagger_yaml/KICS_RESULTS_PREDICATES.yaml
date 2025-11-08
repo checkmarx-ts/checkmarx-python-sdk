@@ -1,0 +1,262 @@
+openapi: 3.0.2
+info:
+  title: KICS Results Predicates API
+  description: TBD
+  version: 1.0.0
+paths:
+  '/{similarityID}':
+    get:
+      tags:
+        - predicates
+      summary: get all predicates for similarity id
+      description: get all predicates for similarity id
+      operationId: getPredicatesBySimilarityID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: path
+          name: similarityID
+          schema:
+            type: string
+          required: true
+          description: ID of the similarity to get
+        - in: query
+          name: project-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: filter by project-ids. OR operator between the items. if not set will return all projects.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predicateHistoryPerProject:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PredicateHistory'
+                  totalCount:
+                    type: integer
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/':
+    post:
+      tags:
+        - predicates
+      summary: predicate Severity and State by Similiarty ID and Project ID
+      description: predicate Severity and State by Similiarty ID and Project ID
+      operationId: PredicateBySimiliartyIdAndProjectId
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      similarityId:
+                        type: string
+                        description: ID of the related similarity ID.
+                      scanId:
+                        type: string
+                        description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
+                      projectId:
+                        type: string
+                        description: ID of the related project ID.
+                      severity:
+                        $ref: '#/components/schemas/SeverityEnum'
+                      state:
+                        $ref: '#/components/schemas/StateEnum'
+                      comment:
+                        type: string
+                        description: comment that describes why the state has predicated
+                    example:
+                      similarityId: string
+                      scanId: string
+                      projectId: string
+                      severity: CRITICAL
+                      state: TO_VERIFY
+                      comment: string
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      similarityId:
+                        type: string
+                        description: ID of the related similarity ID.
+                      scanId:
+                        type: string
+                        description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
+                      projectId:
+                        type: string
+                        description: ID of the related project ID.
+                      severity:
+                        $ref: '#/components/schemas/SeverityEnum'
+                      comment:
+                        type: string
+                        description: comment that describes why the state has predicated
+                      customStateId:
+                        type: integer
+                        description: ID of the custom state (relevant only if custom state feature flag is on)
+                        default: 100
+                    example:
+                      similarityId: string
+                      scanId: string
+                      projectId: string
+                      severity: CRITICAL
+                      comment: "string"
+                      customStateId: 100
+      responses:
+        '201':
+          description: successful operation
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+components:
+  schemas:
+    PredicateHistory:
+      type: object
+      properties:
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        predicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Predicate'
+        totalCount:
+          type: integer
+    Predicate:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the predicate.
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        state:
+          $ref: '#/components/schemas/StateEnum'
+        stateId:
+          type: integer
+          description: ID of the state.
+        comment:
+          type: string
+          description: comment that describe why the state has predicated. max length is 1024. can be empty.
+        createdBy:
+          type: string
+          description: the user name that created this entry.
+        createdAt:
+          type: string
+          format: date
+          description: Creation date of the entry
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+    StateEnum:
+      type: string
+      description: state enum of a result.
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    SeverityEnum:
+      type: string
+      description: Severity enum of a result
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/kics-results-predicates
+security:
+  - Login: []

@@ -1,0 +1,185 @@
+openapi: 3.0.2
+info:
+  title: SAST BFL
+  description: SAST Results Best Fix Location API
+  version: 1.0.0
+tags:
+  - name: BFL
+    description: Best fix location
+paths:
+  '/':
+    get:
+      tags:
+        - BFL
+      summary: get BFL graph by scan
+      description: get BFL graph by scan
+      operationId: getBFLbyScanID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: find BFL for scan id
+        - in: query
+          name: query-id
+          schema:
+            type: string
+          required: false
+          description: get BFL from scan id for specific query id
+        - in: query
+          name: result-ids
+          schema:
+            type: array
+            default: []
+            items:
+              type: string
+          required: false
+          description: filter by results id. will include only the selected results ids (OR operator between the items).
+        - in: query
+          name: include-graph
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: If this value is set to true then the trees will contain 2 extra fields - nodes and nodesAdjacencyPairs.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of items to skip before starting to collect the result set.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The number of items to return.
+        - in: query
+          name: apply-predicates
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: if true will apply changes from predicates, otherwise will return the raw results summary.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BflForest'
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '404':
+          description: BFL not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+components:
+  schemas:
+    BflForest:
+      type: object
+      properties:
+        id:
+          type: string
+        totalCount:
+          type: integer
+        trees:
+          type: array
+          items:
+            $ref: '#/components/schemas/BflTree'
+          description: array of BFL trees.
+    BflTree:
+      type: object
+      properties:
+        id:
+          description: tree ID in the forest
+          type: string
+        bfl:
+          description: Best Fix Location node of the tree
+          $ref: './multiEngineResults.yaml#/components/schemas/ResultNode'
+        results:
+          description: results for the BFL node
+          type: array
+          items:
+            $ref: './multiEngineResults.yaml#/components/schemas/Result'
+        additionalProperties:
+          type: object
+          description: "the additional properties will be added if include-graph is set to true"
+          properties:
+            nodesAdjacencyPairs:
+              description: "nodes adjacency list. https://en.wikipedia.org/wiki/Adjacency_list"
+              type: array
+              items:
+                type: array
+                minItems: 2
+                maxItems: 2
+                uniqueItems: true
+                items:
+                  type: string
+                example: ["nodeId1", "nodeId2"]
+            nodes:
+              description: Dictionarie of nodes ids to nodes objects
+              type: object
+              additionalProperties:
+                $ref: './multiEngineResults.yaml#/components/schemas/ResultNode'
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/bfl
+security:
+  - Login: []

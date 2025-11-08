@@ -1,0 +1,592 @@
+openapi: 3.0.2
+info:
+  title: Sast Results Summary API
+  version: 1.0.0
+paths:
+  "/aggregate":
+    get:
+      tags:
+        - Aggregation
+      summary: Get aggregated summary of SAST results
+      description: "Get summary of aggregated SAST results for the specified scan.<br> Note: You can customize the groupings and filters. An AND operator is applied between filters, and an OR operator is applied to multiple values for each filter."
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: Specify a scan ID
+        - in: query
+          name: group-by-field
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [QUERY, SEVERITY, STATE, STATUS, SOURCE_NODE, SINK_NODE, SOURCE_FILE, SINK_FILE, LANGUAGE]
+          required: true
+          description: Specify parameters for grouping results
+        - in: query
+          name: language
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: "Filter results by language<br> Note: Exact match, case insensitive."
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/StatusEnum"
+          required: false
+          description: Filter results by status
+        - in: query
+          name: severity
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/SeverityEnum"
+          required: false
+          description: Filter results by severity
+        - in: query
+          name: cwe-id
+          schema:
+            type: number
+          required: false
+          description: Filter results by cwe id.
+        - in: query
+          name: cwe-id-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified cwe id value.
+        - in: query
+          name: similarity-id
+          schema:
+            type: number
+          required: false
+          description: Filter results by similarity id.
+        - in: query
+          name: similarity-id-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified similarity id value.
+        - in: query
+          name: source-file
+          schema:
+            type: string
+          required: false
+          description: Filter results by source file name
+        - in: query
+          name: source-file-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: Specify the operator applied to source file name
+        - in: query
+          name: source-node
+          schema:
+            type: string
+          required: false
+          description: Filter results by source node
+        - in: query
+          name: source-node-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: Specify the operator applied to source node
+        - in: query
+          name: source-line
+          schema:
+            type: number
+          required: false
+          description: Filter results by source line.
+        - in: query
+          name: source-line-operation
+          schema:
+            $ref: '#/components/schemas/OperationIntEnum'
+          required: false
+          description: The operator that you would like to apply to the specified source line value.
+        - in: query
+          name: sink-node
+          schema:
+            type: string
+          required: false
+          description: Filter results by sink node
+        - in: query
+          name: sink-node-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: Specify the operator applied to sink node
+        - in: query
+          name: sink-file
+          schema:
+            type: string
+          required: false
+          description: Filter results by sink file name
+        - in: query
+          name: sink-file-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: Specify the operator applied to sink file name
+        - in: query
+          name: sink-line
+          schema:
+            type: number
+          required: false
+          description: Filter results by sink line.
+        - in: query
+          name: sink-line-operation
+          schema:
+            $ref: '#/components/schemas/OperationIntEnum'
+          required: false
+          description: The operator that you would like to apply to the specified sink line value.
+        - in: query
+          name: number-of-nodes
+          schema:
+            type: number
+          required: false
+          description: Filter results by number of nodes.
+        - in: query
+          name: number-of-nodes-operation
+          schema:
+            $ref: '#/components/schemas/OperationIntEnum'
+          required: false
+          description: The operator that you would like to apply to the specified number of nodes value.
+        - in: query
+          name: notes
+          schema:
+            type: string
+          required: false
+          description: Filter results by last notes.
+        - in: query
+          name: notes-operation
+          schema:
+            $ref: '#/components/schemas/OperationJSONBArrayEnum'
+          required: false
+          description: The operator that you would like to apply to the specified notes value.
+        - in: query
+          name: first-found-at
+          schema:
+            type: string
+            format: date-time
+          required: false
+          description: Filter results by first found at.
+        - in: query
+          name: first-found-at-operation
+          schema:
+            $ref: '#/components/schemas/OperationDateEnum'
+          required: false
+          description: The operator that you would like to apply to the specified first found at value. (defaults to GREATER_THAN)
+        - in: query
+          name: confidence-level
+          schema:
+            type: number
+          required: false
+          description: Filter results by confidence-level.
+        - in: query
+          name: confidence-level-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified confidence-level value.
+        - in: query
+          name: confidence-score
+          schema:
+            type: number
+          required: false
+          description: Filter results by confidence-score.
+        - in: query
+          name: confidence-score-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified sconfidence-score value.
+        - in: query
+          name: query-ids
+          schema:
+            type: array
+            items:
+              type: number
+          required: false
+          description: Filter results by query IDs
+        - in: query
+          name: preset-id
+          schema:
+            type: string
+          required: false
+          description: Filter results by preset
+        - in: query
+          name: result-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: Filter results by unique result hashes
+        - in: query
+          name: categories
+          schema:
+            type: string
+          required: false
+          description: Filter results by a comma separated list of category names.
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Filter results by source file name, source node, sink node, sink file name, notes.
+        - in: query
+          name: apply-predicates
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, the results take into account changes made to the predicates. If false, the results are based on te raw predicate values.
+        - in: query
+          name: bfl-name
+          schema:
+            type: string
+          required: false
+          description: "Filter results by bfl name."
+        - in: query
+          name: bfl-name-operation
+          schema:
+            $ref: "#/components/schemas/OperationJSONBArrayEnum"
+          required: false
+          description: The operator that you would like to apply to the specified bfl name value.
+        - in: query
+          name: bfl-group-size
+          schema:
+            type: number
+          required: false
+          description: Filter results by bfl group size.
+        - in: query
+          name: bfl-group-size-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified bfl group size value.
+        - in: query
+          name: group
+          schema:
+            type: string
+            default: ""
+          required: false
+          description: "Filter results by the vulnerability group<br> Note: Can be a substring of the group name."
+        - in: query
+          name: group-operation
+          schema:
+            $ref: "#/components/schemas/OperationJSONBArrayEnum"
+          required: false
+          description: The operator that you would like to apply to the specified group value.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The maximum number of results to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/QuerySummary"
+                  - $ref: "#/components/schemas/SeveritySummary"
+                  - $ref: "#/components/schemas/StatusSummary"
+                  - $ref: "#/components/schemas/SourceNodeSummary"
+                  - $ref: "#/components/schemas/SinkNodeSummary"
+                  - $ref: "#/components/schemas/SourceFileSummary"
+                  - $ref: "#/components/schemas/SinkFileSummary"
+                  - $ref: "#/components/schemas/LanguageSummary"
+                  - $ref: "#/components/schemas/ComplianceSummary"
+        "400":
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+  "/compare/aggregate":
+    get:
+      tags:
+        - Aggregation
+      summary: Get aggregated summary of SAST results comparison
+      description: "Get summary of aggregated SAST results for two specified scans (comparing them)"
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: Scan ID of the newer scan to compare
+        - in: query
+          name: base-scan-id
+          schema:
+            type: string
+          required: true
+          description: Scan ID of the older scan to compare
+        - in: query
+          name: group-by-field
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [LANGUAGE, QUERY]
+          required: true
+          description: Specify parameters for grouping results
+        - in: query
+          name: language
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: "Filter results by language<br> Note: Exact match, case insensitive."
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/StatusEnumCmp"
+          required: false
+          description: Filter results by status
+        - in: query
+          name: severity
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/SeverityEnum"
+          required: false
+          description: Filter results by severity
+        - in: query
+          name: query-ids
+          schema:
+            type: array
+            items:
+              type: number
+          required: false
+          description: Filter results by query IDs
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The maximum number of results to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/QuerySummary"
+                  - $ref: "#/components/schemas/SeveritySummary"
+                  - $ref: "#/components/schemas/LanguageSummary"
+        "400":
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+components:
+  parameters:
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationId:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    version:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  schemas:
+    QuerySummary:
+      type: object
+      properties:
+        queryID:
+          type: string
+        queryName:
+          type: string
+        severity:
+          $ref: "#/components/schemas/SeverityEnum"
+        count:
+          type: integer
+    SeveritySummary:
+      type: object
+      properties:
+        severity:
+          $ref: "#/components/schemas/SeverityEnum"
+        count:
+          type: integer
+    StatusSummary:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+        count:
+          type: integer
+    SourceNodeSummary:
+      type: object
+      properties:
+        sourceNode:
+          type: string
+        count:
+          type: integer
+    SinkNodeSummary:
+      type: object
+      properties:
+        sinkNode:
+          type: string
+        count:
+          type: integer
+    SourceFileSummary:
+      type: object
+      properties:
+        sourceFile:
+          type: string
+        count:
+          type: integer
+    SinkFileSummary:
+      type: object
+      properties:
+        sinkFile:
+          type: string
+        count:
+          type: integer
+    LanguageSummary:
+      type: object
+      properties:
+        language:
+          type: string
+        count:
+          type: integer
+    ComplianceSummary:
+      type: object
+      properties:
+        compliance:
+          type: string
+        count:
+          type: integer
+    SeverityEnum:
+      type: string
+      description: Severity enum of a vulnerability
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    StatusEnum:
+      type: string
+      description: Status enum of a result
+      enum:
+        - NEW
+        - RECURRENT
+    StatusEnumCmp:
+      type: string
+      description: Status enum of a result
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    OperationEnum:
+      type: string
+      description: Operator type enum
+      enum:
+        - LESS_THAN
+        - GREATER_THAN
+        - EQUAL
+        - NOT_EQUAL
+        - CONTAINS
+        - NOT_CONTAINS
+        - START_WITH
+    OperationIntEnum:
+      type: string
+      description: Int Operation type
+      enum:
+        - LESS_THAN
+        - GREATER_THAN
+        - EQUAL
+        - NOT_EQUAL
+    OperationDateEnum:
+      type: string
+      description: Date Operation type
+      enum:
+        - LESS_THAN
+        - GREATER_THAN
+    OperationJSONBArrayEnum:
+      type: string
+      description: JSONB array Operator type enum
+      enum:
+        - CONTAINS
+        - START_WITH
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/sast-scan-summary
+security:
+  - Login: []

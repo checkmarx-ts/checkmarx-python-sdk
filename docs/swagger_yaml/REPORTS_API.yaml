@@ -1,0 +1,516 @@
+openapi: 3.0.2
+info:
+  title: Reports
+  version: 1.0.0
+paths:
+  "/":
+    post:
+      tags:
+        - Reports
+      summary: Create a Report
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/scanReportCreateInput'
+                - $ref: '#/components/schemas/scanListReportCreateInput'
+                - $ref: '#/components/schemas/projectListReportCreateInput'
+                - $ref: '#/components/schemas/projectReportCreateInput'
+                - $ref: '#/components/schemas/applicationListReportCreateInput'
+                - $ref: '#/components/schemas/openVulnerabilitiesReportCreateInput'
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        202:
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportCreateOutput'
+  "/{reportId}":
+    get:
+      tags:
+        - Reports
+      summary: Get Report status
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: returnUrl
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+  "/{reportId}/download":
+    get:
+      tags:
+        - Reports
+      summary: Download a Report
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        301:
+          description: Moved Permanently
+components:
+  schemas:
+    baseReportCreateInput:
+      type: object
+      properties:
+        reportName:
+          type: string
+          description: The type of report being generated.
+          enum:
+            - scan-report
+            - scan-list
+            - project-list
+            - application-list
+            - open-vulnerabilities-report
+            - dast-scan-report
+        reportType:
+          type: string
+          description: Indicates how the report will be accessed. When the type is 'email', you need to add the recipient's email in the data section.
+          enum:
+            - cli
+            - ui
+            - email
+        fileFormat:
+          type: string
+          description: The output format of the report.
+          enum:
+            - json
+            - pdf
+            - csv
+        data:
+          type: object
+      required:
+        - reportName
+        - reportType
+        - fileFormat
+        - data
+    baseProjectReportCreateInput:
+      type: object
+      properties:
+        reportName:
+          type: string
+          description: The type of report being generated.
+          enum:
+            - project-report
+        reportType:
+          type: string
+          description: Indicates how the report will be accessed. When the type is 'email', you need to add the recipient's email in the data section.
+          enum:
+            - cli
+            - ui
+            - email
+        fileFormat:
+          type: string
+          description: The output format of the report.
+          enum:
+            - json
+            - pdf
+        fromDate:
+          type: string
+          description: Date from which to include results.
+          example: "2017-01-01"
+          format: date
+          pattern: "YYYY-MM-DD"
+          minLength: 10
+          maxLength: 10
+        toDate:
+          type: string
+          description: Date until which to include results.
+          example: "2017-01-01"
+          format: date
+          pattern: "YYYY-MM-DD"
+          minLength: 10
+          maxLength: 10
+        granularity:
+          description: The granularity of results for metrics shown over time. Show results for all scans or only for the last scan each day.
+          type: string
+          enum:
+            - all
+            - daily
+        resultsLimit:
+          type: integer
+          description: Number of results shown for each scanner.
+        data:
+          type: object
+      required:
+        - reportName
+        - reportType
+        - fileFormat
+        - fromDate
+        - toDate
+        - granularity
+        - data
+    scanReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseReportCreateInput'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                scanId:
+                  type: string
+                  format: uuid
+                  description: The scan ID of the scan for which you would like to generate the report.
+                projectId:
+                  type: string
+                  format: uuid
+                  description: The project ID of the project on which the scan was run.
+                branchName:
+                  type: string
+                  description: The name of the branch on which the scan was run.
+                host:
+                  type: string
+                  description: FOR INTERNAL CHECKMARX USE.
+                sections:
+                  type: array
+                  description: The sections to include in the report.
+                  default: All sections
+                  items:
+                    type: string
+                scanners:
+                  type: array
+                  description: If you included the ScanResults section, then you need to specify for which scanners scan results are included.
+                  default: All scanners
+                  items:
+                    type: string
+                email:
+                  type: array
+                  description: The emails of the report recipients.
+                  items:
+                    type: string
+              required:
+                - projectId
+    scanListReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseReportCreateInput'
+        - type: object
+          properties:
+            fileFormat:
+              type: string
+              enum:
+                - csv
+            data:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                  format: uuid
+                  description: The project for which you are getting the list of scans.
+                branchName:
+                  type: string
+                  description: The branch for which you are getting the list of scans.
+              required:
+                - projectId
+    projectListReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseReportCreateInput'
+        - type: object
+          properties:
+            fileFormat:
+              type: string
+              description: The output format of the report.
+              enum:
+                - csv
+            data:
+              type: object
+              properties:
+                nameContains:
+                  type: string
+                  description: The project name or part of it.
+                filterGroups:
+                  type: array
+                  description: The groups to filter project by.
+                  items:
+                    type: string
+                tagsKeys:
+                  type: array
+                  description: A list of tag keys to filter projects by.
+                  items:
+                    type: string
+                tagsValues:
+                  type: array
+                  description: A list of tag values to filter projects by.
+                  items:
+                    type: string
+                scanOrigin:
+                  type: array
+                  description: A list of scan origins to filter projects by.
+                  items:
+                    type: string
+                source:
+                  type: array
+                  description: A list of scan source to filter projects by.
+                  items:
+                    type: string
+                riskLevel:
+                  type: string
+                  description: A list of risk levels to filter projects by.
+                fromDate:
+                  type: string
+                  format: date
+                  description: The lower bound date from which the last scan for this project was ran.
+                toDate:
+                  type: string
+                  format: date
+                  description: The upper bound date to which the last scan for this project was ran.
+    projectReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseProjectReportCreateInput'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                scanId:
+                  type: string
+                  format: uuid
+                  description: The scan ID of the scan for which you are generating the report.
+                projectId:
+                  type: string
+                  format: uuid
+                  description: The project ID of the project  for which you are generating the report.
+                sections:
+                  type: array
+                  description: The sections to include in the report.
+                  default: All sections
+                  items:
+                    type: string
+                email:
+                  type: array
+                  description: The emails or the report recipients.
+                  items:
+                    type: string
+              required:
+                - scanId
+                - projectId
+    applicationListReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseReportCreateInput'
+        - type: object
+          properties:
+            fileFormat:
+              type: string
+              enum:
+                - csv
+    openVulnerabilitiesReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseReportCreateInput'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                sections:
+                  type: array
+                  description: The sections to include in the report.
+                  default: All sections
+                  items:
+                    type: string
+                emails:
+                  type: array
+                  description: The emails of the report recipients.
+                  items:
+                    type: string
+                lastScanBranches:
+                  type: boolean
+                  description: The selection of lastScanBranches will determine if the last scan from each branch will be considered otherwise only the last scan from the project is considered in the report generation.
+                  default: true
+                filters:
+                  type: object
+                  properties:
+                    projects:
+                      type: array
+                      description: The projects included in the report.
+                      default: All scanners
+                      items:
+                        type: string
+                    applications:
+                      type: array
+                      description: The applications included in the report.
+                      default: All scanners
+                      items:
+                        type: string
+                    scanners:
+                      type: array
+                      description: The scanners included in the report.
+                      default: All scanners
+                      items:
+                        type: string
+                    tags:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/tagsFilter'
+    dastScanReportCreateInput:
+      allOf:
+        - $ref: '#/components/schemas/baseReportCreateInput'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                environmentID:
+                  type: string
+                  description: The environmentId
+                scanID:
+                  type: string
+                  description: The scanId
+                sections:
+                  $ref: '#/components/schemas/dastSections'
+                emails:
+                  type: array
+                  description: The emails of the report recipients.
+                  items:
+                    type: string
+    reportCreateOutput:
+      type: object
+      properties:
+        reportId:
+          type: string
+          format: uuid
+    report:
+      type: object
+      properties:
+        reportId:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+          enum:
+            - requested
+            - started
+            - completed
+            - failed
+        url:
+          type: string
+          readOnly: true
+          nullable: true
+        filename:
+          type: string
+          readOnly: true
+          nullable: true
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+    tagsFilter:
+      type: object
+      properties:
+        scanTag:
+          type: boolean
+          description: Define if the tag is a Scan tag.
+          default: false
+        projectTag:
+          type: boolean
+          description: Define if the tag is a Project tag.
+          default: false
+        applicationTag:
+          type: boolean
+          description: Define if the tag is a Application tag.
+          default: false
+        value:
+          type: string
+          description: Define the value of the tag.
+    dastSections:
+      type: object
+      properties:
+        scanSummary:
+          type: boolean
+          description: Include the Scans-Summary section
+        executiveSummary:
+          type: boolean
+          description: Include the Executive-Summary section
+        scanResults:
+          type: boolean
+          description: Include the Scan-Results section
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "This ID is used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "The API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/reports
+security:
+  - Login: []

@@ -1,0 +1,404 @@
+openapi: 3.0.2
+info:
+  description: Link provider
+  title: CxLink
+  version: 1.0.0
+tags:
+  - name: "Links"
+    description: "Operations related to managing links"
+paths:
+  "/links":
+    get:
+      tags:
+        - "Links"
+      summary: "List all links"
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: "A list of links"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/linkListResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+    post:
+      tags:
+        - "Links"
+      summary: "Create a new link"
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+      requestBody:
+        description: "Payload to create a new link"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/linkRequestBody"
+      responses:
+        "201":
+          description: "Link created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/linkCreatedResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "409":
+          description: "Conflict, link with the same name already exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  "/links/{id}":
+    get:
+      tags:
+        - "Links"
+      summary: "Retrieve requested link details"
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/idPath"
+      responses:
+        "200":
+          description: "The link requested"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/link"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+    put:
+      tags:
+        - "Links"
+      summary: "Update a link"
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/idPath"
+      requestBody:
+        description: "Payload to update the link"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/linkUpdateRequestBody"
+      responses:
+        "204":
+          description: "Link updated successfully"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          description: "Link not found"
+    delete:
+      tags:
+        - "Links"
+      summary: "Delete a link"
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/idPath"
+      responses:
+        "204":
+          description: "Link deleted successfully"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          description: "Link not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  "/links/{id}/recreate":
+    patch:
+      tags:
+        - "Links"
+      summary: "Recreate a link with new credentials"
+      description: "Recreates a link by generating new zrok credentials while preserving the link configuration"
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/idPath"
+      responses:
+        "200":
+          description: "Link recreated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/link"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          description: "Link not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+components:
+  schemas:
+    linkListResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          example: 100
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/link"
+          example:
+            - id: "123e4567-e89b-12d3-a456-426614174000"
+              name: "Test Link"
+              description: "A description of the test link"
+              privateUrl: "http://example-private-url.com"
+              linkUrl: "https://example.com/link/123e4567-e89b-12d3-a456-426614174000"
+              tunnelName: "unique-tunnel-name"
+              state: "connected"
+              clientType: "docker"
+              clientVersion: "1.0.0"
+              clientPrivateUrl: "http://example-client-private-url.com"
+              createdAt: "2023-10-23T08:30:00Z"
+        _links:
+          type: object
+          properties:
+            self:
+              type: string
+              description: "Self-referencing link"
+              example: "/api/v1/link/links?offset=0&limit=10"
+            next:
+              type: string
+              description: "URL to next link page, if applicable"
+              example: "/api/v1/link/links?offset=10&limit=10"
+            previous:
+              type: string
+              description: "URL to previous link page, if applicable"
+              example: "/api/v1/link/links?offset=0&limit=10"
+    linkRequestBody:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "A unique name for the link"
+          example: "Link 123"
+        description:
+          type: string
+          description: "Optional description for the link"
+          example: "This is a test link"
+        privateUrl:
+          type: string
+          description: "The private URL associated with the link"
+          example: "http://example-private-url.com"
+    linkUpdateRequestBody:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Unique name for the link"
+          example: "Updated Link Name"
+        description:
+          type: string
+          description: "Optional description for the link"
+          example: "Updated description"
+    linkCreatedResponse:
+      type: object
+      properties:
+        link:
+          allOf:
+            - $ref: "#/components/schemas/link"
+            - type: object
+              properties:
+                tunnelName:
+                  type: string
+                  description: "A randomly generated globally unique name for the tunnel"
+                  readOnly: true
+                  example: "unique-tunnel-name"
+        token:
+          type: string
+          description: "Token for tunnel client setup"
+          example: "abc123xyz"
+        tunnelServerUrl:
+          type: string
+          description: "Public URL of tunnel server"
+          readOnly: true
+          example: "https://example.com"
+    linkGetResponse:
+      type: object
+      properties:
+        link:
+          $ref: "#/components/schemas/link"
+    link:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unique identifier for the link"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: "A tenant-specific unique name for the link"
+          example: "Link 123"
+        description:
+          type: string
+          description: "A brief description of the link"
+          example: "This is a test link"
+        privateUrl:
+          type: string
+          description: "The private URL associated with the link"
+          example: "http://example-private-url.com"
+        linkUrl:
+          type: string
+          description: "Public URL for accessing the link"
+          readOnly: true
+          example: "https://example.com/link/123e4567-e89b-12d3-a456-426614174000"
+        state:
+          type: string
+          enum: [disconnected, connected]
+          description: "Current state of the link (either disconnected or connected)"
+          readOnly: true
+          example: "connected"
+        clientType:
+          type: string
+          description: "The type of the client running the link"
+          example: "docker"
+        clientVersion:
+          type: string
+          description: "The version of the client running the link"
+          example: "1.0.0"
+        clientPrivateUrl:
+          type: string
+          description: "The private URL associated with the client running the link"
+          example: "http://example-client-private-url.com"
+        createdAt:
+          type: string
+          format: date-time
+          description: "The timestamp when the link was created"
+          example: "2023-10-23T08:30:00Z"
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "An error occurred while processing the request"
+        code:
+          type: integer
+          example: 1000
+        details:
+          type: array
+          items:
+            type: string
+          example: ["Additional context about the error"]
+  responses:
+    "400":
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    "401":
+      description: "Unauthorized, Access token is missing or invalid"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    "403":
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    "404":
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    idPath:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+        format: uuid
+        description: "Unique identifier for the link"
+    versionHeader:
+      in: header
+      name: accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: "Specifies the starting point for pagination"
+    limit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        maximum: 1000
+        default: 10
+      description: "Specifies the number of records to return (maximum: 1000)"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/v1/link
+security:
+  - Login: []

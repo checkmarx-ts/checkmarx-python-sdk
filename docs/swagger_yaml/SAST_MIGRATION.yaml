@@ -1,0 +1,190 @@
+openapi: 3.0.2
+info:
+  description: AST Salesforce Integration REST API
+  title: AST Salesforce Integration
+  version: 1.0.0
+paths:
+  "/":
+    post:
+      tags:
+        - import
+      summary: Launches import from SAST file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/importRequest'
+      responses:
+        '202':
+          description: "Migration submitted"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/importResponse'
+        '400':
+          $ref: '#/components/responses/400'
+    get:
+      tags:
+        - import
+      summary: gets list of imports
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/importItem'
+        '401':
+          $ref: '#/components/responses/401'
+  "/{migrationId}":
+    get:
+      tags:
+        - import
+        - status
+      summary: Get info about import by id
+      parameters:
+        - name: migrationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "Migration found and status returned"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/importItemWithLogs'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+  "/{migrationId}/logs/download":
+    get:
+      tags:
+        - import
+        - logs
+      summary: Download migration logs
+      parameters:
+        - name: migrationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '301':
+          description: Moved Permanently
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+components:
+  schemas:
+    importRequest:
+      type: object
+      properties:
+        fileName:
+          type: string
+        encryptionKey:
+          type: string
+        projectsMappingFileName:
+          type: string
+      required: [fileName, encryptionKey]
+    importResponse:
+      type: object
+      properties:
+        migrationId:
+          type: string
+          format: uuid
+    errorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          enum:
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+        type:
+          type: string
+          enum: [error]
+    importItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - pending
+            - running
+            - completed
+            - failed
+        created_at:
+          type: string
+          format: date-time
+    logItem:
+      type: object
+      properties:
+        level:
+          type: string
+          enum: [error, warn, info, debug]
+        msg:
+          type: string
+        time:
+          type: string
+          format: date-time
+        error:
+          type: string
+        worker:
+          type: string
+        raw_log:
+          type: string
+          format: json
+    importItemWithLogs:
+      allOf: # Combines the BasicErrorModel and the inline model
+        - $ref: '#/components/schemas/importItem'
+      type: object
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/logItem'
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/imports
+security:
+  - Login: []

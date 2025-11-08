@@ -1,0 +1,436 @@
+openapi: 3.0.2
+info:
+  description: The Projects Overview API provides a way to get the tenant projects
+  title: Projects Overview API
+  version: 1.0.0
+paths:
+  "/":
+    get:
+      summary: "Get tenant projects overview"
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - $ref: '#/components/schemas/offset'
+        - $ref: '#/components/schemas/limit'
+        - name: name
+          in: query
+          required: false
+          description: the name of the project
+          schema:
+            type: string
+        - name: scan-origin
+          in: query
+          required: false
+          description: a list of scan origins to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: source-type
+          in: query
+          required: false
+          description: a list of source type to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: group-ids
+          in: query
+          required: false
+          description: a list of group ids to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: tag-keys
+          in: query
+          required: false
+          description: a list of tag keys to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: tag-values
+          in: query
+          required: false
+          description: a list of tag values to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: empty-tags
+          in: query
+          required: false
+          description: whether the project has tags or not
+          schema:
+            type: boolean
+        - name: risk-level
+          in: query
+          required: false
+          description: a list of risk levels to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["No Risk", "Low", "Medium", "High", "Critical"]
+        - name: from-date
+          in: query
+          required: false
+          description: the start date to filter projects
+          schema:
+            $ref: '#/components/schemas/datetime'
+        - name: to-date
+          in: query
+          required: false
+          description: the start date to filter projects
+          schema:
+            $ref: '#/components/schemas/datetime'
+        - name: is-deployed
+          in: query
+          required: false
+          description: whether the project is deployed in runtime or not
+          schema:
+            type: boolean
+        - name: is-public
+          in: query
+          required: false
+          description: whether the project is publicly exposed in runtime or not
+          schema:
+            type: boolean
+        - name: sort
+          in: query
+          description: A comma-separated list of sort criteria. Each criterion is formatted as '+field,-field2' or '-field,+field2' where 'field' and 'filed2 are the names of the fields to sort by and '+' or '-' specifies descending or ascending order.
+          required: false
+          example: "+name,-scan-origin"
+          schema:
+            type: array
+            uniqueItems: true
+            items:
+              type: string
+              enum: [name, scan-origin, last-scan-date, source-type, risk-level, is-public]
+            default: +last_scanned_at
+      responses:
+        '200':
+          description: Successful retrieval of projects collection.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCount:
+                    type: integer
+                    format: int64
+                    description: The total number of projects.
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectResponseModel'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '501':
+          $ref: '#/components/responses/501'
+  /aggregate:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - $ref: '#/components/schemas/offset'
+        - $ref: '#/components/schemas/limit'
+        - name: group-by-field
+          in: query
+          required: true
+          description: the field to group by
+          schema:
+            type: string
+            enum: ["risk-level"]
+        - name: name
+          in: query
+          required: false
+          description: the name of the project
+          schema:
+            type: string
+        - name: scan-origin
+          in: query
+          required: false
+          description: a list of scan origins to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: source-type
+          in: query
+          required: false
+          description: a list of source type to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: group-ids
+          in: query
+          required: false
+          description: a list of group ids to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: tag-keys
+          in: query
+          required: false
+          description: a list of tag keys to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: tag-values
+          in: query
+          required: false
+          description: a list of tag values to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: empty-tags
+          in: query
+          required: false
+          description: whether the project has tags or not
+          schema:
+            type: boolean
+        - name: risk-level
+          in: query
+          required: false
+          description: a list of risk levels to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["No Risk", "Low", "Medium", "High", "Critical"]
+        - name: from-date
+          in: query
+          required: false
+          description: the start date to filter projects
+          schema:
+            $ref: '#/components/schemas/datetime'
+        - name: to-date
+          in: query
+          required: false
+          description: the start date to filter projects
+          schema:
+            $ref: '#/components/schemas/datetime'
+      description: Get project counters
+      responses:
+        200:
+          description: Successful retrieval of project counters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projects'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '501':
+          $ref: '#/components/responses/501'
+components:
+  schemas:
+    FieldCounter:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The field value.
+        count:
+          type: integer
+          description: The count for the field value.
+    Projects:
+      type: object
+      properties:
+        projectsCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldCounter'
+          description: An array of field counters.
+    ProjectResponseModel:
+      type: object
+      properties:
+        projectId:
+          type: string
+          description: The ID of the project.
+        projectName:
+          type: string
+          description: The name of the project.
+        sourceOrigin:
+          type: string
+          description: The origin of the project source.
+        lastScanDate:
+          type: string
+          description: The date of the last scan.
+        sourceType:
+          type: string
+          description: The type of project source.
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          description: A map of project tags.
+        groupIds:
+          type: array
+          items:
+            type: string
+          description: An array of group IDs associated with the project.
+        riskLevel:
+          type: string
+          description: The overall risk level of the project.
+        repoId:
+          type: integer
+          format: uint64
+          description: The ID of the repository associated with the project.
+        scmRepoId:
+          type: string
+          description: The ID of the SCM repository associated with the project.
+        importedProjName:
+          type: string
+          description: The imported project name
+        totalCounters:
+          $ref: '#/components/schemas/TotalCounters'
+        enginesData:
+          type: array
+          items:
+            $ref: '#/components/schemas/EngineData'
+    TotalCounters:
+      type: object
+      properties:
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeverityCounters'
+    SeverityCounters:
+      type: object
+      properties:
+        severity:
+          type: string
+          description: The severity level of the vulnerability.
+        counter:
+          type: integer
+          description: The number of vulnerabilities found at this severity level.
+    EngineData:
+      type: object
+      properties:
+        engine:
+          type: string
+          description: The name of the scanning engine.
+        riskLevel:
+          type: string
+          description: The risk level reported by the engine.
+        lastScanId:
+          type: string
+          description: The ID of the last scan performed by the engine.
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeverityCounters'
+    offset:
+      name: offset
+      in: query
+      type: integer
+      required: false
+      description: the request offset
+      default: 0
+      example: 100
+    limit:
+      name: limit
+      in: query
+      type: integer
+      description: the number of items per page
+      required: false
+      maximum: 100
+      default: 20
+      example: 100
+    datetime:
+      type: string
+      description: RFC3339 formatted datetime or a unix timestamp in seconds
+      format: date-time
+      example: "2006-01-02T15:04:05Z07:00"
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        data:
+          type: object
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '501':
+      description: "Not Implemented"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationId:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    version:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/projects-overview
+security:
+  - Login: []

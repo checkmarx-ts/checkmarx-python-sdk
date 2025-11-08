@@ -1,0 +1,94 @@
+components:
+  schemas:
+    model.ErrorResponse:
+      properties:
+        code:
+          type: integer
+        error:
+          type: string
+      type: object
+    model.UpdateRiskRequestBody:
+      properties:
+        method:
+          type: string
+        severity:
+          type: string
+        similarity_id:
+          type: string
+        state:
+          type: string
+        url:
+          type: string
+      required:
+        - method
+        - similarity_id
+        - url
+      type: object
+    model.UpdateRiskResponse:
+      properties:
+        message:
+          type: string
+      type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+externalDocs:
+  description: ""
+  url: ""
+info:
+  description: This is an OpenAPI specification for static-correlator
+  title: static-correlator API
+  version: "1.0"
+openapi: 3.0.2
+paths:
+  /api/risk/{scanId}:
+    put:
+      description: update risk state and / or severity
+      parameters:
+        - description: Scan ID
+          in: path
+          name: scanId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/model.UpdateRiskRequestBody'
+        description: request body
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.UpdateRiskResponse'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ErrorResponse'
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ErrorResponse'
+          description: Unauthorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.ErrorResponse'
+          description: Internal Server Error
+      summary: Update risk
+servers:
+  - url: /api/apisec/correlator
+security:
+  - Login: []

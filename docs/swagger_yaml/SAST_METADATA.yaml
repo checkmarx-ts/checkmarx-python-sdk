@@ -1,0 +1,467 @@
+openapi: 3.0.2
+info:
+  title: Sast Scan Metadata Service
+  version: 1.0.0
+paths:
+  "/":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: scan-ids
+          in: query
+          required: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+              format: uuid
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scanInfoCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+  "/{scan-id}":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: scan-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scanInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+  "/{scan-id}/metrics":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: scan-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "The engine metrics for the provided scan"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/metrics'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  "/engine-version":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: scan-ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+      responses:
+        '200':
+          description: "The engine versions for the provided scans"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/scanEngineVersionInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  "/file-exclusion-config":
+    patch:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: boolean
+      responses:
+        '204':
+          description: "The tenant file exclusion config has been updated successfully"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      responses:
+        '200':
+          description: "The tenant file exclusion config"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileExclusionConfig'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  "/{project-id}/file-exclusion-config":
+    patch:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: project-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: boolean
+      responses:
+        '204':
+          description: "The project file exclusion config has been updated successfully"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: project-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "The project file exclusion config"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileExclusionConfig'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  "/delete-persisted-dom":
+    delete:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scan-id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: branch
+          in: query
+          schema:
+            type: string
+      responses:
+        '204':
+          description: "The persisted DOM has been deleted successfully"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  "/exists-persisted-dom":
+    head:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scan-id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: branch
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "The persisted DOM exists"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    scanInfo:
+      type: object
+      properties:
+        scanId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+        loc:
+          type: integer
+          description: Total lines of code in a project
+        fileCount:
+          type: integer
+          description: Total file count in a project
+        isIncremental:
+          type: boolean
+        isIncrementalCanceled:
+          type: boolean
+        incrementalCancelReason:
+          type: string
+        baseId:
+          type: string
+        addedFilesCount:
+          type: integer
+        changedFilesCount:
+          type: integer
+        deletedFilesCount:
+          type: integer
+        changePercentage:
+          type: number
+          format: float
+        queryPreset:
+          type: string
+    scanInfoCollection:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: The number of records matching the applied filter.
+        scans:
+          type: array
+          description: Scans of that specific group.
+          items:
+            $ref: '#/components/schemas/scanInfo'
+        missing:
+          type: array
+          description: List of scan ids that wasn't found.
+          items:
+            type: string
+            format: uuid
+    metrics:
+      type: object
+      properties:
+        scanId:
+          type: string
+        memoryPeak:
+          type: number
+        virtualMemoryPeak:
+          type: number
+        totalScannedFilesCount:
+          type: number
+        totalScannedLoc:
+          type: number
+        domObjectsPerLanguage:
+          type: object
+          additionalProperties:
+            type: number
+        successfullLocPerLanguage:
+          type: object
+          additionalProperties:
+            type: number
+        failedLocPerLanguage:
+          type: object
+          additionalProperties:
+            type: number
+        fileCountOfDetectedButNotScannedLanguages:
+          type: object
+          additionalProperties:
+            type: number
+        scannedFilesPerLanguage:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              goodFiles:
+                type: number
+              partiallyGoodFiles:
+                type: number
+              badFiles:
+                type: number
+    scanEngineVersionInfo:
+      type: object
+      properties:
+        scanId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+        tenantId:
+          type: string
+        engineVersion:
+          type: string
+    fileExclusionConfig:
+      type: object
+      properties:
+        rules:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/rule'
+    rule:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        subitems:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/item'
+    item:
+      type: object
+      properties:
+        description:
+          type: string
+        enabled:
+          type: boolean
+        pattern:
+          type: string
+        extensionsToExclude:
+          type: array
+          items:
+            type: string
+        extensionsToInclude:
+          type: array
+          items:
+            type: string
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+  responses:
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: Access token is missing or invalid
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/sast-metadata
+security:
+  - Login: []

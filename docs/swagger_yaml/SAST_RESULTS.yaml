@@ -1,0 +1,836 @@
+openapi: 3.0.2
+info:
+  title: Sast Results API
+  description: SAST scan results APIs
+  version: 1.0.0
+paths:
+  "/":
+    get:
+      tags:
+        - SAST Scan Results
+      summary: Get SAST results for a specific scan
+      description: "Scan ID is a required query param. You can limit results by using pagination and/or setting filters.<br>Note: An AND operator is applied between filters, and an OR operator is applied to multiple values for each filter."
+      operationId: getSASTResultsByScan
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/correlationIdHeader"
+        - in: header
+          name: request-data
+          schema:
+            type: string
+            format: json
+          required: false
+          description: 'Replace query parameters. JSON example: {"visible-columns": ["scan-id", "result-id","query-ids"],"include-nodes": ["true"],"apply-predicates": ["true"]}'
+        - in: query
+          name: visible-columns
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/VisibleColumnsEnum"
+          required: false
+          description: "Specify which columns should be visible"
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: Filter results by scan ID
+        - in: query
+          name: severity
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/SeverityEnum"
+          required: false
+          description: "Filter results by severity"
+        - in: query
+          name: state
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: "Filter results by state<br> Note: Must be an exact match, case insensitive."
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/StatusEnum"
+          required: false
+          description: "Filter results by status"
+        - in: query
+          name: group
+          schema:
+            type: string
+            default: ""
+          required: false
+          description: "Filter results by the vulnerability group<br> Note: Can be a substring of the group name."
+        - in: query
+          name: compliance
+          schema:
+            type: string
+            default: ""
+          required: false
+          description: "Filter by compliance standard <br> Note: Must be an exact match, case insensitive."
+        - in: query
+          name: bfl-name
+          schema:
+            type: string
+          required: false
+          description: "Filter results by bfl name."
+        - in: query
+          name: bfl-name-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified bfl name value.
+        - in: query
+          name: bfl-group-size
+          schema:
+            type: number
+          required: false
+          description: Filter results by bfl group size.
+        - in: query
+          name: bfl-group-size-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified bfl group size value.
+        - in: query
+          name: cwe-id
+          schema:
+            type: number
+          required: false
+          description: Filter results by cwe id.
+        - in: query
+          name: cwe-id-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified cwe id value.
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: "Filter results by query<br> Note: Must be an exact match."
+        - in: query
+          name: language
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: "Filter results by the language<br> Note: Must be an exact match, case insensitive."
+        - in: query
+          name: query-ids
+          schema:
+            type: array
+            items:
+              type: number
+          required: false
+          description: "Filter results by query IDs<br>Note: Must be an exact match."
+        - in: query
+          name: node-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: "Filter results by Node IDs.<br> Note: OR operator for multiple IDs."
+        - in: query
+          name: similarity-id
+          schema:
+            type: number
+          required: false
+          description: Filter results by similarity id.
+        - in: query
+          name: similarity-id-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified similarity id value.
+        - in: query
+          name: source-file
+          schema:
+            type: string
+          required: false
+          description: Filter by source file name.
+        - in: query
+          name: source-file-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified source file value.
+        - in: query
+          name: source-node
+          schema:
+            type: string
+          required: false
+          description: Filter results by source node.
+        - in: query
+          name: source-node-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified source node value.
+        - in: query
+          name: source-line
+          schema:
+            type: number
+          required: false
+          description: Filter results by source line.
+        - in: query
+          name: source-line-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified source line value.
+        - in: query
+          name: sink-node
+          schema:
+            type: string
+          required: false
+          description: Filter results by sink node
+        - in: query
+          name: sink-node-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified sink node value.
+        - in: query
+          name: sink-file
+          schema:
+            type: string
+          required: false
+          description: Filter results by sink file name.
+        - in: query
+          name: sink-file-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified sink file name value.
+        - in: query
+          name: sink-line
+          schema:
+            type: number
+          required: false
+          description: Filter results by sink line.
+        - in: query
+          name: sink-line-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified sink line value.
+        - in: query
+          name: number-of-nodes
+          schema:
+            type: number
+          required: false
+          description: Filter results by number of nodes.
+        - in: query
+          name: number-of-nodes-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified number of nodes value.
+        - in: query
+          name: notes
+          schema:
+            type: string
+          required: false
+          description: Filter results by last notes.
+        - in: query
+          name: notes-operation
+          schema:
+            $ref: "#/components/schemas/OperationJSONBArrayEnum"
+          required: false
+          description: The operator that you would like to apply to the specified notes value.
+        - in: query
+          name: first-found-at
+          schema:
+            type: string
+            format: date-time
+          required: false
+          description: Filter results by first found at.
+        - in: query
+          name: first-found-at-operation
+          schema:
+            $ref: "#/components/schemas/OperationDateEnum"
+          required: false
+          description: The operator that you would like to apply to the specified first found at value. (defaults to GREATER_THAN)
+        - in: query
+          name: confidence-level
+          schema:
+            type: number
+          required: false
+          description: Filter results by confidence-level.
+        - in: query
+          name: confidence-level-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified confidence-level value.
+        - in: query
+          name: confidence-score
+          schema:
+            type: number
+          required: false
+          description: Filter results by confidence-score.
+        - in: query
+          name: confidence-score-operation
+          schema:
+            $ref: "#/components/schemas/OperationIntEnum"
+          required: false
+          description: The operator that you would like to apply to the specified confidence-score value.
+        - in: query
+          name: preset-id
+          schema:
+            type: string
+          required: false
+          description: Filter results by preset
+        - in: query
+          name: result-id
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: filter by unique result hash
+        - in: query
+          name: category
+          schema:
+            type: string
+          required: false
+          description: Filter results by a comma separated list of category names.
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Filter results by source file name, source node, sink node, sink file name, notes.
+        - in: query
+          name: include-nodes
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, the results will include nodes data. If false, the node data will be omitted.
+        - in: query
+          name: apply-predicates
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, the results show changes made to predicates. If false, the raw predicate values will be returned.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results set.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The maximum number of results to return
+        - in: query
+          name: sort
+          schema:
+            type: string
+            minItems: 1
+            maxItems: 3
+            uniqueItems: true
+            items:
+              type: string
+            default: "+status,+severity,-queryname"
+          required: false
+          description: Sort results by the specified parameter. Enter '-/+/@' for descending/ascending/default order, followed by the parameter.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SastResult"
+                  totalCount:
+                    type: integer
+        "400":
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+  "/compare":
+    get:
+      tags:
+        - SAST Scan Results comparison
+      summary: Get SAST results comparison for two given scans
+      description: "Scan ID/Base Scan ID are required query parameters. You can limit results by using pagination and/or setting filters (NOTE: if no limit is provided, there is one used by default!)"
+      operationId: getSASTResultsCompareByScans
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/correlationIdHeader"
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: ScanID to use as the newest in the comparison
+        - in: query
+          name: base-scan-id
+          schema:
+            type: string
+          required: true
+          description: ScanID to use as the oldest in the comparison
+        - in: query
+          name: severity
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/SeverityEnum"
+          required: false
+          description: "Filter results by severity"
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/StatusEnumCmp"
+          required: false
+          description: "Filter results by status"
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: "Filter results by query<br> Note: Must be an exact match."
+        - in: query
+          name: language
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: "Filter results by the language<br> Note: Must be an exact match, case insensitive."
+        - in: query
+          name: query-ids
+          schema:
+            type: array
+            items:
+              type: number
+          required: false
+          description: "Filter results by query IDs<br>Note: Must be an exact match."
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results set.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The maximum number of results to return
+        - in: query
+          name: sort
+          schema:
+            type: string
+            minItems: 1
+            maxItems: 3
+            uniqueItems: true
+            items:
+              type: string
+            default: "+severity,-queryname"
+          required: false
+          description: Sort results by the specified parameter. Enter '-/+' for descending/ascending order, followed by the parameter.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SastResultCompare"
+                  totalCount:
+                    type: integer
+        "400":
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+components:
+  schemas:
+    StateEnum:
+      type: string
+      description: state enum of a result.
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    SeverityEnum:
+      type: string
+      description: The severity of the vulnerability
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    VisibleColumnsEnum:
+      type: string
+      enum:
+        - BFL
+        - bfl-group-size
+        - bfl-name
+        - category
+        - change-details
+        - compliance
+        - confidence-level
+        - confidence-score
+        - cwe-id
+        - cvss-score
+        - first-at
+        - first-found-at
+        - first-time-scan-id
+        - group
+        - language
+        - nodes
+        - notes
+        - notes-json
+        - number-of-nodes
+        - path-system-id
+        - project-id
+        - query-ids
+        - query-name
+        - result-id
+        - scan-id
+        - severity
+        - similarity-id
+        - sink-file
+        - sink-line
+        - sink-node
+        - source-file
+        - source-line
+        - source-node
+        - state
+        - status
+        - tenant-id
+    SastResult:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the result
+        resultHash:
+          type: string
+          description: An ID that represents this result system wide
+        pathSystemID:
+          type: string
+          description: Please use "resultHash" instead
+          deprecated: true
+        queryID:
+          type: integer
+          description: The ID of the query that generated this result (i.e. the vulnerability that was identified)
+        queryIDStr:
+          type: string
+          description: The ID of the query that generated this result in string format (i.e. the vulnerability that was identified)
+        queryName:
+          type: string
+          description: The name of the query/vulnerability
+        languageName:
+          type: string
+          description: The language of the vulnerability
+        group:
+          type: string
+          description: The name of the query/vulnerability group
+        cweID:
+          type: integer
+          description: The ID of the Common Weakness Enumeration(CWE)
+        severity:
+          $ref: "#/components/schemas/SeverityEnum"
+        similarityID:
+          type: integer
+          description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
+        uniqueID:
+          type: integer
+          deprecated: true
+        confidenceLevel:
+          type: number
+          description: Degree of confidence that Checkmarx has in the accuracy of the result (i.e. not false positive)
+        compliances:
+          type: array
+          nullable: true
+          description: An array of the compliance standards that list this vulnerability
+          items:
+            type: string
+        firstScanID:
+          type: string
+          description: The scanID of the scan in which the result (based on SimilarityID) was first identified in this project
+        firstFoundAt:
+          type: string
+          format: date
+          description: The date and time that this result (based on SimilarityID) was first identified in this project
+        pathSystemIDBySimiAndFilesPaths:
+          type: string
+          description: ID created from queryMetaInfo + similarityID + files name. FOR TESTING PURPOSES ONLY! WILL BE REMOVED!
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+        foundAt:
+          type: string
+          format: date
+          description: The date and time that this result was identified
+        nodes:
+          type: array
+          nullable: true
+          description: "An array of the nodes where the vulnerability was identified.<br> Note: This section is only included if the include-nodes query parameter was submitted as true."
+          items:
+            $ref: "#/components/schemas/ResultNode"
+        state:
+          $ref: "#/components/schemas/StateEnum"
+        changeDetails:
+          $ref: "#/components/schemas/ChangeDetails"
+    SastResultCompare:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the result
+        resultHash:
+          type: string
+          description: An ID that represents this result system wide
+        pathSystemID:
+          type: string
+          description: Please use "resultHash" instead
+          deprecated: true
+        queryID:
+          type: string
+          description: The ID of the query that generated this result (i.e. the vulnerability that was identified)
+        queryName:
+          type: string
+          description: The name of the query/vulnerability
+        languageName:
+          type: string
+          description: The language of the vulnerability
+        group:
+          type: string
+          description: The name of the query/vulnerability group
+        cweID:
+          type: integer
+          description: The ID of the Common Weakness Enumeration(CWE)
+        severity:
+          $ref: "#/components/schemas/SeverityEnum"
+        similarityID:
+          type: integer
+          description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
+        uniqueID:
+          type: integer
+          deprecated: true
+        confidenceLevel:
+          type: number
+          description: Degree of confidence that Checkmarx has in the accuracy of the result (i.e. not false positive)
+        compliances:
+          type: array
+          nullable: true
+          description: An array of the compliance standards that list this vulnerability
+          items:
+            type: string
+        firstScanID:
+          type: string
+          description: The scanID of the scan in which the result (based on SimilarityID) was first identified in this project
+        firstFoundAt:
+          type: string
+          format: date
+          description: The date and time that this result (based on SimilarityID) was first identified in this tenant
+        pathSystemIDBySimiAndFilesPaths:
+          type: string
+          description: ID created from queryMetaInfo + similarityID + files name. FOR TESTING PURPOSES ONLY! WILL BE REMOVED!
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+        foundAt:
+          type: string
+          format: date
+          description: The date and time that this result was identified
+        nodes:
+          type: array
+          nullable: true
+          description: "An array of the nodes where the vulnerability was identified.<br> Note: This section is only included if the include-nodes query parameter was submitted as true."
+          items:
+            $ref: "#/components/schemas/ResultNode"
+        state:
+          $ref: "#/components/schemas/StateEnum"
+    ResultNode:
+      type: object
+      properties:
+        column:
+          type: integer
+          description: The column number of the beginning of the node
+        fileName:
+          type: string
+          description: The name of the file in which the node is located
+        fullName:
+          type: string
+          description: The FQN (Fully Qualified Name) designated by Checkmarx for this node, based on the text/content
+        length:
+          type: integer
+          description: The number of characters in the node
+        line:
+          type: integer
+          description: The line number of the beginning of the node
+        methodLine:
+          type: integer
+          description: The line position in the source code containing the method
+        name:
+          type: string
+          description: The name designated by Checkmarx for this node, based on the text/content
+        nodeID:
+          type: integer
+          description: The internal node ID (not exported in API, but present in Go struct)
+        domType:
+          type: string
+          description: The DOM type of the node
+        nodeSystemID:
+          type: string
+          description: Please use "nodeHash" instead
+          deprecated: true
+        nodeHash:
+          type: string
+          description: ID of the customer tenant
+    StatusEnumCmp:
+      type: string
+      description: Status enum of a result
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    StatusEnum:
+      type: string
+      description: Status enum of a result
+      enum:
+        - NEW
+        - RECURRENT
+    OperationEnum:
+      type: string
+      description: Operation type
+      enum:
+        - LESS_THAN
+        - GREATER_THAN
+        - EQUAL
+        - NOT_EQUAL
+        - CONTAINS
+        - NOT_CONTAINS
+        - START_WITH
+    OperationIntEnum:
+      type: string
+      description: Int Operation type
+      enum:
+        - LESS_THAN
+        - GREATER_THAN
+        - EQUAL
+        - NOT_EQUAL
+    OperationDateEnum:
+      type: string
+      description: Date Operation type
+      enum:
+        - LESS_THAN
+        - GREATER_THAN
+    OperationJSONBArrayEnum:
+      type: string
+      description: JSONB array Operator type enum
+      enum:
+        - CONTAINS
+        - START_WITH
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+    ChangeDetails:
+      type: object
+      properties:
+        engineVersionChanged:
+          type: boolean
+          description: If true, the engine version has been changed indicating, this result appears due to (at least partially) this
+        engineVersionChangeDetails:
+          type: string
+          description: Specific details regarding the engine version change
+        queryChanged:
+          type: boolean
+          description: if true, the query used in this result has been changed, indicating this result appears due to (at least partially) this
+        queryChangeDetails:
+          type: string
+          description: Specific details regarding the query version change
+        codeChanged:
+          type: boolean
+          description: if true, some of the code in this result path has been changed, indicating this result appears due to (at least partially) this
+        codeChangeDetails:
+          type: string
+          description: Specific details regarding the code change/s
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "The API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/sast-results
+security:
+  - Login: []

@@ -1,0 +1,240 @@
+openapi: 3.0.2
+info:
+  description: Bring your own results handler service
+  title: BYOR Results Handler
+  version: 1.0.0
+paths:
+  "/imports":
+    post:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/importRequest"
+            encoding:
+              resultUpdate:
+                contentType: application/json
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/importResults'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  "/triage":
+    post:
+      description: "Saving triage"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/triageRequest"
+            encoding:
+              triageUpdate:
+                contentType: application/json
+      responses:
+        '204':
+          description: "Triage updated"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      description: "Getting triage"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/resultId'
+        - $ref: '#/components/parameters/projectId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/triageResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    importRequest:
+      type: object
+      properties:
+        projectId:
+          type: string
+          description: The id of the project for which the results are being imported
+        uploadUrl:
+          type: string
+          description: The url to upload the file
+    importResults:
+      type: object
+      properties:
+        importId:
+          type: string
+          description: The id of the new import
+    triageRequest:
+      type: object
+      properties:
+        resultId:
+          type: string
+          description: The id or hash of the result
+          example: 'nvUf/9rb6K9gRivhiy8Q9C3x6fk='
+        projectId:
+          type: string
+          description: The id of the project (uuid format)
+          example: '4c979e02-0ba6-4fc0-99f3-613bc75dcff0'
+        state:
+          type: string
+          description: State of the triage (case sensitive)
+          example: 'TO_VERIFY'
+          enum:
+            - TO_VERIFY
+            - NOT_EXPLOITABLE
+            - PROPOSED_NOT_EXPLOITABLE
+            - CONFIRMED
+            - URGENT
+        severity:
+          type: string
+          description: Severity of the triage (case sensitive)
+          example: 'CRITICAL'
+          enum:
+            - CRITICAL
+            - HIGH
+            - MEDIUM
+            - LOW
+    triageResponse:
+      type: object
+      properties:
+        resultId:
+          type: string
+          description: The id or hash of the result
+          example: 'nvUf/9rb6K9gRivhiy8Q9C3x6fk='
+        projectId:
+          type: string
+          description: The id of the project (uuid format)
+          example: '4c979e02-0ba6-4fc0-99f3-613bc75dcff0'
+        state:
+          type: string
+          description: State of the triage (case sensitive)
+          example: 'TO_VERIFY'
+          enum:
+            - TO_VERIFY
+            - NOT_EXPLOITABLE
+            - PROPOSED_NOT_EXPLOITABLE
+            - CONFIRMED
+            - URGENT
+        severity:
+          type: string
+          description: Severity of the triage (case sensitive)
+          example: 'CRITICAL'
+          enum:
+            - CRITICAL
+            - HIGH
+            - MEDIUM
+            - LOW
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    projectId:
+      in: query
+      name: project-id
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '4c979e02-0ba6-4fc0-99f3-613bc75dcff0'
+      description: "Returning triage specified by project ID. (Exact match, case sensitive)"
+    resultId:
+      in: query
+      name: result-id
+      required: true
+      schema:
+        type: string
+        example: 'nvUf%2F9rb6K9gRivhiy8Q9C3x6fk%3D'
+      description: "Returning triage specified by encoded result ID. (Exact match, case sensitive)"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/v1/byor
+security:
+  - Login: []

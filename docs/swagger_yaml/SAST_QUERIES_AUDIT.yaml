@@ -1,0 +1,1184 @@
+openapi: 3.0.2
+info:
+  title: CxAudit API
+  version: 1.0.0
+paths:
+  "/queries":
+    get:
+      tags:
+        - Sast audit
+      summary: Get all queries
+      parameters:
+        - in: query
+          required: false
+          name: projectId
+          example: proj1
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Queries"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+    post:
+      tags:
+        - Sast audit
+      summary: Create new query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryRequest"
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/queries/{session-id}/search":
+    get:
+      tags:
+        - Sast audit
+      summary: Get all queries
+      parameters:
+        - in: path
+          required: true
+          name: session-id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuerySearch"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/queries/metadata":
+    get:
+      tags:
+        - Sast audit
+      summary: Get queries metadata
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MethodInfo"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/query/{level}/{path}":
+    get:
+      deprecated: true
+      tags:
+        - Sast audit
+      summary: Get query source
+      description: This property is deprecated. Use __GET /queries/{level}/{path}__ instead.
+      parameters:
+        - in: path
+          required: true
+          name: level
+          example: corp or project id
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: path
+          example: queries%2FCommon%2FCommon_High_Risk%2FSQL_Injection%2FSQL_Injectio.cs
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/Query"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/queries/{level}/{path}":
+    get:
+      tags:
+        - Sast audit
+      summary: Get query source
+      parameters:
+        - in: path
+          required: true
+          name: level
+          example: corp or project id
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: path
+          example: queries%2FCommon%2FCommon_High_Risk%2FSQL_Injection%2FSQL_Injectio.cs
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/Query"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+    delete:
+      tags:
+        - Sast audit
+      summary: Delete overridden query
+      parameters:
+        - in: path
+          required: true
+          name: level
+          example: corp or project id
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: path
+          example: queries%2FCommon%2FCommon_High_Risk%2FSQL_Injection%2FSQL_Injectio.cs
+          schema:
+            type: string
+      responses:
+        "204":
+          description: The resource was deleted successfully.
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/queries/{level}":
+    put:
+      deprecated: true
+      tags:
+        - Sast audit
+      summary: Update query source
+      description: Queries can be updated with error and overrides for multiple applications is possible. Please use /queries/{session-id}/{level} instead.
+      parameters:
+        - in: path
+          required: true
+          name: level
+          example: corp or projectId
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/WorkspaceQuery"
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/queries/{session-id}/{level}":
+    put:
+      tags:
+        - Sast audit
+      summary: Update query source
+      parameters:
+        - in: path
+          required: true
+          name: session-id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: level
+          example: corp or projectId
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/WorkspaceQuery"
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+  "/sessions":
+    post:
+      tags:
+        - Sast audit
+      summary: Create new session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      tags:
+        - Sast audit
+      summary: Get all active sessions related to WebAudit
+      parameters:
+        - in: query
+          required: false
+          name: projectId
+          example: "58d5807b-bd11-4ec3-93ef-e3ca36c40b0f"
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: scanId
+          example: "737c64f3-0c86-4cae-9e27-e2ef0b221a90"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/Sessions"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}":
+    get:
+      tags:
+        - Sast audit
+      summary: Get session details
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - Sast audit
+      summary: Delete session with specific id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "204":
+          description: The resource was deleted successfully.
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+    post:
+      tags:
+        - Sast audit
+      summary: Heath check to ensure session is kept alive
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "204":
+          description: The resource was checked successfully.
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}/sast-status":
+    get:
+      tags:
+        - Sast audit
+      summary: Check if SAST Engine is ready to use
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/SastStatus"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}/request-status":
+    get:
+      tags:
+        - Sast audit
+      summary: Check the status of some scan related requests
+      parameters:
+        - in: path
+          required: true
+          name: type
+          description: Type of status to get
+          example: 0
+          schema:
+            type: integer
+            enum: [0, 1, 2, 3]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/RequestStatusNotReady"
+                  - $ref: "#/components/schemas/RequestStatusDetectLanguages"
+                  - $ref: "#/components/schemas/CompilationResponse"
+                  - $ref: "#/components/schemas/ExecutionResponse"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}/project/languages":
+    get:
+      tags:
+        - Sast audit
+      summary: Detect the languages of the project to scan
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: integer
+                example: 0
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}/project/scan":
+    get:
+      tags:
+        - Sast audit
+      summary: Scan the project using SAST engine
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: integer
+                example: 1
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}/queries/compile":
+    post:
+      tags:
+        - Sast audit
+      summary: Compile the queries of the scanned project
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditQuery"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: integer
+                example: 2
+        "202":
+          $ref: "#/components/responses/202"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  "/sessions/{id}/queries/run":
+    post:
+      tags:
+        - Sast audit
+      summary: Execute the queries of the scanned project
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditQuery"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: integer
+                example: 3
+        "202":
+          $ref: "#/components/responses/202"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/responses/500"
+              example:
+                code: 756
+                message: "The limit of data to be returned has been exceeded"
+  "/sessions/{id}/queries/cancel":
+    get:
+      tags:
+        - Sast audit
+      summary: Cancel the queries execution
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/responses/500"
+              example:
+                code: 757
+                message: "Failed to cancel operation"
+  "/sessions/{id}/logs":
+    get:
+      tags:
+        - Sast audit
+      summary: Get the logs associated to the Audit session
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      operationId: GetLogs
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/gzip:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/responses/500"
+              example:
+                code: 757
+                message: "Failed to get log"
+  "/gpt/{id}":
+    get:
+      tags:
+        - GPT
+      summary: Retrieve GPT history
+      description: Get GPT history for the given session-id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GPTMessage"
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - GPT
+      summary: Delete GPT history
+      description: Delete GPT history for the given session-id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      responses:
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+    post:
+      tags:
+        - GPT
+      summary: Process GPT prompt request
+      description: Process a GPT prompt request for the given session-id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The session ID
+          example: a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GPTMessage"
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+components:
+  responses:
+    "202":
+      description: Accepted
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 759
+            message: "The operation was canceled"
+    "204":
+      description: No Content
+    "401":
+      description: "Unauthorized, Access token is missing or invalid"
+    "403":
+      description: "Forbidden"
+    "404":
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "400":
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "500":
+      description: "Internal Server Error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Queries:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: -7467647684143290674
+        name:
+          type: string
+          example: SQL_Injection
+        group:
+          type: string
+          example: Go_High_Risk
+        level:
+          type: string
+          example: corp
+        lang:
+          type: string
+          example: Go
+        path:
+          type: string
+          example: Go/Go_High_Risk/SQL_Injection
+        isExecutable:
+          type: boolean
+          example: true
+    Query:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: -7467647684143290674
+        source:
+          type: string
+          example: CxList inputPaths = Find_Inputs();
+        level:
+          type: string
+          example: proj1
+        path:
+          type: string
+          example: Go/Go_High_Risk/SQL_Injection/SQL_Injection.cs
+        modified:
+          type: string
+          example: 16/05/2010 UTC
+        cwe:
+          type: integer
+          example: 77
+        severity:
+          type: integer
+          example: 3
+        isExecutable:
+          type: boolean
+          example: false
+        cxDescriptionID:
+          type: integer
+          example: 1337
+        queryDescriptionID:
+          type: string
+          example: Command_Injection_Go
+    QuerySearch:
+      type: object
+      properties:
+        query:
+          $ref: "#/components/schemas/Queries"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/QueryResult"
+    QueryResult:
+      type: object
+      properties:
+        content:
+          type: string
+          example: "something"
+        lineNumber:
+          type: integer
+          example: 1
+    MethodInfo:
+      type: object
+      properties:
+        lang:
+          type: string
+          example: JAVA
+        name:
+          type: string
+          example: Find_DB_Out
+        memberOf:
+          type: string
+          enum: [CxList, Common, General]
+          example: CxList
+        documentation:
+          type: string
+          example: ""
+        returnType:
+          type: string
+          example: integer
+        kind:
+          type: string
+          enum: [method, field]
+          example: method
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/MethodParameter"
+    MethodParameter:
+      type: object
+      properties:
+        name:
+          type: string
+          example: param
+        label:
+          type: string
+          example: CxList
+        documentation:
+          type: string
+          example: ""
+    QueryRequest:
+      type: object
+      properties:
+        path:
+          type: string
+          example: queries/Java/Java_Low_Visibility/
+        name:
+          type: string
+          example: Open_Redirect
+        source:
+          type: string
+          example: CxList redirect = Find_Redirects()
+        metadata:
+          type: object
+          properties:
+            Cwe:
+              type: integer
+              example: 10
+            Severity:
+              type: integer
+              example: 2
+            IsExecutable:
+              type: boolean
+              example: true
+            CxDescriptionID:
+              type: integer
+              example: 1234
+    WorkspaceQuery:
+      type: object
+      properties:
+        path:
+          type: string
+          example: queries/Java/Java_Low_Visibility/Open_Redirect/Open_Redirect.cs
+        name:
+          type: string
+          example: Open_Redirect
+        source:
+          type: string
+          example: CxList redirect = Find_Redirects()
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+    SessionRequest:
+      type: object
+      properties:
+        projectId:
+          type: string
+          example: "58d5807b-bd11-4ec3-93ef-e3ca36c40b0f"
+        scanId:
+          type: string
+          example: "737c64f3-0c86-4cae-9e27-e2ef0b221a90"
+        timeout:
+          type: integer
+          description: "The custom timeout, in seconds, for this session"
+          example: 30
+          default: 3600
+        fromZip:
+          type: boolean
+          description: "If we are creating a session from a .zip file"
+          example: true
+          default: false
+    SessionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The session ID"
+          example: "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d"
+        status:
+          type: string
+          example: "ALLOCATED"
+        scanId:
+          type: string
+          description: "This value makes sense when creating a session from a .zip file, to know the scanId"
+          example: "737c64f3-0c86-4cae-9e27-e2ef0b221a90"
+    Sessions:
+      type: object
+      properties:
+        available:
+          type: boolean
+          description: "The availability to create new sessions"
+          example: true
+        metadata:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+    Session:
+      type: object
+      properties:
+        session_id:
+          type: string
+          example: "a888aa5a-d207-4ad0-8bfa-0743d6ca0e0d"
+        tenant_id:
+          type: string
+          example: "5d4fe35-965a-4506-b226-e0155ec84c34"
+        project_id:
+          type: string
+          example: "58d5807b-bd11-4ec3-93ef-e3ca36c40b0f"
+        source_id:
+          type: string
+          example: "8d684c60-3d39-47c9-822f-0de5d1983edb"
+        worker_info:
+          type: object
+          properties:
+            worker_id:
+              type: string
+              example: "sast-engine-session-dynamic-a888aa5a"
+            worker_address:
+              type: string
+              example: "10.42.0.241"
+        status:
+          type: integer
+          example: 1
+    SastStatus:
+      type: object
+      properties:
+        ready:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: The SAST Engine is not ready yet!
+    RequestStatusNotReady:
+      type: object
+      properties:
+        completed:
+          type: boolean
+          example: false
+        value:
+          type: object
+          example: null
+    RequestStatusDetectLanguages:
+      type: object
+      properties:
+        completed:
+          type: boolean
+          example: true
+        value:
+          type: array
+          items:
+            type: string
+            example: ["Java", "JavaScript", "Common"]
+    AuditQuery:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 346558629760677672
+        source:
+          type: string
+          example: "result = Find_Interactive_Inputs()"
+    CompilationResponse:
+      type: object
+      properties:
+        failed_queries:
+          type: array
+          items:
+            type: object
+            properties:
+              query_id:
+                type: integer
+                example: 346558629760677672
+              error:
+                type: array
+                items:
+                  type: object
+                  description: Compilation error
+                  properties:
+                    line:
+                      type: integer
+                      example: 1
+                    column:
+                      type: integer
+                      example: 20
+                    message:
+                      type: string
+                      example: "error CS1002: ; expected"
+    ExecutionResponse:
+      type: object
+      properties:
+        scanId:
+          type: string
+          description: This is the same as the session ID
+          example: "47ed33f6-0c25-43c1-bc1b-01e8aad108b1"
+        timeStamp:
+          type: object
+          properties:
+            seconds:
+              type: integer
+              example: 1638200593
+            nanos:
+              type: integer
+              example: 760898100
+        queries:
+          type: array
+          items:
+            type: object
+            properties:
+              info:
+                description: Query metadata
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: -7467647684143290674
+                  queryName:
+                    type: string
+                    example: Command_Injection
+                  languageName:
+                    type: string
+                    example: Python
+                  packageName:
+                    type: string
+                    example: Cx
+                  groupName:
+                    type: string
+                    example: Python_High_Risk
+                  severity:
+                    type: string
+                    enum: [Information, Warning, Serious, Critical, Metrics]
+                    example: Critical
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    similarityId:
+                      type: integer
+                      example: -1170245052
+                    uniqueId:
+                      type: integer
+                      example: -1170245052
+                    nodes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          nodeId:
+                            type: integer
+                            example: 1235
+                          line:
+                            type: integer
+                            example: 6
+                          column:
+                            type: integer
+                            example: 1
+                          length:
+                            type: integer
+                            example: 7
+                          fileName:
+                            type: string
+                            example: "/vulpy-master/bad/brute.py"
+                          name:
+                            type: string
+                            description: The short name
+                            example: program
+                          typeName:
+                            type: string
+                            example: "object"
+                          domType:
+                            type: string
+                            example: "UnknownReference"
+                          fullName:
+                            type: string
+                            example: CxPYNS_77b27dbc.program
+                          definitions:
+                            type: string
+                            example: "1"
+                          methodLine:
+                            type: integer
+                            example: 6
+    GPTMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          example: "assistant"
+        content:
+          type: string
+          example: "gpt response"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/cx-audit
+security:
+  - Login: []

@@ -1,0 +1,743 @@
+openapi: 3.0.2
+info:
+  title: SAST Results Predicates API
+  description: TBD
+  version: 1.0.0
+paths:
+  '/{similarityID}':
+    get:
+      tags:
+        - predicates
+      summary: get all predicates for similarity id
+      description: get all predicates for similarity id
+      operationId: getPredicatesBySimilarityID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: path
+          name: similarityID
+          schema:
+            type: string
+          required: true
+          description: ID of the similarity to get
+        - in: query
+          name: project-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: filter by project-ids. OR operator between the items. if not set will return all projects.
+        - in: query
+          name: include-comment-json
+          schema:
+            type: boolean
+          required: false
+          description: if true, will include the comment's JSON data in the response.
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: false
+          description: ID of the scan this predicate is submitted for (optional).
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results set.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          required: false
+          description: The maximum number of results to return
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predicateHistoryPerProject:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PredicateHistory'
+                  totalCount:
+                    type: integer
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/changelog':
+    get:
+      tags:
+        - predicates
+      summary: Retrieve bulk predicates by entity type
+      description: >
+        Retrieves bulk predicates by entity type and ID. Supported types: similarity, scan and project. Requires exactly one type and one matching ID.
+
+      operationId: getBulkPredicates
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: entityType
+          description: The type of entity to retrieve predicates for
+          required: true
+          schema:
+            type: string
+            enum: [similarityID, scanID, projectID]
+        - in: query
+          name: entityId
+          description: The ID value of the selected entity type
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: history
+          description: Whether to return the full predicate history (true) or only the latest state (false)
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: "0"
+          required: false
+          description: The number of results to skip before returning results set.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          required: false
+          description: The maximum number of results to return
+      responses:
+        '200':
+          description: Bulk predicate data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        change:
+                          type: string
+                          description: The performed action.
+                        date:
+                          type: string
+                          format: date-time
+                          description: Timestamp of the action.
+                        user:
+                          type: string
+                          description: The user who performed the action.
+                        origin:
+                          type: string
+                          description: The origin of the action.
+                    description: Array of predicate changes
+                  totalSimilarityIds:
+                    type: string
+                    description: Presenting summary in "presenting X of Y" format showing results count and total available
+                    example: "presenting 6 of 11"
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/{similarityID}/latest':
+    get:
+      tags:
+        - predicates
+      summary: get latest predicates for similarity id
+      description: get latest predicates for similarity id
+      operationId: getLatestPredicatesBySimilarityID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: path
+          name: similarityID
+          schema:
+            type: string
+          required: true
+          description: ID of the similarity to get
+        - in: query
+          name: project-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: filter by project-ids. OR operator between the items. if not set will return all projects.
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: false
+          description: ID of the scan this predicate is submitted for (optional).
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latestPredicatePerProject:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PredicateWitCommentsJSON'
+                  totalCount:
+                    type: integer
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+  '/':
+    post:
+      tags:
+        - predicates
+      summary: predicate Severity and State by Similiarty ID and Project ID
+      description: predicate Severity and State by Similiarty ID and Project ID
+      operationId: PredicateBySimiliartyIdAndProjectId
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      similarityId:
+                        type: string
+                        description: ID of the related similarity ID.
+                      scanId:
+                        type: string
+                        description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
+                      projectId:
+                        type: string
+                        description: ID of the related project ID.
+                      severity:
+                        $ref: '#/components/schemas/SeverityEnum'
+                      state:
+                        $ref: '#/components/schemas/StateEnum'
+                      comment:
+                        type: string
+                        description: comment that describes why the state has predicated
+                    example:
+                      similarityId: string
+                      scanId: string
+                      projectId: string
+                      severity: CRITICAL
+                      state: TO_VERIFY
+                      comment: string
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      similarityId:
+                        type: string
+                        description: ID of the related similarity ID.
+                      scanId:
+                        type: string
+                        description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
+                      projectId:
+                        type: string
+                        description: ID of the related project ID.
+                      severity:
+                        $ref: '#/components/schemas/SeverityEnum'
+                      comment:
+                        type: string
+                        description: comment that describes why the state has predicated
+                      customStateId:
+                        type: integer
+                        description: ID of the custom state (relevant only if custom state feature flag is on)
+                        default: 100
+                    example:
+                      similarityId: string
+                      scanId: string
+                      projectId: string
+                      severity: CRITICAL
+                      comment: "string"
+                      customStateId: 100
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: successful operation
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+    patch:
+      tags:
+        - predicates
+      summary: Update predicate Comment by predicate ID
+      description: Update predicate Comment by predicate ID
+      operationId: UpdatePredicateBypredicateId
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  similarityId:
+                    type: string
+                    description: ID of the related similarity ID.
+                  predicateId:
+                    type: string
+                    description: ID of the predicate that contains the comment for update..
+                  projectId:
+                    type: string
+                    description: ID of the related project ID
+                  comment:
+                    type: string
+                    description: Comment to be updated by the patch operation.
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+  '/recalculateSummaryCounters':
+    post:
+      tags:
+        - predicates
+      summary: Recalculate summary counters
+      description: recalculate summary counters
+      operationId: RecalculateSummaryCounters
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                  description: ID of the related project (mandatory).
+                scanId:
+                  type: string
+                  description: ID of the scan this request is related to (optional).
+              required:
+                - projectId
+            example:
+              projectId: "string"
+              scanId: "string"
+      responses:
+        '202':
+          description: successful operation
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+  '/{similarityID}/{projectID}/{predicateID}':
+    delete:
+      tags:
+        - predicates
+      summary: Delete a predicate history
+      description: Delete a predicate history by project ID and predicate ID.
+      operationId: deletePredicateHistory
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: path
+          name: similarityID
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: projectID
+          schema:
+            type: string
+          required: true
+          description: ID of the project
+        - in: path
+          name: predicateID
+          schema:
+            type: string
+          required: true
+          description: ID of the predicate to be deleted
+      responses:
+        '204':
+          description: Predicate history successfully deleted.
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '404':
+          description: Predicate history not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+components:
+  schemas:
+    StateEnum:
+      type: string
+      description: state enum of a result.
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    SeverityEnum:
+      type: string
+      description: The severity of the vulnerability
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    InitialPredicateValues:
+      type: object
+      description: Initial state and severity values for the predicate
+      properties:
+        state:
+          $ref: '#/components/schemas/StateEnum'
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+    PredicateHistory:
+      type: object
+      properties:
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        predicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredicateWithCommentJSON'
+        totalCount:
+          type: integer
+        initialPredicateValues:
+          $ref: '#/components/schemas/InitialPredicateValues'
+    PredicateChangelog:
+      type: object
+      properties:
+        change:
+          type: string
+          description: The performed action.
+        date:
+          type: string
+          format: date
+          description: Timestamp of the action.
+        user:
+          type: string
+          description: The user who performed the action.
+        origin:
+          type: string
+          description: The origin of the action.
+    Predicate:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the predicate.
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        state:
+          $ref: '#/components/schemas/StateEnum'
+        comment:
+          type: string
+          description: comment that describes why the state has predicated. max length is 1024. can be empty.
+        createdBy:
+          type: string
+          description: the user name that created this entry.
+        createdAt:
+          type: string
+          format: date
+          description: Creation date of the entry
+        changeOriginType:
+          type: integer
+          description: Entity type which is responsible for the change (where the change originated from)
+        changeOriginName:
+          type: string
+          description: Entity name which is responsible for the change (where the change originated from)
+    PredicateWithCommentJSON:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the predicate.
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        state:
+          type: string
+          description: State of the result
+          example: "TO_VERIFY"
+        comment:
+          type: string
+          description: comment that describes why the state has predicated. max length is 1024. can be empty.
+        commentJSON:
+          $ref: '#/components/schemas/CommentJSON'
+          desciprtion: the comment's JSON data
+        createdBy:
+          type: string
+          description: the user name that created this entry.
+        createdAt:
+          type: string
+          format: date
+          description: Creation date of the entry
+        changeOriginType:
+          type: integer
+          description: Entity type which is responsible for the change (where the change originated from)
+        changeOriginName:
+          type: string
+          description: Entity name which is responsible for the change (where the change originated from)
+    PredicateWitCommentsJSON:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID of the predicate.
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        state:
+          type: string
+          description: State of the result
+          example: "TO_VERIFY"
+        comment:
+          type: string
+          description: comment that describes why the state has predicated. max length is 1024. can be empty.
+        commentsJSON:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentJSON'
+          desciprtion: an array containing all relevant comment information for this predicate
+        createdBy:
+          type: string
+          description: the user name that created this entry.
+        createdAt:
+          type: string
+          format: date
+          description: Creation date of the entry
+        changeOriginType:
+          type: integer
+          description: Entity type which is responsible for the change (where the change originated from)
+        changeOriginName:
+          type: string
+          description: Entity name which is responsible for the change (where the change originated from)
+    CommentJSON:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "the ID of the comment"
+        date:
+          type: string
+          description: "create/update date"
+        user:
+          type: string
+          description: "creating/updating user"
+        content:
+          type: string
+          description: "the comment itself"
+        isDeleted:
+          type: boolean
+          description: "indicates if the comment is deleted"
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/sast-results-predicates
+security:
+  - Login: []

@@ -1,0 +1,241 @@
+openapi: 3.0.2
+info:
+  title: Repository Insights API
+  description: API's related to Repository Insights
+  version: 1.0.0
+paths:
+  "/project/{project-id}":
+    get:
+      tags:
+        - Insights
+      summary: Get a list of repositories by project
+      parameters:
+        - in: path
+          name: project-id
+          required: true
+          schema:
+            type: string
+          description: "Unique identifier for the project"
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of repositories to skip before returning"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+            example: 100
+          description: "The maximum number of repositories to return"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+  /repository:
+    post:
+      tags:
+        - Insights
+      summary: Get insights by repository
+      operationId: getInsightsByRepository
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/RepositoryRequest'
+            encoding:
+              RepoURLRequest:
+                contentType: application/json
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryResponse"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    RepositoryRequest:
+      type: object
+      properties:
+        repository_url:
+          type: string
+          example: "https://github.com/example/repo"
+          description: The url of the repository.
+    RepositoryResponse:
+      type: object
+      properties:
+        lastScanDate:
+          type: string
+          format: date-time
+        repositoryURL:
+          type: string
+        scanID:
+          type: string
+        insights:
+          type: object
+          properties:
+            SAST:
+              type: object
+              properties:
+                scannedFiles:
+                  type: integer
+                unscannedFiles:
+                  type: integer
+                totalScannedLOC:
+                  type: integer
+                languages:
+                  type: array
+                  items:
+                    type: string
+                error:
+                  type: string
+                  example: This field is visible when there is an error fetching SAST insights
+            KICS:
+              type: object
+              properties:
+                scannedFiles:
+                  type: integer
+                unscannedFiles:
+                  type: integer
+                totalScannedLOC:
+                  type: integer
+                error:
+                  type: string
+                  example: This field is visible when there is an error fetching KICS insights
+            RecentCommits:
+              type: object
+              properties:
+                totalCommits:
+                  type: integer
+                lastCommitDate:
+                  type: string
+                  format: date-time
+                error:
+                  type: string
+                  example: This field is visible when there is an error fetching Repostore insights
+                warning:
+                  type: string
+                  example: This field is visible when the repo is inactive (no commits for more than 90 days)
+    ProjectResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+          description: Unique identifier for the project.
+        project_name:
+          type: string
+          description: Name of the project.
+        last_scan_date:
+          type: string
+          format: date-time
+          description: The last scan date of the project.
+        total_loc:
+          type: integer
+          description: Total lines of code in the project.
+        total_scanned_files:
+          type: integer
+          description: Total number of scanned files in the project.
+        total_unscanned_files:
+          type: integer
+          description: Total number of unscanned files in the project.
+        repositories:
+          type: array
+          description: List of repositories associated with the project.
+          items:
+            $ref: '#/components/schemas/ProjectRepository'
+        total_repositories:
+          type: integer
+          description: Total number of repositories in the project.
+        page:
+          type: integer
+          description: The current page number in the paginated response.
+    ProjectRepository:
+      type: object
+      properties:
+        repository_url:
+          type: string
+          description: URL of the repository.
+        last_scan_date:
+          type: string
+          format: date-time
+          description: The last scan date of the repository.
+        scanned_files:
+          type: integer
+          description: Number of scanned files in the repository.
+        unscanned_files:
+          type: integer
+          description: Number of unscanned files in the repository.
+    Error:
+      description: "A JSON object containing an error message"
+      type: object
+      properties:
+        message:
+          type: string
+  responses:
+    "400":
+      description: invalid params
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "401":
+      description: unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "404":
+      description: not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "500":
+      description: internal error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/insights
+security:
+  - Login: []

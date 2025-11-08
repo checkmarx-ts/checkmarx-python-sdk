@@ -1,0 +1,1172 @@
+openapi: 3.0.2
+info:
+  title: Results Summary API
+  version: 1.0.0
+tags:
+  - name: Summary
+    description: ""
+paths:
+  "/":
+    get:
+      tags:
+        - Summary
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - in: query
+          name: scan-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: true
+          description: "Specify one or more scan IDs <br> Note: A separate result object is returned for each scan."
+        - in: query
+          name: include-severity-status
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, returns the severityStatus counters. If false, no data is returned in this section.
+        - in: query
+          name: include-status-counters
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, returns all status counters, including FIXED. If false, returns counters only for NEW and RECURRENT statuses.
+        - in: query
+          name: include-queries
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: If true, returns the queries counters. If false, no data is returned in this section.
+        - in: query
+          name: include-files
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: If true, returns the source code file and sink code file counters. If false, no data is returned in this section.
+        - in: query
+          name: apply-predicates
+          schema:
+            type: boolean
+            default: true
+          required: false
+          description: If true, the results take into account changes made to the predicates. If false, the results are based on te raw predicate values.
+        - in: query
+          name: language
+          schema:
+            type: string
+          required: false
+          description: Filter results for a specific source code language
+        - in: query
+          name: exclude-result-types
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ResultTypesEnum"
+          required: false
+          description: "Exclude results of the types specified in the array"
+      summary: Get a summary of scan results
+      description: "Get summary of scan results for one or more scans.<br>Note: A separate summary is returned for each of the specified scans."
+      operationId: summaryByScansIds
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scansSummaries:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ResultsSummary"
+                  totalCount:
+                    type: integer
+                    description: The number of records returned. A separate record is returned for each scan ID that was requested.
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "401":
+          description: Unauthorized, access token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+components:
+  parameters:
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationId:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    version:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  schemas:
+    PlatformSummary:
+      type: object
+      properties:
+        platform:
+          type: string
+        count:
+          type: integer
+    ComplianceSummary:
+      type: object
+      properties:
+        compliance:
+          type: string
+        count:
+          type: integer
+    ResultsSummary:
+      type: object
+      properties:
+        scanId:
+          type: string
+          description: Identifier of the scan
+        tenantId:
+          type: string
+          description: Identifier of the tenant account
+        sastCounters:
+          $ref: "#/components/schemas/SastCounters"
+        kicsCounters:
+          $ref: "#/components/schemas/KicsCounters"
+        scaCounters:
+          $ref: "#/components/schemas/ScaCounters"
+        scaPackagesCounters:
+          $ref: "#/components/schemas/ScaPackagesCounters"
+        scaContainersCounters:
+          $ref: "#/components/schemas/ScaContainersCounters"
+        apiSecCounters:
+          $ref: "#/components/schemas/ApiSecCounters"
+        microEnginesCounters:
+          $ref: "#/components/schemas/MicroEnginesCounters"
+        containersCounters:
+          $ref: "#/components/schemas/ContainersCounters"
+    SastCounters:
+      type: object
+      description: Counters for vulnerabilities identified by the SAST scanner
+      properties:
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity level
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by custom state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters for the combination of severity and status. <br> Note: Data is returned only if the `include-severity-status` parameter is true. Results are not returned for FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        sourceFileCounters:
+          description: An array of counters by source code file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        totalCounter:
+          type: integer
+          description: Total number of SAST vulnerabilities
+        queriesCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by query<br> Note: Data is returned only if the `include-queries` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              queryID:
+                type: string
+                description: Query ID
+              queryName:
+                type: string
+                description: Query name
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              statusCounters:
+                description: "Note: Results are not returned for FIXED status."
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    status:
+                      $ref: "#/components/schemas/StatusEnum"
+                    counter:
+                      type: integer
+              counter:
+                type: integer
+        sinkFileCounters:
+          description: An array of counters by code sink file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        languageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by language
+          items:
+            type: object
+            properties:
+              language:
+                type: string
+              counter:
+                type: integer
+        complianceCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by compliance
+          items:
+            $ref: "#/components/schemas/ComplianceSummary"
+        filesScannedCounter:
+          type: integer
+          description: NOT IN USE (always returns value 0 for the SAST counter)
+    KicsCounters:
+      type: object
+      description: Counters for KICS scanner
+      properties:
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        categorySummary:
+          type: array
+          uniqueItems: true
+          description: An array of counters by category
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              counter:
+                type: integer
+        filesScannedCounter:
+          type: integer
+          description: Number of files scanned by the KICS scanner
+        platformSummary:
+          type: array
+          uniqueItems: true
+          description: An array of counters by platform
+          items:
+            type: object
+            properties:
+              platform:
+                type: string
+              counter:
+                type: integer
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of the counters by severity
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters for the combination of severity and status<br> Note: Data is returned only if the `include-severity-status` parameter is true. Results are not returned for FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by custom state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        totalCounter:
+          type: integer
+          description: Total number of KICS vulnerabilities
+    ScaCounters:
+      type: object
+      description: Counters for vulnerabilities identified by the SCA scanner
+      properties:
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state<br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by custom state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by the combination of severity and status.<br> Note: Data is returned only if the `include-severity-status` parameter is true. Results are not returned for FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        sourceFileCounters:
+          description: An array of counters by source file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        totalCounter:
+          type: integer
+          description: Total number of SCA vulnerabilities
+        filesScannedCounter:
+          type: integer
+          description: NOT IN USE (always returns value 0 for the SCA counter)
+    ScaPackagesCounters:
+      type: object
+      description: Counters relating to packages identified by the SCA scanner
+      properties:
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity of vulnerabilities
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state<br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "NOT CURRENTLY SUPPORTED FOR SCA PACKAGES SCANNER. Returns null"
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by the combination of severity and status.<br> Note: Data is returned only if the `include-severity-status` parameter is true. This section doesn't include FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        sourceFileCounters:
+          description: An array of counters by source file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        packageCounters:
+          description: An array of counters for instances of specific packages
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              package:
+                type: string
+              counter:
+                type: integer
+        licenseCounters:
+          description: An array of counters by license
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              package:
+                type: string
+              counter:
+                type: integer
+        riskLevelCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters of risk level of packages
+          items:
+            type: object
+            properties:
+              riskLevel:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        totalCounter:
+          type: integer
+          description: Total number of risks identified by SCA scanner
+        outdatedCounter:
+          type: integer
+          description: Total number of outdated packages (i.e. packages for which a newer version is available)
+        filesScannedCounter:
+          type: integer
+          description: NOT IN USE (always returns value 0 for the SCA Packages counter)
+    ScaContainersCounters:
+      type: object
+      description: Counters relating to containers identified by SCA scanner
+      properties:
+        totalPackagesCounter:
+          type: integer
+          description: The total number of container packages identified
+        totalVulnerabilitiesCounter:
+          type: integer
+          description: The total number of container vulnerabilities identified
+        severityVulnerabilitiesCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity level
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        stateVulnerabilitiesCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state <br> Note: Data is included only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "NOT CURRENTLY SUPPORTED FOR SCA CONTAINERS SCANNER. Returns null"
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        statusVulnerabilitiesCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        ageVulnerabilitiesCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        packageVulnerabilitiesCounters:
+          description: An array of vulnerability counters for instances of specific container packages
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              package:
+                type: string
+              counter:
+                type: integer
+    ApiSecCounters:
+      type: object
+      description: Counters relating to vulnerabilities identified by the API Security scanner
+      properties:
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state<br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "NOT CURRENTLY SUPPORTED FOR APISEC SCANNER. Returns null"
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by the combination of severity and status.<br> Note: Data is returned only if the `include-severity-status` parameter is true. This section doesn't include FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        sourceFileCounters:
+          description: An array of counters by source file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        riskLevel:
+          type: string
+          allOf:
+            - description: Risk level of packages
+            - $ref: "#/components/schemas/RiskLevelEnum"
+        filesScannedCounter:
+          type: integer
+          description: NOT IN USE (always returns value 0 for the ApiSec counter)
+        totalCounter:
+          type: integer
+          description: Total number of API Security vulnerabilities
+        apiSecTotal:
+          type: integer
+          description: Total number of API Security vulnerabilities
+    MicroEnginesCounters:
+      type: object
+      description: Counters for vulnerabilities identified by the Micro Engines scanner
+      properties:
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state<br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "NOT CURRENTLY SUPPORTED FOR MicroEngines SCANNER. Returns null"
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by the combination of severity and status.<br> Note: Data is returned only if the `include-severity-status` parameter is true. Results are not returned for FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        sourceFileCounters:
+          description: An array of counters by source file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        filesScannedCounter:
+          type: integer
+          description: NOT IN USE (always returns value 0 for the MicroEngines counter)
+        totalCounter:
+          type: integer
+          description: Total number of MicroEngines vulnerabilities
+    ContainersCounters:
+      type: object
+      description: Counters for vulnerabilities identified by the Containers scanner
+      properties:
+        totalPackagesCounter:
+          type: integer
+          description: The total number of container packages identified
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        customStateCounters:
+          type: array
+          nullable: true
+          description: "NOT CURRENTLY SUPPORTED FOR CONTAINERS SCANNER. Returns null"
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              customState:
+                type: string
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by the combination of severity and status.<br> Note: Data is returned only if the `include-severity-status` parameter is true. Results are not returned for FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        packageCounters:
+          description: An array of counters for instances of specific packages
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              packageID:
+                type: string
+              counter:
+                type: integer
+              isMalicious:
+                type: boolean
+        totalCounter:
+          type: integer
+          description: Total number of MicroEngines vulnerabilities
+    SeverityEnum:
+      type: string
+      description: Severity of a vulnerability
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    StatusEnum:
+      type: string
+      description: Status of a result
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    StateEnum:
+      type: string
+      description: The current state of the result
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    OperationEnum:
+      type: string
+      description: Operator type enum
+      enum:
+        - CONTAINS
+        - EQUAL
+    RiskLevelEnum:
+      type: string
+      description: Risk Level of a package
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    ResultTypesEnum:
+      type: string
+      description: Type of result
+      enum:
+        - DEV_AND_TEST
+        - NONE
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/scan-summary
+security:
+  - Login: []

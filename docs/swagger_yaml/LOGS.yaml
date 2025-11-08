@@ -1,0 +1,93 @@
+openapi: 3.0.2
+info:
+  description: This is the logs service API description. The logs service is responsible for zipping the logs and provide a URL to download them.
+  version: 1.0.0
+  title: AST Logs Service
+paths:
+  "/{scan-id}/{engine}":
+    get:
+      tags:
+        - Engine Logs
+      summary: Create a pre-signed URL to be used to download engine log file
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: scan-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: engine
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '308':
+          description: redirect to the requested file
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+  responses:
+    '401':
+      description: Access token is missing or invalid
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '403':
+      description: "Forbidden"
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED:  JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/logs
+security:
+  - Login: []

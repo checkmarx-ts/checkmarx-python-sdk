@@ -1,0 +1,302 @@
+openapi: 3.0.2
+info:
+  description: The Application Overview API provides a way to get all applications overview data
+  title: Applications Overview API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      summary: Get an overview of all applications
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/name'
+        - $ref: '#/components/parameters/risk-level'
+        - $ref: '#/components/parameters/empty-tags'
+        - $ref: '#/components/parameters/criticality'
+        - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: Successful response with an overview of applications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  applications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        applicationId:
+                          type: string
+                          description: Application ID
+                          example: 842ba7d0-8a46-41eb-a88b-be722fd90375
+                        applicationName:
+                          type: string
+                          description: Application name
+                          example: AppSec
+                        criticality:
+                          type: string
+                          description: Application criticality
+                          example: HIGH
+                        projectNumber:
+                          type: integer
+                          description: Application project number
+                          example: 0
+                        riskLevel:
+                          type: string
+                          description: Application risk level
+                          example: NO RISK
+                        tags:
+                          type: object
+                          items:
+                            type: string
+                          description: Application tags
+                        totalCounters:
+                          type: object
+                          properties:
+                            severityCounters:
+                              type: array
+                              description: Severity counters
+                              items:
+                                type: object
+                                properties:
+                                  severity:
+                                    type: string
+                                    description: Severity level
+                                    example: Low
+                                  counter:
+                                    type: integer
+                                    description: Total issues
+                                    example: 2
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: Update timestamp
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+  /applications-overview-count:
+    get:
+      summary: Get the count of application overviews
+      parameters:
+        - $ref: "#/components/parameters/auth"
+      responses:
+        '200':
+          description: Successful response with the count of application overviews
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: The count of application overviews
+                example: 10
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+  /aggregate:
+    get:
+      summary: Get application overview counters
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/group-by-field"
+      responses:
+        '200':
+          description: Successful response with aggregated application data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  applicationsCounters:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        Criticality:
+                          type: string
+                          description: Application criticality
+                          example: MEDIUM
+                        RiskLevel:
+                          type: string
+                          description: Risk level
+                          example: NO RISK
+                        Count:
+                          type: integer
+                          description: Aggregated count
+                          example: 6
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+components:
+  parameters:
+    group-by-field:
+      name: group-by-field
+      in: query
+      description: "Field to group by"
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum: ["criticality", "risk_level"]
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token"
+      required: true
+      schema:
+        type: string
+        format: JWT
+    offset:
+      name: offset
+      in: query
+      type: integer
+      required: false
+      description: the request offset
+      default: 0
+      example: 100
+    limit:
+      name: limit
+      in: query
+      type: integer
+      description: the number of items per page
+      required: false
+      maximum: 100
+      default: 10
+      example: 100
+    name:
+      name: name
+      in: query
+      required: false
+      description: the name of the application
+      schema:
+        type: array
+        items:
+          type: string
+    risk-level:
+      name: risk-level
+      in: query
+      required: false
+      description: a list of risk levels to filter projects
+      schema:
+        type: array
+        items:
+          type: string
+          enum: ["Info", "Low", "Medium", "High", "Critical"]
+    empty-tags:
+      name: empty-tags
+      in: query
+      required: false
+      description: whether the project has tags or not
+      default: false
+      schema:
+        type: boolean
+    criticality:
+      name: criticality
+      in: query
+      required: false
+      description: a list of criticality levels to filter projects
+      schema:
+        type: array
+        items:
+          type: string
+          enum: ["Low", "Medium", "High", "Critical", "None"]
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: the field to sort by
+      schema:
+        type: array
+        items:
+          type: string
+          enum: ["name", "criticality", "num-of-projects", "risk-level"]
+  responses:
+    '400':
+      description: Bad request due to invalid access token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 400
+              message:
+                type: string
+                example: Failed to handle access token
+              data:
+                type: object
+    '403':
+      description: Forbidden due to insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 403
+              message:
+                type: string
+                example: Could not authorize applications
+              data:
+                type: object
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 500
+              message:
+                type: string
+                example: Forbidden
+              data:
+                type: object
+    '501':
+      description: Not implemented
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 501
+              message:
+                type: string
+                example: Feature flag is disabled
+              data:
+                type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/applications-overview
+security:
+  - Login: []

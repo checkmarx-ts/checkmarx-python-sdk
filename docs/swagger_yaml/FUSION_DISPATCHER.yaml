@@ -1,0 +1,168 @@
+openapi: 3.0.2
+info:
+  description: "Fusion Dispatcher Service REST API"
+  version: 1.0.0
+  title: "Fusion Dispatcher Service"
+tags:
+  - name: Dispatcher
+    description: Scan dispatcher
+paths:
+  /{id}/correlate:
+    post:
+      summary: Request starting a new fusion scan for an application by its ID
+      tags:
+        - Dispatcher
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '405':
+          $ref: '#/components/responses/405'
+        default:
+          $ref: '#/components/responses/default'
+  /{id}/scan-status:
+    get:
+      summary: Status of the latest fusion scan of an application
+      tags:
+        - Dispatcher
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Current status of latest scan
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/scanStatus'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        default:
+          $ref: '#/components/responses/default'
+components:
+  schemas:
+    scanStatus:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          description: Tenant identifier
+          format: uuid
+        applicationId:
+          type: string
+          description: application identifier
+          format: uuid
+        scanId:
+          type: string
+          description: Fusion scan identifier
+          format: uuid
+        scanStatus:
+          $ref: '#/components/schemas/scanStatusEnum'
+        stage:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: The stage of the scan
+        stageDescription:
+          type: string
+          description: Stage's description
+        scanTimestamp:
+          type: integer
+          format: timestamp
+          description: Timestamp of the scan
+        errorMessage:
+          type: string
+          description: Error message. If not empty, scan is probably in a failed status
+    scanStatusEnum:
+      type: string
+      description: Status of the scan
+      enum:
+        - Unknown
+        - Started
+        - In Progress
+        - Completed
+        - Failed
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A message describing the error
+        type:
+          type: string
+          description: The type of the error
+        code:
+          type: integer
+          format: int32
+          description: The error code
+  responses:
+    '400':
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: Unauthorized. Access token is missing or invalid
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '403':
+      description: Forbidden. Not allowed to use this resource
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '404':
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '405':
+      description: Method not allowed
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    'default':
+      description: Unexpected error
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    appId:
+      name: id
+      in: path
+      description: The application id
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/correlation/dispatcher
+security:
+  - Login: []

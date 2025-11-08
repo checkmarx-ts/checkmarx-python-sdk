@@ -1,0 +1,149 @@
+openapi: 3.0.2
+info:
+  title: AST Audit Service
+  version: 1.0.0
+paths:
+  /:
+    get:
+      tags:
+        - Audit Events
+      summary: Retrieve audit events for a tenant
+      description: >
+        Returns a list of audit events for the specified date range.   - If no date range is specified, events from the last 365 days are returned.   - The `from` date cannot be more than 365 days in the past.   - Events for the current day are returned inline.   - Events for earlier dates are returned as downloadable links to daily JSON files.
+
+      parameters:
+        - name: from
+          in: query
+          description: Start date for the event filter in `YYYY-MM-DD` format. Cannot be more than 365 days in the past.
+          required: false
+          example: '2025-04-22'
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: End date for the event filter in `YYYY-MM-DD` format. Must be the same or later than the `from` date.
+          required: false
+          example: '2025-04-28'
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successfully retrieved audit events or download links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEvents'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    AuditEvents:
+      type: object
+      properties:
+        links:
+          type: array
+          description: >
+            Links to JSON files containing audit events for previous days (non-current day).   Each link is temporary and valid for 1 hour.
+
+          example: []
+          items:
+            type: object
+            properties:
+              eventDate:
+                type: string
+                format: date
+                description: Date of the archived audit events
+              url:
+                type: string
+                format: uri
+                description: Temporary download URL
+              crc:
+                type: string
+                description: CRC checksum for data integrity validation
+        events:
+          type: array
+          description: List of audit events for the current day
+          items:
+            type: object
+            properties:
+              eventDate:
+                type: string
+                format: date-time
+                description: Timestamp of the event
+              eventType:
+                type: string
+                description: Type/category of the audit event
+              auditResource:
+                type: string
+                description: Name or identifier of the audited resource
+              actionType:
+                type: string
+                description: Type of action performed (e.g., LOGIN, CREATE, UPDATE)
+              actionUserId:
+                type: string
+                description: Identifier of the user who performed the action
+              ipAddress:
+                type: string
+                format: ipv4
+                description: IP address from which the action originated
+              data:
+                type: object
+                description: Additional context or metadata associated with the event
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "A message describing the error"
+        type:
+          type: string
+          description: "The type of the error"
+        code:
+          type: integer
+          description: "The error code"
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/audit
+security:
+  - Login: []

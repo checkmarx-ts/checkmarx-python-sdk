@@ -1,0 +1,152 @@
+openapi: 3.0.2
+info:
+  title: SAST Scan Results Compare API
+  description: "SAST scan results comparison REST API's"
+  version: 1.0.0
+tags:
+  - name: Comparison
+    description: ""
+paths:
+  "/status":
+    get:
+      tags:
+        - Comparison
+      summary: "Get total counts of results per severity and status"
+      description: "Get total counts of results per severity and status for two given scans"
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Scan ID of the newer scan to compare
+        - in: query
+          name: base-scan-id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Scan ID of the older scan to compare
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsCompareResult'
+        "400":
+          description: Invalid request parameters supplied, check scan-id and base-scan-id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "403":
+          description: No permissions to access the given scans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+components:
+  parameters:
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token"
+      schema:
+        type: string
+        format: JWT
+    correlationId:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    version:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  schemas:
+    StatsCompareResult:
+      type: object
+      properties:
+        severityStatusCounters:
+          type: array
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    status:
+                      $ref: "#/components/schemas/StatusEnumCmp"
+                    count:
+                      type: number
+        scanCounters:
+          $ref: "#/components/schemas/StatsCompareScan"
+        baseScanCounters:
+          $ref: "#/components/schemas/StatsCompareScan"
+    StatsCompareScan:
+      type: object
+      properties:
+        CRITICAL:
+          type: number
+        HIGH:
+          type: number
+        MEDIUM:
+          type: number
+        LOW:
+          type: number
+        INFO:
+          type: number
+    SeverityEnum:
+      type: string
+      description: Severity enum of a vulnerability
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    StatusEnumCmp:
+      type: string
+      description: Status enum of a result
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/scans-compare/sast
+security:
+  - Login: []

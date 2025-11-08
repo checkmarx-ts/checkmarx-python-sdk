@@ -1,0 +1,720 @@
+openapi: 3.0.2
+info:
+  description: "CxAST Projects service REST API"
+  version: 1.0.0
+  title: "Projects Service"
+paths:
+  /:
+    post:
+      tags:
+        - Projects
+      summary: Create a project
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/projectInput'
+            encoding:
+              projects:
+                contentType: application/json
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/project'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the created project
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Projects
+      summary: Get a list of projects
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+          description: Project ids, filtered only by exact match.
+        - in: query
+          name: names
+          schema:
+            type: array
+            items:
+              type: string
+          description: Project names, filtered only by exact match. Mutually exclusive to name and name-regex
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Project name, can be filtered by partial name. Mutually exclusive to names and name-regex
+        - in: query
+          name: name-regex
+          schema:
+            type: string
+          description: Project name, filtered by the regex given. Mutually exclusive to name and names
+        - in: query
+          name: groups
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: "Project groups. filter by the groups given. Searching exact match with an OR operation between them"
+        - in: query
+          name: origins
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: "Project origin. filter by the origins given. Searching exact match with an OR operation between them"
+        - in: query
+          name: tags-keys
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Project tags, filter by the keys in the tags map (OR operation between the items)
+        - in: query
+          name: tags-values
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Project tags, filter by the values in the tags map (OR operation between the items)
+        - in: query
+          name: empty-tags
+          required: false
+          schema:
+            type: boolean
+          description: Whether the project has tags or not
+        - in: query
+          name: repo-url
+          schema:
+            type: string
+          description: Project repository url, filtered by the repo url given
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/projectsCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /tags:
+    get:
+      tags:
+        - Projects
+      summary: Get all tags
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search text, filtered by partial match on tag key OR tag value.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: object
+                example:
+                  "test": [""]
+                  "priority": ["high", "low"]
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                description: Project custom tags
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /last-scan:
+    get:
+      tags:
+        - Projects
+      summary: Get a map of project-id to scan (smaller set of scan)
+      description: Get a key-value map, key=[project id], value=[last scan (based on the filter)]
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - in: query
+          name: project-ids
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: Project ids, filtered by exact match. Mutually exclusive with application-id
+        - in: query
+          name: application-id
+          schema:
+            type: string
+          description: Application id, filtered by exact match. Mutually exclusive with project-ids.
+        - in: query
+          name: scan-status
+          schema:
+            type: string
+          description: "Scan status, please look at the scans API description for status options"
+        - in: query
+          name: branch
+          schema:
+            type: string
+          description: "Git branch of the scan"
+        - in: query
+          name: engine
+          schema:
+            type: string
+          description: "Engine type of the scan"
+        - in: query
+          name: sast-status
+          schema:
+            type: string
+          description: "Sast engine status, please look at the scans API description for status options"
+        - in: query
+          name: kics-status
+          schema:
+            type: string
+          description: "Kics engine status, please look at the scans API description for status options"
+        - in: query
+          name: sca-status
+          schema:
+            type: string
+          description: "Sca engine status, please look at the scans API description for status options"
+        - in: query
+          name: apisec-status
+          schema:
+            type: string
+          description: "APISec engine status, please look at the scans API description for status options"
+        - in: query
+          name: microengines-status
+          schema:
+            type: string
+          description: "Micro Engines engine status, please look at the scans API description for status options"
+        - in: query
+          name: containers-status
+          schema:
+            type: string
+          description: "Containers engine status, please look at the scans API description for status options"
+        - in: query
+          name: use-main-branch
+          description: |
+            A boolean flag to determine if the response should prioritize scans from the main branch.
+            - `true`: Return the last scan from the main branch if specified for the project, overriding the branch filter.
+            - `false` (default): Return the last scan regardless of the branch.
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/subsetScan'
+                example:
+                  project-id: {"id": "scan-id", "createdAt": "", "updatedAt": "", "status": "Completed", "userAgent": "user-agent", "initiator": "initiator", "branch": "branch", "engines": "[\"sast\", \"kics\"]", "sourceType": "github", "sourceOrigin": "Jenkins"}
+                description: Map of project-id to scan, scan has limited properties.
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /branches:
+    get:
+      tags:
+        - Projects
+      summary: Get a list of branches associated to this project sorted by date descented
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - in: query
+          name: project-id
+          schema:
+            type: string
+          description: Project id, filtered by exact match
+        - in: query
+          name: branch-name
+          schema:
+            type: string
+          description: Branch name. filtered by full or partial name
+      responses:
+        '200':
+          description: OK,
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}:
+    get:
+      tags:
+        - Projects
+      summary: Get a project
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/richProject'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    put:
+      tags:
+        - Projects
+      summary: Update a project
+      description: "Update Project. All parameters are overwritten by the new configuration, even parameters that aren't submitted in the update body. For example, if you had assigned tags to a project and you update the project without submitting the tags parameter, all existing tags will be deleted."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/projectUpdate'
+            encoding:
+              projects:
+                contentType: application/json
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the updated project
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Projects
+      summary: Delete a project
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /app/{id}:
+    get:
+      tags:
+        - Projects
+      summary: Get projects for a specific application
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: id
+          in: path
+          description: Application Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/projectsCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    project:
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for a project"
+        name:
+          type: string
+          description: "The project name"
+        groups:
+          type: array
+          description: The groups authorized for this project
+          items:
+            type: string
+        repoUrl:
+          type: string
+          description: The reprosentive repository URL
+        mainBranch:
+          type: string
+          description: The Git main branch
+        origin:
+          type: string
+          description: The origin of project
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Project tags
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the project
+    richProject:
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for a project"
+        name:
+          type: string
+          description: "The project name"
+        applicationIds:
+          type: array
+          description: The applications this project is associated to
+          items:
+            type: string
+        groups:
+          type: array
+          description: The groups authorized for this project
+          items:
+            type: string
+        repoUrl:
+          type: string
+          description: The reprosentive repository URL
+        mainBranch:
+          type: string
+          description: The Git main branch
+        origin:
+          type: string
+          description: The origin of project
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Project tags
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the project
+    projectInput:
+      properties:
+        name:
+          type: string
+          description: "A project name"
+        groups:
+          type: array
+          description: The groups authorized for this project
+          items:
+            type: string
+        repoUrl:
+          type: string
+          description: The reprosentive repository URL
+        mainBranch:
+          type: string
+          description: The Git main branch
+        origin:
+          type: string
+          description: The origin of project
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Project tags
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the project
+    projectUpdate:
+      properties:
+        name:
+          type: string
+          description: "A project name"
+        groups:
+          type: array
+          description: The groups authorized for this project
+          items:
+            type: string
+        repoUrl:
+          type: string
+          description: The reprosentive repository URL
+        mainBranch:
+          type: string
+          description: The Git main branch
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Project tags
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the project
+    projectsCollection:
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: The number of total records matching the applied filter
+        projects:
+          type: array
+          description: The projects returned with the filter applied
+          items:
+            $ref: '#/components/schemas/project'
+    subsetScan:
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for a scan"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        status:
+          description: "Please look at the scans API description for status options"
+          type: string
+        userAgent:
+          type: string
+          description: "The user-agent header that created the scan"
+        initiator:
+          type: string
+          description: "The user name that created the scan"
+        branch:
+          type: string
+          description: "The scan branch"
+        engines:
+          type: array
+          description: "The scan engines"
+          items:
+            type: string
+        sourceType:
+          type: string
+          description: "The scan last Source type (e.g. zip, github, gitlab)"
+        sourceOrigin:
+          type: string
+          description: "The scan last origin (e.g. Jenkins, Checkmarx AST, Github action, Github Webhook)"
+    error:
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+  responses:
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    pathId:
+      name: id
+      in: path
+      description: Project Id
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/projects
+security:
+  - Login: []

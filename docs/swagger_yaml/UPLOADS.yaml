@@ -1,0 +1,227 @@
+openapi: 3.0.2
+info:
+  description: This is the Uploads service API description. The uploads service is responsible for creating pre-signed URLs for uploading files from clients.
+  version: 1.0.0
+  title: AST Uploads Service
+paths:
+  /:
+    post:
+      tags:
+        - Uploads
+      summary: Create a pre-signed URL to be used with PUT requests to upload files
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/upload'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /start-multipart-upload:
+    post:
+      tags:
+        - Uploads
+      summary: Create upload id to be used with POST requests to upload files in multiple parts
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/multipartUploadResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /multipart-presigned:
+    post:
+      tags:
+        - Uploads
+      summary: Get pre-signed URL for uploading a file in multiple parts using an upload ID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uploadID:
+                  type: string
+                partNumber:
+                  type: integer
+                  format: int32
+                objectName:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/multipartPresignedResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /complete-multipart-upload:
+    post:
+      tags:
+        - Uploads
+      summary: Complete a multipart upload using an upload ID and a list of part ETags
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uploadID:
+                  type: string
+                objectName:
+                  type: string
+                partList:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/uploadPart'
+      responses:
+        '204':
+          description: "No Content"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /abort-multipart-upload:
+    post:
+      tags:
+        - Uploads
+      summary: Abort a multipart upload using an upload ID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uploadID:
+                  type: string
+                objectName:
+                  type: string
+      responses:
+        '204':
+          description: "No Content"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+components:
+  schemas:
+    upload:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+    uploadPart:
+      type: object
+      properties:
+        eTag:
+          type: string
+        partNumber:
+          type: integer
+          format: int32
+    multipartUploadResponse:
+      type: object
+      properties:
+        uploadID:
+          type: string
+        objectName:
+          type: string
+    multipartPresignedResponse:
+      type: object
+      properties:
+        presignedURL:
+          type: string
+          format: uri
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+  responses:
+    '401':
+      description: Access token is missing or invalid
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/uploads
+security:
+  - Login: []

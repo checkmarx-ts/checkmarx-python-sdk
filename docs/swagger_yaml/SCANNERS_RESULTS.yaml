@@ -1,0 +1,243 @@
+openapi: 3.0.2
+info:
+  title: All Scanners Results API
+  description: All Scanners Results APIs
+  version: 1.0.0
+paths:
+  '/':
+    get:
+      tags:
+        - All Scanners Results
+      summary: Get results for all scanners
+      description: "Scan ID is a required query param. You can limit results by using pagination and/or setting filters.<br> Note: An AND operator is applied between filters, and an OR operator is applied to multiple values for each filter."
+      operationId: getResultsByScan
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: true
+          description: Filter results by scan ID
+        - in: query
+          name: severity
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SeverityEnum'
+          explode: false
+          required: false
+          description: "Filter results by severity"
+        - in: query
+          name: state
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/StateEnum'
+          required: false
+          description: "Filter results by state"
+          explode: false
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/StatusEnum'
+          required: false
+          explode: false
+          description: "Filter results by status"
+        - in: query
+          name: exclude-result-types
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ResultTypesEnum"
+          required: false
+          description: "Exclude results of the types specified in the array"
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          required: false
+          description: The number of pages to skip before starting to return results. The number of results per page is defined by the value of `limit`.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 20
+          required: false
+          description: The maximum number of results to return
+        - in: query
+          name: sort
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 3
+            uniqueItems: true
+            items:
+              type: string
+              enum: [-severity, +severity, -status, +status, -state, +state, -type, +type, -firstfoundat, +firstfoundat, -foundat, +foundat, -firstscanid, +firstscanid]
+            default:
+              - +status
+              - +severity
+          required: false
+          description: Sort results by the specified parameter. Enter '-/+' for ascending/descending order, followed by the parameter.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Result'
+                  totalCount:
+                    type: integer
+                    description: The total number of results returned based on the applied filters
+        '400':
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+components:
+  schemas:
+    Result:
+      type: object
+      properties:
+        type:
+          type: string
+          description: "The type of scanner that identified the result<br>Note: Possible values are: KICS (i.e. Infrastructure) or SAST."
+        id:
+          type: string
+          description: ID of the result
+        similarityId:
+          type: integer
+          description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
+        alternateId:
+          type: string
+          description: "A unique ID per scanner results"
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        state:
+          oneOf:
+            - $ref: '#/components/schemas/StateEnum'
+            - type: string
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        confidenceLevel:
+          type: integer
+          description: Degree of confidence that Checkmarx has in the accuracy of the result (i.e. not false positive)
+        created:
+          type: string
+          format: date
+          description: The date and time that this result was identified
+        firstFoundAt:
+          type: string
+          format: date
+          description: The date and time that this result (based on SimilarityId) was first identified in this tenant
+        foundAt:
+          type: string
+          format: date
+          description: The date and time that this result was identified
+        firstScanID:
+          type: string
+          description: The scanID of the scan in which the result (based on SimilarityId) was first identified in this project
+        description:
+          type: string
+          description: Result query description
+        data:
+          type: object
+          description: "A JSON object containing info about the vulnerability that was identified.<br>Note: The content differs according to the type of scanner that identified the result."
+        comments:
+          type: object
+          description: "A JSON object containing additional info about the vulnerability"
+        vulnerabilityDetails:
+          type: object
+          description: "A JSON object containing details about the specific instance of the vulnerability.<br> Note: Not relevant for KICS results."
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+    SeverityEnum:
+      type: string
+      description: The severity of the vulnerability
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    StatusEnum:
+      type: string
+      description: The status of the result
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    StateEnum:
+      type: string
+      description: The current state of the result
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    ResultTypesEnum:
+      type: string
+      description: Type of result
+      enum:
+        - DEV_AND_TEST
+        - NONE
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "The API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/results
+security:
+  - Login: []

@@ -1,0 +1,158 @@
+openapi: 3.0.1
+info:
+  title: Feature Flag service
+  description: AST internal service intended to provide other services and applications with feature flags using either local configuration or external provider such as [Split](https://split.io).
+  version: 1.4.0
+paths:
+  /:
+    get:
+      tags:
+        - Flags
+      security:
+        - OAuth2: []
+      summary: List all existing flags
+      description: Returns the list of all existing flags
+      operationId: getFlags
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/idsFilter"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlagsList"
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          description: Access token is missing or invalid
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /{name}:
+    get:
+      tags:
+        - Flags
+      security:
+        - OAuth2: []
+      summary: Get the specified flag
+      description: Returns the flag with the desired name if it exists
+      operationId: getFlag
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - name: name
+          in: path
+          description: Name of the desired flag
+          required: true
+          schema:
+            pattern: ^[\w-]{2,250}$
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Flag"
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          description: Access token is missing or invalid
+        404:
+          description: Flag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Flag:
+      required:
+        - name
+        - status
+      type: object
+      properties:
+        name:
+          pattern: ^[\w-]{2,250}$
+          type: string
+          description: Name of the feature flag
+        status:
+          type: boolean
+          description: Indicates whether the feature is enabled or not
+          default: false
+        payload:
+          type: object
+          properties: {}
+          description: An optional data object that could be used to provide the user with additional information or settings
+      example:
+        name: "TEST_FEATURE_ENABLED"
+        status: true
+        payload: {}
+    FlagsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Flag"
+      example:
+        - name: "FIRST_FEATURE_ENABLED"
+          status: true
+          payload: {}
+        - name: "SECOND_FEATURE_ENABLED"
+          status: false
+          payload: {}
+    Error:
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+          description: Detailed error message
+      example:
+        message: "something bad happened"
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      required: true
+      description: "JWT authorization token. Tenant ID from the token will be used to filter feature flags"
+      schema:
+        type: string
+        format: JWT
+    idsFilter:
+      name: ids
+      in: query
+      required: false
+      description: "Optional list of flag IDs to be retrieved"
+      schema:
+        type: array
+        items:
+          type: string
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/flags
+security:
+  - Login: []

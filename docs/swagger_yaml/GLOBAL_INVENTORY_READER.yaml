@@ -1,0 +1,690 @@
+openapi: 3.0.1
+info:
+  title: global inventory reader
+  version: 0.1.0
+tags:
+  - name: Inventory
+    description: API Inventory namespace
+  - name: Risk
+    description: API Risk namespace
+  - name: Parameter
+    description: API Parameter namespace
+  - name: API Changes
+    description: API changes namespace
+paths:
+  /api/api-changes/:
+    get:
+      tags:
+        - API Changes
+      summary: Get changes for an API
+      operationId: get_api_changes_resource
+      parameters:
+        - name: api_id
+          in: query
+          description: API ID
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiChanges'
+        400:
+          description: Validation error
+          content: {}
+  /api/inventory/:
+    get:
+      tags:
+        - Inventory
+      summary: Get all api Inventory
+      operationId: Get api inventory
+      parameters:
+        - name: page
+          in: query
+          description: Page number requested
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sorting
+          in: query
+          description: 'Sorting by Fields (ex: sorting=[{"column":"pii","order": "asc"}])'
+          schema:
+            type: string
+        - name: filtering
+          in: query
+          description: 'Filter by Fields (ex: filter=[{"column":"path","values": "/user/account", "operator":"eq"}]'
+          schema:
+            type: string
+        - name: searching
+          in: query
+          description: 'Full text search (ex: searching=low)'
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        400:
+          description: Validation error
+          content: {}
+  /api/inventory/data_origins:
+    get:
+      tags:
+        - Inventory
+      summary: Get Data Origin for a given API
+      operationId: get_data_origin
+      parameters:
+        - name: api_id
+          in: query
+          description: API ID
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataOriginResponse'
+        400:
+          description: Validation error
+          content: {}
+  /api/inventory/group/{group_column}:
+    get:
+      tags:
+        - Inventory
+      summary: Get api groups for global tables
+      operationId: get_api_group_resource
+      parameters:
+        - name: group_column
+          in: path
+          description: 'Column to group (ex: path)'
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number requested
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sorting_order
+          in: query
+          description: 'Sorting by Group (ex: sorting_order=asc)'
+          schema:
+            type: string
+        - name: filtering
+          in: query
+          description: 'Filter by Fields (ex: filter=[{"column":"path","values": "/user/account", "operator":"eq"}]'
+          schema:
+            type: string
+        - name: searching
+          in: query
+          description: 'Full text search (ex: searching=low)'
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiGroupResponse'
+        400:
+          description: Validation error
+          content: {}
+        500:
+          description: Internal error
+          content: {}
+  /api/inventory/metadata:
+    get:
+      tags:
+        - Inventory
+      summary: Get all api Inventory Metadata
+      operationId: get_inventory_metadata
+      parameters:
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryMetadataResponse'
+        400:
+          description: Validation error
+          content: {}
+  /api/parameter/:
+    get:
+      tags:
+        - Parameter
+      summary: Get all parameters for the API
+      operationId: get_parameter_resource
+      parameters:
+        - name: api_id
+          in: query
+          description: API ID
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parameter'
+        400:
+          description: Validation error
+          content: {}
+  /api/risk/:
+    get:
+      tags:
+        - Risk
+      summary: Get all api Risk
+      operationId: get_risk_resource
+      parameters:
+        - name: page
+          in: query
+          description: Page number requested
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sorting
+          in: query
+          description: 'Sorting by Fields (ex: sort=[{"column":"name","order": "asc"}])'
+          schema:
+            type: string
+        - name: filtering
+          in: query
+          description: 'Filter by Fields (ex: filter=[{"column":"name","values": "Absolute_Path_Traversal", "operator":"eq"}]'
+          schema:
+            type: string
+        - name: searching
+          in: query
+          description: 'Full text search (ex: searching=low)'
+          schema:
+            type: string
+      responses:
+        400:
+          description: Validation error
+          content: {}
+  /api/risk/group/{group_column}:
+    get:
+      tags:
+        - Risk
+      summary: Get risk groups for global tables
+      operationId: get_risk_group_resource
+      parameters:
+        - name: group_column
+          in: path
+          description: 'Column to group (ex: severity)'
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number requested
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sorting_order
+          in: query
+          description: 'Sorting by Group (ex: sorting_order=asc)'
+          schema:
+            type: string
+        - name: filtering
+          in: query
+          description: 'Filter by Fields (ex: filter=[{"column":"name","values": "Absolute_Path_Traversal", "operator":"eq"}]'
+          schema:
+            type: string
+        - name: searching
+          in: query
+          description: 'Full text search (ex: searching=low)'
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskGroupResponse'
+        400:
+          description: Validation error
+          content: {}
+  /api/risk/widget:
+    get:
+      tags:
+        - Risk
+      summary: Get all api Risk
+      operationId: get_risk_widget
+      parameters:
+        - name: api_id
+          in: query
+          description: api_id requested
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Risk_Widget_Response'
+        400:
+          description: Validation error
+          content: {}
+  /api/risk/{risk_id}:
+    get:
+      tags:
+        - Risk
+      summary: Return Risk details and the total of PII found for the related API
+      operationId: get_risk_details
+      parameters:
+        - name: risk_id
+          in: path
+          description: Risk UUID
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskDetail_Response'
+        400:
+          description: Validation error
+          content: {}
+components:
+  schemas:
+    InventoryResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Inventory'
+        total_records:
+          type: string
+        total_pages:
+          type: string
+        has_previous:
+          type: boolean
+        has_next:
+          type: boolean
+        next_page_number:
+          type: integer
+        previous_page_number:
+          type: integer
+    Inventory:
+      type: object
+      properties:
+        api_id:
+          type: string
+        application_names:
+          type: array
+          items:
+            type: string
+        project_name:
+          type: string
+        path:
+          type: string
+        origin:
+          type: array
+          items:
+            type: string
+        discovery_date:
+          type: string
+        last_update:
+          type: string
+        http_method:
+          type: string
+        pii:
+          type: integer
+        total_risk:
+          type: array
+          items:
+            type: integer
+        documented:
+          type: boolean
+        authenticated:
+          type: boolean
+    ApiGroupResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupTypes'
+        total_records:
+          type: string
+        total_pages:
+          type: string
+        has_previous:
+          type: boolean
+        has_next:
+          type: boolean
+        next_page_number:
+          type: integer
+        previous_page_number:
+          type: integer
+    GroupTypes:
+      type: object
+      properties:
+        top_level_group_value:
+          type: string
+        total_records:
+          type: integer
+    InventoryMetadataResponse:
+      type: object
+      properties:
+        column:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryMetadata'
+        grouping:
+          type: boolean
+    InventoryMetadata:
+      type: object
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+    DataOriginResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataOrigin'
+    DataOrigin:
+      type: object
+      properties:
+        origin:
+          type: string
+        branch:
+          type: string
+        start_date:
+          type: string
+        source_file:
+          type: string
+        detected:
+          type: boolean
+          default: true
+    RiskGroupResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupTypes'
+        total_records:
+          type: string
+        total_pages:
+          type: string
+        has_previous:
+          type: boolean
+        has_next:
+          type: boolean
+        next_page_number:
+          type: integer
+        previous_page_number:
+          type: integer
+    RiskDetail_Response:
+      type: object
+      properties:
+        vulnerability:
+          type: string
+        status:
+          type: string
+        source_node:
+          type: string
+        source_file:
+          type: string
+        total_pii:
+          type: integer
+        line_number:
+          type: integer
+        description:
+          type: string
+        actual_value:
+          type: string
+        expected_value:
+          type: string
+        state:
+          type: string
+        similarity_id:
+          type: string
+        scan_id:
+          type: string
+    Risk_Widget_Response:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Risk_Widget'
+        total_risks:
+          type: array
+          items:
+            type: integer
+        last_update:
+          type: string
+    Risk_Widget:
+      type: object
+      properties:
+        risks:
+          type: array
+          items:
+            type: integer
+        origin:
+          type: string
+        last_updated:
+          type: string
+    Parameter:
+      type: object
+      properties:
+        request_parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiRequestParameter'
+        response_parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiResponseParameter'
+        piis:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiResponsePii'
+        api_origins:
+          type: array
+          items:
+            type: string
+    ApiRequestParameter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        location:
+          type: string
+        origin:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+        content_type:
+          type: array
+          items:
+            type: string
+        pii:
+          type: array
+          items:
+            type: string
+    ApiResponseParameter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+        origin:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+        content_type:
+          type: array
+          items:
+            type: string
+        pii:
+          type: array
+          items:
+            type: string
+    ApiResponsePii:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        count:
+          type: string
+        origin:
+          type: array
+          items:
+            type: string
+    ApiChanges:
+      type: object
+      properties:
+        api_changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiChange'
+        last_update_date:
+          type: string
+    ApiChange:
+      type: object
+      properties:
+        id:
+          type: string
+        api_id:
+          type: string
+        change_type:
+          type: string
+        change_info:
+          $ref: '#/components/schemas/ChangeInfo'
+    ChangeInfo:
+      type: object
+      properties:
+        info:
+          type: string
+    FileResourceResponse:
+      type: object
+      properties:
+        file_path:
+          type: string
+        line_number:
+          type: string
+        content:
+          type: string
+  responses:
+    MaskError:
+      description: When any error occurs on mask
+      content: {}
+    ParseError:
+      description: When a mask can't be parsed
+      content: {}
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/apisec/global
+security:
+  - Login: []

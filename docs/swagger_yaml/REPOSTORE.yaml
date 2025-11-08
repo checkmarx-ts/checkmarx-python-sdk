@@ -1,0 +1,350 @@
+openapi: 3.0.2
+info:
+  description: CxAST Repostore service REST API
+  title: Repostore service
+  version: 1.0.0
+paths:
+  "/scans/{scan-id}":
+    head:
+      tags:
+        - Code
+      summary: Check if scan has source code available
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-id
+          in: path
+          description: scan id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No sources found
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/code/{scan-id}":
+    get:
+      tags:
+        - Code
+      summary: Download source code from specific scan
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-id
+          in: path
+          description: scan id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: No sources found
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/files/{scan-id}":
+    get:
+      tags:
+        - Code
+      summary: View scanned source content
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-id
+          in: path
+          description: Scan Id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/directory'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/files/{scan-id}/{folder}":
+    get:
+      tags:
+        - Code
+      summary: View scanned content inside specified folder
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-id
+          in: path
+          description: Scan Id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: folder
+          in: path
+          description: folder name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/directory'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/files/{scan-id}/{file-name}":
+    get:
+      tags:
+        - Code
+      summary: View source code of specified file
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-id
+          in: path
+          description: Scan Id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: file-name
+          in: path
+          description: file name
+          required: true
+          schema:
+            type: string
+      responses:
+        '308':
+          description: redirect to the requested file
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/project-tree/{scan-id}":
+    get:
+      deprecated: true
+      description: "DO NOT USE!! Will be removed in the near future."
+      tags:
+        - Code
+      summary: View project tree structure
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: scan-id
+          in: path
+          description: Scan Id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tree'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/git/fetch-branches":
+    post:
+      tags:
+        - Git
+      summary: Get the list of branches inside a git repository
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/repoInfo"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    directory:
+      type: array
+      items:
+        $ref: '#/components/schemas/file'
+    file:
+      properties:
+        name:
+          type: string
+        size:
+          type: integer
+          description: length in bytes for regular files
+        modTime:
+          type: string
+          format: date-time
+        isDir:
+          type: boolean
+    tree:
+      properties:
+        FullPath:
+          type: string
+          description: path from the source project
+        Name:
+          type: string
+          description: name of file or directory
+        IsDir:
+          type: boolean
+          description: true if directory, otherwise false
+        Files:
+          type: array
+          items:
+            $ref: '#/components/schemas/tree'
+      example:
+        FullPath: root
+        Name: root
+        IsDir: true
+        Files:
+          FullPath: root/baz
+          Name: baz
+          IsDir: false
+    repoInfo:
+      properties:
+        repoURL:
+          type: string
+        token:
+          type: string
+        projectID:
+          type: string
+        sshKey:
+          type: string
+      example:
+        repoURL: https://www.github.com/some_repo
+        token: "API TOKEN"
+        projectID: 1a2b34c5d6e
+        sshKey: "SSH KEY"
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+  responses:
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=0.1"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/repostore
+security:
+  - Login: []

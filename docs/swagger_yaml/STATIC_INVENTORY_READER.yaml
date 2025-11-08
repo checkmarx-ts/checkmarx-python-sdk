@@ -1,0 +1,672 @@
+openapi: 3.0.1
+info:
+  title: Static Scan Reader
+  version: 0.1.0
+tags:
+  - name: Scan
+    description: Scan namespace
+  - name: Risks
+    description: API Risks namespace
+  - name: Parameter
+    description: API Parameter namespace
+paths:
+  /api/parameter/:
+    get:
+      tags:
+        - Parameter
+      summary: Get all parameters for the API
+      operationId: get_parameter_resource
+      parameters:
+        - name: api_id
+          in: query
+          description: API ID
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parameter'
+        400:
+          description: Validation error
+          content: {}
+  /api/risks/risk/{risk_id}:
+    get:
+      tags:
+        - Risks
+      summary: Return Risk details and the total of PII found for the related API
+      operationId: get_risk_details
+      parameters:
+        - name: risk_id
+          in: path
+          description: Risk UUID
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskDetail_Response'
+        400:
+          description: Validation error
+          content: {}
+  /api/risks/{scan_id}:
+    get:
+      tags:
+        - Risks
+      summary: Get all api Risks from static tables
+      operationId: get risks per scan ID
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number requested
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sorting
+          in: query
+          description: 'Sorting by Fields (ex: sort=[{"column":"name","order": "asc"}])'
+          schema:
+            type: string
+        - name: filtering
+          in: query
+          description: 'Filter by Fields (ex: filter=[{"column":"name","values": "Absolute_Path_Traversal", "operator":"eq"}]'
+          schema:
+            type: string
+        - name: searching
+          in: query
+          description: 'Full text search (ex: searching=low)'
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskResponse'
+        400:
+          description: Validation error
+          content: {}
+  /api/risks/{scan_id}/group/{group_column}:
+    get:
+      tags:
+        - Risks
+      summary: Get risk groups for static tables
+      operationId: get_group_resource
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group_column
+          in: path
+          description: 'Column to group (ex: severity)'
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number requested
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sorting_order
+          in: query
+          description: 'Sorting by Group (ex: sorting_order=asc)'
+          schema:
+            type: string
+        - name: filtering
+          in: query
+          description: 'Filter by Fields (ex: filter=[{"column":"name","values": "Absolute_Path_Traversal", "operator":"eq"}]'
+          schema:
+            type: string
+        - name: searching
+          in: query
+          description: 'Full text search (ex: searching=low)'
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+        400:
+          description: Validation error
+          content: {}
+  /api/scan/{scan_id}/risks-origin:
+    get:
+      tags:
+        - Scan
+      summary: Return risks count grouped by origin
+      description: |-
+        Args:
+            scan_id: ID of the scan
+            tenant_id: ID of the tenant
+      operationId: get_scan_risks_origins
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanRisksOriginsResult'
+        400:
+          description: Validation error
+          content: {}
+  /api/scan/{scan_id}/risks-overview:
+    get:
+      tags:
+        - Scan
+      summary: Returns risks overview for particular scan
+      description: |-
+        Args:
+            scan_id: ID of the scan
+            tenant_id: ID of the tenant
+      operationId: get_risks_overview_resource
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RisksOverview'
+        400:
+          description: Validation error
+          content: {}
+  /api/scan/{scan_id}/risks-types:
+    get:
+      tags:
+        - Scan
+      summary: Returns top 10 risks types for particular scan
+      description: |-
+        Args:
+            scan_id: ID of the scan
+            tenant_id: ID of the tenant
+      operationId: get_risks_types_resource
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RisksTypes'
+        400:
+          description: Validation error
+          content: {}
+  /api/scan/{scan_id}/sensitive-data:
+    get:
+      tags:
+        - Scan
+      summary: Returns sensitive data count for particular scan
+      description: |-
+        Args:
+            scan_id: ID of the scan
+            tenant_id: ID of the tenant
+      operationId: get_scan_sensitive_data_resource
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanSensitiveData'
+        400:
+          description: Validation error
+          content: {}
+  /api/scan/{scan_id}/undocumented-apis:
+    get:
+      tags:
+        - Scan
+      summary: Returns undocumented apis count for particular scan
+      description: |-
+        Args:
+            scan_id: ID of the scan
+            tenant_id: ID of the tenant
+      operationId: get_scan_undocumented_resource
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanUndocumentedApis'
+        400:
+          description: Validation error
+          content: {}
+  /api/scan/metadata:
+    get:
+      tags:
+        - Scan
+      summary: Get all api scan Metadata
+      operationId: get_scan_metadata
+      parameters:
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanMetadataResponse'
+        400:
+          description: Validation error
+          content: {}
+components:
+  schemas:
+    RisksOverview:
+      type: object
+      properties:
+        api_count:
+          type: integer
+        total_risks_count:
+          type: integer
+        risks:
+          type: array
+          items:
+            type: integer
+        risk_distribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/RisksDistribution'
+        risks_by_state:
+          type: array
+          items:
+            $ref: '#/components/schemas/RisksDistributionState'
+    RisksDistribution:
+      type: object
+      properties:
+        origin:
+          type: string
+        total:
+          type: integer
+    RisksDistributionState:
+      type: object
+      properties:
+        state:
+          type: string
+        total:
+          type: integer
+    RisksTypes:
+      type: object
+      properties:
+        risks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RisksOrigins'
+    RisksOrigins:
+      type: object
+      properties:
+        origin:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/RiskType'
+    RiskType:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+    ScanSensitiveData:
+      type: object
+      properties:
+        count:
+          type: integer
+    ScanUndocumentedApis:
+      type: object
+      properties:
+        count:
+          type: integer
+    ScanRisksOriginsResult:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanRisksOriginsItemResult'
+    ScanRisksOriginsItemResult:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+    RiskResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Risk'
+        total_records:
+          type: string
+        total_pages:
+          type: string
+        has_previous:
+          type: boolean
+        has_next:
+          type: boolean
+        next_page_number:
+          type: integer
+        previous_page_number:
+          type: integer
+    Risk:
+      type: object
+      properties:
+        risk_id:
+          type: string
+        api_id:
+          type: string
+        severity:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        http_method:
+          type: string
+        url:
+          type: string
+        origin:
+          type: string
+        documented:
+          type: boolean
+        authenticated:
+          type: boolean
+        discovery_date:
+          type: string
+        scan_id:
+          type: string
+        sast_risk_id:
+          type: string
+        project_id:
+          type: string
+        state:
+          type: string
+    GroupResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupTypes'
+        total_records:
+          type: string
+        total_pages:
+          type: string
+        has_previous:
+          type: boolean
+        has_next:
+          type: boolean
+        next_page_number:
+          type: integer
+        previous_page_number:
+          type: integer
+    GroupTypes:
+      type: object
+      properties:
+        top_level_group_value:
+          type: string
+        total_records:
+          type: integer
+    ScanMetadataResponse:
+      type: object
+      properties:
+        column:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanMetadata'
+        grouping:
+          type: boolean
+    ScanMetadata:
+      type: object
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+    RiskDetail_Response:
+      type: object
+      properties:
+        vulnerability:
+          type: string
+        status:
+          type: string
+        source_node:
+          type: string
+        source_file:
+          type: string
+        total_pii:
+          type: integer
+        line_number:
+          type: integer
+        description:
+          type: string
+        actual_value:
+          type: string
+        expected_value:
+          type: string
+        state:
+          type: string
+        similarity_id:
+          type: string
+        scan_id:
+          type: string
+    Parameter:
+      type: object
+      properties:
+        request_parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiRequestParameter'
+        response_parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiResponseParameter'
+        piis:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiResponsePii'
+        api_origins:
+          type: array
+          items:
+            type: string
+    ApiRequestParameter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        location:
+          type: string
+        origin:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+        content_type:
+          type: array
+          items:
+            type: string
+        pii:
+          type: array
+          items:
+            type: string
+    ApiResponseParameter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+        origin:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+        content_type:
+          type: array
+          items:
+            type: string
+        pii:
+          type: array
+          items:
+            type: string
+    ApiResponsePii:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        count:
+          type: string
+        origin:
+          type: array
+          items:
+            type: string
+    FileResourceResponse:
+      type: object
+      properties:
+        file_path:
+          type: string
+        line_number:
+          type: string
+        content:
+          type: string
+  responses:
+    MaskError:
+      description: When any error occurs on mask
+      content: {}
+    ParseError:
+      description: When a mask can't be parsed
+      content: {}
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/apisec/static
+security:
+  - Login: []

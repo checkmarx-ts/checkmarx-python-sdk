@@ -1,0 +1,424 @@
+openapi: 3.0.2
+info:
+  description: AST risk management
+  title: Risk management API
+  version: 1.0.0
+paths:
+  "/summary":
+    get:
+      description: Get risk management summary
+      tags:
+        - Summary
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: "Risk summary"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/summary'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          description: "Internal error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  "/{applicationId}/results":
+    get:
+      description: List results by application
+      tags:
+        - Results
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/type'
+        - $ref: '#/components/parameters/vulnerabilityName'
+        - $ref: '#/components/parameters/runtime'
+        - $ref: '#/components/parameters/origin'
+        - $ref: '#/components/parameters/riskScore'
+        - $ref: '#/components/parameters/createdAt'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: "Risk management results"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/results'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/{applicationId}/results/{id}":
+    put:
+      description: Update result
+      tags:
+        - Results
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/applicationId'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: "#/components/schemas/resultUpdate"
+            encoding:
+              resultUpdate:
+                contentType: application/json
+      responses:
+        '204':
+          description: "Result updated"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    summary:
+      type: object
+      properties:
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/summaryApplication'
+    summaryApplication:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        riskScore:
+          type: number
+        riskSeverity:
+          type: string
+          enum:
+            - critical
+            - high
+            - medium
+            - low
+        remediationStats:
+          type: object
+          properties:
+            new:
+              type: number
+            processing:
+              type: number
+            analyzed:
+              type: number
+    error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    results:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/result'
+        totalCount:
+          type: integer
+        application:
+          $ref: '#/components/schemas/risk'
+        search:
+          type: string
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/filter'
+        sorts:
+          type: array
+          items:
+            $ref: '#/components/schemas/sort'
+    result:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        hash:
+          type: string
+        type:
+          type: string
+        risk:
+          $ref: '#/components/schemas/risk'
+        createdAt:
+          type: string
+          nullable: true
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/project'
+        state:
+          $ref: '#/components/schemas/state'
+        scanId:
+          type: string
+        engine:
+          type: string
+          enum:
+            - sast
+            - sca
+        metadata:
+          type: object
+    resultUpdate:
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/state'
+    risk:
+      type: object
+      properties:
+        score:
+          type: number
+        severity:
+          type: string
+          enum:
+            - critical
+            - high
+            - medium
+            - low
+            - none
+    project:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    sort:
+      type: object
+      properties:
+        field:
+          type: string
+          enum:
+            - type
+            - risk-score
+            - created-at
+            - vulnerability-name
+        direction:
+          type: string
+          enum:
+            - asc
+            - desc
+    filter:
+      type: object
+      properties:
+        field:
+          type: string
+          enum:
+            - vulnerability-name
+            - type
+            - runtime
+            - origin
+            - risk-score
+            - created-at
+        value:
+          type: string
+    state:
+      type: string
+      enum:
+        - new
+        - processing
+        - analyzed
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '500':
+      description: "Internal error"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    limit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        maximum: 1000
+        default: 10
+    type:
+      in: query
+      name: type
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - framework
+            - infra
+            - byor
+      description: |
+        Options: framework, infrastructure, byor.
+        Multiple values allowed, separated by comma.
+      example: [framework, infrastructure]
+    vulnerabilityName:
+      in: query
+      name: vulnerability-name
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: |
+        Multiple values allowed, separated by comma.
+      example: [SQL_Injection, CVE-2014-4172]
+    runtime:
+      in: query
+      name: runtime
+      required: false
+      schema:
+        type: boolean
+      example: 'false'
+      description: |
+        Options: true, false
+    createdAt:
+      in: query
+      name: created-at
+      explode: false
+      required: false
+      schema:
+        type: array
+        items:
+          anyOf:
+            - type: string
+            - type: number
+      example: [10-20, 5]
+      description: "Shows results only from the selected range of days.\nMultiple values allowed, separated by comma.\nValues can be exact number of days or range of days.\nUse the following pattern where n is an integer in a range of 0<=n<=MaxInt : \n'n': exact number of days.\n'n-n': range of days.\n'-n': from n days ago until now.\n'n-': from n days ago and before.\nExample: created-at=5,10-20,30-,-2.\nSummary: results from exactly 5 days ago, results from 10 to 20 days ago, results from 30 days ago and above, results from 2 days ago until now.\n"
+    origin:
+      in: query
+      name: origin
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: |
+        Multiple values allowed, separated by comma.
+      example: [projectjava, projectgo]
+    riskScore:
+      in: query
+      name: risk-score
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          anyOf:
+            - type: string
+            - type: number
+      example: [5.3-7.5, 8.0]
+      description: "Multiple values allowed, separated by comma.\nValues can be exact score or a range of scores.\nUse the following pattern where f is a floating number in a range of 0<=f<=10.0 : \n'f': exact score.\n'f-f': range of scores.\n'-f': scores between 0 to f.\n'f-': scores between f to 10.0.\nExample: risk-score=7.0,5.3-7.5,-2.0,9.4-.\nSummary: exact score 7.0, scores between 5.3 to 7.5, scores between 0 to 2.0, scores between 9.4 to 10.0.\n"
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+      example: -risk-score
+      description: "Options: vulnerability-name, type, created-at, risk-score. \nOptional prefix `+` sorts ascending.  \nPrefix `-` sorts descending.  \nAllows only one sort field.\nIf empty, defaults to sort=-risk-score.\n"
+    search:
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+    applicationId:
+      in: path
+      name: applicationId
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/risk-management
+security:
+  - Login: []

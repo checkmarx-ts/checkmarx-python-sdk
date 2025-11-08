@@ -1,0 +1,397 @@
+openapi: 3.0.2
+info:
+  description: CxAST Webhooks service REST API
+  title: Webhooks events service
+  version: 1.0.0
+paths:
+  /tenant:
+    post:
+      tags:
+        - Webhook
+      summary: Create a webhook for a tenant
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/webhookInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: Webhook created successfully
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/webhook'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to retrieve details about the created Webhook
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Webhook
+      summary: Get a list of webhooks related to tenant
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: search
+          in: query
+          required: false
+          description: "Search term to filter webhooks by name and url"
+          schema:
+            type: string
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of webhooks to skip before returning"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+          description: "The maximum number of webhooks to return"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/webhooksCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /projects/{project-id}:
+    post:
+      tags:
+        - Webhook
+      summary: Create webhook on project
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/webhookInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/webhook'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the created Webhook
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Webhook
+      summary: Get a list of webhooks related to project
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of webhooks to skip before returning"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+          description: "The maximum number of webhooks to return"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/webhooksCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /{id}:
+    get:
+      tags:
+        - Webhook
+      summary: Get webhook
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/webhook'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    patch:
+      tags:
+        - Webhook
+      summary: Update webhook
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/webhookInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      tags:
+        - Webhook
+      summary: Delete webhook
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  schemas:
+    webhookInput:
+      properties:
+        name:
+          type: string
+          description: "A name for the webhook"
+        active:
+          type: boolean
+          description: "Indicates whether a webhook is active or not"
+        enabledEvents:
+          type: array
+          items:
+            type: string
+          description: "List of subscribed events. `project_created` only available for tenant level"
+          enum:
+            - scan_completed_successfully
+            - scan_failed
+            - scan_partial
+            - project_created
+        config:
+          type: object
+          description: "Webhook configuration"
+          properties:
+            contentType:
+              type: string
+              description: "Webhooks payload content type"
+            insecureSsl:
+              type: integer
+              description: "Enable SSL verification"
+            url:
+              type: string
+              description: "Payload URL"
+            secret:
+              type: string
+              description: "Post request attached secret"
+    webhook:
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for an webhook"
+        name:
+          type: string
+          description: "A name for the webhook"
+        active:
+          type: boolean
+          description: "Indicates whether a webhook is active or not"
+        enabledEvents:
+          type: array
+          items:
+            type: string
+          description: "List of subscribed events"
+        config:
+          type: object
+          description: "Webhook configuration"
+          properties:
+            contentType:
+              type: string
+              description: "Webhooks payload content type"
+            insecureSsl:
+              type: integer
+              description: "Enable SSL verification"
+            url:
+              type: string
+              description: "Payload URL"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    webhooksCollection:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+        webhooks:
+          type: array
+          description: The webhooks returned with the filter applied
+          items:
+            $ref: '#/components/schemas/webhook'
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: integer
+  responses:
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/webhooks
+security:
+  - Login: []
