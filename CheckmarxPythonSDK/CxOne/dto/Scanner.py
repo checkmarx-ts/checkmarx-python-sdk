@@ -8,20 +8,20 @@ class Scanner:
     Args:
         type (str): The type of scanner to run.
                 Allowed values: sast sca kics apisec containers
-        auto_pr_enabled (bool): If true, Checkmarx will automatically send suggested remediation actions.
+        enable_auto_pull_requests (bool): If true, Checkmarx will automatically send suggested remediation actions.
                     Note: Relevant only for sca scanner.
-        incremental (bool): If true, an incremental scan will be run by default (unless extensive changes are
+        incremental_scan (bool): If true, an incremental scan will be run by default (unless extensive changes are
             identified in the project). Note: Relevant only for sast scans.
     """
 
     type: str = None
-    auto_pr_enabled: bool = None
-    incremental: bool = None
+    enable_auto_pull_requests: bool = None
+    incremental_scan: bool = None
 
     def to_dict(self):
         result = {"type": self.type}
-        if self.auto_pr_enabled is not None:
-            result.update({"autoPrEnabled": self.auto_pr_enabled})
-        if self.incremental is not None:
-            result.update({"incremental": self.incremental})
+        if self.enable_auto_pull_requests is not None:
+            result.update({"enableAutoPullRequests": self.enable_auto_pull_requests})
+        if self.incremental_scan is not None:
+            result.update({"incrementalScan": self.incremental_scan})
         return result
