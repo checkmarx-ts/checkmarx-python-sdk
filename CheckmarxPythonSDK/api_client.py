@@ -1,7 +1,7 @@
 import certifi
 import functools
 import requests
-from typing import Callable
+from typing import Callable, Union
 from urllib3.util import Retry
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -199,74 +199,25 @@ class ApiClient(object):
         return url
 
     @retry_when_unauthorized(max_retries=2)
-    def head(self, url, auth=None, headers=None, json=None, params=None):
+    def call_api(
+            self,
+            method: str,
+            url: str,
+            params: dict = None,
+            data=None,
+            files=None,
+            json: dict = None,
+            auth=None,
+            headers: dict = None,
+    ):
         response = self.session.request(
-            "HEAD", url, params=params, json=json, auth=auth,
-            timeout=self.configuration.timeout,
-            headers=headers,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
-        )
-        check_response(response)
-        return response
-
-    @retry_when_unauthorized(max_retries=2)
-    def get(self, url, auth=None, headers=None, params=None):
-        response = self.session.request(
-            "GET", url, params=params, auth=auth,
-            timeout=self.configuration.timeout,
-            headers=headers,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
-        )
-        check_response(response)
-        return response
-
-    @retry_when_unauthorized(max_retries=2)
-    def post(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
-        response = self.session.request(
-            "POST", url, params=params, files=files, data=data, json=json, auth=auth,
-            timeout=self.configuration.timeout,
-            headers=headers,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
-        )
-        check_response(response)
-        return response
-
-    @retry_when_unauthorized(max_retries=2)
-    def put(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
-        response = self.session.request(
-            "PUT", url, params=params, files=files, data=data, json=json, auth=auth,
-            timeout=self.configuration.timeout,
-            headers=headers,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
-        )
-        check_response(response)
-        return response
-
-    @retry_when_unauthorized(max_retries=2)
-    def patch(self, url, data=None, auth=None, headers=None, params=None, json=None):
-        response = self.session.request(
-            "PATCH", url, params=params, data=data, json=json, auth=auth,
-            timeout=self.configuration.timeout,
-            headers=headers,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
-        )
-        check_response(response)
-        return response
-
-    @retry_when_unauthorized(max_retries=2)
-    def delete(self, url, data=None, auth=None, headers=None, params=None):
-        response = self.session.request(
-            "DELETE", url, params=params, data=data, auth=auth,
+            method=method,
+            url=url,
+            params=params,
+            data=data,
+            files=files,
+            json=json,
+            auth=auth,
             timeout=self.configuration.timeout,
             headers=headers,
             verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
@@ -278,27 +229,29 @@ class ApiClient(object):
 
     def head_request(self, relative_url, auth=None, headers=None, json=None, params=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.head(url=url, auth=auth, headers=headers, json=json, params=params)
+        return self.call_api(method="HEAD", url=url, auth=auth, headers=headers, json=json, params=params)
 
     def get_request(self, relative_url, auth=None, headers=None, params=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.get(url=url, auth=auth, headers=headers, params=params)
+        return self.call_api(method="GET", url=url, auth=auth, headers=headers, params=params)
 
     def post_request(self, relative_url, data=None, files=None, auth=None, headers=None, params=None, json=None,
                      is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.post(url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
+        return self.call_api(method="POST", url=url, data=data, files=files, auth=auth, headers=headers, params=params,
+                             json=json)
 
     def put_request(
             self, relative_url, data=None, files=None, auth=None, headers=None, params=None, json=None, is_iam=False
     ):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.put(url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
+        return self.call_api(method="PUT", url=url, data=data, files=files, auth=auth, headers=headers, params=params,
+                             json=json)
 
     def patch_request(self, relative_url, data=None, auth=None, headers=None, params=None, json=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.patch(url=url, data=data, auth=auth, headers=headers, params=params, json=json)
+        return self.call_api(method="PATCH", url=url, data=data, auth=auth, headers=headers, params=params, json=json)
 
     def delete_request(self, relative_url, data=None, auth=None, headers=None, params=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.delete(url=url, data=data, auth=auth, headers=headers, params=params)
+        return self.call_api(method="DELETE", url=url, data=data, auth=auth, headers=headers, params=params)

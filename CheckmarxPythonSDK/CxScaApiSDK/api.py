@@ -846,7 +846,7 @@ class Sca(object):
         url = "{uploadLink}".format(uploadLink=upload_link)
 
         with open(zip_file_path, 'rb') as data:
-            response = self.api_client.put(url=url, data=data)
+            response = self.api_client.call_api(method="PUT", url=url, data=data)
             if response.status_code == OK:
                 is_successful = True
 
@@ -906,7 +906,7 @@ class Sca(object):
         url = "{uploadLink}".format(uploadLink=upload_link)
 
         with open(zip_file_path, 'rb') as data:
-            response = self.api_client.put(url=url, data=data)
+            response = self.api_client.call_api(method="PUT", url=url, data=data)
             if response.status_code == OK:
                 is_successful = True
 
