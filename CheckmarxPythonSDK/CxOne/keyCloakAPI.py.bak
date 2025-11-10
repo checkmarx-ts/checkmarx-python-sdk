@@ -1,0 +1,1599 @@
+from CheckmarxPythonSDK.api_client import ApiClient
+from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from requests import Response
+from typing import List
+from CheckmarxPythonSDK.CxOne.dto import (
+    Group,
+    construct_group,
+    GroupRepresentation,
+    ManagementPermissionReference,
+)
+
+api_url = "/auth/admin/realms"
+
+
+class KeyCloakAPI(object):
+
+    def __init__(self, api_client: ApiClient = None):
+        if api_client is None:
+            configuration = construct_configuration()
+            api_client = ApiClient(configuration=configuration)
+        self.api_client = api_client
+
+    def add_client_level_roles_to_user_role_mapping(
+            self,
+            realm: str,
+            group_id: str,
+            client: str,
+            role: RoleRepresentation,
+    ) -> Response:
+        """
+        Add client-level roles to the user role mapping
+        Args:
+            realm (str):
+            group_id (str):
+            client (str):
+            role_id:
+            role_name:
+
+        Returns:
+
+        """
+        relative_url = api_url + f"/{realm}/groups/{group_id}/role-mappings/clients/{container_id}"
+        post_data = json.dumps(
+            [{
+                "clientRole": True,
+                "composite": True,
+                "containerId": f"{container_id}",
+                "description": "Scan projects in Groups of this user",
+                "id": f"{role_id}",
+                "name": f"{role_name}"
+            }]
+        )
+        response = self.api_client.post_request(relative_url=relative_url, data=post_data)
+        return response
+
+
+    def get_all_oauth_clients(self, realm: str) -> Response:
+        relative_url = api_url + f"/{realm}/clients?first=0&max=999999&search=True"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        return response
+
+
+    def get_oauth_client_by_name(self, realm: str, client_name: str) -> Response:
+        relative_url = api_url + f"/{realm}/clients?first=0&max=999999&search=True"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+
+        for client in response.json():
+            if client_name == client['clientId']:
+                response = client
+        return response
+
+
+    def get_all_oauth_client_by_id(self, realm: str, client_id: str) -> Response:
+        relative_url = api_url + f"/{realm}/clients/{client_id}"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        return response
+
+
+    def create_oauth_client(self, realm: str, client_name: str) -> Response:
+        relative_url = api_url + f"/{realm}/clients"
+        post_data = {
+            'enabled': True,
+            'attributes': {},
+            'redirectUris': [],
+            'clientId': client_name,
+            'protocol': 'openid-connect'
+        }
+        response = self.api_client.post_request(relative_url=relative_url, json=post_data, is_iam=True)
+        return response
+
+
+    def edit_auth_client(self, realm: str, client_id: str, client_name: str, name: str, description: str) -> Response:
+        relative_url = api_url + f"/{realm}/clients/{client_id}"
+        current_time = int(time.time())
+        put_data = {
+            "id": client_id,
+            "clientId": client_name,
+            "name": name,
+            "description": description,
+            "surrogateAuthRequired": False,
+            "enabled": True,
+            "alwaysDisplayInConsole": False,
+            "clientAuthenticatorType": "client-secret",
+            "redirectUris": [],
+            "webOrigins": [],
+            "notBefore": 0,
+            "bearerOnly": False,
+            "consentRequired": False,
+            "standardFlowEnabled": False,
+            "implicitFlowEnabled": False,
+            "directAccessGrantsEnabled": True,
+            "serviceAccountsEnabled": True,
+            "publicClient": False,
+            "frontchannelLogout": True,
+            "protocol": "openid-connect",
+            "attributes": {
+                "client.secret.creation.time": current_time,
+                "backchannel.logout.session.required": "true",
+                "backchannel.logout.revoke.offline.tokens": "false",
+                "lastUpdate": current_time
+            },
+            "authenticationFlowBindingOverrides": {},
+            "fullScopeAllowed": True,
+            "nodeReRegistrationTimeout": -1,
+            "protocolMappers": [
+                {
+                    "name": "Client IP Address",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": False,
+                    "config": {
+                        "user.session.note": "clientAddress",
+                        "id.token.claim": "True",
+                        "access.token.claim": "True",
+                        "claim.name": "clientAddress",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "Client ID",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": False,
+                    "config": {
+                        "user.session.note": "clientId",
+                        "id.token.claim": "True",
+                        "access.token.claim": "True",
+                        "claim.name": "clientId",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "Client Host",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": False,
+                    "config": {
+                        "user.session.note": "clientHost",
+                        "id.token.claim": "True",
+                        "access.token.claim": "True",
+                        "claim.name": "clientHost",
+                        "jsonType.label": "String"
+                    }
+                }
+            ],
+            "defaultClientScopes": [
+                "web-origins",
+                "acr",
+                "roles",
+                "profile",
+                "iam-api",
+                "groups",
+                "ast-api",
+                "email"
+            ],
+            "optionalClientScopes": [
+                "address",
+                "phone",
+                "offline_access",
+                "microprofile-jwt"
+            ],
+            "access": {
+                "view": True,
+                "configure": True,
+                "manage": True
+            },
+        }
+        response = self.api_client.put_request(relative_url=relative_url, json=put_data, is_iam=True)
+        return response
+
+
+    def get_oauth_service_account_user(self, realm: str, client_id: str) -> dict:
+        relative_url = api_url + f"/{realm}/clients/{client_id}/service-account-user"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        return response.json()
+
+
+    def add_group_to_oauth_client(self, realm: str, service_account_user_id: str, group_id: str) -> Response:
+        relative_url = api_url + f"/{realm}/users/{service_account_user_id}/groups/{group_id}"
+        put_data = {
+            "realm": f"{realm}",
+            "userId": f"{service_account_user_id}",
+            "groupId": f"{group_id}"
+        }
+        response = self.api_client.put_request(relative_url=relative_url, json=put_data, is_iam=True)
+        return response
+
+
+    def generate_oauth_secret(self, realm: str, client_id: str) -> Response:
+        relative_url = api_url + f"/{realm}/clients/{client_id}/client-secret"
+        post_data = {
+            "realm": realm,
+            "client": client_id
+        }
+        response = self.api_client.post_request(relative_url=relative_url, json=post_data, is_iam=True)
+        return response
+
+
+    def get_client_ast_app(self, realm: str) -> dict:
+        """
+
+        Args:
+            realm:
+
+        Returns:
+
+            example
+
+            [
+                {
+                    "id": "d3b60524-13a1-431a-a703-1d6d3d09f512",
+                    "clientId": "ast-app",
+                    "rootUrl": "https://sng.iam.checkmarx.net",
+                    "adminUrl": "https://sng.iam.checkmarx.net/*",
+                    "surrogateAuthRequired": false,
+                    "enabled": true,
+                    "alwaysDisplayInConsole": false,
+                    "clientAuthenticatorType": "client-secret",
+                    "redirectUris": [
+                        "https://sng.ast.checkmarx.net/*",
+                        "/*"
+                    ],
+                    "webOrigins": [
+                        "*",
+                        "/*"
+                    ],
+                    "notBefore": 0,
+                    "bearerOnly": false,
+                    "consentRequired": false,
+                    "standardFlowEnabled": true,
+                    "implicitFlowEnabled": true,
+                    "directAccessGrantsEnabled": true,
+                    "serviceAccountsEnabled": true,
+                    "publicClient": true,
+                    "frontchannelLogout": true,
+                    "protocol": "openid-connect",
+                    "attributes": {
+                        "saml.assertion.signature": "false",
+                        "security.admin.console": "true",
+                        "saml.force.post.binding": "false",
+                        "saml.multivalued.roles": "false",
+                        "saml.encrypt": "false",
+                        "post.logout.redirect.uris": "+",
+                        "saml.server.signature": "false",
+                        "saml.server.signature.keyinfo.ext": "false",
+                        "exclude.session.state.from.auth.response": "false",
+                        "saml_force_name_id_format": "false",
+                        "saml.client.signature": "false",
+                        "tls.client.certificate.bound.access.tokens": "false",
+                        "saml.authnstatement": "false",
+                        "display.on.consent.screen": "false",
+                        "secretExpDaysBeforeNotification": "10",
+                        "saml.onetimeuse.condition": "false"
+                    },
+                    "authenticationFlowBindingOverrides": {},
+                    "fullScopeAllowed": true,
+                    "nodeReRegistrationTimeout": -1,
+                    "protocolMappers": [
+                        {
+                            "id": "76fcd170-9b8b-4991-8e69-38d9fdf80619",
+                            "name": "realm-management client roles",
+                            "protocol": "openid-connect",
+                            "protocolMapper": "oidc-usermodel-client-role-mapper",
+                            "consentRequired": false,
+                            "config": {
+                                "multivalued": "true",
+                                "user.attribute": "foo",
+                                "access.token.claim": "true",
+                                "claim.name": "resource_access.${client_id}.roles",
+                                "jsonType.label": "String",
+                                "usermodel.clientRoleMapping.clientId": "realm-management"
+                            }
+                        },
+                        {
+                            "id": "b359cb2c-ac34-428d-b7d9-8bd8453926a6",
+                            "name": "Client ID",
+                            "protocol": "openid-connect",
+                            "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                            "consentRequired": false,
+                            "config": {
+                                "user.session.note": "clientId",
+                                "userinfo.token.claim": "true",
+                                "id.token.claim": "true",
+                                "access.token.claim": "true",
+                                "claim.name": "clientId",
+                                "jsonType.label": "String"
+                            }
+                        },
+                        {
+                            "id": "aad7d17c-d733-4ed3-8c14-e11590a9678d",
+                            "name": "Client IP Address",
+                            "protocol": "openid-connect",
+                            "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                            "consentRequired": false,
+                            "config": {
+                                "user.session.note": "clientAddress",
+                                "userinfo.token.claim": "true",
+                                "id.token.claim": "true",
+                                "access.token.claim": "true",
+                                "claim.name": "clientAddress",
+                                "jsonType.label": "String"
+                            }
+                        },
+                        {
+                            "id": "470d9673-888e-4f6f-9f4a-1b6fd652c099",
+                            "name": "Client Host",
+                            "protocol": "openid-connect",
+                            "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                            "consentRequired": false,
+                            "config": {
+                                "user.session.note": "clientHost",
+                                "userinfo.token.claim": "true",
+                                "id.token.claim": "true",
+                                "access.token.claim": "true",
+                                "claim.name": "clientHost",
+                                "jsonType.label": "String"
+                            }
+                        }
+                    ],
+                    "defaultClientScopes": [
+                        "web-origins",
+                        "roles",
+                        "profile",
+                        "iam-api",
+                        "groups",
+                        "basic",
+                        "ast-api",
+                        "email"
+                    ],
+                    "optionalClientScopes": [
+                        "address",
+                        "phone",
+                        "microprofile-jwt"
+                    ],
+                    "access": {
+                        "view": true,
+                        "configure": true,
+                        "manage": true
+                    }
+                }
+            ]
+        """
+        relative_url = api_url + f"/{realm}/clients?clientId=ast-app&max=1&search=true"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def get_group_hierarchy(
+            self,
+            realm: str,
+            brief_representation: bool = False,
+            first: int = None,
+            max_result_size: int = 100,
+            search: str = None
+    ) -> List[Group]:
+        """
+        Get group hierarchy.
+        Args:
+            realm (str):
+            brief_representation (bool):
+            first (int):
+            max_result_size (int):
+            search (str):
+
+        Returns:
+            List[Group]
+        """
+        relative_url = api_url + f"/{realm}/groups"
+        params = {
+            "briefRepresentation": brief_representation,
+            "first": first,
+            "max": max_result_size,
+            "search": search
+        }
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True, params=params)
+        response = response.json()
+        groups = [construct_group(item) for item in response]
+        return groups
+
+
+    def create_group_set(self, realm: str, group_representation: GroupRepresentation) -> bool:
+        """
+        create or add a top level realm groupSet or create child.
+        Args:
+            realm (str):
+            group_representation (GroupRepresentation):
+
+        Returns:
+            bool (True for success, False for failure)
+        """
+        type_check(realm, str)
+        type_check(group_representation, GroupRepresentation)
+        relative_url = api_url + f"/{realm}/groups"
+        response = self.api_client.post_request(
+            relative_url=relative_url,
+            json=group_representation.to_dict(),
+            is_iam=True
+        )
+        return response.status_code == CREATED
+
+
+    def get_group_by_name(self, realm: str, group_name: str) -> Group:
+        """
+
+        Args:
+            realm (str):
+            group_name (str):
+
+        Returns:
+            Group
+        """
+        result = None
+        type_check(realm, str)
+        type_check(group_name, str)
+        groups = self.get_group_hierarchy(realm=realm, max_result_size=1000)
+        one_group = list(filter(lambda g: g.name == group_name, groups))
+        if len(one_group) == 1:
+            result = one_group[0]
+        return result
+
+
+    def get_number_of_groups_in_a_realm(self, realm: str) -> int:
+        """
+        Returns the groups counts.
+        Args:
+            realm (str):
+
+        Returns:
+            int
+        """
+        type_check(realm, str)
+        relative_url = api_url + f"/{realm}/groups/count"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        result = response.get("count")
+        return result
+
+
+    def get_group_by_id(self, realm: str, group_id: str) -> Group:
+        """
+
+        Args:
+            realm (str):
+            group_id (str):
+
+        Returns:
+            Group
+        """
+        type_check(realm, str)
+        type_check(group_id, str)
+        relative_url = api_url + f"/{realm}/groups/{group_id}"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        item = response.json()
+        return construct_group(item)
+
+
+    def update_group_by_id(self, realm: str, group_id: str, group_representation: GroupRepresentation) -> bool:
+        """
+
+        Args:
+            realm (str):
+            group_id (str):
+            group_representation (GroupRepresentation):
+
+        Returns:
+            bool
+        """
+        type_check(realm, str)
+        type_check(group_id, str)
+        relative_url = api_url + f"/{realm}/groups/{group_id}"
+        type_check(group_representation, GroupRepresentation)
+        response = self.api_client.put_request(
+            relative_url=relative_url,
+            data=group_representation.to_dict(),
+            is_iam=True
+        )
+        return response.status_code == NO_CONTENT
+
+
+    def delete_group_by_id(self, realm: str, group_id: str) -> bool:
+        """
+
+        Args:
+            realm (str):
+            group_id (str):
+
+        Returns:
+
+        """
+        type_check(realm, str)
+        type_check(group_id, str)
+        relative_url = api_url + f"/{realm}/groups/{group_id}"
+        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        return response.status_code == NO_CONTENT
+
+
+    def create_subgroup(self, realm: str, group_id: str, subgroup_name: str) -> bool:
+        """
+        Set or create child.
+        Args:
+            realm (str):
+            group_id (str):
+            subgroup_name (str):
+
+        Returns:
+            bool
+        """
+        type_check(realm, str)
+        type_check(group_id, str)
+        type_check(subgroup_name, str)
+        relative_url = api_url + f"/{realm}/groups/{group_id}/children"
+        response = self.api_client.post_request(
+            relative_url=relative_url, json={'name': subgroup_name}, is_iam=True
+        )
+        return response.status_code == CREATED
+
+
+    def get_subgroup_by_id(self, realm: str, group_id: str) -> dict:
+        """
+        Get a subgroup by group id.
+        Args:
+            realm (str):
+            group_id (str):
+
+        Returns:
+            dict
+        """
+        relative_url = f"{api_url}/{realm}/groups/{group_id}/children?max=1000"
+        response = self.api_client.get_request(relative_url=relative_url)
+        subgroups = response.json()
+        return subgroups
+
+
+    def get_group_permissions(self, realm: str, group_id: str) -> ManagementPermissionReference:
+        """
+        Return object stating whether client Authorization permissions have
+            been initialized or not and a reference
+        Args:
+            realm (str):
+            group_id (str):
+
+        Returns:
+            ManagementPermissionReference
+        """
+        type_check(realm, str)
+        type_check(group_id, str)
+        relative_url = api_url + f"/{realm}/groups/{group_id}/management/permissions"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        item = response.json()
+        return construct_management_permission_reference(item)
+
+
+    def update_group_permissions(self, realm: str, group_id: str,
+                                 group_permissions: ManagementPermissionReference) -> bool:
+        """
+            Return object stating whether client Authorization permissions have
+                been initialized or not and a reference
+            Args:
+                realm (str):
+                group_id (str):
+                group_permissions (ManagementPermissionReference):
+
+            Returns:
+                ManagementPermissionReference
+            """
+        type_check(realm, str)
+        type_check(group_id, str)
+        type_check(group_permissions, ManagementPermissionReference)
+        relative_url = api_url + f"/{realm}/groups/{group_id}/management/permissions"
+        response = self.api_client.put_request(
+            relative_url=relative_url,
+            json=group_permissions.to_dict(),
+            is_iam=True
+        )
+        return response.status_code == NO_CONTENT
+
+
+    def get_group_members(
+            self, realm: str, group_id: str, brief_representation: bool = True, first: int = 100,
+            max_result_size: int = 100
+    ) -> dict:
+        """
+
+        Args:
+            realm (str):
+            group_id (str):
+            brief_representation (bool): Only return basic information (only guaranteed to return id, username, created,
+                                        first and last name, email, enabled state, email verification state, federation
+                                        link, and access. Note that it means that namely user attributes,
+                                        required actions,
+                                        and not before are not returned.)
+            first (int): Pagination offset
+            max_result_size (int): Maximum results size (defaults to 100)
+
+        Returns:
+            List[User]: By doing test, this API only returns empty list
+        """
+
+        type_check(realm, str)
+        type_check(group_id, str)
+        relative_url = api_url + f"/{realm}/groups/{group_id}/members"
+        params = {
+            "briefRepresentation", brief_representation,
+            "first", first,
+            "max", max_result_size,
+        }
+        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
+        item_list = response.json()
+        return item_list
+
+
+    def create_group(self, realm: str, group_name: str) -> bool:
+        """
+
+        Args:
+            realm (str):
+            group_name (str):
+
+        Returns:
+            bool
+        """
+        type_check(realm, str)
+        type_check(group_name, str)
+        relative_url = api_url + f"/{realm}/groups"
+        response = self.api_client.post_request(
+            relative_url=relative_url,
+            json={'name': group_name},
+            is_iam=True
+        )
+        return response.status_code == CREATED
+
+
+    def get_or_create_groups(
+            self,
+            group_full_name: str,
+            realm: str
+    ) -> str:
+        group = self.get_group_by_name(realm=realm, group_name=group_full_name)
+        if group:
+            group_id = group.id
+            logger.info(f"group {group_full_name} found. Its id is: {group_id}")
+            return group_id
+        logger.info(f"group {group_full_name} not found. It contains sub groups.")
+        group_id = self.create_all_groups(realm=realm, group_full_name=group_full_name)
+        logger.info(f"group {group_full_name} created, id: {group_id}")
+        return group_id
+
+
+    def create_all_groups(self, realm: str, group_full_name: str) -> str:
+        group_names = group_full_name.split("/")
+        root_group_name = group_names[0]
+        root_group_id = self.create_root_group_if_not_exist(realm, root_group_name)
+        if len(group_names) == 1:
+            return root_group_id
+        group_id = self.create_sub_groups(
+            realm=realm,
+            group_names=group_names,
+            root_group_id=root_group_id
+        )
+        return group_id
+
+
+    def create_sub_groups(self, realm: str, group_names: List[str], root_group_id: str) -> str:
+        parent_group_id = root_group_id
+        for index, group_name in enumerate(group_names):
+            if index == 0:
+                continue
+            group_path = "/".join(group_names[0: index + 1])
+            group = self.get_group_by_name(realm=realm, group_name=group_path)
+            if not group:
+                logger.info(f"current group: {group_path} does not exist, start create")
+                self.create_subgroup(realm=realm, group_id=parent_group_id, subgroup_name=group_name)
+                logger.info(f"finish create group: {group_path}")
+                group = self.get_group_by_name(realm=realm, group_name=group_path)
+            parent_group_id = group.id
+        return parent_group_id
+
+
+    def create_root_group_if_not_exist(self, realm: str, root_group_name: str) -> str:
+        root_group = self.get_group_by_name(realm=realm, group_name=root_group_name)
+        if root_group:
+            root_group_id = root_group.id
+            logger.info(f"root group {root_group_name} exist. id: {root_group_id}")
+        else:
+            logger.info(f"root group not exist, start create root group")
+            self.create_group(realm=realm, group_name=root_group_name)
+            root_group = self.get_group_by_name(realm=realm, group_name=root_group_name)
+            root_group_id = root_group.id
+            logger.info(f"root group {root_group_name} created. id: {root_group_id}")
+        return root_group_id
+
+
+    def get_role_mappings(self, realm: str, group_id: str) -> dict:
+        type_check(realm, str)
+        type_check(group_id, str)
+
+        relative_url = api_url + f"/{realm}/groups/{group_id}/role-mappings"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def get_all_roles_for_the_client(
+            self,
+            realm: str,
+            client_id: str,
+            brief_representation: bool = False,
+            first: int = None,
+            max: int = None,
+            search: bool = None
+    ) -> dict:
+        """
+
+        Args:
+            realm (str):
+            client_id (str):
+            brief_representation (bool):
+            first (int):
+            max (int):
+            search (bool):
+
+        Returns:
+            dict
+        """
+        type_check(realm, str)
+        type_check(client_id, str)
+        type_check(brief_representation, bool)
+        type_check(first, int)
+        type_check(max, int)
+        relative_url = api_url + f"/{realm}/clients/{client_id}/roles"
+        params = {"briefRepresentation": brief_representation, "first": first, "max": max, "search": search}
+        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def create_role_for_the_client(self, realm: str, client_id: str, role_name: str, description: str = None) -> bool:
+        """
+
+        Args:
+            realm (str):
+            client_id (str):
+            role_name (str):
+            description (str):
+
+        Returns:
+            bool
+        """
+        is_successful = False
+        type_check(realm, str)
+        type_check(client_id, str)
+        type_check(role_name, str)
+        relative_url = api_url + f"/{realm}/clients/{client_id}/roles"
+        data = {
+            "name": role_name,
+            "description": description,
+            "composite": True,
+            "clientRole": True,
+            "attributes": {
+                "category": ["Composite role"],
+                "type": ["Role"],
+            }
+        }
+        response = self.api_client.post_request(relative_url=relative_url, json=data, is_iam=True)
+        return response.status_code == CREATED
+
+
+    def delete_role_by_name(self, realm: str, client_id: str, role_name: str) -> bool:
+        is_successful = False
+        type_check(realm, str)
+        type_check(client_id, str)
+        type_check(role_name, str)
+        relative_url = api_url + f"/{realm}/clients/{client_id}/roles/{role_name}"
+        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        return response.status_code == NO_CONTENT
+
+
+    def get_role_by_name(self, realm: str, client_id: str, role_name: str) -> dict:
+        """
+
+        Args:
+            realm:
+            client_id:
+            role_name:
+
+        Returns:
+            dict
+            example
+            {
+                "id": "35334ef1-989c-4c08-aaf9-3c4e2c4e6e9e",
+                "name": "test111111111",
+                "composite": false,
+                "clientRole": true,
+                "containerId": "d3b60524-13a1-431a-a703-1d6d3d09f512",
+                "attributes": {
+                    "creator": [
+                        "happy_yang"
+                    ],
+                    "lastUpdate": [
+                        "1737608480336"
+                    ]
+                }
+            }
+        """
+        type_check(realm, str)
+        type_check(client_id, str)
+        type_check(role_name, str)
+        relative_url = api_url + f"/{realm}/clients/{client_id}/roles/{role_name}"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def update_role_by_id(self, realm: str, role_id: str, role_representation: RoleRepresentation) -> bool:
+        """
+
+        Args:
+            realm (str):
+            role_id (str):
+            role_representation (RoleRepresentation):
+                {"attributes": {"type": ["Role"], "category": ["Composite role"], "creator": ["happy_yang"],
+                            "lastUpdate": ["1737608480336"]}, "clientRole": true, "composite": true,
+             "containerId": "d3b60524-13a1-431a-a703-1d6d3d09f512", "id": "35334ef1-989c-4c08-aaf9-3c4e2c4e6e9e",
+             "name": "test111111111"}
+        Returns:
+            bool
+        """
+        relative_url = api_url + f"/{realm}/roles-by-id/{role_id}"
+        data = role_representation.to_dict()
+        response = self.api_client.put_request(relative_url=relative_url, json=data, is_iam=True)
+        return response.status_code == NO_CONTENT
+
+
+    def get_roles_children(self, realm: str, role_id: str) -> dict:
+        """
+            Get role’s children Returns a set of role’s children provided the role is a composite.
+        Args:
+            realm:
+            role_id:
+
+        Returns:
+            dict
+        """
+        relative_url = api_url + f"/{realm}/roles-by-id/{role_id}/composites"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def get_roles_children_iam(self, realm: str, role_id: str) -> dict:
+        """
+
+        Args:
+            realm:
+            role_id:
+
+        Returns:
+
+        """
+        relative_url = api_url + f"/{realm}/roles-by-id/{role_id}/composites/realm"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def add_children_to_a_composite_role(self, realm: str, role_id: str, children: List[RoleRepresentation]) -> bool:
+        """
+
+        Args:
+            realm (str):
+            role_id (str):
+            children (str): [{"clientRole": true, "composite": true,
+             "containerId": "d3b60524-13a1-431a-a703-1d6d3d09f512",
+              "description": "Scan, manage results, manage projects",
+              "id": "260f1dba-9ac4-451d-bd9f-4f2249e0ae7d",
+              "name": "ast-scanner"}]
+
+        Returns:
+            bool
+        """
+        relative_url = api_url + f"/{realm}/roles-by-id/{role_id}/composites"
+        data = [role_representation.to_dict() for role_representation in children]
+        response = self.api_client.post_request(relative_url=relative_url, json=data, is_iam=True)
+        return response.status_code == NO_CONTENT
+
+
+    def get_all_roles_for_the_realm(self, realm: str) -> dict:
+        type_check(realm, str)
+        relative_url = api_url + f"/{realm}/roles"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        response = response.json()
+        return response
+
+
+    def get_realms(self) -> List[RealmRepresentation]:
+        """
+
+        Returns:
+            list of RealmRepresentation
+        """
+        relative_url = api_url
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        realms = response.json()
+        return [construct_realm_representation(realm) for realm in realms]
+
+
+    def get_users(
+            self,
+            realm: str,
+            brief_representation: bool = False,
+            email: str = None,
+            email_verified: bool = None,
+            enabled: bool = None,
+            exact: bool = None,
+            first: int = None,
+            first_name: str = None,
+            idp_alias: str = None,
+            idp_user_id: str = None,
+            last_name: str = None,
+            max_result_size: int = 1024,
+            search: str = None,
+            username: str = None
+    ) -> List[User]:
+        """
+        Returns a stream of users, filtered according to query parameters
+
+        Args:
+            realm (str): realm name (not id!)
+            brief_representation (bool): Boolean which defines whether brief representations are returned (default:
+                                        false)
+            email (str): A String contained in email, or the complete email, if param "exact" is true
+            email_verified (bool): whether the email has been verified
+            enabled (bool): representing if user is enabled or not
+            exact (bool): which defines whether the params "last", "first", "email" and "username" must match exactly
+            first (int): Pagination offset
+            first_name (str): A String contained in firstName, or the complete firstName, if param "exact" is true
+            idp_alias (str): The alias of an Identity Provider linked to the user
+            idp_user_id (str): The userId at an Identity Provider linked to the user
+            last_name (str): A String contained in lastName, or the complete lastName, if param "exact" is true
+            max_result_size (int): Maximum results size (defaults to 100)
+            search (str): A String contained in username, first or last name, or email
+            username (str): A String contained in username, or the complete username, if param "exact" is true
+
+        Returns:
+            list of User
+        """
+        type_check(realm, str)
+        type_check(brief_representation, bool)
+        type_check(email, str)
+        type_check(email_verified, bool)
+        type_check(enabled, bool)
+        type_check(exact, bool)
+        type_check(first, int)
+        type_check(first_name, str)
+        type_check(idp_alias, str)
+        type_check(idp_user_id, str)
+        type_check(last_name, str)
+        type_check(max_result_size, int)
+        type_check(search, str)
+        type_check(username, str)
+
+        relative_url = api_url + "/{realm}/users?".format(realm=realm)
+        params = {
+            "briefRepresentation": brief_representation, "email": email, "emailVerified": email_verified,
+            "enabled": enabled, "exact": exact, "first": first, "firstName": first_name,
+            "idpAlias": idp_alias, "idpUserId": idp_user_id, "lastName": last_name, "max": max_result_size,
+            "search": search, "username": username,
+        }
+
+        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
+        users = response.json()
+        return [construct_user(user) for user in users]
+
+
+    @staticmethod
+    def filter_user_id_by_name(users: List[User], username: str) -> Union[str, None]:
+        """
+
+        Args:
+            users (list of User):
+            username (str):
+
+        Returns:
+            str or None
+        """
+        users_by_name = list(filter(lambda r: r.username == username, users))
+        if not users_by_name:
+            return None
+        user = users_by_name[0]
+        user_id = user.id
+        return user_id
+
+
+    def get_user_id_by_name(self, realm: str, username: str) -> str:
+        """
+
+        Args:
+            realm (str):
+            username (str):
+
+        Returns:
+            str
+        """
+        users = self.get_users(realm=realm)
+        user_id = self.filter_user_id_by_name(users, username)
+        return user_id
+
+
+    def get_user_id_list_by_username_list(self, realm: str, username_list: List[str]) -> List[str]:
+        """
+
+        Args:
+            realm (str):
+            username_list (list of str):
+
+        Returns:
+            list of str
+        """
+        users = self.get_users(realm=realm)
+        return [self.filter_user_id_by_name(users, username) for username in username_list]
+
+
+    @staticmethod
+    def filter_user_id_by_email(users, email):
+        """
+
+        Args:
+            users:
+            email:
+
+        Returns:
+
+        """
+        users_by_email = list(filter(lambda r: r.email == email, users))
+        if not users_by_email:
+            return None
+        user = users_by_email[0]
+        user_id = user.id
+        return user_id
+
+
+    def get_user_id_by_email(self, realm: str, email: str) -> str:
+        """
+
+        Args:
+            realm (str):
+            email (str):
+
+        Returns:
+            str
+        """
+        users = self.get_users(realm=realm)
+        user_id = self.filter_user_id_by_email(users, email)
+        return user_id
+
+
+    def get_user_id_list_by_email_list(self, realm: str, email_list: str):
+        users = self.get_users(realm=realm)
+        return [self.filter_user_id_by_email(users, email) for email in email_list]
+
+
+    def create_a_new_user(
+            self,
+            realm: str,
+            username: str,
+            email: str,
+            first_name: str,
+            last_name: str,
+            enabled: bool = True,
+            attributes: dict = None,
+            groups: List[str] = None,
+            email_verified: bool = False,
+            required_actions: List[str] = None
+    ) -> bool:
+        """
+        Username must be unique.
+        Args:
+            realm (str): realm name (not id!)
+            username (str):
+            email (str):
+            first_name (str):
+            last_name (str):
+            enabled (bool): user enabled
+            attributes (dict): example: {"other":["ccc for test"]}
+            groups (list of str):
+            email_verified (bool):
+            required_actions (list of str): example: ["UPDATE_PASSWORD"]
+
+        Returns:
+            bool
+        """
+        relative_url = api_url + "/{realm}/users?".format(realm=realm)
+        type_check(username, str)
+        type_check(email, str)
+        type_check(first_name, str)
+        type_check(last_name, str)
+        type_check(enabled, bool)
+        type_check(attributes, dict)
+        type_check(groups, list)
+        type_check(email_verified, bool)
+        type_check(required_actions, list)
+        data = {
+            "enabled": enabled,
+            "attributes": attributes or {},
+            "groups": groups or [],
+            "emailVerified": email_verified,
+            "username": username,
+            "email": email,
+            "firstName": first_name,
+            "lastName": last_name,
+        }
+        if required_actions:
+            data.update({"requiredActions": required_actions or []})
+        response = self.api_client.post_request(relative_url=relative_url, json=data, is_iam=True)
+        return response.status_code == CREATED
+
+
+    def get_number_of_users_by_given_criteria(
+            self,
+            realm: str,
+            email: str = None,
+            email_verified: str = None,
+            enabled: bool = None,
+            first_name: str = None,
+            last_name: str = None,
+            q: str = None,
+            search: str = None,
+            username: str = None
+    ) -> dict:
+        """
+            Returns the number of users that match the given criteria.
+        Args:
+            realm (str):  realm name (not id!)
+            email (str): email filter
+            email_verified (str):
+            enabled (bool): Boolean representing if user is enabled or not
+            first_name (str): first name filter
+            last_name (str):
+            q (str):
+            search (str): arbitrary search string for all the fields below. Default search behavior is prefix-based
+                    (e.g., foo or foo*). Use foo for infix search and "foo" for exact search.
+            username (str): username filter
+
+        Returns:
+            int
+        """
+        relative_url = api_url + f"/{realm}/users/count"
+        relative_url += get_url_param("email", email)
+        relative_url += get_url_param("emailVerified", email_verified)
+        relative_url += get_url_param("enabled", enabled)
+        relative_url += get_url_param("firstName", first_name)
+        relative_url += get_url_param("lastName", last_name)
+        relative_url += get_url_param("q", q)
+        relative_url += get_url_param("search", search)
+        relative_url += get_url_param("username", username)
+        params = {
+            "email": email, "emailVerified": email_verified, "enabled": enabled, "firstName": first_name,
+            "lastName": last_name, "q": q, "search": search, "username": username
+        }
+        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
+        result = response.json()
+        return result
+
+
+    def delete_user(self, realm: str, user_id: str) -> bool:
+        """
+
+        Args:
+            realm (str):  realm name (not id!)
+            user_id (str):
+
+        Returns:
+
+        """
+        relative_url = api_url + f"/{realm}/users/{user_id}"
+        type_check(realm, str)
+        type_check(user_id, str)
+        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        return response.status_code == NO_CONTENT
+
+
+    def get_users_profile(self, realm: str) -> dict:
+        """
+
+        Args:
+            realm (str):
+
+        Returns:
+
+        """
+        relative_url = api_url + f"/{realm}/users/profile"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        return response.json()
+
+
+    def get_users_profile_metadata(self, realm: str) -> dict:
+        """
+
+        Args:
+            realm:
+
+        Returns:
+
+        """
+        relative_url = api_url + f"/{realm}/users/profile/metadata"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        return response.json()
+
+
+    def get_user_by_id(self, realm: str, user_id: str) -> dict:
+        """
+
+        Args:
+            realm (str):
+            user_id (str):
+
+        Returns:
+
+        """
+        type_check(realm, str)
+        type_check(user_id, str)
+        relative_url = api_url + f"/{realm}/users/{user_id}"
+        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        return response.json()
+
+
+    def update_user_by_id(
+            self,
+            realm: str,
+            user_id: str,
+            username: str,
+            first_name: str,
+            last_name: str,
+            email: str,
+            email_verified: bool = True,
+            user_enabled: bool = True,
+            totp: bool = False,
+            required_actions: List[str] = None,
+            manage_group_members_ship_access: bool = True,
+            view_access: bool = True,
+            map_roles_access: bool = True,
+            impersonate_access: bool = True,
+            manage_access: bool = True,
+            attributes: dict = None
+    ) -> bool:
+        relative_url = api_url + f"/{realm}/users/{user_id}"
+        data = {
+            "username": username, "firstName": first_name, "lastName": last_name, "email": email,
+            "emailVerified": email_verified, "enabled": user_enabled, "totp": totp,
+            "disableableCredentialTypes": [], "requiredActions": required_actions or [], "notBefore": 0,
+            "access": {
+                "manageGroupMembership": manage_group_members_ship_access, "view": view_access,
+                "mapRoles": map_roles_access, "impersonate": impersonate_access,
+                "manage": manage_access
+            },
+        }
+        if attributes:
+            data.update({"attributes": attributes})
+        response = self.api_client.put_request(relative_url=relative_url, json=data, is_iam=True)
+        return response.status_code == NO_CONTENT
+
+
+def get_all_oauth_clients(realm: str) -> Response:
+    return ClientsAPI().get_all_oauth_clients(realm=realm)
+
+
+def get_oauth_client_by_name(realm: str, client_name: str) -> Response:
+    return ClientsAPI().get_oauth_client_by_name(realm=realm, client_name=client_name)
+
+
+def get_all_oauth_client_by_id(realm: str, client_id: str) -> Response:
+    return ClientsAPI().get_all_oauth_client_by_id(realm=realm, client_id=client_id)
+
+
+def create_oauth_client(realm: str, client_name: str) -> Response:
+    return ClientsAPI().create_oauth_client(realm=realm, client_name=client_name)
+
+
+def edit_auth_client(realm: str, client_id: str, client_name: str, name: str, description: str) -> Response:
+    return ClientsAPI().edit_auth_client(realm=realm, client_id=client_id, client_name=client_name, name=name,
+                                         description=description)
+
+
+def get_oauth_service_account_user(realm: str, client_id: str) -> dict:
+    return ClientsAPI().get_oauth_service_account_user(realm=realm, client_id=client_id)
+
+
+def add_group_to_oauth_client(realm: str, service_account_user_id: str, group_id: str) -> Response:
+    return ClientsAPI().add_group_to_oauth_client(realm=realm, service_account_user_id=service_account_user_id,
+                                                  group_id=group_id)
+
+
+def generate_oauth_secret(realm: str, client_id: str) -> Response:
+    return ClientsAPI().generate_oauth_secret(realm=realm, client_id=client_id)
+
+
+def get_client_ast_app(realm: str) -> dict:
+    return ClientsAPI().get_client_ast_app(realm=realm)
+
+
+def get_group_hierarchy(
+        realm: str,
+        brief_representation: bool = False,
+        first: int = None,
+        max_result_size: int = 100,
+        search: str = None
+) -> List[Group]:
+    return GroupsAPI().get_group_hierarchy(
+        realm=realm, brief_representation=brief_representation, first=first, max_result_size=max_result_size,
+        search=search,
+    )
+
+
+def create_group_set(realm: str, group_representation: GroupRepresentation) -> bool:
+    return GroupsAPI().create_group_set(realm=realm, group_representation=group_representation)
+
+
+def get_group_by_name(realm: str, group_name: str) -> Group:
+    return GroupsAPI().get_group_by_name(realm=realm, group_name=group_name)
+
+
+def get_number_of_groups_in_a_realm(realm: str) -> int:
+    return GroupsAPI().get_number_of_groups_in_a_realm(realm=realm)
+
+
+def get_group_by_id(realm: str, group_id: str) -> Group:
+    return GroupsAPI().get_group_by_id(realm=realm, group_id=group_id)
+
+
+def update_group_by_id(realm: str, group_id: str, group_representation: GroupRepresentation) -> bool:
+    return GroupsAPI().update_group_by_id(realm=realm, group_id=group_id, group_representation=group_representation)
+
+
+def delete_group_by_id(realm: str, group_id: str) -> bool:
+    return GroupsAPI().delete_group_by_id(realm=realm, group_id=group_id)
+
+
+def create_subgroup(realm: str, group_id: str, subgroup_name: str) -> bool:
+    return GroupsAPI().create_subgroup(realm=realm, group_id=group_id, subgroup_name=subgroup_name)
+
+
+def get_subgroup_by_id(realm: str, group_id: str) -> dict:
+    return GroupsAPI().get_subgroup_by_id(realm=realm, group_id=group_id)
+
+
+def get_group_permissions(realm: str, group_id: str) -> ManagementPermissionReference:
+    return GroupsAPI().get_group_permissions(realm=realm, group_id=group_id)
+
+
+def update_group_permissions(realm: str, group_id: str, group_permissions: ManagementPermissionReference) -> bool:
+    return GroupsAPI().update_group_permissions(realm=realm, group_id=group_id, group_permissions=group_permissions)
+
+
+def get_group_members(
+        realm: str,
+        group_id: str,
+        brief_representation: bool = True,
+        first: int = 100,
+        max_result_size: int = 100
+) -> dict:
+    return GroupsAPI().get_group_members(
+        realm=realm,
+        group_id=group_id,
+        brief_representation=brief_representation,
+        first=first,
+        max_result_size=max_result_size
+    )
+
+
+def create_group(realm: str, group_name: str) -> bool:
+    return GroupsAPI().create_group(realm=realm, group_name=group_name)
+
+
+def get_or_create_groups(
+        group_full_name: str,
+        realm: str
+) -> str:
+    return GroupsAPI().get_or_create_groups(group_full_name=group_full_name, realm=realm)
+
+
+def create_all_groups(realm: str, group_full_name: str) -> str:
+    return GroupsAPI().create_all_groups(realm=realm, group_full_name=group_full_name)
+
+
+def create_sub_groups(realm: str, group_names: List[str], root_group_id: str) -> str:
+    return GroupsAPI().create_sub_groups(realm=realm, group_names=group_names, root_group_id=root_group_id)
+
+
+def create_root_group_if_not_exist(realm: str, root_group_name: str) -> str:
+    return GroupsAPI().create_root_group_if_not_exist(realm=realm, root_group_name=root_group_name)
+
+
+def add_group_role(
+        realm: str, group_id: str, container_id: str, role_id: str, role_name: str
+) -> Response:
+    return ClientRoleMappingsAPI().add_group_role(
+        realm=realm, group_id=group_id, container_id=container_id, role_id=role_id, role_name=role_name
+    )
+
+
+def get_role_mappings(realm: str, group_id: str) -> dict:
+    return RoleMapperAPI().get_role_mappings(realm=realm, group_id=group_id)
+
+
+def get_all_roles_for_the_client(
+        realm: str,
+        client_id: str,
+        brief_representation: bool = False,
+        first: int = None,
+        max: int = None,
+        search: bool = None
+) -> dict:
+    return RolesAPI().get_all_roles_for_the_client(
+        realm=realm, client_id=client_id, brief_representation=brief_representation, first=first, max=max, search=search
+    )
+
+
+def create_role_for_the_client(realm: str, client_id: str, role_name: str, description: str = None) -> bool:
+    return RolesAPI().create_role_for_the_client(realm=realm, client_id=client_id, role_name=role_name,
+                                                 description=description)
+
+
+def delete_role_by_name(realm: str, client_id: str, role_name: str) -> bool:
+    return RolesAPI().delete_role_by_name(realm=realm, client_id=client_id, role_name=role_name)
+
+
+def get_role_by_name(realm: str, client_id: str, role_name: str) -> dict:
+    return RolesAPI().get_role_by_name(realm=realm, client_id=client_id, role_name=role_name)
+
+
+def update_role_by_id(realm: str, role_id: str, role_representation: RoleRepresentation) -> bool:
+    return RolesAPI().update_role_by_id(realm=realm, role_id=role_id, role_representation=role_representation)
+
+
+def get_roles_children(realm: str, role_id: str) -> dict:
+    return RolesAPI().get_roles_children(realm=realm, role_id=role_id)
+
+
+def get_roles_children_iam(realm: str, role_id: str) -> dict:
+    return RolesAPI().get_roles_children_iam(realm=realm, role_id=role_id)
+
+
+def add_children_to_a_composite_role(realm: str, role_id: str, children: List[RoleRepresentation]) -> bool:
+    return RolesAPI().add_children_to_a_composite_role(realm=realm, role_id=role_id, children=children)
+
+
+def get_all_roles_for_the_realm(realm: str) -> dict:
+    return RolesAPI().get_all_roles_for_the_realm(realm=realm)
+
+
+def get_realms() -> List[RealmRepresentation]:
+    return RootAPI().get_realms()
+
+
+def get_users(
+        realm: str,
+        brief_representation: bool = False,
+        email: str = None,
+        email_verified: bool = None,
+        enabled: bool = None,
+        exact: bool = None,
+        first: int = None,
+        first_name: str = None,
+        idp_alias: str = None,
+        idp_user_id: str = None,
+        last_name: str = None,
+        max_result_size: int = 1024,
+        search: str = None,
+        username: str = None
+) -> List[User]:
+    return UsersAPI().get_users(
+        realm=realm, brief_representation=brief_representation, email=email, email_verified=email_verified,
+        enabled=enabled, exact=exact, first=first, first_name=first_name, idp_alias=idp_alias,
+        idp_user_id=idp_user_id, last_name=last_name, max_result_size=max_result_size,
+        search=search, username=username,
+    )
+
+
+def filter_user_id_by_name(users: List[User], username: str) -> Union[str, None]:
+    return UsersAPI().filter_user_id_by_name(users=users, username=username)
+
+
+def get_user_id_by_name(realm: str, username: str) -> str:
+    return UsersAPI().get_user_id_by_name(realm=realm, username=username)
+
+
+def get_user_id_list_by_username_list(realm: str, username_list: List[str]) -> List[str]:
+    return UsersAPI().get_user_id_list_by_username_list(realm=realm, username_list=username_list)
+
+
+def filter_user_id_by_email(users, email):
+    return UsersAPI().filter_user_id_by_email(users=users, email=email)
+
+
+def get_user_id_by_email(realm: str, email: str) -> str:
+    return UsersAPI().get_user_id_by_email(realm=realm, email=email)
+
+
+def get_user_id_list_by_email_list(realm: str, email_list: str):
+    return UsersAPI().get_user_id_list_by_email_list(realm=realm, email_list=email_list)
+
+
+def create_a_new_user(
+        realm: str,
+        username: str,
+        email: str,
+        first_name: str,
+        last_name: str,
+        enabled: bool = True,
+        attributes: dict = None,
+        groups: List[str] = None,
+        email_verified: bool = False,
+        required_actions: List[str] = None
+) -> bool:
+    return UsersAPI().create_a_new_user(
+        realm=realm, username=username, email=email, first_name=first_name, last_name=last_name, enabled=enabled,
+        attributes=attributes, groups=groups, email_verified=email_verified, required_actions=required_actions,
+    )
+
+
+def get_number_of_users_by_given_criteria(
+        realm: str,
+        email: str = None,
+        email_verified: str = None,
+        enabled: bool = None,
+        first_name: str = None,
+        last_name: str = None,
+        q: str = None,
+        search: str = None,
+        username: str = None
+) -> dict:
+    return UsersAPI().get_number_of_users_by_given_criteria(
+        realm=realm, email=email, email_verified=email_verified, enabled=enabled, first_name=first_name,
+        last_name=last_name, q=q, search=search, username=username,
+    )
+
+
+def delete_user(realm: str, user_id: str) -> bool:
+    return UsersAPI().delete_user(realm=realm, user_id=user_id)
+
+
+def get_users_profile(realm: str) -> dict:
+    return UsersAPI().get_users_profile(realm=realm)
+
+
+def get_users_profile_metadata(realm: str) -> dict:
+    return UsersAPI().get_users_profile_metadata(realm=realm)
+
+
+def get_user_by_id(realm: str, user_id: str) -> dict:
+    return UsersAPI().get_user_by_id(realm=realm, user_id=user_id)
+
+
+def update_user_by_id(
+        realm: str,
+        user_id: str,
+        username: str,
+        first_name: str,
+        last_name: str,
+        email: str,
+        email_verified: bool = True,
+        user_enabled: bool = True,
+        totp: bool = False,
+        required_actions: List[str] = None,
+        manage_group_members_ship_access: bool = True,
+        view_access: bool = True,
+        map_roles_access: bool = True,
+        impersonate_access: bool = True,
+        manage_access: bool = True,
+        attributes: dict = None
+) -> bool:
+    return UsersAPI().update_user_by_id(
+        realm=realm, user_id=user_id, username=username, first_name=first_name, last_name=last_name, email=email,
+        email_verified=email_verified, user_enabled=user_enabled, totp=totp, required_actions=required_actions,
+        manage_group_members_ship_access=manage_group_members_ship_access, view_access=view_access,
+        map_roles_access=map_roles_access, impersonate_access=impersonate_access, manage_access=manage_access,
+        attributes=attributes
+    )

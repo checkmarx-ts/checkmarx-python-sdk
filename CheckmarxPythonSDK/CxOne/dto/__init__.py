@@ -40,6 +40,7 @@ from .ContributorScmInsights import ContributorScmInsights, construct_contributo
 from .ContributorUnfamiliarProjects import ContributorUnfamiliarProjects, construct_contributor_unfamiliar_projects
 from .CreatedApplication import CreatedApplication, construct_created_application
 from .CreateRoleRequest import CreateRoleRequest
+from .CredentialRepresentation import CredentialRepresentation, construct_credential_representation
 from .Credentials import Credentials
 from .CustomState import CustomState, construct_custom_state
 from .DebugMessage import DebugMessage, construct_debug_message
@@ -55,6 +56,8 @@ from .EntityRolesRequest import EntityRolesRequest
 from .EntityType import EntityType
 from .Error import Error, construct_error
 from .ExecutionResponse import ExecutionResponse, construct_execution_response
+from .FederatedIdentityRepresentation import (FederatedIdentityRepresentation,
+                                              construct_federated_identity_representation)
 from .FileInfo import FileInfo, construct_file_info
 from .Flag import Flag, construct_feature_flag
 from .UsersWithResourcesResponse import UsersWithResourcesResponse, construct_users_with_resources_response
@@ -162,6 +165,7 @@ from .SeverityCounter import SeverityCounter, construct_severity_counter
 from .SeveritySummary import SeveritySummary, construct_severity_summary
 from .SinkFileSummary import SinkFileSummary, construct_sink_file_summary
 from .SinkNodeSummary import SinkNodeSummary, construct_sink_node_summary
+from .SocialLinkRepresentation import SocialLinkRepresentation, construct_social_link_representation
 from .SourceFileSummary import SourceFileSummary, construct_source_file_summary
 from .SourceNodeSummary import SourceNodeSummary, construct_source_node_summary
 from .SourcesTree import SourcesTree, construct_sources_tree
@@ -177,6 +181,16 @@ from .TriageRequest import TriageRequest, construct_triage_request
 from .TriageResponse import TriageResponse, construct_triage_response
 from .Upload import Upload
 from .User import User, construct_user
+from .UserConsentRepresentation import UserConsentRepresentation, construct_user_consent_representation
+from .UserFederationMapperRepresentation import (UserFederationMapperRepresentation,
+                                                 construct_user_federation_mapper_representation)
+from .UserFederationProviderRepresentation import (UserFederationProviderRepresentation,
+                                                   construct_user_federation_provider_representation)
+from .UserProfileAttributeGroupMetadata import (UserProfileAttributeGroupMetadata,
+                                                construct_user_profile_attribute_group_metadata)
+from .UserProfileAttributeMetadata import UserProfileAttributeMetadata, construct_user_profile_attribute_metadata
+from .UserProfileMetadata import UserProfileMetadata, construct_user_profile_metadata
+from .UserRepresentation import UserRepresentation, construct_user_representation
 from .UsersWithResourcesResponse import UsersWithResourcesResponse, construct_users_with_resources_response
 from .UserWithResource import UserWithResource, construct_user_with_resource
 from .VersionsOut import VersionsOut, construct_versions_out

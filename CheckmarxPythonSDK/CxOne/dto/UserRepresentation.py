@@ -1,110 +1,104 @@
-class UserRepresentation:
-    def __init__(self, access, attributes, client_consents, client_roles, created_timestamp, credentials,
-                 disableable_credential_types, email, email_verified, enabled, federated_identities, federation_link,
-                 first_name, groups, user_representation_id, last_name, not_before, origin, realm_roles,
-                 required_actions, user_representation_self, service_account_client_id, username):
-        self.access = access
-        self.attributes = attributes
-        self.clientConsents = client_consents
-        self.clientRoles = client_roles
-        self.createdTimestamp = created_timestamp
-        self.credentials = credentials
-        self.disableableCredentialTypes = disableable_credential_types
-        self.email = email
-        self.emailVerified = email_verified
-        self.enabled = enabled
-        self.federatedIdentities = federated_identities
-        self.federationLink = federation_link
-        self.firstName = first_name
-        self.groups = groups
-        self.id = user_representation_id
-        self.lastName = last_name
-        self.notBefore = not_before
-        self.origin = origin
-        self.realmRoles = realm_roles
-        self.requiredActions = required_actions
-        self.self = user_representation_self
-        self.serviceAccountClientId = service_account_client_id
-        self.username = username
+from dataclasses import dataclass
+from typing import List
+from .CredentialRepresentation import CredentialRepresentation, construct_credential_representation
+from .FederatedIdentityRepresentation import (FederatedIdentityRepresentation,
+                                              construct_federated_identity_representation)
+from .SocialLinkRepresentation import SocialLinkRepresentation, construct_social_link_representation
+from .UserConsentRepresentation import UserConsentRepresentation, construct_user_consent_representation
+from .UserProfileMetadata import UserProfileMetadata, construct_user_profile_metadata
 
-    def __str__(self):
-        return f"UserRepresentation(" \
-               f"access={self.access}, " \
-               f"attributes={self.attributes}, " \
-               f"clientConsents={self.clientConsents}, " \
-               f"clientRoles={self.clientRoles}, " \
-               f"createdTimestamp={self.createdTimestamp}, " \
-               f"credentials={self.credentials}, " \
-               f"disableableCredentialTypes={self.disableableCredentialTypes}, " \
-               f"email={self.email}, " \
-               f"emailVerified={self.emailVerified}, " \
-               f"enabled={self.enabled}, " \
-               f"federatedIdentities={self.federatedIdentities}, " \
-               f"federationLink={self.federationLink}, " \
-               f"firstName={self.firstName}, " \
-               f"groups={self.groups}, " \
-               f"id={self.id}, " \
-               f"lastName={self.lastName}, " \
-               f"notBefore={self.notBefore}, " \
-               f"origin={self.origin}, " \
-               f"realmRoles={self.realmRoles}, " \
-               f"requiredActions={self.requiredActions}, " \
-               f"self={self.self}, " \
-               f"serviceAccountClientId={self.serviceAccountClientId}, " \
-               f"username={self.username}" \
-               f")"
+
+@dataclass
+class UserRepresentation:
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    self: str = None
+    id: str = None
+    origin: str = None
+    created_timestamp: int = None
+    enabled: bool = None
+    totp: bool = None
+    email_verified: bool = None
+    federation_link: str = None
+    service_account_client_id: str = None
+    attributes: dict = None
+    credentials: List[CredentialRepresentation] = None
+    disable_able_credential_types: List[str] = None
+    required_actions: List[str] = None
+    federated_identities: List[FederatedIdentityRepresentation] = None
+    realm_roles: List[str] = None
+    client_roles: dict = None
+    client_consents: List[UserConsentRepresentation] = None
+    not_before: int = None
+    application_roles: dict = None
+    social_links: List[SocialLinkRepresentation] = None
+    groups: List[str] = None
+    access: bool = None
+    user_profile_metadata: UserProfileMetadata = None
 
     def to_dict(self):
         return {
-            "access": self.access,
-            "attributes": self.attributes,
-            "clientConsents": self.clientConsents,
-            "clientRoles": self.clientRoles,
-            "createdTimestamp": self.createdTimestamp,
-            "credentials": self.credentials,
-            "disableableCredentialTypes": self.disableableCredentialTypes,
-            "email": self.email,
-            "emailVerified": self.emailVerified,
-            "enabled": self.enabled,
-            "federatedIdentities": self.federatedIdentities,
-            "federationLink": self.federationLink,
-            "firstName": self.firstName,
-            "groups": self.groups,
-            "id": self.id,
-            "lastName": self.lastName,
-            "notBefore": self.notBefore,
-            "origin": self.origin,
-            "realmRoles": self.realmRoles,
-            "requiredActions": self.requiredActions,
             "self": self.self,
-            "serviceAccountClientId": self.serviceAccountClientId,
+            "id": self.id,
+            "origin": self.origin,
+            "createdTimestamp": self.created_timestamp,
             "username": self.username,
+            "enabled": self.enabled,
+            "totp": self.totp,
+            "emailVerified": self.email_verified,
+            "firstName": self.first_name,
+            "lastName": self.last_name,
+            "email": self.email,
+            "federationLink": self.federation_link,
+            "serviceAccountClientId": self.service_account_client_id,
+            "attributes": self.attributes,
+            "credentials": [credential.to_dict() for credential in self.credentials],
+            "disableableCredentialTypes": self.disable_able_credential_types,
+            "requiredActions": self.required_actions,
+            "federatedIdentities": [identity.to_dict() for identity in self.federated_identities],
+            "realmRoles": self.realm_roles,
+            "clientRoles": self.client_roles,
+            "clientConsents": [client_consent.to_dict() for client_consent in self.client_consents],
+            "notBefore": self.not_before,
+            "applicationRoles": self.application_roles,
+            "socialLinks": [social_link.to_dict() for social_link in self.social_links],
+            "groups": self.groups,
+            "access": self.access,
+            "userProfileMetadata": self.user_profile_metadata.to_dict()
         }
 
 
 def construct_user_representation(item):
     return UserRepresentation(
-        access=item.get("access"),
-        attributes=item.get("attributes"),
-        client_consents=item.get("clientConsents"),
-        client_roles=item.get("clientRoles"),
-        created_timestamp=item.get("createdTimestamp"),
-        credentials=item.get("credentials"),
-        disableable_credential_types=item.get("disableableCredentialTypes"),
-        email=item.get("email"),
-        email_verified=item.get("emailVerified"),
-        enabled=item.get("enabled"),
-        federated_identities=item.get("federatedIdentities"),
-        federation_link=item.get("federationLink"),
-        first_name=item.get("firstName"),
-        groups=item.get("groups"),
-        user_representation_id=item.get("id"),
-        last_name=item.get("lastName"),
-        not_before=item.get("notBefore"),
+        self=item.get("self"),
+        id=item.get("id"),
         origin=item.get("origin"),
-        realm_roles=item.get("realmRoles"),
-        required_actions=item.get("requiredActions"),
-        user_representation_self=item.get("self"),
-        service_account_client_id=item.get("serviceAccountClientId"),
+        created_timestamp=item.get("createdTimestamp"),
         username=item.get("username"),
+        enabled=item.get("enabled"),
+        totp=item.get("totp"),
+        email_verified=item.get("emailVerified"),
+        first_name=item.get("firstName"),
+        last_name=item.get("lastName"),
+        email=item.get("email"),
+        federation_link=item.get("federationLink"),
+        service_account_client_id=item.get("serviceAccountClientId"),
+        attributes=item.get("attributes"),
+        credentials=[construct_credential_representation(credential) for credential in item.get("credentials")],
+        disable_able_credential_types=item.get("disableableCredentialTypes"),
+        required_actions=item.get("requiredActions"),
+        federated_identities=[
+            construct_federated_identity_representation(identity) for identity in item.get("federatedIdentities")
+        ],
+        realm_roles=item.get("realmRoles"),
+        client_roles=item.get("clientRoles"),
+        client_consents=[construct_user_consent_representation(consent) for consent in item.get("clientConsents")],
+        not_before=item.get("notBefore"),
+        application_roles=item.get("applicationRoles"),
+        social_links=[construct_social_link_representation(social_link) for social_link in item.get("socialLinks")],
+        groups=item.get("groups"),
+        access=item.get("access"),
+        user_profile_metadata=construct_user_profile_metadata(item.get("userProfileMetadata")),
     )

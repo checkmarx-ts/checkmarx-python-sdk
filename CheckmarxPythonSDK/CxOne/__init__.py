@@ -135,12 +135,32 @@ from .kicsResultsAPI import (
     KicsResultsAPI,
     get_kics_results_by_scan_id,
 )
-# from .keyCloakAPI import (
-#     get_realms,
-#     get_users,
-#     create_a_new_user,
-#     get_group_hierarchy,
-# )
+from .KeycloakAPI import (
+    AttackDetectionApi,
+    AuthenticationManagementApi,
+    ClientAttributeCertificateApi,
+    ClientInitialAccessApi,
+    ClientRegistrationPolicyApi,
+    ClientRoleMappingsApi,
+    ClientRolesApi,
+    ClientsApi,
+    ClientScopesApi,
+    ComponentApi,
+    GroupsApi,
+    IdentityProvidersApi,
+    KeyApi,
+    ProtocolMappersApi,
+    RealmsAdminApi,
+    RoleMapperApi,
+    RolesApi,
+    RolesByIdApi,
+    ScopeMappingsApi,
+    UsersApi,
+    # get_realms,
+    # get_users,
+    # create_a_new_user,
+    # get_group_hierarchy,
+)
 from .projectsAPI import (
     ProjectsAPI,
     get_all_projects,

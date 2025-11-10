@@ -1,31 +1,30 @@
-class UserConsentRepresentation:
-    def __init__(self, client_id, created_date, granted_client_scopes, last_updated_date):
-        self.clientId = client_id
-        self.createdDate = created_date
-        self.grantedClientScopes = granted_client_scopes
-        self.lastUpdatedDate = last_updated_date
+from dataclasses import dataclass
+from typing import List
 
-    def __str__(self):
-        return f"UserConsentRepresentation(" \
-               f"clientId={self.clientId}, " \
-               f"createdDate={self.createdDate}, " \
-               f"grantedClientScopes={self.grantedClientScopes}, " \
-               f"lastUpdatedDate={self.lastUpdatedDate}" \
-               f")"
+
+@dataclass
+class UserConsentRepresentation:
+    client_id: str
+    granted_client_scopes: List[str]
+    created_date: int
+    last_updated_date: int
+    granted_realm_roles: List[str]
 
     def to_dict(self):
         return {
-            "clientId": self.clientId,
-            "createdDate": self.createdDate,
-            "grantedClientScopes": self.grantedClientScopes,
-            "lastUpdatedDate": self.lastUpdatedDate,
+            "clientId": self.client_id,
+            "grantedClientScopes": self.granted_client_scopes,
+            "createdDate": self.created_date,
+            "lastUpdatedDate": self.last_updated_date,
+            "grantedRealmRoles": self.granted_realm_roles,
         }
 
 
 def construct_user_consent_representation(item):
     return UserConsentRepresentation(
         client_id=item.get("clientId"),
-        created_date=item.get("createdDate"),
         granted_client_scopes=item.get("grantedClientScopes"),
+        created_date=item.get("createdDate"),
         last_updated_date=item.get("lastUpdatedDate"),
+        granted_realm_roles=item.get("grantedRealmRoles"),
     )

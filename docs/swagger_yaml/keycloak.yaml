@@ -8720,10 +8720,14 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         config:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
     ComponentRepresentation:
       type: object
       properties:
@@ -8743,6 +8747,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
     ComponentTypeRepresentation:
       type: object
       properties:
@@ -8770,10 +8776,14 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         application:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
     ConfigPropertyRepresentation:
       type: object
       properties:
@@ -8920,6 +8930,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         realmRoles:
           type: array
           items:
@@ -8928,6 +8940,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         access:
           type: object
           additionalProperties:
@@ -9368,6 +9382,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
     Permission:
       type: object
       properties:
@@ -9384,6 +9400,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
             uniqueItems: true
     PolicyEnforcementMode:
       type: object
@@ -9799,6 +9817,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         clients:
           type: array
           items:
@@ -9872,6 +9892,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         internationalizationEnabled:
           type: boolean
         supportedLocales:
@@ -9925,6 +9947,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         applications:
           type: array
           items:
@@ -10001,6 +10025,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         uri:
           type: string
         scopesUma:
@@ -10065,6 +10091,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
     RolesRepresentation:
       type: object
       properties:
@@ -10076,10 +10104,14 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         application:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
     ScopeEnforcementMode:
       type: object
     ScopeMappingRepresentation:
@@ -10347,6 +10379,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         credentials:
           type: array
           items:
@@ -10372,6 +10406,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         clientConsents:
           type: array
           items:
@@ -10383,6 +10419,8 @@ components:
           type: object
           additionalProperties:
             type: array
+            items:
+              type: object
         socialLinks:
           type: array
           items:

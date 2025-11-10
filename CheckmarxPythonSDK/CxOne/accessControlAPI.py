@@ -1,7 +1,6 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
-
 from CheckmarxPythonSDK.CxOne.dto import (
     AstIdWithName, construct_ast_id_with_name,
     AstUser, construct_ast_user,
