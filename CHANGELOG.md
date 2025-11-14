@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.6.2 - 2025-11-14
+* Fix repoManagerAPI ossfScoreCardScannerEnabled and secretsDetectionScannerEnabled typo issue
+
 1.6.1 - 2025-11-06
 * Add the get_warnings_of_a_scan method (SCA) 
 
