@@ -40,6 +40,7 @@ setup(
         "requests-toolbelt>=0.9.1",
         "zeep>=4.1.0",
         "Deprecated>=1.2.13",
+        "inflection>=0.5.1"
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
