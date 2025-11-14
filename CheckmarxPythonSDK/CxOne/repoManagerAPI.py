@@ -198,8 +198,8 @@ class RepoManagerAPI(object):
             "sshRepoUrl": ssh_repo_url,
             "sshState": "SKIPPED",
             "containerScannerEnabled": container_scanner_enabled,
-            "ossfSecoreCardScannerEnabled": ossf_score_card_scanner_enabled,
-            "secretsDerectionScannerEnabled": secrets_detection_scanner_enabled
+            "ossfScoreCardScannerEnabled": ossf_score_card_scanner_enabled,
+            "secretsDetectionScannerEnabled": secrets_detection_scanner_enabled
         }
         if origin in ['GITLAB', "BITBUCKET"]:
             data.update({"id": repo_id})
@@ -366,7 +366,7 @@ class RepoManagerAPI(object):
                     f"will be {round_of_requests} round_of_requests ")
         round_i = 0
         while round_i < round_of_requests:
-            repo_request_chunks = repo_requests[round_i * chunk_size: (round_i + 1) * chunk_size + 1]
+            repo_request_chunks = repo_requests[round_i * chunk_size: (round_i + 1) * chunk_size]
             logger.info(f"round {round_i + 1}, number of repos to create: {len(repo_request_chunks)} ")
             round_i += 1
             self.repo_import(
