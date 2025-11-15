@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.6.4 - 2025-11-15
+* Fix configuration verify as bool issue
+
 1.6.3 - 2025-11-14
 * Fix setup.py
 
