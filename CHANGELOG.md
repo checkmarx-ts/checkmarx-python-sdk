@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.6.7 - 2025-117-17
+* Fix setup.py add new dependency typing-extensions
+
+1.6.6 - 2025-11-17
+* this version is yanked
+
 1.6.5 - 2025-11-15
 * Fix configuration verify as bool issue
 
