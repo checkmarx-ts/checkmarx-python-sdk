@@ -367,6 +367,7 @@ class RepoManagerAPI(object):
         round_i = 0
         while round_i < round_of_requests:
             repo_request_chunks = repo_requests[round_i * chunk_size: (round_i + 1) * chunk_size]
+            logger.debug(f'All urls in this round of chunks: {"\n".join([item.get("url") for item in repo_request_chunks])} ')
             logger.info(f"round {round_i + 1}, number of repos to create: {len(repo_request_chunks)} ")
             round_i += 1
             self.repo_import(
