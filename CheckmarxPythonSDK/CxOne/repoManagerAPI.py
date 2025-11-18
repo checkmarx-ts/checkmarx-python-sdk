@@ -138,12 +138,13 @@ class RepoManagerAPI(object):
     @staticmethod
     def construct_repo_request(
             http_repo_url: str, ssh_repo_url: str, repo_id: str = None, branches: List[dict] = None,
-            is_repo_admin: bool = True, origin: str = "GITHUB", kics_scanner_enabled: bool = True,
+            is_repo_admin: bool = False, origin: str = "GITHUB", kics_scanner_enabled: bool = True,
             sast_incremental_scan: bool = True, sast_scanner_enabled: bool = True, api_sec_scanner_enabled: bool = True,
             sca_scanner_enabled: bool = True, webhook_enabled: bool = True, pr_decoration_enabled: bool = True,
             sca_auto_pr_enabled: bool = False, container_scanner_enabled: bool = True,
             ossf_score_card_scanner_enabled: bool = True, secrets_detection_scanner_enabled: bool = True,
-            project_id: str = None
+            project_id: str = None, default_branch: str = None, groups: List[str] = None, 
+            private_repository_scan: bool = False, tags: dict = None,
     ) -> dict:
         """
 
@@ -171,6 +172,10 @@ class RepoManagerAPI(object):
             ossf_score_card_scanner_enabled (bool):
             secrets_detection_scanner_enabled (bool):
             project_id (str):
+            default_branch (str):
+            groups (List[str]):
+            private_repository_scan (bool):
+            tags (dict):
 
         Returns:
             dict
@@ -181,25 +186,29 @@ class RepoManagerAPI(object):
             org_repo_name = "/".join(org_repo_name.split("/")[0:2])
         repo_name = org_repo_name.split("/")[1]
         data = {
+            "apiSecScannerEnabled": api_sec_scanner_enabled,
+            "branches": branches,
+            "containerScannerEnabled": container_scanner_enabled,
+            "defaultBranch": default_branch,
+            "groups": groups or [],
             "id": repo_name,
             "isRepoAdmin": is_repo_admin,
+            "kicsScannerEnabled": kics_scanner_enabled,
             "name": org_repo_name,
             "origin": origin,
-            "url": http_repo_url,
-            "branches": branches,
-            "kicsScannerEnabled": kics_scanner_enabled,
+            "ossfScoreCardScannerEnabled": ossf_score_card_scanner_enabled,
+            "prDecorationEnabled": pr_decoration_enabled,
+            "privateRepositoryScan": private_repository_scan,
             "sastIncrementalScan": sast_incremental_scan,
             "sastScannerEnabled": sast_scanner_enabled,
-            "apiSecScannerEnabled": api_sec_scanner_enabled,
-            "scaScannerEnabled": sca_scanner_enabled,
-            "webhookEnabled": webhook_enabled,
-            "prDecorationEnabled": pr_decoration_enabled,
             "scaAutoPrEnabled": sca_auto_pr_enabled,
-            "sshRepoUrl": ssh_repo_url,
+            "scaScannerEnabled": sca_scanner_enabled,
+            "scmRepoId": repo_name,
+            "secretsDetectionScannerEnabled": secrets_detection_scanner_enabled,
             "sshState": "SKIPPED",
-            "containerScannerEnabled": container_scanner_enabled,
-            "ossfScoreCardScannerEnabled": ossf_score_card_scanner_enabled,
-            "secretsDetectionScannerEnabled": secrets_detection_scanner_enabled
+            "tags": tags,
+            "url": http_repo_url,
+            "webhookEnabled": webhook_enabled,
         }
         if origin in ['GITLAB', "BITBUCKET"]:
             data.update({"id": repo_id})
@@ -236,6 +245,7 @@ class RepoManagerAPI(object):
             "createAstProject": str(create_ast_project).lower(),
             "scanAstProject": str(scan_ast_project).lower()
         }
+        logger.debug(f"params: {params}")
         headers = {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
@@ -260,6 +270,7 @@ class RepoManagerAPI(object):
             "orgSshKey": "",
             "orgSshState": "SKIPPED"
         }
+        logger.debug(f"payload: {data}")
         relative_url = f"/api/repos-manager/scms/{self.origin_dict.get(origin)}/orgs/{organization}/"
         if origin == "GITHUB":
             relative_url += "asyncImport"
@@ -299,7 +310,8 @@ class RepoManagerAPI(object):
             sast_scanner_enabled: bool = True, api_sec_scanner_enabled: bool = True, sca_scanner_enabled: bool = True,
             webhook_enabled: bool = True, pr_decoration_enabled: bool = True, sca_auto_pr_enabled: bool = False,
             container_scanner_enabled: bool = True, ossf_score_card_scanner_enabled: bool = True,
-            secrets_detection_scanner_enabled: bool = True
+            secrets_detection_scanner_enabled: bool = True, groups: List[str] = None, 
+            private_repository_scan: bool = False, tags: dict = None, is_repo_admin: bool = False,
     ) -> None:
         """
 
@@ -324,6 +336,10 @@ class RepoManagerAPI(object):
             container_scanner_enabled (bool):
             ossf_score_card_scanner_enabled (bool):
             secrets_detection_scanner_enabled (bool):
+            groups (List[str]):
+            private_repository_scan (bool):
+            tags (dict):
+            is_repo_admin (bool):
 
         Returns:
             None
@@ -358,6 +374,11 @@ class RepoManagerAPI(object):
                     container_scanner_enabled=container_scanner_enabled,
                     ossf_score_card_scanner_enabled=ossf_score_card_scanner_enabled,
                     secrets_detection_scanner_enabled=secrets_detection_scanner_enabled,
+                    is_repo_admin=is_repo_admin,
+                    default_branch=repo.get("defaultBranch"), 
+                    groups=groups, 
+                    private_repository_scan=private_repository_scan, 
+                    tags=tags,
                 )
             )
         round_of_requests = math.ceil(len(repos) / chunk_size)
