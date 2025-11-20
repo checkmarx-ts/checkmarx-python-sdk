@@ -42,22 +42,22 @@ class RolesApi:
     def post_client_roles(self, realm: str, id: str, role_representation: RoleRepresentation) -> bool:
         """
         Create a new role for the realm or client
-        
+
         Args:
             realm (str):  [required]
             id (str):  [required]
             role_representation (RoleRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/clients/{id}/roles
         """
         relative_url = f"{api_url}/{realm}/clients/{id}/roles"
         response = self.api_client.post_request(relative_url=relative_url, json=role_representation.to_dict(),
                                                 is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 201
 
     def get_client_role(self, realm: str, id: str, role_name: str) -> RoleRepresentation:
         """
@@ -81,23 +81,23 @@ class RolesApi:
     def put_client_role(self, realm: str, id: str, role_name: str, role_representation: RoleRepresentation) -> bool:
         """
         Update a role by name
-        
+
         Args:
             realm (str):  [required]
             id (str):  [required]
             role_name (str):  [required]
             role_representation (RoleRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/clients/{id}/roles/{role_name}
         """
         relative_url = f"{api_url}/{realm}/clients/{id}/roles/{role_name}"
         response = self.api_client.put_request(relative_url=relative_url, json=role_representation.to_dict(),
                                                is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 204
 
     def delete_client_role(self, realm: str, id: str, role_name: str) -> bool:
         """
@@ -333,21 +333,21 @@ class RolesApi:
     def post_roles_by_realm(self, realm: str, role_representation: RoleRepresentation) -> bool:
         """
         Create a new role for the realm or client
-        
+
         Args:
             realm (str):  [required]
             role_representation (RoleRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/roles
         """
         relative_url = f"{api_url}/{realm}/roles"
         response = self.api_client.post_request(relative_url=relative_url, json=role_representation.to_dict(),
                                                 is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 201
 
     def get_role_by_realm_by_role_name(self, realm: str, role_name: str) -> RoleRepresentation:
         """
@@ -371,22 +371,22 @@ class RolesApi:
                                        role_representation: RoleRepresentation) -> bool:
         """
         Update a role by name
-        
+
         Args:
             realm (str):  [required]
             role_name (str):  [required]
             role_representation (RoleRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/roles/{role_name}
         """
         relative_url = f"{api_url}/{realm}/roles/{role_name}"
         response = self.api_client.put_request(relative_url=relative_url, json=role_representation.to_dict(),
                                                is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 204
 
     def delete_role_by_realm_by_role_name(self, realm: str, role_name: str) -> bool:
         """
