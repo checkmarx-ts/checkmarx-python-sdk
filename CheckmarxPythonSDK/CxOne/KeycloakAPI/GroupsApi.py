@@ -45,21 +45,21 @@ class GroupsApi:
     def post_groups(self, realm: str, group_representation: GroupRepresentation) -> bool:
         """
         create or add a top level realm groupSet or create child.
-        
+
         Args:
             realm (str):  [required]
             group_representation (GroupRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/groups
         """
         relative_url = f"{api_url}/{realm}/groups"
         response = self.api_client.post_request(relative_url=relative_url, json=group_representation.to_dict(),
                                                 is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 201
 
     def get_groups_count_by_realm(self, realm: str, search: str = None, top: str = None) -> Dict[str, Any]:
         """
@@ -101,22 +101,22 @@ class GroupsApi:
     def put_group_by_realm_by_id(self, realm: str, id: str, group_representation: GroupRepresentation) -> bool:
         """
         Update group, ignores subgroups.
-        
+
         Args:
             realm (str):  [required]
             id (str):  [required]
             group_representation (GroupRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/groups/{id}
         """
         relative_url = f"{api_url}/{realm}/groups/{id}"
         response = self.api_client.put_request(relative_url=relative_url, json=group_representation.to_dict(),
                                                is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 204
 
     def delete_group_by_realm_by_id(self, realm: str, id: str) -> bool:
         """
@@ -161,22 +161,22 @@ class GroupsApi:
     def post_children(self, realm: str, id: str, group_representation: GroupRepresentation) -> bool:
         """
         Set or create child.
-        
+
         Args:
             realm (str):  [required]
             id (str):  [required]
             group_representation (GroupRepresentation): Request body data [required]
-        
+
         Returns:
             bool
-        
+
         URL:
             Relative path: /{realm}/groups/{id}/children
         """
         relative_url = f"{api_url}/{realm}/groups/{id}/children"
         response = self.api_client.post_request(relative_url=relative_url, json=group_representation.to_dict(),
                                                 is_iam=True)
-        return response.status_code == 200
+        return response.status_code == 201
 
     def get_group_management_permissions(self, realm: str, id: str) -> ManagementPermissionReference:
         """
