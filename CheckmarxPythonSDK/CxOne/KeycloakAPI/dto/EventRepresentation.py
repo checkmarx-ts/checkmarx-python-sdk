@@ -6,6 +6,7 @@ from inflection import camelize, underscore
 
 @dataclass
 class EventRepresentation:
+    id: Optional[str] = None
     time: Optional[int] = None
     type: Optional[str] = None
     realm_id: Optional[str] = None
@@ -18,6 +19,9 @@ class EventRepresentation:
 
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
+        if self.id is not None:
+            value = self.id
+            result['id'] = value
         if self.time is not None:
             value = self.time
             result['time'] = value
