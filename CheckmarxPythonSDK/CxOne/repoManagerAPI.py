@@ -311,7 +311,8 @@ class RepoManagerAPI(object):
             webhook_enabled: bool = True, pr_decoration_enabled: bool = True, sca_auto_pr_enabled: bool = False,
             container_scanner_enabled: bool = True, ossf_score_card_scanner_enabled: bool = True,
             secrets_detection_scanner_enabled: bool = True, groups: List[str] = None, 
-            private_repository_scan: bool = False, tags: dict = None, is_repo_admin: bool = False,
+            private_repository_scan: bool = False, tags: dict = None, is_repo_admin: bool = False, 
+            delay_request_timeout: int = 30,
     ) -> None:
         """
 
@@ -340,6 +341,7 @@ class RepoManagerAPI(object):
             private_repository_scan (bool):
             tags (dict):
             is_repo_admin (bool):
+            delay_request_timeout (int):
 
         Returns:
             None
@@ -401,11 +403,11 @@ class RepoManagerAPI(object):
                 try:
                     percentage = self.get_job_status()
                     logger.info(f"import percent: {percentage}")
-                    time.sleep(10)
+                    time.sleep(delay_request_timeout)
                 except ChunkedEncodingError as e:
                     logger.info(f"ChunkedEncodingError: {e}")
                     continue
-            time.sleep(10)
+            time.sleep(delay_request_timeout)
 
     def get_repo_by_id(self, repo_id: int) -> dict:
         """
