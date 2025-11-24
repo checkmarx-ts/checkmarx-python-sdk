@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.7.2 - 2025-11-24
+* Lower dependency typing-extensions version from 4.15.0 to 3.6.2
+
 1.7.1 - 2025-11-24
 * [Fix] repoManagerAPI construct_repo_request and batch_import_repo missing parameters
 
