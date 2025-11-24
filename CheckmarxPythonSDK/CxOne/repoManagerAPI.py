@@ -37,11 +37,19 @@ class RepoManagerAPI(object):
         """
         origin = origin.upper()
         if origin not in self.origin_dict.keys():
-            raise ValueError(f"origin {origin} not support! Currently only support GITHUB, GITLAB, AZURE, BITBUCKET")
+            raise ValueError(
+                f"origin {origin} not support!"
+                f"Currently only support GITHUB, GITLAB, AZURE, BITBUCKET"
+            )
         return origin
 
     def get_repos(
-            self, origin: str, organization: str, auth_code: str, is_user: bool = False, page: int = 1
+        self,
+        origin: str,
+        organization: str,
+        auth_code: str,
+        is_user: bool = False,
+        page: int = 1,
     ) -> Response:
         """
 
@@ -56,7 +64,10 @@ class RepoManagerAPI(object):
             Response
         """
         origin = self.check_origin(origin)
-        relative_url = f"/api/repos-manager/scms/{self.origin_dict.get(origin)}/orgs/{organization}/repos"
+        origin_index = self.origin_dict.get(origin)
+        relative_url = (
+            f"/api/repos-manager/scms" f"/{origin_index}/orgs/{organization}/repos"
+        )
         params = {
             "authCode": auth_code,
             "isUser": str(is_user).lower(),
@@ -64,7 +75,9 @@ class RepoManagerAPI(object):
         }
         return self.api_client.get_request(relative_url=relative_url, params=params)
 
-    def get_all_repos(self, origin: str, organization: str, auth_code: str, is_user: bool = False) -> List[dict]:
+    def get_all_repos(
+        self, origin: str, organization: str, auth_code: str, is_user: bool = False
+    ) -> List[dict]:
         """
 
         Args:
@@ -80,9 +93,17 @@ class RepoManagerAPI(object):
         result = []
         page = 1
         while True:
-            repos = self.get_repos(
-                origin=origin, organization=organization, auth_code=auth_code, is_user=is_user, page=page
-            ).json().get("repoWebDtoList")
+            repos = (
+                self.get_repos(
+                    origin=origin,
+                    organization=organization,
+                    auth_code=auth_code,
+                    is_user=is_user,
+                    page=page,
+                )
+                .json()
+                .get("repoWebDtoList")
+            )
             page += 1
             if not repos:
                 break
@@ -90,7 +111,12 @@ class RepoManagerAPI(object):
         return result
 
     def get_repo_branches(
-            self, origin: str, organization: str, repo_name: str, auth_code: str, page: int = 1
+        self,
+        origin: str,
+        organization: str,
+        repo_name: str,
+        auth_code: str,
+        page: int = 1,
     ) -> Response:
         """
 
@@ -105,12 +131,21 @@ class RepoManagerAPI(object):
             Response
         """
         origin = self.check_origin(origin)
-        relative_url = (f"/api/repos-manager/scms/{self.origin_dict.get(origin)}/orgs/{organization}/repos"
-                        f"/{repo_name}/branches")
+        origin_index = self.origin_dict.get(origin)
+        relative_url = (
+            f"/api/repos-manager/scms"
+            f"/{origin_index}/orgs/{organization}/repos"
+            f"/{repo_name}/branches"
+        )
         params = {"authCode": auth_code, "page": page}
-        return self.api_client.get_request(relative_url=relative_url, params=params)
+        return self.api_client.get_request(
+            relative_url=relative_url,
+            params=params,
+        )
 
-    def get_all_repo_branches(self, origin: str, organization: str, repo_name: str, auth_code: str) -> List[dict]:
+    def get_all_repo_branches(
+        self, origin: str, organization: str, repo_name: str, auth_code: str
+    ) -> List[dict]:
         """
 
         Args:
@@ -126,9 +161,17 @@ class RepoManagerAPI(object):
         result = []
         page = 1
         while True:
-            repos = self.get_repo_branches(
-                origin=origin, organization=organization, repo_name=repo_name, auth_code=auth_code, page=page
-            ).json().get("branchWebDtoList")
+            repos = (
+                self.get_repo_branches(
+                    origin=origin,
+                    organization=organization,
+                    repo_name=repo_name,
+                    auth_code=auth_code,
+                    page=page,
+                )
+                .json()
+                .get("branchWebDtoList")
+            )
             page += 1
             if not repos:
                 break
@@ -137,14 +180,28 @@ class RepoManagerAPI(object):
 
     @staticmethod
     def construct_repo_request(
-            http_repo_url: str, ssh_repo_url: str, repo_id: str = None, branches: List[dict] = None,
-            is_repo_admin: bool = False, origin: str = "GITHUB", kics_scanner_enabled: bool = True,
-            sast_incremental_scan: bool = True, sast_scanner_enabled: bool = True, api_sec_scanner_enabled: bool = True,
-            sca_scanner_enabled: bool = True, webhook_enabled: bool = True, pr_decoration_enabled: bool = True,
-            sca_auto_pr_enabled: bool = False, container_scanner_enabled: bool = True,
-            ossf_score_card_scanner_enabled: bool = True, secrets_detection_scanner_enabled: bool = True,
-            project_id: str = None, default_branch: str = None, groups: List[str] = None, 
-            private_repository_scan: bool = False, tags: dict = None,
+        http_repo_url: str,
+        ssh_repo_url: str,
+        repo_id: str = None,
+        branches: List[dict] = None,
+        is_repo_admin: bool = False,
+        origin: str = "GITHUB",
+        kics_scanner_enabled: bool = True,
+        sast_incremental_scan: bool = True,
+        sast_scanner_enabled: bool = True,
+        api_sec_scanner_enabled: bool = True,
+        sca_scanner_enabled: bool = True,
+        webhook_enabled: bool = True,
+        pr_decoration_enabled: bool = True,
+        sca_auto_pr_enabled: bool = False,
+        container_scanner_enabled: bool = True,
+        ossf_score_card_scanner_enabled: bool = True,
+        secrets_detection_scanner_enabled: bool = True,
+        project_id: str = None,
+        default_branch: str = None,
+        groups: List[str] = None,
+        private_repository_scan: bool = False,
+        tags: dict = None,
     ) -> dict:
         """
 
@@ -210,18 +267,27 @@ class RepoManagerAPI(object):
             "url": http_repo_url,
             "webhookEnabled": webhook_enabled,
         }
-        if origin in ['GITLAB', "BITBUCKET"]:
+        if origin in ["GITLAB", "BITBUCKET"]:
             data.update({"id": repo_id})
         if origin in ["AZURE"]:
-            data.update({
-                "id": repo_id,
-                "projectId": project_id,
-            })
+            data.update(
+                {
+                    "id": repo_id,
+                    "projectId": project_id,
+                }
+            )
         return data
 
     def repo_import(
-            self, origin: str, organization: str, auth_code: str, repos_from_request: List[dict], is_user: bool = False,
-            is_org_webhook_enabled: bool = False, create_ast_project: bool = True, scan_ast_project: bool = False
+        self,
+        origin: str,
+        organization: str,
+        auth_code: str,
+        repos_from_request: List[dict],
+        is_user: bool = False,
+        is_org_webhook_enabled: bool = False,
+        create_ast_project: bool = True,
+        scan_ast_project: bool = False,
     ) -> Response:
         """
 
@@ -243,7 +309,7 @@ class RepoManagerAPI(object):
             "isUser": str(is_user).lower(),
             "isOrgWebhookEnabled": str(is_org_webhook_enabled).lower(),
             "createAstProject": str(create_ast_project).lower(),
-            "scanAstProject": str(scan_ast_project).lower()
+            "scanAstProject": str(scan_ast_project).lower(),
         }
         logger.debug(f"params: {params}")
         headers = {
@@ -261,14 +327,14 @@ class RepoManagerAPI(object):
             "sec-fetch-site": "same-origin",
             "strict-transport-security": "max-age=31536000; includeSubDomains",
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/134.0.0.0 Safari/537.36",
+            "Chrome/134.0.0.0 Safari/537.36",
             "webapp": "true",
-            'Accept-Encoding': 'identity',
+            "Accept-Encoding": "identity",
         }
         data = {
             "reposFromRequest": repos_from_request,
             "orgSshKey": "",
-            "orgSshState": "SKIPPED"
+            "orgSshState": "SKIPPED",
         }
         logger.debug(f"payload: {data}")
         relative_url = f"/api/repos-manager/scms/{self.origin_dict.get(origin)}/orgs/{organization}/"
@@ -276,7 +342,9 @@ class RepoManagerAPI(object):
             relative_url += "asyncImport"
         else:
             relative_url += "repos"
-        response = self.api_client.post_request(relative_url=relative_url, params=params, headers=headers, json=data)
+        response = self.api_client.post_request(
+            relative_url=relative_url, params=params, headers=headers, json=data
+        )
         return response
 
     def get_job_status(self) -> int:
@@ -295,24 +363,45 @@ class RepoManagerAPI(object):
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/134.0.0.0 Safari/537.36",
-            'Accept-Encoding': 'identity',
+            "Chrome/134.0.0.0 Safari/537.36",
+            "Accept-Encoding": "identity",
         }
         response = self.api_client.get_request(relative_url, headers=headers)
-        data_list = [json.loads(item.replace("data:", "")) for item in response.text.split("\n") if item != ""]
+        data_list = [
+            json.loads(item.replace("data:", ""))
+            for item in response.text.split("\n")
+            if item != ""
+        ]
         job_percentage = data_list[-1].get("percentage")
         return job_percentage
 
     def batch_import_repo(
-            self, repos: List[dict], origin: str, organization: str, auth_code: str, chunk_size: int = 200,
-            is_user: bool = False, is_org_webhook_enabled: bool = False, create_ast_project: bool = True,
-            scan_ast_project: bool = False, kics_scanner_enabled: bool = True, sast_incremental_scan: bool = True,
-            sast_scanner_enabled: bool = True, api_sec_scanner_enabled: bool = True, sca_scanner_enabled: bool = True,
-            webhook_enabled: bool = True, pr_decoration_enabled: bool = True, sca_auto_pr_enabled: bool = False,
-            container_scanner_enabled: bool = True, ossf_score_card_scanner_enabled: bool = True,
-            secrets_detection_scanner_enabled: bool = True, groups: List[str] = None, 
-            private_repository_scan: bool = False, tags: dict = None, is_repo_admin: bool = False, 
-            delay_request_timeout: int = 30,
+        self,
+        repos: List[dict],
+        origin: str,
+        organization: str,
+        auth_code: str,
+        chunk_size: int = 200,
+        is_user: bool = False,
+        is_org_webhook_enabled: bool = False,
+        create_ast_project: bool = True,
+        scan_ast_project: bool = False,
+        kics_scanner_enabled: bool = True,
+        sast_incremental_scan: bool = True,
+        sast_scanner_enabled: bool = True,
+        api_sec_scanner_enabled: bool = True,
+        sca_scanner_enabled: bool = True,
+        webhook_enabled: bool = True,
+        pr_decoration_enabled: bool = True,
+        sca_auto_pr_enabled: bool = False,
+        container_scanner_enabled: bool = True,
+        ossf_score_card_scanner_enabled: bool = True,
+        secrets_detection_scanner_enabled: bool = True,
+        groups: List[str] = None,
+        private_repository_scan: bool = False,
+        tags: dict = None,
+        is_repo_admin: bool = False,
+        delay_request_timeout: int = 30,
     ) -> None:
         """
 
@@ -360,10 +449,9 @@ class RepoManagerAPI(object):
                     http_repo_url=repo.get("url"),
                     ssh_repo_url=repo.get("sshRepoUrl"),
                     repo_id=repo.get("id"),
-                    branches=[{
-                        "name": repo.get("defaultBranch"),
-                        "isDefaultBranch": True
-                    }],
+                    branches=[
+                        {"name": repo.get("defaultBranch"), "isDefaultBranch": True}
+                    ],
                     origin=origin,
                     kics_scanner_enabled=kics_scanner_enabled,
                     sast_incremental_scan=sast_incremental_scan,
@@ -377,26 +465,38 @@ class RepoManagerAPI(object):
                     ossf_score_card_scanner_enabled=ossf_score_card_scanner_enabled,
                     secrets_detection_scanner_enabled=secrets_detection_scanner_enabled,
                     is_repo_admin=is_repo_admin,
-                    default_branch=repo.get("defaultBranch"), 
-                    groups=groups, 
-                    private_repository_scan=private_repository_scan, 
+                    default_branch=repo.get("defaultBranch"),
+                    groups=groups,
+                    private_repository_scan=private_repository_scan,
                     tags=tags,
                 )
             )
         round_of_requests = math.ceil(len(repos) / chunk_size)
-        logger.info(f"there are total {len(repos)} repos in org: {organization}, "
-                    f"total {len(repo_requests)} repo requests created, "
-                    f"will be {round_of_requests} round_of_requests ")
+        logger.info(
+            f"there are total {len(repos)} repos in org: {organization}, "
+            f"total {len(repo_requests)} repo requests created, "
+            f"will be {round_of_requests} round_of_requests "
+        )
         round_i = 0
         while round_i < round_of_requests:
-            repo_request_chunks = repo_requests[round_i * chunk_size: (round_i + 1) * chunk_size]
-            logger.debug(f'All urls in this round of chunks: {"\n".join([item.get("url") for item in repo_request_chunks])} ')
-            logger.info(f"round {round_i + 1}, number of repos to create: {len(repo_request_chunks)} ")
+            repo_request_chunks = repo_requests[
+                round_i * chunk_size : (round_i + 1) * chunk_size
+            ]
+            urls_str = "\n".join([item.get("url") for item in repo_request_chunks])
+            logger.debug(f"All urls in this round of chunks: {urls_str}")
+            logger.info(
+                f"round {round_i + 1}, number of repos to create: {len(repo_request_chunks)} "
+            )
             round_i += 1
             self.repo_import(
-                origin=origin, organization=organization, auth_code=auth_code, repos_from_request=repo_request_chunks,
-                is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled, create_ast_project=create_ast_project,
-                scan_ast_project=scan_ast_project
+                origin=origin,
+                organization=organization,
+                auth_code=auth_code,
+                repos_from_request=repo_request_chunks,
+                is_user=is_user,
+                is_org_webhook_enabled=is_org_webhook_enabled,
+                create_ast_project=create_ast_project,
+                scan_ast_project=scan_ast_project,
             )
             percentage = 0
             while percentage < 100:
@@ -511,7 +611,9 @@ class RepoManagerAPI(object):
         """
         relative_url = f"/api/repos-manager/repo/{repo_id}"
         params = {"projectId": project_id}
-        response = self.api_client.put_request(relative_url=relative_url, params=params, json=pay_load)
+        response = self.api_client.put_request(
+            relative_url=relative_url, params=params, json=pay_load
+        )
         return response.json()
 
 
@@ -519,61 +621,118 @@ def check_origin(origin: str) -> str:
     return RepoManagerAPI().check_origin(origin=origin)
 
 
-def get_repos(origin: str, organization: str, auth_code: str, is_user: bool = False, page: int = 1) -> Response:
+def get_repos(
+    origin: str, organization: str, auth_code: str, is_user: bool = False, page: int = 1
+) -> Response:
     return RepoManagerAPI().get_repos(
-        origin=origin, organization=organization, auth_code=auth_code, is_user=is_user, page=page
+        origin=origin,
+        organization=organization,
+        auth_code=auth_code,
+        is_user=is_user,
+        page=page,
     )
 
 
-def get_all_repos(origin: str, organization: str, auth_code: str, is_user: bool = False) -> List[dict]:
+def get_all_repos(
+    origin: str, organization: str, auth_code: str, is_user: bool = False
+) -> List[dict]:
     return RepoManagerAPI().get_all_repos(
         origin=origin, organization=organization, auth_code=auth_code, is_user=is_user
     )
 
 
-def get_repo_branches(origin: str, organization: str, repo_name: str, auth_code: str, page: int = 1) -> Response:
+def get_repo_branches(
+    origin: str, organization: str, repo_name: str, auth_code: str, page: int = 1
+) -> Response:
     return RepoManagerAPI().get_repo_branches(
-        origin=origin, organization=organization, repo_name=repo_name, auth_code=auth_code, page=page
+        origin=origin,
+        organization=organization,
+        repo_name=repo_name,
+        auth_code=auth_code,
+        page=page,
     )
 
 
-def get_all_repo_branches(origin: str, organization: str, repo_name: str, auth_code: str) -> List[dict]:
+def get_all_repo_branches(
+    origin: str, organization: str, repo_name: str, auth_code: str
+) -> List[dict]:
     return RepoManagerAPI().get_all_repo_branches(
-        origin=origin, organization=organization, repo_name=repo_name, auth_code=auth_code
+        origin=origin,
+        organization=organization,
+        repo_name=repo_name,
+        auth_code=auth_code,
     )
 
 
 def construct_repo_request(
-        http_repo_url: str, ssh_repo_url: str, repo_id: str = None, branches: List[dict] = None,
-        is_repo_admin: bool = True,
-        origin: str = "GITHUB", kics_scanner_enabled: bool = True, sast_incremental_scan: bool = True,
-        sast_scanner_enabled: bool = True, api_sec_scanner_enabled: bool = True, sca_scanner_enabled: bool = True,
-        webhook_enabled: bool = True, pr_decoration_enabled: bool = True, sca_auto_pr_enabled: bool = False,
-        container_scanner_enabled: bool = True, ossf_score_card_scanner_enabled: bool = True,
-        secrets_detection_scanner_enabled: bool = True, project_id: str = None
+    http_repo_url: str,
+    ssh_repo_url: str,
+    repo_id: str = None,
+    branches: List[dict] = None,
+    is_repo_admin: bool = True,
+    origin: str = "GITHUB",
+    kics_scanner_enabled: bool = True,
+    sast_incremental_scan: bool = True,
+    sast_scanner_enabled: bool = True,
+    api_sec_scanner_enabled: bool = True,
+    sca_scanner_enabled: bool = True,
+    webhook_enabled: bool = True,
+    pr_decoration_enabled: bool = True,
+    sca_auto_pr_enabled: bool = False,
+    container_scanner_enabled: bool = True,
+    ossf_score_card_scanner_enabled: bool = True,
+    secrets_detection_scanner_enabled: bool = True,
+    project_id: str = None,
+    default_branch: str = None,
+    groups: List[str] = None,
+    private_repository_scan: bool = False,
+    tags: dict = None,
 ) -> dict:
     return RepoManagerAPI().construct_repo_request(
-        http_repo_url=http_repo_url, ssh_repo_url=ssh_repo_url, repo_id=repo_id, branches=branches,
+        http_repo_url=http_repo_url,
+        ssh_repo_url=ssh_repo_url,
+        repo_id=repo_id,
+        branches=branches,
         is_repo_admin=is_repo_admin,
-        origin=origin, kics_scanner_enabled=kics_scanner_enabled, sast_incremental_scan=sast_incremental_scan,
-        sast_scanner_enabled=sast_scanner_enabled, api_sec_scanner_enabled=api_sec_scanner_enabled,
-        sca_scanner_enabled=sca_scanner_enabled, webhook_enabled=webhook_enabled,
-        pr_decoration_enabled=pr_decoration_enabled, sca_auto_pr_enabled=sca_auto_pr_enabled,
+        origin=origin,
+        kics_scanner_enabled=kics_scanner_enabled,
+        sast_incremental_scan=sast_incremental_scan,
+        sast_scanner_enabled=sast_scanner_enabled,
+        api_sec_scanner_enabled=api_sec_scanner_enabled,
+        sca_scanner_enabled=sca_scanner_enabled,
+        webhook_enabled=webhook_enabled,
+        pr_decoration_enabled=pr_decoration_enabled,
+        sca_auto_pr_enabled=sca_auto_pr_enabled,
         container_scanner_enabled=container_scanner_enabled,
         ossf_score_card_scanner_enabled=ossf_score_card_scanner_enabled,
         secrets_detection_scanner_enabled=secrets_detection_scanner_enabled,
         project_id=project_id,
+        default_branch=default_branch,
+        group=groups,
+        private_repository_scan=private_repository_scan,
+        tags=tags,
     )
 
 
 def repo_import(
-        origin: str, organization: str, auth_code: str, repos_from_request: List[dict], is_user: bool = False,
-        is_org_webhook_enabled: bool = False, create_ast_project: bool = True, scan_ast_project: bool = False
+    origin: str,
+    organization: str,
+    auth_code: str,
+    repos_from_request: List[dict],
+    is_user: bool = False,
+    is_org_webhook_enabled: bool = False,
+    create_ast_project: bool = True,
+    scan_ast_project: bool = False,
 ) -> Response:
     return RepoManagerAPI().repo_import(
-        origin=origin, organization=organization, auth_code=auth_code, repos_from_request=repos_from_request,
-        is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled, create_ast_project=create_ast_project,
-        scan_ast_project=scan_ast_project
+        origin=origin,
+        organization=organization,
+        auth_code=auth_code,
+        repos_from_request=repos_from_request,
+        is_user=is_user,
+        is_org_webhook_enabled=is_org_webhook_enabled,
+        create_ast_project=create_ast_project,
+        scan_ast_project=scan_ast_project,
     )
 
 
@@ -582,37 +741,58 @@ def get_job_status() -> int:
 
 
 def batch_import_repo(
-        repos: List[dict],
-        origin: str,
-        organization: str,
-        auth_code: str,
-        chunk_size: int = 200,
-        is_user: bool = False,
-        is_org_webhook_enabled: bool = False,
-        create_ast_project: bool = True,
-        scan_ast_project: bool = False,
-        kics_scanner_enabled=True,
-        sast_incremental_scan=True,
-        sast_scanner_enabled=True,
-        api_sec_scanner_enabled=True,
-        sca_scanner_enabled=True,
-        webhook_enabled=True,
-        pr_decoration_enabled=True,
-        sca_auto_pr_enabled=False,
-        container_scanner_enabled=True,
-        ossf_score_card_scanner_enabled=True,
-        secrets_detection_scanner_enabled=True
+    repos: List[dict],
+    origin: str,
+    organization: str,
+    auth_code: str,
+    chunk_size: int = 200,
+    is_user: bool = False,
+    is_org_webhook_enabled: bool = False,
+    create_ast_project: bool = True,
+    scan_ast_project: bool = False,
+    kics_scanner_enabled=True,
+    sast_incremental_scan=True,
+    sast_scanner_enabled=True,
+    api_sec_scanner_enabled=True,
+    sca_scanner_enabled=True,
+    webhook_enabled=True,
+    pr_decoration_enabled=True,
+    sca_auto_pr_enabled=False,
+    container_scanner_enabled=True,
+    ossf_score_card_scanner_enabled=True,
+    secrets_detection_scanner_enabled=True,
+    groups: List[str] = None,
+    private_repository_scan: bool = False,
+    tags: dict = None,
+    is_repo_admin: bool = False,
+    delay_request_timeout: int = 30,
 ) -> None:
     return RepoManagerAPI().batch_import_repo(
-        repos=repos, origin=origin, organization=organization, auth_code=auth_code, chunk_size=chunk_size,
-        is_user=is_user, is_org_webhook_enabled=is_org_webhook_enabled, create_ast_project=create_ast_project,
-        scan_ast_project=scan_ast_project, kics_scanner_enabled=kics_scanner_enabled,
-        sast_incremental_scan=sast_incremental_scan, sast_scanner_enabled=sast_scanner_enabled,
-        api_sec_scanner_enabled=api_sec_scanner_enabled, sca_scanner_enabled=sca_scanner_enabled,
-        webhook_enabled=webhook_enabled, pr_decoration_enabled=pr_decoration_enabled,
-        sca_auto_pr_enabled=sca_auto_pr_enabled, container_scanner_enabled=container_scanner_enabled,
+        repos=repos,
+        origin=origin,
+        organization=organization,
+        auth_code=auth_code,
+        chunk_size=chunk_size,
+        is_user=is_user,
+        is_org_webhook_enabled=is_org_webhook_enabled,
+        create_ast_project=create_ast_project,
+        scan_ast_project=scan_ast_project,
+        kics_scanner_enabled=kics_scanner_enabled,
+        sast_incremental_scan=sast_incremental_scan,
+        sast_scanner_enabled=sast_scanner_enabled,
+        api_sec_scanner_enabled=api_sec_scanner_enabled,
+        sca_scanner_enabled=sca_scanner_enabled,
+        webhook_enabled=webhook_enabled,
+        pr_decoration_enabled=pr_decoration_enabled,
+        sca_auto_pr_enabled=sca_auto_pr_enabled,
+        container_scanner_enabled=container_scanner_enabled,
         ossf_score_card_scanner_enabled=ossf_score_card_scanner_enabled,
-        secrets_detection_scanner_enabled=secrets_detection_scanner_enabled
+        secrets_detection_scanner_enabled=secrets_detection_scanner_enabled,
+        groups=groups,
+        private_repository_scan=private_repository_scan,
+        tags=tags,
+        is_repo_admin=is_repo_admin,
+        delay_request_timeout=delay_request_timeout,
     )
 
 
@@ -621,4 +801,6 @@ def get_repo_by_id(repo_id: int) -> dict:
 
 
 def update_repo_by_id(repo_id: int, project_id: str, pay_load: dict) -> dict:
-    return RepoManagerAPI().update_repo_by_id(repo_id=repo_id, project_id=project_id, pay_load=pay_load)
+    return RepoManagerAPI().update_repo_by_id(
+        repo_id=repo_id, project_id=project_id, pay_load=pay_load
+    )
