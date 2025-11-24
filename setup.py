@@ -41,7 +41,7 @@ setup(
         "zeep>=4.1.0",
         "Deprecated>=1.2.13",
         "inflection>=0.5.1",
-        "typing-extensions>=4.15.0"
+        "typing-extensions>=3.6.2"
     ],
     extras_require={
         "dotenv": ["python-dotenv"],
