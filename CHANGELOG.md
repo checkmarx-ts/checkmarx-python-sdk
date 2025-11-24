@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+
+1.7.1 - 2025-11-24
+* [Fix] repoManagerAPI construct_repo_request and batch_import_repo missing parameters
+
 1.7.0 - 2025-11-24
 * [Update] add parameter delay_request_timeout default 30 seconds to RepoManagerAPI method batch_import_repo
 * [Fix] RealmsAdminAPI get_events is broken
