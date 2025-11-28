@@ -170,3 +170,12 @@ def test_get_scan_progress_by_scan_id():
 def test_get_packages_of_a_scan():
     result = ScaAPI().get_packages_of_a_scan(scan_id="d201a795-e2f0-44bf-8f5a-d6a5eb1c28b7")
     assert result is not None
+
+def test_get_packages_from_inventory_by_name_and_version():
+    package_name = "pillow"
+    package_version = "2.9.0"
+    result = ScaAPI().get_packages_from_inventory_by_name_and_version(
+        package_name=package_name, 
+        package_version=package_version
+    )
+    assert result.status_code == 200

@@ -2550,6 +2550,153 @@ class Sca(object):
                  "}")
         response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
         return response
+    
+    def get_packages_from_inventory_by_name_and_version(self, package_name: str, package_version: str, take: int = 10, skip: int = 0):
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+
+        Returns:
+            example:
+                {
+                    "data": {
+                        "reportingPackages": [
+                            {
+                                "packageId": "Npm-ua-parser-js-0.7.29",
+                                "packageName": "ua-parser-js",
+                                "packageVersion": "0.7.29",
+                                "packageRepository": "Npm",
+                                "outdated": true,
+                                "releaseDate": "2021-10-26T15:16:12.000Z",
+                                "newestVersion": "2.0.3",
+                                "newestVersionReleaseDate": "2025-03-14T18:06:56.665Z",
+                                "numberOfVersionsSinceLastUpdate": 24,
+                                "effectiveLicenses": [
+                                    "MIT"
+                                ],
+                                "licenses": [
+                                    "MIT"
+                                ],
+                                "projectName": "SCS - Malicious package inside",
+                                "projectId": "58f9fd5f-df06-41fa-a9a5-631e79a2d182",
+                                "scanId": "3890702b-4700-4247-9efb-e01dbae6ccc0",
+                                "aggregatedCriticalVulnerabilities": 0,
+                                "aggregatedHighVulnerabilities": 1,
+                                "aggregatedMediumVulnerabilities": 0,
+                                "aggregatedLowVulnerabilities": 0,
+                                "aggregatedNoneVulnerabilities": 0,
+                                "aggregatedCriticalSuspectedMalwares": 7,
+                                "aggregatedHighSuspectedMalwares": 0,
+                                "aggregatedMediumSuspectedMalwares": 0,
+                                "aggregatedLowSuspectedMalwares": 0,
+                                "aggregatedNoneSuspectedMalwares": 0,
+                                "relation": "Direct",
+                                "isDevDependency": false,
+                                "isTest": false,
+                                "isNpmVerified": false,
+                                "isPluginDependency": false,
+                                "isPrivateDependency": false,
+                                "tags": [],
+                                "scanDate": "2025-06-11T09:05:59.839Z",
+                                "status": "Monitored",
+                                "statusValue": "Monitored",
+                                "isMalicious": true,
+                                "usage": "Unknown",
+                                "isFixAvailable": true,
+                                "fixRecommendationVersion": "2.0.3",
+                                "pendingStatus": "Monitored",
+                                "pendingStatusEndDate": null,
+                                "groupIds": [],
+                                "applicationIds": []
+                            },
+                            {
+                                "packageId": "Npm-ua-parser-js-0.7.29",
+                                "packageName": "ua-parser-js",
+                                "packageVersion": "0.7.29",
+                                "packageRepository": "Npm",
+                                "outdated": true,
+                                "releaseDate": "2021-10-26T15:16:12.000Z",
+                                "newestVersion": "1.0.38",
+                                "newestVersionReleaseDate": "2024-05-28T14:24:43.180Z",
+                                "numberOfVersionsSinceLastUpdate": 16,
+                                "effectiveLicenses": [
+                                    "MIT"
+                                ],
+                                "licenses": [
+                                    "MIT"
+                                ],
+                                "projectName": "SCS Advanced",
+                                "projectId": "faef2fd6-bf01-476a-a282-ac8deeff17e0",
+                                "scanId": "68a69ed8-e9b6-446e-a4fa-b16c59354c3d",
+                                "aggregatedCriticalVulnerabilities": 0,
+                                "aggregatedHighVulnerabilities": 2,
+                                "aggregatedMediumVulnerabilities": 0,
+                                "aggregatedLowVulnerabilities": 0,
+                                "aggregatedNoneVulnerabilities": 0,
+                                "aggregatedCriticalSuspectedMalwares": 0,
+                                "aggregatedHighSuspectedMalwares": 0,
+                                "aggregatedMediumSuspectedMalwares": 0,
+                                "aggregatedLowSuspectedMalwares": 0,
+                                "aggregatedNoneSuspectedMalwares": 0,
+                                "relation": "Direct",
+                                "isDevDependency": false,
+                                "isTest": false,
+                                "isNpmVerified": false,
+                                "isPluginDependency": false,
+                                "isPrivateDependency": false,
+                                "tags": [],
+                                "scanDate": "2024-09-09T13:17:20.960Z",
+                                "status": "Monitored",
+                                "statusValue": "Monitored",
+                                "isMalicious": false,
+                                "usage": "Unknown",
+                                "isFixAvailable": null,
+                                "fixRecommendationVersion": null,
+                                "pendingStatus": "Monitored",
+                                "pendingStatusEndDate": null,
+                                "groupIds": [],
+                                "applicationIds": []
+                            }
+                        ]
+                    }
+                }
+        """
+        query = ("query { "
+                 " reportingPackages ("
+                 " where: { "
+                 "    and:[{packageName:{contains:\""
+                 f"{package_name}"
+                 "\"} }, "
+                 "{packageVersion:{contains:\""
+                 f"{package_version}"
+                 "\"} }]"
+                 " }, "
+                 f" take: {take}, "
+                 f" skip: {0}, "
+                 " order: [ "
+                 "   {isMalicious:DESC},"
+                 "   {aggregatedCriticalVulnerabilities:DESC},"
+                 "   {aggregatedHighVulnerabilities:DESC},"
+                 "   {aggregatedMediumVulnerabilities:DESC},"
+                 "   {aggregatedLowVulnerabilities:DESC}, "
+                 "   {aggregatedNoneVulnerabilities:DESC}"
+                 " ]"
+                 ")"
+                 " { packageId, packageName, packageVersion, packageRepository, outdated, releaseDate," 
+                 " newestVersion, newestVersionReleaseDate, numberOfVersionsSinceLastUpdate, "
+                 " effectiveLicenses, licenses, projectName, projectId, scanId, "
+                 " aggregatedCriticalVulnerabilities, aggregatedHighVulnerabilities, "
+                 " aggregatedMediumVulnerabilities, aggregatedLowVulnerabilities, aggregatedNoneVulnerabilities,"
+                 " aggregatedCriticalSuspectedMalwares, aggregatedHighSuspectedMalwares, "
+                 " aggregatedMediumSuspectedMalwares, aggregatedLowSuspectedMalwares, "
+                 " aggregatedNoneSuspectedMalwares, relation, isDevDependency, isTest, isNpmVerified,"
+                 " isPluginDependency, isPrivateDependency, tags, scanDate, status, statusValue, "
+                 " isMalicious, usage, isFixAvailable, fixRecommendationVersion, pendingStatus, "
+                 " pendingStatusEndDate, groupIds, applicationIds } "
+                 "}")
+        response = self.api_client.get_request(relative_url=self.gql_relative_url, params={"query": query})
+        return response
 
 
 def get_all_projects(project_name=None):
@@ -2889,3 +3036,6 @@ def get_scan_info_by_scan_id(scan_id):
 
 def get_scan_progress_by_scan_id(scan_id):
     return Sca().get_scan_progress_by_scan_id(scan_id)
+
+def get_packages_from_inventory_by_name_and_version(package_name: str, package_version: str):
+    return Sca().get_packages_from_inventory_by_name_and_version(package_name=package_name, package_version=package_version)
