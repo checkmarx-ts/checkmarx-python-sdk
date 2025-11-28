@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.7.3 - 2025-11-28
+* [Add] SCA API get_packages_from_inventory_by_name_and_version
 
 1.7.2 - 2025-11-24
 * Lower dependency typing-extensions version from 4.15.0 to 3.6.2
