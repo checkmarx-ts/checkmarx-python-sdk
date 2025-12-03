@@ -27,7 +27,7 @@ class QueryDetails:
 
 def construct_query_details(item):
     return QueryDetails(
-        id=item.get("id"),
+        id=item.get("queryID"),
         cwe_id=item.get("cweID"),
         language=item.get("language"),
         group=item.get("group"),
