@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+1.7.4 - 2025-12-11
+* [Fix] CxOne repoStoreServiceAPI view_source_code_of_specified_file
+
 1.7.3 - 2025-11-28
 * [Add] SCA API get_packages_from_inventory_by_name_and_version
 

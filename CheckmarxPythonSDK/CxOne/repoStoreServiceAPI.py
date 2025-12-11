@@ -143,8 +143,8 @@ def view_scanned_source_files_in_specified_folder(scan_id: str, folder: str) -> 
     return RepoStoreServiceAPI().view_scanned_source_files_in_specified_folder(scan_id=scan_id, folder=folder)
 
 
-def view_source_code_of_specified_file(scan_id: str, file_name: str) -> bool:
-    return RepoStoreServiceAPI().view_source_code_of_specified_file(scan_id=scan_id, file_name=file_name)
+def view_source_code_of_specified_file(scan_id: str, file_path: str) -> str:
+    return RepoStoreServiceAPI().view_source_code_of_specified_file(scan_id=scan_id, file_path=file_path)
 
 
 def get_the_list_of_branches_inside_a_git_repository(
