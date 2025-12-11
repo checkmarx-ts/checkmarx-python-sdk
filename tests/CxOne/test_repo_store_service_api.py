@@ -1,4 +1,5 @@
 from CheckmarxPythonSDK.CxOne import (
+    RepoStoreServiceAPI,
     check_if_scan_has_source_code_available,
     get_project_id_by_name,
     get_the_list_of_branches_inside_a_git_repository,
@@ -19,3 +20,10 @@ def test_get_the_list_of_branches_inside_a_git_repository():
     token = None
     branches = get_the_list_of_branches_inside_a_git_repository(project_id=project_id, repo_url=repo_url, token=token)
     assert branches is not None
+
+def test_view_source_code_of_specified_file():
+    scan_id = "87cb64b1-044e-4f1b-81cb-ae9a594e819c"
+    file_path = "src/main/webapp/ForgotPassword.jsp"
+    file_source_code = RepoStoreServiceAPI().view_source_code_of_specified_file(scan_id=scan_id, file_path=file_path)
+    print(f"file_source_code: {file_source_code}")
+    assert len(file_source_code) > 0

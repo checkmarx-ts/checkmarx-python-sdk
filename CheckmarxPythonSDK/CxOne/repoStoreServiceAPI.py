@@ -83,7 +83,7 @@ class RepoStoreServiceAPI(object):
         item = response.json()
         return [construct_file_info(file_info) for file_info in item]
 
-    def view_source_code_of_specified_file(self, scan_id: str, file_name: str) -> bool:
+    def view_source_code_of_specified_file(self, scan_id: str, file_path: str) -> str:
         """
 
         Args:
@@ -93,9 +93,9 @@ class RepoStoreServiceAPI(object):
         Returns:
             bool
         """
-        relative_url = repo_store_url + f"/files/{scan_id}/{file_name}"
+        relative_url = repo_store_url + f"/files/{scan_id}/{file_path}"
         response = self.api_client.get_request(relative_url=relative_url)
-        return response.status_code == 308
+        return response.text
 
     def get_the_list_of_branches_inside_a_git_repository(
             self, project_id: str, repo_url: str, token: str = None, ssh_key: str = None
