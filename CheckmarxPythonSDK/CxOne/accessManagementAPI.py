@@ -234,7 +234,7 @@ class AccessManagementAPI(object):
         relative_url = f"{api_url}/has-access"
         params = {"resource-id": resource_id, "resource-type": resource_type, "action": action}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
-        return response.status_code == OK
+        return response.json().get("accessGranted") is True
 
     def check_access_to_requested_groups(self, group_ids: List[str], project_id: str = None) -> bool:
         """

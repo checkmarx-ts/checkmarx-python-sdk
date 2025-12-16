@@ -139,9 +139,12 @@ def test_delete_an_assignment():
 #     assert result is not None
 
 
-# def test_check_access():
-#     result = check_access(resource_id: str, resource_type: str, action: str)
-#     assert result is not None
+def test_check_access():
+    resource_id = "71fe66b9-b3ea-4fc7-8594-541d0a07a697"
+    resource_type = ResourceType.TENANTGROUP
+    action = "create-project"
+    result = check_access(resource_id=resource_id, resource_type=resource_type, action=action)
+    assert result is not None
 
 
 # def test_check_access_to_requested_groups():
