@@ -117,10 +117,10 @@ def retry_when_unauthorized(max_retries: int = 1):
 
             while retries <= max_retries:
                 try:
-                    token = self.token_manager.get_token()
-
                     headers = kwargs.get('headers', {}) or {}
-                    headers['Authorization'] = f'Bearer {token}'
+                    if not headers.get("Authorization"):
+                        token = self.token_manager.get_token()
+                        headers['Authorization'] = f'Bearer {token}'
                     kwargs['headers'] = headers
 
                     response = func(self, *args, **kwargs)
@@ -224,6 +224,8 @@ class ApiClient(object):
             cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
+        print(f"headers: {headers}")
+        print(f"response status: {response.status_code}")
         check_response(response)
         return response
 

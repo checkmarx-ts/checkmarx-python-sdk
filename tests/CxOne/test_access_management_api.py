@@ -155,9 +155,10 @@ def test_check_access():
 #     assert result is not None
 
 
-# def test_retrieve_accessible_resources():
-#     result = retrieve_accessible_resources(resource_types: str, action: str)
-#     assert result is not None
+def test_retrieve_accessible_resources():
+    result = retrieve_accessible_resources(resource_types=[ResourceType.APPLICATION], action="view-applications")
+    print(f"result: {result}")
+    assert result is not None
 
 
 # def test_retrieve_user's_or_client_groups():
@@ -170,9 +171,13 @@ def test_check_access():
 #     assert result is not None
 
 
-# def test_retrieve_groups():
-#     result = retrieve_groups(limit: None = None, offset: None = None, search: str = None, ids: str = None)
-#     assert result is not None
+def test_retrieve_groups():
+    limit = 10000
+    offset = 0
+    # ids = ["ba2d28a4-aac7-4859-90ed-e9fbfc62d947", "fb1941cd-28d7-4a1d-b305-120c69a0e8d8"]
+    result = retrieve_groups(limit=limit, offset=offset)
+    print(f"result: {result}")
+    assert len(result) > 0
 
 
 # def test_retrieve_users():
