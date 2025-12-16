@@ -124,9 +124,12 @@ def test_delete_an_assignment():
 #     assert result is not None
 
 
-# def test_retrieve_entities():
-#     result = retrieve_entities(resource_id: str, resource_type: str, entity_types: str = None)
-#     assert result is not None
+def test_retrieve_entities():
+    resource_id = "1b49ad6f-057f-400c-aa32-f6bc31caf242"
+    resource_type = ResourceType.PROJECT
+    result = retrieve_entities(resource_id=resource_id, resource_type=resource_type, entity_types=None)
+    print(f"result: {result}")
+    assert len(result) == 2
 
 
 # def test_retrieve_extended_entities_for_resource():

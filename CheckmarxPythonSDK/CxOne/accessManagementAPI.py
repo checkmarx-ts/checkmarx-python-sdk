@@ -167,7 +167,7 @@ class AccessManagementAPI(object):
         params = {"resource-id": resource_id, "resource-type": resource_type,
                   "entity-types": ",".join(entity_types) if entity_types else None}
         response = self.api_client.get_request(relative_url=relative_url, params=params)
-        return construct_assignment(response.json())
+        return [construct_assignment(item) for item in response.json()]
 
     def retrieve_extended_entities_for_resource(
             self, resource_id: str, resource_type: ResourceType, entity_types: List[EntityType] = None,

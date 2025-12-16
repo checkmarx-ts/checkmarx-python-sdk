@@ -27,6 +27,7 @@ class Assignment:
     resource_id: str = None
     resource_type: ResourceType = None
     resource_name: str = None
+    created_at: str = None
 
 
 def construct_assignment(item):
@@ -39,4 +40,5 @@ def construct_assignment(item):
         resource_id=item.get("resourceID"),
         resource_type=ResourceType(item.get("resourceType")),
         resource_name=item.get("resourceName"),
+        created_at=item.get("createdAt"),
     )
