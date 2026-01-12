@@ -224,8 +224,6 @@ class ApiClient(object):
             cert=self.configuration.cert,
             proxies=self.configuration.proxies
         )
-        print(f"headers: {headers}")
-        print(f"response status: {response.status_code}")
         check_response(response)
         return response
 
