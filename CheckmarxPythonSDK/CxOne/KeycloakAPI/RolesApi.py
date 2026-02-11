@@ -138,7 +138,7 @@ class RolesApi:
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
     def post_client_role_composites(self, realm: str, id: str, role_name: str,
-                                    role_representation: RoleRepresentation) -> bool:
+                                    role_representations: List[RoleRepresentation]) -> bool:
         """
         Add a composite to the role
         
@@ -146,7 +146,7 @@ class RolesApi:
             realm (str):  [required]
             id (str):  [required]
             role_name (str):  [required]
-            role_representation (RoleRepresentation): Request body data [required]
+            role_representations (List[RoleRepresentation]): Request body data [required]
         
         Returns:
             bool
@@ -155,9 +155,9 @@ class RolesApi:
             Relative path: /{realm}/clients/{id}/roles/{role_name}/composites
         """
         relative_url = f"{api_url}/{realm}/clients/{id}/roles/{role_name}/composites"
-        response = self.api_client.post_request(relative_url=relative_url, json=role_representation.to_dict(),
+        response = self.api_client.post_request(relative_url=relative_url, json=[role_representation.to_dict() for role_representation in role_representations],
                                                 is_iam=True)
-        return response.status_code == 201
+        return response.status_code == 204
 
     def delete_client_role_composites(self, realm: str, id: str, role_name: str) -> bool:
         """
