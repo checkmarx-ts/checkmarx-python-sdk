@@ -6,10 +6,14 @@ class Scm:
     """
 
     Attributes:
-        token (str): The token for authentication with your SCM
-        type (str): The type of SCM that you are importing from
-        self_hosted_scm_url (str): The URL of your self-hosted environment. Note: This should be the exact URL that
-            you configured for your code repository in Checkmarx One.
+        token (str): The token for authentication with your SCM, Allowed values:github, githubApp
+        type (str): The token for authentication with your SCM. Note: For integrations via 
+                    GitHub Apps, this field is not relevant.
+        self_hosted_scm_url (str): If you are using our Self-Hosted flow, submit the URL of your self-hosted environment.
+                                   Note: The initial step of creating a code repository instance (by submitting an 
+                                   Instance Name, URL, and authentication credentials) must be done via the UI. 
+                                   Then you must submit here the exact URL that you configured in the UI.
+            
     """
 
     token: str

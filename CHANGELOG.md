@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
+
+1.7.6 - 2026-02-11
+* [Fix] CxOne\KeycloakAPI\test_roles_api.py post_client_role_composites
+
 1.7.5 - 2025-01-12
 * [Remove] print response info from call_api
 * [Add] test_access_management_api.py::test_retrieve_accessible_resources test_retrieve_groups
