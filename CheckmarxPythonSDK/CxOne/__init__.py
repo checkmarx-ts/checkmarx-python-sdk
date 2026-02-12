@@ -172,6 +172,7 @@ from .projectsAPI import (
     get_branches,
     get_a_project_by_id,
     update_a_project,
+    update_specific_project_fields,
     delete_a_project,
     update_project_group,
     update_primary_branch,
