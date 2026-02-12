@@ -275,6 +275,21 @@ class ProjectsAPI(object):
         response = self.api_client.put_request(relative_url=relative_url, json=project_input.to_dict())
         return response.status_code == NO_CONTENT
 
+    def update_specific_project_fields(self, project_id: str, project_input: ProjectInput) -> bool:
+        """
+        Update specific project fields. all parameters are covered by the input sent
+        Args:
+            project_id (str):
+            project_input (ProjectInput):
+        Returns:
+            bool
+        """
+        if not project_id:
+            return False
+        relative_url = api_url + "/{id}".format(id=project_id)
+        response = self.api_client.patch_request(relative_url=relative_url, json=project_input.to_dict())
+        return response.status_code == NO_CONTENT
+
     def delete_a_project(self, project_id: str) -> bool:
         """
 
@@ -435,6 +450,10 @@ def get_a_project_by_id(project_id) -> RichProject:
 
 def update_a_project(project_id: str, project_input: ProjectInput) -> bool:
     return ProjectsAPI().update_a_project(project_id=project_id, project_input=project_input)
+
+
+def update_specific_project_fields(project_id: str, project_input: ProjectInput) -> bool:
+    return ProjectsAPI().update_specific_project_fields(project_id=project_id, project_input=project_input)
 
 
 def delete_a_project(project_id: str) -> bool:
