@@ -1,19 +1,8 @@
 from CheckmarxPythonSDK.CxOne.KeycloakAPI import (
     RolesApi,
-    # get_all_roles_for_the_client,
-    # create_role_for_the_client,
-    # delete_role_by_name,
-    # get_role_by_name,
-    # update_role_by_id,
-    # get_roles_children,
-    # get_roles_children_iam,
-    # add_children_to_a_composite_role,
-    # get_all_roles_for_the_realm,
 )
 
-from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto import (
-    RoleRepresentation
-)
+from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.RoleRepresentation import RoleRepresentation
 
 realm = "happy"
 client_id = "d3b60524-13a1-431a-a703-1d6d3d09f512"
@@ -112,6 +101,27 @@ def test_get_client_roles():
         client_roles_searched = RolesApi().get_client_roles(realm=realm, id=client_id, search=search_term)
         print(f"number of client roles (searched): {len(client_roles_searched)}")
         print(f"client_roles (searched): {[r.to_dict() for r in client_roles_searched]}")
+
+def test_post_client_roles():
+    # Test creating a role with only name attribute
+    test_role_name = "test_role_2026_02_13"
+    
+    # Try to delete the role if it exists
+    try:
+        delete_successful = RolesApi().delete_client_role(realm=realm, id=client_id, role_name=test_role_name)
+        print(f"Delete role {test_role_name} successful: {delete_successful}")
+    except Exception as e:
+        print(f"Error deleting role {test_role_name}: {e}")
+    
+    # Create the role
+    role_representation = RoleRepresentation(name=test_role_name)
+    try:
+        is_successful = RolesApi().post_client_roles(realm=realm, id=client_id, role_representation=role_representation)
+        print(f"Create role {test_role_name} successful: {is_successful}")
+        assert is_successful is True
+    except Exception as e:
+        print(f"Error creating role {test_role_name}: {e}")
+        raise
 
 def test_post_client_role_composites():
     composite_role_name = "test"
