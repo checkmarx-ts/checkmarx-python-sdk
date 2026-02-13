@@ -15,17 +15,17 @@ class RolesApi:
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-    def get_client_roles(self, realm: str, id: str, brief_representation: str = None, first: str = None,
-                         max: str = None, search: str = None) -> List[RoleRepresentation]:
+    def get_client_roles(self, realm: str, id: str, brief_representation: bool = False, first: int = None,
+                         max: int = None, search: str = None) -> List[RoleRepresentation]:
         """
         Get all roles for the realm or client
         
         Args:
             realm (str):  [required]
             id (str):  [required]
-            brief_representation (str): 
-            first (str): 
-            max (str): 
+            brief_representation (bool): 
+            first (int): first result to return. Ignored if negative or None.
+            max (int): maximum number of results to return. Ignored if negative or None.
             search (str): 
         
         Returns:

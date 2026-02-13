@@ -94,6 +94,25 @@ role_name = "test_2025_01_24"
 #     assert roles is not None
 
 
+def test_get_client_roles():
+    # Test with basic parameters
+    client_roles = RolesApi().get_client_roles(realm=realm, id=client_id)
+    print(f"number of client roles: {len(client_roles)}")
+    print(f"client_roles: {[r.to_dict() for r in client_roles]}")
+    
+    # Test with first and max parameters
+    client_roles_paginated = RolesApi().get_client_roles(realm=realm, id=client_id, first=0, max=5)
+    print(f"number of client roles (paginated): {len(client_roles_paginated)}")
+    print(f"client_roles (paginated): {[r.to_dict() for r in client_roles_paginated]}")
+    
+    # Test with search parameter
+    if client_roles:
+        # Get the first role name as search term
+        search_term = client_roles[0].name
+        client_roles_searched = RolesApi().get_client_roles(realm=realm, id=client_id, search=search_term)
+        print(f"number of client roles (searched): {len(client_roles_searched)}")
+        print(f"client_roles (searched): {[r.to_dict() for r in client_roles_searched]}")
+
 def test_post_client_role_composites():
     composite_role_name = "test"
     view_webhook_role = RolesApi().get_client_role(realm=realm, id=client_id, role_name="view-webhooks")
