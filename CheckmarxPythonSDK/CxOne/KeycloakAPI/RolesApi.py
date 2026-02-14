@@ -159,7 +159,7 @@ class RolesApi:
                                                 is_iam=True)
         return response.status_code == 204
 
-    def delete_client_role_composites(self, realm: str, id: str, role_name: str) -> bool:
+    def delete_client_role_composites(self, realm: str, id: str, role_name: str, role_representations: List[RoleRepresentation]) -> bool:
         """
         Remove roles from the role’s composite
         
@@ -167,6 +167,7 @@ class RolesApi:
             realm (str):  [required]
             id (str):  [required]
             role_name (str):  [required]
+            role_representations (List[RoleRepresentation]): Request body data [required]
         
         Returns:
             bool
@@ -175,7 +176,7 @@ class RolesApi:
             Relative path: /{realm}/clients/{id}/roles/{role_name}/composites
         """
         relative_url = f"{api_url}/{realm}/clients/{id}/roles/{role_name}/composites"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        response = self.api_client.delete_request(relative_url=relative_url, json=[role_representation.to_dict() for role_representation in role_representations], is_iam=True)
         return response.status_code == 204
 
     def get_client_role_composites_client(self, realm: str, id: str, role_name: str, client_uuid: str) -> List[

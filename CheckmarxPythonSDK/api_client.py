@@ -252,6 +252,6 @@ class ApiClient(object):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
         return self.call_api(method="PATCH", url=url, data=data, auth=auth, headers=headers, params=params, json=json)
 
-    def delete_request(self, relative_url, data=None, auth=None, headers=None, params=None, is_iam=False):
+    def delete_request(self, relative_url, data=None, auth=None, headers=None, params=None, json=None, is_iam=False):
         url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.call_api(method="DELETE", url=url, data=data, auth=auth, headers=headers, params=params)
+        return self.call_api(method="DELETE", url=url, data=data, auth=auth, headers=headers, params=params, json=json)
