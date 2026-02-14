@@ -102,25 +102,73 @@ def test_get_client_roles():
         print(f"number of client roles (searched): {len(client_roles_searched)}")
         print(f"client_roles (searched): {[r.to_dict() for r in client_roles_searched]}")
 
-def test_post_client_roles():
-    # Test creating a role with only name attribute
+def test_client_role_crud():
+    # Test CRUD operations for client roles
     test_role_name = "test_role_2026_02_13"
+    updated_description = "Updated test role description"
     
-    # Try to delete the role if it exists
+    # Step 1: Delete the role if it exists
     try:
         delete_successful = RolesApi().delete_client_role(realm=realm, id=client_id, role_name=test_role_name)
         print(f"Delete role {test_role_name} successful: {delete_successful}")
     except Exception as e:
         print(f"Error deleting role {test_role_name}: {e}")
     
-    # Create the role
+    # Step 2: Create the role (C)
     role_representation = RoleRepresentation(name=test_role_name)
     try:
-        is_successful = RolesApi().post_client_roles(realm=realm, id=client_id, role_representation=role_representation)
-        print(f"Create role {test_role_name} successful: {is_successful}")
-        assert is_successful is True
+        create_successful = RolesApi().post_client_roles(realm=realm, id=client_id, role_representation=role_representation)
+        print(f"Create role {test_role_name} successful: {create_successful}")
+        assert create_successful is True
     except Exception as e:
         print(f"Error creating role {test_role_name}: {e}")
+        raise
+    
+    # Step 3: Read the role (R)
+    try:
+        created_role = RolesApi().get_client_role(realm=realm, id=client_id, role_name=test_role_name)
+        print(f"Read role {test_role_name} successful: {created_role.to_dict()}")
+        assert created_role is not None
+        assert created_role.name == test_role_name
+    except Exception as e:
+        print(f"Error reading role {test_role_name}: {e}")
+        raise
+    
+    # Step 4: Update the role (U)
+    try:
+        updated_role_representation = RoleRepresentation(
+            name=test_role_name,
+            description=updated_description,
+            composite=False,
+            client_role=True
+        )
+        update_successful = RolesApi().put_client_role(realm=realm, id=client_id, role_name=test_role_name, role_representation=updated_role_representation)
+        print(f"Update role {test_role_name} successful: {update_successful}")
+        assert update_successful is True
+        
+        # Verify the update
+        updated_role = RolesApi().get_client_role(realm=realm, id=client_id, role_name=test_role_name)
+        print(f"Updated role {test_role_name} description: {updated_role.description}")
+        assert updated_role.description == updated_description
+    except Exception as e:
+        print(f"Error updating role {test_role_name}: {e}")
+        raise
+    
+    # Step 5: Delete the role (D)
+    try:
+        delete_successful = RolesApi().delete_client_role(realm=realm, id=client_id, role_name=test_role_name)
+        print(f"Delete role {test_role_name} successful: {delete_successful}")
+        assert delete_successful is True
+        
+        # Verify the deletion
+        try:
+            deleted_role = RolesApi().get_client_role(realm=realm, id=client_id, role_name=test_role_name)
+            print(f"Role {test_role_name} still exists after deletion: {deleted_role.to_dict()}")
+            assert False, "Role should have been deleted"
+        except Exception as e:
+            print(f"Verified role {test_role_name} deletion: {e}")
+    except Exception as e:
+        print(f"Error deleting role {test_role_name}: {e}")
         raise
 
 def test_post_client_role_composites():
