@@ -1,22 +1,22 @@
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Union
 from typing_extensions import Self
 from inflection import camelize, underscore
 
 
 @dataclass
 class KeyUse:
+    value: str
 
-    def to_dict(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
-        return result
+    def to_dict(self) -> str:
+        return self.value
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
-        snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
-
-        required_fields = []
-        missing = [f for f in required_fields if f not in snake_data]
-        if missing:
-            raise ValueError(f'missing required field: {missing}')
-        return cls(**snake_data)
+    def from_dict(cls, data: Union[str, Dict[str, Any]]) -> Self:
+        if isinstance(data, str):
+            return cls(value=data)
+        elif isinstance(data, dict):
+            snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
+            return cls(**snake_data)
+        else:
+            raise ValueError(f'Invalid data type for KeyUse: {type(data)}')
