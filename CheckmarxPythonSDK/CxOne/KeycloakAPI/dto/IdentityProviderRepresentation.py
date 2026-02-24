@@ -21,6 +21,7 @@ class IdentityProviderRepresentation:
     post_broker_login_flow_alias: Optional[str] = None
     config: Optional[Dict[str, Any]] = None
     update_profile_first_login: Optional[bool] = None
+    hide_on_login: Optional[bool] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
@@ -69,6 +70,9 @@ class IdentityProviderRepresentation:
         if self.update_profile_first_login is not None:
             value = self.update_profile_first_login
             result['updateProfileFirstLogin'] = value
+        if self.hide_on_login is not None:
+            value = self.hide_on_login
+            result['hideOnLogin'] = value
         return result
 
     @classmethod
