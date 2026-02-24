@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.7.7 - 2026-02-25
+* [Add] IdentityProvidersApi tests
+* [Add] RolesApi tests
+* [Add] ClientsApi tests
+
 1.7.6 - 2026-02-11
 * [Fix] CxOne\KeycloakAPI\test_roles_api.py post_client_role_composites
 
