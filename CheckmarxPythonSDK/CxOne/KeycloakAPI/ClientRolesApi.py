@@ -16,8 +16,14 @@ class ClientRolesApi:
         self.api_client = api_client
 
     def get_client_roles(
-        self, realm: str, id: str, brief_representation: str = None, first: int = None,
-                         max: int = None, search: str = None) -> List[RoleRepresentation]:
+            self, 
+            realm: str, 
+            id: str, 
+            brief_representation: str = None, 
+            first: int = None,
+            max: int = None, 
+            search: str = None
+        ) -> List[RoleRepresentation]:
         """
         Get all roles for the realm or client
         
@@ -35,7 +41,12 @@ class ClientRolesApi:
         URL:
             Relative path: /{realm}/clients/{id}/roles
         """
-        params = {"briefRepresentation": brief_representation, "first": first, "max": max, "search": search}
+        params = {
+            "briefRepresentation": brief_representation, 
+            "first": first, 
+            "max": max, 
+            "search": search
+        }
         relative_url = f"{api_url}/{realm}/clients/{id}/roles"
 
         response = self.api_client.get_request(relative_url=relative_url, params=params)
@@ -59,8 +70,11 @@ class ClientRolesApi:
         params = {}
         relative_url = f"{api_url}/{realm}/clients/{id}/roles"
 
-        response = self.api_client.post_request(relative_url=relative_url, params=params,
-                                                json=role_representation.to_dict())
+        response = self.api_client.post_request(
+            relative_url=relative_url, 
+            params=params,
+            json=role_representation.to_dict()
+        )
         return response.status_code == 200
 
     def get_client_role(self, realm: str, id: str, role_name: str) -> RoleRepresentation:
@@ -84,7 +98,13 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return RoleRepresentation.from_dict(response.json())
 
-    def put_client_role(self, realm: str, id: str, role_name: str, role_representation: RoleRepresentation) -> bool:
+    def put_client_role(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str, 
+            role_representation: RoleRepresentation
+        ) -> bool:
         """
         Update a role by name
         
@@ -103,8 +123,11 @@ class ClientRolesApi:
         params = {}
         relative_url = f"{api_url}/{realm}/clients/{id}/roles/{role_name}"
 
-        response = self.api_client.put_request(relative_url=relative_url, params=params,
-                                               json=role_representation.to_dict())
+        response = self.api_client.put_request(
+            relative_url=relative_url, 
+            params=params,
+            json=role_representation.to_dict()
+        )
         return response.status_code == 200
 
     def delete_client_role(self, realm: str, id: str, role_name: str) -> bool:
@@ -149,8 +172,13 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def post_client_role_composites(self, realm: str, id: str, role_name: str,
-                                    role_representation: RoleRepresentation) -> bool:
+    def post_client_role_composites(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str,
+            role_representation: RoleRepresentation
+        ) -> bool:
         """
         Add a composite to the role
         
@@ -194,8 +222,13 @@ class ClientRolesApi:
         response = self.api_client.delete_request(relative_url=relative_url, params=params)
         return response.status_code == 204
 
-    def get_client_role_composites_client(self, realm: str, id: str, role_name: str, client_uuid: str) -> List[
-        RoleRepresentation]:
+    def get_client_role_composites_client(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str, 
+            client_uuid: str
+        ) -> List[RoleRepresentation]:
         """
         Get client-level roles for the client that are in the role’s composite
         
@@ -238,8 +271,15 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def get_client_role_groups(self, realm: str, id: str, role_name: str, brief_representation: bool = None,
-                               first: int = None, max: int = None) -> List[GroupRepresentation]:
+    def get_client_role_groups(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str, 
+            brief_representation: bool = None,
+            first: int = None, 
+            max: int = None
+        ) -> List[GroupRepresentation]:
         """
         Returns a stream of groups that have the specified role name
         
@@ -257,14 +297,22 @@ class ClientRolesApi:
         URL:
             Relative path: /{realm}/clients/{id}/roles/{role_name}/groups
         """
-        params = {"briefRepresentation": brief_representation, "first": first, "max": max}
+        params = {
+            "briefRepresentation": brief_representation, 
+            "first": first, 
+            "max": max
+        }
         relative_url = f"{api_url}/{realm}/clients/{id}/roles/{role_name}/groups"
 
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [GroupRepresentation.from_dict(item) for item in response.json()]
 
-    def get_client_role_management_permissions(self, realm: str, id: str,
-                                               role_name: str) -> ManagementPermissionReference:
+    def get_client_role_management_permissions(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str
+        ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
         
@@ -285,8 +333,13 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return ManagementPermissionReference.from_dict(response.json())
 
-    def put_client_role_management_permissions(self, realm: str, id: str, role_name: str,
-                                               management_permission_reference: ManagementPermissionReference) -> ManagementPermissionReference:
+    def put_client_role_management_permissions(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str,
+            management_permission_reference: ManagementPermissionReference
+        ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
         
@@ -305,12 +358,21 @@ class ClientRolesApi:
         params = {}
         relative_url = f"{api_url}/{realm}/clients/{id}/roles/{role_name}/management/permissions"
 
-        response = self.api_client.put_request(relative_url=relative_url, params=params,
-                                               json=management_permission_reference.to_dict())
+        response = self.api_client.put_request(
+            relative_url=relative_url, 
+            params=params,
+            json=management_permission_reference.to_dict()
+        )
         return ManagementPermissionReference.from_dict(response.json())
 
-    def get_client_role_users(self, realm: str, id: str, role_name: str, first: int = None, max: int = None) -> List[
-        UserRepresentation]:
+    def get_client_role_users(
+            self, 
+            realm: str, 
+            id: str, 
+            role_name: str, 
+            first: int = None, 
+            max: int = None
+        ) -> List[UserRepresentation]:
         """
         Returns a stream of users that have the specified role name.
         
@@ -333,8 +395,14 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [UserRepresentation.from_dict(item) for item in response.json()]
 
-    def get_roles_by_realm(self, realm: str, brief_representation: str = None, first: int = None, max: int = None,
-                           search: str = None) -> List[RoleRepresentation]:
+    def get_roles_by_realm(
+            self, 
+            realm: str, 
+            brief_representation: str = None, 
+            first: int = None, 
+            max: int = None,
+            search: str = None
+        ) -> List[RoleRepresentation]:
         """
         Get all roles for the realm or client
         
@@ -351,7 +419,12 @@ class ClientRolesApi:
         URL:
             Relative path: /{realm}/roles
         """
-        params = {"briefRepresentation": brief_representation, "first": first, "max": max, "search": search}
+        params = {
+            "briefRepresentation": brief_representation, 
+            "first": first, 
+            "max": max, 
+            "search": search
+        }
         relative_url = f"{api_url}/{realm}/roles"
 
         response = self.api_client.get_request(relative_url=relative_url, params=params)
@@ -398,8 +471,12 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return RoleRepresentation.from_dict(response.json())
 
-    def put_role_by_realm_by_role_name(self, realm: str, role_name: str,
-                                       role_representation: RoleRepresentation) -> bool:
+    def put_role_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str,
+            role_representation: RoleRepresentation
+        ) -> bool:
         """
         Update a role by name
         
@@ -441,7 +518,11 @@ class ClientRolesApi:
         response = self.api_client.delete_request(relative_url=relative_url, params=params)
         return response.status_code == 204
 
-    def get_role_composites_by_realm_by_role_name(self, realm: str, role_name: str) -> List[RoleRepresentation]:
+    def get_role_composites_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str
+        ) -> List[RoleRepresentation]:
         """
         Get composites of the role
         
@@ -461,8 +542,12 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def post_role_composites_by_realm_by_role_name(self, realm: str, role_name: str,
-                                                   role_representation: RoleRepresentation) -> bool:
+    def post_role_composites_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str,
+            role_representation: RoleRepresentation
+        ) -> bool:
         """
         Add a composite to the role
         
@@ -484,7 +569,11 @@ class ClientRolesApi:
                                                 json=role_representation.to_dict())
         return response.status_code == 201
 
-    def delete_role_composites_by_realm_by_role_name(self, realm: str, role_name: str) -> bool:
+    def delete_role_composites_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str
+        ) -> bool:
         """
         Remove roles from the role’s composite
         
@@ -504,8 +593,12 @@ class ClientRolesApi:
         response = self.api_client.delete_request(relative_url=relative_url, params=params)
         return response.status_code == 204
 
-    def get_role_composites_client_by_realm_by_role_name_by_client_uuid(self, realm: str, role_name: str,
-                                                                        client_uuid: str) -> List[RoleRepresentation]:
+    def get_role_composites_client_by_realm_by_role_name_by_client_uuid(
+            self, 
+            realm: str, 
+            role_name: str,
+            client_uuid: str
+        ) -> List[RoleRepresentation]:
         """
         Get client-level roles for the client that are in the role’s composite
         
@@ -526,7 +619,11 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def get_role_composites_realm_by_realm_by_role_name(self, realm: str, role_name: str) -> List[RoleRepresentation]:
+    def get_role_composites_realm_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str
+        ) -> List[RoleRepresentation]:
         """
         Get realm-level roles of the role’s composite
         
@@ -546,8 +643,14 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def get_role_groups_by_realm_by_role_name(self, realm: str, role_name: str, brief_representation: bool = None,
-                                              first: int = None, max: int = None) -> List[GroupRepresentation]:
+    def get_role_groups_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str, 
+            brief_representation: bool = None,
+            first: int = None, 
+            max: int = None
+        ) -> List[GroupRepresentation]:
         """
         Returns a stream of groups that have the specified role name
         
@@ -570,8 +673,11 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return [GroupRepresentation.from_dict(item) for item in response.json()]
 
-    def get_role_management_permissions_by_realm_by_role_name(self, realm: str,
-                                                              role_name: str) -> ManagementPermissionReference:
+    def get_role_management_permissions_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str
+        ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
         
@@ -591,8 +697,12 @@ class ClientRolesApi:
         response = self.api_client.get_request(relative_url=relative_url, params=params)
         return ManagementPermissionReference.from_dict(response.json())
 
-    def put_role_management_permissions_by_realm_by_role_name(self, realm: str, role_name: str,
-                                                              management_permission_reference: ManagementPermissionReference) -> ManagementPermissionReference:
+    def put_role_management_permissions_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str,
+            management_permission_reference: ManagementPermissionReference
+        ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
         
@@ -609,13 +719,20 @@ class ClientRolesApi:
         """
         params = {}
         relative_url = f"{api_url}/{realm}/roles/{role_name}/management/permissions"
-
-        response = self.api_client.put_request(relative_url=relative_url, params=params,
-                                               json=management_permission_reference.to_dict())
+        response = self.api_client.put_request(
+            relative_url=relative_url, 
+            params=params,
+            json=management_permission_reference.to_dict()
+        )
         return ManagementPermissionReference.from_dict(response.json())
 
-    def get_role_users_by_realm_by_role_name(self, realm: str, role_name: str, first: int = None, max: int = None) -> \
-            List[UserRepresentation]:
+    def get_role_users_by_realm_by_role_name(
+            self, 
+            realm: str, 
+            role_name: str, 
+            first: int = None, 
+            max: int = None
+        ) -> List[UserRepresentation]:
         """
         Returns a stream of users that have the specified role name.
         
