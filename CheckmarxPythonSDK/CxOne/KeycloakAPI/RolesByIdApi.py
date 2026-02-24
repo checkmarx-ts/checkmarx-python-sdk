@@ -69,7 +69,7 @@ class RolesByIdApi:
         response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
         return response.status_code == 204
 
-    def get_roles_by_id_composites(self, realm: str, role_id: str, first: str = None, max: str = None,
+    def get_roles_by_id_composites(self, realm: str, role_id: str, first: int = None, max: int = None,
                                    search: str = None) -> List[RoleRepresentation]:
         """
         Get role's children Returns a set of role's children provided the role is a composite.
@@ -77,8 +77,8 @@ class RolesByIdApi:
         Args:
             realm (str):  [required]
             role_id (str):  [required]
-            first (str):
-            max (str):
+            first (int):
+            max (int):
             search (str):
 
         Returns:
@@ -87,6 +87,7 @@ class RolesByIdApi:
         URL:
             Relative path: /{realm}/roles-by-id/{role_id}/composites
         """
+
         params = {"first": first, "max": max, "search": search}
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/composites"
         response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
