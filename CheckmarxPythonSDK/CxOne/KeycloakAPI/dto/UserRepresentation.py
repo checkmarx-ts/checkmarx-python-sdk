@@ -11,10 +11,10 @@ from .UserProfileMetadata import UserProfileMetadata
 
 @dataclass
 class UserRepresentation:
-    username: str
-    email: str
-    first_name: str
-    last_name: str
+    username: str = None
+    email: str = None
+    first_name: str = None
+    last_name: str = None
     self: Optional[str] = None
     id: Optional[str] = None
     origin: Optional[str] = None

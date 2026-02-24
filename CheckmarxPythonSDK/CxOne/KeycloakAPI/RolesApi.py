@@ -544,8 +544,9 @@ class RolesApi:
         response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
         return ManagementPermissionReference.from_dict(response.json())
 
-    def put_role_management_permissions_by_realm_by_role_name(self, realm: str, role_name: str,
-                                                              management_permission_reference: ManagementPermissionReference) -> ManagementPermissionReference:
+    def put_role_management_permissions_by_realm_by_role_name(
+            self, realm: str, role_name: str, management_permission_reference: ManagementPermissionReference
+        ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
         
@@ -565,8 +566,9 @@ class RolesApi:
                                                json=management_permission_reference.to_dict(), is_iam=True)
         return ManagementPermissionReference.from_dict(response.json())
 
-    def get_role_users_by_realm_by_role_name(self, realm: str, role_name: str, first: bool = None, max: bool = None) -> \
-    List[UserRepresentation]:
+    def get_role_users_by_realm_by_role_name(
+            self, realm: str, role_name: str, first: bool = None, max: bool = None
+        ) -> List[UserRepresentation]:
         """
         Returns a stream of users that have the specified role name.
         
