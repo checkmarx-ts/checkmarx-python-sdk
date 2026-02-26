@@ -11,6 +11,7 @@ class Project:
     repo_url: str = None  # The representative repository URL
     main_branch: str = None  # The Git main branch
     origin: str = None  # The origin of project
+    repo_id: int = None # FOR INTERNAL CHECKMARX USE
     created_at: str = None
     updated_at: str = None
     tags: dict = None
@@ -33,6 +34,7 @@ def construct_project(item):
         repo_url=item.get("repoUrl"),
         main_branch=item.get("mainBranch"),
         origin=item.get("origin"),
+        repo_id=item.get("repoId"),
         created_at=item.get("createdAt"),
         updated_at=item.get("updatedAt"),
         tags=item.get("tags"),
