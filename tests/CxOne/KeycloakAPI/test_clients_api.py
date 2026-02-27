@@ -12,6 +12,8 @@ class TestClientsApi:
     def test_get_clients(self):
         try:
             clients = self.clients_api.get_clients(realm=self.realm)
+            for client in clients:
+                print(client)
             assert isinstance(clients, list)
             print(f"Got {len(clients)} clients")
         except Exception as e:

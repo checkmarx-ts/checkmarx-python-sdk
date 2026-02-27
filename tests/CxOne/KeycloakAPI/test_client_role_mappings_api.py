@@ -11,12 +11,12 @@ class TestClientRoleMappingsApi:
     def setup_method(self):
         self.client_role_mappings_api = ClientRoleMappingsApi()
         self.realm = "happy"
-        self.test_group_id = "test-group-id"
+        self.test_group_id = "c2604629-edc5-4eca-b0d8-ebf1e4881abd"
         self.test_user_id = "test-user-id"
         self.test_client_id = (
-            "d708630e-12f1-4932-9d8c-a110b81c72f3"  # Use fixed client ID
+            "d3b60524-13a1-431a-a703-1d6d3d09f512"  # Use fixed client ID
         )
-        self.test_role_name = "test_role_mapping"
+        self.test_role_name = "create-query"
 
     def test_get_group_role_mappings_client(self):
         """Test get_group_role_mappings_client method"""
@@ -35,24 +35,23 @@ class TestClientRoleMappingsApi:
 
     def test_post_group_role_mappings_client(self):
         """Test post_group_role_mappings_client method"""
-        try:
-            role_representation = RoleRepresentation(name=self.test_role_name)
-            added = self.client_role_mappings_api.post_group_role_mappings_client(
-                self.realm, self.test_group_id, self.test_client_id, role_representation
-            )
-            print(f"Added group role mapping: {added}")
-        except Exception as e:
-            print(f"Error in test_post_group_role_mappings_client: {e}")
-        # Even if we can't connect to the server, the test should pass as we're testing the code structure
-        assert True
+        
+        role_representation = RoleRepresentation(name="manage-vulnerability-assignees", id="14a45ca1-d20d-4893-b31f-f00adcf484ff")
+        added = self.client_role_mappings_api.post_group_role_mappings_client(
+            self.realm, self.test_group_id, self.test_client_id, role_representations=[role_representation]
+        )
+        assert added is True
+        
 
     def test_delete_group_role_mappings_client(self):
         """Test delete_group_role_mappings_client method"""
         try:
+            role_representation = RoleRepresentation(name="manage-vulnerability-assignees", id="14a45ca1-d20d-4893-b31f-f00adcf484ff")
             deleted = self.client_role_mappings_api.delete_group_role_mappings_client(
-                self.realm, self.test_group_id, self.test_client_id
+                self.realm, self.test_group_id, self.test_client_id, role_representations=[role_representation]
             )
-            print(f"Deleted group role mapping: {deleted}")
+            assert deleted is True
+            
         except Exception as e:
             print(f"Error in test_delete_group_role_mappings_client: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
