@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.7.8 - 2026-02-28
+* [Add] ClientRoleMappingsApi tests
+* [Add] test_client_role_mappings_api.py::test_post_group_role_mappings_client
+* [Add] test_client_role_mappings_api.py::test_delete_group_role_mappings_client
+
 1.7.7 - 2026-02-25
 * [Add] IdentityProvidersApi tests
 * [Add] RolesApi tests
