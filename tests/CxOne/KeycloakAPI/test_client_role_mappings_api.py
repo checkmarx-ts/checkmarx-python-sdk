@@ -1,15 +1,21 @@
 import pytest
-from CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientRoleMappingsApi import ClientRoleMappingsApi
-from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.RoleRepresentation import RoleRepresentation
+from CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientRoleMappingsApi import (
+    ClientRoleMappingsApi,
+)
+from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.RoleRepresentation import (
+    RoleRepresentation,
+)
 
 
 class TestClientRoleMappingsApi:
     def setup_method(self):
         self.client_role_mappings_api = ClientRoleMappingsApi()
-        self.realm = "your-realm"
+        self.realm = "happy"
         self.test_group_id = "test-group-id"
         self.test_user_id = "test-user-id"
-        self.test_client_id = "d708630e-12f1-4932-9d8c-a110b81c72f3"  # Use fixed client ID
+        self.test_client_id = (
+            "d708630e-12f1-4932-9d8c-a110b81c72f3"  # Use fixed client ID
+        )
         self.test_role_name = "test_role_mapping"
 
     def test_get_group_role_mappings_client(self):
@@ -55,8 +61,10 @@ class TestClientRoleMappingsApi:
     def test_get_group_role_mappings_client_available(self):
         """Test get_group_role_mappings_client_available method"""
         try:
-            available_roles = self.client_role_mappings_api.get_group_role_mappings_client_available(
-                self.realm, self.test_group_id, self.test_client_id
+            available_roles = (
+                self.client_role_mappings_api.get_group_role_mappings_client_available(
+                    self.realm, self.test_group_id, self.test_client_id
+                )
             )
             assert isinstance(available_roles, list)
             print(f"Got {len(available_roles)} available group role mappings")
@@ -70,8 +78,10 @@ class TestClientRoleMappingsApi:
     def test_get_group_role_mappings_client_composite(self):
         """Test get_group_role_mappings_client_composite method"""
         try:
-            composite_roles = self.client_role_mappings_api.get_group_role_mappings_client_composite(
-                self.realm, self.test_group_id, self.test_client_id
+            composite_roles = (
+                self.client_role_mappings_api.get_group_role_mappings_client_composite(
+                    self.realm, self.test_group_id, self.test_client_id
+                )
             )
             assert isinstance(composite_roles, list)
             print(f"Got {len(composite_roles)} composite group role mappings")
@@ -125,8 +135,10 @@ class TestClientRoleMappingsApi:
     def test_get_user_role_mappings_client_available(self):
         """Test get_user_role_mappings_client_available method"""
         try:
-            available_roles = self.client_role_mappings_api.get_user_role_mappings_client_available(
-                self.realm, self.test_user_id, self.test_client_id
+            available_roles = (
+                self.client_role_mappings_api.get_user_role_mappings_client_available(
+                    self.realm, self.test_user_id, self.test_client_id
+                )
             )
             assert isinstance(available_roles, list)
             print(f"Got {len(available_roles)} available user role mappings")
@@ -140,8 +152,10 @@ class TestClientRoleMappingsApi:
     def test_get_user_role_mappings_client_composite(self):
         """Test get_user_role_mappings_client_composite method"""
         try:
-            composite_roles = self.client_role_mappings_api.get_user_role_mappings_client_composite(
-                self.realm, self.test_user_id, self.test_client_id
+            composite_roles = (
+                self.client_role_mappings_api.get_user_role_mappings_client_composite(
+                    self.realm, self.test_user_id, self.test_client_id
+                )
             )
             assert isinstance(composite_roles, list)
             print(f"Got {len(composite_roles)} composite user role mappings")

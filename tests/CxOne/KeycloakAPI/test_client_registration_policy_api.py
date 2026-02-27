@@ -1,12 +1,16 @@
 import pytest
-from CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientRegistrationPolicyApi import ClientRegistrationPolicyApi
-from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.ComponentTypeRepresentation import ComponentTypeRepresentation
+from CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientRegistrationPolicyApi import (
+    ClientRegistrationPolicyApi,
+)
+from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.ComponentTypeRepresentation import (
+    ComponentTypeRepresentation,
+)
 
 
 class TestClientRegistrationPolicyApi:
     def setup_method(self):
         self.client_registration_policy_api = ClientRegistrationPolicyApi()
-        self.realm = "your-realm"
+        self.realm = "happy"
 
     def test_get_providers(self):
         """Test get_providers method"""

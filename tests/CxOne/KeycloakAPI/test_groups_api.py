@@ -50,15 +50,11 @@ class TestGroupsApi:
 
         # Step 1: Check if group exists and delete if it does
         try:
-            existing_groups = self.groups_api.get_groups_by_realm(
-                realm=self.realm
-            )
+            existing_groups = self.groups_api.get_groups_by_realm(realm=self.realm)
             for group in existing_groups:
                 if group.name == test_group_name:
-                    delete_successful = (
-                        self.groups_api.delete_group_by_realm_by_id(
-                            realm=self.realm, id=group.id
-                        )
+                    delete_successful = self.groups_api.delete_group_by_realm_by_id(
+                        realm=self.realm, id=group.id
                     )
                     print(
                         f"Delete group {test_group_name} successful: {delete_successful}"
@@ -76,14 +72,10 @@ class TestGroupsApi:
             create_successful = self.groups_api.post_groups(
                 realm=self.realm, group_representation=group_representation
             )
-            print(
-                f"Create group {test_group_name} successful: {create_successful}"
-            )
+            print(f"Create group {test_group_name} successful: {create_successful}")
 
             # Get the created group
-            created_groups = self.groups_api.get_groups_by_realm(
-                realm=self.realm
-            )
+            created_groups = self.groups_api.get_groups_by_realm(realm=self.realm)
             for group in created_groups:
                 if group.name == test_group_name:
                     group_id = group.id
@@ -95,9 +87,7 @@ class TestGroupsApi:
         # Step 3: Read the group (R)
         if group_id:
             try:
-                group = self.groups_api.get_group(
-                    realm=self.realm, id=group_id
-                )
+                group = self.groups_api.get_group(realm=self.realm, id=group_id)
                 print(f"get_group successful: {group is not None}")
                 print(f"Group: {group.name}")
                 assert group is not None
@@ -116,14 +106,10 @@ class TestGroupsApi:
                     id=group_id,
                     group_representation=updated_group_representation,
                 )
-                print(
-                    f"Update group {test_group_name} successful: {update_successful}"
-                )
+                print(f"Update group {test_group_name} successful: {update_successful}")
 
                 # Verify the update
-                updated_group = self.groups_api.get_group(
-                    realm=self.realm, id=group_id
-                )
+                updated_group = self.groups_api.get_group(realm=self.realm, id=group_id)
                 print(f"Updated group name: {updated_group.name}")
             except Exception as e:
                 print(f"Error updating group: {e}")
@@ -131,10 +117,8 @@ class TestGroupsApi:
         # Step 5: Delete the group (D)
         if group_id:
             try:
-                delete_successful = (
-                    self.groups_api.delete_group_by_realm_by_id(
-                        realm=self.realm, id=group_id
-                    )
+                delete_successful = self.groups_api.delete_group_by_realm_by_id(
+                    realm=self.realm, id=group_id
                 )
                 print(
                     f"Delete group {updated_group_name} successful: {delete_successful}"
@@ -151,9 +135,7 @@ class TestGroupsApi:
         test_group = groups[0] if groups else None
 
         if test_group:
-            print(
-                f"Testing with group: {test_group.name} (id: {test_group.id})"
-            )
+            print(f"Testing with group: {test_group.name} (id: {test_group.id})")
 
             # Test get_children
             try:
@@ -177,9 +159,7 @@ class TestGroupsApi:
         test_group = groups[0] if groups else None
 
         if test_group:
-            print(
-                f"Testing with group: {test_group.name} (id: {test_group.id})"
-            )
+            print(f"Testing with group: {test_group.name} (id: {test_group.id})")
 
             # Test get_members
             try:
@@ -203,9 +183,7 @@ class TestGroupsApi:
         test_group = groups[0] if groups else None
 
         if test_group:
-            print(
-                f"Testing with group: {test_group.name} (id: {test_group.id})"
-            )
+            print(f"Testing with group: {test_group.name} (id: {test_group.id})")
 
             # Test get_group_management_permissions
             try:
