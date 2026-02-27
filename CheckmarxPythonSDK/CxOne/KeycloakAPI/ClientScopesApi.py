@@ -12,7 +12,10 @@ class ClientScopesApi:
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-    def get_client_scopes(self, realm: str) -> List[ClientScopeRepresentation]:
+    def get_client_scopes(
+            self, 
+            realm: str
+        ) -> List[ClientScopeRepresentation]:
         """
         Get client scopes belonging to the realm Returns a list of client scopes belonging to the realm
         
@@ -25,11 +28,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-scopes
         """
-        relative_url = f"{api_url}/{realm}/client_scopes"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-scopes"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return [ClientScopeRepresentation.from_dict(item) for item in response.json()]
 
-    def post_client_scopes(self, realm: str, client_scope_representation: ClientScopeRepresentation) -> bool:
+    def post_client_scopes(
+            self, 
+            realm: str, 
+            client_scope_representation: ClientScopeRepresentation
+        ) -> bool:
         """
         Create a new client scope Client Scope’s name must be unique!
         
@@ -43,12 +53,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-scopes
         """
-        relative_url = f"{api_url}/{realm}/client_scopes"
-        response = self.api_client.post_request(relative_url=relative_url, json=client_scope_representation.to_dict(),
-                                                is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-scopes"
+        response = self.api_client.post_request(
+            relative_url=relative_url, 
+            json=client_scope_representation.to_dict(),
+            is_iam=True
+        )
         return response.status_code == 200
 
-    def get_client_scope(self, realm: str, id: str) -> ClientScopeRepresentation:
+    def get_client_scope(self, 
+            realm: str, 
+            id: str
+        ) -> ClientScopeRepresentation:
         """
         Get representation of the client scope
         
@@ -62,11 +78,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-scopes/{id}
         """
-        relative_url = f"{api_url}/{realm}/client_scopes/{id}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-scopes/{id}"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return ClientScopeRepresentation.from_dict(response.json())
 
-    def put_client_scope(self, realm: str, id: str, client_scope_representation: ClientScopeRepresentation) -> bool:
+    def put_client_scope(self, 
+            realm: str, 
+            id: str, 
+            client_scope_representation: ClientScopeRepresentation
+        ) -> bool:
         """
         Update the client scope
         
@@ -81,12 +104,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-scopes/{id}
         """
-        relative_url = f"{api_url}/{realm}/client_scopes/{id}"
-        response = self.api_client.put_request(relative_url=relative_url, json=client_scope_representation.to_dict(),
-                                               is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-scopes/{id}"
+        response = self.api_client.put_request(
+            relative_url=relative_url, 
+            json=client_scope_representation.to_dict(),
+            is_iam=True
+        )
         return response.status_code == 200
 
-    def delete_client_scope(self, realm: str, id: str) -> bool:
+    def delete_client_scope(self, 
+            realm: str, 
+            id: str
+        ) -> bool:
         """
         Delete the client scope
         
@@ -100,13 +129,20 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-scopes/{id}
         """
-        relative_url = f"{api_url}/{realm}/client_scopes/{id}"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-scopes/{id}"
+        response = self.api_client.delete_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return response.status_code == 200
 
-    def get_client_templates(self, realm: str) -> List[ClientScopeRepresentation]:
+    def get_client_templates(
+            self, 
+            realm: str
+        ) -> List[ClientScopeRepresentation]:
         """
-        Get client scopes belonging to the realm Returns a list of client scopes belonging to the realm
+        Get client scopes belonging to the realm Returns a list of client 
+        scopes belonging to the realm
         
         Args:
             realm (str):  [required]
@@ -117,11 +153,15 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-templates
         """
-        relative_url = f"{api_url}/{realm}/client_templates"
+        relative_url = f"{api_url}/{realm}/client-templates"
         response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
         return [ClientScopeRepresentation.from_dict(item) for item in response.json()]
 
-    def post_client_templates(self, realm: str, client_scope_representation: ClientScopeRepresentation) -> bool:
+    def post_client_templates(
+            self, 
+            realm: str, 
+            client_scope_representation: ClientScopeRepresentation
+        ) -> bool:
         """
         Create a new client scope Client Scope’s name must be unique!
         
@@ -135,12 +175,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-templates
         """
-        relative_url = f"{api_url}/{realm}/client_templates"
-        response = self.api_client.post_request(relative_url=relative_url, json=client_scope_representation.to_dict(),
-                                                is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-templates"
+        response = self.api_client.post_request(
+            relative_url=relative_url, 
+            json=client_scope_representation.to_dict(),
+            is_iam=True
+        )
         return response.status_code == 200
 
-    def get_client_template(self, realm: str, id: str) -> ClientScopeRepresentation:
+    def get_client_template(self, 
+            realm: str, 
+            id: str
+        ) -> ClientScopeRepresentation:
         """
         Get representation of the client scope
         
@@ -154,11 +200,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-templates/{id}
         """
-        relative_url = f"{api_url}/{realm}/client_templates/{id}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-templates/{id}"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return ClientScopeRepresentation.from_dict(response.json())
 
-    def put_client_template(self, realm: str, id: str, client_scope_representation: ClientScopeRepresentation) -> bool:
+    def put_client_template(self, 
+            realm: str, 
+            id: str, 
+            client_scope_representation: ClientScopeRepresentation
+        ) -> bool:
         """
         Update the client scope
         
@@ -173,12 +226,18 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-templates/{id}
         """
-        relative_url = f"{api_url}/{realm}/client_templates/{id}"
-        response = self.api_client.put_request(relative_url=relative_url, json=client_scope_representation.to_dict(),
-                                               is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-templates/{id}"
+        response = self.api_client.put_request(
+            relative_url=relative_url, 
+            json=client_scope_representation.to_dict(),
+            is_iam=True
+        )
         return response.status_code == 200
 
-    def delete_client_template(self, realm: str, id: str) -> bool:
+    def delete_client_template(self, 
+            realm: str, 
+            id: str
+        ) -> bool:
         """
         Delete the client scope
         
@@ -192,6 +251,9 @@ class ClientScopesApi:
         URL:
             Relative path: /{realm}/client-templates/{id}
         """
-        relative_url = f"{api_url}/{realm}/client_templates/{id}"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/client-templates/{id}"
+        response = self.api_client.delete_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return response.status_code == 200

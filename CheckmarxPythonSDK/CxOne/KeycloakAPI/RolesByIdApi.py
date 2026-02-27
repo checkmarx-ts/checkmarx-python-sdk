@@ -16,14 +16,14 @@ class RolesByIdApi:
     def get_roles_by_id(self, realm: str, role_id: str) -> RoleRepresentation:
         """
         Get a specific role’s representation
-        
+
         Args:
             realm (str):  [required]
             role_id (str):  [required]
-        
+
         Returns:
             RoleRepresentation
-        
+
         URL:
             Relative path: /{realm}/roles-by-id/{role_id}
         """
@@ -31,7 +31,9 @@ class RolesByIdApi:
         response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
         return RoleRepresentation.from_dict(response.json())
 
-    def put_roles_by_id(self, realm: str, role_id: str, role_representation: RoleRepresentation) -> bool:
+    def put_roles_by_id(
+        self, realm: str, role_id: str, role_representation: RoleRepresentation
+    ) -> bool:
         """
         Update the role
 
@@ -47,8 +49,9 @@ class RolesByIdApi:
             Relative path: /{realm}/roles-by-id/{role_id}
         """
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}"
-        response = self.api_client.put_request(relative_url=relative_url, json=role_representation.to_dict(),
-                                               is_iam=True)
+        response = self.api_client.put_request(
+            relative_url=relative_url, json=role_representation.to_dict(), is_iam=True
+        )
         return response.status_code == 204
 
     def delete_roles_by_id(self, realm: str, role_id: str) -> bool:
@@ -66,11 +69,19 @@ class RolesByIdApi:
             Relative path: /{realm}/roles-by-id/{role_id}
         """
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        response = self.api_client.delete_request(
+            relative_url=relative_url, is_iam=True
+        )
         return response.status_code == 204
 
-    def get_roles_by_id_composites(self, realm: str, role_id: str, first: int = None, max: int = None,
-                                   search: str = None) -> List[RoleRepresentation]:
+    def get_roles_by_id_composites(
+        self,
+        realm: str,
+        role_id: str,
+        first: int = None,
+        max: int = None,
+        search: str = None,
+    ) -> List[RoleRepresentation]:
         """
         Get role's children Returns a set of role's children provided the role is a composite.
 
@@ -90,10 +101,14 @@ class RolesByIdApi:
 
         params = {"first": first, "max": max, "search": search}
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/composites"
-        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
+        response = self.api_client.get_request(
+            relative_url=relative_url, params=params, is_iam=True
+        )
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def post_roles_by_id_composites(self, realm: str, role_id: str, role_representation: RoleRepresentation) -> bool:
+    def post_roles_by_id_composites(
+        self, realm: str, role_id: str, role_representation: RoleRepresentation
+    ) -> bool:
         """
         Make the role a composite role by associating some child roles
 
@@ -109,8 +124,9 @@ class RolesByIdApi:
             Relative path: /{realm}/roles-by-id/{role_id}/composites
         """
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/composites"
-        response = self.api_client.post_request(relative_url=relative_url, json=role_representation.to_dict(),
-                                                is_iam=True)
+        response = self.api_client.post_request(
+            relative_url=relative_url, json=role_representation.to_dict(), is_iam=True
+        )
         return response.status_code == 201
 
     def delete_roles_by_id_composites(self, realm: str, role_id: str) -> bool:
@@ -128,10 +144,14 @@ class RolesByIdApi:
             Relative path: /{realm}/roles-by-id/{role_id}/composites
         """
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/composites"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        response = self.api_client.delete_request(
+            relative_url=relative_url, is_iam=True
+        )
         return response.status_code == 204
 
-    def get_roles_by_id_composites_client(self, realm: str, role_id: str, client_uuid: str) -> List[RoleRepresentation]:
+    def get_roles_by_id_composites_client(
+        self, realm: str, role_id: str, client_uuid: str
+    ) -> List[RoleRepresentation]:
         """
         Get client-level roles for the client that are in the role's composite
 
@@ -146,11 +166,15 @@ class RolesByIdApi:
         URL:
             Relative path: /{realm}/roles-by-id/{role_id}/composites/clients/{clientUuid}
         """
-        relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/composites/clients/{client_uuid}"
+        relative_url = (
+            f"{api_url}/{realm}/roles-by-id/{role_id}/composites/clients/{client_uuid}"
+        )
         response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def get_roles_by_id_composites_realm(self, realm: str, role_id: str) -> List[RoleRepresentation]:
+    def get_roles_by_id_composites_realm(
+        self, realm: str, role_id: str
+    ) -> List[RoleRepresentation]:
         """
         Get realm-level roles that are in the role's composite
 
@@ -168,7 +192,9 @@ class RolesByIdApi:
         response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
         return [RoleRepresentation.from_dict(item) for item in response.json()]
 
-    def get_roles_by_id_management_permissions(self, realm: str, role_id: str) -> ManagementPermissionReference:
+    def get_roles_by_id_management_permissions(
+        self, realm: str, role_id: str
+    ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
 
@@ -186,8 +212,12 @@ class RolesByIdApi:
         response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
         return ManagementPermissionReference.from_dict(response.json())
 
-    def put_roles_by_id_management_permissions(self, realm: str, role_id: str,
-                                               management_permission_reference: ManagementPermissionReference) -> ManagementPermissionReference:
+    def put_roles_by_id_management_permissions(
+        self,
+        realm: str,
+        role_id: str,
+        management_permission_reference: ManagementPermissionReference,
+    ) -> ManagementPermissionReference:
         """
         Return object stating whether role Authorization permissions have been initialized or not and a reference
 
@@ -203,6 +233,9 @@ class RolesByIdApi:
             Relative path: /{realm}/roles-by-id/{role_id}/management/permissions
         """
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/management/permissions"
-        response = self.api_client.put_request(relative_url=relative_url,
-                                               json=management_permission_reference.to_dict(), is_iam=True)
+        response = self.api_client.put_request(
+            relative_url=relative_url,
+            json=management_permission_reference.to_dict(),
+            is_iam=True,
+        )
         return ManagementPermissionReference.from_dict(response.json())

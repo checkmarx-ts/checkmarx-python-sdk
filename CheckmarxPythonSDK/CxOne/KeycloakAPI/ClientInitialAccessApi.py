@@ -13,7 +13,10 @@ class ClientInitialAccessApi:
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-    def get_clients_initial_access(self, realm: str) -> List[ClientInitialAccessPresentation]:
+    def get_clients_initial_access(
+            self, 
+            realm: str
+        ) -> List[ClientInitialAccessPresentation]:
         """
         
         Args:
@@ -25,18 +28,27 @@ class ClientInitialAccessApi:
         URL:
             Relative path: /{realm}/clients-initial-access
         """
-        relative_url = f"{api_url}/{realm}/clients_initial_access"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
-        return [ClientInitialAccessPresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/clients-initial-access"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
+        return [
+            ClientInitialAccessPresentation.from_dict(item) for item in response.json()
+        ]
 
-    def post_clients_initial_access(self, realm: str,
-                                    client_initial_access_create_presentation: ClientInitialAccessCreatePresentation) -> ClientInitialAccessPresentation:
+    def post_clients_initial_access(
+            self, 
+            realm: str,
+            client_initial_access_create_presentation: ClientInitialAccessCreatePresentation
+        ) -> ClientInitialAccessPresentation:
         """
         Create a new initial access token.
         
         Args:
             realm (str):  [required]
-            client_initial_access_create_presentation (ClientInitialAccessCreatePresentation): Request body data [required]
+            client_initial_access_create_presentation 
+                (ClientInitialAccessCreatePresentation): Request body data [required]
         
         Returns:
             ClientInitialAccessPresentation
@@ -44,12 +56,19 @@ class ClientInitialAccessApi:
         URL:
             Relative path: /{realm}/clients-initial-access
         """
-        relative_url = f"{api_url}/{realm}/clients_initial_access"
-        response = self.api_client.post_request(relative_url=relative_url,
-                                                json=client_initial_access_create_presentation.to_dict(), is_iam=True)
+        relative_url = f"{api_url}/{realm}/clients-initial-access"
+        response = self.api_client.post_request(
+            relative_url=relative_url, 
+            json=client_initial_access_create_presentation.to_dict(),
+            is_iam=True
+        )
         return ClientInitialAccessPresentation.from_dict(response.json())
 
-    def delete_clients_initial_acces(self, realm: str, id: str) -> bool:
+    def delete_clients_initial_acces(
+            self, 
+            realm: str, 
+            id: str
+        ) -> bool:
         """
         
         Args:
@@ -62,6 +81,9 @@ class ClientInitialAccessApi:
         URL:
             Relative path: /{realm}/clients-initial-access/{id}
         """
-        relative_url = f"{api_url}/{realm}/clients_initial_access/{id}"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/clients-initial-access/{id}"
+        response = self.api_client.delete_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return response.status_code == 204

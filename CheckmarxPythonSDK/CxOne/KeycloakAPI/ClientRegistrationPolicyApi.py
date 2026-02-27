@@ -12,7 +12,10 @@ class ClientRegistrationPolicyApi:
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-    def get_providers(self, realm: str) -> List[ComponentTypeRepresentation]:
+    def get_providers(
+            self, 
+            realm: str
+        ) -> List[ComponentTypeRepresentation]:
         """
         Base path for retrieve providers with the configProperties properly filled
         
@@ -25,6 +28,11 @@ class ClientRegistrationPolicyApi:
         URL:
             Relative path: /{realm}/client-registration-policy/providers
         """
-        relative_url = f"{api_url}/{realm}/client_registration_policy/providers"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
-        return [ComponentTypeRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/client-registration-policy/providers"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
+        return [
+            ComponentTypeRepresentation.from_dict(item) for item in response.json()
+        ]

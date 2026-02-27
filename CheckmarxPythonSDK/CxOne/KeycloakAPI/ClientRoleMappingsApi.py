@@ -12,7 +12,12 @@ class ClientRoleMappingsApi:
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
 
-    def get_group_role_mappings_client(self, realm: str, id: str, client: str) -> List[RoleRepresentation]:
+    def get_group_role_mappings_client(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str
+        ) -> List[RoleRepresentation]:
         """
         Get client-level role mappings for the user, and the app
         
@@ -27,12 +32,22 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/groups/{id}/role-mappings/clients/{client}
         """
-        relative_url = f"{api_url}/{realm}/groups/{id}/role_mappings/clients/{client}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
-        return [RoleRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/groups/{id}/role-mappings/clients/{client}"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
+        return [
+            RoleRepresentation.from_dict(item) for item in response.json()
+        ]
 
-    def post_group_role_mappings_client(self, realm: str, id: str, client: str,
-                                        role_representation: RoleRepresentation) -> bool:
+    def post_group_role_mappings_client(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str,
+            role_representation: RoleRepresentation
+        ) -> bool:
         """
         Add client-level roles to the user role mapping
         
@@ -48,12 +63,20 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/groups/{id}/role-mappings/clients/{client}
         """
-        relative_url = f"{api_url}/{realm}/groups/{id}/role_mappings/clients/{client}"
-        response = self.api_client.post_request(relative_url=relative_url, json=role_representation.to_dict(),
-                                                is_iam=True)
+        relative_url = f"{api_url}/{realm}/groups/{id}/role-mappings/clients/{client}"
+        response = self.api_client.post_request(
+            relative_url=relative_url, 
+            json=role_representation.to_dict(),
+            is_iam=True
+        )
         return response.status_code == 201
 
-    def delete_group_role_mappings_client(self, realm: str, id: str, client: str) -> bool:
+    def delete_group_role_mappings_client(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str
+        ) -> bool:
         """
         Delete client-level roles from user role mapping
         
@@ -68,11 +91,19 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/groups/{id}/role-mappings/clients/{client}
         """
-        relative_url = f"{api_url}/{realm}/groups/{id}/role_mappings/clients/{client}"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/groups/{id}/role-mappings/clients/{client}"
+        response = self.api_client.delete_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return response.status_code == 204
 
-    def get_group_role_mappings_client_available(self, realm: str, id: str, client: str) -> List[RoleRepresentation]:
+    def get_group_role_mappings_client_available(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str
+        ) -> List[RoleRepresentation]:
         """
         Get available client-level roles that can be mapped to the user
         
@@ -87,12 +118,22 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/groups/{id}/role-mappings/clients/{client}/available
         """
-        relative_url = f"{api_url}/{realm}/groups/{id}/role_mappings/clients/{client}/available"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
-        return [RoleRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/groups/{id}/role-mappings/clients/{client}/available"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
+        return [
+            RoleRepresentation.from_dict(item) for item in response.json()
+        ]
 
-    def get_group_role_mappings_client_composite(self, realm: str, id: str, client: str,
-                                                 brief_representation: bool = None) -> List[RoleRepresentation]:
+    def get_group_role_mappings_client_composite(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str,
+            brief_representation: bool = None
+        ) -> List[RoleRepresentation]:
         """
         Get effective client-level role mappings This recurses any composite roles
         
@@ -109,11 +150,22 @@ class ClientRoleMappingsApi:
             Relative path: /{realm}/groups/{id}/role-mappings/clients/{client}/composite
         """
         params = {"briefRepresentation": brief_representation}
-        relative_url = f"{api_url}/{realm}/groups/{id}/role_mappings/clients/{client}/composite"
-        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
-        return [RoleRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/groups/{id}/role-mappings/clients/{client}/composite"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            params=params, 
+            is_iam=True
+        )
+        return [
+            RoleRepresentation.from_dict(item) for item in response.json()
+        ]
 
-    def get_user_role_mappings_client(self, realm: str, id: str, client: str) -> List[RoleRepresentation]:
+    def get_user_role_mappings_client(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str
+        ) -> List[RoleRepresentation]:
         """
         Get client-level role mappings for the user, and the app
         
@@ -128,12 +180,22 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/users/{id}/role-mappings/clients/{client}
         """
-        relative_url = f"{api_url}/{realm}/users/{id}/role_mappings/clients/{client}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
-        return [RoleRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
+        return [
+            RoleRepresentation.from_dict(item) for item in response.json()
+        ]
 
-    def post_user_role_mappings_client(self, realm: str, id: str, client: str,
-                                       role_representation: RoleRepresentation) -> bool:
+    def post_user_role_mappings_client(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str,
+            role_representation: RoleRepresentation
+        ) -> bool:
         """
         Add client-level roles to the user role mapping
         
@@ -149,12 +211,20 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/users/{id}/role-mappings/clients/{client}
         """
-        relative_url = f"{api_url}/{realm}/users/{id}/role_mappings/clients/{client}"
-        response = self.api_client.post_request(relative_url=relative_url, json=role_representation.to_dict(),
-                                                is_iam=True)
+        relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}"
+        response = self.api_client.post_request(
+            relative_url=relative_url, 
+            json=role_representation.to_dict(),
+            is_iam=True
+        )
         return response.status_code == 201
 
-    def delete_user_role_mappings_client(self, realm: str, id: str, client: str) -> bool:
+    def delete_user_role_mappings_client(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str
+        ) -> bool:
         """
         Delete client-level roles from user role mapping
         
@@ -169,11 +239,19 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/users/{id}/role-mappings/clients/{client}
         """
-        relative_url = f"{api_url}/{realm}/users/{id}/role_mappings/clients/{client}"
-        response = self.api_client.delete_request(relative_url=relative_url, is_iam=True)
+        relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}"
+        response = self.api_client.delete_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
         return response.status_code == 204
 
-    def get_user_role_mappings_client_available(self, realm: str, id: str, client: str) -> List[RoleRepresentation]:
+    def get_user_role_mappings_client_available(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str
+        ) -> List[RoleRepresentation]:
         """
         Get available client-level roles that can be mapped to the user
         
@@ -188,12 +266,22 @@ class ClientRoleMappingsApi:
         URL:
             Relative path: /{realm}/users/{id}/role-mappings/clients/{client}/available
         """
-        relative_url = f"{api_url}/{realm}/users/{id}/role_mappings/clients/{client}/available"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
-        return [RoleRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}/available"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            is_iam=True
+        )
+        return [
+            RoleRepresentation.from_dict(item) for item in response.json()
+        ]
 
-    def get_user_role_mappings_client_composite(self, realm: str, id: str, client: str,
-                                                brief_representation: bool = None) -> List[RoleRepresentation]:
+    def get_user_role_mappings_client_composite(
+            self, 
+            realm: str, 
+            id: str, 
+            client: str,
+            brief_representation: bool = None
+        ) -> List[RoleRepresentation]:
         """
         Get effective client-level role mappings This recurses any composite roles
         
@@ -210,6 +298,12 @@ class ClientRoleMappingsApi:
             Relative path: /{realm}/users/{id}/role-mappings/clients/{client}/composite
         """
         params = {"briefRepresentation": brief_representation}
-        relative_url = f"{api_url}/{realm}/users/{id}/role_mappings/clients/{client}/composite"
-        response = self.api_client.get_request(relative_url=relative_url, params=params, is_iam=True)
-        return [RoleRepresentation.from_dict(item) for item in response.json()]
+        relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}/composite"
+        response = self.api_client.get_request(
+            relative_url=relative_url, 
+            params=params, 
+            is_iam=True
+        )
+        return [
+            RoleRepresentation.from_dict(item) for item in response.json()
+        ]
