@@ -197,7 +197,7 @@ class ClientRoleMappingsApi:
             realm: str, 
             id: str, 
             client: str,
-            role_representation: RoleRepresentation
+            role_representations: List[RoleRepresentation]
         ) -> bool:
         """
         Add client-level roles to the user role mapping
@@ -206,7 +206,7 @@ class ClientRoleMappingsApi:
             realm (str):  [required]
             id (str):  [required]
             client (str):  [required]
-            role_representation (RoleRepresentation): Request body data [required]
+            role_representations (List[RoleRepresentation]): Request body data [required]
         
         Returns:
             bool
@@ -217,16 +217,17 @@ class ClientRoleMappingsApi:
         relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}"
         response = self.api_client.post_request(
             relative_url=relative_url, 
-            json=role_representation.to_dict(),
+            json=[role_representation.to_dict() for role_representation in role_representations],
             is_iam=True
         )
-        return response.status_code == 201
+        return response.status_code == 204
 
     def delete_user_role_mappings_client(
             self, 
             realm: str, 
             id: str, 
-            client: str
+            client: str,
+            role_representations: List[RoleRepresentation]
         ) -> bool:
         """
         Delete client-level roles from user role mapping
@@ -235,6 +236,7 @@ class ClientRoleMappingsApi:
             realm (str):  [required]
             id (str):  [required]
             client (str):  [required]
+            role_representations (List[RoleRepresentation]): Request body data [required]   
         
         Returns:
             bool
@@ -245,6 +247,7 @@ class ClientRoleMappingsApi:
         relative_url = f"{api_url}/{realm}/users/{id}/role-mappings/clients/{client}"
         response = self.api_client.delete_request(
             relative_url=relative_url, 
+            json=[role_representation.to_dict() for role_representation in role_representations],
             is_iam=True
         )
         return response.status_code == 204
