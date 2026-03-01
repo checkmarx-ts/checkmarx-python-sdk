@@ -112,6 +112,14 @@ class TestClientRoleMappingsApi:
             )
             print(f"Added user role mapping: {added}")
             assert added is True
+            roles = self.client_role_mappings_api.get_user_role_mappings_client(
+                self.realm, self.test_user_id, self.test_client_id
+            )
+            assert isinstance(roles, list)
+            print(f"Got {len(roles)} user role mappings for client")
+            for role in roles:
+                print(f"  - {role.name}")
+            assert role_representation.name in [role.name for role in roles]
         except Exception as e:
             print(f"Error in test_post_user_role_mappings_client: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
@@ -126,6 +134,11 @@ class TestClientRoleMappingsApi:
             )
             print(f"Deleted user role mapping: {deleted}")
             assert deleted is True
+            roles = self.client_role_mappings_api.get_user_role_mappings_client(
+                self.realm, self.test_user_id, self.test_client_id
+            )
+            assert isinstance(roles, list)
+            print(f"Got {len(roles)} user role mappings for client")
         except Exception as e:
             print(f"Error in test_delete_user_role_mappings_client: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
