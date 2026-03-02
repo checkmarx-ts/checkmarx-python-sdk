@@ -19,10 +19,10 @@ class TestClientRolesApi:
         self.client_roles_api = ClientRolesApi()
         self.realm = "happy"
         self.test_client_id = (
-            "d708630e-12f1-4932-9d8c-a110b81c72f3"  # 使用固定的客户端ID
+            "d3b60524-13a1-431a-a703-1d6d3d09f512"  # 使用固定的客户端ID
         )
         self.test_role_name = "test_role_client"
-        self.test_client_uuid = "test-client-uuid"
+        self.test_client_uuid = "d3b60524-13a1-431a-a703-1d6d3d09f512"
 
     def test_get_client_roles(self):
         """Test get_client_roles method"""
