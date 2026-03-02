@@ -25,7 +25,7 @@ class TestGroupsApi:
 
         # Test with pagination parameters
         groups_paginated = self.groups_api.get_groups_by_realm(
-            realm=self.realm, first="0", max="5"
+            realm=self.realm, first=0, max=5
         )
         print(f"Number of groups (paginated): {len(groups_paginated)}")
         print(f"Groups (paginated): {[g.name for g in groups_paginated]}")

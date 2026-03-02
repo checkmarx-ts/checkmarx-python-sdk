@@ -19,8 +19,8 @@ class GroupsApi:
             realm: str, 
             brief_representation: str = None, 
             exact: str = None, 
-            first: str = None,
-            max: str = None, 
+            first: int = 0,
+            max: int = 100, 
             populate_hierarchy: str = None, 
             q: str = None, 
             search: str = None
@@ -32,8 +32,8 @@ class GroupsApi:
             realm (str):  [required]
             brief_representation (str): 
             exact (str): 
-            first (str): 
-            max (str): 
+            first (int): 
+            max (int): 
             populate_hierarchy (str): 
             q (str): 
             search (str): 
@@ -201,8 +201,8 @@ class GroupsApi:
             realm: str, 
             id: str, 
             brief_representation: str = None, 
-            first: str = None, 
-            max: str = None
+            first: int = 0, 
+            max: int = 100
         ) -> List[GroupRepresentation]:
         """
         Return a paginated list of subgroups that have a parent group
@@ -212,8 +212,8 @@ class GroupsApi:
             realm (str):  [required]
             id (str):  [required]
             brief_representation (str): 
-            first (str): 
-            max (str): 
+            first (int): 
+            max (int): 
         
         Returns:
             List[GroupRepresentation]
