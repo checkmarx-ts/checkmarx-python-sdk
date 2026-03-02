@@ -35,7 +35,7 @@ class TestClientsApi:
                 pass
 
             client_representation = ClientRepresentation(
-                client_id=test_client_id, enabled=True
+                client_id=test_client_id, enabled=True, protocol="openid-connect", attributes={}, redirect_uris=[]
             )
             create_successful = self.clients_api.post_clients(
                 realm=self.realm, client_representation=client_representation
@@ -53,13 +53,12 @@ class TestClientsApi:
                 )
                 assert created_client is not None
 
-                updated_client_representation = ClientRepresentation(
-                    client_id=test_client_id, enabled=True
-                )
+                created_client.name = "test_client_2026_02_24_updated"
+                print(f"Update client {created_client.client_id} to {created_client.name}")
                 update_successful = self.clients_api.put_client(
                     realm=self.realm,
                     id=client_id,
-                    client_representation=updated_client_representation,
+                    client_representation=created_client,
                 )
                 print(f"Update client successful: {update_successful}")
 

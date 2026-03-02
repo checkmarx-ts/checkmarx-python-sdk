@@ -26,8 +26,8 @@ class ClientsApi:
             self, 
             realm: str, 
             client_id: str = None, 
-            first: str = None, 
-            max: str = None, 
+            first: int = 0, 
+            max: int = 100, 
             q: str = None,
             search: bool = None, 
             viewable_only: str = None
@@ -38,8 +38,8 @@ class ClientsApi:
         Args:
             realm (str):  [required]
             client_id (str): filter by clientId
-            first (str): the first result
-            max (str): the max results to return
+            first (int): the first result
+            max (int): the max results to return
             q (str): 
             search (bool): whether this is a search query or a getClientById query
             viewable_only (str): filter clients that cannot be viewed in full by admin
@@ -87,12 +87,14 @@ class ClientsApi:
             Relative path: /{realm}/clients
         """
         relative_url = f"{api_url}/{realm}/clients"
+        print(f"Post request to {relative_url}")
+        print(f"Request body: {client_representation.to_dict()}")
         response = self.api_client.post_request(
             relative_url=relative_url, 
             json=client_representation.to_dict(),
             is_iam=True
         )
-        return response.status_code == 200
+        return response.status_code == 201
 
     def get_client_by_realm_by_id(
             self, 
@@ -145,7 +147,7 @@ class ClientsApi:
             json=client_representation.to_dict(),
             is_iam=True
         )
-        return response.status_code == 200
+        return response.status_code == 204
 
     def delete_client_by_realm_by_id(
             self, 
@@ -700,8 +702,8 @@ class ClientsApi:
             self, 
             realm: str, 
             id: str, 
-            first: str = None,
-            max: str = None
+            first: int = 0,
+            max: int = 100
         ) -> List[UserSessionRepresentation]:
         """
         Get offline sessions for client Returns a list of offline user sessions 
@@ -710,8 +712,8 @@ class ClientsApi:
         Args:
             realm (str):  [required]
             id (str):  [required]
-            first (str): Paging offset
-            max (str): Maximum results size (defaults to 100)
+            first (int): Paging offset
+            max (int): Maximum results size (defaults to 100)
         
         Returns:
             List[UserSessionRepresentation]
@@ -930,8 +932,8 @@ class ClientsApi:
     def get_client_user_sessions(self, 
             realm: str, 
             id: str, 
-            first: str = None, 
-            max: str = None
+            first: int = 0, 
+            max: int = 100
         ) -> List[UserSessionRepresentation]:
         """
         Get user sessions for client Returns a list of user sessions 
@@ -940,8 +942,8 @@ class ClientsApi:
         Args:
             realm (str):  [required]
             id (str):  [required]
-            first (str): Paging offset
-            max (str): Maximum results size (defaults to 100)
+            first (int): Paging offset
+            max (int): Maximum results size (defaults to 100)
         
         Returns:
             List[UserSessionRepresentation]
