@@ -19,9 +19,9 @@ class ClientRolesApi:
             self, 
             realm: str, 
             id: str, 
-            brief_representation: str = None, 
-            first: int = None,
-            max: int = None, 
+            brief_representation: bool = False, 
+            first: int = 0,
+            max: int = 100, 
             search: str = None
         ) -> List[RoleRepresentation]:
         """
@@ -30,10 +30,10 @@ class ClientRolesApi:
         Args:
             realm (str):  [required]
             id (str):  [required]
-            brief_representation (str): 
-            first (int): 
-            max (int): 
-            search (str): 
+            brief_representation (bool):  [optional]
+            first (int):  [optional]
+            max (int):  [optional]
+            search (str):  [optional]
         
         Returns:
             List[RoleRepresentation]
@@ -48,7 +48,6 @@ class ClientRolesApi:
             "search": search
         }
         relative_url = f"{api_url}/{realm}/clients/{id}/roles"
-
         response = self.api_client.get_request(
             relative_url=relative_url, 
             params=params
@@ -336,8 +335,8 @@ class ClientRolesApi:
             id: str, 
             role_name: str, 
             brief_representation: bool = None,
-            first: int = None, 
-            max: int = None
+            first: int = 0, 
+            max: int = 100
         ) -> List[GroupRepresentation]:
         """
         Returns a stream of groups that have the specified role name
@@ -434,8 +433,8 @@ class ClientRolesApi:
             realm: str, 
             id: str, 
             role_name: str, 
-            first: int = None, 
-            max: int = None
+            first: int = 0, 
+            max: int = 100
         ) -> List[UserRepresentation]:
         """
         Returns a stream of users that have the specified role name.
@@ -468,8 +467,8 @@ class ClientRolesApi:
             self, 
             realm: str, 
             brief_representation: str = None, 
-            first: int = None, 
-            max: int = None,
+            first: int = 0, 
+            max: int = 100,
             search: str = None
         ) -> List[RoleRepresentation]:
         """
@@ -767,8 +766,8 @@ class ClientRolesApi:
             realm: str, 
             role_name: str, 
             brief_representation: bool = None,
-            first: int = None, 
-            max: int = None
+            first: int = 0, 
+            max: int = 100
         ) -> List[GroupRepresentation]:
         """
         Returns a stream of groups that have the specified role name
@@ -862,8 +861,8 @@ class ClientRolesApi:
             self, 
             realm: str, 
             role_name: str, 
-            first: int = None, 
-            max: int = None
+            first: int = 0, 
+            max: int = 100
         ) -> List[UserRepresentation]:
         """
         Returns a stream of users that have the specified role name.
