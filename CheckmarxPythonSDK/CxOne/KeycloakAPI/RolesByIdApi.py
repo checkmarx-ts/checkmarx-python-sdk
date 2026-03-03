@@ -161,7 +161,8 @@ class RolesByIdApi:
     def delete_roles_by_id_composites(
             self, 
             realm: str, 
-            role_id: str
+            role_id: str,
+            role_representations: List[RoleRepresentation]
         ) -> bool:
         """
         Remove a set of roles from the role's composite
@@ -169,6 +170,7 @@ class RolesByIdApi:
         Args:
             realm (str):  [required]
             role_id (str):  [required]
+            role_representations (List[RoleRepresentation]): Request body data [required]
 
         Returns:
             bool
@@ -179,6 +181,7 @@ class RolesByIdApi:
         relative_url = f"{api_url}/{realm}/roles-by-id/{role_id}/composites"
         response = self.api_client.delete_request(
             relative_url=relative_url, 
+            json=[item.to_dict() for item in role_representations], 
             is_iam=True
         )
         return response.status_code == 204

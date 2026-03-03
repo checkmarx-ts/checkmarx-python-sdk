@@ -33,10 +33,9 @@ class TestRolesByIdApi:
 
     def test_client_role_crud_by_id(self):
         """Test CRUD operations for roles by ID"""
-        role_representation = RoleRepresentation(name=self.test_role_name)
         try:
             delete_response = self.roles_api.delete_client_role(
-                self.realm, self.client_id, role_representation.name
+                self.realm, self.client_id, self.test_role_name
             )
             print(f"Deleted role: {delete_response}")
         except Exception as e:
@@ -45,7 +44,7 @@ class TestRolesByIdApi:
             )
         try:
             # Create test role
-            # Try to create role
+            role_representation = RoleRepresentation(name=self.test_role_name)
             created = self.roles_api.post_client_roles(
                 self.realm, self.client_id, role_representation
             )
@@ -125,7 +124,7 @@ class TestRolesByIdApi:
         """Test composite role operations"""
         try:
             delete_response = self.roles_api.delete_client_role(
-                self.realm, self.client_id, role_representation.name
+                self.realm, self.client_id, self.test_role_name
             )
             print(f"Deleted role: {delete_response}")
         except Exception as e:
@@ -155,25 +154,31 @@ class TestRolesByIdApi:
 
                     # Get some non-composite roles as child roles
                     try:
-                        all_roles = self.roles_api.get_client_roles(
+                        all_client_roles = self.roles_api.get_client_roles(
                             self.realm, self.client_id
                         )
                         non_composite_roles = [
                             role
-                            for role in all_roles
+                            for role in all_client_roles
                             if not role.composite and role.id != self.test_role_id
                         ]
+                        all_realm_roles = self.roles_api.get_roles_by_realm(
+                            self.realm
+                        )
+                        non_composite_roles.extend(
+                            role
+                            for role in all_realm_roles
+                            if not role.composite and role.id != self.test_role_id
+                        )
                         if len(non_composite_roles) > 0:
-                            child_role = non_composite_roles[0]
                             print(
-                                f"Child role to add: {child_role.name} (ID: {child_role.id})"
+                                f"Non-composite roles to add: {[role.name for role in non_composite_roles]}"
                             )
-
                             # Test post_roles_by_id_composites (add child roles)
                             try:
                                 added = (
                                     self.roles_by_id_api.post_roles_by_id_composites(
-                                        self.realm, self.test_role_id, [child_role]
+                                        self.realm, self.test_role_id, non_composite_roles
                                     )
                                 )
                                 print(f"Added child role to composite: {added}")
@@ -217,7 +222,7 @@ class TestRolesByIdApi:
                                 # Test delete_roles_by_id_composites (remove child roles)
                                 removed = (
                                     self.roles_by_id_api.delete_roles_by_id_composites(
-                                        self.realm, self.test_role_id
+                                        self.realm, self.test_role_id, role_representations=non_composite_roles
                                     )
                                 )
                                 print(f"Removed composites: {removed}")
