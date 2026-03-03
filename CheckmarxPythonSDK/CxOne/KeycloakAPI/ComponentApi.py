@@ -68,7 +68,7 @@ class ComponentApi:
             json=component_representation.to_dict(),
             is_iam=True
         )
-        return response.status_code == 200
+        return response.status_code == 204
 
     def get_component(self, 
             realm: str, 
@@ -114,7 +114,7 @@ class ComponentApi:
             json=component_representation.to_dict(),
             is_iam=True
         )
-        return response.status_code == 200
+        return response.status_code == 204
 
     def delete_component(self, 
             realm: str, 
