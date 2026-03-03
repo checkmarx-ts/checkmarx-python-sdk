@@ -33,7 +33,9 @@ class ClientScopesApi:
             relative_url=relative_url, 
             is_iam=True
         )
-        return [ClientScopeRepresentation.from_dict(item) for item in response.json()]
+        return [
+            ClientScopeRepresentation.from_dict(item) for item in response.json()
+        ]
 
     def post_client_scopes(
             self, 
