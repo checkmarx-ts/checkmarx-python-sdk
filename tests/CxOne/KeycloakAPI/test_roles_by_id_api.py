@@ -14,19 +14,8 @@ class TestRolesByIdApi:
         self.roles_by_id_api = RolesByIdApi()
         self.roles_api = RolesApi()
         self.realm = "happy"
-        self.client_id = "d708630e-12f1-4932-9d8c-a110b81c72f3"  # Use fixed client ID
+        self.client_id = "d3b60524-13a1-431a-a703-1d6d3d09f512"  # Use fixed client ID
         self.test_role_name = "test_role_roles_by_id"
-        self.test_role = None
-        self.test_role_id = None
-
-    def teardown_method(self):
-        # Clean up test role
-        if self.test_role_id:
-            try:
-                self.roles_by_id_api.delete_roles_by_id(self.realm, self.test_role_id)
-                print(f"Cleaned up test role with ID: {self.test_role_id}")
-            except Exception as e:
-                print(f"Error cleaning up test role: {e}")
 
     def test_get_roles_by_id_composites_parameters(self):
         """Test parameter types for get_roles_by_id_composites method"""
@@ -44,35 +33,43 @@ class TestRolesByIdApi:
 
     def test_client_role_crud_by_id(self):
         """Test CRUD operations for roles by ID"""
+        role_representation = RoleRepresentation(name=self.test_role_name)
+        try:
+            delete_response = self.roles_api.delete_client_role(
+                self.realm, self.client_id, role_representation.name
+            )
+            print(f"Deleted role: {delete_response}")
+        except Exception as e:
+            print(
+                f"Error deleting role (might not exist or no server connection): {e}"
+            )
         try:
             # Create test role
-            role_representation = RoleRepresentation(name=self.test_role_name)
-            try:
-                # Try to create role
-                created = self.roles_api.post_client_roles(
-                    self.realm, self.client_id, role_representation
-                )
-                print(f"Created role: {created}")
-            except Exception as e:
-                print(
-                    f"Error creating role (might already exist or no server connection): {e}"
-                )
-
+            # Try to create role
+            created = self.roles_api.post_client_roles(
+                self.realm, self.client_id, role_representation
+            )
+            print(f"Created role: {created}")
+        except Exception as e:
+            print(
+                f"Error creating role (might already exist or no server connection): {e}"
+            )
+        try:
             # Get role ID
             try:
                 roles = self.roles_api.get_client_roles(
-                    self.realm, self.client_id, search=self.test_role_name
+                    realm=self.realm, id=self.client_id, search=self.test_role_name
                 )
                 if len(roles) > 0:
-                    self.test_role = roles[0]
-                    self.test_role_id = self.test_role.id
-                    print(f"Found test role with ID: {self.test_role_id}")
-                    print(f"Role details: {self.test_role.to_dict()}")
+                    test_role = roles[0]
+                    test_role_id = test_role.id
+                    print(f"Found test role with ID: {test_role_id}")
+                    print(f"Role details: {test_role.to_dict()}")
 
                     # Test get_roles_by_id
                     try:
                         role_by_id = self.roles_by_id_api.get_roles_by_id(
-                            self.realm, self.test_role_id
+                            realm=self.realm, role_id=test_role_id
                         )
                         assert role_by_id is not None
                         assert role_by_id.name == self.test_role_name
@@ -82,14 +79,14 @@ class TestRolesByIdApi:
                         updated_description = "Updated test role description"
                         role_by_id.description = updated_description
                         updated = self.roles_by_id_api.put_roles_by_id(
-                            self.realm, self.test_role_id, role_by_id
+                            realm=self.realm, role_id=test_role_id, role_representation=role_by_id
                         )
                         assert updated is True
                         print(f"Updated role: {updated}")
 
                         # Verify update
                         updated_role = self.roles_by_id_api.get_roles_by_id(
-                            self.realm, self.test_role_id
+                            realm=self.realm, role_id=test_role_id
                         )
                         assert updated_role.description == updated_description
                         print(
@@ -98,22 +95,19 @@ class TestRolesByIdApi:
 
                         # Test delete_roles_by_id (delete role)
                         deleted = self.roles_by_id_api.delete_roles_by_id(
-                            self.realm, self.test_role_id
+                            realm=self.realm, role_id=test_role_id
                         )
                         assert deleted is True
                         print(f"Deleted role: {deleted}")
 
                         # Verify deletion
                         try:
-                            self.roles_by_id_api.get_roles_by_id(
-                                self.realm, self.test_role_id
+                            role_result = self.roles_by_id_api.get_roles_by_id(
+                                realm=self.realm, role_id=test_role_id
                             )
-                            assert False, "Role should have been deleted"
+                            assert role_result is None, "Role should have been deleted"
                         except Exception as e:
                             print(f"Verified role deletion: {e}")
-
-                        # Reset test_role_id to avoid duplicate deletion in teardown
-                        self.test_role_id = None
                     except Exception as e:
                         print(f"Error testing role operations: {e}")
                 else:
@@ -129,6 +123,15 @@ class TestRolesByIdApi:
 
     def test_role_composites_by_id(self):
         """Test composite role operations"""
+        try:
+            delete_response = self.roles_api.delete_client_role(
+                self.realm, self.client_id, role_representation.name
+            )
+            print(f"Deleted role: {delete_response}")
+        except Exception as e:
+            print(
+                f"Error deleting role (might not exist or no server connection): {e}"
+            )
         try:
             # Create test role
             role_representation = RoleRepresentation(name=self.test_role_name)
@@ -170,7 +173,7 @@ class TestRolesByIdApi:
                             try:
                                 added = (
                                     self.roles_by_id_api.post_roles_by_id_composites(
-                                        self.realm, self.test_role_id, child_role
+                                        self.realm, self.test_role_id, [child_role]
                                     )
                                 )
                                 print(f"Added child role to composite: {added}")
@@ -246,6 +249,15 @@ class TestRolesByIdApi:
             print(f"Error in test_role_composites_by_id: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
+        try:
+            delete_response = self.roles_api.delete_client_role(
+                self.realm, self.client_id, role_representation.name
+            )
+            print(f"Deleted role: {delete_response}")
+        except Exception as e:
+            print(
+                f"Error deleting role (might not exist or no server connection): {e}"
+            )
 
     def test_role_management_permissions(self):
         """Test role management permissions"""
