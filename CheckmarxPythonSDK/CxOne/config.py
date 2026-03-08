@@ -1,6 +1,7 @@
 # encoding: utf-8
 from CheckmarxPythonSDK.utilities.configUtility import get_config
 from CheckmarxPythonSDK.configuration import Configuration
+from CheckmarxPythonSDK.logger_setup import set_module_logger_level
 
 
 def construct_configuration() -> Configuration:
@@ -18,9 +19,11 @@ def construct_configuration() -> Configuration:
         "verify": True,
         "cert": None,
         "proxy": None,
+        "logging_level": "ERROR",
+        "max_retries": 3,
     }
     config = get_config(config_default=config_default, section="CxOne", prefix="cxone_")
-    return Configuration(
+    configuration = Configuration(
                 server_base_url=config.get("server"),
                 iam_base_url=config.get("access_control_url"),
                 token_url=(
@@ -38,5 +41,9 @@ def construct_configuration() -> Configuration:
                 proxies={
                     "http": config.get("proxy"),
                     "https": config.get("proxy"),
-                }
+                },
+                logging_level=config.get("logging_level"),
+                max_retries=int(config.get("max_retries")),
             )
+    set_module_logger_level("CxOne", configuration.logging_level)
+    return configuration

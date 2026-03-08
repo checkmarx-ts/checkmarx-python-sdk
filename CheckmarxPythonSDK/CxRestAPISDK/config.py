@@ -1,6 +1,7 @@
 from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.utilities.configUtility import get_config
 from CheckmarxPythonSDK.__version__ import __version__
+from CheckmarxPythonSDK.logger_setup import set_module_logger_level
 
 
 def construct_configuration() -> Configuration:
@@ -21,13 +22,14 @@ def construct_configuration() -> Configuration:
         "verify": True,
         "cert": None,
         "proxy": None,
+        "logging_level": "ERROR",
     }
     old_config = get_config(config_default=config_default, section="checkmarx", prefix="cxsast_")
     new_config = get_config(config_default=config_default, section="CxSAST", prefix="cxsast_")
     config = old_config
     if new_config.get("base_url"):
         config = new_config
-    return Configuration(
+    configuration = Configuration(
                 server_base_url=config.get("base_url"),
                 token_url=f"{config.get('base_url')}/cxrestapi/auth/identity/connect/token",
                 username=config.get("username"),
@@ -42,8 +44,11 @@ def construct_configuration() -> Configuration:
                 proxies={
                     "http": config.get("proxy"),
                     "https": config.get("proxy"),
-                }
+                },
+                logging_level=config.get("logging_level"),
             )
+    set_module_logger_level("CxRestAPISDK", configuration.logging_level)
+    return configuration
 
 
 def get_headers(api_version="1.0", extra_header=None):

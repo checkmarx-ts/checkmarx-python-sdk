@@ -19,5 +19,5 @@ class Configuration:
     verify: Union[bool, str] = True
     cert: str = None  # path to client certificate
     proxies: dict = None
-    debug_mode: bool = False
+    logging_level: str = "ERROR" # DEBUG, INFO, WARNING, ERROR, CRITICAL
     max_retries: int = 3
