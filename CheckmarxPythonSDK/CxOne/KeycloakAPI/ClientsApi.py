@@ -1,3 +1,5 @@
+import logging
+
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import Dict, List, Any, Optional
@@ -13,6 +15,8 @@ from .dto.RoleRepresentation import RoleRepresentation
 from .dto.UserRepresentation import UserRepresentation
 from .dto.UserSessionRepresentation import UserSessionRepresentation
 from .api_url import api_url
+
+logger = logging.getLogger("CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientsApi")
 
 
 class ClientsApi:
@@ -167,11 +171,24 @@ class ClientsApi:
         URL:
             Relative path: /{realm}/clients/{id}
         """
+        if id in ['ast-app', 'cb-app', 'realm-management', 'superset-kpi']:
+            logger.error(
+                "Forbid to delete builtin-in clients ast-app, cb-app, "
+                "realm-management, superset-kpi which are system clients"
+                )
+            return False
+        if id.startswith(tuple(['saml-helper-'])):
+            logger.error(
+                "Forbid to delete clients with saml-helper- prefix, "
+                "which are intended for internal use"
+                )
+            return False
         relative_url = f"{api_url}/{realm}/clients/{id}"
         response = self.api_client.delete_request(
             relative_url=relative_url, 
             is_iam=True
         )
+        logger.info(f"Delete client {id} successful in realm {realm}")
         return response.status_code == 204
 
     def get_client_secret(
