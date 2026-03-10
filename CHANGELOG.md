@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.7.9 - 2026-03-10
+* [Fix] CxODataApiSDK/Utilities.py quote issue
+
 1.7.8 - 2026-02-28
 * [Add] ClientRoleMappingsApi tests
 * [Add] test_client_role_mappings_api.py::test_post_group_role_mappings_client
