@@ -17,6 +17,8 @@ class TestUsersApi:
             users = self.users_api.get_users_by_realm(realm=self.realm)
             assert isinstance(users, list)
             print(f"Got {len(users)} users")
+            for user in users:
+                print(f"User: {user.username}")
         except Exception as e:
             print(f"Error in test_get_users_by_realm: {e}")
         assert True
