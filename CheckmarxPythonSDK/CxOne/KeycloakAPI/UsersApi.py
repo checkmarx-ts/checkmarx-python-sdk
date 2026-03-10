@@ -11,7 +11,7 @@ from .dto.UserRepresentation import UserRepresentation
 from .dto.UserSessionRepresentation import UserSessionRepresentation
 from .api_url import api_url
 
-logger = logging.getLogger("CheckmarxPythonSDK")
+logger = logging.getLogger(__name__)
 
 
 class UsersApi:
