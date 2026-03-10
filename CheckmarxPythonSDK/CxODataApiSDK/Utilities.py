@@ -206,7 +206,7 @@ def get_result(project, filter_false_positive=False, threshold=0):
                 "ScanId": last_scan_id,
                 "DirectLink": f"{ResultsODataAPI().api_client.configuration.server_base_url}/cxwebclient"
                               f"/ViewerMain.aspx?scanid={last_scan_id}&projectid={project_id}"
-                              f"&pathid={result.get("PathId")}"
+                              f"&pathid={result.get('PathId')}"
             }
         )
 
