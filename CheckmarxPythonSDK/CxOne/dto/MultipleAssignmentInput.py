@@ -8,10 +8,13 @@ from .ResourceType import ResourceType
 class MultipleAssignmentInput:
     """
     Attributes:
-        entity_type (EntityType): type of entity. Enum:[ group, user, client ]
-        resource_type (ResourceType): type of resource. Enum:  [ application, project, tenant ]
-        entity_roles (List[str]): The roles assigned for these assignments. Note: If no role is assigned, then the
-                                  default "base" role is applied for each entity.
+        entity_type (EntityType): type of entity. 
+            Enum:[ group, user, client ]
+        resource_type (ResourceType): type of resource. 
+            Enum:  [ application, project, tenant ]
+        entity_roles (List[str]): The roles assigned for these 
+            assignments. Note: If no role is assigned, then the
+            default "base" role is applied for each entity.
         entities (List[str]):
         resources (List[str]):
     """
