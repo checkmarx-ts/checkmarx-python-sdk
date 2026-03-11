@@ -17,7 +17,7 @@ class GroupsApi:
     def get_groups_by_realm(
             self, 
             realm: str, 
-            brief_representation: str = None, 
+            brief_representation: bool = False, 
             exact: str = None, 
             first: int = 0,
             max: int = 100, 
@@ -30,7 +30,7 @@ class GroupsApi:
         
         Args:
             realm (str):  [required]
-            brief_representation (str): 
+            brief_representation (bool): 
             exact (str): 
             first (int): 
             max (int): 
