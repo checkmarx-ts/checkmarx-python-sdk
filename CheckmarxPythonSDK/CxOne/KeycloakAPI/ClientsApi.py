@@ -2,7 +2,7 @@ import logging
 
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Union
 from .dto.AccessToken import AccessToken
 from .dto.ClientRepresentation import ClientRepresentation
 from .dto.ClientScopeRepresentation import ClientScopeRepresentation
@@ -16,11 +16,11 @@ from .dto.UserRepresentation import UserRepresentation
 from .dto.UserSessionRepresentation import UserSessionRepresentation
 from .api_url import api_url
 
-logger = logging.getLogger("CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientsApi")
+logger = logging.getLogger(__name__)
 
 
 class ClientsApi:
-    def __init__(self, api_client: ApiClient = None):
+    def __init__(self, api_client: Optional[ApiClient] = None):
         if api_client is None:
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
