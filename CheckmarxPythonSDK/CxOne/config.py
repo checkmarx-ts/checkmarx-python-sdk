@@ -19,8 +19,11 @@ def construct_configuration() -> Configuration:
         "verify": True,
         "cert": None,
         "proxy": None,
-        "logging_level": "ERROR",
+        "logging_level": "INFO",
         "max_retries": 3,
+        "rate_limit_capacity": 20000,
+        "rate_limit_period": 300,
+        "rate_limit_refill_rate": None,
     }
     config = get_config(config_default=config_default, section="CxOne", prefix="cxone_")
     configuration = Configuration(
@@ -44,6 +47,9 @@ def construct_configuration() -> Configuration:
                 },
                 logging_level=config.get("logging_level"),
                 max_retries=int(config.get("max_retries")),
+                rate_limit_capacity=int(config.get("rate_limit_capacity")),
+                rate_limit_period=int(config.get("rate_limit_period")),
+                rate_limit_refill_rate=float(config.get("rate_limit_refill_rate")) if config.get("rate_limit_refill_rate") else None,
             )
     set_module_logger_level("CxOne", configuration.logging_level)
     return configuration
