@@ -9,7 +9,7 @@ class TestScopeMappingsApi:
 
     def get_test_client(self):
         try:
-            clients = self.clients_api.get_clients(realm=self.realm)
+            clients = self.clients_api.get_clients(realm=self.realm, client_id="test")
             return clients[0] if clients else None
         except Exception:
             return None

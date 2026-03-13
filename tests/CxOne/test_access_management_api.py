@@ -99,9 +99,9 @@ def test_delete_an_assignment():
     assert result is True
 
 
-# def test_retrieve_an_assignment():
-#     result = retrieve_an_assignment(entity_id: str, resource_id: str)
-#     assert result is not None
+def test_retrieve_an_assignment():
+    result = retrieve_an_assignment(entity_id="3a7cf5fc-6554-4136-918b-6f494656b2b0", resource_id="71fe66b9-b3ea-4fc7-8594-541d0a07a697")
+    assert result is not None
 
 
 # def test_update_assignment_roles():

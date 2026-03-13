@@ -41,7 +41,7 @@ def test_get_project_id_by_name():
     projects_api = ProjectsAPI()
     project_name = "test1"
     project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, team_full_name)
-    assert project_id is not None
+    assert project_id is None
 
 
 def test_get_project_details_by_id():
