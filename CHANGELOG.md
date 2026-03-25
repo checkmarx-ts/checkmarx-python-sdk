@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.0 - 2026-03-25
+* [Add] support for github app SCM import
+
 1.7.9 - 2026-03-10
 * [Fix] CxODataApiSDK/Utilities.py quote issue
 
