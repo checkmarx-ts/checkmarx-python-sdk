@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 from CheckmarxPythonSDK.CxOne import (
+    RepoManagerAPI,
     get_repos,
     get_repo_branches,
     construct_repo_request,
@@ -11,6 +13,113 @@ from CheckmarxPythonSDK.CxOne import (
 )
 
 
+load_dotenv("E:\github.com\checkmarx-python-sdk\happy.env") 
+repo_manager = RepoManagerAPI()
+
+def test_get_all_scm_types_v2():
+    all_scm_types = repo_manager.get_all_scm_types_v2()
+    for scm in all_scm_types:
+        print(scm)
+    assert len(all_scm_types) > 1
+
+
+def test_get_verify_status_for_user():
+    result = repo_manager.get_verify_status_for_user(
+        origin="GITHUBAPP",
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE")
+    )
+    assert result is True
+
+
+def test_get_github_app_info():
+    result = repo_manager.get_github_app_info(
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE")
+    )
+    print(result)
+    assert result is not None
+
+
+def test_get_all_repo_orgs_for_a_scm_type():
+    repo_orgs = repo_manager.get_all_repo_orgs_for_a_scm_type(
+        origin="GITHUBAPP",
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE"),
+        page=1,
+        page_size=50,
+    )
+    for repo_org in repo_orgs.orgs:
+        print(type(repo_org))
+        print(repo_org)
+    assert len(repo_orgs.orgs) > 0
+
+
+def test_create_installation_of_scm_on_org():
+    installation = repo_manager.create_installation_of_scm_on_org(
+        origin="GITHUBAPP",
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE"),
+        org_name="happy-cook",
+    )
+    print(installation)
+    assert installation is not None
+
+
+def test_get_all_repos_of_an_org_for_a_scm():
+    installation = repo_manager.create_installation_of_scm_on_org(
+        origin="GITHUBAPP",
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE"),
+        org_name="happy-cook",
+    )
+    all_repos = repo_manager.get_all_repos_of_an_org_for_a_scm(
+        origin="GITHUBAPP",
+        org_name="happy-cook",
+        token_id=installation.tokenId,
+        is_user=False,
+    )
+    for repo in all_repos.repos:
+        print(type(repo))
+        print(repo)
+    assert len(all_repos.repos) > 0
+
+
+def test_github_app_import():
+    github_org = "happy-cook"
+    auth_code = os.getenv("GITHUBAPP_AUTH_CODE")
+    origin = "GITHUBAPP"
+    installation = repo_manager.create_installation_of_scm_on_org(
+        origin="GITHUBAPP",
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE"),
+        org_name="happy-cook",
+    )
+    all_repos = repo_manager.get_all_repos_of_an_org_for_a_scm(
+        origin="GITHUBAPP",
+        org_name="happy-cook",
+        token_id=installation.tokenId,
+        is_user=False,
+    )
+    repo_requests = [repo_manager.construct_repo_request(
+        http_repo_url=repo.url,
+        repo_id=repo.id,
+        branches=[{
+            "pattern": repo.defaultBranch,
+            "isDefaultBranch": True
+        }],
+        origin="GITHUBAPP",
+        webhook_enabled=True,
+    ) for repo in all_repos.repos if repo.name != "WebGoat"]
+    for repo_request in repo_requests:
+        print(repo_request)
+    response = repo_manager.repo_import(
+        origin=origin, 
+        organization=github_org, 
+        auth_code=None, 
+        token_id=installation.tokenId,
+        repos_from_request=repo_requests,
+        is_user=False, 
+        is_org_webhook_enabled=False, 
+        create_ast_project=True,
+        scan_ast_project=False
+    )
+    assert response.status_code == 201
+
 def test_github_import():
     github_org = "happy-cook"
     auth_code = os.getenv("CXONE_GITHUB_AUTH_CODE")
@@ -19,7 +128,7 @@ def test_github_import():
     repo_request = [construct_repo_request(
         http_repo_url=repo.get("url"),
         ssh_repo_url=repo.get("sshRepoUrl"),
-        id=repo.get("id"),
+        repo_id=repo.get("id"),
         branches=[{
             "name": repo.get("defaultBranch"),
             "isDefaultBranch": True
@@ -41,7 +150,7 @@ def test_gitlab_import():
     repo_request = [construct_repo_request(
         http_repo_url=repo.get("url"),
         ssh_repo_url=repo.get("sshRepoUrl"),
-        id=repo.get("id"),
+        repo_id=repo.get("id"),
         branches=[{
             "name": repo.get("defaultBranch"),
             "isDefaultBranch": True
@@ -60,7 +169,7 @@ def test_azure_import():
     repo_request = [construct_repo_request(
         http_repo_url=repo.get("url"),
         ssh_repo_url=repo.get("sshRepoUrl"),
-        id=repo.get("id"),
+        repo_id=repo.get("id"),
         branches=[{
             "name": repo.get("defaultBranch"),
             "isDefaultBranch": True
@@ -92,7 +201,7 @@ def test_bitbucket_import():
         repo_request = construct_repo_request(
             http_repo_url=repo.get("url"),
             ssh_repo_url=repo.get("sshRepoUrl"),
-            id=repo.get("id"),
+            repo_id=repo.get("id"),
             branches=list(filter(lambda r: r.get("name") == "master", branches)),
             origin="BITBUCKET",
             webhook_enabled=True,

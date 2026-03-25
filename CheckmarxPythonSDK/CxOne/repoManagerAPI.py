@@ -7,9 +7,72 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from requests.exceptions import ChunkedEncodingError
 from requests import Response
+from dataclasses import dataclass
 from .projectsAPI import get_all_projects
 
-logger = logging.getLogger("CheckmarxPythonSDK")
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ScmType:
+    id: int = None
+    type: str = None
+    repoBaseUrl: str = None
+    authBaseUrl: str = None
+    apiBaseUrl: str = None
+    displayName: str = None
+    clientId: str = None
+    scope: str = None
+    instanceName: str = None
+    onPrem: bool = False
+    appId: str = None
+    externalId: str = None
+
+
+@dataclass
+class GithubApp:
+    id: int = None
+    name: str = None
+    slug: str = None
+    hasInstallation: bool = False
+
+
+@dataclass
+class RepoOrg:
+    id: str = None
+    name: str = None
+    isUser: bool = False
+    installationTokenId: int = None
+    webhookEditable: bool = True
+    webhookEnabled: bool = True
+
+
+@dataclass
+class RepoOrgs:
+    orgs: List[RepoOrg] = None
+
+
+@dataclass
+class ScmInstallation:
+    installationId: int = None
+    tokenId: int = None
+
+
+@dataclass
+class Repo:
+    id: str = None
+    name: str = None
+    url: str = None
+    defaultBranch: str = None
+    fullName: str = None
+    isRepoAdmin: bool = True
+    isSuggested: bool = False
+    isImported: bool = False
+
+
+@dataclass
+class Repos:
+    repos: List[Repo] = None
 
 
 class RepoManagerAPI(object):
@@ -19,6 +82,14 @@ class RepoManagerAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = (
+            f"{self.api_client.configuration.server_base_url}"
+            f"/api/repos-manager/scms"
+        )
+        self.base_url_v2 = (
+            f"{self.api_client.configuration.server_base_url}"    
+            f"/api/repos-manager/v2/scms"
+        )
         self.origin_dict = {
             "GITHUB": 1,
             "GITLAB": 2,
@@ -26,7 +97,53 @@ class RepoManagerAPI(object):
             "BITBUCKET": 4,
         }
 
-    def check_origin(self, origin: str) -> str:
+    def get_all_scm_types_v2(
+        self
+    ) -> List[ScmType]:
+        """
+        get all scm types from CxOne tenant. It may cover GITHUB, GITLAB,
+        AZURE, BITBUCKET, its self hosted version, and GITHUBAPP.
+
+        Returns:
+            List[ScmType]
+        """
+        url = self.base_url_v2
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+        )
+        return [
+            ScmType(**item) for item in response.json()
+        ]
+
+    def get_verify_status_for_user(
+        self,
+        origin: str,
+        auth_code: str,
+    ) -> bool:
+        """
+        Check if user have access to the scm type
+
+        Returns:
+            bool
+        """
+        origin = self.check_origin(origin)
+        origin_index = self.origin_dict.get(origin)
+        url = f"{self.base_url}/{origin_index}/user/verify"
+        params = {
+            "authCode": auth_code,
+        }
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            params=params,
+        )
+        return response.json()
+
+    def check_origin(
+        self, 
+        origin: str,
+    ) -> str:
         """
 
         Args:
@@ -36,12 +153,124 @@ class RepoManagerAPI(object):
             str
         """
         origin = origin.upper()
+        all_scm_types = self.get_all_scm_types_v2()
+        github_apps = [scm for scm in all_scm_types if scm.type == 'githubApp']
+        if github_apps:
+            self.origin_dict.update({"GITHUBAPP": github_apps[0].id})
         if origin not in self.origin_dict.keys():
             raise ValueError(
                 f"origin {origin} not support!"
-                f"Currently only support GITHUB, GITLAB, AZURE, BITBUCKET"
+                f"Currently only support GITHUB, GITLAB, AZURE, BITBUCKET,"
+                f"GITHUBAPP"
             )
         return origin
+
+    def get_github_app_info(
+        self,
+        auth_code: str,
+    ) -> GithubApp:
+        """
+        get github app information
+        """
+        origin = self.check_origin("GITHUBAPP")
+        origin_index = self.origin_dict.get(origin)
+        url = f"{self.base_url}/{origin_index}/github-app-info"
+        params = {
+            "authCode": auth_code,
+        }
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            params=params,
+        )
+        return GithubApp(**response.json())
+
+    def get_all_repo_orgs_for_a_scm_type(
+        self,
+        origin: str,
+        auth_code: str,
+        page: int,
+        page_size: int = 50,
+    ) -> RepoOrgs:
+        """
+        Get all repository organizations for one scm type
+
+        Returns:
+            RepoOrgs
+        """
+        origin = self.check_origin(origin)
+        origin_index = self.origin_dict.get(origin)
+        url = f"{self.base_url_v2}/{origin_index}/user/orgs/config"
+        params = {
+            "authCode": auth_code,
+            "page": page,
+            "pageSize": page_size,
+        }
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            params=params,
+        )
+        print(response.json())
+        return RepoOrgs(
+            orgs=[
+                RepoOrg(**item) for item in response.json().get("orgs")
+            ]
+        )
+
+    def create_installation_of_scm_on_org(
+        self,
+        origin: str,
+        auth_code: str,
+        org_name: str,
+    ) -> ScmInstallation:
+        """
+        create installation of an SCM on a particular organization, 
+        for example, create a githubapp on a github organization.
+        
+        """
+        origin = self.check_origin(origin)
+        origin_index = self.origin_dict.get(origin)
+        url = f"{self.base_url}/{origin_index}/installations"
+        params = {
+            "authCode": auth_code,
+            "org-identity": org_name,
+        }
+        response = self.api_client.call_api(
+            method="POST",
+            url=url,
+            params=params,
+        )
+        return ScmInstallation(**response.json())
+
+    def get_all_repos_of_an_org_for_a_scm(
+        self,
+        origin: str,
+        org_name: str,
+        token_id: str,
+        is_user: bool = False
+    ) -> Repos:
+        """
+        get all repositories for one organization of a scm type.
+        """
+        origin = self.check_origin(origin)
+        origin_index = self.origin_dict.get(origin)
+        url = f"{self.base_url_v2}/{origin_index}/orgs/{org_name}/repos"
+        params = {
+            "tokenId": token_id,
+            "isUser": is_user,
+        }
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            params=params
+        )
+        return Repos(
+            repos=[
+                    Repo(**item) for item in response.json().get("repos")
+                ]
+            )
+
 
     def get_repos(
         self,
@@ -76,8 +305,12 @@ class RepoManagerAPI(object):
         return self.api_client.get_request(relative_url=relative_url, params=params)
 
     def get_all_repos(
-        self, origin: str, organization: str, auth_code: str, is_user: bool = False
-    ) -> List[dict]:
+            self, 
+            origin: str, 
+            organization: str, 
+            auth_code: str, 
+            is_user: bool = False,
+        ) -> List[dict]:
         """
 
         Args:
@@ -181,7 +414,6 @@ class RepoManagerAPI(object):
     @staticmethod
     def construct_repo_request(
         http_repo_url: str,
-        ssh_repo_url: str,
         repo_id: str = None,
         branches: List[dict] = None,
         is_repo_admin: bool = False,
@@ -207,7 +439,6 @@ class RepoManagerAPI(object):
 
         Args:
             http_repo_url (str):
-            ssh_repo_url (str):
             repo_id (str):
             branches (List[dict]): example: [
                     {
@@ -282,8 +513,9 @@ class RepoManagerAPI(object):
         self,
         origin: str,
         organization: str,
-        auth_code: str,
-        repos_from_request: List[dict],
+        auth_code: str = None,
+        token_id: str = None,
+        repos_from_request: List[dict] = None,
         is_user: bool = False,
         is_org_webhook_enabled: bool = False,
         create_ast_project: bool = True,
@@ -304,14 +536,22 @@ class RepoManagerAPI(object):
         Returns:
             Response
         """
+        scm_id = self.origin_dict.get(origin)
+        url = f"{self.base_url}/{scm_id}/orgs/{organization}/"
+        if origin in ["GITHUB", "GITHUBAPP"]:
+            url += "asyncImport"
+        else:
+            url += "repos"
         params = {
             "authCode": auth_code,
+            "tokenId": token_id,
             "isUser": str(is_user).lower(),
             "isOrgWebhookEnabled": str(is_org_webhook_enabled).lower(),
             "createAstProject": str(create_ast_project).lower(),
             "scanAstProject": str(scan_ast_project).lower(),
         }
         logger.debug(f"params: {params}")
+        print(f"params: {params}")
         headers = {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
@@ -319,15 +559,22 @@ class RepoManagerAPI(object):
             "content-type": "application/json",
             "pragma": "no-cache",
             "priority": "u=1, i",
-            "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+            "sec-ch-ua": (
+                '"Chromium";v="134", '
+                '"Not:A-Brand";v="24", '
+                '"Google Chrome";v="134"'
+            ),
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"',
             "sec-fetch-dest": "empty",
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
             "strict-transport-security": "max-age=31536000; includeSubDomains",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/134.0.0.0 Safari/537.36",
+            "user-agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/134.0.0.0 Safari/537.36"
+            ),
             "webapp": "true",
             "Accept-Encoding": "identity",
         }
@@ -337,13 +584,14 @@ class RepoManagerAPI(object):
             "orgSshState": "SKIPPED",
         }
         logger.debug(f"payload: {data}")
-        relative_url = f"/api/repos-manager/scms/{self.origin_dict.get(origin)}/orgs/{organization}/"
-        if origin == "GITHUB":
-            relative_url += "asyncImport"
-        else:
-            relative_url += "repos"
-        response = self.api_client.post_request(
-            relative_url=relative_url, params=params, headers=headers, json=data
+        print(f"payload: {data}")
+        
+        response = self.api_client.call_api(
+            method="POST",
+            url=url, 
+            params=params, 
+            headers=headers, 
+            json=data
         )
         return response
 
