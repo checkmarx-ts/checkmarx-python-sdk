@@ -551,7 +551,6 @@ class RepoManagerAPI(object):
             "scanAstProject": str(scan_ast_project).lower(),
         }
         logger.debug(f"params: {params}")
-        print(f"params: {params}")
         headers = {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
@@ -584,8 +583,6 @@ class RepoManagerAPI(object):
             "orgSshState": "SKIPPED",
         }
         logger.debug(f"payload: {data}")
-        print(f"payload: {data}")
-        
         response = self.api_client.call_api(
             method="POST",
             url=url, 
@@ -684,6 +681,15 @@ class RepoManagerAPI(object):
             None
         """
         origin = self.check_origin(origin)
+        token_id = None
+        if origin == "GITHUBAPP":
+            installation = self.create_installation_of_scm_on_org(
+                origin="GITHUBAPP",
+                auth_code=auth_code,
+                org_name=organization,
+            )
+            token_id = installation.tokenId
+            auth_code = None
         project_list = get_all_projects()
         project_name_list = [project.name for project in project_list]
         repo_requests = []
@@ -695,10 +701,12 @@ class RepoManagerAPI(object):
             repo_requests.append(
                 self.construct_repo_request(
                     http_repo_url=repo.get("url"),
-                    ssh_repo_url=repo.get("sshRepoUrl"),
                     repo_id=repo.get("id"),
                     branches=[
-                        {"name": repo.get("defaultBranch"), "isDefaultBranch": True}
+                        {
+                            "pattern": repo.get("defaultBranch"), 
+                            "isDefaultBranch": True
+                        }
                     ],
                     origin=origin,
                     kics_scanner_enabled=kics_scanner_enabled,
@@ -730,16 +738,20 @@ class RepoManagerAPI(object):
             repo_request_chunks = repo_requests[
                 round_i * chunk_size : (round_i + 1) * chunk_size
             ]
-            urls_str = "\n".join([item.get("url") for item in repo_request_chunks])
+            urls_str = "\n".join(
+                [item.get("url") for item in repo_request_chunks]
+            )
             logger.debug(f"All urls in this round of chunks: {urls_str}")
             logger.info(
-                f"round {round_i + 1}, number of repos to create: {len(repo_request_chunks)} "
+                f"round {round_i + 1}, number of repos to create: "
+                f"{len(repo_request_chunks)} "
             )
             round_i += 1
             self.repo_import(
                 origin=origin,
                 organization=organization,
                 auth_code=auth_code,
+                token_id=token_id,
                 repos_from_request=repo_request_chunks,
                 is_user=is_user,
                 is_org_webhook_enabled=is_org_webhook_enabled,
@@ -914,7 +926,6 @@ def get_all_repo_branches(
 
 def construct_repo_request(
     http_repo_url: str,
-    ssh_repo_url: str,
     repo_id: str = None,
     branches: List[dict] = None,
     is_repo_admin: bool = True,
@@ -938,7 +949,6 @@ def construct_repo_request(
 ) -> dict:
     return RepoManagerAPI().construct_repo_request(
         http_repo_url=http_repo_url,
-        ssh_repo_url=ssh_repo_url,
         repo_id=repo_id,
         branches=branches,
         is_repo_admin=is_repo_admin,
@@ -966,7 +976,8 @@ def repo_import(
     origin: str,
     organization: str,
     auth_code: str,
-    repos_from_request: List[dict],
+    token_id: str = None,
+    repos_from_request: List[dict] = None,
     is_user: bool = False,
     is_org_webhook_enabled: bool = False,
     create_ast_project: bool = True,
@@ -976,6 +987,7 @@ def repo_import(
         origin=origin,
         organization=organization,
         auth_code=auth_code,
+        token_id=token_id,
         repos_from_request=repos_from_request,
         is_user=is_user,
         is_org_webhook_enabled=is_org_webhook_enabled,
