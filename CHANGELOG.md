@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.1 - 2026-03-26
+* [Fix] batch_import_repo
+
 1.8.0 - 2026-03-25
 * [Add] support for github app SCM import
 
