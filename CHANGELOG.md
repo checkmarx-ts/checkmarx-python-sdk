@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.2 - 2026-05-12
+* [Refactor] migrate requests to httpx
+* [Refactor] migrate zeep to suds-community
+* [Refactor] refactor DTO class to use @dataclass
+
 1.8.1 - 2026-03-26
 * [Fix] batch_import_repo
 
