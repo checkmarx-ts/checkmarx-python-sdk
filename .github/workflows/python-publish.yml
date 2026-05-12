@@ -31,8 +31,10 @@ jobs:
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@f5622bde02b04381239da3573277701ceca8f6a0 # v1.8.7
       with:
-        password: ${{ secrets.Checkmarx_Python_SDK_PYPI_PASSWORD }}
-        attestations: false 
+          user: __token__
+          password: ${{ secrets.Checkmarx_Python_SDK_PYPI_PASSWORD }}
+          attestations: false
+          verbose: true
     - name: Release
       env:
         GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
