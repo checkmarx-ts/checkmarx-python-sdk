@@ -36,7 +36,7 @@ setup(
     ],
     python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, >=3.7',
     install_requires=[
-        "httpx>=0.27.0",
+        "httpx>=0.24.1",
         "suds-community>=1.1.0",
         "Deprecated>=1.2.13",
         "inflection>=0.5.1"
