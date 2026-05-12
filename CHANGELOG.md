@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.3 - 2026-05-12
+* [Update] Deprecated version
+
 1.8.2 - 2026-05-12
 * [Refactor] migrate requests to httpx
 * [Refactor] migrate zeep to suds-community
