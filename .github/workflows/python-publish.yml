@@ -37,6 +37,6 @@ jobs:
           verbose: true
     - name: Release
       env:
-        GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        GH_TOKEN: ${{ github.token }}  # built-in, no secret needed
       run: >-
         gh release create ${{ github.ref_name }} ${{ github.workspace }}/dist/* --generate-notes --title "Version ${{ github.ref_name }}"
