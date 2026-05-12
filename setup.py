@@ -16,7 +16,7 @@ with open("README.md", "r", 'utf-8') as fh:
     long_description = fh.read()
 
 setup(
-    name="CheckmarxPythonSDK",
+    name="checkmarx-python-sdk",
     version=about['__version__'],
     author="Happy Yang",
     author_email="happy.yang@checkmarx.com",
