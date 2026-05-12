@@ -27,16 +27,20 @@ class CxUpdateProjectRequest(object):
 
         """
         if self.custom_fields:
-            custom_fields = [{'id': cf.id, 'value': cf.value} for cf in self.custom_fields]
+            custom_fields = [
+                {"id": cf.id, "value": cf.value} for cf in self.custom_fields
+            ]
         else:
             custom_fields = []
         return {
-                "name": self.name,
-                "owningTeam": self.owning_team,
-                "customFields": custom_fields
-            }
+            "name": self.name,
+            "owningTeam": self.owning_team,
+            "customFields": custom_fields,
+        }
 
     def __str__(self):
-        return "CxUpdateProjectRequest(name={}, owning_team={}, custom_fields={})".format(
-            self.name, self.owning_team, self.custom_fields
+        return (
+            "CxUpdateProjectRequest(name={}, owning_team={}, custom_fields={})".format(
+                self.name, self.owning_team, self.custom_fields
+            )
         )

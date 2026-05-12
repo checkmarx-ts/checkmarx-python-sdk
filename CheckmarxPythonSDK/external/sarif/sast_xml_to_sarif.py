@@ -25,47 +25,65 @@ from CheckmarxPythonSDK.external.sarif.dto import (
     SarifMultiFormatMessageString,
 )
 from CheckmarxPythonSDK.external.sarif.stig_mapping import stig_mapping
-from CheckmarxPythonSDK.CxPortalSoapApiSDK.CxPortalWebService import get_query_collection
-from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.xml_results import get_xml_results
-from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.dto import (
-    CxXMLResults
+from CheckmarxPythonSDK.CxPortalSoapApiSDK.CxPortalWebService import (
+    get_query_collection,
 )
+from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.xml_results import get_xml_results
+from CheckmarxPythonSDK.CxRestAPISDK.CxSastXML.dto import CxXMLResults
 
 
-def create_sarif_report_from_sast_xml(xml_path, xml_string=None, query_risk_dict=None, query_recommendation_dict=None) \
-        -> SarifResultsCollection:
+def create_sarif_report_from_sast_xml(
+    xml_path, xml_string=None, query_risk_dict=None, query_recommendation_dict=None
+) -> SarifResultsCollection:
     xml_report = get_xml_results(xml_path, xml_string)
-    return create_sarif_results(xml_report, query_risk_dict=query_risk_dict,
-                                query_recommendation_dict=query_recommendation_dict)
+    return create_sarif_results(
+        xml_report,
+        query_risk_dict=query_risk_dict,
+        query_recommendation_dict=query_recommendation_dict,
+    )
 
 
-def create_sarif_results(xml_report, query_risk_dict, query_recommendation_dict) -> SarifResultsCollection:
+def create_sarif_results(
+    xml_report, query_risk_dict, query_recommendation_dict
+) -> SarifResultsCollection:
     sarif_runs = [
-        create_sarif_run(xml_report,
-                         query_risk_dict=query_risk_dict,
-                         query_recommendation_dict=query_recommendation_dict)
+        create_sarif_run(
+            xml_report,
+            query_risk_dict=query_risk_dict,
+            query_recommendation_dict=query_recommendation_dict,
+        )
     ]
     return SarifResultsCollection(
         schema="https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         version="2.1.0",
-        runs=sarif_runs
+        runs=sarif_runs,
     )
 
 
-def create_sarif_run(xml_report: CxXMLResults, query_risk_dict, query_recommendation_dict) -> SarifRun:
+def create_sarif_run(
+    xml_report: CxXMLResults, query_risk_dict, query_recommendation_dict
+) -> SarifRun:
     taxonomies = create_taxonomies(xml_report)
-    tool = SarifTool(driver=SarifDriver(
-        name="Checkmarx CxSAST",
-        full_name="Checkmarx CxSAST",
-        version="1.0",
-        information_uri="https://checkmarx.com",
-        rules=convert_cx_results_to_sarif_rules(xml_report, taxonomies, query_risk_dict=query_risk_dict)
-    ))
-    results = convert_cx_results_to_sarif_results(xml_report, taxonomies, query_recommendation_dict)
+    tool = SarifTool(
+        driver=SarifDriver(
+            name="Checkmarx CxSAST",
+            full_name="Checkmarx CxSAST",
+            version="1.0",
+            information_uri="https://checkmarx.com",
+            rules=convert_cx_results_to_sarif_rules(
+                xml_report, taxonomies, query_risk_dict=query_risk_dict
+            ),
+        )
+    )
+    results = convert_cx_results_to_sarif_results(
+        xml_report, taxonomies, query_recommendation_dict
+    )
     return SarifRun(tool=tool, results=results, taxonomies=taxonomies)
 
 
-def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies, query_risk_dict) -> List[SarifDriverRule]:
+def convert_cx_results_to_sarif_rules(
+    xml_report: CxXMLResults, taxonomies, query_risk_dict
+) -> List[SarifDriverRule]:
     queries = xml_report.Queries
     category_taxa: List[SarifTaxa] = taxonomies[0].taxa
 
@@ -84,17 +102,22 @@ def convert_cx_results_to_sarif_rules(xml_report: CxXMLResults, taxonomies, quer
             relation_ships=[
                 SarifTaxaRelationship(
                     target=SarifTaxaRelationshipTarget(
-                        target_id=get_id_of_sarif_tool_component(query.Name, category_taxa),
+                        target_id=get_id_of_sarif_tool_component(
+                            query.Name, category_taxa
+                        ),
                         index=0,
                         tool_component=SarifToolComponent(
                             name=taxonomies[0].name,
                             guid=taxonomies[0].guid,
-                            index=get_index_of_sarif_tool_component(query.Name, category_taxa)
-                        )
+                            index=get_index_of_sarif_tool_component(
+                                query.Name, category_taxa
+                            ),
+                        ),
                     )
                 )
-            ]
-        ) for query in queries
+            ],
+        )
+        for query in queries
     ]
 
 
@@ -112,7 +135,9 @@ def get_index_of_sarif_tool_component(query_name, category_taxa):
     return None
 
 
-def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies, query_recommendation_dict) -> List[SarifScanResult]:
+def convert_cx_results_to_sarif_results(
+    xml_report: CxXMLResults, taxonomies, query_recommendation_dict
+) -> List[SarifScanResult]:
     sarif_result = []
 
     category_taxa: List[SarifTaxa] = taxonomies[0].taxa
@@ -129,42 +154,57 @@ def convert_cx_results_to_sarif_results(xml_report: CxXMLResults, taxonomies, qu
                         tags=["similarityId", "cxCwe", "cxStigID", "cxStigRuleID"],
                         similarity_id=int(result.Path.SimilarityId),
                         cx_cwe=str(query.CweId),
-                        cx_stig_id=get_stig_id_from_category_taxa_by_query_id(category_taxa, query.Id),
-                        cx_stig_rule_id=get_stig_rule_id_from_category_taxa_by_query_id(category_taxa, query.Id)
+                        cx_stig_id=get_stig_id_from_category_taxa_by_query_id(
+                            category_taxa, query.Id
+                        ),
+                        cx_stig_rule_id=get_stig_rule_id_from_category_taxa_by_query_id(
+                            category_taxa, query.Id
+                        ),
                     ),
                     locations=[
                         SarifLocation(
                             physical_location=SarifPhysicalLocation(
-                                artifact_location=SarifArtifactLocation(uri=node.FileName),
+                                artifact_location=SarifArtifactLocation(
+                                    uri=node.FileName
+                                ),
                                 region=SarifRegion(
                                     start_line=int(node.Line),
                                     start_column=int(node.Column),
-                                    end_column=int(node.Column) + int(node.Length)
+                                    end_column=int(node.Column) + int(node.Length),
                                 ),
                                 properties=SarifPhysicalLocationPropertyBag(
                                     tags=["snippet"],
-                                    snippet=node.Snippet.Line.Code if node.Snippet else ""
-                                )
+                                    snippet=(
+                                        node.Snippet.Line.Code if node.Snippet else ""
+                                    ),
+                                ),
                             )
-                        ) for node in result.Path.PathNodes
+                        )
+                        for node in result.Path.PathNodes
                     ],
-                    fixes=[{
-                        "description": {
-                            "text": query_recommendation_dict.get(query.Id)
+                    fixes=[
+                        {
+                            "description": {
+                                "text": query_recommendation_dict.get(query.Id)
+                            }
                         }
-                    }]
+                    ],
                 )
             )
     return sarif_result
 
 
-def get_stig_id_from_category_taxa_by_query_id(category_taxa: List[SarifTaxa], query_id):
+def get_stig_id_from_category_taxa_by_query_id(
+    category_taxa: List[SarifTaxa], query_id
+):
     for sarif_taxa in category_taxa:
         if sarif_taxa.id == str(query_id):
             return sarif_taxa.properties.cxStigID
 
 
-def get_stig_rule_id_from_category_taxa_by_query_id(category_taxa: List[SarifTaxa], query_id):
+def get_stig_rule_id_from_category_taxa_by_query_id(
+    category_taxa: List[SarifTaxa], query_id
+):
     for sarif_taxa in category_taxa:
         if sarif_taxa.id == str(query_id):
             return sarif_taxa.properties.cxStigRuleID
@@ -205,50 +245,69 @@ def create_category_taxonomy(xml_report: CxXMLResults) -> SarifTaxonomy:
 
     for query_group in query_groups:
         query_group_name = query_group.get("Name")
-        if "General" in query_group_name or "Quality" in query_group_name or "Best" in query_group_name:
+        if (
+            "General" in query_group_name
+            or "Quality" in query_group_name
+            or "Best" in query_group_name
+        ):
             continue
         for query in query_group.get("Queries"):
-            categories = query.get('Categories')
+            categories = query.get("Categories")
             if categories is None:
                 categories = []
 
-            query_id = query.get('QueryId')
+            query_id = query.get("QueryId")
             # ignore query that is not in the XML report
             if query_id not in query_ids:
                 continue
 
             taxa_id = str(query_id)
-            name = query.get('Name')
+            name = query.get("Name")
             full_description = SarifDescription(text="")
             short_description = SarifDescription(text="")
             stig_id = find_stig_id(categories)
             properties = SarifTaxaPropertyBag(
-                tags=["cxCwe", "cxSeverity", "cxCategoryName", "cxCategoryType", "cxQueryGroupName", "cxLanguageName",
-                      "cxPackageTypeName", "cxStigID", "cxStigRuleID"],
-                cx_cwe=query.get('Cwe'),
-                cx_severity=convert_cx_severity_to_string(query.get('Severity')),
+                tags=[
+                    "cxCwe",
+                    "cxSeverity",
+                    "cxCategoryName",
+                    "cxCategoryType",
+                    "cxQueryGroupName",
+                    "cxLanguageName",
+                    "cxPackageTypeName",
+                    "cxStigID",
+                    "cxStigRuleID",
+                ],
+                cx_cwe=query.get("Cwe"),
+                cx_severity=convert_cx_severity_to_string(query.get("Severity")),
                 cx_category=[
                     CxSarifCategory(
                         cx_category_name=category.get("CategoryName"),
-                        cx_category_type=category.get("CategoryType")
-                    ) for category in categories
+                        cx_category_type=category.get("CategoryType"),
+                    )
+                    for category in categories
                 ],
-                cx_query_group_name=query_group.get('Name'),
-                cx_language_name=query_group.get('LanguageName'),
-                cx_package_type_name=query_group.get('PackageTypeName'),
+                cx_query_group_name=query_group.get("Name"),
+                cx_language_name=query_group.get("LanguageName"),
+                cx_package_type_name=query_group.get("PackageTypeName"),
                 cx_stig_id=find_stig_id(categories),
-                cx_stig_rule_id=find_stig_rule_id(stig_id)
+                cx_stig_rule_id=find_stig_rule_id(stig_id),
             )
-            taxa.append(SarifTaxa(
-                taxa_id=taxa_id,
-                name=name,
-                full_description=full_description,
-                short_description=short_description,
-                properties=properties
-            ))
+            taxa.append(
+                SarifTaxa(
+                    taxa_id=taxa_id,
+                    name=name,
+                    full_description=full_description,
+                    short_description=short_description,
+                    properties=properties,
+                )
+            )
     return SarifTaxonomy(
-        guid=guid, name=name, full_description=full_description, short_description=short_description,
-        taxa=taxa
+        guid=guid,
+        name=name,
+        full_description=full_description,
+        short_description=short_description,
+        taxa=taxa,
     )
 
 

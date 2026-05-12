@@ -15,22 +15,20 @@ class RoleWithDetails:
     custom_permissions: List[str] = None
     attributes: List[dict] = None
 
-
-def construct_role_with_details(item):
-    return RoleWithDetails(
-        id=item.get("id"),
-        tenant_id=item.get("tenantID"),
-        name=item.get("name"),
-        description=item.get("description"),
-        system_role=item.get("systemRole"),
-        created_at=item.get("createdAt"),
-        updated_at=item.get("updatedAt"),
-        permissions=item.get("permissions"),
-        custom_permissions=item.get("customPermissions"),
-        attributes=[
-            {
-                "name": attribute.get("name"),
-                "value": attribute.get("value")
-            } for attribute in item.get("attributes")
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "RoleWithDetails":
+        return cls(
+            id=item.get("id"),
+            tenant_id=item.get("tenantID"),
+            name=item.get("name"),
+            description=item.get("description"),
+            system_role=item.get("systemRole"),
+            created_at=item.get("createdAt"),
+            updated_at=item.get("updatedAt"),
+            permissions=item.get("permissions"),
+            custom_permissions=item.get("customPermissions"),
+            attributes=[
+                {"name": a.get("name"), "value": a.get("value")}
+                for a in (item.get("attributes") or [])
+            ],
+        )

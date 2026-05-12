@@ -1,17 +1,15 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class ServiceProvider(object):
+@dataclass
+class ServiceProvider:
+    id: Optional[int] = None
+    name: Optional[str] = None
 
-    def __init__(self, service_provider_id, name):
-        """
-
-        Args:
-            service_provider_id (int):
-            name (str):
-        """
-        self.id = service_provider_id
-        self.name = name
-
-    def __str__(self):
-        return """ServiceProvider(id={}, name={})""".format(self.id, self.name)
+    @classmethod
+    def from_dict(cls, item: dict) -> "ServiceProvider":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+        )

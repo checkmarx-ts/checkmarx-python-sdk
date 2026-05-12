@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -19,36 +18,36 @@ class UserProfileAttributeMetadata:
         result: Dict[str, Any] = {}
         if self.name is not None:
             value = self.name
-            result['name'] = value
+            result["name"] = value
         if self.display_name is not None:
             value = self.display_name
-            result['displayName'] = value
+            result["displayName"] = value
         if self.required is not None:
             value = self.required
-            result['required'] = value
+            result["required"] = value
         if self.read_only is not None:
             value = self.read_only
-            result['readOnly'] = value
+            result["readOnly"] = value
         if self.annotations is not None:
             value = self.annotations
-            result['annotations'] = value
+            result["annotations"] = value
         if self.validators is not None:
             value = self.validators
-            result['validators'] = value
+            result["validators"] = value
         if self.group is not None:
             value = self.group
-            result['group'] = value
+            result["group"] = value
         if self.multivalued is not None:
             value = self.multivalued
-            result['multivalued'] = value
+            result["multivalued"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "UserProfileAttributeMetadata":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

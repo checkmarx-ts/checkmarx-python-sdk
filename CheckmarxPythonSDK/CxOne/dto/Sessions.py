@@ -1,18 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
-from .Session import Session, construct_session
+from .Session import Session
 
 
 @dataclass
 class Sessions:
     available: bool = None
-    metadata: List[Session] = None
+    metadata: List[Session] = field(default_factory=list)
 
-
-def construct_sessions(item):
-    return Sessions(
-        available=item.get("available"),
-        metadata=[
-            construct_session(session) for session in item.get("metadata", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "Sessions":
+        return cls(
+            available=item.get("available"),
+            metadata=[Session.from_dict(s) for s in (item.get("metadata") or [])],
+        )

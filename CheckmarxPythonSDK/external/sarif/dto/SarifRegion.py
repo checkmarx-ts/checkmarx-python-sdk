@@ -12,8 +12,10 @@ class SarifRegion:
         self.endColumn = end_column
 
     def __str__(self):
-        return f"SarifRegion(" \
-               f"start_line={self.startLine}, "\
-               f"start_column={self.startColumn}, "\
-               f"end_column={self.endColumn}" \
-               f")"
+        return (
+            f"SarifRegion("
+            f"start_line={self.startLine}, "
+            f"start_column={self.startColumn}, "
+            f"end_column={self.endColumn}"
+            f")"
+        )

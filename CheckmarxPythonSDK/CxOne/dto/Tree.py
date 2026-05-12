@@ -1,30 +1,20 @@
 from dataclasses import dataclass
 from typing import List
-from .FileInfo import FileInfo, construct_file_info
+from .FileInfo import FileInfo
 
 
 @dataclass
 class Tree:
-    """
+    full_path: str = None
+    name: str = None
+    is_dir: bool = None
+    files: List[FileInfo] = None
 
-    Args:
-        full_path (str): path from the source project
-        name (str): name of file or directory
-        is_dir (bool): true if directory, otherwise false
-        files (list of FileInfo):
-    """
-    full_path: str
-    name: str
-    is_dir: bool
-    files: List[FileInfo]
-
-
-def construct_tree(item):
-    return Tree(
-        full_path=item.get("FullPath"),
-        name=item.get("name"),
-        is_dir=item.get("IsDir"),
-        files=[
-            construct_file_info(file) for file in item.get("Files", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "Tree":
+        return cls(
+            full_path=item.get("FullPath"),
+            name=item.get("name"),
+            is_dir=item.get("IsDir"),
+            files=[FileInfo.from_dict(f) for f in (item.get("Files") or [])],
+        )

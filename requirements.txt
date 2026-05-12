@@ -1,5 +1,4 @@
-requests==2.33.0
-requests-toolbelt==1.0.0
-zeep==4.3.2
+httpx>=0.27.0
+suds-community>=1.1.0
 Deprecated==1.3.1
 inflection==0.5.1

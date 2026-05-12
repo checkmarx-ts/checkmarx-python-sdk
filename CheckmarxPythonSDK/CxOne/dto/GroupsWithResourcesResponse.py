@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .GroupWithResource import construct_group_with_resource
+from .GroupWithResource import GroupWithResource
 
 
 @dataclass
@@ -9,12 +9,10 @@ class GroupsWithResourcesResponse:
     filtered_count: int = None
     groups: List[dict] = None
 
-
-def construct_groups_with_resources_response(item):
-    return GroupsWithResourcesResponse(
-        total_count=item.get("totalCount"),
-        filtered_count=item.get("filteredCount"),
-        groups=[
-            construct_group_with_resource(group) for group in item.get("groups", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "GroupsWithResourcesResponse":
+        return cls(
+            total_count=item.get("totalCount"),
+            filtered_count=item.get("filteredCount"),
+            groups=[GroupWithResource.from_dict(g) for g in (item.get("groups") or [])],
+        )

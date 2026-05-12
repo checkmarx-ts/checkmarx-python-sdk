@@ -1,22 +1,20 @@
-class CxProjectQueueSetting(object):
+from dataclasses import dataclass
+from typing import Optional
 
-    def __init__(self, queue_keep_mode=None, scans_type=None, include_scans_in_process=None,
-                 identical_code_only=None):
-        """
 
-        Args:
-            queue_keep_mode (str):
-            scans_type (str):
-            include_scans_in_process (bool):
-            identical_code_only (bool):
-        """
-        self.queue_keep_mode = queue_keep_mode
-        self.scans_type = scans_type
-        self.include_scans_in_process = include_scans_in_process
-        self.identical_code_only = identical_code_only
+@dataclass
+class CxProjectQueueSetting:
 
-    def __str__(self):
-        return """CxProjectQueueSetting(queue_keep_mode={}, scans_type={}, include_scans_in_process={},
-                 identical_code_only={})""".format(
-            self.queue_keep_mode, self.scans_type, self.include_scans_in_process, self.identical_code_only
+    queue_keep_mode: Optional[str] = None
+    scans_type: Optional[str] = None
+    include_scans_in_process: Optional[bool] = None
+    identical_code_only: Optional[bool] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxProjectQueueSetting":
+        return cls(
+            queue_keep_mode=item.get("queueKeepMode"),
+            scans_type=item.get("scansType"),
+            include_scans_in_process=item.get("includeScansInProcess"),
+            identical_code_only=item.get("identicalCodeOnly"),
         )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .ProtocolMappersRepresentation import ProtocolMappersRepresentation, construct_protocol_mappers_representation
+from .ProtocolMappersRepresentation import ProtocolMappersRepresentation
 
 
 @dataclass
@@ -31,34 +31,37 @@ class Client:
     protocol_mappers: List[ProtocolMappersRepresentation] = None
     default_client_scopes: List[str] = None
 
-
-def construct_client(item):
-    return Client(
-        id=item.get("id"),
-        client_id=item.get("clientId"),
-        root_url=item.get("rootUrl"),
-        admin_url=item.get("adminUrl"),
-        surrogate_auth_required=item.get("surrogateAuthRequired"),
-        enabled=item.get("enabled"),
-        always_display_in_console=item.get("alwaysDisplayInConsole"),
-        client_authenticator_type=item.get("clientAuthenticatorType"),
-        redirect_uris=item.get("redirectUris"),
-        not_before=item.get("notBefore"),
-        bearer_only=item.get("bearerOnly"),
-        consent_required=item.get("consentRequired"),
-        standard_flow_enabled=item.get("standardFlowEnabled"),
-        implicit_flow_enabled=item.get("implicitFlowEnabled"),
-        direct_access_grants_enabled=item.get("directAccessGrantsEnabled"),
-        service_accounts_enabled=item.get("serviceAccountsEnabled"),
-        public_client=item.get("publicClient"),
-        front_channel_logout=item.get("frontchannelLogout"),
-        protocol=item.get("protocol"),
-        attributes=item.get("attributes"),
-        authentication_flow_binding_overrides=item.get("authenticationFlowBindingOverrides"),
-        full_scope_allowed=item.get("fullScopeAllowed"),
-        node_re_registration_timeout=item.get("nodeReRegistrationTimeout"),
-        protocol_mappers=[
-            construct_protocol_mappers_representation(mapper) for mapper in item.get("protocolMappers", [])
-        ],
-        default_client_scopes=item.get("defaultClientScopes"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "Client":
+        return cls(
+            id=item.get("id"),
+            client_id=item.get("clientId"),
+            root_url=item.get("rootUrl"),
+            admin_url=item.get("adminUrl"),
+            surrogate_auth_required=item.get("surrogateAuthRequired"),
+            enabled=item.get("enabled"),
+            always_display_in_console=item.get("alwaysDisplayInConsole"),
+            client_authenticator_type=item.get("clientAuthenticatorType"),
+            redirect_uris=item.get("redirectUris"),
+            not_before=item.get("notBefore"),
+            bearer_only=item.get("bearerOnly"),
+            consent_required=item.get("consentRequired"),
+            standard_flow_enabled=item.get("standardFlowEnabled"),
+            implicit_flow_enabled=item.get("implicitFlowEnabled"),
+            direct_access_grants_enabled=item.get("directAccessGrantsEnabled"),
+            service_accounts_enabled=item.get("serviceAccountsEnabled"),
+            public_client=item.get("publicClient"),
+            front_channel_logout=item.get("frontchannelLogout"),
+            protocol=item.get("protocol"),
+            attributes=item.get("attributes"),
+            authentication_flow_binding_overrides=item.get(
+                "authenticationFlowBindingOverrides"
+            ),
+            full_scope_allowed=item.get("fullScopeAllowed"),
+            node_re_registration_timeout=item.get("nodeReRegistrationTimeout"),
+            protocol_mappers=[
+                ProtocolMappersRepresentation.from_dict(m)
+                for m in (item.get("protocolMappers") or [])
+            ],
+            default_client_scopes=item.get("defaultClientScopes"),
+        )

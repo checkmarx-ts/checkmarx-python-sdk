@@ -10,7 +10,9 @@ class CxSarifCategory:
         self.CxCategoryType = cx_category_type
 
     def __str__(self):
-        return f"CxSarifCategory(" \
-               f"cx_category_name={self.CxCategoryName}, "\
-               f"cx_category_type={self.CxCategoryType}"\
-               f")"
+        return (
+            f"CxSarifCategory("
+            f"cx_category_name={self.CxCategoryName}, "
+            f"cx_category_type={self.CxCategoryType}"
+            f")"
+        )

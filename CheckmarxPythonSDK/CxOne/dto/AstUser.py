@@ -19,21 +19,21 @@ class AstUser:
     required_actions: List[str]
     email_verified: bool
 
-
-def construct_ast_user(item):
-    return AstUser(
-        id=item.get("id"),
-        username=item.get("username"),
-        first_name=item.get("firstName"),
-        last_name=item.get("lastName"),
-        email=item.get("email"),
-        last_login=item.get("lastLogin"),
-        auth_provider=item.get("authProvider"),
-        creation_date=item.get("creationDate"),
-        is_enabled=item.get("isEnabled"),
-        is_mfa_configured=item.get("isMfaConfigured"),
-        roles=item.get("roles"),
-        groups=item.get("groups"),
-        required_actions=item.get("requiredActions"),
-        email_verified=item.get("emailVerified"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "AstUser":
+        return cls(
+            id=item.get("id"),
+            username=item.get("username"),
+            first_name=item.get("firstName"),
+            last_name=item.get("lastName"),
+            email=item.get("email"),
+            last_login=item.get("lastLogin"),
+            auth_provider=item.get("authProvider"),
+            creation_date=item.get("creationDate"),
+            is_enabled=item.get("isEnabled"),
+            is_mfa_configured=item.get("isMfaConfigured"),
+            roles=item.get("roles"),
+            groups=item.get("groups"),
+            required_actions=item.get("requiredActions"),
+            email_verified=item.get("emailVerified"),
+        )

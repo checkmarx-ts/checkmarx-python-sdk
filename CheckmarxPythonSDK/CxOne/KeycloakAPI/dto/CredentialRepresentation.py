@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -29,66 +28,66 @@ class CredentialRepresentation:
         result: Dict[str, Any] = {}
         if self.id is not None:
             value = self.id
-            result['id'] = value
+            result["id"] = value
         if self.type is not None:
             value = self.type
-            result['type'] = value
+            result["type"] = value
         if self.user_label is not None:
             value = self.user_label
-            result['userLabel'] = value
+            result["userLabel"] = value
         if self.created_date is not None:
             value = self.created_date
-            result['createdDate'] = value
+            result["createdDate"] = value
         if self.secret_data is not None:
             value = self.secret_data
-            result['secretData'] = value
+            result["secretData"] = value
         if self.credential_data is not None:
             value = self.credential_data
-            result['credentialData'] = value
+            result["credentialData"] = value
         if self.priority is not None:
             value = self.priority
-            result['priority'] = value
+            result["priority"] = value
         if self.value is not None:
             value = self.value
-            result['value'] = value
+            result["value"] = value
         if self.temporary is not None:
             value = self.temporary
-            result['temporary'] = value
+            result["temporary"] = value
         if self.device is not None:
             value = self.device
-            result['device'] = value
+            result["device"] = value
         if self.hashed_salted_value is not None:
             value = self.hashed_salted_value
-            result['hashedSaltedValue'] = value
+            result["hashedSaltedValue"] = value
         if self.salt is not None:
             value = self.salt
-            result['salt'] = value
+            result["salt"] = value
         if self.hash_iterations is not None:
             value = self.hash_iterations
-            result['hashIterations'] = value
+            result["hashIterations"] = value
         if self.counter is not None:
             value = self.counter
-            result['counter'] = value
+            result["counter"] = value
         if self.algorithm is not None:
             value = self.algorithm
-            result['algorithm'] = value
+            result["algorithm"] = value
         if self.digits is not None:
             value = self.digits
-            result['digits'] = value
+            result["digits"] = value
         if self.period is not None:
             value = self.period
-            result['period'] = value
+            result["period"] = value
         if self.config is not None:
             value = self.config
-            result['config'] = value
+            result["config"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "CredentialRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

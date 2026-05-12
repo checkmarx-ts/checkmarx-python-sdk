@@ -16,18 +16,18 @@ class ApiSecCounters:
     total_counter: int = None
     api_sec_total: int = None
 
-
-def construct_api_sec_counters(item):
-    return ApiSecCounters(
-        severity_counters=item.get("severityCounters"),
-        status_counters=item.get("statusCounters"),
-        state_counters=item.get("stateCounters"),
-        custom_state_counters=item.get("customStateCounters"),
-        severity_status_counters=item.get("severityStatusCounters"),
-        source_file_counters=item.get("sourceFileCounters"),
-        age_counters=item.get("ageCounters"),
-        risk_level=item.get("riskLevel"),
-        files_scanned_counter=item.get("filesScannedCounter"),
-        total_counter=item.get("totalCounter"),
-        api_sec_total=item.get("apiSecTotal"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ApiSecCounters":
+        return cls(
+            severity_counters=item.get("severityCounters"),
+            status_counters=item.get("statusCounters"),
+            state_counters=item.get("stateCounters"),
+            custom_state_counters=item.get("customStateCounters"),
+            severity_status_counters=item.get("severityStatusCounters"),
+            source_file_counters=item.get("sourceFileCounters"),
+            age_counters=item.get("ageCounters"),
+            risk_level=item.get("riskLevel"),
+            files_scanned_counter=item.get("filesScannedCounter"),
+            total_counter=item.get("totalCounter"),
+            api_sec_total=item.get("apiSecTotal"),
+        )

@@ -11,14 +11,12 @@ class ResultsSummaryTree:
     children: List[ResultsSummaryTree] = None
     data: dict = None
 
-
-def construct_results_summary_tree(item):
-    return ResultsSummaryTree(
-        is_leaf=item.get("isLeaf"),
-        title=item.get("title"),
-        key=item.get("key"),
-        children=[
-            construct_results_summary_tree(child) for child in item.get("children", [])
-        ],
-        data=item.get("data")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ResultsSummaryTree":
+        return cls(
+            is_leaf=item.get("isLeaf"),
+            title=item.get("title"),
+            key=item.get("key"),
+            children=[cls.from_dict(child) for child in (item.get("children") or [])],
+            data=item.get("data"),
+        )

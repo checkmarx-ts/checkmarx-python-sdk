@@ -10,14 +10,15 @@ class MethodParameter:
         label (str):
         documentation (str):
     """
+
     name: str
     label: str
     documentation: str
 
-
-def construct_method_parameter(item):
-    return MethodParameter(
-        name=item.get("name"),
-        label=item.get("label"),
-        documentation=item.get("documentation")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "MethodParameter":
+        return cls(
+            name=item.get("name"),
+            label=item.get("label"),
+            documentation=item.get("documentation"),
+        )

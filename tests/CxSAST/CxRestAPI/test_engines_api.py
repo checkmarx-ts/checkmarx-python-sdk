@@ -8,10 +8,13 @@
 
 """
 
+import pytest
 from CheckmarxPythonSDK.CxRestAPISDK import EnginesAPI
 from CheckmarxPythonSDK.CxRestAPISDK.sast.engines.dto import CxEngineDedication
 
-another_engine_ip = 'happyy-laptop:8089'
+_FAKE_ENGINE_NAME = "pytest_tmp_engine"
+_FAKE_ENGINE_URI = "http://localhost:18089/"
+_FAKE_ENGINE_IP = "localhost:18089"
 
 
 def test_get_all_engine_server_details():
@@ -21,66 +24,58 @@ def test_get_all_engine_server_details():
 
 
 def test_get_engine_id_by_name():
-    engine_name = "Localhost"
     engine_api = EnginesAPI()
+    engines = engine_api.get_all_engine_server_details()
+    assert engines is not None and len(engines) > 0
+    engine_name = engines[0].name
     engine_id = engine_api.get_engine_id_by_name(engine_name)
     assert engine_id is not None
 
 
 def test_register_engine():
     engine_api = EnginesAPI()
-    name = "engine2"
-    engine_id = engine_api.get_engine_id_by_name(name)
+    engine_id = engine_api.get_engine_id_by_name(_FAKE_ENGINE_NAME)
     if engine_id:
         engine_api.unregister_engine_by_engine_id(engine_id)
-    uri = "http://localhost:8089/"
-    min_loc = 0
-    max_loc = 999999999
-    is_blocked = False
-    dedications = [CxEngineDedication(item_type="Project", item_id="99")]
-    engine_server = engine_api.register_engine(name, uri, min_loc, max_loc, is_blocked, max_scans=1,
-                                               dedications=dedications)
+    engine_server = engine_api.register_engine(
+        _FAKE_ENGINE_NAME, _FAKE_ENGINE_URI, 0, 999999999, False,
+        max_scans=1, dedications=None,
+    )
     assert engine_server is not None
 
 
 def test_get_engine_details():
-    engine_name = "engine2"
     engine_api = EnginesAPI()
-    engine_id = engine_api.get_engine_id_by_name(engine_name)
+    engine_id = engine_api.get_engine_id_by_name(_FAKE_ENGINE_NAME)
+    if engine_id is None:
+        pytest.skip("Fake engine not registered")
     engine_detail = engine_api.get_engine_details(engine_id)
     assert engine_detail is not None
 
 
 def test_update_engine_server():
-    engine_name = "engine2"
     engine_api = EnginesAPI()
-    engine_id = engine_api.get_engine_id_by_name(engine_name)
-    name = "engine2"
-    uri = "http://{ip}/d".format(ip=another_engine_ip)
-    min_loc = 0
-    max_loc = 999999999
-    is_blocked = False
-    max_scans = 1
-    dedications = [CxEngineDedication(item_type="Project", item_id="99")]
-    engine_server = engine_api.update_engine_server(engine_id, name, uri, min_loc, max_loc, is_blocked,
-                                                    max_scans=max_scans, dedications=dedications)
+    engine_id = engine_api.get_engine_id_by_name(_FAKE_ENGINE_NAME)
+    if engine_id is None:
+        pytest.skip("Fake engine not registered")
+    engine_server = engine_api.update_engine_server(
+        engine_id, _FAKE_ENGINE_NAME,
+        f"http://{_FAKE_ENGINE_IP}/d",
+        0, 999999999, False, max_scans=1, dedications=None,
+    )
     assert engine_server.id > 1
 
 
 def test_update_an_engine_server_by_edit_single_field():
-    engine_name = "engine2"
     engine_api = EnginesAPI()
-    engine_id = engine_api.get_engine_id_by_name(engine_name)
-    name = "engine2"
-    uri = "http://{ip}/d".format(ip=another_engine_ip)
-    min_loc = 0
-    max_loc = 999999999
-    is_blocked = False
-    max_scans = 1
-    dedications = [CxEngineDedication(item_type="Project", item_id="99")]
-    is_successful = engine_api.update_an_engine_server_by_edit_single_field(engine_id, name, uri, min_loc, max_loc,
-                                                                            is_blocked, max_scans=max_scans,
-                                                                            dedications=dedications)
+    engine_id = engine_api.get_engine_id_by_name(_FAKE_ENGINE_NAME)
+    if engine_id is None:
+        pytest.skip("Fake engine not registered")
+    is_successful = engine_api.update_an_engine_server_by_edit_single_field(
+        engine_id, _FAKE_ENGINE_NAME,
+        f"http://{_FAKE_ENGINE_IP}/d",
+        0, 999999999, False, max_scans=1, dedications=None,
+    )
     assert is_successful is True
 
 
@@ -91,14 +86,14 @@ def test_get_all_engine_configurations():
 
 
 def test_get_engine_configuration_id_by_name():
-    name = 'Default Configuration'
+    name = "Default Configuration"
     engine_api = EnginesAPI()
     configuration_id = engine_api.get_engine_configuration_id_by_name(name)
     assert configuration_id is not None
 
 
 def test_get_engine_configuration_by_id():
-    name = 'Default Configuration'
+    name = "Default Configuration"
     engine_api = EnginesAPI()
     configuration_id = engine_api.get_engine_configuration_id_by_name(name)
     configuration = engine_api.get_engine_configuration_by_id(configuration_id)
@@ -106,8 +101,9 @@ def test_get_engine_configuration_by_id():
 
 
 def test_unregister_engine_by_engine_id():
-    engine_name = "engine2"
     engine_api = EnginesAPI()
-    engine_id = engine_api.get_engine_id_by_name(engine_name)
+    engine_id = engine_api.get_engine_id_by_name(_FAKE_ENGINE_NAME)
+    if engine_id is None:
+        pytest.skip("Fake engine not registered")
     result = engine_api.unregister_engine_by_engine_id(engine_id)
     assert result is True

@@ -1,22 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxStatusDetail(object):
+@dataclass
+class CxStatusDetail:
     """
     scan status detail
     """
 
-    def __init__(self, stage, step):
-        """
+    stage: Optional[str] = None
+    step: Optional[str] = None
 
-        Args:
-            stage (str):
-            step (str):
-        """
-        self.stage = stage
-        self.step = step
-
-    def __str__(self):
-        return "CxStatusDetail(stage={}, step={})".format(
-            self.stage, self.step
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxStatusDetail":
+        return cls(
+            stage=item.get("stage"),
+            step=item.get("step"),
         )

@@ -7,6 +7,7 @@ class CxSchedulingSettings(object):
     """
     scheduling settings
     """
+
     def __init__(self, schedule_type, schedule_days, schedule_time):
         """
 
@@ -21,10 +22,10 @@ class CxSchedulingSettings(object):
 
     def to_dict(self):
         return {
-                "scheduleType": self.schedule_type,
-                "scheduledDays": list(self.schedule_days),
-                "scheduleTime": self.schedule_time
-            }
+            "scheduleType": self.schedule_type,
+            "scheduledDays": list(self.schedule_days),
+            "scheduleTime": self.schedule_time,
+        }
 
     def __str__(self):
         return "CxSchedulingSettings(schedule_type={}, schedule_days={}, schedule_time={})".format(

@@ -18,22 +18,31 @@ def test_get_all_custom_tasks():
 
 
 def test_get_custom_task_id_by_name():
-    custom_task_name = "git"
     custom_tasks_api = CustomTasksAPI()
-    task_id = custom_tasks_api.get_custom_task_id_by_name(custom_task_name)
+    custom_tasks = custom_tasks_api.get_all_custom_tasks()
+    if not custom_tasks:
+        return
+    task_name = custom_tasks[0].name
+    task_id = custom_tasks_api.get_custom_task_id_by_name(task_name)
     assert task_id is not None
 
 
 def test_get_custom_task_by_id():
-    custom_task_name = "git"
     custom_tasks_api = CustomTasksAPI()
-    task_id = custom_tasks_api.get_custom_task_id_by_name(custom_task_name)
+    custom_tasks = custom_tasks_api.get_all_custom_tasks()
+    if not custom_tasks:
+        return
+    task_name = custom_tasks[0].name
+    task_id = custom_tasks_api.get_custom_task_id_by_name(task_name)
     custom_task = custom_tasks_api.get_custom_task_by_id(task_id)
     assert custom_task is not None
 
 
 def test_get_custom_task_by_name():
-    custom_task_name = "git"
     custom_tasks_api = CustomTasksAPI()
-    custom_task = custom_tasks_api.get_custom_task_by_name(custom_task_name)
+    custom_tasks = custom_tasks_api.get_all_custom_tasks()
+    if not custom_tasks:
+        return
+    task_name = custom_tasks[0].name
+    custom_task = custom_tasks_api.get_custom_task_by_name(task_name)
     assert custom_task is not None

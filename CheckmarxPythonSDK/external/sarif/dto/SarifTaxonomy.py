@@ -20,10 +20,12 @@ class SarifTaxonomy:
         self.taxa = taxa
 
     def __str__(self):
-        return f"SarifTaxonomy(" \
-               f"guid={self.guid}, "\
-               f"name={self.name}, "\
-               f"full_description={self.fullDescription}, "\
-               f"short_description={self.shortDescription}, "\
-               f"taxa={self.taxa}"\
-               f")"
+        return (
+            f"SarifTaxonomy("
+            f"guid={self.guid}, "
+            f"name={self.name}, "
+            f"full_description={self.fullDescription}, "
+            f"short_description={self.shortDescription}, "
+            f"taxa={self.taxa}"
+            f")"
+        )

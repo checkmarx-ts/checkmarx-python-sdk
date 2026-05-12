@@ -18,8 +18,10 @@ class SarifRun:
         self.taxonomies = taxonomies
 
     def __str__(self):
-        return f"SarifRun(" \
-               f"tool={self.tool}, "\
-               f"results={self.results}"\
-               f"taxonomies={self.taxonomies}"\
-               f")"
+        return (
+            f"SarifRun("
+            f"tool={self.tool}, "
+            f"results={self.results}"
+            f"taxonomies={self.taxonomies}"
+            f")"
+        )

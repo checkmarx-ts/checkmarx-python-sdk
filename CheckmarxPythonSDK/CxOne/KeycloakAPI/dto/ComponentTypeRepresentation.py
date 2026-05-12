@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 from .ConfigPropertyRepresentation import ConfigPropertyRepresentation
 
@@ -16,28 +15,29 @@ class ComponentTypeRepresentation:
         result: Dict[str, Any] = {}
         if self.id is not None:
             value = self.id
-            result['id'] = value
+            result["id"] = value
         if self.help_text is not None:
             value = self.help_text
-            result['helpText'] = value
+            result["helpText"] = value
         if self.properties is not None:
             value = [item.to_dict() for item in self.properties]
-            result['properties'] = value
+            result["properties"] = value
         if self.metadata is not None:
             value = self.metadata
-            result['metadata'] = value
+            result["metadata"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "ComponentTypeRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
-        if 'properties' in snake_data and snake_data['properties'] is not None:
-            snake_data['properties'] = [
-                ConfigPropertyRepresentation.from_dict(item) for item in snake_data['properties']
+        if "properties" in snake_data and snake_data["properties"] is not None:
+            snake_data["properties"] = [
+                ConfigPropertyRepresentation.from_dict(item)
+                for item in snake_data["properties"]
             ]
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

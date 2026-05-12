@@ -17,7 +17,9 @@ def construct_configuration() -> Configuration:
         "cert": None,
         "proxy": None,
     }
-    config = get_config(config_default=config_default, section="CxReporting", prefix="cxreporting_")
+    config = get_config(
+        config_default=config_default, section="CxReporting", prefix="cxreporting_"
+    )
     return Configuration(
         server_base_url=config.get("reporting_client_url"),
         token_url=f"{config.get('base_url')}/cxrestapi/auth/identity/connect/token",
@@ -30,8 +32,5 @@ def construct_configuration() -> Configuration:
         timeout=config.get("timeout"),
         verify=config.get("verify"),
         cert=config.get("cert"),
-        proxies={
-            "http": config.get("proxy"),
-            "https": config.get("proxy"),
-        }
+        proxy=config.get("proxy"),
     )

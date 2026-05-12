@@ -5,8 +5,8 @@ import logging
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
-from requests.exceptions import ChunkedEncodingError
-from requests import Response
+import httpx
+from httpx import Response
 from dataclasses import dataclass
 from .projectsAPI import get_all_projects
 
@@ -87,7 +87,7 @@ class RepoManagerAPI(object):
             f"/api/repos-manager/scms"
         )
         self.base_url_v2 = (
-            f"{self.api_client.configuration.server_base_url}"    
+            f"{self.api_client.configuration.server_base_url}"
             f"/api/repos-manager/v2/scms"
         )
         self.origin_dict = {
@@ -97,9 +97,7 @@ class RepoManagerAPI(object):
             "BITBUCKET": 4,
         }
 
-    def get_all_scm_types_v2(
-        self
-    ) -> List[ScmType]:
+    def get_all_scm_types_v2(self) -> List[ScmType]:
         """
         get all scm types from CxOne tenant. It may cover GITHUB, GITLAB,
         AZURE, BITBUCKET, its self hosted version, and GITHUBAPP.
@@ -112,9 +110,7 @@ class RepoManagerAPI(object):
             method="GET",
             url=url,
         )
-        return [
-            ScmType(**item) for item in response.json()
-        ]
+        return [ScmType(**item) for item in response.json()]
 
     def get_verify_status_for_user(
         self,
@@ -141,7 +137,7 @@ class RepoManagerAPI(object):
         return response.json()
 
     def check_origin(
-        self, 
+        self,
         origin: str,
     ) -> str:
         """
@@ -154,7 +150,7 @@ class RepoManagerAPI(object):
         """
         origin = origin.upper()
         all_scm_types = self.get_all_scm_types_v2()
-        github_apps = [scm for scm in all_scm_types if scm.type == 'githubApp']
+        github_apps = [scm for scm in all_scm_types if scm.type == "githubApp"]
         if github_apps:
             self.origin_dict.update({"GITHUBAPP": github_apps[0].id})
         if origin not in self.origin_dict.keys():
@@ -185,6 +181,35 @@ class RepoManagerAPI(object):
         )
         return GithubApp(**response.json())
 
+    def create_token_for_github_app(
+        self,
+        auth_code: str,
+    ) -> bool:
+        origin = self.check_origin("GITHUBAPP")
+        origin_index = self.origin_dict.get(origin)
+        url = f"{self.base_url}/{origin_index}/token"
+        params = {
+            "authCode": auth_code,
+        }
+        COOKIE = "apt.sid=AP-JMSS596DXCOP-2-1775181116176-45868282; apt.uid=AP-JMSS596DXCOP-2-1775181116178-82487213.0.2.146d83cb-86cc-463f-8ba3-f6a5625c20e3"
+        REFERER = "https://sng.ast.checkmarx.net/applicationsAndProjects/projects?tableConfig=%7B%22search%22%3A%7B%22text%22%3A%22%22%7D%2C%22sorting%22%3A%7B%22columnKey%22%3A%22lastScanDate%22%2C%22order%22%3A%22descend%22%7D%2C%22filters%22%3A%7B%22isDeployed%22%3A%5B%22All%22%5D%7D%2C%22pagination%22%3A%7B%22pageSize%22%3A25%2C%22currentPage%22%3A1%7D%2C%22grouping%22%3A%7B%22groups%22%3A%5B%5D%2C%22groupsState%22%3A%5B%5D%7D%7D"
+
+        headers = {
+            "cxorigin": "Integrations MFE",
+            "origin": "https://sng.ast.checkmarx.net",
+            "cookie": COOKIE,
+            "referer": REFERER,
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+            "sec-fetch-site": "same-origin",
+        }
+        response = self.api_client.call_api(
+            method="POST",
+            url=url,
+            params=params,
+            headers=headers,
+        )
+        return response.status_code == 200
+
     def get_all_repo_orgs_for_a_scm_type(
         self,
         origin: str,
@@ -212,11 +237,7 @@ class RepoManagerAPI(object):
             params=params,
         )
         print(response.json())
-        return RepoOrgs(
-            orgs=[
-                RepoOrg(**item) for item in response.json().get("orgs")
-            ]
-        )
+        return RepoOrgs(orgs=[RepoOrg(**item) for item in response.json().get("orgs")])
 
     def create_installation_of_scm_on_org(
         self,
@@ -225,9 +246,9 @@ class RepoManagerAPI(object):
         org_name: str,
     ) -> ScmInstallation:
         """
-        create installation of an SCM on a particular organization, 
+        create installation of an SCM on a particular organization,
         for example, create a githubapp on a github organization.
-        
+
         """
         origin = self.check_origin(origin)
         origin_index = self.origin_dict.get(origin)
@@ -244,11 +265,7 @@ class RepoManagerAPI(object):
         return ScmInstallation(**response.json())
 
     def get_all_repos_of_an_org_for_a_scm(
-        self,
-        origin: str,
-        org_name: str,
-        token_id: str,
-        is_user: bool = False
+        self, origin: str, org_name: str, token_id: str, is_user: bool = False
     ) -> Repos:
         """
         get all repositories for one organization of a scm type.
@@ -260,17 +277,8 @@ class RepoManagerAPI(object):
             "tokenId": token_id,
             "isUser": is_user,
         }
-        response = self.api_client.call_api(
-            method="GET",
-            url=url,
-            params=params
-        )
-        return Repos(
-            repos=[
-                    Repo(**item) for item in response.json().get("repos")
-                ]
-            )
-
+        response = self.api_client.call_api(method="GET", url=url, params=params)
+        return Repos(repos=[Repo(**item) for item in response.json().get("repos")])
 
     def get_repos(
         self,
@@ -294,23 +302,23 @@ class RepoManagerAPI(object):
         """
         origin = self.check_origin(origin)
         origin_index = self.origin_dict.get(origin)
-        relative_url = (
-            f"/api/repos-manager/scms" f"/{origin_index}/orgs/{organization}/repos"
-        )
+        url = f"{self.base_url}/{origin_index}/orgs/{organization}/repos"
         params = {
             "authCode": auth_code,
             "isUser": str(is_user).lower(),
             "page": page,
         }
-        return self.api_client.get_request(relative_url=relative_url, params=params)
+        return self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
 
     def get_all_repos(
-            self, 
-            origin: str, 
-            organization: str, 
-            auth_code: str, 
-            is_user: bool = False,
-        ) -> List[dict]:
+        self,
+        origin: str,
+        organization: str,
+        auth_code: str,
+        is_user: bool = False,
+    ) -> List[dict]:
         """
 
         Args:
@@ -365,15 +373,13 @@ class RepoManagerAPI(object):
         """
         origin = self.check_origin(origin)
         origin_index = self.origin_dict.get(origin)
-        relative_url = (
-            f"/api/repos-manager/scms"
-            f"/{origin_index}/orgs/{organization}/repos"
-            f"/{repo_name}/branches"
+        url = (
+            f"{self.base_url}/{origin_index}/orgs/{organization}"
+            f"/repos/{repo_name}/branches"
         )
         params = {"authCode": auth_code, "page": page}
-        return self.api_client.get_request(
-            relative_url=relative_url,
-            params=params,
+        return self.api_client.call_api(
+            method="GET", url=url, params=params
         )
 
     def get_all_repo_branches(
@@ -584,34 +590,41 @@ class RepoManagerAPI(object):
         }
         logger.debug(f"payload: {data}")
         response = self.api_client.call_api(
-            method="POST",
-            url=url, 
-            params=params, 
-            headers=headers, 
-            json=data
+            method="POST", url=url, params=params, headers=headers, json=data
         )
         return response
 
     def get_job_status(self) -> int:
         """0 - 100"""
-        relative_url = "/api/ssegateway/job-status"
+        url = (
+            f"{self.api_client.configuration.server_base_url}"
+            "/api/ssegateway/job-status"
+        )
         headers = {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
             "cache-control": "no-cache",
             "pragma": "no-cache",
             "priority": "u=1, i",
-            "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+            "sec-ch-ua": (
+                '"Chromium";v="134", "Not:A-Brand";v="24",'
+                ' "Google Chrome";v="134"'
+            ),
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"',
             "sec-fetch-dest": "empty",
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/134.0.0.0 Safari/537.36",
+            "user-agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/134.0.0.0 Safari/537.36"
+            ),
             "Accept-Encoding": "identity",
         }
-        response = self.api_client.get_request(relative_url, headers=headers)
+        response = self.api_client.call_api(
+            method="GET", url=url, headers=headers
+        )
         data_list = [
             json.loads(item.replace("data:", ""))
             for item in response.text.split("\n")
@@ -703,10 +716,7 @@ class RepoManagerAPI(object):
                     http_repo_url=repo.get("url"),
                     repo_id=repo.get("id"),
                     branches=[
-                        {
-                            "pattern": repo.get("defaultBranch"), 
-                            "isDefaultBranch": True
-                        }
+                        {"pattern": repo.get("defaultBranch"), "isDefaultBranch": True}
                     ],
                     origin=origin,
                     kics_scanner_enabled=kics_scanner_enabled,
@@ -738,9 +748,7 @@ class RepoManagerAPI(object):
             repo_request_chunks = repo_requests[
                 round_i * chunk_size : (round_i + 1) * chunk_size
             ]
-            urls_str = "\n".join(
-                [item.get("url") for item in repo_request_chunks]
-            )
+            urls_str = "\n".join([item.get("url") for item in repo_request_chunks])
             logger.debug(f"All urls in this round of chunks: {urls_str}")
             logger.info(
                 f"round {round_i + 1}, number of repos to create: "
@@ -764,7 +772,7 @@ class RepoManagerAPI(object):
                     percentage = self.get_job_status()
                     logger.info(f"import percent: {percentage}")
                     time.sleep(delay_request_timeout)
-                except ChunkedEncodingError as e:
+                except httpx.RemoteProtocolError as e:
                     logger.info(f"ChunkedEncodingError: {e}")
                     continue
             time.sleep(delay_request_timeout)
@@ -811,8 +819,11 @@ class RepoManagerAPI(object):
 
         """
 
-        relative_url = f"/api/repos-manager/repo/{repo_id}"
-        response = self.api_client.get_request(relative_url)
+        url = (
+            f"{self.api_client.configuration.server_base_url}"
+            f"/api/repos-manager/repo/{repo_id}"
+        )
+        response = self.api_client.call_api(method="GET", url=url)
         return response.json()
 
     def update_repo_by_id(self, repo_id: int, project_id: str, pay_load: dict) -> dict:
@@ -869,10 +880,13 @@ class RepoManagerAPI(object):
         }
 
         """
-        relative_url = f"/api/repos-manager/repo/{repo_id}"
+        url = (
+            f"{self.api_client.configuration.server_base_url}"
+            f"/api/repos-manager/repo/{repo_id}"
+        )
         params = {"projectId": project_id}
-        response = self.api_client.put_request(
-            relative_url=relative_url, params=params, json=pay_load
+        response = self.api_client.call_api(
+            method="PUT", url=url, params=params, json=pay_load
         )
         return response.json()
 
@@ -966,7 +980,7 @@ def construct_repo_request(
         secrets_detection_scanner_enabled=secrets_detection_scanner_enabled,
         project_id=project_id,
         default_branch=default_branch,
-        group=groups,
+        groups=groups,
         private_repository_scan=private_repository_scan,
         tags=tags,
     )

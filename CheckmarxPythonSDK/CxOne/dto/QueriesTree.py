@@ -10,13 +10,11 @@ class QueriesTree:
     key: str = None
     children: List[QueriesTree] = None
 
-
-def construct_queries_tree(item):
-    return QueriesTree(
-        is_leaf=item.get("isLeaf"),
-        title=item.get("title"),
-        key=item.get("key"),
-        children=[
-            construct_queries_tree(child) for child in item.get("children", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "QueriesTree":
+        return cls(
+            is_leaf=item.get("isLeaf"),
+            title=item.get("title"),
+            key=item.get("key"),
+            children=[cls.from_dict(child) for child in (item.get("children") or [])],
+        )

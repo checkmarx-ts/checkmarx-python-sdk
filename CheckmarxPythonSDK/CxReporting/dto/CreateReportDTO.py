@@ -2,7 +2,9 @@ from .FilterDTO import FilterDTO
 
 
 class CreateReportDTO(object):
-    def __init__(self, template_id, output_format, entity_id, report_name=None, filters=()):
+    def __init__(
+        self, template_id, output_format, entity_id, report_name=None, filters=()
+    ):
         """
 
         Args:
@@ -50,7 +52,9 @@ class CreateReportDTO(object):
                     raise ValueError("all filters should be FilterDTO")
 
         if not (1 <= template_id <= 7):
-            raise ValueError("parameter template_id not in range, minimum value 1, maximum value 6")
+            raise ValueError(
+                "parameter template_id not in range, minimum value 1, maximum value 6"
+            )
         if output_format.upper() not in ["PDF", "JSON"]:
             raise ValueError("parameter output_format should be either pdf or json")
 
@@ -62,21 +66,26 @@ class CreateReportDTO(object):
 
     def __str__(self):
         return """CreateReportDTO(templateId={}, entityId={}, reportName={}, filters={}, outputFormat={})""".format(
-            self.templateId, self.entityId, self.reportName, self.filters, self.outputFormat
+            self.templateId,
+            self.entityId,
+            self.reportName,
+            self.filters,
+            self.outputFormat,
         )
 
     def to_dict(self):
         return {
-                "templateId": self.templateId,
-                "entityId": self.entityId,
-                "reportName": self.reportName,
-                "filters": [
-                    {
-                        "type": item.type,
-                        "excludedValues": item.excludedValues,
-                        "includedValues": item.includedValues,
-                        "pattern": item.pattern,
-                    } for item in self.filters
-                ],
-                "outputFormat": self.outputFormat
-            }
+            "templateId": self.templateId,
+            "entityId": self.entityId,
+            "reportName": self.reportName,
+            "filters": [
+                {
+                    "type": item.type,
+                    "excludedValues": item.excludedValues,
+                    "includedValues": item.includedValues,
+                    "pattern": item.pattern,
+                }
+                for item in self.filters
+            ],
+            "outputFormat": self.outputFormat,
+        }

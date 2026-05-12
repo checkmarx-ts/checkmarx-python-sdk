@@ -26,30 +26,33 @@ def construct_configuration() -> Configuration:
         "rate_limit_refill_rate": None,
     }
     config = get_config(config_default=config_default, section="CxOne", prefix="cxone_")
+    access_control_url = config.get("access_control_url", "").rstrip("/")
+    server_base_url = config.get("server", "").rstrip("/")
     configuration = Configuration(
-                server_base_url=config.get("server"),
-                iam_base_url=config.get("access_control_url"),
-                token_url=(
-                    f"{config.get('access_control_url')}/auth/realms"
-                    f"/{config.get('tenant_name')}/protocol/openid-connect/token"
-                ),
-                tenant_name=config.get("tenant_name"),
-                grant_type=config.get("grant_type"),
-                client_id=config.get("client_id"),
-                client_secret=config.get("client_secret"),
-                api_key=config.get("refresh_token"),
-                timeout=int(config.get("timeout")),
-                verify=config.get("verify"),
-                cert=config.get("cert"),
-                proxies={
-                    "http": config.get("proxy"),
-                    "https": config.get("proxy"),
-                },
-                logging_level=config.get("logging_level"),
-                max_retries=int(config.get("max_retries")),
-                rate_limit_capacity=int(config.get("rate_limit_capacity")),
-                rate_limit_period=int(config.get("rate_limit_period")),
-                rate_limit_refill_rate=float(config.get("rate_limit_refill_rate")) if config.get("rate_limit_refill_rate") else None,
-            )
+        server_base_url=server_base_url,
+        iam_base_url=access_control_url,
+        token_url=(
+            f"{access_control_url}/auth/realms"
+            f"/{config.get('tenant_name')}/protocol/openid-connect/token"
+        ),
+        tenant_name=config.get("tenant_name"),
+        grant_type=config.get("grant_type"),
+        client_id=config.get("client_id"),
+        client_secret=config.get("client_secret"),
+        api_key=config.get("refresh_token"),
+        timeout=int(config.get("timeout")),
+        verify=config.get("verify"),
+        cert=config.get("cert"),
+        proxy=config.get("proxy"),
+        logging_level=config.get("logging_level"),
+        max_retries=int(config.get("max_retries")),
+        rate_limit_capacity=int(config.get("rate_limit_capacity")),
+        rate_limit_period=int(config.get("rate_limit_period")),
+        rate_limit_refill_rate=(
+            float(config.get("rate_limit_refill_rate"))
+            if config.get("rate_limit_refill_rate")
+            else None
+        ),
+    )
     set_module_logger_level("CxOne", configuration.logging_level)
     return configuration

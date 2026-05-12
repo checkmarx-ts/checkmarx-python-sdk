@@ -8,6 +8,4 @@ class SarifArtifactLocation:
         self.uri = uri
 
     def __str__(self):
-        return f"SarifArtifactLocation(" \
-               f"uri={self.uri}"\
-               f")"
+        return f"SarifArtifactLocation(" f"uri={self.uri}" f")"

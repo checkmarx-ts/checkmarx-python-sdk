@@ -11,13 +11,7 @@ class Credentials:
                  apiKey, password, ssh, JWT
         value (str): The credentials used for accessing the Git repository.
     """
+
     username: str
     type: str
     value: str
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "type": self.type,
-            "value": self.value,
-        }

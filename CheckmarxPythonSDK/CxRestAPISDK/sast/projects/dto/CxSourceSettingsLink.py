@@ -1,24 +1,22 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxSourceSettingsLink(object):
+@dataclass
+class CxSourceSettingsLink:
     """
     source settings link
     """
 
-    def __init__(self, source_settings_link_type, rel, uri):
-        """
+    source_settings_link_type: Optional[str] = None
+    rel: Optional[str] = None
+    uri: Optional[str] = None
 
-        Args:
-            source_settings_link_type (str):
-            rel (str):
-            uri (str):
-        """
-        self.type = source_settings_link_type
-        self.rel = rel
-        self.uri = uri
-
-    def __str__(self):
-        return "CxSourceSettingsLink(source_settings_link_type={}, rel={}, uri={})".format(
-            self.type, self.rel, self.uri
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxSourceSettingsLink":
+        return cls(
+            source_settings_link_type=item.get("type"),
+            rel=item.get("rel"),
+            uri=item.get("uri"),
         )

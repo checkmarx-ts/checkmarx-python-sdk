@@ -10,7 +10,9 @@ class SarifPhysicalLocationPropertyBag:
         self.snippet = snippet
 
     def __str__(self):
-        return f"SarifPhysicalLocationPropertyBag(" \
-               f"tags={self.tags}, "\
-               f"snippet={self.snippet}"\
-               f")"
+        return (
+            f"SarifPhysicalLocationPropertyBag("
+            f"tags={self.tags}, "
+            f"snippet={self.snippet}"
+            f")"
+        )

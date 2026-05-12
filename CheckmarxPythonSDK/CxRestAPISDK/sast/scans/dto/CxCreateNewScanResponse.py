@@ -1,22 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxCreateNewScanResponse(object):
+@dataclass
+class CxCreateNewScanResponse:
     """
     create new scan response
     """
 
-    def __init__(self, scan_id, link):
-        """
+    id: Optional[int] = None
+    link: Optional[object] = None
 
-        Args:
-            scan_id (int):
-            link (:obj:`CxLink`):
-        """
-        self.id = scan_id
-        self.link = link
-
-    def __str__(self):
-        return "CxCreateNewScanResponse(id={}, link={})".format(
-            self.id, self.link
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxCreateNewScanResponse":
+        return cls(
+            id=item.get("id"),
+            link=item.get("link"),
         )

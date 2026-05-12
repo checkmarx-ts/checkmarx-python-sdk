@@ -16,16 +16,20 @@ class Session:
     worker_info: WorkerInfo = None
     status: int = None
 
-
-def construct_session(item):
-    return Session(
-        session_id=item.get("sessionId"),
-        tenant_id=item.get("tenantId"),
-        project_id=item.get("projectId"),
-        source_id=item.get("sourceId"),
-        worker_info=WorkerInfo(
-            worker_id=item.get("workerInfo").get("worker_id"),
-            worker_address=item.get("workerInfo").get("worker_address")
-        ),
-        status=item.get("status")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "Session":
+        worker_info_data = item.get("workerInfo")
+        worker_info = None
+        if worker_info_data:
+            worker_info = WorkerInfo(
+                worker_id=worker_info_data.get("worker_id"),
+                worker_address=worker_info_data.get("worker_address"),
+            )
+        return cls(
+            session_id=item.get("sessionId"),
+            tenant_id=item.get("tenantId"),
+            project_id=item.get("projectId"),
+            source_id=item.get("sourceId"),
+            worker_info=worker_info,
+            status=item.get("status"),
+        )

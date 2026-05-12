@@ -1,4 +1,3 @@
-from CheckmarxPythonSDK.CxRestAPISDK import (ProjectsAPI, ScansAPI)
 from CheckmarxPythonSDK.CxODataApiSDK import (
     get_top_n_projects_by_risk_score,
     get_top_n_projects_by_last_scan_duration,
@@ -15,25 +14,14 @@ from CheckmarxPythonSDK.CxODataApiSDK import (
     get_all_scan_ids_within_a_predefined_time_range_for_all_projects_in_a_team,
 )
 
-project_name = "jvl_git"
-scans_api = ScansAPI()
-projects_api = ProjectsAPI()
-project_id = projects_api.get_project_id_by_project_name_and_team_full_name(
-    project_name=project_name, team_full_name="/CxServer"
-)
-
 
 def test_get_top_n_projects_by_risk_score():
-    number_of_projects = 10
-    r = get_top_n_projects_by_risk_score(number_of_projects=number_of_projects)
-
+    r = get_top_n_projects_by_risk_score(number_of_projects=10)
     assert r is not None
 
 
 def test_get_top_n_projects_by_last_scan_duration():
-    number_of_projects = 10
-    r = get_top_n_projects_by_last_scan_duration(number_of_projects=number_of_projects)
-
+    r = get_top_n_projects_by_last_scan_duration(number_of_projects=10)
     assert r is not None
 
 
@@ -60,29 +48,24 @@ def test_get_count_of_the_projects_in_the_system():
 
 
 def test_get_all_projects_with_a_custom_field_that_has_a_specific_value():
-    project_manager = 'Joe'
     projects = get_all_projects_with_a_custom_field_that_has_a_specific_value(
-        field_name='projectManager', field_value=project_manager)
-
+        field_name='projectManager', field_value='Joe')
     assert len(projects) == 0
 
 
 def test_get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information():
     projects = get_all_projects_with_a_custom_field_as_well_as_the_custom_field_information(
         field_name='projectManager')
-
     assert len(projects) == 0
 
 
 def test_get_presets_associated_with_each_project():
     projects = get_presets_associated_with_each_project()
-
     assert len(projects) > 0
 
 
 def test_get_all_projects_that_are_set_up_with_a_non_standard_configuration():
     projects = get_all_projects_that_are_set_up_with_a_non_standard_configuration()
-
     assert len(projects) >= 0
 
 

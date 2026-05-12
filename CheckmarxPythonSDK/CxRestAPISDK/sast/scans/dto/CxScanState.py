@@ -1,35 +1,34 @@
 # encoding: utf-8
+from dataclasses import dataclass, field
+from typing import List, Optional
+from .CxLanguageState import CxLanguageState
 
 
-class CxScanState(object):
+@dataclass
+class CxScanState:
     """
     scan state, used in CxScanDetail
     """
 
-    def __init__(self, path, source_id, files_count, lines_of_code, failed_lines_of_code, cx_version,
-                 language_state_collection):
-        """
+    path: Optional[str] = None
+    source_id: Optional[str] = None
+    files_count: Optional[int] = None
+    lines_of_code: Optional[int] = None
+    failed_lines_of_code: Optional[int] = None
+    cx_version: Optional[str] = None
+    language_state_collection: List[CxLanguageState] = field(default_factory=list)
 
-        Args:
-            path (str):
-            source_id (str):
-            files_count (int):
-            lines_of_code (int):
-            failed_lines_of_code (int):
-            cx_version (str):
-            language_state_collection (:obj:`list` of :obj:`CxLanguageSate`):
-        """
-        self.path = path
-        self.source_id = source_id
-        self.files_count = files_count
-        self.lines_of_code = lines_of_code
-        self.failed_lines_of_code = failed_lines_of_code
-        self.cx_version = cx_version
-        self.language_state_collection = language_state_collection
-
-    def __str__(self):
-        return """CxScanState(path={}, source_id={}, files_count={}, lines_of_code={}, failed_lines_of_code={},
-                cx_version={}, language_state_collection={})""".format(
-            self.path, self.source_id, self.files_count, self.lines_of_code, self.failed_lines_of_code,
-            self.cx_version, self.language_state_collection
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanState":
+        return cls(
+            path=item.get("path"),
+            source_id=item.get("sourceId"),
+            files_count=item.get("filesCount"),
+            lines_of_code=item.get("linesOfCode"),
+            failed_lines_of_code=item.get("failedLinesOfCode"),
+            cx_version=item.get("cxVersion"),
+            language_state_collection=[
+                CxLanguageState.from_dict(ls)
+                for ls in (item.get("languageStateCollection") or [])
+            ],
         )

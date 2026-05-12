@@ -7,8 +7,17 @@ class CxCreateScanSettingsRequestBody(object):
     """
     create scan settings
     """
-    def __init__(self, project_id, preset_id, engine_configuration_id, post_scan_action_id=None,
-                 failed_scan_emails=None, before_scan_emails=None, after_scan_emails=None):
+
+    def __init__(
+        self,
+        project_id,
+        preset_id,
+        engine_configuration_id,
+        post_scan_action_id=None,
+        failed_scan_emails=None,
+        before_scan_emails=None,
+        after_scan_emails=None,
+    ):
         """
 
         Args:
@@ -32,7 +41,7 @@ class CxCreateScanSettingsRequestBody(object):
         data = {
             "projectId": self.project_id,
             "presetId": self.preset_id,
-            "engineConfigurationId": self.engine_configuration_id
+            "engineConfigurationId": self.engine_configuration_id,
         }
         if self.post_scan_action_id:
             data.update({"postScanActionId": self.post_scan_action_id})
@@ -56,6 +65,11 @@ class CxCreateScanSettingsRequestBody(object):
                     failed_scan_emails={}, 
                     before_scan_emails={}, 
                     after_scan_emails={})""".format(
-            self.project_id, self.preset_id, self.engine_configuration_id, self.post_scan_action_id,
-            self.failed_scan_emails, self.before_scan_emails, self.after_scan_emails
+            self.project_id,
+            self.preset_id,
+            self.engine_configuration_id,
+            self.post_scan_action_id,
+            self.failed_scan_emails,
+            self.before_scan_emails,
+            self.after_scan_emails,
         )

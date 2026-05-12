@@ -1,6 +1,7 @@
 """
 This is a CxOSA scan demo
 """
+
 import time
 
 from os.path import dirname, normpath, join, exists
@@ -25,17 +26,23 @@ def osa_scan():
     osa_api = OsaAPI()
 
     # 1. create project
-    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(project_name, team_full_name)
+    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(
+        project_name, team_full_name
+    )
 
     # 2. get team id
     team_id = team_api.get_team_id_by_team_full_name(team_full_name)
 
     # 3. create project with default configuration, will get project id
-    project = projects_api.create_project_with_default_configuration(project_name=project_name, team_id=team_id)
+    project = projects_api.create_project_with_default_configuration(
+        project_name=project_name, team_id=team_id
+    )
     project_id = project.id
 
     # 4. create an OSA scan
-    scan_id = osa_api.create_an_osa_scan_request(project_id=project_id, zipped_source_path=zip_file_path)
+    scan_id = osa_api.create_an_osa_scan_request(
+        project_id=project_id, zipped_source_path=zip_file_path
+    )
 
     # 5. check scan status
     while True:

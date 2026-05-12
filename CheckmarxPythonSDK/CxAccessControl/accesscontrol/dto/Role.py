@@ -1,25 +1,21 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import List, Optional
 
 
-class Role(object):
+@dataclass
+class Role:
+    id: Optional[int] = None
+    is_system_role: Optional[bool] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    permission_ids: Optional[List[int]] = None
 
-    def __init__(self, role_id, is_system_role, name, description, permission_ids):
-        """
-
-        Args:
-            role_id (int):
-            is_system_role (boolean):
-            name (str):
-            description (str):
-            permission_ids (list of int):
-        """
-        self.id = role_id
-        self.is_system_role = is_system_role
-        self.name = name
-        self.description = description
-        self.permission_ids = permission_ids
-
-    def __str__(self):
-        return """Role(id={}, is_system_role={}, name={}, description={}, permission_ids={})""".format(
-            self.id, self.is_system_role, self.name, self.description, self.permission_ids
+    @classmethod
+    def from_dict(cls, item: dict) -> "Role":
+        return cls(
+            id=item.get("id"),
+            is_system_role=item.get("isSystemRole"),
+            name=item.get("name"),
+            description=item.get("description"),
+            permission_ids=item.get("permissionIds"),
         )

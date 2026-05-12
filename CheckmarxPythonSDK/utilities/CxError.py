@@ -1,6 +1,13 @@
 # encoding: utf-8
 from CheckmarxPythonSDK.utilities.compat import (
-    OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, NO_CONTENT, CREATED, ACCEPTED
+    OK,
+    BAD_REQUEST,
+    NOT_FOUND,
+    UNAUTHORIZED,
+    FORBIDDEN,
+    NO_CONTENT,
+    CREATED,
+    ACCEPTED,
 )
 
 
@@ -15,14 +22,13 @@ class CxError(Exception):
         msg (str): Human readable string describing the exception.
         code (int): Exception error code.
     """
+
     def __init__(self, msg, code):
         self.msg = msg
         self.code = code
 
     def __str__(self):
-        return "CxError(msg={}, code={})".format(
-            self.msg, self.code
-        )
+        return "CxError(msg={}, code={})".format(self.msg, self.code)
 
 
 class BadRequestError(CxError):
@@ -67,8 +73,9 @@ def check_response_status_code(response):
         raise NotFoundError()
     elif status_code == FORBIDDEN:
         raise CxError(
-            response.text + " Please check the scope in your configuration file, please check if you have permission",
-            status_code
+            response.text
+            + " Please check the scope in your configuration file, please check if you have permission",
+            status_code,
         )
     else:
         raise CxError(response.text, status_code)

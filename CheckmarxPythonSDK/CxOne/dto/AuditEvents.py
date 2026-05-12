@@ -1,5 +1,5 @@
-from .AuditEventLink import AuditEventLink, construct_audit_event_link
-from .AuditEvent import AuditEvent, construct_audit_event
+from .AuditEventLink import AuditEventLink
+from .AuditEvent import AuditEvent
 from dataclasses import dataclass
 from typing import List
 
@@ -9,13 +9,13 @@ class AuditEvents:
     links: List[AuditEventLink] = None
     events: List[AuditEvent] = None
 
-
-def construct_audit_events(item):
-    return AuditEvents(
-        links=[
-            construct_audit_event_link(link) for link in item.get("links", [])
-        ],
-        events=[
-            construct_audit_event(event) for event in item.get("events", [])
-        ],
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "AuditEvents":
+        return cls(
+            links=[
+                AuditEventLink.from_dict(link) for link in (item.get("links") or [])
+            ],
+            events=[
+                AuditEvent.from_dict(event) for event in (item.get("events") or [])
+            ],
+        )

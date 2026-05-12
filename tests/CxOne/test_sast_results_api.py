@@ -1,11 +1,22 @@
+import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_sast_results_by_scan_id,
 )
+from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
+
+
+def _get_sast_scan_id():
+    result = _ScansAPI().get_a_list_of_scans(limit=10, statuses=["Completed"])
+    for scan in result.scans:
+        if "sast" in (scan.engines or []):
+            return scan.id
+    return None
 
 
 def test_get_sast_results_by_scan_id():
-    # scan_id = "efc2911b-3ee0-4aa3-bc79-90fe97bc8103"
-    scan_id = "d8aee11e-6ff1-40bc-9dd0-f855b050af59"
+    scan_id = _get_sast_scan_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
     offset = 0
     limit = 500
     page = 1

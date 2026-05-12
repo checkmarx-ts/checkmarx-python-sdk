@@ -16,8 +16,11 @@ class ConfigurationAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = api_client.configuration.server_base_url.rstrip("/")
 
-    def get_cx_component_configuration_settings(self, group: str, api_version: str = "1.0") -> List[CxSASTConfig]:
+    def get_cx_component_configuration_settings(
+        self, group: str, api_version: str = "1.0"
+    ) -> List[CxSASTConfig]:
         """
 
         Args:
@@ -40,20 +43,19 @@ class ConfigurationAPI(object):
             list of `CxSASTConfig`
         """
         result = []
-        relative_url = "/cxrestapi/configurationsExtended/{group}".format(group=group)
-        response = self.api_client.get_request(relative_url=relative_url, headers=get_headers(api_version))
+        url = f"{self.base_url}/cxrestapi/configurationsExtended/{group}"
+        response = self.api_client.call_api(
+            "GET", url, headers=get_headers(api_version)
+        )
         if response.status_code == OK:
-            result = [
-                CxSASTConfig(
-                    key=item.get("key"),
-                    value=item.get("value"),
-                    description=item.get("description")
-                ) for item in response.json()
-            ]
+            result = [CxSASTConfig.from_dict(item) for item in response.json()]
         return result
 
     def update_cx_component_configuration_settings(
-            self, group: str, key_value_list: Union[List[dict], List[CxSASTConfig]], api_version: str = "1.0"
+        self,
+        group: str,
+        key_value_list: Union[List[dict], List[CxSASTConfig]],
+        api_version: str = "1.0",
     ) -> bool:
         """
 
@@ -73,7 +75,7 @@ class ConfigurationAPI(object):
         Returns:
             bool
         """
-        relative_url = "/cxrestapi/configurationsExtended/{group}".format(group=group)
+        url = f"{self.base_url}/cxrestapi/configurationsExtended/{group}"
 
         temp_list = []
         for item in key_value_list:
@@ -82,13 +84,16 @@ class ConfigurationAPI(object):
             elif isinstance(item, CxSASTConfig):
                 temp_list.append(item.get_key_value_dict())
 
-        put_data = json.dumps([
-            {
-                "key": item.get("key"),
-                "value": item.get("value"),
-            } for item in temp_list
-        ])
-        response = self.api_client.put_request(
-            relative_url=relative_url, data=put_data, headers=get_headers(api_version)
+        put_data = json.dumps(
+            [
+                {
+                    "key": item.get("key"),
+                    "value": item.get("value"),
+                }
+                for item in temp_list
+            ]
+        )
+        response = self.api_client.call_api(
+            "PUT", url, data=put_data, headers=get_headers(api_version)
         )
         return response.status_code == OK

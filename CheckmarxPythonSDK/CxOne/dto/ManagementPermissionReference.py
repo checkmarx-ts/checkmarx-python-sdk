@@ -1,37 +1,17 @@
-from .ScopePermissions import ScopePermissions, construct_scope_permissions
+from dataclasses import dataclass
+from .ScopePermissions import ScopePermissions
 
 
+@dataclass
 class ManagementPermissionReference:
-    def __init__(self, enabled: bool, resource: str, scope_permissions: ScopePermissions):
-        """
+    enabled: ... = None
+    resource: ... = None
+    scope_permissions: ... = None
 
-        Args:
-            enabled (bool):
-            resource (str):
-            scope_permissions ():
-        """
-        self.enabled = enabled
-        self.resource = resource
-        self.scopePermissions = scope_permissions
-
-    def __str__(self):
-        return f"ManagementPermissionReference(" \
-               f"enabled={self.enabled} " \
-               f"resource={self.resource} " \
-               f"scopePermissions={self.scopePermissions} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "enabled": self.enabled,
-            "resource": self.resource,
-            "scopePermissions": self.scopePermissions.to_dict(),
-        }
-
-
-def construct_management_permission_reference(item):
-    return ManagementPermissionReference(
-        enabled=item.get("enabled"),
-        resource=item.get("resource"),
-        scope_permissions=construct_scope_permissions(item.get("scopePermissions")),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ManagementPermissionReference":
+        return cls(
+            enabled=item.get("enabled"),
+            resource=item.get("resource"),
+            scope_permissions=ScopePermissions.from_dict(item.get("scopePermissions")),
+        )

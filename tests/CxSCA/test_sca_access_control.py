@@ -1,4 +1,7 @@
+import pytest
 from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
+
+pytestmark = pytest.mark.skip(reason="CxSCA credentials are no longer valid")
 
 
 def test_get_teams():

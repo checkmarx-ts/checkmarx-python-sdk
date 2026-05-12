@@ -1,25 +1,21 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class LDAPRoleMapping(object):
-    def __init__(self, ldap_role_mapping_id, ldap_server_id, role_id, ldap_group_dn, ldap_group_display_name):
-        """
+@dataclass
+class LDAPRoleMapping:
+    id: Optional[int] = None
+    ldap_server_id: Optional[int] = None
+    role_id: Optional[int] = None
+    ldap_group_dn: Optional[str] = None
+    ldap_group_display_name: Optional[str] = None
 
-        Args:
-            ldap_role_mapping_id (int):
-            ldap_server_id (int):
-            role_id (int):
-            ldap_group_dn (str):
-            ldap_group_display_name (str):
-        """
-        self.id = ldap_role_mapping_id,
-        self.ldap_server_id = ldap_server_id,
-        self.role_id = role_id,
-        self.ldap_group_dn = ldap_group_dn,
-        self.ldap_group_display_name = ldap_group_display_name
-
-    def __str__(self):
-        return """LDAPRoleMapping(id={}, ldap_server_id={}, role_id={}, ldap_group_dn={}, 
-        ldap_group_display_name={})""".format(
-            self.id, self.ldap_server_id, self.role_id, self.ldap_group_dn, self.ldap_group_display_name
+    @classmethod
+    def from_dict(cls, item: dict) -> "LDAPRoleMapping":
+        return cls(
+            id=item.get("id"),
+            ldap_server_id=item.get("ldapServerId"),
+            role_id=item.get("roleId"),
+            ldap_group_dn=item.get("ldapGroupDn"),
+            ldap_group_display_name=item.get("ldapGroupDisplayName"),
         )

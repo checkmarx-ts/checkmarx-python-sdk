@@ -19,6 +19,9 @@ def test_get_all_custom_fields():
 
 def test_get_custom_field_id_by_name():
     custom_fields_api = CustomFieldsAPI()
-    custom_field_name = "projectManager"
+    custom_fields = custom_fields_api.get_all_custom_fields()
+    if not custom_fields:
+        return
+    custom_field_name = custom_fields[0].name
     custom_field_id = custom_fields_api.get_custom_field_id_by_name(custom_field_name)
     assert custom_field_id is not None

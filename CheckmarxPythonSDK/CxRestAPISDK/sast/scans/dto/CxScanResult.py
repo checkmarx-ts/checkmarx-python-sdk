@@ -1,11 +1,22 @@
 # encoding: utf-8
 
+
 class CxScanResult:
 
     class Node:
 
-        def __init__(self, node_id, full_name, short_name, file_name, line,
-                     column, length, remarks, method_line):
+        def __init__(
+            self,
+            node_id,
+            full_name,
+            short_name,
+            file_name,
+            line,
+            column,
+            length,
+            remarks,
+            method_line,
+        ):
             """
             Args:
                 node_id (int):
@@ -35,34 +46,35 @@ class CxScanResult:
                 d (dict): a dict containing the node data
             """
             return CxScanResult.Node(
-                node_id=d.get('nodeId'),
-                full_name=d.get('fullName'),
-                short_name=d.get('shortName'),
-                file_name=d.get('fileName'),
-                line=d.get('line'),
-                column=d.get('column'),
-                length=d.get('length'),
-                remarks=d.get('remarks'),
-                method_line=d.get('methodLine')
+                node_id=d.get("nodeId"),
+                full_name=d.get("fullName"),
+                short_name=d.get("shortName"),
+                file_name=d.get("fileName"),
+                line=d.get("line"),
+                column=d.get("column"),
+                length=d.get("length"),
+                remarks=d.get("remarks"),
+                method_line=d.get("methodLine"),
             )
 
         def __str__(self):
             return """CxScanResult.Node(node_id={}, full_name={},
             short_name={}, file_name={}, line={}, column={}, length={},
-            remarks={}, method_line={})""".format(self.node_id,
-                                                  self.full_name,
-                                                  self.short_name,
-                                                  self.file_name,
-                                                  self.line,
-                                                  self.column,
-                                                  self.length,
-                                                  self.remarks,
-                                                  self.method_line)
+            remarks={}, method_line={})""".format(
+                self.node_id,
+                self.full_name,
+                self.short_name,
+                self.file_name,
+                self.line,
+                self.column,
+                self.length,
+                self.remarks,
+                self.method_line,
+            )
 
     class Query:
 
-        def __init__(self, query_version_id, query_id, name, severity,
-                     categories, cwe):
+        def __init__(self, query_version_id, query_id, name, severity, categories, cwe):
             """
             Args:
                 query_version_id (int):
@@ -86,19 +98,23 @@ class CxScanResult:
                 d (dict): a dict containing the query data
             """
             return CxScanResult.Query(
-                query_version_id=d.get('queryVersionId'),
-                query_id=d.get('queryId'),
-                name=d.get('name'),
-                severity=d.get('severity'),
-                categories=d.get('categories'),
-                cwe=d.get('cwe')
+                query_version_id=d.get("queryVersionId"),
+                query_id=d.get("queryId"),
+                name=d.get("name"),
+                severity=d.get("severity"),
+                categories=d.get("categories"),
+                cwe=d.get("cwe"),
             )
 
         def __str__(self):
             return """CxScanResult.Query(query_version_id={}, query_id={}, name={},
             severity={}, categories={}, cwe={})""".format(
-                self.query_version_id, self.query_id, self.name, self.severity,
-                self.categories, self.cwe
+                self.query_version_id,
+                self.query_id,
+                self.name,
+                self.severity,
+                self.categories,
+                self.cwe,
             )
 
     class Snippet:
@@ -121,9 +137,7 @@ class CxScanResult:
                 d (dict): dict containing the snippet data
             """
             return CxScanResult.Snippet(
-                file_name=d.get('fileName'),
-                line=d.get('line'),
-                code=d.get('code')
+                file_name=d.get("fileName"), line=d.get("line"), code=d.get("code")
             )
 
         def __str__(self):
@@ -131,12 +145,36 @@ class CxScanResult:
                 self.file_name, self.line, self.code
             )
 
-    def __init__(self, index, path_id, similarity_hash, date, detection_date,
-                 confidence_level, cx_rank, bfl_node_short_name, bfl_node_id,
-                 severity, state, status, assigned_to_user_id, assigned_to,
-                 comment, deep_link, query, source_snippet, sink_snippet,
-                 nodes, lcid, cx_description_id, result_description,
-                 best_fix_location, risk, cause, general_recommendations):
+    def __init__(
+        self,
+        index,
+        path_id,
+        similarity_hash,
+        date,
+        detection_date,
+        confidence_level,
+        cx_rank,
+        bfl_node_short_name,
+        bfl_node_id,
+        severity,
+        state,
+        status,
+        assigned_to_user_id,
+        assigned_to,
+        comment,
+        deep_link,
+        query,
+        source_snippet,
+        sink_snippet,
+        nodes,
+        lcid,
+        cx_description_id,
+        result_description,
+        best_fix_location,
+        risk,
+        cause,
+        general_recommendations,
+    ):
         """
         Args:
             index (int):
@@ -200,37 +238,36 @@ class CxScanResult:
         Args:
             d (`dict` of :obj:): a dictionary containin the result data
         """
-        nodes = [CxScanResult.Node.from_dict(d2) for d2 in d.get('nodes')]
-        return CxScanResult(index=d.get('index'),
-                        path_id=d.get('pathId'),
-                        similarity_hash=d.get('similarityHash'),
-                        date=d.get('date'),
-                        detection_date=d.get('detectionDate'),
-                        confidence_level=d.get('confidenceLevel'),
-                        cx_rank=d.get('cxRank'),
-                        bfl_node_short_name=d.get('bflNodeShortName'),
-                        bfl_node_id=d.get('bflNodeId'),
-                        severity=d.get('severity'),
-                        state=d.get('state'),
-                        status=d.get('status'),
-                        assigned_to_user_id=d.get('assignedToUserId'),
-                        assigned_to=d.get('assignedTo'),
-                        comment=d.get('comment'),
-                        deep_link=d.get('deepLink'),
-                        query=CxScanResult.Query.from_dict(d.get('query')),
-                        source_snippet=CxScanResult.Snippet.from_dict(
-                            d.get('sourceSnippet')),
-                        sink_snippet=CxScanResult.Snippet.from_dict(
-                            d.get('sinkSnippet')),
-                        nodes=nodes,
-                        lcid=d.get('lcid'),
-                        cx_description_id=d.get('cxDescriptionID'),
-                        result_description=d.get('resultDescription'),
-                        best_fix_location=d.get('bestFixLocation'),
-                        risk=d.get('risk'),
-                        cause=d.get('cause'),
-                        general_recommendations=d.get('generalRecommendations')
-                        )
+        nodes = [CxScanResult.Node.from_dict(d2) for d2 in d.get("nodes")]
+        return CxScanResult(
+            index=d.get("index"),
+            path_id=d.get("pathId"),
+            similarity_hash=d.get("similarityHash"),
+            date=d.get("date"),
+            detection_date=d.get("detectionDate"),
+            confidence_level=d.get("confidenceLevel"),
+            cx_rank=d.get("cxRank"),
+            bfl_node_short_name=d.get("bflNodeShortName"),
+            bfl_node_id=d.get("bflNodeId"),
+            severity=d.get("severity"),
+            state=d.get("state"),
+            status=d.get("status"),
+            assigned_to_user_id=d.get("assignedToUserId"),
+            assigned_to=d.get("assignedTo"),
+            comment=d.get("comment"),
+            deep_link=d.get("deepLink"),
+            query=CxScanResult.Query.from_dict(d.get("query")),
+            source_snippet=CxScanResult.Snippet.from_dict(d.get("sourceSnippet")),
+            sink_snippet=CxScanResult.Snippet.from_dict(d.get("sinkSnippet")),
+            nodes=nodes,
+            lcid=d.get("lcid"),
+            cx_description_id=d.get("cxDescriptionID"),
+            result_description=d.get("resultDescription"),
+            best_fix_location=d.get("bestFixLocation"),
+            risk=d.get("risk"),
+            cause=d.get("cause"),
+            general_recommendations=d.get("generalRecommendations"),
+        )
 
     def __str__(self):
         return """CxScanResult(index={}, path_id={}, similarity_hash={},
@@ -240,30 +277,32 @@ class CxScanResult:
         deep_link={}, query={}, source_snippet={}, sink_snippet={}, nodes={},
         lcid={}, cx_description_id={}, result_description={},
         best_fix_location={}, risk={}, cause={},
-        general_recommendations={}""".format(self.index,
-                                             self.path_id,
-                                             self.similarity_hash,
-                                             self.date,
-                                             self.detection_date,
-                                             self.confidence_level,
-                                             self.cx_rank,
-                                             self.bfl_node_short_name,
-                                             self.bfl_node_id,
-                                             self.severity,
-                                             self.state,
-                                             self.status,
-                                             self.assigned_to_user_id,
-                                             self.assigned_to,
-                                             self.comment,
-                                             self.deep_link,
-                                             self.query,
-                                             self.source_snippet,
-                                             self.sink_snippet,
-                                             self.nodes,
-                                             self.lcid,
-                                             self.cx_description_id,
-                                             self.result_description,
-                                             self.best_fix_location,
-                                             self.risk,
-                                             self.cause,
-                                             self.general_recommendations)
+        general_recommendations={}""".format(
+            self.index,
+            self.path_id,
+            self.similarity_hash,
+            self.date,
+            self.detection_date,
+            self.confidence_level,
+            self.cx_rank,
+            self.bfl_node_short_name,
+            self.bfl_node_id,
+            self.severity,
+            self.state,
+            self.status,
+            self.assigned_to_user_id,
+            self.assigned_to,
+            self.comment,
+            self.deep_link,
+            self.query,
+            self.source_snippet,
+            self.sink_snippet,
+            self.nodes,
+            self.lcid,
+            self.cx_description_id,
+            self.result_description,
+            self.best_fix_location,
+            self.risk,
+            self.cause,
+            self.general_recommendations,
+        )

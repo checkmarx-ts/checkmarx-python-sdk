@@ -53,36 +53,35 @@ def compare_presets(preset_a_name, preset_b_name):
             preset_b = projects_api.get_preset_details_by_preset_id(preset.id)
 
     if not preset_a:
-        raise Exception(f'{preset_a_name}: cannot find preset details')
+        raise Exception(f"{preset_a_name}: cannot find preset details")
 
     if not preset_b:
-        raise Exception(f'{preset_b_name}: cannot find preset details')
+        raise Exception(f"{preset_b_name}: cannot find preset details")
 
     resp = get_query_collection()
-    if not resp['IsSuccesfull']:
-        raise Exception('Error retrieving queries')
+    if not resp["IsSuccesfull"]:
+        raise Exception("Error retrieving queries")
 
     query_map = {}
-    query_groups = resp['QueryGroups']
+    query_groups = resp["QueryGroups"]
     for qg in query_groups:
-        queries = qg['Queries']
+        queries = qg["Queries"]
         for q in queries:
-            query_map[q['QueryId']] = f'{qg["PackageFullName"]}:{q["Name"]}'
+            query_map[q["QueryId"]] = f'{qg["PackageFullName"]}:{q["Name"]}'
 
-    print(f'Queries in {preset_a.name} but not in {preset_b.name}:')
+    print(f"Queries in {preset_a.name} but not in {preset_b.name}:")
     compare_preset_details(preset_a, preset_b, query_map)
 
     print()
 
-    print(f'Queries in {preset_b.name} but not in {preset_a.name}:')
+    print(f"Queries in {preset_b.name} but not in {preset_a.name}:")
     compare_preset_details(preset_b, preset_a, query_map)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     if len(sys.argv) < 3:
-        print(f'usage: py {sys.argv[0]} <preset A> <preset B>',
-              file=sys.stderr)
+        print(f"usage: py {sys.argv[0]} <preset A> <preset B>", file=sys.stderr)
         sys.exit(1)
 
     preset_a = sys.argv[1]
@@ -91,5 +90,5 @@ if __name__ == '__main__':
     try:
         compare_presets(preset_a, preset_b)
     except Exception as e:
-        print(f'Error: {e}', file=sys.stderr)
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(2)

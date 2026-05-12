@@ -1,21 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxLanguage(object):
+@dataclass
+class CxLanguage:
     """
     the languages that Checkmarx supported
     """
-    def __init__(self, language_id, name):
-        """
 
-        Args:
-            language_id (int):
-            name (str):
-        """
-        self.id = language_id
-        self.name = name
+    id: Optional[int] = None
+    name: Optional[str] = None
 
-    def __str__(self):
-        return "CxLanguage(id={}, name={})".format(
-            self.id, self.name
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxLanguage":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
         )

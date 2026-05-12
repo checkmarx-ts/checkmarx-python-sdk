@@ -9,12 +9,12 @@ class ByorJob:
     percentage: str = None
     error: str = None
 
-
-def construct_byor_job(item):
-    return ByorJob(
-        id=item.get("id"),
-        project_id=item.get("projectId"),
-        status=item.get("status"),
-        percentage=item.get("percentage"),
-        error=item.get("error"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ByorJob":
+        return cls(
+            id=item.get("id"),
+            project_id=item.get("projectId"),
+            status=item.get("status"),
+            percentage=item.get("percentage"),
+            error=item.get("error"),
+        )

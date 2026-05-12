@@ -1,20 +1,18 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxResultsStatistics(object):
+@dataclass
+class CxResultsStatistics:
     """
     scan results statistics
     """
 
-    def __init__(self, link):
-        """
+    link: Optional[object] = None
 
-        Args:
-            link (str):
-        """
-        self.link = link
-
-    def __str__(self):
-        return "CxResultsStatistics(link={})".format(
-            self.link
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxResultsStatistics":
+        return cls(
+            link=item.get("link"),
         )

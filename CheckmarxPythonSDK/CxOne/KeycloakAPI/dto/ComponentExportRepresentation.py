@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -17,30 +16,30 @@ class ComponentExportRepresentation:
         result: Dict[str, Any] = {}
         if self.id is not None:
             value = self.id
-            result['id'] = value
+            result["id"] = value
         if self.name is not None:
             value = self.name
-            result['name'] = value
+            result["name"] = value
         if self.provider_id is not None:
             value = self.provider_id
-            result['providerId'] = value
+            result["providerId"] = value
         if self.sub_type is not None:
             value = self.sub_type
-            result['subType'] = value
+            result["subType"] = value
         if self.sub_components is not None:
             value = self.sub_components
-            result['subComponents'] = value
+            result["subComponents"] = value
         if self.config is not None:
             value = self.config
-            result['config'] = value
+            result["config"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "ComponentExportRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

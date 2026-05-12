@@ -1,18 +1,19 @@
-class CxScanResultAttackVector(object):
+from dataclasses import dataclass, field
+from typing import List, Optional
+from .CxScanResultNode import CxScanResultNode
 
-    def __init__(self, result_id, best_fix_location_node, nodes):
-        """
 
-        Args:
-            result_id (str):
-            best_fix_location_node (int):
-            nodes (`list` of `CxScanResultNode`):
-        """
-        self.result_id = result_id
-        self.best_fix_location_node = best_fix_location_node
-        self.nodes = nodes
+@dataclass
+class CxScanResultAttackVector:
 
-    def __str__(self):
-        return """CxScanResultAttackVector(result_id={}, best_fix_location_node={}, nodes={})""".format(
-            self.result_id, self.best_fix_location_node, self.nodes
+    result_id: Optional[str] = None
+    best_fix_location_node: Optional[int] = None
+    nodes: List[CxScanResultNode] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanResultAttackVector":
+        return cls(
+            result_id=item.get("resultId"),
+            best_fix_location_node=item.get("bestFixLocationNode"),
+            nodes=[CxScanResultNode.from_dict(n) for n in (item.get("nodes") or [])],
         )

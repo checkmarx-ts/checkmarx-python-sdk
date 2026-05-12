@@ -1,52 +1,11 @@
 # encoding: utf-8
 import datetime
 import logging
+from dataclasses import dataclass
+from typing import List, Optional
+from .CxSupportedLanguage import CxSupportedLanguage
+
 logger = logging.getLogger("CheckmarxPythonSDK")
-
-
-class CxServerLicenseData(object):
-    """
-    CxSAST server license data
-    """
-
-    def __init__(self, current_audit_users, current_projects_count,
-                 current_users, edition, expiration_date, hid, is_osa_enabled,
-                 max_audit_users, max_concurrent_scans, max_loc, max_users,
-                 osa_expiration_date, projects_allowed, supported_languages):
-        self.current_audit_users = current_audit_users
-        self.current_projects_count = current_projects_count
-        self.current_users = current_users
-        self.edition = edition
-        self.expiration_date = parse_expiration_date(expiration_date)
-        self.hid = hid
-        self.is_osa_enabled = is_osa_enabled
-        self.max_audit_users = max_audit_users
-        self.max_concurrent_scans = max_concurrent_scans
-        self.max_loc = max_loc
-        self.max_users = max_users
-        # If there is no OSA expiration date, an empty string is returned.
-        # We coerce it to None
-        if not osa_expiration_date:
-            self.osa_expiration_date = None
-        else:
-            self.osa_expiration_date = parse_expiration_date(osa_expiration_date)
-        self.projects_allowed = projects_allowed
-        self.supported_languages = supported_languages
-
-    def __str__(self):
-        return """CxServerLicenseData(current_audit_users={},
-               current_projects_count={}, current_users={}, edition={},
-               expiration_date={}, hid={}, is_osa_enabled={},
-               max_audit_users={}, max_concurrent_scans={}, max_loc={}
-               max_users={}, osa_expiration_date={},
-               projects_allowed={}, supported_languages={})""".format(
-            self.current_audit_users, self.current_projects_count,
-            self.current_users, self.edition, self.expiration_date,
-            self.hid, self.is_osa_enabled, self.max_audit_users,
-            self.max_concurrent_scans, self.max_loc, self.max_users,
-            self.osa_expiration_date, self.projects_allowed,
-            self.supported_languages
-        )
 
 
 def parse_expiration_date(date_str):
@@ -54,9 +13,56 @@ def parse_expiration_date(date_str):
     Parse a date string in MM/DD/YYYY format into a datetime.date object. If
     the string cannot be parsed, we return it instead.
     """
-    bits = date_str.split('/')
+    bits = date_str.split("/")
     try:
         return datetime.date(int(bits[2]), int(bits[0]), int(bits[1]))
     except:
         logger.debug("Cannot parse {} as MM/DD/YYYY".format(date_str))
         return date_str
+
+
+@dataclass
+class CxServerLicenseData:
+    """
+    CxSAST server license data
+    """
+
+    current_audit_users: Optional[int] = None
+    current_projects_count: Optional[int] = None
+    current_users: Optional[int] = None
+    edition: Optional[str] = None
+    expiration_date: Optional[object] = None
+    hid: Optional[str] = None
+    is_osa_enabled: Optional[bool] = None
+    max_audit_users: Optional[int] = None
+    max_concurrent_scans: Optional[int] = None
+    max_loc: Optional[int] = None
+    max_users: Optional[int] = None
+    osa_expiration_date: Optional[object] = None
+    projects_allowed: Optional[int] = None
+    supported_languages: Optional[List[CxSupportedLanguage]] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxServerLicenseData":
+        osa_exp = item.get("osaExpirationDate")
+        return cls(
+            current_audit_users=item.get("currentAuditUsers"),
+            current_projects_count=item.get("currentProjectsCount"),
+            current_users=item.get("currentUsers"),
+            edition=item.get("edition"),
+            expiration_date=parse_expiration_date(item.get("expirationDate", "")),
+            hid=item.get("hid"),
+            is_osa_enabled=item.get("isOsaEnabled"),
+            max_audit_users=item.get("maxAuditUsers"),
+            max_concurrent_scans=item.get("maxConcurrentScans"),
+            max_loc=item.get("maxLOC"),
+            max_users=item.get("maxUsers"),
+            osa_expiration_date=(
+                None if not osa_exp else parse_expiration_date(osa_exp)
+            ),
+            projects_allowed=item.get("projectsAllowed"),
+            supported_languages=[
+                CxSupportedLanguage.from_dict(s)
+                for s in (item.get("supportedLanguages") or [])
+            ],
+        )

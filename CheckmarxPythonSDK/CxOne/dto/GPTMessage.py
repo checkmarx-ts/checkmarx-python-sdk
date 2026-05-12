@@ -6,9 +6,6 @@ class GPTMessage:
     role: str = None
     content: str = None
 
-
-def construct_gpt_message(item):
-    return GPTMessage(
-        role=item.get("role"),
-        content=item.get("content")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "GPTMessage":
+        return cls(role=item.get("role"), content=item.get("content"))

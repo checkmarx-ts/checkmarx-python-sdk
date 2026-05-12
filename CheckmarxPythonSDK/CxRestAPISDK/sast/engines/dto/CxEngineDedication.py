@@ -1,25 +1,28 @@
-class CxEngineDedication(object):
+from dataclasses import dataclass
+from typing import Optional
 
-    def __init__(self, item_type, item_id, item_name=None, is_deprecated=None):
-        """
 
-        Args:
-            item_type (str): ['Scan', 'Project', 'Team']
-            item_id (str): corresponding to the id of item_type, such as ScanId, ProjectId, TeamId
-            item_name (str):
-            is_deprecated (bool):
-        """
-        if item_type not in ['Scan', 'Project', 'Team']:
-            raise ValueError("parameter item_type should be one of member from list ['Scan', 'Project', 'Team']")
+@dataclass
+class CxEngineDedication:
 
-        self.item_type = item_type
-        self.item_id = item_id
-        self.item_name = item_name
-        self.is_deprecated = is_deprecated
+    item_type: Optional[str] = None
+    item_id: Optional[str] = None
+    item_name: Optional[str] = None
+    is_deprecated: Optional[bool] = None
 
-    def __str__(self):
-        return """CxEngineDedication(item_type={}, item_id={}, item_name={}, is_deprecated={})""".format(
-            self.item_type, self.item_id, self.item_name, self.is_deprecated
+    def __post_init__(self):
+        if self.item_type and self.item_type not in ["Scan", "Project", "Team"]:
+            raise ValueError(
+                "parameter item_type should be one of member from list ['Scan', 'Project', 'Team']"
+            )
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxEngineDedication":
+        return cls(
+            item_type=item.get("itemType"),
+            item_id=item.get("itemId"),
+            item_name=item.get("itemName"),
+            is_deprecated=item.get("isDeprecated"),
         )
 
     def to_dict(self):

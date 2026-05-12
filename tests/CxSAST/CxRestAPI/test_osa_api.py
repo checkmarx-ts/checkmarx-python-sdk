@@ -1,22 +1,19 @@
 """
-    tests.test_projects_api
+    tests.test_osa_api
 
     :copyright Checkmarx
     :license GPL-3
 
 """
+import pytest
 from os.path import normpath, join, dirname
 
 from CheckmarxPythonSDK.CxRestAPISDK import OsaAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 
+from .. import get_project_id
 
-def get_project_id():
-    # project_name = "BookStore %2B OSA"
-    project_name = "jvl_git"
-    projects_api = ProjectsAPI()
-    project_id = projects_api.get_project_id_by_project_name_and_team_full_name(project_name, "/CxServer")
-    return project_id
+pytestmark = pytest.mark.skip(reason="CxOSA EULA not accepted on this server")
 
 
 def test_get_all_osa_scan_details():

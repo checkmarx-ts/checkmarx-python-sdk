@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .ClientWithResource import ClientWithResource, construct_client_with_resource
+from .ClientWithResource import ClientWithResource
 
 
 @dataclass
@@ -9,12 +9,12 @@ class ClientsWithResourcesResponse:
     filtered_count: int = None
     clients: List[ClientWithResource] = None
 
-
-def construct_clients_with_resources_response(item):
-    return ClientsWithResourcesResponse(
-        total_count=item.get("totalCount"),
-        filtered_count=item.get("filteredCount"),
-        clients=[
-            construct_client_with_resource(client) for client in item.get("clients", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ClientsWithResourcesResponse":
+        return cls(
+            total_count=item.get("totalCount"),
+            filtered_count=item.get("filteredCount"),
+            clients=[
+                ClientWithResource.from_dict(c) for c in (item.get("clients") or [])
+            ],
+        )

@@ -1,39 +1,29 @@
 from dataclasses import dataclass
 from typing import List
-from .QueryDescriptionSampleCode import QueryDescriptionSampleCode, construct_query_description_sample_code
+from .QueryDescriptionSampleCode import QueryDescriptionSampleCode
 
 
 @dataclass
 class QueryDescription:
-    """
+    query_id: str = None
+    query_name: str = None
+    result_description: str = None
+    risk: str = None
+    cause: str = None
+    general_recommendations: str = None
+    sample: List[QueryDescriptionSampleCode] = None
 
-    Args:
-        query_id (str):
-        query_name (str):
-        result_description (str):
-        risk (str):
-        cause (str):
-        general_recommendations (str):
-        sample (list of QueryDescriptionSampleCode):
-    """
-    query_id: str
-    query_name: str
-    result_description: str
-    risk: str
-    cause: str
-    general_recommendations: str
-    sample: List[QueryDescriptionSampleCode]
-
-
-def construct_query_description(item):
-    return QueryDescription(
-        query_id=item.get("queryId"),
-        query_name=item.get("queryName"),
-        result_description=item.get("resultDescription"),
-        risk=item.get("risk"),
-        cause=item.get("cause"),
-        general_recommendations=item.get("generalRecommendations"),
-        sample=[
-            construct_query_description_sample_code(sample_code) for sample_code in item.get("sample", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "QueryDescription":
+        return cls(
+            query_id=item.get("queryId"),
+            query_name=item.get("queryName"),
+            result_description=item.get("resultDescription"),
+            risk=item.get("risk"),
+            cause=item.get("cause"),
+            general_recommendations=item.get("generalRecommendations"),
+            sample=[
+                QueryDescriptionSampleCode.from_dict(s)
+                for s in (item.get("sample") or [])
+            ],
+        )

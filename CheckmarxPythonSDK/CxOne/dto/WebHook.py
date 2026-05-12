@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 from .WebHookEvent import WebHookEvent
-from .WebHookConfig import WebHookConfig, construct_web_hook_config
+from .WebHookConfig import WebHookConfig
 
 
 @dataclass
@@ -17,6 +17,7 @@ class WebHook:
         created_at (str):
         updated_at (str):
     """
+
     id: str = None
     name: str = None
     active: bool = None
@@ -25,16 +26,14 @@ class WebHook:
     created_at: str = None
     updated_at: str = None
 
-
-def construct_web_hook(item):
-    return WebHook(
-        id=item.get("id"),
-        name=item.get("name"),
-        active=item.get("active"),
-        enabled_events=[
-            WebHookEvent(event) for event in item.get("enabledEvents")
-        ],
-        config=construct_web_hook_config(item.get("config")),
-        created_at=item.get("createdAt"),
-        updated_at=item.get("updatedAt")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "WebHook":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            active=item.get("active"),
+            enabled_events=[WebHookEvent(e) for e in (item.get("enabledEvents") or [])],
+            config=WebHookConfig.from_dict(item.get("config")),
+            created_at=item.get("createdAt"),
+            updated_at=item.get("updatedAt"),
+        )

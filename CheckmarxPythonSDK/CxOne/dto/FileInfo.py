@@ -3,16 +3,16 @@ from dataclasses import dataclass
 
 @dataclass
 class FileInfo:
-    name: str = None  # Name of the file or directory.
-    mod_time: str = None  # The time that the file or directory was last modified.
-    size: str = None  # The size of the file or directory.
-    is_dir: str = None  # Indicates whether the entry in this directory a file or a directory.
+    name: str = None
+    mod_time: str = None
+    size: str = None
+    is_dir: str = None
 
-
-def construct_file_info(item):
-    return FileInfo(
-        name=item.get("name"),
-        mod_time=item.get("modTime"),
-        size=item.get("size"),
-        is_dir=item.get("isDir"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "FileInfo":
+        return cls(
+            name=item.get("name"),
+            mod_time=item.get("modTime"),
+            size=item.get("size"),
+            is_dir=item.get("isDir"),
+        )

@@ -1,24 +1,16 @@
-class LDAPGroupAndRoleMappingDetail(object):
-    def __init__(self, role_id, ldap_group_dn, ldap_group_display_name):
-        """
+from dataclasses import dataclass
+from typing import Optional
 
-        Args:
-            role_id (int):
-            ldap_group_dn (str):
-            ldap_group_display_name (str):
-        """
-        self.role_id = role_id
-        self.ldap_group_dn = ldap_group_dn
-        self.ldap_group_display_name = ldap_group_display_name
 
-    def get_dict(self):
+@dataclass
+class LDAPGroupAndRoleMappingDetail:
+    role_id: Optional[int] = None
+    ldap_group_dn: Optional[str] = None
+    ldap_group_display_name: Optional[str] = None
+
+    def to_dict(self) -> dict:
         return {
             "roleId": self.role_id,
             "ldapGroupDn": self.ldap_group_dn,
-            "ldapGroupDisplayName": self.ldap_group_display_name
-      }
-
-    def __str__(self):
-        return """LDAPGroupAndRoleMappingDetail(role_id={}, ldap_group_dn={}, ldap_group_display_name={})""".format(
-            self.role_id, self.ldap_group_dn, self.ldap_group_display_name
-        )
+            "ldapGroupDisplayName": self.ldap_group_display_name,
+        }

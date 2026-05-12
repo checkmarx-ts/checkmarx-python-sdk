@@ -1,64 +1,50 @@
 # encoding: utf-8
+from dataclasses import dataclass, field
+from typing import List, Optional
 from .CxEngineDedication import CxEngineDedication
+from .CxEngineServerStatus import CxEngineServerStatus
 
 
-class CxEngineServer(object):
+@dataclass
+class CxEngineServer:
     """
     engine server
     """
 
-    def __init__(self, engine_server_id=None, name=None, uri=None, min_loc=None, max_loc=None, max_scans=None,
-                 cx_version=None, operating_system=None, status=None, link=None, offline_reason_code=None,
-                 offline_reason_message=None, offline_reason_message_parameters=None, dedications=None):
-        """
+    id: Optional[int] = None
+    name: Optional[str] = None
+    uri: Optional[str] = None
+    min_loc: Optional[int] = None
+    max_loc: Optional[int] = None
+    max_scans: Optional[int] = None
+    cx_version: Optional[str] = None
+    operating_system: Optional[str] = None
+    status: Optional[CxEngineServerStatus] = None
+    link: Optional[object] = None
+    offline_reason_code: Optional[str] = None
+    offline_reason_message: Optional[str] = None
+    offline_reason_message_parameters: Optional[str] = None
+    dedications: List[CxEngineDedication] = field(default_factory=list)
 
-        Args:
-            engine_server_id (int):
-            name (str):
-            uri (str):
-            min_loc (int):
-            max_loc (int):
-            max_scans (int):
-            cx_version (str):
-            operating_system (str):
-            status (:obj:`CxEngineServerStatus`): ['Offline', 'Blocked', 'ScanningAndBlocked', 'Scanning', 'Idle']
-            link (:obj:`CxLink`):
-            offline_reason_code (str):  ['Online', 'CannotAccess', 'EngineServerError',
-                'MessageQueueConfigurationIssue', 'OnlineButMessageQueueConfigurationValidatationError',
-                'ActiveMQConnectionError', 'EngineAndPackVersionMismtach', 'EngineDiskSpaceError'],
-            offline_reason_message (str):
-            offline_reason_message_parameters (str):
-            dedications (`list` of :obj:`CxEngineDedication`)
-        """
-        if dedications:
-            if not isinstance(dedications, list):
-                raise ValueError("parameter dedications should be a list of CxEngineDedication")
-            for item in dedications:
-                if item and not isinstance(item, CxEngineDedication):
-                    raise ValueError("member of dedications should be CxEngineDedication")
-
-        self.id = engine_server_id
-        self.name = name
-        self.uri = uri
-        self.min_loc = min_loc
-        self.max_loc = max_loc
-        self.max_scans = max_scans
-        self.cx_version = cx_version
-        self.operating_system = operating_system
-        self.status = status
-        self.link = link
-        self.offline_reason_code = offline_reason_code
-        self.offline_reason_message = offline_reason_message
-        self.offline_reason_message_parameters = offline_reason_message_parameters
-        self.dedications = dedications
-
-    def __str__(self):
-        return """CxEngineServer(id={}, name={}, uri={}, min_loc={}, max_loc={}, max_scans={}, 
-                 cx_version={}, operating_system={}, status={}, link={}, 
-                 offline_reason_code={}, offline_reason_message={}, 
-                 offline_reason_message_parameters={}, dedications={})""".format(
-            self.id, self.name, self.uri, self.min_loc, self.max_loc, self.max_scans,
-            self.cx_version, self.operating_system, self.status, self.link,
-            self.offline_reason_code, self.offline_reason_message, self.offline_reason_message_parameters,
-            self.dedications
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxEngineServer":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            uri=item.get("uri"),
+            min_loc=item.get("minLoc"),
+            max_loc=item.get("maxLoc"),
+            max_scans=item.get("maxScans"),
+            cx_version=item.get("cxVersion"),
+            operating_system=item.get("operatingSystem"),
+            status=CxEngineServerStatus.from_dict(item.get("status") or {}),
+            link=item.get("link"),
+            offline_reason_code=item.get("offlineReasonCode"),
+            offline_reason_message=item.get("offlineReasonMessage"),
+            offline_reason_message_parameters=item.get(
+                "offlineReasonMessageParameters"
+            ),
+            dedications=[
+                CxEngineDedication.from_dict(d) for d in (item.get("dedications") or [])
+            ],
         )

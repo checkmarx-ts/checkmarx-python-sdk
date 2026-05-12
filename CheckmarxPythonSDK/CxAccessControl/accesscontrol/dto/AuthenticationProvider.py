@@ -1,28 +1,23 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class AuthenticationProvider(object):
+@dataclass
+class AuthenticationProvider:
+    id: Optional[int] = None
+    name: Optional[str] = None
+    provider_id: Optional[int] = None
+    provider_type: Optional[str] = None
+    is_external: Optional[bool] = None
+    active: Optional[bool] = None
 
-    def __init__(self, authentication_provider_id, name, provider_id, provider_type, is_external, active):
-        """
-
-        Args:
-            authentication_provider_id (int):
-            name (str):
-            provider_id (int):
-            provider_type (str):
-            is_external (bool):
-            active (bool):
-        """
-        self.id = authentication_provider_id
-        self.name = name
-        self.provider_id = provider_id
-        self.provider_type = provider_type
-        self.is_external = is_external
-        self.active = active
-
-    def __str__(self):
-        return """AuthenticationProvider(id={}, name={}, provider_id={}, 
-        provider_type={}, is_external={}, active={})""".format(
-            self.id, self.name, self.provider_id, self.provider_type, self.is_external, self.active
+    @classmethod
+    def from_dict(cls, item: dict) -> "AuthenticationProvider":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            provider_id=item.get("providerId"),
+            provider_type=item.get("providerType"),
+            is_external=item.get("isExternal"),
+            active=item.get("active"),
         )

@@ -1,66 +1,58 @@
 # encoding: utf-8
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 
-class CxScanQueueDetail(object):
+@dataclass
+class CxScanQueueDetail:
     """
     scan queue detail
     """
-    def __init__(self, scan_queue_detail_id=None, stage=None, stage_details=None, step_details=None, project=None,
-                 engine=None, languages=None, team_id=None, date_created=None, queued_on=None, engine_started_on=None,
-                 completed_on=None, loc=None, is_incremental=None, is_public=None, origin=None, queue_position=None,
-                 total_percent=None, stage_percent=None, initiator=None):
-        """
 
-        Args:
-            scan_queue_detail_id (int):
-            stage (:obj:`CxScanStage`):
-            stage_details (str):
-            step_details (str):
-            project (:obj:`CxProject`):
-            engine (:obj:`CxEngineServer`):
-            languages (:obj:`list` of :obj:`CxLanguage`):
-            team_id (str):
-            date_created (str):
-            queued_on (str):
-            engine_started_on (str):
-            completed_on (str):
-            loc (int):
-            is_incremental (boolean):
-            is_public (boolean):
-            origin (str):
-            queue_position (int):
-            total_percent (int):
-            stage_percent (int):
-            initiator (str):
-        """
-        self.id = scan_queue_detail_id
-        self.stage = stage
-        self.stage_details = stage_details
-        self.step_details = step_details
-        self.project = project
-        self.engine = engine
-        self.languages = languages
-        self.team_id = team_id
-        self.date_created = date_created
-        self.queued_on = queued_on
-        self.engine_started_on = engine_started_on
-        self.completed_on = completed_on
-        self.loc = loc
-        self.is_incremental = is_incremental
-        self.is_public = is_public
-        self.origin = origin
-        self.queue_position = queue_position
-        self.total_percent = total_percent
-        self.stage_percent = stage_percent
-        self.initiator = initiator
+    id: Optional[int] = None
+    stage: Optional[object] = None
+    stage_details: Optional[str] = None
+    step_details: Optional[str] = None
+    project: Optional[object] = None
+    engine: Optional[object] = None
+    languages: Optional[List] = None
+    team_id: Optional[str] = None
+    date_created: Optional[str] = None
+    queued_on: Optional[str] = None
+    engine_started_on: Optional[str] = None
+    completed_on: Optional[str] = None
+    loc: Optional[int] = None
+    is_incremental: Optional[bool] = None
+    is_public: Optional[bool] = None
+    origin: Optional[str] = None
+    queue_position: Optional[int] = None
+    total_percent: Optional[int] = None
+    stage_percent: Optional[int] = None
+    initiator: Optional[str] = None
 
-    def __str__(self):
-        return """CxScanQueueDetail(id={}, stage={}, stage_details={}, step_details={}, project={}, engine={},
-                 languages={}, team_id={}, date_created={}, queued_on={}, engine_started_on={},
-                 completed_on={}, loc={}, is_incremental={}, is_public={}, origin={}, queue_position={},
-                 total_percent={}, stage_percent={}, initiator={})""".format(
-            self.id, self.stage, self.stage_details, self.step_details, self.project, self.engine,
-            self.languages, self.team_id, self.date_created, self.queued_on, self.engine_started_on,
-            self.completed_on, self.loc, self.is_incremental, self.is_public, self.origin, self.queue_position,
-            self.total_percent, self.stage_percent, self.initiator
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanQueueDetail":
+        from .CxScanStage import CxScanStage
+
+        return cls(
+            id=item.get("id"),
+            stage=CxScanStage.from_dict(item.get("stage") or {}),
+            stage_details=item.get("stageDetails"),
+            step_details=item.get("stepDetails"),
+            project=item.get("project"),
+            engine=item.get("engine"),
+            languages=item.get("languages"),
+            team_id=item.get("teamId"),
+            date_created=item.get("dateCreated"),
+            queued_on=item.get("queuedOn"),
+            engine_started_on=item.get("engineStartedOn"),
+            completed_on=item.get("completedOn"),
+            loc=item.get("loc"),
+            is_incremental=item.get("isIncremental"),
+            is_public=item.get("isPublic"),
+            origin=item.get("origin"),
+            queue_position=item.get("queuePosition"),
+            total_percent=item.get("totalPercent"),
+            stage_percent=item.get("stagePercent"),
+            initiator=item.get("initiator"),
         )

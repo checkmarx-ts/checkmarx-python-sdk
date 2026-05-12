@@ -5,7 +5,6 @@ from .accessControlAPI import (
     get_users,
     get_users_by_groups,
     get_users_count,
-
 )
 
 from .accessManagementAPI import (
@@ -53,6 +52,10 @@ from .accessManagementAPI import (
 from .apisecAPI import (
     ApiSecAPI,
     get_scan_apisec_risk_overview,
+)
+from .logsAPI import (
+    LogsAPI,
+    get_log,
 )
 from .applicationsAPI import (
     ApplicationsAPI,
@@ -278,9 +281,11 @@ from .sastQueriesAuditAPI import (
     update_query_source,
     create_new_session,
     get_all_active_sessions_related_to_web_audit,
+    get_all_active_sessions_related_to_web_audit as get_all_active_sessions_related_to_webaudit,
     get_session_details,
     delete_session_with_specific_id,
     health_check_to_ensure_session_is_kept_alive,
+    health_check_to_ensure_session_is_kept_alive as heath_check_to_ensure_session_is_kept_alive,
     check_if_sast_engine_is_ready_to_use,
     check_the_status_of_some_scan_related_requests,
     detect_the_languages_of_the_project_to_scan,
@@ -379,9 +384,5 @@ from .uploadsAPI import (
     create_a_pre_signed_url_to_upload_files,
     upload_zip_content_for_scanning,
 )
-from .versionsAPI import (
-    VersionsAPI
-)
-from .webhookAPI import (
-    WebHookAPI
-)
+from .versionsAPI import VersionsAPI
+from .webhookAPI import WebHookAPI

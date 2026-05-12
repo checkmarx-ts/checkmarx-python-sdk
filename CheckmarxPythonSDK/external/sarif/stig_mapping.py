@@ -288,5 +288,5 @@ stig_mapping = {
     "APSC-DV-003350": "SV-222671r864453_rule",
     "APSC-DV-003360": "SV-222672r508029_rule",
     "APSC-DV-003400": "SV-222673r864454_rule",
-    "APSC-DV-002010": "SV-254803r865217_rule"
+    "APSC-DV-002010": "SV-254803r865217_rule",
 }

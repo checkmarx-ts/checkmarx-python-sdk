@@ -1,4 +1,6 @@
-from .scanSettings.CxCreateScanSettingsRequestBody import CxCreateScanSettingsRequestBody
+from .scanSettings.CxCreateScanSettingsRequestBody import (
+    CxCreateScanSettingsRequestBody,
+)
 from .scanSettings.CxCreateScanSettingsResponse import CxCreateScanSettingsResponse
 from .scanSettings.CxEmailNotification import CxEmailNotification
 from .scanSettings.CxLanguage import CxLanguage
@@ -37,45 +39,3 @@ from .CxSchedulingSettings import CxSchedulingSettings
 from .CxStatisticsResult import CxStatisticsResult
 from .CxStatus import CxStatus
 from .CxStatusDetail import CxStatusDetail
-
-
-def construct_scan_result_node(item):
-    """
-
-    Args:
-        item (dict):
-
-    Returns:
-
-    """
-    return CxScanResultNode(
-        node_id=item.get("id"),
-        order=item.get("order"),
-        short_name=item.get('shortName'),
-        full_name=item.get('fullName'),
-        file_name=item.get('fileName'),
-        folder=item.get('folder'),
-        line=item.get('line'),
-        column=item.get('column'),
-        length=item.get('length'),
-        method_line=item.get('methodLine'),
-        source_url=item.get('sourceUrl'),
-    )
-
-
-def construct_attack_vector(ac):
-    """
-
-    Args:
-        ac (dict): attack vector dictionary
-
-    Returns:
-
-    """
-    return CxScanResultAttackVector(
-        result_id=ac.get('resultId'),
-        best_fix_location_node=ac.get('bestFixLocationNode'),
-        nodes=[
-            construct_scan_result_node(item) for item in ac.get("nodes")
-        ]
-    )

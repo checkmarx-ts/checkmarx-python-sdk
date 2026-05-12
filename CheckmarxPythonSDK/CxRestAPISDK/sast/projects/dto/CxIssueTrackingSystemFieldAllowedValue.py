@@ -1,22 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxIssueTrackingSystemFieldAllowedValue(object):
+@dataclass
+class CxIssueTrackingSystemFieldAllowedValue:
     """
     allowed value
     """
 
-    def __init__(self, allowed_value_id, name):
-        """
+    id: Optional[str] = None
+    name: Optional[str] = None
 
-        Args:
-            allowed_value_id (str):
-            name (str):
-        """
-        self.id = allowed_value_id
-        self.name = name
-
-    def __str__(self):
-        return "CxIssueTrackingSystemFieldAllowedValue(id={}, name={})".format(
-            self.id, self.name
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxIssueTrackingSystemFieldAllowedValue":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
         )

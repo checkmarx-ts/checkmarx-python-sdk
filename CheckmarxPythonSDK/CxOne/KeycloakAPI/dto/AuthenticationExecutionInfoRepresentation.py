@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -24,51 +23,51 @@ class AuthenticationExecutionInfoRepresentation:
         result: Dict[str, Any] = {}
         if self.id is not None:
             value = self.id
-            result['id'] = value
+            result["id"] = value
         if self.requirement is not None:
             value = self.requirement
-            result['requirement'] = value
+            result["requirement"] = value
         if self.display_name is not None:
             value = self.display_name
-            result['displayName'] = value
+            result["displayName"] = value
         if self.alias is not None:
             value = self.alias
-            result['alias'] = value
+            result["alias"] = value
         if self.description is not None:
             value = self.description
-            result['description'] = value
+            result["description"] = value
         if self.requirement_choices is not None:
             value = self.requirement_choices
-            result['requirementChoices'] = value
+            result["requirementChoices"] = value
         if self.configurable is not None:
             value = self.configurable
-            result['configurable'] = value
+            result["configurable"] = value
         if self.authentication_flow is not None:
             value = self.authentication_flow
-            result['authenticationFlow'] = value
+            result["authenticationFlow"] = value
         if self.provider_id is not None:
             value = self.provider_id
-            result['providerId'] = value
+            result["providerId"] = value
         if self.authentication_config is not None:
             value = self.authentication_config
-            result['authenticationConfig'] = value
+            result["authenticationConfig"] = value
         if self.flow_id is not None:
             value = self.flow_id
-            result['flowId'] = value
+            result["flowId"] = value
         if self.level is not None:
             value = self.level
-            result['level'] = value
+            result["level"] = value
         if self.index is not None:
             value = self.index
-            result['index'] = value
+            result["index"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "AuthenticationExecutionInfoRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

@@ -1,21 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxFinishedScanStatus(object):
+@dataclass
+class CxFinishedScanStatus:
     """
     finished scan status
     """
-    def __init__(self, scan_status_id=None, value=None):
-        """
 
-        Args:
-            scan_status_id (int):
-            value (str):
-        """
-        self.id = scan_status_id
-        self.value = value
+    id: Optional[int] = None
+    value: Optional[str] = None
 
-    def __str__(self):
-        return "CxFinishedScanStatus(id={}, value={}))".format(
-            self.id, self.value
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxFinishedScanStatus":
+        return cls(
+            id=item.get("id"),
+            value=item.get("value"),
         )

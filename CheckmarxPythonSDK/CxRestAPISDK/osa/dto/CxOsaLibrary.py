@@ -1,75 +1,69 @@
 # encoding: utf-8
+from dataclasses import dataclass, field
+from typing import List, Optional
+from .CxOsaMatchType import CxOsaMatchType
+from .CxOsaSeverity import CxOsaSeverity
+from .CxOsaLocation import CxOsaLocation
 
 
-class CxOsaLibrary(object):
+@dataclass
+class CxOsaLibrary:
     """
     osa libraries
     """
 
-    def __init__(self, library_id, name, version, release_date, high_unique_vulnerability_count,
-                 medium_unique_vulnerability_count, low_unique_vulnerability_count, not_exploitable_vulnerability_count,
-                 newest_version, newest_version_release_date, number_of_versions_since_last_update,
-                 confidence_level, match_type, licenses, outdated, severity, risk_score, locations, code_usage_status,
-                 code_reference_count, package_repository=None):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    version: Optional[str] = None
+    release_date: Optional[str] = None
+    high_unique_vulnerability_count: Optional[int] = None
+    medium_unique_vulnerability_count: Optional[int] = None
+    low_unique_vulnerability_count: Optional[int] = None
+    not_exploitable_vulnerability_count: Optional[int] = None
+    newest_version: Optional[str] = None
+    newest_version_release_date: Optional[str] = None
+    number_of_versions_since_last_update: Optional[int] = None
+    confidence_level: Optional[int] = None
+    match_type: Optional[CxOsaMatchType] = None
+    licenses: Optional[list] = None
+    outdated: Optional[bool] = None
+    severity: Optional[CxOsaSeverity] = None
+    risk_score: Optional[float] = None
+    locations: List[CxOsaLocation] = field(default_factory=list)
+    code_usage_status: Optional[str] = None
+    code_reference_count: Optional[int] = None
+    package_repository: Optional[str] = None
 
-        """
-
-        Args:
-            library_id (str):
-            name (str):
-            version (str):
-            release_date (str):
-            high_unique_vulnerability_count (int):
-            medium_unique_vulnerability_count (int):
-            low_unique_vulnerability_count (int):
-            not_exploitable_vulnerability_count (int):
-            newest_version (str):
-            newest_version_release_date (str):
-            number_of_versions_since_last_update (int):
-            confidence_level (int):
-            match_type (:obj:`CxOsaMatchType`):
-            licenses (:obj:`list` of :obj:`str`):
-            outdated (boolean):
-            severity (:obj:`CxOsaSeverity`):
-            risk_score (float):
-            locations (:obj:`list` of :obj:`CxOsaLocation`):
-            code_usage_status (str):
-            code_reference_count (int):
-            package_repository (str):
-        """
-        self.id = library_id
-        self.name = name
-        self.version = version
-        self.release_date = release_date
-        self.high_unique_vulnerability_count = high_unique_vulnerability_count
-        self.medium_unique_vulnerability_count = medium_unique_vulnerability_count
-        self.low_unique_vulnerability_count = low_unique_vulnerability_count
-        self.not_exploitable_vulnerability_count = not_exploitable_vulnerability_count
-        self.newest_version = newest_version
-        self.newest_version_release_date = newest_version_release_date
-        self.number_of_versions_since_last_update = number_of_versions_since_last_update
-        self.confidence_level = confidence_level
-        self.match_type = match_type
-        self.licenses = licenses
-        self.outdated = outdated
-        self.severity = severity
-        self.risk_score = risk_score
-        self.locations = locations
-        self.code_usage_status = code_usage_status
-        self.code_reference_count = code_reference_count
-        self.package_repository = package_repository
-
-    def __str__(self):
-        return """CxOsaLibraries(id={}, name={}, version={}, release_date={}, high_unique_vulnerability_count={},
-                 medium_unique_vulnerability_count={}, low_unique_vulnerability_count={}, 
-                 not_exploitable_vulnerability_count={}, newest_version={}, newest_version_release_date={}, 
-                 number_of_versions_since_last_update={}, confidence_level={}, match_type={}, licenses={}, 
-                 outdated={}, severity={}, risk_score={}, locations={}, code_usage_status={},
-                 code_reference_count={}, package_repository={})""".format(
-            self.id, self.name, self.version, self.release_date, self.high_unique_vulnerability_count,
-            self.medium_unique_vulnerability_count, self.low_unique_vulnerability_count,
-            self.not_exploitable_vulnerability_count, self.newest_version, self.newest_version_release_date,
-            self.number_of_versions_since_last_update, self.confidence_level, self.match_type, self.licenses,
-            self.outdated, self.severity, self.risk_score, self.locations, self.code_usage_status,
-            self.code_reference_count, self.package_repository
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxOsaLibrary":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            version=item.get("version"),
+            release_date=item.get("releaseDate"),
+            high_unique_vulnerability_count=item.get("highUniqueVulnerabilityCount"),
+            medium_unique_vulnerability_count=item.get(
+                "mediumUniqueVulnerabilityCount"
+            ),
+            low_unique_vulnerability_count=item.get("lowUniqueVulnerabilityCount"),
+            not_exploitable_vulnerability_count=item.get(
+                "notExploitableVulnerabilityCount"
+            ),
+            newest_version=item.get("newestVersion"),
+            newest_version_release_date=item.get("newestVersionReleaseDate"),
+            number_of_versions_since_last_update=item.get(
+                "numberOfVersionsSinceLastUpdate"
+            ),
+            confidence_level=item.get("confidenceLevel"),
+            match_type=CxOsaMatchType.from_dict(item.get("matchType") or {}),
+            licenses=item.get("licenses"),
+            outdated=item.get("outdated"),
+            severity=CxOsaSeverity.from_dict(item.get("severity") or {}),
+            risk_score=item.get("riskScore"),
+            locations=[
+                CxOsaLocation.from_dict(loc) for loc in (item.get("locations") or [])
+            ],
+            code_usage_status=item.get("codeUsageStatus"),
+            code_reference_count=item.get("codeReferenceCount"),
+            package_repository=item.get("packageRepository"),
         )

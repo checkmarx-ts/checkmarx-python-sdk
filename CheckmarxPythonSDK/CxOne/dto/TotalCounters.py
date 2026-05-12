@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .SeverityCounter import SeverityCounter, construct_severity_counter
+from .SeverityCounter import SeverityCounter
 from typing import List
 
 
@@ -7,10 +7,11 @@ from typing import List
 class TotalCounters:
     severity_counters: List[SeverityCounter]
 
-
-def construct_total_counters(item):
-    return TotalCounters(
-        severity_counters=[
-           construct_severity_counter(severity_counter) for severity_counter in item.get("severityCounters", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "TotalCounters":
+        return cls(
+            severity_counters=[
+                SeverityCounter.from_dict(sc)
+                for sc in (item.get("severityCounters") or [])
+            ]
+        )

@@ -1,32 +1,29 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxCustomField(object):
+@dataclass
+class CxCustomField:
     """
     custom fields
     """
 
-    def __init__(self, custom_field_id, name, value=None, is_mandatory=None, project_id=None):
-        """
+    id: Optional[int] = None
+    name: Optional[str] = None
+    value: Optional[str] = None
+    is_mandatory: Optional[bool] = None
+    project_id: Optional[int] = None
 
-        Args:
-            custom_field_id (int):
-            name (str):
-            value (str):
-        """
-        self.id = custom_field_id
-        self.name = name
-        self.value = value
-        self.is_mandatory = is_mandatory
-        self.project_id = project_id
-
-    def __str__(self):
-        return "custom_fields(id={}, name={}, value={}, is_mandatory={}, project_id={})".format(
-            self.id, self.name, self.value, self.is_mandatory, self.project_id
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxCustomField":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            value=item.get("value"),
+            is_mandatory=item.get("isMandatory"),
+            project_id=item.get("projectId"),
         )
 
     def to_dict(self):
-        return {
-            "id": self.id,
-            "value": self.value,
-        }
+        return {"id": self.id, "value": self.value}

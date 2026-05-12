@@ -2,6 +2,7 @@
 SCA scan example
 
 """
+
 import json
 import time
 from datetime import datetime
@@ -41,10 +42,16 @@ def sca_scan(project_name, zip_file_path):
     upload_link = generate_upload_link_for_scanning(project_id=project_id)
     is_successful = upload_zip_content_for_scanning(upload_link, zip_file_path)
     if not is_successful:
-        print("Fail to upload file with upload link: {}  \n abort scan.".format(upload_link))
+        print(
+            "Fail to upload file with upload link: {}  \n abort scan.".format(
+                upload_link
+            )
+        )
         return
 
-    scan_id = scan_previously_uploaded_zip(project_id=project_id, uploaded_file_url=upload_link)
+    scan_id = scan_previously_uploaded_zip(
+        project_id=project_id, uploaded_file_url=upload_link
+    )
     print("scan_id: {}".format(scan_id))
 
     while True:
@@ -58,7 +65,11 @@ def sca_scan(project_name, zip_file_path):
             print("scan finished successfully!")
             break
         elif scan_status == "Failed":
-            print("scan_status:{}, message:{}".format(scan_status, response.get("message")))
+            print(
+                "scan_status:{}, message:{}".format(
+                    scan_status, response.get("message")
+                )
+            )
             return
 
     risk_report_summary = get_risk_report_summary(project_id=project_id)
@@ -70,7 +81,7 @@ def sca_scan(project_name, zip_file_path):
     print("get vulnerabilities of a scan")
     licenses = get_licenses_of_a_scan(scan_id=scan_id)
     print("get licenses of a scan")
-    time_stamp = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
+    time_stamp = datetime.now().strftime("_%Y_%m_%d_%H_%M_%S")
     print("create sca json report")
     with open("sca_report" + time_stamp + ".json", "w") as out_file:
         out_file.write(
@@ -82,8 +93,9 @@ def sca_scan(project_name, zip_file_path):
                     "risk_report_summary": risk_report_summary,
                     "packages": packages,
                     "vulnerabilities": vulnerabilities,
-                    "licenses": licenses
-                }, indent=4
+                    "licenses": licenses,
+                },
+                indent=4,
             )
         )
 

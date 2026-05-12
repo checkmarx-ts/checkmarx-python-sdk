@@ -16,18 +16,18 @@ class User:
     required_actions: List[str] = None
     created_timestamp: int = None
 
-
-def construct_user(item):
-    return User(
-        id=item.get("id"),
-        username=item.get("username"),
-        first_name=item.get("firstName"),
-        last_name=item.get("lastName"),
-        email=item.get("email"),
-        email_verified=item.get("emailVerified"),
-        enabled=item.get("enabled"),
-        groups=item.get("groups"),
-        roles=item.get("roles"),
-        required_actions=item.get("requiredActions"),
-        created_timestamp=item.get("createdTimestamp"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "User":
+        return cls(
+            id=item.get("id"),
+            username=item.get("username"),
+            first_name=item.get("firstName"),
+            last_name=item.get("lastName"),
+            email=item.get("email"),
+            email_verified=item.get("emailVerified"),
+            enabled=item.get("enabled"),
+            groups=item.get("groups"),
+            roles=item.get("roles"),
+            required_actions=item.get("requiredActions"),
+            created_timestamp=item.get("createdTimestamp"),
+        )

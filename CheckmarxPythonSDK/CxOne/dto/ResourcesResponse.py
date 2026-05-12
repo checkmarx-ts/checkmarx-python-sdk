@@ -7,14 +7,15 @@ class ResourcesResponse:
     all: bool = None
     resources: List[dict] = None
 
-
-def construct_resources_response(item):
-    return ResourcesResponse(
-        all=item.get("all"),
-        resources=[
-            {
-                "resourceId": resource.get("resourceId"),
-                "resourceType": resource.get("resourceType")
-            } for resource in item.get("resources") or []
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ResourcesResponse":
+        return cls(
+            all=item.get("all"),
+            resources=[
+                {
+                    "resourceId": r.get("resourceId"),
+                    "resourceType": r.get("resourceType"),
+                }
+                for r in (item.get("resources") or [])
+            ],
+        )

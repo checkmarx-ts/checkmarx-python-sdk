@@ -1,27 +1,16 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class ClientProfileRepresentation:
-    def __init__(self, description, executors, name):
-        self.description = description
-        self.executors = executors
-        self.name = name
+    description: ... = None
+    executors: ... = None
+    name: ... = None
 
-    def __str__(self):
-        return f"ClientProfileRepresentation(" \
-               f"description={self.description} " \
-               f"executors={self.executors} " \
-               f"name={self.name} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "description": self.description,
-            "executors": self.executors,
-            "name": self.name,
-        }
-
-
-def construct_client_profile_representation(item):
-    return ClientProfileRepresentation(
-        description=item.get("description"),
-        executors=item.get("executors"),
-        name=item.get("name"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ClientProfileRepresentation":
+        return cls(
+            description=item.get("description"),
+            executors=item.get("executors"),
+            name=item.get("name"),
+        )

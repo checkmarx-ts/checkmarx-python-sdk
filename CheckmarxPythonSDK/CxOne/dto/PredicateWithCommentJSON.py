@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .CommentJSON import CommentJSON, construct_comment_json
+from .CommentJSON import CommentJSON
 
 
 @dataclass
@@ -15,19 +15,3 @@ class PredicateWithCommentJSON:
     created_at: str = None
     change_origin_type: int = None
     change_origin_name: str = None
-
-
-def construct_predicate_with_comment_json(item):
-    return PredicateWithCommentJSON(
-        id=item.get("ID"),
-        similarity_id=item.get("similarityId"),
-        project_id=item.get("projectId"),
-        severity=item.get("severity"),
-        state=item.get("state"),
-        comment=item.get("comment"),
-        comment_json=construct_comment_json(item.get("commentJSON")),
-        created_by=item.get("createdBy"),
-        created_at=item.get("createdAt"),
-        change_origin_type=item.get("changeOriginType"),
-        change_origin_name=item.get("changeOriginName")
-    )

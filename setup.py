@@ -36,12 +36,10 @@ setup(
     ],
     python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, >=3.7',
     install_requires=[
-        "requests>=2.13.0",
-        "requests-toolbelt>=0.9.1",
-        "zeep>=4.1.0",
+        "httpx>=0.27.0",
+        "suds-community>=1.1.0",
         "Deprecated>=1.2.13",
-        "inflection>=0.5.1",
-        "typing-extensions>=3.6.2"
+        "inflection>=0.5.1"
     ],
     extras_require={
         "dotenv": ["python-dotenv"],

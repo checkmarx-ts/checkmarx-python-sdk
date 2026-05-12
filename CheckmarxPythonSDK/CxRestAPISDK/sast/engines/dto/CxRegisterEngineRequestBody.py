@@ -27,7 +27,7 @@ class CxRegisterEngineRequestBody(object):
             "uri": self.uri,
             "minLoc": self.min_loc,
             "maxLoc": self.max_loc,
-            "isBlocked": self.is_blocked
+            "isBlocked": self.is_blocked,
         }
         if self.max_scans:
             data.update({"maxScans": self.max_scans})

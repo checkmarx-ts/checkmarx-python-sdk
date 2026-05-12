@@ -1,17 +1,15 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class LDAPGroup(object):
+@dataclass
+class LDAPGroup:
+    name: Optional[str] = None
+    dn: Optional[str] = None
 
-    def __init__(self, name, dn):
-        """
-
-        Args:
-            name (str):
-            dn (str):
-        """
-        self.name = name
-        self.dn = dn
-
-    def __str__(self):
-        return """LDAPGroup(name={}, dn={})""".format(self.name, self.dn)
+    @classmethod
+    def from_dict(cls, item: dict) -> "LDAPGroup":
+        return cls(
+            name=item.get("name"),
+            dn=item.get("dn"),
+        )

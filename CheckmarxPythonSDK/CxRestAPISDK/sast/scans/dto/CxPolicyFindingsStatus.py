@@ -1,25 +1,24 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxPolicyFindingsStatus(object):
+@dataclass
+class CxPolicyFindingsStatus:
     """
     policy finding status
     """
-    def __init__(self, project=None, scan=None, status=None, last_sync=None):
-        """
 
-        Args:
-            project (:obj:`CxProject`):
-            scan (:obj:`CxScan`):
-            status (str):
-            last_sync (str):
-        """
-        self.project = project
-        self.scan = scan
-        self.status = status
-        self.last_sync = last_sync
+    project: Optional[object] = None
+    scan: Optional[object] = None
+    status: Optional[str] = None
+    last_sync: Optional[str] = None
 
-    def __str__(self):
-        return "CxPolicyFindingsStatus(project={}, scan={}, status={}, last_sync={})".format(
-            self.project, self.scan, self.status, self.last_sync
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxPolicyFindingsStatus":
+        return cls(
+            project=item.get("project"),
+            scan=item.get("scan"),
+            status=item.get("status"),
+            last_sync=item.get("lastSync"),
         )

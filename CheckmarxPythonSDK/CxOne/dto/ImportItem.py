@@ -3,21 +3,14 @@ from dataclasses import dataclass
 
 @dataclass
 class ImportItem:
-    """
+    migration_id: str = None
+    status: str = None
+    created_at: str = None
 
-    Args:
-        migration_id (str):
-        status (str): pending, running, completed, failed
-        created_at (str):
-    """
-    migration_id: str
-    status: str
-    created_at: str
-
-
-def construct_import_item(item):
-    return ImportItem(
-        migration_id=item.get("migrationId"),
-        status=item.get("status"),
-        created_at=item.get("createdAt")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ImportItem":
+        return cls(
+            migration_id=item.get("migrationId"),
+            status=item.get("status"),
+            created_at=item.get("createdAt"),
+        )

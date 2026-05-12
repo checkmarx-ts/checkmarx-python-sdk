@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .KicsResult import KicsResult, construct_kics_result
+from .KicsResult import KicsResult
 
 
 @dataclass
@@ -8,11 +8,9 @@ class KicsResultCollection:
     results: List[KicsResult]
     total_count: int
 
-
-def construct_kics_result_collection(item):
-    return KicsResultCollection(
-        results=[
-            construct_kics_result(result) for result in item.get("results", [])
-        ],
-        total_count=item.get("totalCount"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "KicsResultCollection":
+        return cls(
+            results=[KicsResult.from_dict(r) for r in (item.get("results") or [])],
+            total_count=item.get("totalCount"),
+        )

@@ -27,10 +27,10 @@ class CxCreateProjectRequest(object):
             str
         """
         return {
-                "name": self.name,
-                "owningTeam": self.owning_team,
-                "isPublic": self.is_public
-            }
+            "name": self.name,
+            "owningTeam": self.owning_team,
+            "isPublic": self.is_public,
+        }
 
     def __str__(self):
         return "CxCreateProjectRequest(name={}, owning_team={}, is_public={})".format(

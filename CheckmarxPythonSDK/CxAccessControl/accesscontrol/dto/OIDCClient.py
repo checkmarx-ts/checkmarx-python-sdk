@@ -1,98 +1,71 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import List, Optional
 
 
-class OIDCClient(object):
+@dataclass
+class OIDCClient:
+    id: Optional[int] = None
+    update_access_token_claims_on_refresh: Optional[bool] = None
+    access_token_type: Optional[int] = None
+    include_jwt_id: Optional[bool] = None
+    always_include_user_claims_in_id_token: Optional[bool] = None
+    client_id: Optional[str] = None
+    client_name: Optional[str] = None
+    allow_offline_access: Optional[bool] = None
+    client_secrets: Optional[List[str]] = None
+    allow_grant_types: Optional[List[str]] = None
+    allowed_scopes: Optional[List[str]] = None
+    enabled: Optional[bool] = None
+    require_client_secret: Optional[bool] = None
+    redirect_uris: Optional[List[str]] = None
+    post_logout_redirect_uris: Optional[List[str]] = None
+    front_channel_logout_uri: Optional[str] = None
+    front_channel_logout_session_required: Optional[bool] = None
+    back_channel_logout_uri: Optional[str] = None
+    back_channel_logout_session_required: Optional[bool] = None
+    identity_token_life_time: Optional[int] = None
+    access_token_life_time: Optional[int] = None
+    authorization_code_life_time: Optional[int] = None
+    absolute_refresh_token_life_time: Optional[int] = None
+    sliding_refresh_token_life_time: Optional[int] = None
+    refresh_token_usage: Optional[int] = None
+    refresh_token_expiration: Optional[int] = None
+    allowed_cors_origins: Optional[List[str]] = None
+    allowed_access_tokens_via_browser: Optional[bool] = None
+    claims: Optional[List[str]] = None
+    client_claims_prefix: Optional[str] = None
 
-    def __init__(self, oidc_client_id, update_access_token_claims_on_refresh, access_token_type, include_jwt_id,
-                 always_include_user_claims_in_id_token, client_id, client_name, allow_offline_access,
-                 client_secrets, allow_grant_types, allowed_scopes, enabled, require_client_secret, redirect_uris,
-                 post_logout_redrect_uris, front_channel_logout_uri, front_channel_logout_session_required,
-                 back_channel_logout_uri, back_channel_logout_session_required, identity_token_life_time,
-                 access_token_life_time, authorization_code_life_time, absolute_refresh_token_life_time,
-                 sliding_refresh_token_life_time, refresh_token_usage, refresh_token_expiration, allowed_cors_origins,
-                 allowed_access_tokens_via_browser, claims, client_claims_prefix):
-        """
-
-        Args:
-            oidc_client_id (int):
-            update_access_token_claims_on_refresh (bool):
-            access_token_type (int):
-            include_jwt_id (bool):
-            always_include_user_claims_in_id_token (bool):
-            client_id (str):
-            client_name (str):
-            allow_offline_access (bool):
-            client_secrets (list[str]):
-            allow_grant_types (list[str]):
-            allowed_scopes (list[str]):
-            enabled (bool):
-            require_client_secret (bool):
-            redirect_uris (list):
-            post_logout_redrect_uris (list):
-            front_channel_logout_uri (str):
-            front_channel_logout_session_required (bool):
-            back_channel_logout_uri (str):
-            back_channel_logout_session_required (bool):
-            identity_token_life_time (int):
-            access_token_life_time (int):
-            authorization_code_life_time (int):
-            absolute_refresh_token_life_time (int):
-            sliding_refresh_token_life_time (int):
-            refresh_token_usage (int):
-            refresh_token_expiration (int):
-            allowed_cors_origins (list):
-            allowed_access_tokens_via_browser (bool):
-            claims (list):
-            client_claims_prefix (str):
-        """
-        self.oidc_client_id = oidc_client_id
-        self.update_access_token_claims_on_refresh = update_access_token_claims_on_refresh
-        self.access_token_type = access_token_type
-        self.include_jwt_id = include_jwt_id
-        self.always_include_user_claims_in_id_token = always_include_user_claims_in_id_token
-        self.client_id = client_id
-        self.client_name = client_name
-        self.allow_offline_access = allow_offline_access
-        self.client_secrets = client_secrets
-        self.allow_grant_types = allow_grant_types
-        self.allowed_scopes = allowed_scopes
-        self.enabled = enabled
-        self.require_client_secret = require_client_secret
-        self.redirect_uris = redirect_uris
-        self.post_logout_redrect_uris = post_logout_redrect_uris
-        self.front_channel_logout_uri = front_channel_logout_uri
-        self.front_channel_logout_session_required = front_channel_logout_session_required
-        self.back_channel_logout_uri = back_channel_logout_uri
-        self.back_channel_logout_session_required = back_channel_logout_session_required
-        self.identity_token_life_time = identity_token_life_time
-        self.access_token_life_time = access_token_life_time
-        self.authorization_code_life_time = authorization_code_life_time
-        self.absolute_refresh_token_life_time = absolute_refresh_token_life_time
-        self.sliding_refresh_token_life_time = sliding_refresh_token_life_time
-        self.refresh_token_usage = refresh_token_usage
-        self.refresh_token_expiration = refresh_token_expiration
-        self.allowed_cors_origins = allowed_cors_origins
-        self.allowed_access_tokens_via_browser = allowed_access_tokens_via_browser
-        self.claims = claims
-        self.client_claims_prefix = client_claims_prefix
-
-    def __str__(self):
-        return """OIDCClient(oidc_client_id={}, update_access_token_claims_on_refresh={}, access_token_type={}, 
-        include_jwt_id={}, always_include_user_claims_in_id_token={}, client_id={}, client_name={}, 
-        allow_offline_access={}, client_secrets={}, allow_grant_types={}, allowed_scopes={}, enabled={}, 
-        require_client_secret={}, redirect_uris={}, post_logout_redrect_uris={}, front_channel_logout_uri={}, 
-        front_channel_logout_session_required={}, back_channel_logout_uri={}, back_channel_logout_session_required={}, 
-        identity_token_life_time={}, access_token_life_time={}, authorization_code_life_time={}, 
-        absolute_refresh_token_life_time={}, sliding_refresh_token_life_time={}, refresh_token_usage={}, 
-        refresh_token_expiration={}, allowed_cors_origins={}, allowed_access_tokens_via_browser={}, claims={}, 
-        client_claims_prefix={})""".format(
-            self.oidc_client_id, self.update_access_token_claims_on_refresh, self.access_token_type,
-            self.include_jwt_id, self.always_include_user_claims_in_id_token, self.client_id, self.client_name,
-            self.allow_offline_access, self.client_secrets, self.allow_grant_types, self.allowed_scopes, self.enabled,
-            self.require_client_secret, self.redirect_uris, self.post_logout_redrect_uris,
-            self.front_channel_logout_uri, self.front_channel_logout_session_required, self.back_channel_logout_uri,
-            self.back_channel_logout_session_required, self.identity_token_life_time,
-            self.access_token_life_time, self.authorization_code_life_time, self.absolute_refresh_token_life_time,
-            self.sliding_refresh_token_life_time, self.refresh_token_usage, self.refresh_token_expiration,
-            self.allowed_cors_origins, self.allowed_access_tokens_via_browser, self.claims, self.client_claims_prefix
+    @classmethod
+    def from_dict(cls, item: dict) -> "OIDCClient":
+        return cls(
+            id=item.get("id"),
+            update_access_token_claims_on_refresh=item.get("updateAccessTokenClaimsOnRefresh"),
+            access_token_type=item.get("accessTokenType"),
+            include_jwt_id=item.get("includeJwtId"),
+            always_include_user_claims_in_id_token=item.get("alwaysIncludeUserClaimsInIdToken"),
+            client_id=item.get("clientId"),
+            client_name=item.get("clientName"),
+            allow_offline_access=item.get("allowOfflineAccess"),
+            client_secrets=item.get("clientSecrets"),
+            allow_grant_types=item.get("allowedGrantTypes"),
+            allowed_scopes=item.get("allowedScopes"),
+            enabled=item.get("enabled"),
+            require_client_secret=item.get("requireClientSecret"),
+            redirect_uris=item.get("redirectUris"),
+            post_logout_redirect_uris=item.get("postLogoutRedirectUris"),
+            front_channel_logout_uri=item.get("frontChannelLogoutUri"),
+            front_channel_logout_session_required=item.get("frontChannelLogoutSessionRequired"),
+            back_channel_logout_uri=item.get("backChannelLogoutUri"),
+            back_channel_logout_session_required=item.get("backChannelLogoutSessionRequired"),
+            identity_token_life_time=item.get("identityTokenLifetime"),
+            access_token_life_time=item.get("accessTokenLifetime"),
+            authorization_code_life_time=item.get("authorizationCodeLifetime"),
+            absolute_refresh_token_life_time=item.get("absoluteRefreshTokenLifetime"),
+            sliding_refresh_token_life_time=item.get("slidingRefreshTokenLifetime"),
+            refresh_token_usage=item.get("refreshTokenUsage"),
+            refresh_token_expiration=item.get("refreshTokenExpiration"),
+            allowed_cors_origins=item.get("allowedCorsOrigins"),
+            allowed_access_tokens_via_browser=item.get("allowAccessTokensViaBrowser"),
+            claims=item.get("claims"),
+            client_claims_prefix=item.get("clientClaimsPrefix"),
         )

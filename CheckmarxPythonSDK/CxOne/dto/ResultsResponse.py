@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .ResultResponse import ResultResponse, construct_result_response
+from .ResultResponse import ResultResponse
 
 
 @dataclass
@@ -8,11 +8,9 @@ class ResultsResponse:
     data: List[ResultResponse] = None
     total_count: int = None
 
-
-def construct_results_response(item):
-    return ResultsResponse(
-        data=[
-            construct_result_response(result) for result in item.get("data", [])
-        ],
-        total_count=item.get("totalCount")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ResultsResponse":
+        return cls(
+            data=[ResultResponse.from_dict(r) for r in (item.get("data") or [])],
+            total_count=item.get("totalCount"),
+        )

@@ -16,10 +16,12 @@ class SarifResultPropertyBag:
         self.cxStigRuleID = cx_stig_rule_id
 
     def __str__(self):
-        return f"SarifResultPropertyBag(" \
-               f"tags={self.tags}, "\
-               f"similarity_id={self.similarityId}, " \
-               f"cx_cwe={self.cxCwe}, " \
-               f"cx_stig_id={self.cxStigID}, "\
-               f"cx_stig_rule_id={self.cxStigRuleID}"\
-               f")"
+        return (
+            f"SarifResultPropertyBag("
+            f"tags={self.tags}, "
+            f"similarity_id={self.similarityId}, "
+            f"cx_cwe={self.cxCwe}, "
+            f"cx_stig_id={self.cxStigID}, "
+            f"cx_stig_rule_id={self.cxStigRuleID}"
+            f")"
+        )

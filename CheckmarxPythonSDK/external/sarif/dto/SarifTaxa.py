@@ -20,10 +20,12 @@ class SarifTaxa:
         self.properties = properties
 
     def __str__(self):
-        return f"SarifTaxa(" \
-               f"taxa_id={self.id}, "\
-               f"name={self.name}, "\
-               f"full_description={self.fullDescription}, "\
-               f"short_description={self.shortDescription}, "\
-               f"properties={self.properties}"\
-               f")"
+        return (
+            f"SarifTaxa("
+            f"taxa_id={self.id}, "
+            f"name={self.name}, "
+            f"full_description={self.fullDescription}, "
+            f"short_description={self.shortDescription}, "
+            f"properties={self.properties}"
+            f")"
+        )

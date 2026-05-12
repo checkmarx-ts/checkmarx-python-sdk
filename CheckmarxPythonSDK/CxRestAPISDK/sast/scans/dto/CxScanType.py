@@ -1,22 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxScanType(object):
+@dataclass
+class CxScanType:
     """
     scan type
     """
 
-    def __init__(self, scan_type_id, value):
-        """
+    id: Optional[int] = None
+    value: Optional[str] = None
 
-        Args:
-            scan_type_id (int):
-            value (str):
-        """
-        self.id = scan_type_id
-        self.value = value
-
-    def __str__(self):
-        return "CxScanType(id={}, value={})".format(
-            self.id, self.value
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanType":
+        return cls(
+            id=item.get("id"),
+            value=item.get("value"),
         )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .AssignmentsWithBaseRoles import AssignmentsWithBaseRoles, construct_assignments_with_base_roles
+from .AssignmentsWithBaseRoles import AssignmentsWithBaseRoles
 
 
 @dataclass
@@ -9,12 +9,13 @@ class EntitiesForExtendedResponse:
     filtered_total_count: int = None
     assignments: List[AssignmentsWithBaseRoles] = None
 
-
-def construct_entities_for_extended_response(item):
-    return EntitiesForExtendedResponse(
-        total_count=item.get("totalCount"),
-        filtered_total_count=item.get("filteredTotalCount"),
-        assignments=[
-            construct_assignments_with_base_roles(assignment) for assignment in item.get("assignments", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "EntitiesForExtendedResponse":
+        return cls(
+            total_count=item.get("totalCount"),
+            filtered_total_count=item.get("filteredTotalCount"),
+            assignments=[
+                AssignmentsWithBaseRoles.from_dict(a)
+                for a in (item.get("assignments") or [])
+            ],
+        )

@@ -1,12 +1,20 @@
-class CxScanResultLabelsFields(object):
+from dataclasses import dataclass
+from typing import Optional
 
-    def __init__(self, state, severity, user_assignment, comment):
-        self.state = state
-        self.severity = severity
-        self.user_assignment = user_assignment
-        self.comment = comment
 
-    def __str__(self):
-        return "CxScanResultLabelsFields(state={}, severity={}, user_assignment={], comment={})".format(
-            self.state, self.severity, self.user_assignment, self.comment
+@dataclass
+class CxScanResultLabelsFields:
+
+    state: Optional[int] = None
+    severity: Optional[int] = None
+    user_assignment: Optional[str] = None
+    comment: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanResultLabelsFields":
+        return cls(
+            state=item.get("state"),
+            severity=item.get("severity"),
+            user_assignment=item.get("userAssignment"),
+            comment=item.get("comment"),
         )

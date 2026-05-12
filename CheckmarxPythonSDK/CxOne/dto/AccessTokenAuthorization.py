@@ -1,19 +1,12 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class AccessTokenAuthorization:
-    def __init__(self, permissions):
-        self.permissions = permissions
+    permissions: ... = None
 
-    def __str__(self):
-        return f"AccessTokenAuthorization(" \
-               f"permissions={self.permissions} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "permissions": self.permissions,
-        }
-
-
-def construct_access_token_authorization(item):
-    return AccessTokenAuthorization(
-        permissions=item.get("permissions"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "AccessTokenAuthorization":
+        return cls(
+            permissions=item.get("permissions"),
+        )

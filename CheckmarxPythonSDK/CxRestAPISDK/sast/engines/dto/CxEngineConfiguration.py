@@ -1,23 +1,22 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxEngineConfiguration(object):
+@dataclass
+class CxEngineConfiguration:
     """
     engine configuration
     """
-    def __init__(self, engine_configuration_id=None, link=None, name=None):
-        """
 
-        Args:
-            engine_configuration_id (int):
-            link (:obj:`CxLink`):
-            name (str):
-        """
-        self.id = engine_configuration_id
-        self.link = link
-        self.name = name
+    id: Optional[int] = None
+    name: Optional[str] = None
+    link: Optional[object] = None
 
-    def __str__(self):
-        return "CxEngineConfiguration(id={}, link={}, name={})".format(
-            self.id, self.link, self.name
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxEngineConfiguration":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            link=item.get("link"),
         )

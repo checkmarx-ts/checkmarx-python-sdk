@@ -1,12 +1,7 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
-from .utilities import type_check, list_member_type_check
-from .dto import (
-    KicsResultCollection, construct_kics_result_collection
-)
-
-api_url = "/api/kics-results"
+from .dto import KicsResultCollection
 
 
 class KicsResultsAPI(object):
@@ -16,72 +11,75 @@ class KicsResultsAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = (
+            f"{self.api_client.configuration.server_base_url}/api/kics-results"
+        )
 
     def get_kics_results_by_scan_id(
-            self, scan_id: str, severity: List[str] = None, status: List[str] = None, source_file: str = None,
-            apply_predicates: bool = True, offset: int = 0, limit: int = 20, sort: List[str] = ("+status", "+severity")
+        self,
+        scan_id: str,
+        severity: List[str] = None,
+        status: List[str] = None,
+        source_file: str = None,
+        apply_predicates: bool = True,
+        offset: int = 0,
+        limit: int = 20,
+        sort: List[str] = ("+status", "+severity"),
     ) -> KicsResultCollection:
         """
-
         Args:
             scan_id (str): filter by scan id
-            severity (list of str): filter by severity. OR operator between the items.
-                                Available values : HIGH, MEDIUM, LOW, INFO
-            status (list of str): filter by status. OR operator between the items.
-                                Available values : NEW, RECURRENT, FIXED
-            source_file (str): filter by source file name.
-            apply_predicates (bool): if true will apply changes from predicates, otherwise will return the raw result.
-                        Default value : true
-            offset (int): The number of items to skip before starting to collect the result set.
-                        Default value : 0
-            limit (int): The number of items to return.
-                        Default value : 20
-            sort (list of str): sorting ORDERED array. each string pattern "[-+]field". - mean ASC, + mean DESC.
-                        Available values : -severity, +severity, -status, +status, -firstfoundat, +firstfoundat,
-                         -foundat, +foundat, firstscanid, +firstscanid
-                        Default value : List [ "+status", "+severity" ]
+            severity (List[str]): filter by severity (OR). Available values:
+                HIGH, MEDIUM, LOW, INFO
+            status (List[str]): filter by status (OR). Available values:
+                NEW, RECURRENT, FIXED
+            source_file (str): filter by source file name
+            apply_predicates (bool): if true apply predicate changes.
+                Default value: true
+            offset (int): items to skip before collecting results.
+                Default value: 0
+            limit (int): number of items to return. Default value: 20
+            sort (List[str]): sort criteria array, e.g. ["+status", "-severity"].
+                Available values: -severity, +severity, -status, +status,
+                -firstfoundat, +firstfoundat, -foundat, +foundat,
+                firstscanid, +firstscanid. Default: ["+status", "+severity"]
+
         Returns:
             KicsResultCollection
         """
-        type_check(scan_id, str)
-        type_check(severity, (list, tuple))
-        type_check(status, (list, tuple))
-        type_check(source_file, str)
-        type_check(apply_predicates, bool)
-        type_check(sort, (list, tuple))
-        list_member_type_check(severity, str)
-        list_member_type_check(status, str)
-        list_member_type_check(sort, str)
-        relative_url = api_url
-        params = {"scan-id": scan_id, "severity": severity, "status": "status", "offset": offset, "limit": limit,
-                  "sort": ",".join(sort) if sort else None}
-        response = self.api_client.get_request(relative_url=relative_url, params=params)
-        item = response.json()
-        return construct_kics_result_collection(item)
+        params = {
+            "scan-id": scan_id,
+            "severity": severity,
+            "status": status,
+            "source-file": source_file,
+            "apply-predicates": apply_predicates,
+            "offset": offset,
+            "limit": limit,
+            "sort": ",".join(sort) if sort else None,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=self.base_url, params=params
+        )
+        return KicsResultCollection.from_dict(response.json())
 
 
 def get_kics_results_by_scan_id(
-        scan_id: str, severity: List[str] = None, status: List[str] = None, source_file: str = None,
-        apply_predicates: bool = True, offset: int = 0, limit: int = 20, sort: List[str] = ("+status", "+severity")
+    scan_id: str,
+    severity: List[str] = None,
+    status: List[str] = None,
+    source_file: str = None,
+    apply_predicates: bool = True,
+    offset: int = 0,
+    limit: int = 20,
+    sort: List[str] = ("+status", "+severity"),
 ) -> KicsResultCollection:
-    """
-
-    Args:
-        scan_id (str): filter by scan id
-        severity (List[str]): filter by severity. OR operator between the items. Available values : HIGH, MEDIUM, LOW,
-                             INFO
-        status (List[str]):  filter by status. OR operator between the items. Available values : NEW, RECURRENT, FIXED
-        source_file (str): filter by source file name.
-        apply_predicates (bool):  if true will apply changes from predicates, otherwise will return the raw result.
-        offset (int): The number of items to skip before starting to collect the result set. Default value : 0
-        limit (int):  The number of items to return. Default value : 20
-        sort (List[str]):  sorting ORDERED array. each string pattern "[-+]field". - mean ASC, + mean DESC.
-                    Available values : -severity, +severity, -status, +status, -firstfoundat, +firstfoundat, -foundat,
-                    +foundat, firstscanid, +firstscanid Default value : List [ "+status", "+severity" ]
-    Returns:
-        KicsResultCollection
-    """
     return KicsResultsAPI().get_kics_results_by_scan_id(
-        scan_id=scan_id, severity=severity, status=status, source_file=source_file, apply_predicates=apply_predicates,
-        offset=offset, limit=limit, sort=sort
+        scan_id=scan_id,
+        severity=severity,
+        status=status,
+        source_file=source_file,
+        apply_predicates=apply_predicates,
+        offset=offset,
+        limit=limit,
+        sort=sort,
     )

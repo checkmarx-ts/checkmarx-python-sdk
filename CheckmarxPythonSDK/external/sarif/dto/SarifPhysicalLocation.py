@@ -17,8 +17,10 @@ class SarifPhysicalLocation:
         self.properties = properties
 
     def __str__(self):
-        return f"SarifPhysicalLocation(" \
-               f"artifact_location={self.artifactLocation}, " \
-               f"region={self.region}" \
-               f"properties={self.properties}"\
-               f")"
+        return (
+            f"SarifPhysicalLocation("
+            f"artifact_location={self.artifactLocation}, "
+            f"region={self.region}"
+            f"properties={self.properties}"
+            f")"
+        )

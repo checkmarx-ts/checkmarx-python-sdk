@@ -1,23 +1,14 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class GlobalRequestResult:
-    def __init__(self, failed_requests, success_requests):
-        self.failedRequests = failed_requests
-        self.successRequests = success_requests
+    failed_requests: ... = None
+    success_requests: ... = None
 
-    def __str__(self):
-        return f"GlobalRequestResult(" \
-               f"failedRequests={self.failedRequests} " \
-               f"successRequests={self.successRequests} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "failedRequests": self.failedRequests,
-            "successRequests": self.successRequests,
-        }
-
-
-def construct_global_request_result(item):
-    return GlobalRequestResult(
-        failed_requests=item.get("failedRequests"),
-        success_requests=item.get("successRequests"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "GlobalRequestResult":
+        return cls(
+            failed_requests=item.get("failedRequests"),
+            success_requests=item.get("successRequests"),
+        )

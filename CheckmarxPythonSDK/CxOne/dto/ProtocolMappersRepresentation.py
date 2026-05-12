@@ -10,13 +10,13 @@ class ProtocolMappersRepresentation:
     consent_required: bool = None
     config: str = None
 
-
-def construct_protocol_mappers_representation(item):
-    return ProtocolMappersRepresentation(
-        id=item.get("id"),
-        name=item.get("name"),
-        protocol=item.get("protocol"),
-        protocol_mapper=item.get("protocolMapper"),
-        consent_required=item.get("consentRequired"),
-        config=item.get("config")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ProtocolMappersRepresentation":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            protocol=item.get("protocol"),
+            protocol_mapper=item.get("protocolMapper"),
+            consent_required=item.get("consentRequired"),
+            config=item.get("config"),
+        )

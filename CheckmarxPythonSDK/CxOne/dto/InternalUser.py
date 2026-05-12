@@ -8,11 +8,11 @@ class InternalUser:
     first_name: str = None
     last_name: str = None
 
-
-def construct_internal_user(item):
-    return InternalUser(
-        id=item.get("id"),
-        username=item.get("username"),
-        first_name=item.get("firstName"),
-        last_name=item.get("lastName"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "InternalUser":
+        return cls(
+            id=item.get("id"),
+            username=item.get("username"),
+            first_name=item.get("firstName"),
+            last_name=item.get("lastName"),
+        )

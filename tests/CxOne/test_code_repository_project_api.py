@@ -1,4 +1,5 @@
 import os
+import pytest
 from CheckmarxPythonSDK.CxOne import (
     import_code_repository,
     retrieve_import_status,
@@ -15,31 +16,34 @@ from CheckmarxPythonSDK.CxOne.dto import (
 
 
 def test_import_code_repository():
+    github_token = os.getenv("GITHUB_TOKEN")
+    if not github_token:
+        pytest.skip("GITHUB_TOKEN environment variable not set")
     github_org = "cx-happy-yang"
     scm_import_input = SCMImportInput(
-        scm=Scm(token=os.getenv("GITHUB_TOKEN")),
-        organization=ScmOrganization(org_identity=github_org, monitor_for_new_projects=False),
-        default_project_settings=ProjectSettings(
-            web_hook_enabled=False,
-            decorate_pull_requests=False,
+        scm=Scm(token=github_token),
+        organization=ScmOrganization(orgIdentity=github_org, monitorForNewProjects=False),
+        defaultProjectSettings=ProjectSettings(
+            webhookEnabled=False,
+            decoratePullRequests=False,
             scanners=[
-                Scanner(type="sast", incremental_scan=False),
-                Scanner(type="sca", enable_auto_pull_requests=False),
+                Scanner(type="sast", incrementalScan=False),
+                Scanner(type="sca", enableAutoPullRequests=False),
                 Scanner(type="apisec"),
                 Scanner(type="kics"),
             ]
         ),
-        scan_projects_after_import=False,
+        scanProjectsAfterImport=False,
         projects=[
             ScmProject(
-                scm_repository_url=f"https://github.com/{github_org}/cxclipy",
-                protected_branches=["main"],
-                branch_to_scan_upon_creation="main"
+                scmRepositoryUrl=f"https://github.com/{github_org}/cxclipy",
+                protectedBranches=["main"],
+                branchToScanUponCreation="main"
             ),
             ScmProject(
-                scm_repository_url=f"https://github.com/{github_org}/JavaVulnerableLab",
-                protected_branches=["master"],
-                branch_to_scan_upon_creation="master"
+                scmRepositoryUrl=f"https://github.com/{github_org}/JavaVulnerableLab",
+                protectedBranches=["master"],
+                branchToScanUponCreation="master"
             )
         ]
     )

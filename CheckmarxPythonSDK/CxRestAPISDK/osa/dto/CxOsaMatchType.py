@@ -1,23 +1,22 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxOsaMatchType(object):
+@dataclass
+class CxOsaMatchType:
     """
     match type
     """
-    def __init__(self, match_type_id, name, description):
-        """
 
-        Args:
-            match_type_id (int):
-            name (str):
-            description (str):
-        """
-        self.id = match_type_id
-        self.name = name
-        self.description = description
+    id: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
 
-    def __str__(self):
-        return """CxOsaMatchType(id={}, name={}, description={})""".format(
-            self.id, self.name, self.description
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxOsaMatchType":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            description=item.get("description"),
         )

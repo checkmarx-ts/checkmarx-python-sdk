@@ -1,4 +1,5 @@
 import time
+import urllib.request
 
 from CheckmarxPythonSDK.CxOne import (
     create_a_project,
@@ -36,17 +37,21 @@ def test_ast_create_scan_by_upload_file():
     if not project_id:
         project = create_a_project(ProjectInput(name=new_project_name))
         project_id = project.id
+    zip_file_path = "/tmp/JavaVulnerableLab-master.zip"
+    urllib.request.urlretrieve(
+        "https://github.com/CSPF-Founder/JavaVulnerableLab/archive/refs/heads/master.zip",
+        zip_file_path,
+    )
     url = create_a_pre_signed_url_to_upload_files()
     is_successful = upload_zip_content_for_scanning(
         upload_link=url,
-        zip_file_path=("/home/happy/Documents/software/application_security/checkmarx/tools/checkmarx-python-sdk"
-                       "/tests/JavaVulnerableLab-master.zip")
+        zip_file_path=zip_file_path,
     )
     assert is_successful is True
     scan_input = ScanInput(
-        scan_type="upload",
-        handler=Upload(upload_url=url, branch="master"),
-        project=Project(project_id=project_id, tags={"test": "", "priority": "high"}),
+        type="upload",
+        handler=Upload(uploadUrl=url, branch="master"),
+        project=Project(id=project_id, tags={"test": "", "priority": "high"}),
         configs=[
             ScanConfig("sast", {"incremental": "false", "presetName": "ASA Premium"}),
             ScanConfig("sca"),
@@ -112,7 +117,7 @@ def test_ast_create_scan_by_git():
     scan_input = ScanInput(
         type="git",
         handler=Git(
-            repo_url="https://github.com/CSPF-Founder/JavaVulnerableLab.git",
+            repoUrl="https://github.com/CSPF-Founder/JavaVulnerableLab.git",
             branch="master",
         ),
         project=Project(id=project_id),

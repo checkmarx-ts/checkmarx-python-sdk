@@ -7,10 +7,10 @@ class RequestStatus:
     status: str = None
     value: str = None
 
-
-def construct_request_status(item):
-    return RequestStatus(
-        completed=item.get("completed"),
-        status=item.get("status"),
-        value=item.get("value")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "RequestStatus":
+        return cls(
+            completed=item.get("completed"),
+            status=item.get("status"),
+            value=item.get("value"),
+        )

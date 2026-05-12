@@ -1,25 +1,28 @@
 # encoding: utf-8
+from dataclasses import dataclass, field
+from typing import List, Optional
+from .CxIssueTrackingSystemField import CxIssueTrackingSystemField
 
 
-class CxIssueTrackingSystemType(object):
+@dataclass
+class CxIssueTrackingSystemType:
     """
     one of issue types
     """
-    def __init__(self, issue_tracking_system_type_id, name, sub_task, fields):
-        """
 
-        Args:
-            issue_tracking_system_type_id (str):
-            name (str):
-            sub_task (boolean):
-            fields (:obj:`list` of :obj:`CxIssueTrackingSystemField`):
-        """
-        self.id = issue_tracking_system_type_id
-        self.name = name
-        self.sub_task = sub_task
-        self.fields = fields
+    id: Optional[str] = None
+    name: Optional[str] = None
+    sub_task: Optional[bool] = None
+    fields: List[CxIssueTrackingSystemField] = field(default_factory=list)
 
-    def __str__(self):
-        return "CxIssueTrackingSystemType(id={}, name={}, sub_task={}, fields={})".format(
-            self.id, self.name, self.sub_task, self.fields
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxIssueTrackingSystemType":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            sub_task=item.get("subtask"),
+            fields=[
+                CxIssueTrackingSystemField.from_dict(f)
+                for f in (item.get("fields") or [])
+            ],
         )

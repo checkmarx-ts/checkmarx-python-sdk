@@ -1,19 +1,12 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class ClientPoliciesRepresentation:
-    def __init__(self, policies):
-        self.policies = policies
+    policies: ... = None
 
-    def __str__(self):
-        return f"ClientPoliciesRepresentation(" \
-               f"policies={self.policies} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "policies": self.policies,
-        }
-
-
-def construct_client_policies_representation(item):
-    return ClientPoliciesRepresentation(
-        policies=item.get("policies"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ClientPoliciesRepresentation":
+        return cls(
+            policies=item.get("policies"),
+        )

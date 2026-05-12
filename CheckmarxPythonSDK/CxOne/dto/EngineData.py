@@ -1,22 +1,23 @@
 from dataclasses import dataclass
 from typing import List
-from .SeverityCounter import SeverityCounter, construct_severity_counter
+from .SeverityCounter import SeverityCounter
 
 
 @dataclass
 class EngineData:
-    engine: str = None  # The name of the scanning engine.
-    risk_level: str = None  # The risk level reported by the engine.
-    last_scan_id: str = None  # The ID of the last scan performed by the engine.
+    engine: str = None
+    risk_level: str = None
+    last_scan_id: str = None
     severity_counters: List[SeverityCounter] = None
 
-
-def construct_engine_data(item):
-    return EngineData(
-        engine=item.get("engine"),
-        risk_level=item.get("riskLevel"),
-        last_scan_id=item.get("lastScanId"),
-        severity_counters=[
-            construct_severity_counter(severity_counter) for severity_counter in item.get("severityCounters", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "EngineData":
+        return cls(
+            engine=item.get("engine"),
+            risk_level=item.get("riskLevel"),
+            last_scan_id=item.get("lastScanId"),
+            severity_counters=[
+                SeverityCounter.from_dict(sc)
+                for sc in (item.get("severityCounters") or [])
+            ],
+        )

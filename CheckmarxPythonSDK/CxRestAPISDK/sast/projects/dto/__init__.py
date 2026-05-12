@@ -6,7 +6,9 @@ from .CxGitSettings import CxGitSettings
 from .CxIssueTrackingSystem import CxIssueTrackingSystem
 from .CxIssueTrackingSystemDetail import CxIssueTrackingSystemDetail
 from .CxIssueTrackingSystemField import CxIssueTrackingSystemField
-from .CxIssueTrackingSystemFieldAllowedValue import CxIssueTrackingSystemFieldAllowedValue
+from .CxIssueTrackingSystemFieldAllowedValue import (
+    CxIssueTrackingSystemFieldAllowedValue,
+)
 from .CxIssueTrackingSystemJira import CxIssueTrackingSystemJira
 from .CxIssueTrackingSystemJiraField import CxIssueTrackingSystemJiraField
 from .CxIssueTrackingSystemType import CxIssueTrackingSystemType
@@ -26,53 +28,3 @@ from .presets.CxPreset import CxPreset
 from .customFields.CxCustomField import CxCustomField
 from .customTasks.CxCustomTask import CxCustomTask
 from .CxProjectQueueSetting import CxProjectQueueSetting
-
-
-def construct_cx_project(item):
-    """
-
-    Args:
-        item (dict):
-
-    Returns:
-        `CxProject`
-    """
-    return CxProject(
-        project_id=item.get("id"),
-        team_id=item.get("teamId"),
-        name=item.get("name"),
-        is_public=item.get("isPublic"),
-        source_settings_link=CxSourceSettingsLink(
-            (item.get("sourceSettingsLink", {}) or {}).get("type"),
-            (item.get("sourceSettingsLink", {}) or {}).get("rel"),
-            (item.get("sourceSettingsLink", {}) or {}).get("uri")
-        ),
-        custom_fields=[
-            CxCustomField(
-                custom_field_id=custom_field.get("id"),
-                value=custom_field.get("value"),
-                name=custom_field.get("name"),
-                is_mandatory=custom_field.get("isMandatory"),
-                project_id=custom_field.get("projectId"),
-            ) for custom_field in item.get("customFields") or []
-        ],
-        links=[
-            CxLink(
-                rel=link.get("rel"),
-                uri=link.get("uri"),
-            ) for link in item.get("links") or []
-        ],
-        owner=item.get("owner"),
-        is_deprecated=item.get("isDeprecated"),
-        project_queue_settings=CxProjectQueueSetting(
-            queue_keep_mode=item.get("projectQueueSettings", {}).get("queueKeepMode"),
-            scans_type=item.get("projectQueueSettings", {}).get("scansType"),
-            include_scans_in_process=item.get("projectQueueSettings", {}).get("includeScansInProcess"),
-            identical_code_only=item.get("projectQueueSettings", {}).get("identicalCodeOnly"),
-        ),
-        is_branched=item.get("isBranched"),
-        original_project_id=item.get("originalProjectId"),
-        branched_on_scan_id=item.get("branchedOnScanId"),
-        related_projects=item.get("relatedProjects"),
-    )
-

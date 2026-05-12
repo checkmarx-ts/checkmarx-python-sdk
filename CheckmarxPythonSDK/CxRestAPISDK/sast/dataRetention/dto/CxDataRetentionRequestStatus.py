@@ -1,24 +1,23 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
+from .CxDataRetentionRequestStatusStage import CxDataRetentionRequestStatusStage
 
 
-class CxDataRetentionRequestStatus(object):
+@dataclass
+class CxDataRetentionRequestStatus:
     """
     data retention request status
     """
 
-    def __init__(self, status_id, stage, link):
-        """
+    id: Optional[int] = None
+    stage: Optional[CxDataRetentionRequestStatusStage] = None
+    link: Optional[object] = None
 
-        Args:
-            status_id (int):
-            stage (:obj:`CxDataRetentionRequestStatusStage`:
-            link (:obj:`CxLink`):
-        """
-        self.id = status_id
-        self.stage = stage
-        self.link = link
-
-    def __str__(self):
-        return "CxDataRetentionRequestStatus(id={}, stage={}, link={})".format(
-            self.id, self.stage, self.link
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxDataRetentionRequestStatus":
+        return cls(
+            id=item.get("id"),
+            stage=CxDataRetentionRequestStatusStage.from_dict(item.get("stage") or {}),
+            link=item.get("link"),
         )

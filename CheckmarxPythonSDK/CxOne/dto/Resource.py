@@ -15,18 +15,18 @@ class Resource:
     replica_count: int = None
     tags: dict = None
 
-
-def construct_resource(item):
-    return Resource(
-        id=item.get("id"),
-        name=item.get("name"),
-        type=item.get("type"),
-        cluster_name=item.get("clusterName"),
-        asset_type=item.get("assetType"),
-        public_exposed=item.get("publicExposed"),
-        image=item.get("image"),
-        image_short_name=item.get("imageShortname"),
-        image_sha=item.get("imageSha"),
-        replica_count=item.get("replicaCount"),
-        tags=item.get("tags"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "Resource":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            type=item.get("type"),
+            cluster_name=item.get("clusterName"),
+            asset_type=item.get("assetType"),
+            public_exposed=item.get("publicExposed"),
+            image=item.get("image"),
+            image_short_name=item.get("imageShortname"),
+            image_sha=item.get("imageSha"),
+            replica_count=item.get("replicaCount"),
+            tags=item.get("tags"),
+        )

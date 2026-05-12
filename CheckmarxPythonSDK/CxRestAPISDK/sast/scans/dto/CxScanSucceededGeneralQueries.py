@@ -1,17 +1,16 @@
-class CxScanSucceededGeneralQueries(object):
+from dataclasses import dataclass
+from typing import Optional
 
-    def __init__(self, scan_id, general_queries_result_count):
-        """
 
-        Args:
-            scan_id (int):
-            general_queries_result_count (dict):
+@dataclass
+class CxScanSucceededGeneralQueries:
 
-        """
-        self.scan_id = scan_id
-        self.general_queries_result_count = general_queries_result_count
+    scan_id: Optional[int] = None
+    general_queries_result_count: Optional[dict] = None
 
-    def __str__(self):
-        return """CxScanSucceededGeneralQueries(scan_id={}, general_queries_result_count={})""".format(
-            self.scan_id, self.general_queries_result_count
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanSucceededGeneralQueries":
+        return cls(
+            scan_id=item.get("id"),
+            general_queries_result_count=item.get("generalQueriesResultCount"),
         )

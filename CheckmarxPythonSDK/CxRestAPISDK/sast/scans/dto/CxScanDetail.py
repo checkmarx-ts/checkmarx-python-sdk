@@ -1,74 +1,78 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxScanDetail(object):
-    """
+@dataclass
+class CxScanDetail:
+    """ """
 
-    """
+    id: Optional[int] = None
+    project: Optional[object] = None
+    status: Optional[object] = None
+    scan_type: Optional[object] = None
+    comment: Optional[str] = None
+    date_and_time: Optional[object] = None
+    results_statistics: Optional[object] = None
+    scan_state: Optional[object] = None
+    owner: Optional[str] = None
+    origin: Optional[str] = None
+    origin_url: Optional[str] = None
+    initiator_name: Optional[str] = None
+    owning_team_id: Optional[int] = None
+    is_public: Optional[bool] = None
+    is_locked: Optional[bool] = None
+    is_incremental: Optional[bool] = None
+    scan_risk: Optional[int] = None
+    scan_risk_severity: Optional[int] = None
+    engine_server: Optional[object] = None
+    finished_scan_status: Optional[object] = None
+    partial_scan_reasons: Optional[object] = None
+    custom_fields: Optional[object] = None
 
-    def __init__(self, scan_id=None, project=None, status=None, scan_type=None, comment=None, date_and_time=None,
-                 results_statistics=None, scan_state=None, owner=None, origin=None, origin_url=None,
-                 initiator_name=None,
-                 owning_team_id=None, is_public=None, is_locked=None, is_incremental=None, scan_risk=None,
-                 scan_risk_severity=None, engine_server=None, finished_scan_status=None, partial_scan_reasons=None,
-                 custom_fields=None):
-        """
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanDetail":
+        from .CxStatus import CxStatus
+        from .CxStatusDetail import CxStatusDetail
+        from .CxScanType import CxScanType
+        from .CxDateAndTime import CxDateAndTime
+        from .CxResultsStatistics import CxResultsStatistics
+        from .CxScanState import CxScanState
+        from .CxLanguageState import CxLanguageState
+        from .CxFinishedScanStatus import CxFinishedScanStatus
 
-        Args:
-            scan_id (int):
-            project (:obj:`CxProject`):
-            status (:obj:`CxStatus`):
-            scan_type (:obj:`CxScanType`):
-            comment (str):
-            date_and_time (:obj:`CxDateAndTime`):
-            results_statistics (:obj:`CxResultStatistics`):
-            scan_state (:obj:`CxScanState`):
-            owner (str):
-            origin (str):
-            origin_url (str):
-            initiator_name (str):
-            owning_team_id (int):
-            is_public (boolean):
-            is_locked (boolean):
-            is_incremental (boolean):
-            scan_risk (int):
-            scan_risk_severity (int):
-            engine_server (:obj:`CxEngineServer`):
-            finished_scan_status (:obj:`CxFinishedStatus`):
-            partial_scan_reasons (:obj:`list` of :obj:`str`):
-        """
-        self.id = scan_id
-        self.project = project
-        self.status = status
-        self.scan_type = scan_type
-        self.comment = comment
-        self.date_and_time = date_and_time
-        self.results_statistics = results_statistics
-        self.scan_state = scan_state
-        self.owner = owner
-        self.origin = origin
-        self.origin_url = origin_url
-        self.initiator_name = initiator_name
-        self.owning_team_id = owning_team_id
-        self.is_public = is_public
-        self.is_locked = is_locked
-        self.is_incremental = is_incremental
-        self.scan_risk = scan_risk
-        self.scan_risk_severity = scan_risk_severity
-        self.engine_server = engine_server
-        self.finished_scan_status = finished_scan_status
-        self.partial_scan_reasons = partial_scan_reasons
-        self.custom_fields = custom_fields
+        project_dict = item.get("project") or {}
+        status_dict = item.get("status") or {}
+        scan_type_dict = item.get("scanType") or {}
+        date_dict = item.get("dateAndTime") or {}
+        results_stats_dict = item.get("resultsStatistics") or {}
+        scan_state_dict = item.get("scanState") or {}
+        engine_server_dict = item.get("engineServer") or {}
+        finished_scan_status_dict = item.get("finishedScanStatus") or {}
 
-    def __str__(self):
-        return """CxScan(id={}, project={}, status={}, scan_type={}, comment={}, date_and_time={},
-                 results_statistics={}, scan_state={}, owner={}, origin={}, origin_url={}, initiator_name={},
-                 owning_team_id={}, is_public={}, is_locked={}, is_incremental={}, scan_risk={},
-                 scan_risk_severity={}, engine_server={}, finished_scan_status={}, partial_scan_reasons={},
-                 custom_fields={})""".format(
-            self.id, self.project, self.status, self.scan_type, self.comment, self.date_and_time,
-            self.results_statistics, self.scan_state, self.owner, self.origin, self.origin_url, self.initiator_name,
-            self.owning_team_id, self.is_public, self.is_locked, self.is_incremental, self.scan_risk,
-            self.scan_risk_severity, self.engine_server, self.finished_scan_status, self.partial_scan_reasons,
-            self.custom_fields
+        return cls(
+            id=item.get("id"),
+            project=project_dict,
+            status=CxStatus.from_dict(status_dict),
+            scan_type=CxScanType.from_dict(scan_type_dict),
+            comment=item.get("comment"),
+            date_and_time=CxDateAndTime.from_dict(date_dict),
+            results_statistics=CxResultsStatistics.from_dict(results_stats_dict),
+            scan_state=CxScanState.from_dict(scan_state_dict),
+            owner=item.get("owner"),
+            origin=item.get("origin"),
+            origin_url=item.get("originURL"),
+            initiator_name=item.get("initiatorName"),
+            owning_team_id=item.get("owningTeamId"),
+            is_public=item.get("isPublic"),
+            is_locked=item.get("isLocked"),
+            is_incremental=item.get("isIncremental"),
+            scan_risk=item.get("scanRisk"),
+            scan_risk_severity=item.get("scanRiskSeverity"),
+            engine_server=engine_server_dict,
+            finished_scan_status=CxFinishedScanStatus.from_dict(
+                finished_scan_status_dict
+            ),
+            partial_scan_reasons=item.get("partialScanReasons"),
+            custom_fields=item.get("customFields"),
         )

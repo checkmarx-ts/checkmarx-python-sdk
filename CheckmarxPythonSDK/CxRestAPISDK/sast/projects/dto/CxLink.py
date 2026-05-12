@@ -1,22 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxLink(object):
+@dataclass
+class CxLink:
     """
     the link information of a project
     """
 
-    def __init__(self, rel, uri):
-        """
+    rel: Optional[str] = None
+    uri: Optional[str] = None
 
-        Args:
-            rel (str):
-            uri (str):
-        """
-        self.rel = rel
-        self.uri = uri
-
-    def __str__(self):
-        return "CxLink(rel={}, uri={})".format(
-            self.rel, self.uri
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxLink":
+        return cls(
+            rel=item.get("rel"),
+            uri=item.get("uri"),
         )

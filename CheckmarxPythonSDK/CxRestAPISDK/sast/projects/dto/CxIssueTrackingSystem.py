@@ -1,25 +1,24 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxIssueTrackingSystem(object):
+@dataclass
+class CxIssueTrackingSystem:
     """
     issue tracking system
     """
-    def __init__(self, tracking_system_id, name, tracking_system_type, url):
-        """
 
-        Args:
-            tracking_system_id (int):
-            name (str):
-            tracking_system_type (str):  eg, "jira"
-            url (str):
-        """
-        self.id = tracking_system_id
-        self.name = name
-        self.type = tracking_system_type
-        self.url = url
+    id: Optional[int] = None
+    name: Optional[str] = None
+    tracking_system_type: Optional[str] = None
+    url: Optional[str] = None
 
-    def __str__(self):
-        return "CxIssueTrackingSystem(id={}, name={}, tracking_system_type={}, url={})".format(
-            self.id, self.name, self.type, self.url
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxIssueTrackingSystem":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            tracking_system_type=item.get("type"),
+            url=item.get("url"),
         )

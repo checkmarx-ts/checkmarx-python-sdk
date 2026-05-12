@@ -1,75 +1,60 @@
-class CxScanStatistics(object):
+from dataclasses import dataclass, field
+from typing import List, Optional
 
-    def __init__(self, statistics_id, scan_id, scan_status, product_version, engine_version, memory_peak_in_mb,
-                 virtual_memory_peak_in_mb, is_incremental_scan, results_count, total_unscanned_files_count,
-                 file_count_of_detected_but_not_scanned_languages, total_filtered_parsed_loc,
-                 total_unfiltered_parsed_loc, language_statistics, path_filter_pattern,
-                 failed_queries_count, succeeded_general_queries_count, failed_general_queries_count,
-                 failed_stages, engine_operating_system, engine_pack_version):
-        """
 
-        Args:
-            statistics_id (int):
-            scan_id (int):
-            scan_status (str, optional):
-            product_version (str):
-            engine_version (str):
-            memory_peak_in_mb (int):
-            virtual_memory_peak_in_mb (int):
-            is_incremental_scan (bool):
-            results_count (int):
-            total_unscanned_files_count (int):
-            file_count_of_detected_but_not_scanned_languages (`list` of `CxScanFileCountOfLanguage`):
-            total_filtered_parsed_loc (int):
-            total_unfiltered_parsed_loc (int):
-            language_statistics (`list` of `CxLanguageStatistic`):
-            path_filter_pattern (str):
-            failed_queries_count (int):
-            succeeded_general_queries_count (int):
-            failed_general_queries_count (int)
-            failed_stages (str, optional):
-            engine_operating_system (str):
-            engine_pack_version (str):
-        """
-        self.id = statistics_id
-        self.scan_id = scan_id
-        self.scan_status = scan_status
-        self.product_version = product_version
-        self.engine_version = engine_version
-        self.memory_peak_in_mb = memory_peak_in_mb
-        self.virtual_memory_peak_in_mb = virtual_memory_peak_in_mb
-        self.is_incremental_scan = is_incremental_scan
-        self.results_count = results_count
-        self.total_unscanned_files_count = total_unscanned_files_count
-        self.file_count_of_detected_but_not_scanned_languages = file_count_of_detected_but_not_scanned_languages
-        self.total_filtered_parsed_loc = total_filtered_parsed_loc
-        self.total_unfiltered_parsed_loc = total_unfiltered_parsed_loc
-        self.language_statistics = language_statistics
-        self.path_filter_pattern = path_filter_pattern
-        self.failed_queries_count = failed_queries_count
-        self.general_queries = {
-            "succeededGeneralQueriesCount": succeeded_general_queries_count,
-            "failedGeneralQueriesCount": failed_general_queries_count,
-        }
-        self.failed_stages = failed_stages
-        self.engine_operating_system = engine_operating_system
-        self.engine_pack_version = engine_pack_version
+@dataclass
+class CxScanStatistics:
 
-    def __str__(self):
-        return """CxScanStatistics(statistics_id={}, scan_id={}, scan_status={}, product_version={}, engine_version={}, 
-                memory_peak_in_mb={}, virtual_memory_peak_in_mb={}, is_incremental_scan={}, results_count={}, 
-                total_unscanned_files_count={}, file_count_of_detected_but_not_scanned_languages={}, 
-                total_filtered_parsed_loc={}, total_unfiltered_parsed_loc={}, language_statistics={}, 
-                path_filter_pattern={},  
-                failed_queries_count={}, general_queries={}, 
-                failed_stages={}, engine_operating_system={}, 
-                engine_pack_version={})""".format(self.id, self.scan_id, self.scan_status,
-                                                  self.product_version, self.engine_version, self.memory_peak_in_mb,
-                                                  self.virtual_memory_peak_in_mb, self.is_incremental_scan,
-                                                  self.results_count, self.total_unscanned_files_count,
-                                                  self.file_count_of_detected_but_not_scanned_languages,
-                                                  self.total_filtered_parsed_loc,
-                                                  self.total_unfiltered_parsed_loc, self.language_statistics,
-                                                  self.path_filter_pattern,
-                                                  self.failed_queries_count, self.general_queries, self.failed_stages,
-                                                  self.engine_operating_system, self.engine_pack_version)
+    id: Optional[int] = None
+    scan_id: Optional[int] = None
+    scan_status: Optional[str] = None
+    product_version: Optional[str] = None
+    engine_version: Optional[str] = None
+    memory_peak_in_mb: Optional[int] = None
+    virtual_memory_peak_in_mb: Optional[int] = None
+    is_incremental_scan: Optional[bool] = None
+    results_count: Optional[int] = None
+    total_unscanned_files_count: Optional[int] = None
+    file_count_of_detected_but_not_scanned_languages: Optional[List] = None
+    total_filtered_parsed_loc: Optional[int] = None
+    total_unfiltered_parsed_loc: Optional[int] = None
+    language_statistics: Optional[List] = None
+    path_filter_pattern: Optional[str] = None
+    failed_queries_count: Optional[int] = None
+    succeeded_general_queries_count: Optional[int] = None
+    failed_general_queries_count: Optional[int] = None
+    failed_stages: Optional[str] = None
+    engine_operating_system: Optional[str] = None
+    engine_pack_version: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanStatistics":
+        return cls(
+            id=item.get("id"),
+            scan_id=item.get("scanId"),
+            scan_status=item.get("scanStatus"),
+            product_version=item.get("productVersion"),
+            engine_version=item.get("engineVersion"),
+            memory_peak_in_mb=item.get("memoryPeakInMB"),
+            virtual_memory_peak_in_mb=item.get("virtualMemoryPeakInMB"),
+            is_incremental_scan=item.get("isIncrementalScan"),
+            results_count=item.get("resultsCount"),
+            total_unscanned_files_count=item.get("totalUnScannedFilesCount"),
+            file_count_of_detected_but_not_scanned_languages=list(
+                item.get("fileCountOfDetectedButNotScannedLanguages", {}).items()
+            ),
+            total_filtered_parsed_loc=item.get("totalFilteredParsedLOC"),
+            total_unfiltered_parsed_loc=item.get("totalUnFilteredParsedLOC"),
+            language_statistics=item.get("languageStatistics"),
+            path_filter_pattern=item.get("pathFilterPattern"),
+            failed_queries_count=item.get("failedQueriesCount"),
+            succeeded_general_queries_count=(item.get("generalQueries") or {}).get(
+                "succeededGeneralQueriesCount"
+            ),
+            failed_general_queries_count=(item.get("generalQueries") or {}).get(
+                "failedGeneralQueriesCount"
+            ),
+            failed_stages=item.get("failedStages"),
+            engine_operating_system=item.get("engineOperatingSystem"),
+            engine_pack_version=item.get("enginePackVersion"),
+        )

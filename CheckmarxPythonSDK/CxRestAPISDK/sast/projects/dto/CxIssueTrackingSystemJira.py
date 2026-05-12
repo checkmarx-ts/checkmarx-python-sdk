@@ -7,7 +7,9 @@ class CxIssueTrackingSystemJira(object):
     issue tracking system jira
     """
 
-    def __init__(self, issue_tracking_system_id, jira_project_id, issue_type_id, fields):
+    def __init__(
+        self, issue_tracking_system_id, jira_project_id, issue_type_id, fields
+    ):
         """
 
         Args:
@@ -28,16 +30,16 @@ class CxIssueTrackingSystemJira(object):
             "issueType": {
                 "id": self.issue_type_id,
                 "fields": [
-                    {
-                        "id": field.id,
-                        "values": field.values
-                    } for field in self.fields
-                ]
-            }
+                    {"id": field.id, "values": field.values} for field in self.fields
+                ],
+            },
         }
 
     def __str__(self):
         return """CxIssueTrackingSystemJira(issue_tracking_system_id={}, jira_project_id={}, 
                 issue_type_id={}, fields={})""".format(
-            self.issue_tracking_system_id, self.jira_project_id, self.issue_type_id, self.fields
+            self.issue_tracking_system_id,
+            self.jira_project_id,
+            self.issue_type_id,
+            self.fields,
         )

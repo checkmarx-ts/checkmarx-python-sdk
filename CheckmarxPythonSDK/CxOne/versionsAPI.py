@@ -1,11 +1,6 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from CheckmarxPythonSDK.CxOne.dto import (
-    VersionsOut, construct_versions_out
-)
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
-
-api_url = "/api/versions"
+from CheckmarxPythonSDK.CxOne.dto import VersionsOut
 
 
 class VersionsAPI(object):
@@ -15,14 +10,22 @@ class VersionsAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = (
+            f"{self.api_client.configuration.server_base_url}/api/versions"
+        )
 
     def get_versions_from_engines(self) -> VersionsOut:
         """
+        Get versions from engines.
 
         Returns:
             VersionsOut
         """
-        relative_url = f"{api_url}"
-        response = self.api_client.get_request(relative_url=relative_url)
-        item = response.json()
-        return construct_versions_out(item)
+        response = self.api_client.call_api(
+            method="GET", url=self.base_url
+        )
+        return VersionsOut.from_dict(response.json())
+
+
+def get_versions_from_engines() -> VersionsOut:
+    return VersionsAPI().get_versions_from_engines()

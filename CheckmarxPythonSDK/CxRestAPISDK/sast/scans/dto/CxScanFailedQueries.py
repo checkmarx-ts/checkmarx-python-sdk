@@ -1,16 +1,16 @@
-class CxScanFailedQueries(object):
+from dataclasses import dataclass
+from typing import List, Optional
 
-    def __init__(self, scan_id, failed_queries):
-        """
 
-        Args:
-            scan_id (int):
-            failed_queries (`list` of `str`):
-        """
-        self.id = scan_id
-        self.failed_queries = failed_queries
+@dataclass
+class CxScanFailedQueries:
 
-    def __str__(self):
-        return """CxScanFailedQueries(id={}, failed_queries={})""".format(
-            self.id, self.failed_queries
+    id: Optional[int] = None
+    failed_queries: Optional[List] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanFailedQueries":
+        return cls(
+            id=item.get("id"),
+            failed_queries=item.get("failedQueries"),
         )

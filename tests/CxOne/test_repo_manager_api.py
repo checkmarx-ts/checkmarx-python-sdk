@@ -38,6 +38,11 @@ def test_get_github_app_info():
     print(result)
     assert result is not None
 
+def test_create_token_for_github_app():
+    result = repo_manager.create_token_for_github_app(
+        auth_code=os.getenv("GITHUBAPP_AUTH_CODE")
+    )
+    assert result is True
 
 def test_get_all_repo_orgs_for_a_scm_type():
     repo_orgs = repo_manager.get_all_repo_orgs_for_a_scm_type(

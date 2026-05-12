@@ -17,37 +17,20 @@ class ResultResponse:
     state: str
     path_size: int
 
-    def to_dict(self):
-        return {
-            "vulnerabilityId": self.vulnerability_id,
-            "sourceFile": self.source_file,
-            "sourceLine": self.source_line,
-            "sourceId": self.source_id,
-            "sourceName": self.source_name,
-            "sourceType": self.source_type,
-            "destinationFile": self.destination_file,
-            "destinationLine": self.destination_line,
-            "destinationId": self.destination_id,
-            "destinationName": self.destination_name,
-            "destinationType": self.destination_type,
-            "state": self.state,
-            "pathSize": self.path_size,
-        }
-
-
-def construct_result_response(item):
-    return ResultResponse(
-        vulnerability_id=item.get("vulnerabilityId"),
-        source_file=item.get("sourceFile"),
-        source_line=item.get("sourceLine"),
-        source_id=item.get("sourceId"),
-        source_name=item.get("sourceName"),
-        source_type=item.get("sourceType"),
-        destination_file=item.get("destinationFile"),
-        destination_line=item.get("destinationLine"),
-        destination_id=item.get("destinationId"),
-        destination_name=item.get("destinationName"),
-        destination_type=item.get("destinationType"),
-        state=item.get("state"),
-        path_size=item.get("pathSize")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ResultResponse":
+        return cls(
+            vulnerability_id=item.get("vulnerabilityId"),
+            source_file=item.get("sourceFile"),
+            source_line=item.get("sourceLine"),
+            source_id=item.get("sourceId"),
+            source_name=item.get("sourceName"),
+            source_type=item.get("sourceType"),
+            destination_file=item.get("destinationFile"),
+            destination_line=item.get("destinationLine"),
+            destination_id=item.get("destinationId"),
+            destination_name=item.get("destinationName"),
+            destination_type=item.get("destinationType"),
+            state=item.get("state"),
+            path_size=item.get("pathSize"),
+        )

@@ -1,6 +1,7 @@
-#encoding: utf-8
+# encoding: utf-8
 
 from .CxScanResult import CxScanResult
+
 
 class CxScanResultsPage:
 
@@ -25,17 +26,17 @@ class CxScanResultsPage:
         Args:
             d (dict): a dict containing the scan results page data
         """
-        results = [CxScanResult.from_dict(d2) for d2 in d['results']]
-        return CxScanResultsPage(scan_id=d['scanId'],
-                                   offset=d['offset'],
-                                   limit=d['limit'],
-                                   total_count=d['totalCount'],
-                                   results = results)
+        results = [CxScanResult.from_dict(d2) for d2 in d["results"]]
+        return CxScanResultsPage(
+            scan_id=d["scanId"],
+            offset=d["offset"],
+            limit=d["limit"],
+            total_count=d["totalCount"],
+            results=results,
+        )
 
     def __str__(self):
         return """CxScanResultsPage(scan_id={}, offset={}, limit={},
-               total_count={}, results={})""".format(self.scan_id,
-                                                     self.offset,
-                                                     self.limit,
-                                                     self.total_count,
-                                                     self.results)
+               total_count={}, results={})""".format(
+            self.scan_id, self.offset, self.limit, self.total_count, self.results
+        )

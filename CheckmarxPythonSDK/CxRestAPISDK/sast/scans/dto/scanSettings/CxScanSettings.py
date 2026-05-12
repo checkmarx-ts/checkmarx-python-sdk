@@ -1,49 +1,34 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxScanSettings(object):
+@dataclass
+class CxScanSettings:
     """
     scan settings
     """
 
-    def __init__(self, project, preset, engine_configuration, post_scan_action, email_notifications,
-                 post_scan_action_data=None, post_scan_action_name=None, post_scan_action_conditions=None,
-                 post_scan_action_arguments=None):
-        """
+    project: Optional[object] = None
+    preset: Optional[object] = None
+    engine_configuration: Optional[object] = None
+    post_scan_action: Optional[object] = None
+    email_notification: Optional[object] = None
+    post_scan_action_data: Optional[str] = None
+    post_scan_action_name: Optional[str] = None
+    post_scan_action_conditions: Optional[object] = None
+    post_scan_action_arguments: Optional[str] = None
 
-        :param project:
-        :param preset:
-        :param engine_configuration:
-        :param post_scan_action:
-        :param email_notifications:
-
-        Args:
-            project (:obj:`CxProject`):
-            preset (:obj:`CxPreset`):
-            engine_configuration (:obj:`CxEngineConfiguration`):
-            post_scan_action (:obj:`CxCustomTask`):
-            email_notifications (:obj:`CxEmailNotification`):
-            post_scan_action_data (str):
-            post_scan_action_name (str):
-            post_scan_action_conditions (:obj:`CxPostScanActionConditions`):
-            post_scan_action_arguments (str):
-
-        """
-        self.project = project
-        self.preset = preset
-        self.engine_configuration = engine_configuration
-        self.post_scan_action = post_scan_action
-        self.email_notification = email_notifications
-        self.post_scan_action_data = post_scan_action_data
-        self.post_scan_action_name = post_scan_action_name
-        self.post_scan_action_conditions = post_scan_action_conditions
-        self.post_scan_action_arguments = post_scan_action_arguments
-
-    def __str__(self):
-        return """CxScanSettings(project={}, preset={}, engine_configuration={}, 
-            post_scan_action={}, email_notifications={}, post_scan_action_data={}, post_scan_action_name={},
-            post_scan_action_conditions={}, post_scan_action_arguments={})""".format(
-            self.project, self.preset, self.engine_configuration, self.post_scan_action, self.email_notification,
-            self.post_scan_action_data, self.post_scan_action_name, self.post_scan_action_conditions,
-            self.post_scan_action_arguments
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanSettings":
+        return cls(
+            project=item.get("project"),
+            preset=item.get("preset"),
+            engine_configuration=item.get("engineConfiguration"),
+            post_scan_action=item.get("postScanAction"),
+            email_notification=item.get("emailNotifications"),
+            post_scan_action_data=item.get("postScanActionData"),
+            post_scan_action_name=item.get("postScanActionName"),
+            post_scan_action_conditions=item.get("postScanActionConditions"),
+            post_scan_action_arguments=item.get("postScanActionArguments"),
         )

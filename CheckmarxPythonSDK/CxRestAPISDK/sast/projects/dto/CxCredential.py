@@ -5,6 +5,7 @@ class CxCredential(object):
     """
     credential
     """
+
     def __init__(self, username, password):
         """
 
@@ -16,4 +17,6 @@ class CxCredential(object):
         self.password = password
 
     def __str__(self):
-        return "CxCredential(username={}, password={})".format(self.username, self.password)
+        return "CxCredential(username={}, password={})".format(
+            self.username, self.password
+        )

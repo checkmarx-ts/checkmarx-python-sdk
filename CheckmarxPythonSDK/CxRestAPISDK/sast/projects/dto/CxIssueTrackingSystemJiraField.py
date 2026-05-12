@@ -5,6 +5,7 @@ class CxIssueTrackingSystemJiraField(object):
     """
     jira field
     """
+
     def __init__(self, field_id, values):
         """
 

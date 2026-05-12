@@ -3,18 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Property:
-    """
-
-    Args:
-        key (str):
-        value (str):
-    """
     key: str = None
     value: str = None
 
-
-def construct_property(item):
-    return Property(
-        key=item.get("key"),
-        value=item.get("value")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "Property":
+        return cls(key=item.get("key"), value=item.get("value"))

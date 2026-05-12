@@ -20,10 +20,12 @@ class SarifDriver:
         self.rules = rules
 
     def __str__(self):
-        return f"SarifDriver(" \
-               f"name={self.name}, " \
-               f"full_name={self.fullName}, " \
-               f"version={self.version}, " \
-               f"information_uri={self.informationUri}, " \
-               f"rules={self.rules}"\
-               f")"
+        return (
+            f"SarifDriver("
+            f"name={self.name}, "
+            f"full_name={self.fullName}, "
+            f"version={self.version}, "
+            f"information_uri={self.informationUri}, "
+            f"rules={self.rules}"
+            f")"
+        )

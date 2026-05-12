@@ -8,11 +8,11 @@ class CustomState:
     type: str = None
     is_allowed: str = None
 
-
-def construct_custom_state(item):
-    return CustomState(
-        id=item.get("id"),
-        name=item.get("name"),
-        type=item.get("type"),
-        is_allowed=item.get("isAllowed"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "CustomState":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            type=item.get("type"),
+            is_allowed=item.get("isAllowed"),
+        )

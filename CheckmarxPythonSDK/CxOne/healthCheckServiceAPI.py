@@ -2,21 +2,6 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import SubCheck
 
-api_url = "/api/healthcheck"
-
-
-def construct_health_check(response):
-    response = response.json()
-    return {
-        "subChecks": [
-            SubCheck(
-                name=item.get("name"),
-                success=item.get("success"),
-                errors=item.get("errors")
-            )
-            for item in response.get("subChecks") or []]
-    }
-
 
 class HealthCheckServiceAPI(object):
 
@@ -25,41 +10,46 @@ class HealthCheckServiceAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = (
+            f"{self.api_client.configuration.server_base_url}/api/healthcheck"
+        )
+
+    def _parse_health(self, response) -> dict:
+        data = response.json()
+        return {
+            "subChecks": [
+                SubCheck.from_dict(item)
+                for item in (data.get("subChecks") or [])
+            ]
+        }
 
     def get_health_of_the_database(self) -> dict:
-        relative_url = api_url + "/database"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/database"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
     def get_health_of_the_in_memory_db(self) -> dict:
-        relative_url = api_url + "/in-memory-db"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/in-memory-db"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
     def get_health_of_the_message_queue(self) -> dict:
-        relative_url = api_url + "/message-queue"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/message-queue"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
     def get_health_of_the_object_store_including_all_buckets(self) -> dict:
-        relative_url = api_url + "/object-store"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/object-store"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
     def get_health_of_the_logging(self) -> dict:
-        relative_url = api_url + "/logging"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/logging"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
     def get_health_of_the_scan_flow(self) -> dict:
-        relative_url = api_url + "/scan-flow"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/scan-flow"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
     def get_health_of_the_sast_engines(self) -> dict:
-        relative_url = api_url + "/sast-engines"
-        response = self.api_client.get_request(relative_url=relative_url)
-        return construct_health_check(response)
+        url = f"{self.base_url}/sast-engines"
+        return self._parse_health(self.api_client.call_api(method="GET", url=url))
 
 
 def get_health_of_the_database() -> dict:
@@ -75,7 +65,9 @@ def get_health_of_the_message_queue() -> dict:
 
 
 def get_health_of_the_object_store_including_all_buckets() -> dict:
-    return HealthCheckServiceAPI().get_health_of_the_object_store_including_all_buckets()
+    return (
+        HealthCheckServiceAPI().get_health_of_the_object_store_including_all_buckets()
+    )
 
 
 def get_health_of_the_logging() -> dict:

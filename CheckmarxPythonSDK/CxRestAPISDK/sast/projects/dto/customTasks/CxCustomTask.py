@@ -1,28 +1,28 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxCustomTask(object):
+@dataclass
+class CxCustomTask:
     """
     custom tasks
     """
 
-    def __init__(self, custom_task_id, name, custom_task_type, data, link):
-        """
+    id: Optional[int] = None
+    name: Optional[str] = None
+    custom_task_type: Optional[str] = None
+    data: Optional[str] = None
+    link: Optional[object] = None
 
-        Args:
-            custom_task_id (int):
-            name (str):
-            custom_task_type (str):
-            data (str):
-            link (CxLink):
-        """
-        self.id = custom_task_id
-        self.name = name
-        self.type = custom_task_type
-        self.data = data
-        self.link = link
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxCustomTask":
+        from ..CxLink import CxLink
 
-    def __str__(self):
-        return "CxCustomTask(id={], name={}, type={}, data={}, link={})".format(
-            self.id, self.name, self.type, self.data, self.link
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            custom_task_type=item.get("type"),
+            data=item.get("data"),
+            link=CxLink.from_dict(item.get("link") or {}),
         )

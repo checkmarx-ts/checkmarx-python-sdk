@@ -1,5 +1,7 @@
 from .CxDataRetentionRequestStatus import CxDataRetentionRequestStatus
 from .CxDataRetentionRequestStatusStage import CxDataRetentionRequestStatusStage
 from .CxDefineDataRetentionDateRangeRequest import CxDefineDataRetentionDateRangeRequest
-from .CxDefineDataRetentionNumberOfScansRequest import CxDefineDataRetentionNumberOfScansRequest
+from .CxDefineDataRetentionNumberOfScansRequest import (
+    CxDefineDataRetentionNumberOfScansRequest,
+)
 from .CxDefineDataRetentionResponse import CxDefineDataRetentionResponse

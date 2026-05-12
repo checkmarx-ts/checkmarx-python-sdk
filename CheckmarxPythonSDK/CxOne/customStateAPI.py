@@ -1,12 +1,7 @@
-from requests import Response
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
-from .dto import (
-    CustomState, construct_custom_state
-)
-
-api_url = "/api/custom-states"
+from .dto import CustomState
 
 
 class CustomStateAPI(object):
@@ -16,44 +11,49 @@ class CustomStateAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = (
+            f"{self.api_client.configuration.server_base_url}/api/custom-states"
+        )
 
-    def get_all_custom_states(self, include_deleted: bool = False) -> List[CustomState]:
+    def get_all_custom_states(
+        self, include_deleted: bool = False
+    ) -> List[CustomState]:
         """
-
         Args:
             include_deleted (bool):
 
         Returns:
-            [
-              {
-                "id": 391,
-                "name": "demo1",
-                "type": "INFO",
-                "isAllowed": true
-              },
-              {
-                "id": 390,
-                "name": "demo2",
-                "type": "INFO",
-                "isAllowed": false
-              }
-            ]
+            List[CustomState]
         """
-        relative_url = api_url
         params = {"include-deleted": include_deleted}
-        response = self.api_client.get_request(relative_url=relative_url, params=params)
-        item = response.json()
-        return [
-            construct_custom_state(custom_state) for custom_state in item or []
-        ]
+        response = self.api_client.call_api(
+            method="GET", url=self.base_url, params=params
+        )
+        return [CustomState.from_dict(s) for s in (response.json() or [])]
 
-    def create_a_custom_state(self, name: str) -> Response:
-        response = self.api_client.post_request(relative_url=api_url, json={"name": name})
+    def create_a_custom_state(self, name: str):
+        """
+        Args:
+            name (str):
+
+        Returns:
+            Response
+        """
+        response = self.api_client.call_api(
+            method="POST", url=self.base_url, json={"name": name}
+        )
         return response
 
-    def delete_a_custom_state(self, custom_state_id: int) -> Response:
-        relative_url = api_url + f"/{custom_state_id}"
-        response = self.api_client.delete_request(relative_url=relative_url)
+    def delete_a_custom_state(self, custom_state_id: int):
+        """
+        Args:
+            custom_state_id (int):
+
+        Returns:
+            Response
+        """
+        url = f"{self.base_url}/{custom_state_id}"
+        response = self.api_client.call_api(method="DELETE", url=url)
         return response
 
 

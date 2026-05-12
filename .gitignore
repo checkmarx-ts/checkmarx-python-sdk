@@ -117,3 +117,7 @@ build
 *.egg-info
 *.zip
 *.env
+*.pem
+*.crt
+
+.claude

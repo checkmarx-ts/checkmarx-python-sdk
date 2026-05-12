@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -20,39 +19,39 @@ class ConfigPropertyRepresentation:
         result: Dict[str, Any] = {}
         if self.name is not None:
             value = self.name
-            result['name'] = value
+            result["name"] = value
         if self.label is not None:
             value = self.label
-            result['label'] = value
+            result["label"] = value
         if self.help_text is not None:
             value = self.help_text
-            result['helpText'] = value
+            result["helpText"] = value
         if self.type is not None:
             value = self.type
-            result['type'] = value
+            result["type"] = value
         if self.default_value is not None:
             value = self.default_value
-            result['defaultValue'] = value
+            result["defaultValue"] = value
         if self.options is not None:
             value = self.options
-            result['options'] = value
+            result["options"] = value
         if self.secret is not None:
             value = self.secret
-            result['secret'] = value
+            result["secret"] = value
         if self.required is not None:
             value = self.required
-            result['required'] = value
+            result["required"] = value
         if self.read_only is not None:
             value = self.read_only
-            result['readOnly'] = value
+            result["readOnly"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "ConfigPropertyRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

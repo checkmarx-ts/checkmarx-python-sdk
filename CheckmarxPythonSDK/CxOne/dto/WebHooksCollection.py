@@ -1,18 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
-from .WebHook import WebHook, construct_web_hook
+from .WebHook import WebHook
 
 
 @dataclass
 class WebHooksCollection:
     total_count: int = None
-    webhooks: List[WebHook] = None
+    webhooks: List[WebHook] = field(default_factory=list)
 
-
-def construct_web_hooks_collection(item):
-    return WebHooksCollection(
-        total_count=item.get("totalCount"),
-        webhooks=[
-            construct_web_hook(webhook) for webhook in item.get("webhooks")
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "WebHooksCollection":
+        return cls(
+            total_count=item.get("totalCount"),
+            webhooks=[WebHook.from_dict(w) for w in (item.get("webhooks") or [])],
+        )

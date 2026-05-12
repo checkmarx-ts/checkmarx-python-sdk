@@ -17,25 +17,22 @@ def test_get_result_states():
     assert result is not None
 
 
-def test_create_result_state():
-    result = GeneralAPI().create_result_state(
-        translation_inputs=[CxTranslationInput(language_id=1033, name="DoesNotMakeSense")],
-        permission="set-result-state-nonsense"
+def test_create_update_delete_result_state():
+    api = GeneralAPI()
+    state_id = api.create_result_state(
+        translation_inputs=[CxTranslationInput(language_id=1033, name="TestStateCustom")],
+        permission="set-result-state-confirmed",
     )
-    assert result > 4
+    assert state_id > 4
 
-
-def test_update_result_state():
-    result = GeneralAPI().update_result_state(
-        state_id=5,
-        translation_inputs=[CxTranslationInput(language_id=1033, name="DoesNotMakeSense")],
-        permission="set-result-state-nonsense"
+    result = api.update_result_state(
+        state_id=state_id,
+        translation_inputs=[CxTranslationInput(language_id=1033, name="TestStateUpdated")],
+        permission="set-result-state-confirmed",
     )
     assert result is True
 
-
-def test_delete_result_state():
-    result = GeneralAPI().delete_result_state(state_id=5)
+    result = api.delete_result_state(state_id=state_id)
     assert result is True
 
 
@@ -57,20 +54,20 @@ def test_update_persistence_data_for_current_user():
 
 
 def test_get_audit_trail_for_roles():
-    result = GeneralAPI().get_audit_trail_for_roles(from_date="2024-01-01", to_date="2024-07-17")
+    result = GeneralAPI().get_audit_trail_for_roles(from_date="2020-01-01", to_date="2030-01-01")
     assert result is not None
 
 
 def test_get_audit_trail_for_teams():
-    result = GeneralAPI().get_audit_trail_for_teams(from_date="2024-01-01", to_date="2024-07-17")
+    result = GeneralAPI().get_audit_trail_for_teams(from_date="2020-01-01", to_date="2030-01-01")
     assert result is not None
 
 
 def test_get_teams_trail_for_presets():
-    result = GeneralAPI().get_audit_trail_for_presets(from_date="2024-01-01", to_date="2024-07-17")
+    result = GeneralAPI().get_audit_trail_for_presets(from_date="2020-01-01", to_date="2030-01-01")
     assert result is not None
 
 
 def test_get_teams_trail_for_results():
-    result = GeneralAPI().get_audit_trail_for_results(from_date="2024-01-01", to_date="2024-07-17")
+    result = GeneralAPI().get_audit_trail_for_results(from_date="2020-01-01", to_date="2030-01-01")
     assert result is not None

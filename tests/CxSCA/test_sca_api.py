@@ -1,4 +1,5 @@
 import time
+import pytest
 from CheckmarxPythonSDK.CxScaApiSDK import (
     get_all_projects,
     check_if_project_already_exists,
@@ -57,6 +58,8 @@ from CheckmarxPythonSDK.CxScaApiSDK import (
     retrieve_analysis_result,
 )
 # from CheckmarxPythonSDK.CxScaApiSDK.AccessControlAPI import AccessControlAPI
+pytestmark = pytest.mark.skip(reason="CxSCA credentials are no longer valid")
+
 project_name = "test_sca_2023_01_30"
 
 

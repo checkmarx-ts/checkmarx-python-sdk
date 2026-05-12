@@ -2,7 +2,16 @@ from .SarifDescription import SarifDescription
 
 
 class SarifDriverRule:
-    def __init__(self, rule_id, name, short_description, full_description, help_uri, help, relation_ships):
+    def __init__(
+        self,
+        rule_id,
+        name,
+        short_description,
+        full_description,
+        help_uri,
+        help,
+        relation_ships,
+    ):
         """
 
         Args:
@@ -23,12 +32,14 @@ class SarifDriverRule:
         self.relationships = relation_ships
 
     def __str__(self):
-        return f"SarifDriverRule("\
-               f"rule_id={self.id}, "\
-               f"name={self.name}, "\
-               f"help_uri={self.helpUri}, "\
-               f"help={self.help}, "\
-               f"full_description={self.fullDescription}, "\
-               f"short_description={self.shortDescription}, "\
-               f"relation_ships={self.relationships}"\
-               ")"
+        return (
+            f"SarifDriverRule("
+            f"rule_id={self.id}, "
+            f"name={self.name}, "
+            f"help_uri={self.helpUri}, "
+            f"help={self.help}, "
+            f"full_description={self.fullDescription}, "
+            f"short_description={self.shortDescription}, "
+            f"relation_ships={self.relationships}"
+            ")"
+        )

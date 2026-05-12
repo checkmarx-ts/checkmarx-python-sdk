@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 from .PolicyEnforcerConfig import PolicyEnforcerConfig
 
@@ -24,50 +23,55 @@ class InstallationAdapterConfig:
         result: Dict[str, Any] = {}
         if self.realm is not None:
             value = self.realm
-            result['realm'] = value
+            result["realm"] = value
         if self.realm_public_key is not None:
             value = self.realm_public_key
-            result['realmPublicKey'] = value
+            result["realmPublicKey"] = value
         if self.auth_server_url is not None:
             value = self.auth_server_url
-            result['authServerUrl'] = value
+            result["authServerUrl"] = value
         if self.ssl_required is not None:
             value = self.ssl_required
-            result['sslRequired'] = value
+            result["sslRequired"] = value
         if self.bearer_only is not None:
             value = self.bearer_only
-            result['bearerOnly'] = value
+            result["bearerOnly"] = value
         if self.resource is not None:
             value = self.resource
-            result['resource'] = value
+            result["resource"] = value
         if self.public_client is not None:
             value = self.public_client
-            result['publicClient'] = value
+            result["publicClient"] = value
         if self.verify_token_audience is not None:
             value = self.verify_token_audience
-            result['verifyTokenAudience'] = value
+            result["verifyTokenAudience"] = value
         if self.credentials is not None:
             value = self.credentials
-            result['credentials'] = value
+            result["credentials"] = value
         if self.use_resource_role_mappings is not None:
             value = self.use_resource_role_mappings
-            result['useResourceRoleMappings'] = value
+            result["useResourceRoleMappings"] = value
         if self.confidential_port is not None:
             value = self.confidential_port
-            result['confidentialPort'] = value
+            result["confidentialPort"] = value
         if self.policy_enforcer is not None:
             value = self.policy_enforcer.to_dict()
-            result['policyEnforcer'] = value
+            result["policyEnforcer"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "InstallationAdapterConfig":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
-        if 'policy_enforcer' in snake_data and snake_data['policy_enforcer'] is not None:
-            snake_data['policy_enforcer'] = PolicyEnforcerConfig.from_dict(snake_data['policy_enforcer'])
+        if (
+            "policy_enforcer" in snake_data
+            and snake_data["policy_enforcer"] is not None
+        ):
+            snake_data["policy_enforcer"] = PolicyEnforcerConfig.from_dict(
+                snake_data["policy_enforcer"]
+            )
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

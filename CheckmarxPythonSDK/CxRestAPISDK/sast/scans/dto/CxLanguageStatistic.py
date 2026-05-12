@@ -1,36 +1,38 @@
-class CxLanguageStatistic(object):
+from dataclasses import dataclass
+from typing import Optional
 
-    def __init__(self, language, parsed_successfully_count, parsed_unsuccessfully_count, parsed_partially_count,
-                 successful_loc, unsuccessful_loc, scanned_successfully_loc_percentage, count_of_dom_objects):
-        """
 
-        Args:
-            language (str):
-            parsed_successfully_count (int):
-            parsed_unsuccessfully_count (int):
-            parsed_partially_count (int):
-            successful_loc (int):
-            unsuccessful_loc (int):
-            scanned_successfully_loc_percentage (int):
-            count_of_dom_objects (int):
-        """
-        self.language = language
-        self.parsed_files = {
-            "parsedSuccessfullyCount": parsed_successfully_count,
-            "parsedUnsuccessfullyCount": parsed_unsuccessfully_count,
-            "parsedPartiallyCount": parsed_partially_count,
-        }
+@dataclass
+class CxLanguageStatistic:
 
-        self.scanned_loc_per_language = {
-            "successfulLOC": successful_loc,
-            "unsuccessfulLOC": unsuccessful_loc,
-            "scannedSuccessfullyLOCPercentage": scanned_successfully_loc_percentage,
-        }
+    language: Optional[str] = None
+    parsed_successfully_count: Optional[int] = None
+    parsed_unsuccessfully_count: Optional[int] = None
+    parsed_partially_count: Optional[int] = None
+    successful_loc: Optional[int] = None
+    unsuccessful_loc: Optional[int] = None
+    scanned_successfully_loc_percentage: Optional[float] = None
+    count_of_dom_objects: Optional[int] = None
 
-        self.count_of_dom_object = count_of_dom_objects
-
-    def __str__(self):
-        return """CxLanguageStatistic(language={}, parsed_files={}, scanned_loc_per_language={}, 
-                count_of_dom_object={})""".format(
-            self.language, self.parsed_files, self.scanned_loc_per_language, self.count_of_dom_object
+    @classmethod
+    def from_dict(cls, language: str, item: dict) -> "CxLanguageStatistic":
+        return cls(
+            language=language,
+            parsed_successfully_count=item.get("parsedFiles", {}).get(
+                "parsedSuccessfullyCount"
+            ),
+            parsed_unsuccessfully_count=item.get("parsedFiles", {}).get(
+                "parsedUnsuccessfullyCount"
+            ),
+            parsed_partially_count=item.get("parsedFiles", {}).get(
+                "parsedPartiallyCount"
+            ),
+            successful_loc=item.get("scannedLOCPerLanguage", {}).get("successfulLOC"),
+            unsuccessful_loc=item.get("scannedLOCPerLanguage", {}).get(
+                "unsuccessfulLOC"
+            ),
+            scanned_successfully_loc_percentage=item.get(
+                "scannedLOCPerLanguage", {}
+            ).get("scannedSuccessfullyLOCPercentage"),
+            count_of_dom_objects=item.get("countOfDomObjects"),
         )

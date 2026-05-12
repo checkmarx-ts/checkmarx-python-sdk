@@ -1,24 +1,19 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class Team(object):
+@dataclass
+class Team:
+    id: Optional[int] = None
+    name: Optional[str] = None
+    full_name: Optional[str] = None
+    parent_id: Optional[int] = None
 
-    def __init__(self, team_id, name, full_name, parent_id):
-        """
-
-        Args:
-            team_id (int):
-            name (str):
-            full_name (str):
-            parent_id (int):
-        """
-
-        self.id = team_id
-        self.name = name
-        self.full_name = full_name
-        self.parent_id = parent_id
-
-    def __str__(self):
-        return """Team(id={}, name={}, full_name={}, parent_id={})""".format(
-            self.id, self.name, self.full_name, self.parent_id
+    @classmethod
+    def from_dict(cls, item: dict) -> "Team":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            full_name=item.get("fullName"),
+            parent_id=item.get("parentId"),
         )

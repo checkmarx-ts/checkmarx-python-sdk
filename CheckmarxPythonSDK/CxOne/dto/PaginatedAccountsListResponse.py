@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .CloudInsightAccount import CloudInsightAccount, construct_cloud_insight_account
+from .CloudInsightAccount import CloudInsightAccount
 
 
 @dataclass
@@ -10,13 +10,11 @@ class PaginatedAccountsListResponse:
     current_page: int = None
     last_page: int = None
 
-
-def construct_paginated_accounts_list_response(item):
-    return {
-            "data": [
-                construct_cloud_insight_account(account) for account in item.get("data", [])
-            ],
-            "total": item.get("total"),
-            "currentPage": item.get("currentPage"),
-            "lastPage": item.get("lastPage")
-        }
+    @classmethod
+    def from_dict(cls, item: dict) -> "PaginatedAccountsListResponse":
+        return cls(
+            data=[CloudInsightAccount.from_dict(a) for a in (item.get("data") or [])],
+            total=item.get("total"),
+            current_page=item.get("currentPage"),
+            last_page=item.get("lastPage"),
+        )

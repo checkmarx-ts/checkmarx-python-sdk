@@ -8,6 +8,4 @@ class CreateReportResponseDTO(object):
         self.reportId = report_id
 
     def __str__(self):
-        return """CreateReportResponseDTO(reportId={})""".format(
-            self.reportId
-        )
+        return """CreateReportResponseDTO(reportId={})""".format(self.reportId)

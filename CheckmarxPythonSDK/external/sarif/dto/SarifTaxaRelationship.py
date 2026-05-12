@@ -8,6 +8,4 @@ class SarifTaxaRelationship:
         self.target = target
 
     def __str__(self):
-        return f"SarifTaxaRelationship(" \
-               f"target={self.target}"\
-               f")"
+        return f"SarifTaxaRelationship(" f"target={self.target}" f")"

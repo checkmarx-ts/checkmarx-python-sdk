@@ -1,23 +1,19 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class Permission(object):
+@dataclass
+class Permission:
+    id: Optional[int] = None
+    service_provider_id: Optional[int] = None
+    name: Optional[str] = None
+    category: Optional[str] = None
 
-    def __init__(self, permission_id, service_provider_id, name, category):
-        """
-
-        Args:
-            permission_id (int):
-            service_provider_id (int):
-            name (str):
-            category (str):
-        """
-        self.id = permission_id
-        self.service_provider_id = service_provider_id
-        self.name = name
-        self.category = category
-
-    def __str__(self):
-        return """Permission(id={}, service_provider_id={}, name={}, category={})""".format(
-            self.id, self.service_provider_id, self.name, self.category
+    @classmethod
+    def from_dict(cls, item: dict) -> "Permission":
+        return cls(
+            id=item.get("id"),
+            service_provider_id=item.get("serviceProviderId"),
+            name=item.get("name"),
+            category=item.get("category"),
         )

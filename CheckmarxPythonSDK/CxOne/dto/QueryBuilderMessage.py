@@ -6,9 +6,6 @@ class QueryBuilderMessage:
     role: str = None
     content: str = None
 
-
-def construct_query_builder_message(item):
-    return QueryBuilderMessage(
-        role=item.get("role"),
-        content=item.get("content")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "QueryBuilderMessage":
+        return cls(role=item.get("role"), content=item.get("content"))

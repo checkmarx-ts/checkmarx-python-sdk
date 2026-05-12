@@ -12,21 +12,22 @@ class ClientWithResource:
     base_roles: List[str] = None
     resources: List[dict] = None
 
-
-def construct_client_with_resource(item):
-    return ClientWithResource(
-        id=item.get("id"),
-        client_id=item.get("clientId"),
-        iam_id=item.get("iamId"),
-        created_at=item.get("createdAt"),
-        group_ids=item.get("groupIds"),
-        base_roles=item.get("baseRoles"),
-        resources=[
-            {
-                "id": resource.get("id"),
-                "type": resource.get("type"),
-                "name": resource.get("name"),
-                "roles": resource.get("roles")
-            } for resource in item.get("resources")
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ClientWithResource":
+        return cls(
+            id=item.get("id"),
+            client_id=item.get("clientId"),
+            iam_id=item.get("iamId"),
+            created_at=item.get("createdAt"),
+            group_ids=item.get("groupIds"),
+            base_roles=item.get("baseRoles"),
+            resources=[
+                {
+                    "id": r.get("id"),
+                    "type": r.get("type"),
+                    "name": r.get("name"),
+                    "roles": r.get("roles"),
+                }
+                for r in (item.get("resources") or [])
+            ],
+        )

@@ -21,6 +21,7 @@ class RealmsAdminApi:
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = f"{api_client.configuration.iam_base_url.rstrip('/')}{api_url}"
 
     def get(self, brief_representation: str = None) -> List[RealmRepresentation]:
         """
@@ -37,10 +38,8 @@ class RealmsAdminApi:
             Relative path: /
         """
         params = {"briefRepresentation": brief_representation}
-        relative_url = f"{api_url}/"
-        response = self.api_client.get_request(
-            relative_url=relative_url, params=params, is_iam=True
-        )
+        url = f"{self.base_url}/"
+        response = self.api_client.call_api("GET", url, params=params)
         return [RealmRepresentation.from_dict(item) for item in response.json()]
 
     def post(
@@ -55,8 +54,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /
         """
-        relative_url = f"{api_url}/"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/"
+        response = self.api_client.call_api("POST", url)
         return response.status_code == 200
 
     def get_by_realm(self, realm: str) -> RealmRepresentation:
@@ -73,8 +72,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}
         """
-        relative_url = f"{api_url}/{realm}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}"
+        response = self.api_client.call_api("GET", url)
         return RealmRepresentation.from_dict(response.json())
 
     def put_by_realm(
@@ -94,10 +93,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}
         """
-        relative_url = f"{api_url}/{realm}"
-        response = self.api_client.put_request(
-            relative_url=relative_url, json=realm_representation.to_dict(), is_iam=True
-        )
+        url = f"{self.base_url}/{realm}"
+        response = self.api_client.call_api("PUT", url, json=realm_representation.to_dict())
         return response.status_code == 200
 
     def delete_by_realm(self, realm: str) -> bool:
@@ -113,10 +110,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}
         """
-        relative_url = f"{api_url}/{realm}"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def get_admin_events(
@@ -170,10 +165,8 @@ class RealmsAdminApi:
             "resourcePath": resource_path,
             "resourceTypes": resource_types,
         }
-        relative_url = f"{api_url}/{realm}/admin-events"
-        response = self.api_client.get_request(
-            relative_url=relative_url, params=params, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/admin-events"
+        response = self.api_client.call_api("GET", url, params=params)
         return [AdminEventRepresentation.from_dict(item) for item in response.json()]
 
     def delete_admin_events(self, realm: str) -> bool:
@@ -189,10 +182,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/admin-events
         """
-        relative_url = f"{api_url}/{realm}/admin-events"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/admin-events"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def post_client_description_converter(self, realm: str) -> ClientRepresentation:
@@ -208,8 +199,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/client-description-converter
         """
-        relative_url = f"{api_url}/{realm}/client-description-converter"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/client-description-converter"
+        response = self.api_client.call_api("POST", url)
         return ClientRepresentation.from_dict(response.json())
 
     def get_policies(self, realm: str) -> ClientPoliciesRepresentation:
@@ -224,8 +215,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/client-policies/policies
         """
-        relative_url = f"{api_url}/{realm}/client-policies/policies"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/client-policies/policies"
+        response = self.api_client.call_api("GET", url)
         return ClientPoliciesRepresentation.from_dict(response.json())
 
     def put_policies(
@@ -244,12 +235,10 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/client-policies/policies
         """
-        relative_url = f"{api_url}/{realm}/client-policies/policies"
-        response = self.api_client.put_request(
-            relative_url=relative_url,
+        url = f"{self.base_url}/{realm}/client-policies/policies"
+        response = self.api_client.call_api("PUT", url,
             json=client_policies_representation.to_dict(),
-            is_iam=True,
-        )
+            )
         return response.status_code == 200
 
     def get_profiles(
@@ -268,10 +257,8 @@ class RealmsAdminApi:
             Relative path: /{realm}/client-policies/profiles
         """
         params = {"include-global-profiles": include_global_profiles}
-        relative_url = f"{api_url}/{realm}/client-policies/profiles"
-        response = self.api_client.get_request(
-            relative_url=relative_url, params=params, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/client-policies/profiles"
+        response = self.api_client.call_api("GET", url, params=params)
         return ClientProfilesRepresentation.from_dict(response.json())
 
     def put_profiles(
@@ -290,12 +277,10 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/client-policies/profiles
         """
-        relative_url = f"{api_url}/{realm}/client-policies/profiles"
-        response = self.api_client.put_request(
-            relative_url=relative_url,
+        url = f"{self.base_url}/{realm}/client-policies/profiles"
+        response = self.api_client.call_api("PUT", url,
             json=client_profiles_representation.to_dict(),
-            is_iam=True,
-        )
+            )
         return response.status_code == 200
 
     def get_client_session_stats(self, realm: str) -> List[str]:
@@ -311,8 +296,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/client-session-stats
         """
-        relative_url = f"{api_url}/{realm}/client-session-stats"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/client-session-stats"
+        response = self.api_client.call_api("GET", url)
         return response.json()
 
     def get_credential_registrators(self, realm: str) -> List[str]:
@@ -327,8 +312,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/credential-registrators
         """
-        relative_url = f"{api_url}/{realm}/credential-registrators"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/credential-registrators"
+        response = self.api_client.call_api("GET", url)
         return response.json()
 
     def get_default_default_client_scopes(
@@ -346,8 +331,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-default-client-scopes
         """
-        relative_url = f"{api_url}/{realm}/default-default-client-scopes"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/default-default-client-scopes"
+        response = self.api_client.call_api("GET", url)
         return [ClientScopeRepresentation.from_dict(item) for item in response.json()]
 
     def put_default_default_client_scope(
@@ -365,10 +350,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-default-client-scopes/{clientScopeId}
         """
-        relative_url = (
-            f"{api_url}/{realm}/default-default-client-scopes/{client_scope_id}"
-        )
-        response = self.api_client.put_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/default-default-client-scopes/{client_scope_id}"
+        response = self.api_client.call_api("PUT", url)
         return response.status_code == 204
 
     def delete_default_default_client_scope(
@@ -386,12 +369,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-default-client-scopes/{clientScopeId}
         """
-        relative_url = (
-            f"{api_url}/{realm}/default-default-client-scopes/{client_scope_id}"
-        )
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/default-default-client-scopes/{client_scope_id}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def get_default_groups(self, realm: str) -> List[GroupRepresentation]:
@@ -407,8 +386,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-groups
         """
-        relative_url = f"{api_url}/{realm}/default-groups"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/default-groups"
+        response = self.api_client.call_api("GET", url)
         return [GroupRepresentation.from_dict(item) for item in response.json()]
 
     def put_default_group(self, realm: str, group_id: str) -> bool:
@@ -424,8 +403,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-groups/{groupId}
         """
-        relative_url = f"{api_url}/{realm}/default-groups/{group_id}"
-        response = self.api_client.put_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/default-groups/{group_id}"
+        response = self.api_client.call_api("PUT", url)
         return response.status_code == 204
 
     def delete_default_group(self, realm: str, group_id: str) -> bool:
@@ -441,10 +420,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-groups/{groupId}
         """
-        relative_url = f"{api_url}/{realm}/default-groups/{group_id}"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/default-groups/{group_id}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def get_default_optional_client_scopes(
@@ -462,8 +439,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-optional-client-scopes
         """
-        relative_url = f"{api_url}/{realm}/default-optional-client-scopes"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/default-optional-client-scopes"
+        response = self.api_client.call_api("GET", url)
         return [ClientScopeRepresentation.from_dict(item) for item in response.json()]
 
     def put_default_optional_client_scope(
@@ -481,10 +458,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-optional-client-scopes/{clientScopeId}
         """
-        relative_url = (
-            f"{api_url}/{realm}/default-optional-client-scopes/{client_scope_id}"
-        )
-        response = self.api_client.put_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/default-optional-client-scopes/{client_scope_id}"
+        response = self.api_client.call_api("PUT", url)
         return response.status_code == 204
 
     def delete_default_optional_client_scope(
@@ -502,12 +477,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/default-optional-client-scopes/{clientScopeId}
         """
-        relative_url = (
-            f"{api_url}/{realm}/default-optional-client-scopes/{client_scope_id}"
-        )
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/default-optional-client-scopes/{client_scope_id}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def get_events(
@@ -552,10 +523,8 @@ class RealmsAdminApi:
             "type": type,
             "user": user,
         }
-        relative_url = f"{api_url}/{realm}/events"
-        response = self.api_client.get_request(
-            relative_url=relative_url, params=params, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/events"
+        response = self.api_client.call_api("GET", url, params=params)
         return [EventRepresentation.from_dict(item) for item in response.json()]
 
     def delete_events(self, realm: str) -> bool:
@@ -571,10 +540,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/events
         """
-        relative_url = f"{api_url}/{realm}/events"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/events"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def get_events_config(self, realm: str) -> RealmEventsConfigRepresentation:
@@ -590,8 +557,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/events/config
         """
-        relative_url = f"{api_url}/{realm}/events/config"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/events/config"
+        response = self.api_client.call_api("GET", url)
         return RealmEventsConfigRepresentation.from_dict(response.json())
 
     def put_events_config(
@@ -611,12 +578,10 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/events/config
         """
-        relative_url = f"{api_url}/{realm}/events/config"
-        response = self.api_client.put_request(
-            relative_url=relative_url,
+        url = f"{self.base_url}/{realm}/events/config"
+        response = self.api_client.call_api("PUT", url,
             json=realm_events_config_representation.to_dict(),
-            is_iam=True,
-        )
+            )
         return response.status_code == 204
 
     def get_group_by_path(self, realm: str, path: str) -> GroupRepresentation:
@@ -632,8 +597,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/group-by-path/{path}
         """
-        relative_url = f"{api_url}/{realm}/group-by-path/{path}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/group-by-path/{path}"
+        response = self.api_client.call_api("GET", url)
         return GroupRepresentation.from_dict(response.json())
 
     def get_localization_by_realm(self, realm: str) -> List[str]:
@@ -648,8 +613,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/localization
         """
-        relative_url = f"{api_url}/{realm}/localization"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/localization"
+        response = self.api_client.call_api("GET", url)
         return response.json()
 
     def get_localization_by_realm_by_locale(
@@ -669,10 +634,8 @@ class RealmsAdminApi:
             Relative path: /{realm}/localization/{locale}
         """
         params = {"useRealmDefaultLocaleFallback": use_realm_default_locale_fallback}
-        relative_url = f"{api_url}/{realm}/localization/{locale}"
-        response = self.api_client.get_request(
-            relative_url=relative_url, params=params, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/localization/{locale}"
+        response = self.api_client.call_api("GET", url, params=params)
         return response.json()
 
     def post_localization(self, realm: str, locale: str) -> bool:
@@ -689,8 +652,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/localization/{locale}
         """
-        relative_url = f"{api_url}/{realm}/localization/{locale}"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/localization/{locale}"
+        response = self.api_client.call_api("POST", url)
         return response.status_code == 201
 
     def delete_localization_by_realm_by_locale(self, realm: str, locale: str) -> bool:
@@ -706,10 +669,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/localization/{locale}
         """
-        relative_url = f"{api_url}/{realm}/localization/{locale}"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/localization/{locale}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def get_localization_by_realm_by_locale_by_key(
@@ -728,8 +689,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/localization/{locale}/{key}
         """
-        relative_url = f"{api_url}/{realm}/localization/{locale}/{key}"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/localization/{locale}/{key}"
+        response = self.api_client.call_api("GET", url)
         return response.status_code == 200
 
     def put_localization(self, realm: str, locale: str, key: str) -> bool:
@@ -746,8 +707,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/localization/{locale}/{key}
         """
-        relative_url = f"{api_url}/{realm}/localization/{locale}/{key}"
-        response = self.api_client.put_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/localization/{locale}/{key}"
+        response = self.api_client.call_api("PUT", url)
         return response.status_code == 204
 
     def delete_localization_by_realm_by_locale_by_key(
@@ -766,10 +727,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/localization/{locale}/{key}
         """
-        relative_url = f"{api_url}/{realm}/localization/{locale}/{key}"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/localization/{locale}/{key}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def post_logout_all(self, realm: str) -> GlobalRequestResult:
@@ -785,8 +744,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/logout-all
         """
-        relative_url = f"{api_url}/{realm}/logout-all"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/logout-all"
+        response = self.api_client.call_api("POST", url)
         return GlobalRequestResult.from_dict(response.json())
 
     def post_partial_export(
@@ -813,10 +772,8 @@ class RealmsAdminApi:
             "exportClients": export_clients,
             "exportGroupsAndRoles": export_groups_and_roles,
         }
-        relative_url = f"{api_url}/{realm}/partial-export"
-        response = self.api_client.post_request(
-            relative_url=relative_url, params=params, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/partial-export"
+        response = self.api_client.call_api("POST", url, params=params)
         return response.status_code == 200
 
     def post_partial_import(self, realm: str) -> bool:
@@ -832,8 +789,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/partialImport
         """
-        relative_url = f"{api_url}/{realm}/partialImport"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/partialImport"
+        response = self.api_client.call_api("POST", url)
         return response.status_code == 200
 
     def post_push_revocation_by_realm(self, realm: str) -> GlobalRequestResult:
@@ -849,8 +806,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/push-revocation
         """
-        relative_url = f"{api_url}/{realm}/push-revocation"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/push-revocation"
+        response = self.api_client.call_api("POST", url)
         return GlobalRequestResult.from_dict(response.json())
 
     def delete_session(self, realm: str, session: str) -> bool:
@@ -867,10 +824,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/sessions/{session}
         """
-        relative_url = f"{api_url}/{realm}/sessions/{session}"
-        response = self.api_client.delete_request(
-            relative_url=relative_url, is_iam=True
-        )
+        url = f"{self.base_url}/{realm}/sessions/{session}"
+        response = self.api_client.call_api("DELETE", url)
         return response.status_code == 204
 
     def post_test_smtp_connection(self, realm: str) -> bool:
@@ -886,8 +841,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/testSMTPConnection
         """
-        relative_url = f"{api_url}/{realm}/testSMTPConnection"
-        response = self.api_client.post_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/testSMTPConnection"
+        response = self.api_client.call_api("POST", url)
         return response.status_code == 200
 
     def get_users_management_permissions(
@@ -904,8 +859,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/users-management-permissions
         """
-        relative_url = f"{api_url}/{realm}/users-management-permissions"
-        response = self.api_client.get_request(relative_url=relative_url, is_iam=True)
+        url = f"{self.base_url}/{realm}/users-management-permissions"
+        response = self.api_client.call_api("GET", url)
         return ManagementPermissionReference.from_dict(response.json())
 
     def put_users_management_permissions(
@@ -923,10 +878,8 @@ class RealmsAdminApi:
         URL:
             Relative path: /{realm}/users-management-permissions
         """
-        relative_url = f"{api_url}/{realm}/users-management-permissions"
-        response = self.api_client.put_request(
-            relative_url=relative_url,
+        url = f"{self.base_url}/{realm}/users-management-permissions"
+        response = self.api_client.call_api("PUT", url,
             json=management_permission_reference.to_dict(),
-            is_iam=True,
-        )
+            )
         return ManagementPermissionReference.from_dict(response.json())

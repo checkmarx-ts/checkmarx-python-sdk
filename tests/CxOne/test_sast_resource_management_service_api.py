@@ -1,3 +1,4 @@
+import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_sast_scan_allocation_info,
     delete_sast_scan,
@@ -5,6 +6,7 @@ from CheckmarxPythonSDK.CxOne import (
 )
 
 
+@pytest.mark.skip(reason="502 Bad Gateway - SAST resource management service unavailable")
 def test_get_sast_scan_allocation_info():
     # response is 502
     scan_id = "edcba8aa-2498-4d80-b4e5-4d83ff85930b"
@@ -12,6 +14,7 @@ def test_get_sast_scan_allocation_info():
     assert result is not None
 
 
+@pytest.mark.skip(reason="502 Bad Gateway - SAST resource management service unavailable")
 def test_delete_sast_scan():
     # response is 502
     scan_id = "edcba8aa-2498-4d80-b4e5-4d83ff85930b"
@@ -19,6 +22,7 @@ def test_delete_sast_scan():
     assert result is not None
 
 
+@pytest.mark.skip(reason="502 Bad Gateway - SAST resource management service unavailable")
 def test_get_sast_scans():
     # response is 502
     result = get_sast_scans()

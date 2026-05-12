@@ -8,6 +8,4 @@ class SarifDescription:
         self.text = text
 
     def __str__(self):
-        return f"SarifDescription(" \
-               f"text={self.text}" \
-               f")"
+        return f"SarifDescription(" f"text={self.text}" f")"

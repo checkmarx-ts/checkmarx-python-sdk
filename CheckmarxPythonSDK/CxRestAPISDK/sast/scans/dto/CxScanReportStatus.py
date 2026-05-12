@@ -1,11 +1,15 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxScanReportStatus(object):
+@dataclass
+class CxScanReportStatus:
     """
     scan report status
     """
-    class Status(object):
+
+    class Status:
         def __init__(self, status_id, value):
             """
 
@@ -16,19 +20,18 @@ class CxScanReportStatus(object):
             self.id = status_id
             self.value = value
 
-    def __init__(self, link, content_type, status):
-        """
+    link: Optional[object] = None
+    content_type: Optional[str] = None
+    status: Optional[object] = None
 
-        Args:
-            link (:obj:`CxLink`):
-            content_type (str):
-            status (:obj:`CxScanReportStatus.Status`):
-        """
-        self.link = link
-        self.content_type = content_type
-        self.status = status
-
-    def __str__(self):
-        return "CxScanReportStatus(link={}, content_type={}, status={})".format(
-            self.link, self.content_type, self.status
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanReportStatus":
+        status_dict = item.get("status") or {}
+        return cls(
+            link=item.get("link"),
+            content_type=item.get("contentType"),
+            status=CxScanReportStatus.Status(
+                status_id=status_dict.get("id"),
+                value=status_dict.get("value"),
+            ),
         )

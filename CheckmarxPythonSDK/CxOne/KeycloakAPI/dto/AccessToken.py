@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 from .Access import Access
 from .AddressClaimSet import AddressClaimSet
@@ -60,155 +59,157 @@ class AccessToken:
         result: Dict[str, Any] = {}
         if self.jti is not None:
             value = self.jti
-            result['jti'] = value
+            result["jti"] = value
         if self.exp is not None:
             value = self.exp
-            result['exp'] = value
+            result["exp"] = value
         if self.nbf is not None:
             value = self.nbf
-            result['nbf'] = value
+            result["nbf"] = value
         if self.iat is not None:
             value = self.iat
-            result['iat'] = value
+            result["iat"] = value
         if self.iss is not None:
             value = self.iss
-            result['iss'] = value
+            result["iss"] = value
         if self.sub is not None:
             value = self.sub
-            result['sub'] = value
+            result["sub"] = value
         if self.typ is not None:
             value = self.typ
-            result['typ'] = value
+            result["typ"] = value
         if self.azp is not None:
             value = self.azp
-            result['azp'] = value
+            result["azp"] = value
         if self.other_claims is not None:
             value = self.other_claims
-            result['otherClaims'] = value
+            result["otherClaims"] = value
         if self.nonce is not None:
             value = self.nonce
-            result['nonce'] = value
+            result["nonce"] = value
         if self.auth_time is not None:
             value = self.auth_time
-            result['authTime'] = value
+            result["authTime"] = value
         if self.session_state is not None:
             value = self.session_state
-            result['sessionState'] = value
+            result["sessionState"] = value
         if self.at_hash is not None:
             value = self.at_hash
-            result['atHash'] = value
+            result["atHash"] = value
         if self.c_hash is not None:
             value = self.c_hash
-            result['cHash'] = value
+            result["cHash"] = value
         if self.name is not None:
             value = self.name
-            result['name'] = value
+            result["name"] = value
         if self.given_name is not None:
             value = self.given_name
-            result['givenName'] = value
+            result["givenName"] = value
         if self.family_name is not None:
             value = self.family_name
-            result['familyName'] = value
+            result["familyName"] = value
         if self.middle_name is not None:
             value = self.middle_name
-            result['middleName'] = value
+            result["middleName"] = value
         if self.nickname is not None:
             value = self.nickname
-            result['nickname'] = value
+            result["nickname"] = value
         if self.preferred_username is not None:
             value = self.preferred_username
-            result['preferredUsername'] = value
+            result["preferredUsername"] = value
         if self.profile is not None:
             value = self.profile
-            result['profile'] = value
+            result["profile"] = value
         if self.picture is not None:
             value = self.picture
-            result['picture'] = value
+            result["picture"] = value
         if self.website is not None:
             value = self.website
-            result['website'] = value
+            result["website"] = value
         if self.email is not None:
             value = self.email
-            result['email'] = value
+            result["email"] = value
         if self.email_verified is not None:
             value = self.email_verified
-            result['emailVerified'] = value
+            result["emailVerified"] = value
         if self.gender is not None:
             value = self.gender
-            result['gender'] = value
+            result["gender"] = value
         if self.birthdate is not None:
             value = self.birthdate
-            result['birthdate'] = value
+            result["birthdate"] = value
         if self.zoneinfo is not None:
             value = self.zoneinfo
-            result['zoneinfo'] = value
+            result["zoneinfo"] = value
         if self.locale is not None:
             value = self.locale
-            result['locale'] = value
+            result["locale"] = value
         if self.phone_number is not None:
             value = self.phone_number
-            result['phoneNumber'] = value
+            result["phoneNumber"] = value
         if self.phone_number_verified is not None:
             value = self.phone_number_verified
-            result['phoneNumberVerified'] = value
+            result["phoneNumberVerified"] = value
         if self.address is not None:
             value = self.address.to_dict()
-            result['address'] = value
+            result["address"] = value
         if self.updated_at is not None:
             value = self.updated_at
-            result['updatedAt'] = value
+            result["updatedAt"] = value
         if self.claims_locales is not None:
             value = self.claims_locales
-            result['claimsLocales'] = value
+            result["claimsLocales"] = value
         if self.acr is not None:
             value = self.acr
-            result['acr'] = value
+            result["acr"] = value
         if self.s_hash is not None:
             value = self.s_hash
-            result['sHash'] = value
+            result["sHash"] = value
         if self.auth_time is not None:
             value = self.auth_time
-            result['authTime'] = value
+            result["authTime"] = value
         if self.sid is not None:
             value = self.sid
-            result['sid'] = value
+            result["sid"] = value
         if self.trusted_certs is not None:
             value = self.trusted_certs
-            result['trustedCerts'] = value
+            result["trustedCerts"] = value
         if self.allowed_origins is not None:
             value = self.allowed_origins
-            result['allowedOrigins'] = value
+            result["allowedOrigins"] = value
         if self.realm_access is not None:
             value = self.realm_access.to_dict()
-            result['realmAccess'] = value
+            result["realmAccess"] = value
         if self.resource_access is not None:
             value = self.resource_access
-            result['resourceAccess'] = value
+            result["resourceAccess"] = value
         if self.authorization is not None:
             value = self.authorization.to_dict()
-            result['authorization'] = value
+            result["authorization"] = value
         if self.cnf is not None:
             value = self.cnf.to_dict()
-            result['cnf'] = value
+            result["cnf"] = value
         if self.scope is not None:
             value = self.scope
-            result['scope'] = value
+            result["scope"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "AccessToken":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
-        if 'address' in snake_data and snake_data['address'] is not None:
-            snake_data['address'] = AddressClaimSet.from_dict(snake_data['address'])
-        if 'realm_access' in snake_data and snake_data['realm_access'] is not None:
-            snake_data['realm_access'] = Access.from_dict(snake_data['realm_access'])
-        if 'authorization' in snake_data and snake_data['authorization'] is not None:
-            snake_data['authorization'] = Authorization.from_dict(snake_data['authorization'])
-        if 'cnf' in snake_data and snake_data['cnf'] is not None:
-            snake_data['cnf'] = Confirmation.from_dict(snake_data['cnf'])
+        if "address" in snake_data and snake_data["address"] is not None:
+            snake_data["address"] = AddressClaimSet.from_dict(snake_data["address"])
+        if "realm_access" in snake_data and snake_data["realm_access"] is not None:
+            snake_data["realm_access"] = Access.from_dict(snake_data["realm_access"])
+        if "authorization" in snake_data and snake_data["authorization"] is not None:
+            snake_data["authorization"] = Authorization.from_dict(
+                snake_data["authorization"]
+            )
+        if "cnf" in snake_data and snake_data["cnf"] is not None:
+            snake_data["cnf"] = Confirmation.from_dict(snake_data["cnf"])
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

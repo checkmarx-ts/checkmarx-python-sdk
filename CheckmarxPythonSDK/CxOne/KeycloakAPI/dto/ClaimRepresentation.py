@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -21,42 +20,42 @@ class ClaimRepresentation:
         result: Dict[str, Any] = {}
         if self.name is not None:
             value = self.name
-            result['name'] = value
+            result["name"] = value
         if self.username is not None:
             value = self.username
-            result['username'] = value
+            result["username"] = value
         if self.profile is not None:
             value = self.profile
-            result['profile'] = value
+            result["profile"] = value
         if self.picture is not None:
             value = self.picture
-            result['picture'] = value
+            result["picture"] = value
         if self.website is not None:
             value = self.website
-            result['website'] = value
+            result["website"] = value
         if self.email is not None:
             value = self.email
-            result['email'] = value
+            result["email"] = value
         if self.gender is not None:
             value = self.gender
-            result['gender'] = value
+            result["gender"] = value
         if self.locale is not None:
             value = self.locale
-            result['locale'] = value
+            result["locale"] = value
         if self.address is not None:
             value = self.address
-            result['address'] = value
+            result["address"] = value
         if self.phone is not None:
             value = self.phone
-            result['phone'] = value
+            result["phone"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "ClaimRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

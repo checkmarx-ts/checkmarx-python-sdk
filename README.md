@@ -163,8 +163,24 @@ any Checkmarx Python SDK function.
 
 # Connect to multiple systems at the same time
 
-Now each API class has been refactored to accept an api_client(class ApiClient) with configuration (class Configuration).
-You can pass different api_client with different configuration for each API class.
+Each API class accepts an `api_client` (`ApiClient`) with a `configuration` (`Configuration`).
+You can pass different `ApiClient` instances with different `Configuration` objects to each API class, allowing simultaneous connections to multiple CxOne tenants or environments.
+
+See [examples/CxOne/cxone_direct_configuration.py](examples/CxOne/cxone_direct_configuration.py) for runnable examples covering `refresh_token`, `client_credentials`, and multi-tenant usage.
+
+### `Configuration` parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `timeout` | `int` | `60` | HTTP request timeout in seconds |
+| `verify` | `bool` or `str` | `True` | TLS verification. `False` to disable, or a path to a CA bundle / self-signed cert `.pem` file |
+| `cert` | `str` | `None` | Path to a client certificate file |
+| `proxy` | `str` | `None` | Proxy URL, e.g. `"http://proxy.example.com:8080"` |
+| `logging_level` | `str` | `"ERROR"` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` |
+| `max_retries` | `int` | `3` | Number of HTTP retries on transient failures |
+| `rate_limit_capacity` | `int` | `20000` | Token-bucket capacity (max burst requests) |
+| `rate_limit_period` | `int` | `300` | Period in seconds over which capacity refills |
+| `rate_limit_refill_rate` | `float` | `None` | Tokens per second; auto-calculated from capacity/period if `None` |
 
 # CxSAST self-signed certificate
 For CxSAST self-signed certificate, you can use the verify in configuration as a string, which is a path to the public 

@@ -3,7 +3,7 @@ from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI, config
 
 class ConfigOverride:
 
-    keys = ['base_url', 'username', 'password']
+    keys = ["base_url", "username", "password"]
 
     def __init__(self, new_config):
 
@@ -23,16 +23,12 @@ class ConfigOverride:
 
 
 configs = {
-    'dst': {
-        'base_url': ' http://HappyY-Laptop',
-        'username': 'Admin',
-        'password': '****'
+    "dst": {
+        "base_url": " http://HappyY-Laptop",
+        "username": "Admin",
+        "password": "****",
     },
-    'src': {
-        'base_url': ' http://192.168.3.84',
-        'username': 'Admin',
-        'password': '***'
-    }
+    "src": {"base_url": " http://192.168.3.84", "username": "Admin", "password": "***"},
 }
 
 teamAPI = TeamAPI()
@@ -40,8 +36,8 @@ for c in configs.values():
     print(f'Retrieving data from {c["base_url"]}')
     with ConfigOverride(c):
         teams = teamAPI.get_all_teams()
-        print(f'Found {len(teams)} teams')
+        print(f"Found {len(teams)} teams")
         if len(teams) == 0:
-            print('Trying again...')
+            print("Trying again...")
             teams = teamAPI.get_all_teams
-            print(f'Found {len(teams)} teams')
+            print(f"Found {len(teams)} teams")

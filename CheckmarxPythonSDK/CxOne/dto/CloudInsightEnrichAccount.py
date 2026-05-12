@@ -3,12 +3,12 @@ from dataclasses import dataclass
 
 @dataclass
 class CloudInsightEnrichAccount:
-    name: str = None  # The account name
-    account_id: str = None  # A unique identifier to the enrichment account
+    name: str = None
+    account_id: str = None
 
-
-def construct_cloud_insight_enrich_account(item):
-    return CloudInsightEnrichAccount(
+    @classmethod
+    def from_dict(cls, item: dict) -> "CloudInsightEnrichAccount":
+        return cls(
             name=item.get("name"),
             account_id=item.get("accountID"),
         )

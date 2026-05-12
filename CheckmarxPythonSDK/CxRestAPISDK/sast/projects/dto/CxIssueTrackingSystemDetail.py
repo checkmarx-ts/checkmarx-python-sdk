@@ -1,24 +1,26 @@
 # encoding: utf-8
+from dataclasses import dataclass, field
+from typing import List, Optional
+from .CxIssueTrackingSystemType import CxIssueTrackingSystemType
 
 
-class CxIssueTrackingSystemDetail(object):
-
+@dataclass
+class CxIssueTrackingSystemDetail:
     """
-    issue tracking system
+    issue tracking system detail
     """
-    def __init__(self, tracking_system_detail_id, name, issue_types=None):
-        """
 
-        Args:
-            tracking_system_detail_id (int):
-            name (str):
-            issue_types (:obj:`list` of :obj:`CxIssueTrackingSystemType`):
-        """
-        self.id = tracking_system_detail_id
-        self.name = name
-        self.issue_types = issue_types
+    id: Optional[int] = None
+    name: Optional[str] = None
+    issue_types: List[CxIssueTrackingSystemType] = field(default_factory=list)
 
-    def __str__(self):
-        return "CxIssueTrackingSystemDetail(id={}, name={}, issue_types={})".format(
-            self.id, self.name, self.issue_types
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxIssueTrackingSystemDetail":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            issue_types=[
+                CxIssueTrackingSystemType.from_dict(t)
+                for t in (item.get("issueTypes") or [])
+            ],
         )

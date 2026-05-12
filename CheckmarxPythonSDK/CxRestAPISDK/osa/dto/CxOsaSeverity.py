@@ -1,22 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxOsaSeverity(object):
+@dataclass
+class CxOsaSeverity:
     """
     severity
     """
-    def __init__(self, severity_id, name):
-        """
 
-        Args:
-            severity_id (int):
-            name  (str): eg. "High"
-        """
+    id: Optional[int] = None
+    name: Optional[str] = None
 
-        self.id = severity_id
-        self.name = name
-
-    def __str__(self):
-        return """CxOsaSeverity(id={}, name={})""".format(
-            self.id, self.name
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxOsaSeverity":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
         )

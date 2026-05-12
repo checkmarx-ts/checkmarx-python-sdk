@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .Resource import Resource, construct_resource
+from .Resource import Resource
 
 
 @dataclass
@@ -10,13 +10,11 @@ class PaginatedResourcesList:
     current_page: int = None
     last_page: int = None
 
-
-def construct_paginated_resources_list(item):
-    return PaginatedResourcesList(
-        data=[
-            construct_resource(resource) for resource in item.get("data", [])
-        ],
-        total=item.get("total"),
-        current_page=item.get("currentPage"),
-        last_page=item.get("lastPage"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "PaginatedResourcesList":
+        return cls(
+            data=[Resource.from_dict(r) for r in (item.get("data") or [])],
+            total=item.get("total"),
+            current_page=item.get("currentPage"),
+            last_page=item.get("lastPage"),
+        )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from .UserWithResource import UserWithResource, construct_user_with_resource
+from .UserWithResource import UserWithResource
 
 
 @dataclass
@@ -9,12 +9,10 @@ class UsersWithResourcesResponse:
     filtered_count: None = None
     users: List[UserWithResource] = None
 
-
-def construct_users_with_resources_response(item):
-    return UsersWithResourcesResponse(
-        total_count=item.get("totalCount"),
-        filtered_count=item.get("filteredCount"),
-        users=[
-            construct_user_with_resource(user) for user in item.get("users", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "UsersWithResourcesResponse":
+        return cls(
+            total_count=item.get("totalCount"),
+            filtered_count=item.get("filteredCount"),
+            users=[UserWithResource.from_dict(u) for u in (item.get("users") or [])],
+        )

@@ -15,8 +15,10 @@ class SarifTaxaRelationshipTarget:
         self.toolComponent = tool_component
 
     def __str__(self):
-        return f"SarifTaxaRelationshipTarget(" \
-               f"target_id={self.id}, "\
-               f"index={self.index}, "\
-               f"tool_component={self.toolComponent}"\
-               f")"
+        return (
+            f"SarifTaxaRelationshipTarget("
+            f"target_id={self.id}, "
+            f"index={self.index}, "
+            f"tool_component={self.toolComponent}"
+            f")"
+        )

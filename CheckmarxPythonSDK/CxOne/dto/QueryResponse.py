@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .Metadata import Metadata, construct_metadata
+from .Metadata import Metadata
 
 
 @dataclass
@@ -11,13 +11,13 @@ class QueryResponse:
     source: str = None
     metadata: Metadata = None
 
-
-def construct_query_response(item):
-    return QueryResponse(
-        id=item.get("id"),
-        name=item.get("name"),
-        level=item.get("level"),
-        path=item.get("path"),
-        source=item.get("source"),
-        metadata=construct_metadata(item.get("metadata"))
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "QueryResponse":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            level=item.get("level"),
+            path=item.get("path"),
+            source=item.get("source"),
+            metadata=Metadata.from_dict(item.get("metadata")),
+        )

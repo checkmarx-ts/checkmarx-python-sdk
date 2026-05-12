@@ -1,34 +1,25 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxTeam(object):
+@dataclass
+class CxTeam:
     """
     The team.
     """
-    def __init__(self, team_id=None, name=None, full_name=None, parent_id=None):
-        """
 
-        Args:
-            team_id (int, str): team id is unique at global level.
-                                        From v9.0, team id changes to integer
-            name (str): the name after last slash in the full name, this name is not unique at global level.
-            full_name (str): team full name.
-                from v9.0, team full name change to linux file path style, used to be windows style
-                for example: "/CxServer/SP/Company/Users",
-                team full name is unique at global level
-                default team full names:
-                '/CxServer'
-                '/CxServer/SP'
-                '/CxServer/SP/Company'
-                '/CxServer/SP/Company/Users'
-            parent_id (int, str):
-        """
-        self.team_id = team_id
-        self.name = name
-        self.full_name = full_name.replace("\\", "/")
-        self.parent_id = parent_id
+    team_id: Optional[int] = None
+    name: Optional[str] = None
+    full_name: Optional[str] = None
+    parent_id: Optional[int] = None
 
-    def __str__(self):
-        return "CxTeam(team_id={}, name={}, full_name={}, parent_id={})".format(
-            self.team_id, self.name, self.full_name, self.parent_id
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxTeam":
+        full_name = item.get("fullName") or ""
+        return cls(
+            team_id=item.get("id"),
+            name=item.get("name"),
+            full_name=full_name.replace("\\", "/"),
+            parent_id=item.get("parentId"),
         )

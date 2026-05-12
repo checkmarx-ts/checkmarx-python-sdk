@@ -1,57 +1,41 @@
 import certifi
 import functools
-import requests
+import httpx
+import ssl
 import time
+import typing
 from typing import Callable, Union
-from urllib3.util import Retry
-from requests import Session
-from requests.adapters import HTTPAdapter
 from .configuration import Configuration
 from .rate_limiter import RateLimiter
 from CheckmarxPythonSDK.utilities.compat import (
-    OK, UNAUTHORIZED, NO_CONTENT, CREATED, ACCEPTED
+    OK,
+    UNAUTHORIZED,
+    NO_CONTENT,
+    CREATED,
+    ACCEPTED,
 )
-import ssl
-from urllib3.util.ssl_ import create_urllib3_context
 
 
-class CustomTLSAdapter(HTTPAdapter):
-    def __init__(self, *args, **kwargs):
-        self.ssl_context = None
-        super().__init__(*args, **kwargs)
-
-    def init_poolmanager(self, *args, **kwargs):
-        if self.ssl_context is None:
-            ctx = create_urllib3_context()
-            ctx.options |= ssl.OP_NO_SSLv2
-            ctx.options |= ssl.OP_NO_SSLv3
-            ctx.options |= ssl.OP_NO_TLSv1
-            ctx.options |= ssl.OP_NO_TLSv1_1
-            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
-            ctx.maximum_version = ssl.TLSVersion.TLSv1_3
-            self.ssl_context = ctx
-        kwargs['ssl_context'] = self.ssl_context
-        return super().init_poolmanager(*args, **kwargs)
-
-    def send(self, request, **kwargs):
-        # If verify=False is passed to the request, disable hostname checking
-        verify = kwargs.get('verify', True)
-        if not verify and self.ssl_context:
-            self.ssl_context.check_hostname = False
-        return super().send(request, **kwargs)
-
-
-def create_session() -> Session:
-    session = Session()
-    retries = Retry(
-        total=3,
-        backoff_factor=1,
-        status_forcelist=[500, 502, 503, 504],
-        allowed_methods={'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'},
+def create_session(configuration: Configuration) -> httpx.Client:
+    raw_verify = configuration.verify
+    if isinstance(raw_verify, str):
+        raw_verify = False if raw_verify.lower() == "false" else (True if raw_verify.lower() == "true" else raw_verify)
+    if raw_verify is False:
+        verify = False
+    else:
+        ctx = ssl.create_default_context()
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        ctx.maximum_version = ssl.TLSVersion.TLSv1_3
+        if raw_verify is True:
+            ctx.load_verify_locations(certifi.where())
+        else:
+            ctx.load_verify_locations(raw_verify)
+        verify = ctx
+    return httpx.Client(
+        cert=configuration.cert,
+        proxy=configuration.proxy,
+        transport=httpx.HTTPTransport(retries=3, verify=verify),
     )
-    session.mount('https://', CustomTLSAdapter(max_retries=retries))
-    session.mount('http://', HTTPAdapter(max_retries=retries))
-    return session
 
 
 def create_token_request_data(configuration: Configuration) -> dict:
@@ -106,31 +90,38 @@ class TokenManager:
         self.current_token = self.token_refresh_func(*self.args, **self.kwargs)
 
 
-def retry_when_unauthorized(max_retries: int = 1):
+def retry():
     """
     Decorator that retries the HTTP request when receiving a 401 Unauthorized or 429 Too Many Requests response.
+    Uses self.configuration.max_retries to determine the retry count.
     """
 
     def decorator(func: Callable):
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
+            max_retries = self.configuration.max_retries
             retries = 0
             last_exception = None
 
             while retries <= max_retries:
                 try:
-                    headers = kwargs.get('headers', {}) or {}
-                    if not headers.get("Authorization"):
-                        token = self.token_manager.get_token()
-                        headers['Authorization'] = f'Bearer {token}'
-                    kwargs['headers'] = headers
+                    headers = dict(kwargs.get("headers", {}) or {})
+                    token = self.token_manager.get_token()
+                    headers["Authorization"] = f"Bearer {token}"
+                    kwargs["headers"] = headers
 
                     response = func(self, *args, **kwargs)
 
-                    if hasattr(response, 'status_code'):
+                    if hasattr(response, "status_code"):
                         if response.status_code == 401:
                             if retries < max_retries:
                                 self.token_manager.refresh_token()
+                                retries += 1
+                                continue
+                            else:
+                                response.raise_for_status()
+                        elif response.status_code in (500, 502, 503, 504):
+                            if retries < max_retries:
                                 retries += 1
                                 continue
                             else:
@@ -140,27 +131,40 @@ def retry_when_unauthorized(max_retries: int = 1):
                                 # Handle rate limiting
                                 backoff_time = None
                                 # 1. Try to get Retry-After header first
-                                if response.headers.get('Retry-After'):
-                                    retry_after = response.headers['Retry-After']
+                                if response.headers.get("Retry-After"):
+                                    retry_after = response.headers["Retry-After"]
                                     try:
                                         # If it's a number of seconds
                                         backoff_time = int(retry_after)
                                     except ValueError:
                                         # If it's a GMT date string, parse it
                                         from email.utils import parsedate_to_datetime
+
                                         retry_date = parsedate_to_datetime(retry_after)
                                         import datetime
-                                        backoff_time = (retry_date - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
-                                        backoff_time = max(1, backoff_time)  # Ensure at least 1 second
-                                
+
+                                        backoff_time = (
+                                            retry_date
+                                            - datetime.datetime.now(
+                                                datetime.timezone.utc
+                                            )
+                                        ).total_seconds()
+                                        backoff_time = max(
+                                            1, backoff_time
+                                        )  # Ensure at least 1 second
+
                                 # 2. If no Retry-After, use exponential backoff
                                 if backoff_time is None:
                                     # Initial wait: 60 seconds (1 minute), max wait: 300 seconds (5 minutes)
                                     base_wait = 60
                                     max_wait = 300
-                                    backoff_time = min(base_wait * (2 ** retries), max_wait)
-                                
-                                print(f"Rate limited (429), waiting {backoff_time:.2f} seconds before retrying...")
+                                    backoff_time = min(
+                                        base_wait * (2**retries), max_wait
+                                    )
+
+                                print(
+                                    f"Rate limited (429), waiting {backoff_time:.2f} seconds before retrying..."
+                                )
                                 time.sleep(backoff_time)
                                 retries += 1
                                 continue
@@ -169,44 +173,8 @@ def retry_when_unauthorized(max_retries: int = 1):
 
                     return response
 
-                except requests.exceptions.HTTPError as e:
-                    if e.response and e.response.status_code == 401 and retries < max_retries:
-                        self.token_manager.refresh_token()
-                        retries += 1
-                        last_exception = e
-                        continue
-                    elif e.response and e.response.status_code == 429 and retries < max_retries:
-                        # Handle rate limiting
-                        backoff_time = None
-                        # 1. Try to get Retry-After header first
-                        if e.response.headers.get('Retry-After'):
-                            retry_after = e.response.headers['Retry-After']
-                            try:
-                                # If it's a number of seconds
-                                backoff_time = int(retry_after)
-                            except ValueError:
-                                # If it's a GMT date string, parse it
-                                from email.utils import parsedate_to_datetime
-                                retry_date = parsedate_to_datetime(retry_after)
-                                import datetime
-                                backoff_time = (retry_date - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
-                                backoff_time = max(1, backoff_time)  # Ensure at least 1 second
-                        
-                        # 2. If no Retry-After, use exponential backoff
-                        if backoff_time is None:
-                            # Initial wait: 60 seconds (1 minute), max wait: 300 seconds (5 minutes)
-                            base_wait = 60
-                            max_wait = 300
-                            backoff_time = min(base_wait * (2 ** retries), max_wait)
-                        
-                        print(f"Rate limited (429), waiting {backoff_time:.2f} seconds before retrying...")
-                        time.sleep(backoff_time)
-                        retries += 1
-                        last_exception = e
-                        continue
-                    raise
-
                 except Exception as e:
+                    print(f"error: {e}")
                     raise
 
             if last_exception:
@@ -223,22 +191,26 @@ def check_response(response):
     status_code = response.status_code
     text = response.text
     if True in [
-        method in ['GET', 'HEAD'] and status_code not in [OK, UNAUTHORIZED],
-        method == 'POST' and status_code not in [OK, NO_CONTENT, CREATED, UNAUTHORIZED, ACCEPTED],
-        method in ['PUT', 'PATCH', 'DELETE'] and status_code not in [OK, NO_CONTENT, ACCEPTED, UNAUTHORIZED],
+        method in ["GET", "HEAD"] and status_code not in [OK, UNAUTHORIZED],
+        method == "POST"
+        and status_code not in [OK, NO_CONTENT, CREATED, UNAUTHORIZED, ACCEPTED],
+        method in ["PUT", "PATCH", "DELETE"]
+        and status_code not in [OK, NO_CONTENT, ACCEPTED, UNAUTHORIZED],
     ]:
-        raise ValueError("HttpStatusCode: {code}".format(code=status_code),
-                         "ErrorMessage: {msg}".format(msg=text))
+        raise ValueError(
+            "HttpStatusCode: {code}".format(code=status_code),
+            "ErrorMessage: {msg}".format(msg=text),
+        )
 
 
 class ApiClient:
     def __init__(self, configuration: Configuration = None, url_prefix: str = ""):
         self.configuration = configuration
-        self.session = create_session()
-        self.token_req_data = create_token_request_data(configuration)
-        self.token_manager = TokenManager(self.refresh_token)
+        self.session = create_session(configuration=configuration)
+        self.token_req_data = create_token_request_data(configuration=configuration)
+        self.token_manager = TokenManager(token_refresh_func=self.refresh_token)
         self.url_prefix = url_prefix
-        
+
         # Initialize rate limiter with configuration values
         capacity = configuration.rate_limit_capacity
         if configuration.rate_limit_refill_rate:
@@ -249,42 +221,33 @@ class ApiClient:
         self.rate_limiter = RateLimiter(capacity=capacity, refill_rate=refill_rate)
 
     def refresh_token(self):
-        auth_response = requests.post(
+        auth_response = self.session.post(
             url=self.configuration.token_url,
             data=self.token_req_data,
             timeout=self.configuration.timeout,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
         )
         auth_response.raise_for_status()
         return auth_response.json()["access_token"]
 
-    def create_url(self, relative_url, is_iam) -> str:
-        url = f"{self.configuration.server_base_url}{self.url_prefix}{relative_url}"
-        # is_iam is used for Access Control API
-        if is_iam:
-            http_fqdn_list = self.configuration.token_url.split("/")[0:3]
-            http_fqdn_list.pop(1)
-            access_control_url = "//".join(http_fqdn_list)
-            url = access_control_url.rstrip('/') + '/' + relative_url.lstrip('/')
-        return url
-
-    @retry_when_unauthorized(max_retries=2)
+    @retry()
     def call_api(
-            self,
-            method: str,
-            url: str,
-            params: dict = None,
-            data=None,
-            files=None,
-            json: dict = None,
-            auth=None,
-            headers: dict = None,
+        self,
+        method: str,
+        url: str,
+        params: dict = None,
+        data=None,
+        files=None,
+        json: Union[typing.Any, None] = None,
+        auth=None,
+        headers: dict = None,
     ):
         # Acquire token for rate limiting
-        self.rate_limiter.acquire()
-        
+        if not self.rate_limiter.acquire():
+            raise RuntimeError("Rate limiter failed to acquire token")
+
+        if params:
+            params = {k: v for k, v in params.items() if v is not None}
+
         response = self.session.request(
             method=method,
             url=url,
@@ -295,38 +258,24 @@ class ApiClient:
             auth=auth,
             timeout=self.configuration.timeout,
             headers=headers,
-            verify=certifi.where() if self.configuration.verify is True else self.configuration.verify,
-            cert=self.configuration.cert,
-            proxies=self.configuration.proxies
         )
         check_response(response)
         return response
 
-    def head_request(self, relative_url, auth=None, headers=None, json=None, params=None, is_iam=False):
-        url = self.create_url(relative_url=relative_url, is_iam=is_iam)
+    def head_request(self, url, auth=None, headers=None, json=None, params=None):
         return self.call_api(method="HEAD", url=url, auth=auth, headers=headers, json=json, params=params)
 
-    def get_request(self, relative_url, auth=None, headers=None, params=None, is_iam=False):
-        url = self.create_url(relative_url=relative_url, is_iam=is_iam)
+    def get_request(self, url, auth=None, headers=None, params=None):
         return self.call_api(method="GET", url=url, auth=auth, headers=headers, params=params)
 
-    def post_request(self, relative_url, data=None, files=None, auth=None, headers=None, params=None, json=None,
-                     is_iam=False):
-        url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.call_api(method="POST", url=url, data=data, files=files, auth=auth, headers=headers, params=params,
-                             json=json)
+    def post_request(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
+        return self.call_api(method="POST", url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
 
-    def put_request(
-            self, relative_url, data=None, files=None, auth=None, headers=None, params=None, json=None, is_iam=False
-    ):
-        url = self.create_url(relative_url=relative_url, is_iam=is_iam)
-        return self.call_api(method="PUT", url=url, data=data, files=files, auth=auth, headers=headers, params=params,
-                             json=json)
+    def put_request(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
+        return self.call_api(method="PUT", url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
 
-    def patch_request(self, relative_url, data=None, auth=None, headers=None, params=None, json=None, is_iam=False):
-        url = self.create_url(relative_url=relative_url, is_iam=is_iam)
+    def patch_request(self, url, data=None, auth=None, headers=None, params=None, json=None):
         return self.call_api(method="PATCH", url=url, data=data, auth=auth, headers=headers, params=params, json=json)
 
-    def delete_request(self, relative_url, data=None, auth=None, headers=None, params=None, json=None, is_iam=False):
-        url = self.create_url(relative_url=relative_url, is_iam=is_iam)
+    def delete_request(self, url, data=None, auth=None, headers=None, params=None, json=None):
         return self.call_api(method="DELETE", url=url, data=data, auth=auth, headers=headers, params=params, json=json)

@@ -1,27 +1,18 @@
-from dataclasses import dataclass
-from .ScanInfo import ScanInfo, construct_scan_info
+from dataclasses import dataclass, field
 from typing import List
+from .ScanInfo import ScanInfo
 
 
 @dataclass
 class ScanInfoCollection:
-    """
+    total_count: int = None
+    scans: List[ScanInfo] = field(default_factory=list)
+    missing: List[str] = field(default_factory=list)
 
-    Args:
-        total_count (int): The number of records matching the applied filter.
-        scans (list of ScanInfo): Scans of that specific group.
-        missing (list str): List of scan ids that wasn't found.
-    """
-    total_count: int
-    scans: List[ScanInfo]
-    missing: List[str]
-
-
-def construct_scan_info_collection(item):
-    return ScanInfoCollection(
-        total_count=item.get("totalCount"),
-        scans=[
-            construct_scan_info(scan_info) for scan_info in item.get("scans", [])
-        ],
-        missing=item.get("missing")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ScanInfoCollection":
+        return cls(
+            total_count=item.get("totalCount"),
+            scans=[ScanInfo.from_dict(s) for s in (item.get("scans") or [])],
+            missing=item.get("missing") or [],
+        )

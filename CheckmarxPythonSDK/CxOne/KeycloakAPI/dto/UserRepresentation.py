@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 from .CredentialRepresentation import CredentialRepresentation
 from .FederatedIdentityRepresentation import FederatedIdentityRepresentation
@@ -43,111 +42,126 @@ class UserRepresentation:
         result: Dict[str, Any] = {}
         if self.self is not None:
             value = self.self
-            result['self'] = value
+            result["self"] = value
         if self.id is not None:
             value = self.id
-            result['id'] = value
+            result["id"] = value
         if self.origin is not None:
             value = self.origin
-            result['origin'] = value
+            result["origin"] = value
         if self.created_timestamp is not None:
             value = self.created_timestamp
-            result['createdTimestamp'] = value
+            result["createdTimestamp"] = value
         if self.username is not None:
             value = self.username
-            result['username'] = value
+            result["username"] = value
         if self.enabled is not None:
             value = self.enabled
-            result['enabled'] = value
+            result["enabled"] = value
         if self.totp is not None:
             value = self.totp
-            result['totp'] = value
+            result["totp"] = value
         if self.email_verified is not None:
             value = self.email_verified
-            result['emailVerified'] = value
+            result["emailVerified"] = value
         if self.first_name is not None:
             value = self.first_name
-            result['firstName'] = value
+            result["firstName"] = value
         if self.last_name is not None:
             value = self.last_name
-            result['lastName'] = value
+            result["lastName"] = value
         if self.email is not None:
             value = self.email
-            result['email'] = value
+            result["email"] = value
         if self.federation_link is not None:
             value = self.federation_link
-            result['federationLink'] = value
+            result["federationLink"] = value
         if self.service_account_client_id is not None:
             value = self.service_account_client_id
-            result['serviceAccountClientId'] = value
+            result["serviceAccountClientId"] = value
         if self.attributes is not None:
             value = self.attributes
-            result['attributes'] = value
+            result["attributes"] = value
         if self.credentials is not None:
             value = [item.to_dict() for item in self.credentials]
-            result['credentials'] = value
+            result["credentials"] = value
         if self.disableable_credential_types is not None:
             value = self.disableable_credential_types
-            result['disableableCredentialTypes'] = value
+            result["disableableCredentialTypes"] = value
         if self.required_actions is not None:
             value = self.required_actions
-            result['requiredActions'] = value
+            result["requiredActions"] = value
         if self.federated_identities is not None:
             value = [item.to_dict() for item in self.federated_identities]
-            result['federatedIdentities'] = value
+            result["federatedIdentities"] = value
         if self.realm_roles is not None:
             value = self.realm_roles
-            result['realmRoles'] = value
+            result["realmRoles"] = value
         if self.client_roles is not None:
             value = self.client_roles
-            result['clientRoles'] = value
+            result["clientRoles"] = value
         if self.client_consents is not None:
             value = [item.to_dict() for item in self.client_consents]
-            result['clientConsents'] = value
+            result["clientConsents"] = value
         if self.not_before is not None:
             value = self.not_before
-            result['notBefore'] = value
+            result["notBefore"] = value
         if self.application_roles is not None:
             value = self.application_roles
-            result['applicationRoles'] = value
+            result["applicationRoles"] = value
         if self.social_links is not None:
             value = [item.to_dict() for item in self.social_links]
-            result['socialLinks'] = value
+            result["socialLinks"] = value
         if self.groups is not None:
             value = self.groups
-            result['groups'] = value
+            result["groups"] = value
         if self.access is not None:
             value = self.access
-            result['access'] = value
+            result["access"] = value
         if self.user_profile_metadata is not None:
             value = self.user_profile_metadata.to_dict()
-            result['userProfileMetadata'] = value
+            result["userProfileMetadata"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "UserRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
-        if 'user_profile_metadata' in snake_data and snake_data['user_profile_metadata'] is not None:
-            snake_data['user_profile_metadata'] = UserProfileMetadata.from_dict(snake_data['user_profile_metadata'])
-        if 'credentials' in snake_data and snake_data['credentials'] is not None:
-            snake_data['credentials'] = [
-                CredentialRepresentation.from_dict(item) for item in snake_data['credentials']
+        if (
+            "user_profile_metadata" in snake_data
+            and snake_data["user_profile_metadata"] is not None
+        ):
+            snake_data["user_profile_metadata"] = UserProfileMetadata.from_dict(
+                snake_data["user_profile_metadata"]
+            )
+        if "credentials" in snake_data and snake_data["credentials"] is not None:
+            snake_data["credentials"] = [
+                CredentialRepresentation.from_dict(item)
+                for item in snake_data["credentials"]
             ]
-        if 'federated_identities' in snake_data and snake_data['federated_identities'] is not None:
-            snake_data['federated_identities'] = [
-                FederatedIdentityRepresentation.from_dict(item) for item in snake_data['federated_identities']
+        if (
+            "federated_identities" in snake_data
+            and snake_data["federated_identities"] is not None
+        ):
+            snake_data["federated_identities"] = [
+                FederatedIdentityRepresentation.from_dict(item)
+                for item in snake_data["federated_identities"]
             ]
-        if 'client_consents' in snake_data and snake_data['client_consents'] is not None:
-            snake_data['client_consents'] = [
-                UserConsentRepresentation.from_dict(item) for item in snake_data['client_consents']
+        if (
+            "client_consents" in snake_data
+            and snake_data["client_consents"] is not None
+        ):
+            snake_data["client_consents"] = [
+                UserConsentRepresentation.from_dict(item)
+                for item in snake_data["client_consents"]
             ]
-        if 'social_links' in snake_data and snake_data['social_links'] is not None:
-            snake_data['social_links'] = [
-                SocialLinkRepresentation.from_dict(item) for item in snake_data['social_links']
+        if "social_links" in snake_data and snake_data["social_links"] is not None:
+            snake_data["social_links"] = [
+                SocialLinkRepresentation.from_dict(item)
+                for item in snake_data["social_links"]
             ]
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

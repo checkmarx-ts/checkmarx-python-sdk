@@ -1,15 +1,13 @@
+from dataclasses import dataclass, asdict
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
-from .utilities import type_check
 from .dto import (
     ImportRequest,
-    ImportResults, construct_import_results,
+    ImportResults,
     TriageRequest,
-    TriageResponse, construct_triage_response,
+    TriageResponse,
 )
-
-api_url = "/api/v1/byor"
 
 
 class ByorResultsHandlerAPI(object):
@@ -19,50 +17,51 @@ class ByorResultsHandlerAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
+        self.base_url = f"{self.api_client.configuration.server_base_url}/api/v1/byor"
 
     def create_byor_import(self, import_request: ImportRequest) -> ImportResults:
         """
-
         Args:
             import_request (ImportRequest):
 
         Returns:
             ImportResults
         """
-        type_check(import_request, ImportRequest)
-        relative_url = api_url + "/imports"
-        response = self.api_client.post_request(relative_url=relative_url, json=import_request.to_dict())
-        item = response.json()
-        return construct_import_results(item)
+        url = f"{self.base_url}/imports"
+        response = self.api_client.call_api(
+            method="POST", url=url, json=asdict(import_request)
+        )
+        return ImportResults.from_dict(response.json())
 
     def save_triage(self, triage_request: TriageRequest) -> bool:
         """
-
         Args:
             triage_request (TriageRequest):
 
         Returns:
             bool
         """
-        relative_url = api_url + "/triage"
-        response = self.api_client.post_request(relative_url=relative_url, json=triage_request.to_dict())
+        url = f"{self.base_url}/triage"
+        response = self.api_client.call_api(
+            method="POST", url=url, json={k: v for k, v in asdict(triage_request).items() if v is not None}
+        )
         return response.status_code == NO_CONTENT
 
     def get_triage(self, result_id: str, project_id: str) -> TriageResponse:
         """
-
         Args:
-            result_id (str): Returning triage specified by encoded result ID. (Exact match, case-sensitive)
-            project_id (str): Returning triage specified by project ID. (Exact match, case-sensitive)
+            result_id (str): Returning triage specified by encoded result ID.
+                (Exact match, case-sensitive)
+            project_id (str): Returning triage specified by project ID.
+                (Exact match, case-sensitive)
 
         Returns:
             TriageResponse
         """
-        relative_url = api_url + "/triage"
+        url = f"{self.base_url}/triage"
         params = {"result-id": result_id, "project-id": project_id}
-        response = self.api_client.get_request(relative_url=relative_url, params=params)
-        item = response.json()
-        return construct_triage_response(item)
+        response = self.api_client.call_api(method="GET", url=url, params=params)
+        return TriageResponse.from_dict(response.json())
 
 
 def create_byor_import(import_request) -> ImportResults:
@@ -74,4 +73,6 @@ def save_triage(triage_request: TriageRequest) -> bool:
 
 
 def get_triage(result_id: str, project_id: str) -> TriageResponse:
-    return ByorResultsHandlerAPI().get_triage(result_id=result_id, project_id=project_id)
+    return ByorResultsHandlerAPI().get_triage(
+        result_id=result_id, project_id=project_id
+    )

@@ -1,62 +1,51 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import List, Optional
 
 
-class User(object):
+@dataclass
+class User:
+    id: Optional[int] = None
+    username: Optional[str] = None
+    last_login_date: Optional[str] = None
+    role_ids: Optional[List[int]] = None
+    team_ids: Optional[List[int]] = None
+    authentication_provider_id: Optional[int] = None
+    creation_date: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    cell_phone_number: Optional[str] = None
+    job_title: Optional[str] = None
+    other: Optional[str] = None
+    country: Optional[str] = None
+    active: Optional[bool] = None
+    expiration_date: Optional[str] = None
+    allowed_ip_list: Optional[List[str]] = None
+    locale_id: Optional[int] = None
 
-    def __init__(self, user_id=None, username=None, last_login_date=None, role_ids=None, team_ids=None,
-                 authentication_provider_id=None, creation_date=None, first_name=None, last_name=None, email=None, phone_number=None,
-                 cell_phone_number=None, job_title=None, other=None, country=None, active=None, expiration_date=None,
-                 allowed_ip_list=None, locale_id=None):
-        """
-
-        Args:
-            user_id (int):
-            username (str):
-            last_login_date (str):
-            role_ids (list[int]):
-            team_ids (list[int]):
-            authentication_provider_id (int):
-            creation_date (str)
-            first_name (str):
-            last_name (str):
-            email (str):
-            phone_number (str):
-            cell_phone_number (str):
-            job_title (str):
-            other (str):
-            country (str):
-            active (bool):
-            expiration_date (str):
-            allowed_ip_list (list[str]):
-            locale_id (int):
-        """
-        self.id = user_id
-        self.username = username
-        self.last_login_date = last_login_date
-        self.role_ids = role_ids
-        self.team_ids = team_ids
-        self.authentication_provider_id = authentication_provider_id
-        self.creation_date = creation_date
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.phone_number = phone_number
-        self.cell_phone_number = cell_phone_number
-        self.job_title = job_title
-        self.other = other
-        self.country = country
-        self.active = active
-        self.expiration_date = expiration_date
-        self.allowed_ip_list = allowed_ip_list
-        self.locale_id = locale_id
-
-    def __str__(self):
-        return """User(id={}, username={}, last_login_date={}, role_ids={}, team_ids={}, 
-        authentication_provider_id={}, creation_date={}, first_name={}, last_name={}, email={}, phone_number={}, 
-        cell_phone_number={}, 
-        job_title={}, other={}, country={}, active={}, expiration_date={}, allowed_ip_list={}, locale_id={})""".format(
-            self.id, self.username, self.last_login_date, self.role_ids, self.team_ids, self.authentication_provider_id,
-            self.creation_date,
-            self.first_name, self.last_name, self.email, self.phone_number, self.cell_phone_number, self.job_title,
-            self.other, self.country, self.active, self.expiration_date, self.allowed_ip_list, self.locale_id
+    @classmethod
+    def from_dict(cls, item: dict) -> "User":
+        return cls(
+            id=item.get("id"),
+            # some endpoints return "userName", others return lowercase "username"
+            username=item.get("userName") or item.get("username"),
+            last_login_date=item.get("lastLoginDate"),
+            role_ids=item.get("roleIds"),
+            team_ids=item.get("teamIds"),
+            authentication_provider_id=item.get("authenticationProviderId"),
+            creation_date=item.get("creationDate"),
+            # LDAP/Windows domain user entries use lowercase "firstname"/"lastname"
+            first_name=item.get("firstName") or item.get("firstname"),
+            last_name=item.get("lastName") or item.get("lastname"),
+            email=item.get("email"),
+            phone_number=item.get("phoneNumber"),
+            cell_phone_number=item.get("cellPhoneNumber"),
+            job_title=item.get("jobTitle"),
+            other=item.get("other"),
+            country=item.get("country"),
+            active=item.get("active"),
+            expiration_date=item.get("expirationDate"),
+            allowed_ip_list=item.get("allowedIpList"),
+            locale_id=item.get("localeId"),
         )

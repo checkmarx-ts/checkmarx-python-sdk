@@ -1,43 +1,38 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxOsaLicense(object):
+@dataclass
+class CxOsaLicense:
     """
     the license of a third party library
     """
 
-    def __init__(self, license_id, name, risk_level, copyright_risk_score, patent_risk_score, copy_left, linking,
-                 royalty_free, reference_type, reference, url):
-        """
+    id: Optional[str] = None
+    name: Optional[str] = None
+    risk_level: Optional[str] = None
+    copyright_risk_score: Optional[int] = None
+    patent_risk_score: Optional[int] = None
+    copy_left: Optional[str] = None
+    linking: Optional[str] = None
+    royalty_free: Optional[str] = None
+    reference_type: Optional[str] = None
+    reference: Optional[str] = None
+    url: Optional[str] = None
 
-        Args:
-            license_id (str):
-            name (str):
-            risk_level (str): eg. "Low"
-            copyright_risk_score (int):
-            patent_risk_score (int):
-            copy_left (str): eg. "No"
-            linking (str): "Non_Viral"
-            royalty_free (str): "No"
-            reference_type (str):
-            reference (str, optional):
-            url (str):
-        """
-        self.id = license_id
-        self.name = name
-        self.risk_level = risk_level
-        self.copyright_risk_score = copyright_risk_score
-        self.patent_risk_score = patent_risk_score
-        self.copy_left = copy_left
-        self.linking = linking
-        self.royalty_free = royalty_free
-        self.reference_type = reference_type
-        self.reference = reference
-        self.url = url
-
-    def __str__(self):
-        return """CxOsaLicenses(id={}, name={}, risk_level={}, copyright_risk_score={}, patent_risk_score={}, 
-                copy_left={}, linking={}, royalty_free={}, reference_type={}, reference={}, url={})""".format(
-            self.id, self.name, self.risk_level, self.copyright_risk_score, self.patent_risk_score,
-            self.copy_left, self.linking, self.royalty_free, self.reference_type, self.reference, self.url
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxOsaLicense":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            risk_level=item.get("riskLevel"),
+            copyright_risk_score=item.get("copyrightRiskScore"),
+            patent_risk_score=item.get("patentRiskScore"),
+            copy_left=item.get("copyLeft"),
+            linking=item.get("linking"),
+            royalty_free=item.get("royalityFree"),  # Note: API typo
+            reference_type=item.get("referenceType"),
+            reference=item.get("reference"),
+            url=item.get("url"),
         )

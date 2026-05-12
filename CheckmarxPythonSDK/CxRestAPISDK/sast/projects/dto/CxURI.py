@@ -7,16 +7,15 @@ class CxURI(object):
     """
 
     def __init__(self, absolute_url, port):
-        """
-
-        Args:
-            absolute_url (str):
-            port (int):
-        """
         self.absolute_url = absolute_url
         self.port = port
 
-    def __str__(self):
-        return "CxURI(absolute_url={}, port={})".format(
-            self.absolute_url, self.port
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxURI":
+        return cls(
+            absolute_url=item.get("absoluteUrl"),
+            port=item.get("port"),
         )
+
+    def __str__(self):
+        return "CxURI(absolute_url={}, port={})".format(self.absolute_url, self.port)

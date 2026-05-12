@@ -5,8 +5,12 @@ from .AdminEventRepresentation import AdminEventRepresentation
 from .ApplicationRepresentation import ApplicationRepresentation
 from .ApplicationRepresentationClaims import ApplicationRepresentationClaims
 from .AuthDetailsRepresentation import AuthDetailsRepresentation
-from .AuthenticationExecutionExportRepresentation import AuthenticationExecutionExportRepresentation
-from .AuthenticationExecutionInfoRepresentation import AuthenticationExecutionInfoRepresentation
+from .AuthenticationExecutionExportRepresentation import (
+    AuthenticationExecutionExportRepresentation,
+)
+from .AuthenticationExecutionInfoRepresentation import (
+    AuthenticationExecutionInfoRepresentation,
+)
 from .AuthenticationExecutionRepresentation import AuthenticationExecutionRepresentation
 from .AuthenticationFlowRepresentation import AuthenticationFlowRepresentation
 from .AuthenticatorConfigInfoRepresentation import AuthenticatorConfigInfoRepresentation
@@ -41,7 +45,9 @@ from .GlobalRequestResult import GlobalRequestResult
 from .GroupRepresentation import GroupRepresentation
 from .IDToken import IDToken
 from .IdentityProviderMapperRepresentation import IdentityProviderMapperRepresentation
-from .IdentityProviderMapperTypeRepresentation import IdentityProviderMapperTypeRepresentation
+from .IdentityProviderMapperTypeRepresentation import (
+    IdentityProviderMapperTypeRepresentation,
+)
 from .IdentityProviderRepresentation import IdentityProviderRepresentation
 from .InstallationAdapterConfig import InstallationAdapterConfig
 from .KeyMetadataRepresentation import KeyMetadataRepresentation
@@ -60,7 +66,9 @@ from .Permission import Permission
 from .PolicyEnforcementMode import PolicyEnforcementMode
 from .PolicyEnforcerConfig import PolicyEnforcerConfig
 from .PolicyRepresentation import PolicyRepresentation
-from .ProtocolMapperEvaluationRepresentation import ProtocolMapperEvaluationRepresentation
+from .ProtocolMapperEvaluationRepresentation import (
+    ProtocolMapperEvaluationRepresentation,
+)
 from .ProtocolMapperRepresentation import ProtocolMapperRepresentation
 from .PublishedRealmRepresentation import PublishedRealmRepresentation
 from .RealmEventsConfigRepresentation import RealmEventsConfigRepresentation

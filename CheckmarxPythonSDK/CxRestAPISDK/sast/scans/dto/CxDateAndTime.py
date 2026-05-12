@@ -1,25 +1,24 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxDateAndTime(object):
+@dataclass
+class CxDateAndTime:
     """
     scan date and time
     """
-    def __init__(self, started_on=None, finished_on=None, engine_started_on=None, engine_finished_on=None):
-        """
 
-        Args:
-            started_on (str):
-            finished_on (str):
-            engine_started_on (str):
-            engine_finished_on (str):
-        """
-        self.started_on = started_on
-        self.finished_on = finished_on
-        self.engine_started_on = engine_started_on
-        self.engine_finished_on = engine_finished_on
+    started_on: Optional[str] = None
+    finished_on: Optional[str] = None
+    engine_started_on: Optional[str] = None
+    engine_finished_on: Optional[str] = None
 
-    def __str__(self):
-        return "CxDateAndTime(started_on={}, finished_on={}, engine_started_on={}, engine_finished_on={})".format(
-            self.started_on, self.finished_on, self.engine_started_on, self.engine_finished_on
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxDateAndTime":
+        return cls(
+            started_on=item.get("startedOn"),
+            finished_on=item.get("finishedOn"),
+            engine_started_on=item.get("engineStartedOn"),
+            engine_finished_on=item.get("engineFinishedOn"),
         )

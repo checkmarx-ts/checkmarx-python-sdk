@@ -1,4 +1,3 @@
-
 """
 Process CSV file like the following content:
 
@@ -29,6 +28,7 @@ Report which line(number), which column has illegal data
 process data line by line, record process progress (which line)
 
 """
+
 import csv
 
 from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
@@ -67,12 +67,20 @@ def add_users_from_csv_file(users):
         row_number = index + 2
         username = user.get("Username")
         if username in all_user_name:
-            print("Row No.{}, Username: {} already taken, will ignore this line".format(row_number, username))
+            print(
+                "Row No.{}, Username: {} already taken, will ignore this line".format(
+                    row_number, username
+                )
+            )
             continue
 
         email = user.get("Email")
         if email in all_user_email:
-            print("Row No.{}, Email: {} already taken, will ignore this line".format(row_number, email))
+            print(
+                "Row No.{}, Email: {} already taken, will ignore this line".format(
+                    row_number, email
+                )
+            )
             continue
 
         try:

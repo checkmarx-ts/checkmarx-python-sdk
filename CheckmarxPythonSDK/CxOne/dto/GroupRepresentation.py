@@ -7,10 +7,10 @@ class GroupRepresentation:
     name: str = None
     path: str = None
 
-
-def construct_group_representation(item):
-    return GroupRepresentation(
-        id=item.get("id"),
-        name=item.get("name"),
-        path=item.get("path"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "GroupRepresentation":
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            path=item.get("path"),
+        )

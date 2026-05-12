@@ -7,10 +7,10 @@ class SessionResponse:
     status: str = None
     scan_id: str = None
 
-
-def construct_session_response(item):
-    return SessionResponse(
-        id=item.get("id"),
-        status=item.get("status"),
-        scan_id=item.get("scanId")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "SessionResponse":
+        return cls(
+            id=item.get("id"),
+            status=item.get("status"),
+            scan_id=item.get("scanId"),
+        )

@@ -8,6 +8,4 @@ class SarifMessage:
         self.text = text
 
     def __str__(self):
-        return f"SarifMessage(" \
-               f"text={self.text}"\
-               f")"
+        return f"SarifMessage(" f"text={self.text}" f")"

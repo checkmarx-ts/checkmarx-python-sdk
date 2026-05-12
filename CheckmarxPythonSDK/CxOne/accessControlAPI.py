@@ -2,12 +2,9 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List, Optional
 from CheckmarxPythonSDK.CxOne.dto import (
-    AstIdWithName, 
-    construct_ast_id_with_name,
-    AstUser, 
-    construct_ast_user,
-    Role, 
-    construct_role,
+    AstIdWithName,
+    AstUser,
+    Role,
 )
 
 
@@ -17,34 +14,31 @@ class AccessControlAPI(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
-        self.base_url = (
-            f"{self.api_client.configuration.iam_base_url}"
-            f"/auth/realms"
-        )
+        self.base_url = f"{self.api_client.configuration.iam_base_url}/auth/realms"
         self.realm = self.api_client.configuration.tenant_name
 
     def get_groups(
-            self,
-            realm: str = None,
-            group_name: str = None,
-            limit: int = 10,
-            first: int = 0,
-            max_result_size: int = 10000,
-            ids: List[str] = None
+        self,
+        realm: str = None,
+        group_name: str = None,
+        limit: int = 10,
+        first: int = 0,
+        max_result_size: int = 10000,
+        ids: List[str] = None,
     ) -> List[AstIdWithName]:
         """
 
         Args:
             realm (str):
-            group_name (str): Used for searching the groups by name 
+            group_name (str): Used for searching the groups by name
                 or by part of name.
-            limit (int): Max amount of returned record. Applied if 
+            limit (int): Max amount of returned record. Applied if
                 groupName param defined. Default value : 10
-            first (int): Element to start from. Always applied. 
+            first (int): Element to start from. Always applied.
                 Default value : 0
-            max_result_size (int): Max number of items. Always applied. 
+            max_result_size (int): Max number of items. Always applied.
                 Default value : 10000
-            ids (List[str]): Ids of groups separated with comma. Has 
+            ids (List[str]): Ids of groups separated with comma. Has
                 priority over the groupName parameter
 
         Returns:
@@ -63,18 +57,16 @@ class AccessControlAPI(object):
         response = self.api_client.call_api(
             method="GET",
             url=url,
-            params=params, 
+            params=params,
         )
         item_list = response.json()
-        return [
-            construct_ast_id_with_name(item) for item in item_list
-        ]
+        return [AstIdWithName.from_dict(item) for item in item_list]
 
     def get_group_by_name(
-            self, 
-            group_name: str,
-            realm: str = None, 
-        ) -> Optional[AstIdWithName]:
+        self,
+        group_name: str,
+        realm: str = None,
+    ) -> Optional[AstIdWithName]:
         """
 
         Args:
@@ -87,26 +79,21 @@ class AccessControlAPI(object):
         result = None
         if realm is None:
             realm = self.realm
-        groups = self.get_groups(
-            realm=realm, 
-            group_name=group_name
-        )
-        one_group = list(filter(
-            lambda g: g.name == group_name, groups
-        ))
+        groups = self.get_groups(realm=realm, group_name=group_name)
+        one_group = list(filter(lambda g: g.name == group_name, groups))
         if len(one_group) == 1:
             result = one_group[0]
         return result
 
     def get_users(
-            self,
-            realm: str = None,
-            first: int = 0,
-            max_result_size: int = 100,
-            search: str = None,
-            sort: str = None,
-            order: str = None,
-            without_groups: bool = False
+        self,
+        realm: str = None,
+        first: int = 0,
+        max_result_size: int = 100,
+        search: str = None,
+        sort: str = None,
+        order: str = None,
+        without_groups: bool = False,
     ) -> List[AstUser]:
         """
 
@@ -136,18 +123,16 @@ class AccessControlAPI(object):
         response = self.api_client.call_api(
             method="GET",
             url=url,
-            params=params, 
+            params=params,
         )
         item_list = response.json()
-        return [
-            construct_ast_user(item) for item in item_list
-        ]
+        return [AstUser.from_dict(item) for item in item_list]
 
     def get_users_by_groups(
-            self, 
-            group_id: str,
-            realm: str = None, 
-        ) -> List[AstUser]:
+        self,
+        group_id: str,
+        realm: str = None,
+    ) -> List[AstUser]:
         """
 
         Args:
@@ -165,14 +150,12 @@ class AccessControlAPI(object):
             url=url,
         )
         item_list = response.json()
-        return [
-            construct_ast_user(item) for item in item_list
-        ]
+        return [AstUser.from_dict(item) for item in item_list]
 
     def get_users_count(
-            self, 
-            realm: str = None,
-        ) -> int:
+        self,
+        realm: str = None,
+    ) -> int:
         """
         Args:
             realm (str):
@@ -191,9 +174,9 @@ class AccessControlAPI(object):
         return item.get("count")
 
     def get_logged_in_user_roles(
-            self, 
-            realm: str = None,
-        ) -> List[Role]:
+        self,
+        realm: str = None,
+    ) -> List[Role]:
         """
 
         Args:
@@ -210,44 +193,30 @@ class AccessControlAPI(object):
             url=url,
         )
         item_list = response.json()
-        return [
-            construct_role(item) for item in item_list
-        ]
+        return [Role.from_dict(item) for item in item_list]
 
 
 def get_groups(
-        realm: str, 
-        group_name: str = None, 
-        limit: int = None, 
-        ids: str = None
-    ) -> List[AstIdWithName]:
+    realm: str = None, group_name: str = None, limit: int = None, ids: str = None
+) -> List[AstIdWithName]:
     return AccessControlAPI().get_groups(
-        realm=realm, 
-        group_name=group_name, 
-        limit=limit, 
-        ids=ids
+        realm=realm, group_name=group_name, limit=limit, ids=ids
     )
 
 
-def get_group_by_name(
-        realm: str, 
-        group_name: str
-    ) -> AstIdWithName:
-    return AccessControlAPI().get_group_by_name(
-        realm=realm, 
-        group_name=group_name
-    )
+def get_group_by_name(realm: str, group_name: str) -> AstIdWithName:
+    return AccessControlAPI().get_group_by_name(realm=realm, group_name=group_name)
 
 
 def get_users(
-        realm: str,
-        first: int = 0,
-        max_result_size: int = 100,
-        search: str = None,
-        sort: str = None,
-        order: str = None,
-        without_groups: bool = False
-    ) -> List[AstUser]:
+    realm: str,
+    first: int = 0,
+    max_result_size: int = 100,
+    search: str = None,
+    sort: str = None,
+    order: str = None,
+    without_groups: bool = False,
+) -> List[AstUser]:
     return AccessControlAPI().get_users(
         realm=realm,
         first=first,
@@ -259,27 +228,13 @@ def get_users(
     )
 
 
-def get_users_by_groups(
-        realm: str, 
-        group_id: str
-    ) -> List[AstUser]:
-    return AccessControlAPI().get_users_by_groups(
-        realm=realm, 
-        group_id=group_id
-    )
+def get_users_by_groups(realm: str, group_id: str) -> List[AstUser]:
+    return AccessControlAPI().get_users_by_groups(realm=realm, group_id=group_id)
 
 
-def get_users_count(
-        realm: str
-    ) -> int:
-    return AccessControlAPI().get_users_count(
-        realm=realm
-    )
+def get_users_count(realm: str) -> int:
+    return AccessControlAPI().get_users_count(realm=realm)
 
 
-def get_logged_in_user_roles(
-        realm: str
-    ) -> List[Role]:
-    return AccessControlAPI().get_logged_in_user_roles(
-        realm=realm
-    )
+def get_logged_in_user_roles(realm: str) -> List[Role]:
+    return AccessControlAPI().get_logged_in_user_roles(realm=realm)

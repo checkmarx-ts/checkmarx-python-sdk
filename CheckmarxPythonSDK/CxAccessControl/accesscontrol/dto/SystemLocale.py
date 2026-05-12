@@ -1,23 +1,19 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class SystemLocale(object):
+@dataclass
+class SystemLocale:
+    id: Optional[int] = None
+    lcid: Optional[int] = None
+    code: Optional[str] = None
+    display_name: Optional[str] = None
 
-    def __init__(self, system_locale_id, lcid, code, display_name):
-        """
-
-        Args:
-            system_locale_id (int):
-            lcid (int):
-            code (str):
-            display_name (str):
-        """
-        self.id = system_locale_id
-        self.lcid = lcid
-        self.code = code
-        self.display_name = display_name
-
-    def __str__(self):
-        return """SystemLocale(id={}, lcid={}, code={}, display_name={})""".format(
-            self.id, self.lcid, self.code, self.display_name
+    @classmethod
+    def from_dict(cls, item: dict) -> "SystemLocale":
+        return cls(
+            id=item.get("id"),
+            lcid=item.get("lcid"),
+            code=item.get("code"),
+            display_name=item.get("displayName"),
         )

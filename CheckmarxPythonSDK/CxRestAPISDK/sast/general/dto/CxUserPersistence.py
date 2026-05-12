@@ -15,9 +15,7 @@ class CxUserPersistence(object):
         self.value = value
 
     def __str__(self):
-        return """CxUserPersistence(key={}, value={})""".format(
-            self.key, self.value
-        )
+        return """CxUserPersistence(key={}, value={})""".format(self.key, self.value)
 
     def to_dict(self):
         return {

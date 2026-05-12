@@ -12,30 +12,30 @@ class GroupWithResource:
     members: dict = None
     resources: List[dict] = None
 
-
-def construct_group_with_resource(item):
-    return GroupWithResource(
-        id=item.get("id"),
-        name=item.get("name"),
-        path=item.get("path"),
-        created_at=item.get("createdAt"),
-        base_roles=[
-            {
-                "id": role.get("id"),
-                "name": role.get("name")
-            } for role in item.get("baseRoles")
-        ],
-        members={
-            "totalCount": item.get("members").get("totalCount"),
-            "usersCount": item.get("members").get("usersCount"),
-            "clientsCount": item.get("members").get("clientsCount")
-        },
-        resources=[
-            {
-                "id": resource.get("id"),
-                "type": resource.get("type"),
-                "name": resource.get("name"),
-                "roles": resource.get("roles")
-            } for resource in item.get("resources")
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "GroupWithResource":
+        members = item.get("members") or {}
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            path=item.get("path"),
+            created_at=item.get("createdAt"),
+            base_roles=[
+                {"id": r.get("id"), "name": r.get("name")}
+                for r in (item.get("baseRoles") or [])
+            ],
+            members={
+                "totalCount": members.get("totalCount"),
+                "usersCount": members.get("usersCount"),
+                "clientsCount": members.get("clientsCount"),
+            },
+            resources=[
+                {
+                    "id": r.get("id"),
+                    "type": r.get("type"),
+                    "name": r.get("name"),
+                    "roles": r.get("roles"),
+                }
+                for r in (item.get("resources") or [])
+            ],
+        )

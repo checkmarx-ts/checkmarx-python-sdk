@@ -18,6 +18,7 @@ class SubsetScan:
         source_type (str): The scan last Source type (e.g. zip, github, gitlab)
         source_origin (str): The scan last origin (e.g. Jenkins, Checkmarx AST, Github action, Github Webhook)
     """
+
     id: str
     created_at: str
     updated_at: str
@@ -29,17 +30,17 @@ class SubsetScan:
     source_type: str
     source_origin: str
 
-
-def construct_subset_scan(item):
-    return SubsetScan(
-        id=item.get("id"),
-        created_at=item.get("createdAt"),
-        updated_at=item.get("updatedAt"),
-        status=item.get("status"),
-        user_agent=item.get("userAgent"),
-        initiator=item.get("initiator"),
-        branch=item.get("branch"),
-        engines=item.get("engines"),
-        source_type=item.get("sourceType"),
-        source_origin=item.get("sourceOrigin")
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "SubsetScan":
+        return cls(
+            id=item.get("id"),
+            created_at=item.get("createdAt"),
+            updated_at=item.get("updatedAt"),
+            status=item.get("status"),
+            user_agent=item.get("userAgent"),
+            initiator=item.get("initiator"),
+            branch=item.get("branch"),
+            engines=item.get("engines"),
+            source_type=item.get("sourceType"),
+            source_origin=item.get("sourceOrigin"),
+        )

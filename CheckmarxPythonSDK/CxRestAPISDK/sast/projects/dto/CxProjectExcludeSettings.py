@@ -1,27 +1,26 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxProjectExcludeSettings(object):
+@dataclass
+class CxProjectExcludeSettings:
     """
     project exclude settings
     """
 
-    def __init__(self, project_id, exclude_folders_pattern, exclude_files_pattern, link):
-        """
+    project_id: Optional[int] = None
+    exclude_folders_pattern: Optional[str] = None
+    exclude_files_pattern: Optional[str] = None
+    link: Optional[object] = None
 
-        Args:
-            project_id (int):
-            exclude_folders_pattern (str):
-            exclude_files_pattern (str):
-            link (:obj:`CxLink`):
-        """
-        self.project_id = project_id
-        self.exclude_folders_pattern = exclude_folders_pattern
-        self.exclude_files_pattern = exclude_files_pattern
-        self.link = link
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxProjectExcludeSettings":
+        from .CxLink import CxLink
 
-    def __str__(self):
-        return """CxProjectExcludeSettings(project_id={}, exclude_folders_pattern={}, 
-        exclude_files_pattern={}, link={})""".format(
-            self.project_id, self.exclude_folders_pattern, self.exclude_files_pattern, self.link
+        return cls(
+            project_id=item.get("projectId"),
+            exclude_folders_pattern=item.get("excludeFoldersPattern"),
+            exclude_files_pattern=item.get("excludeFilesPattern"),
+            link=CxLink.from_dict(item.get("link") or {}),
         )

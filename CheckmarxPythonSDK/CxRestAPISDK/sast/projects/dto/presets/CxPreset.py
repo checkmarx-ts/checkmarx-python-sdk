@@ -1,28 +1,28 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import List, Optional
 
 
-class CxPreset(object):
+@dataclass
+class CxPreset:
     """
     the queries set
     """
 
-    def __init__(self, preset_id, name=None, owner_name=None, link=None, query_ids=None):
-        """
+    id: Optional[int] = None
+    name: Optional[str] = None
+    owner_name: Optional[str] = None
+    link: Optional[object] = None
+    query_ids: Optional[List[int]] = None
 
-        Args:
-            preset_id (int):
-            name (str):
-            owner_name (str):
-            link (:obj:`CxLink`):
-            query_ids(:obj:`list` of :obj:`int`):
-        """
-        self.id = preset_id
-        self.name = name
-        self.owner_name = owner_name
-        self.link = link
-        self.query_ids = query_ids
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxPreset":
+        from ..CxLink import CxLink
 
-    def __str__(self):
-        return "CxPreset(id={}, name={}, owner_name={}, link={}, query_ids={})".format(
-            self.id, self.name, self.owner_name, self.link, self.query_ids
+        return cls(
+            id=item.get("id"),
+            name=item.get("name"),
+            owner_name=item.get("ownerName"),
+            link=CxLink.from_dict(item.get("link") or {}),
+            query_ids=item.get("queryIds"),
         )

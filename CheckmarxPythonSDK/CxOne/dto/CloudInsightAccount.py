@@ -3,19 +3,19 @@ from dataclasses import dataclass
 
 @dataclass
 class CloudInsightAccount:
-    id: str = None  # A unique identifier for an account
-    name: str = None  # The account name
-    credentials: dict = None  # The account credentials to connect to the provider
-    account_type: int = None  # The type of account
-    tenant_id: str = None  # The tenantId where the account belongs to
+    id: str = None
+    name: str = None
+    credentials: dict = None
+    account_type: int = None
+    tenant_id: str = None
     created_at: str = None
     updated_at: str = None
     last_scan_date: str = None
     next_scan_date: str = None
 
-
-def construct_cloud_insight_account(item):
-    return CloudInsightAccount(
+    @classmethod
+    def from_dict(cls, item: dict) -> "CloudInsightAccount":
+        return cls(
             id=item.get("id"),
             name=item.get("name"),
             credentials=item.get("credentials"),

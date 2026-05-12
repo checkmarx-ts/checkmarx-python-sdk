@@ -1,23 +1,14 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class KeysMetadataRepresentation:
-    def __init__(self, active, keys):
-        self.active = active
-        self.keys = keys
+    active: ... = None
+    keys: ... = None
 
-    def __str__(self):
-        return f"KeysMetadataRepresentation(" \
-               f"active={self.active} " \
-               f"keys={self.keys} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "active": self.active,
-            "keys": self.keys,
-        }
-
-
-def construct_keys_metadata_representation(item):
-    return KeysMetadataRepresentation(
-        active=item.get("active"),
-        keys=item.get("keys"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "KeysMetadataRepresentation":
+        return cls(
+            active=item.get("active"),
+            keys=item.get("keys"),
+        )

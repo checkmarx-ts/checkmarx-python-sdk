@@ -1,7 +1,8 @@
 class CxTranslationInput(object):
     """
-        One language translation of a result state
+    One language translation of a result state
     """
+
     def __init__(self, language_id, name):
         self.language_id = language_id
         self.name = name
@@ -12,7 +13,4 @@ class CxTranslationInput(object):
         )
 
     def to_dict(self):
-        return {
-            "languageId": self.language_id,
-            "name": self.name
-        }
+        return {"languageId": self.language_id, "name": self.name}

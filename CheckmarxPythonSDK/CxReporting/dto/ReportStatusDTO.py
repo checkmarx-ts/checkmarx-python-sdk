@@ -10,7 +10,7 @@ class ReportStatusDTO(object):
         """
         self.reportId = report_id
         self.reportStatus = report_status
-        self.creationDate =creation_date
+        self.creationDate = creation_date
         self.message = message
 
     def __str__(self):

@@ -1,30 +1,20 @@
 from dataclasses import dataclass
-from .LogItem import LogItem, construct_log_item
+from .LogItem import LogItem
 from typing import List
 
 
 @dataclass
 class ImportItemWithLogs:
-    """
+    migration_id: str = None
+    status: str = None
+    created_at: str = None
+    logs: List[LogItem] = None
 
-    Args:
-        migration_id (str):
-        status (str): pending, running, completed, failed
-        created_at (str):
-        logs (list of LogItem):
-    """
-    migration_id: str
-    status: str
-    created_at: str
-    logs: List[LogItem]
-
-
-def construct_import_item_with_logs(item):
-    return ImportItemWithLogs(
-        migration_id=item.get("migrationId"),
-        status=item.get("status"),
-        created_at=item.get("createdAt"),
-        logs=[
-            construct_log_item(log_item) for log_item in item.get("logs", [])
-        ]
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ImportItemWithLogs":
+        return cls(
+            migration_id=item.get("migrationId"),
+            status=item.get("status"),
+            created_at=item.get("createdAt"),
+            logs=[LogItem.from_dict(log) for log in (item.get("logs") or [])],
+        )

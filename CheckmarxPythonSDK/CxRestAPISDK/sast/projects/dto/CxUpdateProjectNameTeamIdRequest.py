@@ -18,12 +18,11 @@ class CxUpdateProjectNameTeamIdRequest(object):
 
         :return:
         """
-        return {
-                "name": self.project_name,
-                "owningTeam": self.owning_team
-            }
+        return {"name": self.project_name, "owningTeam": self.owning_team}
 
     def __str__(self):
-        return "CxUpdateProjectNameTeamIdRequest(project_name={}, owning_team={})".format(
-            self.project_name, self.owning_team
+        return (
+            "CxUpdateProjectNameTeamIdRequest(project_name={}, owning_team={})".format(
+                self.project_name, self.owning_team
+            )
         )

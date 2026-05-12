@@ -1,46 +1,37 @@
-# encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class MyProfile(object):
+@dataclass
+class MyProfile:
+    id: Optional[int] = None
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    cellphone_number: Optional[str] = None
+    job_title: Optional[str] = None
+    other: Optional[str] = None
+    country: Optional[str] = None
+    locale_id: Optional[int] = None
+    teams: Optional[list] = None
+    authentication_provider_id: Optional[int] = None
 
-    def __init__(self, profile_id, username, first_name, last_name, email, phone_number, cellphone_number, job_title,
-                 other, country, locale_id, teams, authentication_provider_id):
-        """
-
-        Args:
-            profile_id (int):
-            username (str):
-            first_name (str):
-            last_name (str):
-            email (str):
-            phone_number (str):
-            cellphone_number (str):
-            job_title (str):
-            other (str):
-            country (str):
-            locale_id (int):
-            teams (str):
-            authentication_provider_id (int):
-        """
-        self.id = profile_id
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.phone_number = phone_number
-        self.cellphone_number = cellphone_number
-        self.job_title = job_title
-        self.other = other
-        self.country = country
-        self.locale_id = locale_id
-        self.teams = teams
-        self.authentication_provider_id = authentication_provider_id
-
-    def __str__(self):
-        return """MyProfile(id={}, username={}, first_name={}, last_name={}, email={}, phone_number={}, 
-        cellphone_number={}, job_title={}, other={}, country={}, locale_id={}, teams={}, 
-        authentication_provider_id={})""".format(
-            self.id, self.username, self.first_name, self.last_name, self.email, self.phone_number,
-            self.cellphone_number, self.job_title, self.other, self.country, self.locale_id, self.teams,
-            self.authentication_provider_id
+    @classmethod
+    def from_dict(cls, item: dict) -> "MyProfile":
+        return cls(
+            id=item.get("id"),
+            username=item.get("userName"),
+            first_name=item.get("firstName"),
+            last_name=item.get("lastName"),
+            email=item.get("email"),
+            phone_number=item.get("phoneNumber"),
+            cellphone_number=item.get("cellPhoneNumber"),
+            job_title=item.get("jobTitle"),
+            other=item.get("other"),
+            country=item.get("country"),
+            locale_id=item.get("localeId"),
+            teams=item.get("teams"),
+            authentication_provider_id=item.get("authenticationProviderId"),
         )

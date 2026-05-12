@@ -25,12 +25,14 @@ class SarifScanResult:
         self.fixes = fixes
 
     def __str__(self):
-        return f"SarifScanResult(" \
-               f"rule_id={self.ruleId}, "\
-               f"kind={self.kind}, " \
-               f"level={self.level}, " \
-               f"message={self.message}, " \
-               f"properties={self.properties}, "\
-               f"locations={self.locations}, "\
-               f"fixes={self.fixes}, "\
-               f")"
+        return (
+            f"SarifScanResult("
+            f"rule_id={self.ruleId}, "
+            f"kind={self.kind}, "
+            f"level={self.level}, "
+            f"message={self.message}, "
+            f"properties={self.properties}, "
+            f"locations={self.locations}, "
+            f"fixes={self.fixes}, "
+            f")"
+        )

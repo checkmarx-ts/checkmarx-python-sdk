@@ -15,8 +15,10 @@ class SarifResultsCollection:
         self.runs = runs
 
     def __str__(self):
-        return f"SarifResultsCollection("\
-               f"schema={self.schema}, "\
-               f"version={self.version}, "\
-               f"runs={self.runs} "\
-               f")"
+        return (
+            f"SarifResultsCollection("
+            f"schema={self.schema}, "
+            f"version={self.version}, "
+            f"runs={self.runs} "
+            f")"
+        )

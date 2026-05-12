@@ -17,18 +17,15 @@ def construct_configuration() -> Configuration:
     }
     config = get_config(config_default=config_default, section="CxSCA", prefix="cxsca_")
     return Configuration(
-                server_base_url=config.get("server"),
-                iam_base_url=config.get("access_control_url"),
-                token_url=f"{config.get('access_control_url')}/identity/connect/token",
-                tenant_name=config.get("account"),
-                username=config.get("username"),
-                password=config.get("password"),
-                scope=config.get("scope"),
-                timeout=config.get("timeout"),
-                verify=config.get("verify"),
-                cert=config.get("cert"),
-                proxies={
-                    "http": config.get("proxy"),
-                    "https": config.get("proxy"),
-                }
-            )
+        server_base_url=config.get("server"),
+        iam_base_url=config.get("access_control_url"),
+        token_url=f"{config.get('access_control_url')}/identity/connect/token",
+        tenant_name=config.get("account"),
+        username=config.get("username"),
+        password=config.get("password"),
+        scope=config.get("scope"),
+        timeout=config.get("timeout"),
+        verify=config.get("verify"),
+        cert=config.get("cert"),
+        proxy=config.get("proxy"),
+    )

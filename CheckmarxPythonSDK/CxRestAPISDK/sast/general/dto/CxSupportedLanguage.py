@@ -1,14 +1,20 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
-class CxSupportedLanguage(object):
+
+@dataclass
+class CxSupportedLanguage:
     """
     The support status of a given programming language
     """
-    def __init__(self, is_supported, language):
-        self.is_supported = is_supported
-        self.language = language
 
-    def __str__(self):
-        return """CxSupportedLanguage(is_supported={}, language={})""".format(
-            self.is_supported, self.language
+    is_supported: Optional[bool] = None
+    language: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxSupportedLanguage":
+        return cls(
+            is_supported=item.get("isSupported"),
+            language=item.get("language"),
         )

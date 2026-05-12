@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
-from typing_extensions import Self
 from inflection import camelize, underscore
 
 
@@ -19,36 +18,36 @@ class UserSessionRepresentation:
         result: Dict[str, Any] = {}
         if self.id is not None:
             value = self.id
-            result['id'] = value
+            result["id"] = value
         if self.username is not None:
             value = self.username
-            result['username'] = value
+            result["username"] = value
         if self.user_id is not None:
             value = self.user_id
-            result['userId'] = value
+            result["userId"] = value
         if self.ip_address is not None:
             value = self.ip_address
-            result['ipAddress'] = value
+            result["ipAddress"] = value
         if self.start is not None:
             value = self.start
-            result['start'] = value
+            result["start"] = value
         if self.last_access is not None:
             value = self.last_access
-            result['lastAccess'] = value
+            result["lastAccess"] = value
         if self.remember_me is not None:
             value = self.remember_me
-            result['rememberMe'] = value
+            result["rememberMe"] = value
         if self.clients is not None:
             value = self.clients
-            result['clients'] = value
+            result["clients"] = value
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "UserSessionRepresentation":
         snake_data: Dict[str, Any] = {underscore(k): v for k, v in data.items()}
 
         required_fields = []
         missing = [f for f in required_fields if f not in snake_data]
         if missing:
-            raise ValueError(f'missing required field: {missing}')
+            raise ValueError(f"missing required field: {missing}")
         return cls(**snake_data)

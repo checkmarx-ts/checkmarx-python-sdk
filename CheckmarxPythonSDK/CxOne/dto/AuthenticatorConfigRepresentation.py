@@ -1,27 +1,16 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class AuthenticatorConfigRepresentation:
-    def __init__(self, alias, config, authenticator_config_representation_id):
-        self.alias = alias
-        self.config = config
-        self.id = authenticator_config_representation_id
+    alias: ... = None
+    config: ... = None
+    authenticator_config_representation_id: ... = None
 
-    def __str__(self):
-        return f"AuthenticatorConfigRepresentation(" \
-               f"alias={self.alias} " \
-               f"config={self.config} " \
-               f"id={self.id} " \
-               f")"
-
-    def to_dict(self):
-        return {
-            "alias": self.alias,
-            "config": self.config,
-            "id": self.id,
-        }
-
-
-def construct_authenticator_config_representation(item):
-    return AuthenticatorConfigRepresentation(
-        alias=item.get("alias"),
-        config=item.get("config"),
-        authenticator_config_representation_id=item.get("id"),
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "AuthenticatorConfigRepresentation":
+        return cls(
+            alias=item.get("alias"),
+            config=item.get("config"),
+            authenticator_config_representation_id=item.get("id"),
+        )

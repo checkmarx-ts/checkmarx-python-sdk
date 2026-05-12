@@ -24,14 +24,22 @@ class CxScanReportXmlContent(object):
         """
         for query in self.root.findall("Query"):
             severity = query.attrib.get("Severity")
-            if ((severity == "High") and (not high)) \
-                    or ((severity == "Medium") and (not medium)) \
-                    or ((severity == "Low") and (not low)) \
-                    or ((severity == "Information") and (not info)):
+            if (
+                ((severity == "High") and (not high))
+                or ((severity == "Medium") and (not medium))
+                or ((severity == "Low") and (not low))
+                or ((severity == "Information") and (not info))
+            ):
                 self.root.remove(query)
 
-    def filter_by_state(self, to_verify=False, not_exploitable=False, confirmed=False, urgent=False,
-                        proposed_not_exploitable=False):
+    def filter_by_state(
+        self,
+        to_verify=False,
+        not_exploitable=False,
+        confirmed=False,
+        urgent=False,
+        proposed_not_exploitable=False,
+    ):
         """
         filter at Path level
 
@@ -48,7 +56,7 @@ class CxScanReportXmlContent(object):
             not_exploitable,
             confirmed,
             urgent,
-            proposed_not_exploitable
+            proposed_not_exploitable,
         ]
         for query in self.root.findall("Query"):
             for result in query.findall("Result"):

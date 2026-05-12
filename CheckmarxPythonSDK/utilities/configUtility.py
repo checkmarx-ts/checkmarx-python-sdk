@@ -3,11 +3,12 @@ import os
 import json
 import logging
 from os.path import normpath, join, exists
+
 logger = logging.getLogger("CheckmarxPythonSDK")
 
 import configparser
 
-from optparse import (OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError)
+from optparse import OptionParser, SUPPRESS_HELP, BadOptionError, AmbiguousOptionError
 
 
 class PassThroughOptionParser(OptionParser):
@@ -57,7 +58,7 @@ def get_config_path(file_extension=".ini"):
     # check command line option "--checkmarx_config_path", if exists, override the previous one
     parser = PassThroughOptionParser(add_help_option=False)
     parser.add_option("--checkmarx_config_path", help=SUPPRESS_HELP)
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
     config_path_from_command_line = options.checkmarx_config_path
     if config_path_from_command_line:
         config_file_path = config_path_from_command_line
@@ -132,6 +133,7 @@ def get_config_info_from_environment_variables(prefix, option_list):
     Returns:
         dict
     """
+
     def get_value(option):
         env_var = prefix + option
         if option in ["max_try", "timeout"]:
@@ -149,6 +151,7 @@ def get_config_info_from_environment_variables(prefix, option_list):
         else:
             value = os.getenv(env_var) or os.getenv(env_var.upper())
         return value
+
     option_value_list = [get_value(option=option) for option in option_list]
     return dict(zip(option_list, option_value_list))
 
@@ -161,6 +164,7 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
     Returns:
         dictionary
     """
+
     def get_value(option):
         cli_var = prefix + option
         if option in ["max_try", "timeout"]:
@@ -178,10 +182,11 @@ def get_config_info_from_command_line_arguments(prefix, option_list):
         else:
             value = options.__getattribute__(cli_var)
         return value
+
     parser = PassThroughOptionParser(add_help_option=False)
     for item in option_list:
         parser.add_option("--" + prefix + item, help=SUPPRESS_HELP)
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
     option_value_list = [get_value(option=item) for item in option_list]
     return dict(zip(option_list, option_value_list))
 
@@ -199,16 +204,24 @@ def get_config(config_default, section, prefix):
     """
     option_list = [key for key in config_default.keys()]
 
-    config_from_ini_file = get_config_info_from_config_ini_file(section=section, option_list=option_list)
+    config_from_ini_file = get_config_info_from_config_ini_file(
+        section=section, option_list=option_list
+    )
     config_from_ini_file = clean_null_terms(config_from_ini_file)
 
-    config_from_json_file = get_config_info_from_config_json_file(section=section, option_list=option_list)
+    config_from_json_file = get_config_info_from_config_json_file(
+        section=section, option_list=option_list
+    )
     config_from_json_file = clean_null_terms(config_from_json_file)
 
-    config_from_env = get_config_info_from_environment_variables(prefix=prefix, option_list=option_list)
+    config_from_env = get_config_info_from_environment_variables(
+        prefix=prefix, option_list=option_list
+    )
     config_from_env = clean_null_terms(config_from_env)
 
-    config_from_cli = get_config_info_from_command_line_arguments(prefix=prefix, option_list=option_list)
+    config_from_cli = get_config_info_from_command_line_arguments(
+        prefix=prefix, option_list=option_list
+    )
     config_from_cli = clean_null_terms(config_from_cli)
 
     config = {}
@@ -216,16 +229,24 @@ def get_config(config_default, section, prefix):
     config.update(config_default)
     logger.debug("config from config.ini file: {}".format(config_from_ini_file))
     config.update(config_from_ini_file)
-    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug(
+        "override the config value, now the config value is: {}".format(config)
+    )
     logger.debug("config from config.json. file: {}".format(config_from_json_file))
     config.update(config_from_json_file)
-    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug(
+        "override the config value, now the config value is: {}".format(config)
+    )
     logger.debug("config_from_env: {}".format(config_from_env))
     config.update(config_from_env)
-    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug(
+        "override the config value, now the config value is: {}".format(config)
+    )
     logger.debug("config_from_cli: {}".format(config_from_cli))
     config.update(config_from_cli)
-    logger.debug("override the config value, now the config value is: {}".format(config))
+    logger.debug(
+        "override the config value, now the config value is: {}".format(config)
+    )
     config = clean_null_terms(config)
     logger.debug("final config value is: {}".format(config))
     return config
@@ -239,9 +260,12 @@ def get_debug_command_line_arg():
     """
     result = False
     import sys
+
     logger.debug(sys.argv)
     parser = PassThroughOptionParser(add_help_option=False)
-    parser.add_option('--cx_debug', action="store_true", dest="cx_debug", help="enable debug mode")
+    parser.add_option(
+        "--cx_debug", action="store_true", dest="cx_debug", help="enable debug mode"
+    )
     options, args = parser.parse_args()
     if options.cx_debug:
         result = True

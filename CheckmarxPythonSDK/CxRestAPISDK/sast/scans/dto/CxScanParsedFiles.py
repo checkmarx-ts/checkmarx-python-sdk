@@ -1,16 +1,26 @@
-class CxScanParsedFiles(object):
+from dataclasses import dataclass, field
+from typing import List, Optional
+from .CxScanParsedFilesMetric import CxScanParsedFilesMetric
 
-    def __init__(self, scan_id, scanned_files_per_language):
-        """
 
-        Args:
-            scan_id (str):
-            scanned_files_per_language (`list` of `CxScanParsedFilesMetric`):
-        """
-        self.id = scan_id
-        self.scanned_files_per_language = scanned_files_per_language
+@dataclass
+class CxScanParsedFiles:
 
-    def __str__(self):
-        return """CxScanParsedFiles(id={}, scanned_files_per_language={})""".format(
-            self.id, self.scanned_files_per_language
+    id: Optional[int] = None
+    scanned_files_per_language: Optional[List] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxScanParsedFiles":
+        raw = item.get("scannedFilesPerLanguage") or {}
+        metrics = (
+            [
+                CxScanParsedFilesMetric.from_dict(language=key, item=value)
+                for key, value in raw.items()
+            ]
+            if isinstance(raw, dict)
+            else list(raw)
+        )
+        return cls(
+            id=item.get("id"),
+            scanned_files_per_language=metrics,
         )

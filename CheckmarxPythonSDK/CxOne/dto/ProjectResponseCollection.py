@@ -1,18 +1,18 @@
 from dataclasses import dataclass
-from .ProjectResponseModel import ProjectResponseModel, construct_project_response
+from .ProjectResponseModel import ProjectResponseModel
 from typing import List
 
 
 @dataclass
 class ProjectResponseCollection:
-    total_count: int = None  # The total number of projects.
+    total_count: int = None
     projects: List[ProjectResponseModel] = None
 
-
-def construct_project_response_collection(item):
-    return ProjectResponseCollection(
-        total_count=item.get("totalCount"),
-        projects=[
-            construct_project_response(project_response) for project_response in item.get("projects", [])
-        ],
-    )
+    @classmethod
+    def from_dict(cls, item: dict) -> "ProjectResponseCollection":
+        return cls(
+            total_count=item.get("totalCount"),
+            projects=[
+                ProjectResponseModel.from_dict(p) for p in (item.get("projects") or [])
+            ],
+        )

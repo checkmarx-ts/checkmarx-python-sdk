@@ -1,26 +1,24 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import Optional
 
 
-class CxLanguageState(object):
+@dataclass
+class CxLanguageState:
     """
     language state
     """
 
-    def __init__(self, language_id, language_name, language_hash, state_creation_date):
-        """
+    language_id: Optional[int] = None
+    language_name: Optional[str] = None
+    language_hash: Optional[str] = None
+    state_creation_date: Optional[str] = None
 
-        Args:
-            language_id (int):
-            language_name (str):
-            language_hash (str):
-            state_creation_date (str):
-        """
-        self.language_id = language_id
-        self.language_name = language_name
-        self.language_hash = language_hash
-        self.state_creation_date = state_creation_date
-
-    def __str__(self):
-        return "LanguageState(language_id={}, language_name={}, language_hash={}, state_creation_date={})".format(
-            self.language_id, self.language_name, self.language_hash, self.state_creation_date
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxLanguageState":
+        return cls(
+            language_id=item.get("languageID"),  # Note: uppercase ID in API
+            language_name=item.get("languageName"),
+            language_hash=item.get("languageHash"),
+            state_creation_date=item.get("stateCreationDate"),
         )

@@ -1,18 +1,19 @@
 # encoding: utf-8
+from dataclasses import dataclass
+from typing import List, Optional
 
 
-class CxSharedRemoteSourceSettingsResponse(object):
-    def __init__(self, paths, link):
-        """
+@dataclass
+class CxSharedRemoteSourceSettingsResponse:
 
-        Args:
-            paths (:obj:`list` of :obj:`str`):
-            link (:obj:`CxLink`):
-        """
-        self.paths = paths
-        self.link = link
+    paths: Optional[List[str]] = None
+    link: Optional[object] = None
 
-    def __str__(self):
-        return "CxSharedRemoteSourceSettingsResponse(paths={}, link={})".format(
-            self.paths, self.link
+    @classmethod
+    def from_dict(cls, item: dict) -> "CxSharedRemoteSourceSettingsResponse":
+        from .CxLink import CxLink
+
+        return cls(
+            paths=item.get("paths"),
+            link=CxLink.from_dict(item.get("link") or {}),
         )

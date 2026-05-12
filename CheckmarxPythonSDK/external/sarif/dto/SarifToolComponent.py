@@ -12,8 +12,10 @@ class SarifToolComponent:
         self.index = index
 
     def __str__(self):
-        return f"SarifToolComponent(" \
-               f"name={self.name}, "\
-               f"guid={self.guid}, "\
-               f"index={self.index}"\
-               f")"
+        return (
+            f"SarifToolComponent("
+            f"name={self.name}, "
+            f"guid={self.guid}, "
+            f"index={self.index}"
+            f")"
+        )
