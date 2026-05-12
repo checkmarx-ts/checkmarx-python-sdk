@@ -38,7 +38,7 @@ setup(
     install_requires=[
         "httpx>=0.24.1",
         "suds-community>=1.1.0",
-        "Deprecated>=1.2.13",
+        "Deprecated>=1.2.13,<1.3",
         "inflection>=0.5.1"
     ],
     extras_require={
