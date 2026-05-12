@@ -29,7 +29,7 @@ jobs:
         pip install --upgrade pip build
         python -m build
     - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@81e9d935c883d0b210363ab89d3b6d5dc0d27b32  # v1.8.14
+      uses: pypa/gh-action-pypi-publish@f5622bde02b04381239da3573277701ceca8f6a0 # v1.8.7
       with:
         password: ${{ secrets.Checkmarx_Python_SDK_PYPI_PASSWORD }}
         attestations: false 
