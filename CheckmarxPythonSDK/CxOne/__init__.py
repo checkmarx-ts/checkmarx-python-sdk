@@ -227,6 +227,7 @@ from .repoManagerAPI import (
     batch_import_repo,
     get_repo_by_id,
     update_repo_by_id,
+    scm_managed_project_scan,
 )
 from .reportAPI import (
     ReportAPI,
