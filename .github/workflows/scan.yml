@@ -38,4 +38,4 @@ jobs:
           cx-client-id: ${{ secrets.CXONE_CLIENT_ID }}
           cx-client-secret: ${{ secrets.CXONE_CLIENT_SECRET }}
           upload-sarif-file: false
-          additional-scan-params: --sast-filter '!/build,!/tests,!/examples,!/docs' --sca-filter '!/build,!tests,!/examples,!/docs'
+          additional-scan-params: --sast-filter '!**/build,!**/tests,!**/examples,!**/docs' --sca-filter '!**/build'
