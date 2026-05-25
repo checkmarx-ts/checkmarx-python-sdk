@@ -10,6 +10,8 @@ from CheckmarxPythonSDK.CxOne import (
     batch_import_repo,
     get_repo_by_id,
     update_repo_by_id,
+    scm_managed_project_scan,
+    get_a_project_by_id,
 )
 
 
@@ -245,3 +247,32 @@ def test_update_repo_by_id():
                                }
                                )
     assert result is not None
+
+
+def test_scm_managed_project_scan():
+    """Trigger a fresh scan on an existing project via its SCM connection.
+
+    Pulls the project's repo metadata first (repoId, scmRepoId, repoUrl,
+    mainBranch, origin) so the caller doesn't need to know them upfront.
+    The scan is queued; verify by looking at the response status and by
+    checking that a new scan appears in the project's scan list within a
+    minute or two.
+    """
+    project_id = os.getenv("SCM_SCAN_PROJECT_ID")
+    organization = os.getenv("SCM_SCAN_ORGANIZATION")
+    if not project_id or not organization:
+        import pytest
+        pytest.skip(
+            "set SCM_SCAN_PROJECT_ID and SCM_SCAN_ORGANIZATION to run"
+        )
+    project = get_a_project_by_id(project_id=project_id)
+    response = scm_managed_project_scan(
+        project_id=project["id"],
+        origin=project["origin"],
+        organization=organization,
+        repo_id=project["repoId"],
+        repo_identity=project["scmRepoId"],
+        repo_url=project["repoUrl"],
+        default_branch=project["mainBranch"],
+    )
+    assert response.status_code < 400

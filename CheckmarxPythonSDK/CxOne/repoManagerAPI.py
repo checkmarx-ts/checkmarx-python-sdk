@@ -826,6 +826,111 @@ class RepoManagerAPI(object):
         response = self.api_client.call_api(method="GET", url=url)
         return response.json()
 
+    def scm_managed_project_scan(
+        self,
+        project_id: str,
+        origin: str,
+        organization: str,
+        repo_id: int,
+        repo_identity: str,
+        repo_url: str,
+        default_branch: str,
+        scanner_types: List[str] = None,
+        is_incremental_scan: bool = False,
+        org_ssh_key: str = None,
+    ) -> Response:
+        """Trigger a new scan for an existing CxOne project via its registered
+        SCM connection.
+
+        This wraps the repos-manager projectScan endpoint
+        (``POST /api/repos-manager/scms/{scm_id}/orgs/{organization}/repo/projectScan``),
+        which is distinct from ``create_scan`` from ``scansAPI``:
+
+        * ``create_scan`` requires the caller to supply source material
+          (file path, zip, or git URL) and is used for ad-hoc / standalone
+          scans.
+        * ``scm_managed_project_scan`` instructs CxOne to pull source from
+          the SCM connection already registered for the project; it's the
+          right entry point when automating "rescan an existing project on
+          its primary branch."
+
+        Args:
+            project_id (str): CxOne project UUID.
+            origin (str): SCM origin, one of GITHUB, GITLAB, AZURE, BITBUCKET.
+            organization (str): SCM organization slug (the org under which
+                the repo lives within the SCM).
+            repo_id (int): CxOne-internal repo ID. Available from project
+                metadata under ``repoId``.
+            repo_identity (str): SCM-side repo identifier. Available from
+                project metadata under ``scmRepoId``.
+            repo_url (str): Repository URL.
+            default_branch (str): Branch to scan (typically the project's
+                ``mainBranch``).
+            scanner_types (List[str]): Engines to run. Defaults to the full
+                set: ``["sast", "sca", "kics", "apisec", "containers", "2ms"]``.
+            is_incremental_scan (bool): Request incremental SAST. Defaults
+                to False (full scan).
+            org_ssh_key (str): Optional SSH key for the SCM connection.
+                Defaults to None.
+
+        Returns:
+            Response: HTTP response from the projectScan endpoint. CxOne
+            typically returns 2xx with an empty body on accept; the scan
+            shows up shortly after in ``get_a_list_of_scans``.
+
+        Raises:
+            ValueError: If ``origin`` is not a supported SCM type.
+
+        Example::
+
+            from CheckmarxPythonSDK.CxOne import (
+                RepoManagerAPI, get_a_project_by_id,
+            )
+            project = get_a_project_by_id(project_id="<uuid>")
+            RepoManagerAPI().scm_managed_project_scan(
+                project_id=project["id"],
+                origin=project["origin"],
+                organization="<scm-org-slug>",
+                repo_id=project["repoId"],
+                repo_identity=project["scmRepoId"],
+                repo_url=project["repoUrl"],
+                default_branch=project["mainBranch"],
+            )
+        """
+        scm_id = self.origin_dict.get(origin.upper())
+        if scm_id is None:
+            raise ValueError(
+                f"Unsupported origin '{origin}'. "
+                f"Supported: {list(self.origin_dict.keys())}"
+            )
+        if scanner_types is None:
+            scanner_types = [
+                "sast", "sca", "kics", "apisec", "containers", "2ms",
+            ]
+
+        url = (
+            f"{self.base_url}/{scm_id}/orgs/{organization}"
+            f"/repo/projectScan"
+        )
+        params = {"projectId": project_id}
+        payload = {
+            "repoOrigin": origin.lower(),
+            "project": {
+                "repoIdentity": str(repo_identity),
+                "repoUrl": repo_url,
+                "projectId": project_id,
+                "defaultBranch": default_branch,
+                "scannerTypes": scanner_types,
+                "repoId": str(repo_id),
+                "isIncrementalScan": is_incremental_scan,
+            },
+            "orgSshKey": org_ssh_key,
+        }
+        response = self.api_client.call_api(
+            method="POST", url=url, params=params, json=payload
+        )
+        return response
+
     def update_repo_by_id(self, repo_id: int, project_id: str, pay_load: dict) -> dict:
         """
 
@@ -1077,4 +1182,30 @@ def get_repo_by_id(repo_id: int) -> dict:
 def update_repo_by_id(repo_id: int, project_id: str, pay_load: dict) -> dict:
     return RepoManagerAPI().update_repo_by_id(
         repo_id=repo_id, project_id=project_id, pay_load=pay_load
+    )
+
+
+def scm_managed_project_scan(
+    project_id: str,
+    origin: str,
+    organization: str,
+    repo_id: int,
+    repo_identity: str,
+    repo_url: str,
+    default_branch: str,
+    scanner_types: List[str] = None,
+    is_incremental_scan: bool = False,
+    org_ssh_key: str = None,
+) -> Response:
+    return RepoManagerAPI().scm_managed_project_scan(
+        project_id=project_id,
+        origin=origin,
+        organization=organization,
+        repo_id=repo_id,
+        repo_identity=repo_identity,
+        repo_url=repo_url,
+        default_branch=default_branch,
+        scanner_types=scanner_types,
+        is_incremental_scan=is_incremental_scan,
+        org_ssh_key=org_ssh_key,
     )
