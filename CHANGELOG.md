@@ -11,6 +11,7 @@ All notable changes to this project will be documented in  this file.
 * [Fix] Guard BflTree/WebHook/ContributorInsights/QuerySearch/ManagementPermissionReference/ResultsSummary/QueryResponse from_dict against null nested fields
 * [Fix] CxRestAPISDK ProjectsAPI url parameter shadowing in set_remote_source_setting_to_git and set_remote_source_setting_to_git_using_ssh (PR #198, thanks @eyals24)
 * [Update] Bump python_requires to >=3.9 (httpx>=0.28.1 already required 3.8+; 3.7 is EOL)
+* [Update] Align setup.py install_requires floors with requirements.txt (httpx>=0.28.1, suds-community>=1.2.0)
 * [Update] Publish workflow uses Python 3.12 (was 3.7.17, no longer available on Ubuntu 24.04 runners)
 * [Update] StepSecurity hardening for scan.yml (top-level least-privilege permissions, switch to cx-public-ubuntu-x64 runner)
 * [Chore] Ignore *.csv (CxSAST scan report artifacts)
