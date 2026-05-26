@@ -19,5 +19,5 @@ class QueryResponse:
             level=item.get("level"),
             path=item.get("path"),
             source=item.get("source"),
-            metadata=Metadata.from_dict(item.get("metadata")),
+            metadata=Metadata.from_dict(item["metadata"]) if item.get("metadata") else None,
         )
