@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.4 - 2026-05-26
+* [Fix] CxOne Result DTO key casing (similarityID/firstScanID) and add alternateId
+* [Fix] CxOne EffectivePermissionsForResourceResponse DTO key casing (entityID/resourceID)
+* [Fix] CxOne Queries DTO id key casing (Id)
+* [Fix] CxOne ScanParameter DTO valueType/valueTypeParams key casing
+* [Fix] CxOne TaskInfo DTO key casing (Source/Timestamp/Info)
+* [Fix] Guard SastResult.from_dict against null changeDetails
+* [Fix] Guard BflTree/WebHook/ContributorInsights/QuerySearch/ManagementPermissionReference/ResultsSummary/QueryResponse from_dict against null nested fields
+
 1.8.3 - 2026-05-12
 * [Update] Deprecated version
 
