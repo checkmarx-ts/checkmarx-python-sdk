@@ -49,5 +49,5 @@ class SastResult:
             found_at=item.get("foundAt"),
             nodes=[ResultNode.from_dict(node) for node in (item.get("nodes") or [])],
             state=item.get("state"),
-            change_details=ChangeDetails.from_dict(item.get("changeDetails")),
+            change_details=ChangeDetails.from_dict(item["changeDetails"]) if item.get("changeDetails") else None,
         )
