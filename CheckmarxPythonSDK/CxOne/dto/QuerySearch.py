@@ -12,6 +12,6 @@ class QuerySearch:
     @classmethod
     def from_dict(cls, item: dict) -> "QuerySearch":
         return cls(
-            query=Queries.from_dict(item.get("query")),
+            query=Queries.from_dict(item["query"]) if item.get("query") else None,
             results=[QueryResult.from_dict(r) for r in (item.get("results") or [])],
         )
