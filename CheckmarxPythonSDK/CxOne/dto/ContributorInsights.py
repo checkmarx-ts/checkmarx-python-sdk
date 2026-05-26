@@ -17,9 +17,9 @@ class ContributorInsights:
         return cls(
             total=item.get("total"),
             max=item.get("max"),
-            github=ContributorScmInsights.from_dict(item.get("github")),
-            gitlab=ContributorScmInsights.from_dict(item.get("gitlab")),
-            azure=ContributorScmInsights.from_dict(item.get("azure")),
-            bitbucket=ContributorScmInsights.from_dict(item.get("bitbucket")),
-            other=ContributorScmInsights.from_dict(item.get("other")),
+            github=ContributorScmInsights.from_dict(item["github"]) if item.get("github") else None,
+            gitlab=ContributorScmInsights.from_dict(item["gitlab"]) if item.get("gitlab") else None,
+            azure=ContributorScmInsights.from_dict(item["azure"]) if item.get("azure") else None,
+            bitbucket=ContributorScmInsights.from_dict(item["bitbucket"]) if item.get("bitbucket") else None,
+            other=ContributorScmInsights.from_dict(item["other"]) if item.get("other") else None,
         )
