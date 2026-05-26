@@ -586,7 +586,7 @@ class ProjectsAPI(object):
                 "'none', 'credentials', 'PAT', 'ssh'] "
             )
 
-        url = f"{self.base_url}/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git"
+        api_url = f"{self.base_url}/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git"
         post_data = json.dumps(
             {
                 "url": url,
@@ -599,7 +599,7 @@ class ProjectsAPI(object):
             }
         )
         response = self.api_client.call_api(
-            "POST", url, data=post_data, headers=get_headers(api_version)
+            "POST", api_url, data=post_data, headers=get_headers(api_version)
         )
         return response.status_code == NO_CONTENT
 
@@ -1003,13 +1003,13 @@ class ProjectsAPI(object):
             NotFoundError
             CxError
         """
-        url = f"{self.base_url}/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git/ssh"
+        api_url = f"{self.base_url}/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git/ssh"
         file_name = os.path.basename(private_key_file_path)
         with open(private_key_file_path, "rb") as a_file:
             file_content = a_file.read()
         response = self.api_client.call_api(
             "POST",
-            url,
+            api_url,
             data={"url": url, "branch": branch},
             files={"privateKey": (file_name, file_content, "text/plain")},
             headers=get_headers(api_version),
