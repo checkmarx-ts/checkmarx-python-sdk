@@ -20,7 +20,7 @@ class ScanParameter:
             category=item.get("category"),
             originLevel=item.get("originLevel"),
             value=item.get("value"),
-            valueType=item.get("valueType"),
-            valueTypeParams=item.get("valueTypeParams"),
+            valueType=item.get("valuetype"),
+            valueTypeParams=item.get("valuetypeparams"),
             allowOverride=item.get("allowOverride"),
         )
