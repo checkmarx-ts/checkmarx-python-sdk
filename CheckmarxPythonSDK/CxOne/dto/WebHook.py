@@ -33,7 +33,7 @@ class WebHook:
             name=item.get("name"),
             active=item.get("active"),
             enabled_events=[WebHookEvent(e) for e in (item.get("enabledEvents") or [])],
-            config=WebHookConfig.from_dict(item.get("config")),
+            config=WebHookConfig.from_dict(item["config"]) if item.get("config") else None,
             created_at=item.get("createdAt"),
             updated_at=item.get("updatedAt"),
         )
