@@ -13,5 +13,5 @@ class ManagementPermissionReference:
         return cls(
             enabled=item.get("enabled"),
             resource=item.get("resource"),
-            scope_permissions=ScopePermissions.from_dict(item.get("scopePermissions")),
+            scope_permissions=ScopePermissions.from_dict(item["scopePermissions"]) if item.get("scopePermissions") else None,
         )
