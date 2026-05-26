@@ -15,6 +15,7 @@ All notable changes to this project will be documented in  this file.
 * [Update] Publish workflow uses Python 3.12 (was 3.7.17, no longer available on Ubuntu 24.04 runners)
 * [Update] StepSecurity hardening for scan.yml (top-level least-privilege permissions, switch to cx-public-ubuntu-x64 runner)
 * [Chore] Ignore *.csv (CxSAST scan report artifacts)
+* [Add] Identify the SDK in the User-Agent header (checkmarx-python-sdk-v<version>) so CxOne attributes scans to the SDK instead of python-httpx
 
 1.8.3 - 2026-05-12
 * [Update] Deprecated version
