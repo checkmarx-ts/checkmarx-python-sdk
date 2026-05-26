@@ -15,7 +15,7 @@ class Queries:
     @classmethod
     def from_dict(cls, item: dict) -> "Queries":
         return cls(
-            id=item.get("id"),
+            id=item.get("Id"),
             name=item.get("name"),
             group=item.get("group"),
             level=item.get("level"),
