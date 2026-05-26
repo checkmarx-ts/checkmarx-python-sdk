@@ -5,7 +5,8 @@ from dataclasses import dataclass
 class Result:
     type: str = None
     id: str = None
-    similarity_id: int = None
+    alternate_id: str = None
+    similarity_id: str = None
     status: str = None
     state: str = None
     severity: str = None
@@ -25,7 +26,8 @@ class Result:
         return cls(
             type=item.get("type"),
             id=item.get("id"),
-            similarity_id=item.get("similarityID"),
+            alternate_id=item.get("alternateId"),
+            similarity_id=item.get("similarityId"),
             status=item.get("status"),
             state=item.get("state"),
             severity=item.get("severity"),
@@ -34,7 +36,7 @@ class Result:
             first_found_at=item.get("firstFoundAt"),
             found_at=item.get("foundAt"),
             update_at=item.get("updateAt"),
-            first_scan_id=item.get("firstScanID"),
+            first_scan_id=item.get("firstScanId"),
             description=item.get("description"),
             data=item.get("data"),
             comments=item.get("comments"),
