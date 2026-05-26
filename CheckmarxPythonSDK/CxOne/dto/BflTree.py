@@ -15,7 +15,7 @@ class BflTree:
     def from_dict(cls, item: dict) -> "BflTree":
         return cls(
             id=item.get("id"),
-            bfl=ResultNode.from_dict(item.get("bfl")),
+            bfl=ResultNode.from_dict(item["bfl"]) if item.get("bfl") else None,
             results=[SastResult.from_dict(r) for r in (item.get("results") or [])],
             additional_properties=item.get("additionalProperties"),
         )
