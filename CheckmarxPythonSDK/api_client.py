@@ -7,6 +7,7 @@ import typing
 from typing import Callable, Union
 from .configuration import Configuration
 from .rate_limiter import RateLimiter
+from .__version__ import __version__
 from CheckmarxPythonSDK.utilities.compat import (
     OK,
     UNAUTHORIZED,
@@ -35,6 +36,7 @@ def create_session(configuration: Configuration) -> httpx.Client:
         cert=configuration.cert,
         proxy=configuration.proxy,
         transport=httpx.HTTPTransport(retries=3, verify=verify),
+        headers={"User-Agent": f"checkmarx-python-sdk-v{__version__}"},
     )
 
 
