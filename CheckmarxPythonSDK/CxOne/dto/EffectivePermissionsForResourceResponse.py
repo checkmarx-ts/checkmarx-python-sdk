@@ -13,9 +13,9 @@ class EffectivePermissionsForResourceResponse:
     @classmethod
     def from_dict(cls, item: dict) -> "EffectivePermissionsForResourceResponse":
         return cls(
-            entity_id=item.get("entityId"),
+            entity_id=item.get("entityID"),
             entity_type=item.get("entityType"),
-            resource_id=item.get("resourceId"),
+            resource_id=item.get("resourceID"),
             resource_type=item.get("resourceType"),
             permissions=item.get("permissions"),
         )
