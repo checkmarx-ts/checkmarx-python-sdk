@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.5 - 2026-05-29
+* [Fix] Detect CxOne by Keycloak OIDC URL shape so refresh_token auth works on single-tenant deployments (<tenant>.cxone.cloud), not just iam.checkmarx.net
+
 1.8.4 - 2026-05-26
 * [Fix] CxOne Result DTO key casing (similarityID/firstScanID) and add alternateId
 * [Fix] CxOne EffectivePermissionsForResourceResponse DTO key casing (entityID/resourceID)
