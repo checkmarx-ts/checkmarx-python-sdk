@@ -50,8 +50,10 @@ def create_token_request_data(configuration: Configuration) -> dict:
         "client_id": configuration.client_id,
         "client_secret": configuration.client_secret,
     }
-    # CxOne platform
-    if "iam.checkmarx.net" in configuration.token_url:
+    # CxOne uses Keycloak OIDC — detect by URL shape so multi-tenant
+    # (iam.checkmarx.net), single-tenant (*.cxone.cloud), and any future
+    # deployment topology are all covered without a hostname allowlist.
+    if "/auth/realms/" in configuration.token_url and "/protocol/openid-connect/token" in configuration.token_url:
         token_req_data = {
             "grant_type": "client_credentials",
             "client_id": configuration.client_id,
