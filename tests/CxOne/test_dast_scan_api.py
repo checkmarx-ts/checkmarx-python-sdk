@@ -180,16 +180,18 @@ def test_dast_environment_update_to_dict():
         app_ids=["app-uuid"],
         primary_app_ids=["primary-app-uuid"],
         tunnel_id="tunnel-uuid",
-        automation_scripts=[
-            DastAutomationScript(
-                type=DastAutomationType.SCRIPT,
-                action=DastAutomationAction.ADD,
-                script_type=DastAutomationScriptType.HTTP_SENDER,
-                inline="logger.info('hello');",
-                engine=DastAutomationEngine.ECMASCRIPT_GRAALJS,
-                name="my-script",
-            ),
-        ],
+        settings=DastEnvironmentSettings(
+            automation_scripts=[
+                DastAutomationScript(
+                    type=DastAutomationType.SCRIPT,
+                    action=DastAutomationAction.ADD,
+                    script_type=DastAutomationScriptType.HTTP_SENDER,
+                    inline="logger.info('hello');",
+                    engine=DastAutomationEngine.ECMASCRIPT_GRAALJS,
+                    name="my-script",
+                ),
+            ],
+        ),
     )
     assert upd.to_dict() == {
         "environmentId": "uuid",
@@ -198,14 +200,16 @@ def test_dast_environment_update_to_dict():
         "appIds": ["app-uuid"],
         "primaryAppIds": ["primary-app-uuid"],
         "tunnelId": "tunnel-uuid",
-        "automationScripts": [{
-            "type": "script",
-            "action": "add",
-            "scriptType": "httpsender",
-            "inline": "logger.info('hello');",
-            "engine": "ECMAScript : Graal.js",
-            "name": "my-script",
-        }],
+        "settings": {
+            "automationScripts": [{
+                "type": "script",
+                "action": "add",
+                "scriptType": "httpsender",
+                "inline": "logger.info('hello');",
+                "engine": "ECMAScript : Graal.js",
+                "name": "my-script",
+            }],
+        },
     }
 
 
