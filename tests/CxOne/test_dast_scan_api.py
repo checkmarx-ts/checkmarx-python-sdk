@@ -7,7 +7,7 @@ import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
-    get_environments_count_by_group, run_scan,
+    get_environments_count_by_group, run_scan, update_scan,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -19,7 +19,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     DastEnvironmentUpdate, DastAutomationScript, DastAutomationType,
     DastAutomationAction, DastAutomationScriptType, DastAutomationEngine,
     DastScanType, DastGroupBy, DastEnvironmentGroupCount,
-    DastRunScanInput,
+    DastRunScanInput, DastScanUpdate,
 )
 
 
@@ -293,6 +293,55 @@ def test_run_scan():
             configuration_file=config_path,
         ))
         assert isinstance(scan_id, str) and len(scan_id) == 36 and scan_id.count("-") == 4
+    finally:
+        os.unlink(config_path)
+        delete_environment(env_id)
+
+
+def test_dast_scan_update_to_dict():
+    upd = DastScanUpdate(
+        scan_id="scan-uuid",
+        environment_id="env-uuid",
+        scan_type=DastScanType.DAST,
+        tags=["a", "b"],
+        groups=["c", "d"],
+    )
+    assert upd.to_dict() == {
+        "scanId": "scan-uuid",
+        "environmentID": "env-uuid",
+        "scanType": "DAST",
+        "tags": ["a", "b"],
+        "groups": ["c", "d"],
+    }
+
+
+def test_update_scan():
+    # Create env → run scan → update the scan's tags → verify no error.
+    env_id = create_environment(DastEnvironmentInput(
+        domain=f"sdk-upscan-{int(time.time())}",
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
+    ))
+    config_path = tempfile.NamedTemporaryFile(suffix=".yaml", delete=False).name
+    with open(config_path, "w") as f:
+        f.write("---\nenv:\n  contexts:\n    - name: dummy\n")
+    try:
+        scan_id = run_scan(DastRunScanInput(
+            environment_id=env_id,
+            scan_type=DastScanType.DAST,
+            configuration_file=config_path,
+        ))
+        result = update_scan(DastScanUpdate(
+            scan_id=scan_id,
+            environment_id=env_id,
+            # Spec says scan_type is optional but the live API rejects
+            # without it with "ScanType oneof DAST DASTAPI".
+            scan_type=DastScanType.DAST,
+            tags=["sdk-test-updated"],
+        ))
+        # Response is a string body (per spec); 2xx is what matters.
+        # check_response would have raised on non-2xx.
+        assert isinstance(result, str)
     finally:
         os.unlink(config_path)
         delete_environment(env_id)

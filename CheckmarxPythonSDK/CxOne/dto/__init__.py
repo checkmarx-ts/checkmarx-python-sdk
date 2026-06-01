@@ -79,6 +79,7 @@ from .DastScanConfig import DastScanConfig
 from .DastScanOption import DastScanOption
 from .DastScanOptions import DastScanOptions
 from .DastScanType import DastScanType
+from .DastScanUpdate import DastScanUpdate
 from .DastScanUser import DastScanUser
 from .DastSessionManagement import DastSessionManagement
 from .DastSessionManagementHeader import DastSessionManagementHeader

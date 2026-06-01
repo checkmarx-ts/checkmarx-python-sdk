@@ -19,6 +19,7 @@ from .dto import (
     DastGroupBy,
     DastRunScanInput,
     DastScanType,
+    DastScanUpdate,
     DastSortBy,
 )
 
@@ -294,12 +295,25 @@ class DastScanAPI(object):
             scan_id = scan_id[1:-1]
         return scan_id
 
-    def update_scan(self, scan: dict) -> dict:
-        """PUT /scan — edit the configuration of an existing scan."""
+    def update_scan(self, scan: DastScanUpdate) -> str:
+        """PUT /scan — edit the configuration of an existing scan.
+
+        Args:
+            scan (DastScanUpdate): the partial update. scan_id and
+                environment_id are required; only set fields are sent.
+
+        Returns:
+            str: the API's plain-text response body (typically empty or
+            the scan id on success).
+        """
         response = self.api_client.call_api(
-            method="PUT", url=f"{self.base_url}/scan", json=scan
+            method="PUT", url=f"{self.base_url}/scan",
+            json=scan.to_dict(),
         )
-        return response.json()
+        body = response.text.strip()
+        if body.startswith('"') and body.endswith('"'):
+            body = body[1:-1]
+        return body
 
     def cancel_scan(self, scan: dict) -> bool:
         """PATCH /scan — cancel a scan that is currently running."""
@@ -399,7 +413,7 @@ def run_scan(scan: DastRunScanInput) -> str:
     return DastScanAPI().run_scan(scan=scan)
 
 
-def update_scan(scan: dict) -> dict:
+def update_scan(scan: DastScanUpdate) -> str:
     return DastScanAPI().update_scan(scan=scan)
 
 
