@@ -8,7 +8,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
     get_environments_count_by_group, run_scan, update_scan,
-    dast_cancel_scan, dast_delete_scan,
+    dast_cancel_scan, dast_delete_scan, get_scans,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -21,6 +21,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     DastAutomationAction, DastAutomationScriptType, DastAutomationEngine,
     DastScanType, DastGroupBy, DastEnvironmentGroupCount,
     DastRunScanInput, DastScanUpdate,
+    DastScansCollection, DastScan, DastScanFilter, DastScanSortBy, DastScanStatus,
 )
 
 
@@ -393,6 +394,25 @@ def test_delete_scan():
     finally:
         os.unlink(config_path)
         delete_environment(env_id)
+
+
+def test_get_scans():
+    # Find an env that already has at least one scan so we can verify
+    # the response is non-empty.
+    envs = get_environments()
+    env_with_scan = next((e for e in envs.environments if e.last_scan_id), None)
+    if env_with_scan is None:
+        pytest.skip("no environments have scans on this tenant")
+    collection = get_scans(environment_id=env_with_scan.environment_id, to=3)
+    assert isinstance(collection, DastScansCollection)
+    assert collection.total_scans is not None and collection.total_scans >= 1
+    assert isinstance(collection.scans, list) and collection.scans
+    s = collection.scans[0]
+    assert isinstance(s, DastScan)
+    assert s.scan_id is not None
+    # NOTE: the live API returns an empty string for `environmentId` on
+    # the scan object rather than echoing the queried env. environment_id
+    # is parsed correctly — just don't expect it to match.
 
 
 def test_delete_environment():

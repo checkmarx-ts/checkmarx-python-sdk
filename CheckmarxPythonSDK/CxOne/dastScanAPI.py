@@ -18,8 +18,12 @@ from .dto import (
     DastEnvironmentUpdate,
     DastGroupBy,
     DastRunScanInput,
+    DastScanFilter,
+    DastScanSortBy,
+    DastScanStatus,
     DastScanType,
     DastScanUpdate,
+    DastScansCollection,
     DastSortBy,
 )
 
@@ -229,12 +233,64 @@ class DastScanAPI(object):
 
     # ----- Scans -----
 
-    def get_scans(self, **params) -> dict:
-        """GET /scans — DAST scans run in the account with a risks overview."""
+    def get_scans(
+        self,
+        environment_id: str,
+        filter_: DastScanFilter = None,
+        from_: int = None,
+        groups: List[str] = None,
+        last_status: List[DastScanStatus] = None,
+        match: DastScanFilter = None,
+        search: str = None,
+        sort: List[DastScanSortBy] = None,
+        tags: List[str] = None,
+        to: int = None,
+    ) -> DastScansCollection:
+        """GET /scans — list scans for an Environment with a risks overview.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            filter_ (DastScanFilter, optional): partial-match filter on
+                initiator, scan_type, project_id.
+            from_ (int, optional): pagination start offset.
+            groups (list of str, optional): filter by user groups.
+            last_status (list of DastScanStatus, optional): filter by
+                most recent scan status. Documented values are New,
+                ExternalScan, Running, Finished, Failed, Cancelled.
+            match (DastScanFilter, optional): exact-match filter.
+            search (str, optional): substring search in initiator or
+                lastStatus.
+            sort (list of DastScanSortBy, optional): sort columns. Each
+                entry is serialized as "<col>:asc"; pass a raw "col:desc"
+                string in the list for per-column descending order.
+            tags (list of str, optional): filter by tags.
+            to (int, optional): pagination end offset.
+
+        Returns:
+            DastScansCollection
+        """
+        params = {
+            "environmentId": environment_id,
+            "from": from_,
+            "groups": groups,
+            "lastStatus": [
+                s.value if isinstance(s, DastScanStatus) else s for s in last_status
+            ] if last_status else None,
+            "search": search,
+            "sort": (
+                [s if ":" in str(s) else f"{s.value if isinstance(s, DastScanSortBy) else s}:asc"
+                 for s in sort]
+                if sort else None
+            ),
+            "tags": tags,
+            "to": to,
+        }
+        params.update(_flatten_object_param("filter", filter_))
+        params.update(_flatten_object_param("match", match))
         response = self.api_client.call_api(
-            method="GET", url=f"{self.base_url}/scans", params=params
+            method="GET", url=f"{self.base_url}/scans", params=params,
         )
-        return response.json()
+        return DastScansCollection.from_dict(response.json())
 
     def run_scan(self, scan: DastRunScanInput) -> str:
         """POST /scan — run a DAST scan on an Environment via multipart upload.
@@ -425,8 +481,23 @@ def get_environments_count_by_group(
     )
 
 
-def get_scans(**params) -> dict:
-    return DastScanAPI().get_scans(**params)
+def get_scans(
+    environment_id: str,
+    filter_: DastScanFilter = None,
+    from_: int = None,
+    groups: List[str] = None,
+    last_status: List[DastScanStatus] = None,
+    match: DastScanFilter = None,
+    search: str = None,
+    sort: List[DastScanSortBy] = None,
+    tags: List[str] = None,
+    to: int = None,
+) -> DastScansCollection:
+    return DastScanAPI().get_scans(
+        environment_id=environment_id, filter_=filter_, from_=from_,
+        groups=groups, last_status=last_status, match=match,
+        search=search, sort=sort, tags=tags, to=to,
+    )
 
 
 def run_scan(scan: DastRunScanInput) -> str:
