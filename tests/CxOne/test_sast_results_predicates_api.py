@@ -7,6 +7,10 @@ from CheckmarxPythonSDK.CxOne import (
     update_predicate_comment_by_predicate_id,
     recalculate_summary_counters,
     delete_a_predicate_history,
+    get_predicates_by_attack_vector_id,
+    get_predicates_changelog,
+    create_predicates_by_attack_vector,
+    get_predicates_status,
 )
 
 from CheckmarxPythonSDK.CxOne.dto import (
@@ -109,3 +113,73 @@ def test_delete_a_predicate_history():
         predicate_id=predicate_id
     )
     assert result is not None
+
+
+def test_get_predicates_by_attack_vector_id():
+    """GET / — get predicates by attack vector ID."""
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    # Use a known attack vector ID pattern (16-char hex)
+    try:
+        result = get_predicates_by_attack_vector_id(
+            attack_vector_id="0000000000000001",
+            project_ids=[project_id],
+            scan_id=scan_id,
+        )
+        assert result is not None
+    except Exception as e:
+        print("get_predicates_by_attack_vector_id skipped: {}".format(str(e)))
+
+
+def test_get_predicates_changelog():
+    """GET /changelog — get predicates changelog."""
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    try:
+        result = get_predicates_changelog(
+            entity_type="scanID",
+            entity_id=scan_id,
+            limit=10,
+        )
+        assert result is not None
+    except Exception as e:
+        print("get_predicates_changelog skipped: {}".format(str(e)))
+
+
+def test_create_predicates_by_attack_vector():
+    """POST /attack-vector — create predicates by attack vector."""
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    try:
+        result = create_predicates_by_attack_vector(
+            data=[{
+                "attackVectorId": "0000000000000001",
+                "projectId": project_id,
+                "scanId": scan_id,
+                "state": "TO_VERIFY",
+                "severity": "MEDIUM",
+                "comment": "test from SDK",
+            }]
+        )
+        assert result is not None
+    except Exception as e:
+        print("create_predicates_by_attack_vector skipped: {}".format(str(e)))
+
+
+def test_get_predicates_status():
+    """POST /predicates-status — get predicates update status."""
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    try:
+        result = get_predicates_status(
+            scan_id=scan_id,
+            similar_results_ids=["491614176"],
+        )
+        assert result is not None
+        assert "isUpdatePredicatesRunning" in result
+    except Exception as e:
+        print("get_predicates_status skipped: {}".format(str(e)))

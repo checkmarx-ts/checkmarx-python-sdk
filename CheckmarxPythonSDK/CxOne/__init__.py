@@ -363,6 +363,10 @@ from .sastResultsPredicatesAPI import (
     update_predicate_comment_by_predicate_id,
     recalculate_summary_counters,
     delete_a_predicate_history,
+    get_predicates_by_attack_vector_id,
+    get_predicates_changelog,
+    create_predicates_by_attack_vector,
+    get_predicates_status,
 )
 from .sastResultsSummaryAPI import (
     SastResultsSummaryAPI,

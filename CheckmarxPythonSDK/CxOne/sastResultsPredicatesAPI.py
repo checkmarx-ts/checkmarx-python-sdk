@@ -130,6 +130,115 @@ class SastResultsPredicatesAPI(object):
         response = self.api_client.call_api(method="DELETE", url=url)
         return response.status_code == NO_CONTENT
 
+    def get_predicates_by_attack_vector_id(
+        self,
+        attack_vector_id: str,
+        similarity_id: str = None,
+        project_ids: List[str] = None,
+        scan_id: str = None,
+        include_comment_json: bool = None,
+    ) -> dict:
+        """
+        Get all predicates by attack vector ID.
+
+        Args:
+            attack_vector_id (str): ID of the attack vector to get (required)
+            similarity_id (str): Filter by similarity ID
+            project_ids (List[str]): Filter by project IDs (OR)
+            scan_id (str): Filter by scan ID
+            include_comment_json (bool): Include comment JSON data
+
+        Returns:
+            dict
+        """
+        url = f"{self.base_url}/"
+        params = {
+            "attack-vector-id": attack_vector_id,
+            "similarity-id": similarity_id,
+            "project-ids": project_ids,
+            "scan-id": scan_id,
+            "include-comment-json": include_comment_json,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def get_predicates_changelog(
+        self,
+        entity_type: str,
+        entity_id: str,
+        history: bool = False,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> dict:
+        """
+        Retrieve bulk predicates by entity type.
+
+        Args:
+            entity_type (str): One of 'similarityID', 'scanID', 'projectID'
+            entity_id (str): The ID value of the selected entity type
+            history (bool): True = full history; False = latest state only
+            offset (int): Results to skip. Default: 0
+            limit (int): Max results (1-100). Default: 100
+
+        Returns:
+            dict
+        """
+        url = f"{self.base_url}/changelog"
+        params = {
+            "entityType": entity_type,
+            "entityId": entity_id,
+            "history": history,
+            "offset": offset,
+            "limit": limit,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def create_predicates_by_attack_vector(
+        self, data: List[dict]
+    ) -> bool:
+        """
+        Create predicates by attack vector ID with bulk updates.
+
+        Args:
+            data (List[dict]): Each item needs attackVectorId and projectId.
+                Optional: scanId, state, severity, comment,
+                customStateId, filterBySimilarityId, allowInconsistentStates
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/attack-vector"
+        response = self.api_client.call_api(
+            method="POST", url=url, json=data
+        )
+        return response.status_code == CREATED
+
+    def get_predicates_status(
+        self, scan_id: str, similar_results_ids: List[str]
+    ) -> dict:
+        """
+        Get predicates update status.
+
+        Args:
+            scan_id (str): Scan ID to check
+            similar_results_ids (List[str]): Similarity IDs or attack vector
+                IDs (max 200)
+
+        Returns:
+            dict with isUpdatePredicatesRunning and groupingMode
+        """
+        url = f"{self.base_url}/predicates-status"
+        body = {"scanID": scan_id, "similarResultsIDs": similar_results_ids}
+        response = self.api_client.call_api(
+            method="POST", url=url, json=body
+        )
+        return response.json()
+
 
 def get_all_predicates_for_similarity_id(
     similarity_id: str,
@@ -182,4 +291,50 @@ def delete_a_predicate_history(
         similarity_id=similarity_id,
         project_id=project_id,
         predicate_id=predicate_id,
+    )
+
+
+def get_predicates_by_attack_vector_id(
+    attack_vector_id: str,
+    similarity_id: str = None,
+    project_ids: List[str] = None,
+    scan_id: str = None,
+    include_comment_json: bool = None,
+) -> dict:
+    return SastResultsPredicatesAPI().get_predicates_by_attack_vector_id(
+        attack_vector_id=attack_vector_id,
+        similarity_id=similarity_id,
+        project_ids=project_ids,
+        scan_id=scan_id,
+        include_comment_json=include_comment_json,
+    )
+
+
+def get_predicates_changelog(
+    entity_type: str,
+    entity_id: str,
+    history: bool = False,
+    offset: int = 0,
+    limit: int = 100,
+) -> dict:
+    return SastResultsPredicatesAPI().get_predicates_changelog(
+        entity_type=entity_type,
+        entity_id=entity_id,
+        history=history,
+        offset=offset,
+        limit=limit,
+    )
+
+
+def create_predicates_by_attack_vector(data: List[dict]) -> bool:
+    return SastResultsPredicatesAPI().create_predicates_by_attack_vector(
+        data=data
+    )
+
+
+def get_predicates_status(
+    scan_id: str, similar_results_ids: List[str]
+) -> dict:
+    return SastResultsPredicatesAPI().get_predicates_status(
+        scan_id=scan_id, similar_results_ids=similar_results_ids
     )
