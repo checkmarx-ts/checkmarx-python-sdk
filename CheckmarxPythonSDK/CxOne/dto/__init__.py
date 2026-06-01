@@ -71,6 +71,7 @@ from .DastEnvironmentsCollection import DastEnvironmentsCollection
 from .DastGroupBy import DastGroupBy
 from .DastLastRiskRating import DastLastRiskRating
 from .DastPollHeader import DastPollHeader
+from .DastRunScanInput import DastRunScanInput
 from .DastScanAuth import DastScanAuth
 from .DastScanAuthParameters import DastScanAuthParameters
 from .DastScanAuthVerification import DastScanAuthVerification

@@ -1,3 +1,5 @@
+import os
+import tempfile
 import time
 
 import pytest
@@ -5,7 +7,7 @@ import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
-    get_environments_count_by_group,
+    get_environments_count_by_group, run_scan,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -17,6 +19,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     DastEnvironmentUpdate, DastAutomationScript, DastAutomationType,
     DastAutomationAction, DastAutomationScriptType, DastAutomationEngine,
     DastScanType, DastGroupBy, DastEnvironmentGroupCount,
+    DastRunScanInput,
 )
 
 
@@ -269,6 +272,30 @@ def test_get_environments_count_by_group():
     assert total == overview.environments_count
     # Each bucket's `groups` is a list with one entry (the scan type value)
     assert all(b.groups and len(b.groups) == 1 for b in buckets)
+
+
+def test_run_scan():
+    # Create a throwaway env to scan against.
+    env_id = create_environment(DastEnvironmentInput(
+        domain=f"sdk-runscan-{int(time.time())}",
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
+    ))
+    config_path = tempfile.NamedTemporaryFile(suffix=".yaml", delete=False).name
+    with open(config_path, "w") as f:
+        # Minimal ZAP automation YAML. The scan itself may fail downstream,
+        # but the API accepts this shape and returns a scan id.
+        f.write("---\nenv:\n  contexts:\n    - name: dummy\n")
+    try:
+        scan_id = run_scan(DastRunScanInput(
+            environment_id=env_id,
+            scan_type=DastScanType.DAST,
+            configuration_file=config_path,
+        ))
+        assert isinstance(scan_id, str) and len(scan_id) == 36 and scan_id.count("-") == 4
+    finally:
+        os.unlink(config_path)
+        delete_environment(env_id)
 
 
 def test_delete_environment():

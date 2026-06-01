@@ -4,6 +4,7 @@ Endpoints under <server>/api/dast/scans. Endpoints with documented
 response shapes return DTO objects; the rest are stubs that return
 the raw parsed JSON response until their schemas are pinned down.
 """
+import os
 from typing import List
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
@@ -16,6 +17,8 @@ from .dto import (
     DastEnvironmentInput,
     DastEnvironmentUpdate,
     DastGroupBy,
+    DastRunScanInput,
+    DastScanType,
     DastSortBy,
 )
 
@@ -232,12 +235,64 @@ class DastScanAPI(object):
         )
         return response.json()
 
-    def run_scan(self, scan: dict) -> dict:
-        """POST /scan — run a DAST scan on an Environment."""
+    def run_scan(self, scan: DastRunScanInput) -> str:
+        """POST /scan — run a DAST scan on an Environment via multipart upload.
+
+        Args:
+            scan (DastRunScanInput): environment_id, scan_type, and
+                configuration_file (local path to the ZAP config) are
+                required. api_file (path to an OpenAPI/Swagger file)
+                is optional.
+
+        Returns:
+            str: the unique identifier of the created scan. The endpoint
+            responds with plain text (text/plain).
+        """
+        # Build form-field data; httpx serializes lists as repeated parts.
+        # Booleans are sent as lowercase "true"/"false" — the JSON-spec form
+        # that DAST backends generally accept.
+        def _bool(v):
+            return None if v is None else ("true" if v else "false")
+
+        data = {
+            "environmentID": scan.environment_id,
+            "scanType": (
+                scan.scan_type.value if isinstance(scan.scan_type, DastScanType)
+                else scan.scan_type
+            ),
+            "groups": scan.groups,
+            "tags": scan.tags,
+            "useExternalWorker": _bool(scan.use_external_worker),
+            "useAuthSession": _bool(scan.use_auth_session),
+            "apiFileType": scan.api_file_type,
+            "cliVersion": scan.cli_version,
+            "heartbeatInterval": scan.heartbeat_interval,
+        }
+        data = {k: v for k, v in data.items() if v is not None}
+
+        # Open files for the request. httpx closes the stream on its own.
+        files = {}
+        if scan.configuration_file:
+            files["configurationFile"] = (
+                os.path.basename(scan.configuration_file),
+                open(scan.configuration_file, "rb"),
+                "application/octet-stream",
+            )
+        if scan.api_file:
+            files["APIFile"] = (
+                os.path.basename(scan.api_file),
+                open(scan.api_file, "rb"),
+                "application/octet-stream",
+            )
+
         response = self.api_client.call_api(
-            method="POST", url=f"{self.base_url}/scan", json=scan
+            method="POST", url=f"{self.base_url}/scan",
+            data=data, files=files,
         )
-        return response.json()
+        scan_id = response.text.strip()
+        if scan_id.startswith('"') and scan_id.endswith('"'):
+            scan_id = scan_id[1:-1]
+        return scan_id
 
     def update_scan(self, scan: dict) -> dict:
         """PUT /scan — edit the configuration of an existing scan."""
@@ -340,7 +395,7 @@ def get_scans(**params) -> dict:
     return DastScanAPI().get_scans(**params)
 
 
-def run_scan(scan: dict) -> dict:
+def run_scan(scan: DastRunScanInput) -> str:
     return DastScanAPI().run_scan(scan=scan)
 
 
