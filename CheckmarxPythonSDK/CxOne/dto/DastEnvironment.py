@@ -3,7 +3,7 @@ from typing import List, Union
 from .RiskLevel import RiskLevel
 from .DastAlertRiskLevel import DastAlertRiskLevel
 from .DastApplication import DastApplication
-from .DastEnvironmentSettings import DastEnvironmentSettings
+from .DastScanConfig import DastScanConfig
 from .DastLastRiskRating import DastLastRiskRating
 
 
@@ -32,7 +32,7 @@ class DastEnvironment:
     is_public: bool = None
     has_auth: bool = None
     created: str = None
-    settings: DastEnvironmentSettings = None
+    creator: str = None
     applications: List[DastApplication] = None
     risk_level: RiskLevel = None
     alert_risk_level: DastAlertRiskLevel = None
@@ -41,13 +41,14 @@ class DastEnvironment:
     last_scan_id: str = None
     last_scan_time: str = None
     last_status: str = None
+    last_correlation_status: str = None
     auth_success: bool = None
     auth_method: str = None
     last_auth_uuid: str = None
     last_auth_success: bool = None
     has_report: bool = None
     tunnel_state: str = None
-    scan_config: dict = None
+    scan_config: DastScanConfig = None
 
     @classmethod
     def from_dict(cls, item: dict) -> "DastEnvironment":
@@ -63,7 +64,7 @@ class DastEnvironment:
             is_public=item.get("isPublic"),
             has_auth=item.get("hasAuth"),
             created=item.get("created"),
-            settings=DastEnvironmentSettings.from_dict(item["settings"]) if item.get("settings") else None,
+            creator=item.get("creator"),
             applications=[
                 DastApplication.from_dict(a) for a in (item.get("applications") or [])
             ],
@@ -74,11 +75,12 @@ class DastEnvironment:
             last_scan_id=item.get("lastScanID"),
             last_scan_time=item.get("lastScanTime"),
             last_status=item.get("lastStatus"),
+            last_correlation_status=item.get("lastCorrelationStatus"),
             auth_success=item.get("authSuccess"),
             auth_method=item.get("authMethod"),
             last_auth_uuid=item.get("lastAuthUUID"),
             last_auth_success=item.get("lastAuthSuccess"),
             has_report=item.get("hasReport"),
             tunnel_state=item.get("tunnelState"),
-            scan_config=item.get("scanConfig"),
+            scan_config=DastScanConfig.from_dict(item["scanConfig"]) if item.get("scanConfig") else None,
         )

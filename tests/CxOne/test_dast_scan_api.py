@@ -2,7 +2,7 @@ from CheckmarxPythonSDK.CxOne import get_tenant_overview, get_environments
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
     DastEnvironmentFilter, DastLastRiskRating, DastAuthSuccess, DastTunnelState,
-    DastSortBy, DastAlertRiskLevel, DastApplication, DastEnvironmentSettings,
+    DastSortBy, DastAlertRiskLevel, DastApplication, DastScanConfig,
 )
 
 
@@ -24,7 +24,7 @@ def test_get_environments():
         assert isinstance(env, DastEnvironment)
         assert env.environment_id is not None
         # Nested DTO typing
-        assert env.settings is None or isinstance(env.settings, DastEnvironmentSettings)
+        assert env.scan_config is None or isinstance(env.scan_config, DastScanConfig)
         assert isinstance(env.applications, list)
         assert all(isinstance(a, DastApplication) for a in env.applications)
         assert env.alert_risk_level is None or isinstance(env.alert_risk_level, DastAlertRiskLevel)
