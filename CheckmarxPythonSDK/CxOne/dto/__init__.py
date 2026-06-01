@@ -173,6 +173,7 @@ from .PresetSummary import PresetSummary
 from .Project import Project
 from .ProjectCounter import ProjectCounter
 from .ProjectInput import ProjectInput
+from .ScheduleInput import ScheduleInput
 from .ProjectResponseCollection import ProjectResponseCollection
 from .ProjectResponseModel import ProjectResponseModel
 from .ProjectsCollection import ProjectsCollection

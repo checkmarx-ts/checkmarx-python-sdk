@@ -2,12 +2,13 @@ import logging
 from dataclasses import dataclass, asdict
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
 from .dto import (
     ProjectInput,
     Project,
     ProjectsCollection,
     SubsetScan,
+    ScheduleInput,
 )
 from typing import List, Union, Optional
 
@@ -324,6 +325,177 @@ class ProjectsAPI(object):
         response = self.api_client.call_api(method="DELETE", url=url)
         return response.status_code == NO_CONTENT
 
+    def delete_a_schedule(self, project_id: str) -> bool:
+        """
+        Delete a scheduled scan for a project.
+
+        Args:
+            project_id (str): The project ID whose schedule to delete.
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/schedules/{project_id}"
+        response = self.api_client.call_api(method="DELETE", url=url)
+        return response.status_code == OK
+
+    def get_a_list_of_schedules(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        search: str = None,
+        name: str = None,
+        active: bool = None,
+        frequency: List[str] = None,
+        from_creation_date: str = None,
+        to_creation_date: str = None,
+        from_trigger_date: str = None,
+        to_trigger_date: str = None,
+        sort: List[str] = None,
+    ) -> dict:
+        """
+        Get a list of scheduled scans with filtering and pagination.
+
+        Args:
+            offset (int): Items to skip. Default: 0
+            limit (int): Max results. Default: 20
+            search (str): Partial match on schedule name
+            name (str): Schedule name, partial match
+            active (bool): Filter by active status
+            frequency (List[str]): Filter by frequency (OR match)
+            from_creation_date (str): Earliest creation date (RFC3339)
+            to_creation_date (str): Latest creation date (RFC3339)
+            from_trigger_date (str): Earliest trigger date (RFC3339)
+            to_trigger_date (str): Latest trigger date (RFC3339)
+            sort (List[str]): Sort fields (e.g. ["+created_at", "+status"])
+
+        Returns:
+            dict
+        """
+        url = f"{self.base_url}/schedules"
+        params = {
+            "offset": offset,
+            "limit": limit,
+            "search": search,
+            "name": name,
+            "active": active,
+            "frequency": frequency,
+            "from-creation-date": from_creation_date,
+            "to-creation-date": to_creation_date,
+            "from-trigger-date": from_trigger_date,
+            "to-trigger-date": to_trigger_date,
+            "sort": sort,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def create_a_schedule(
+        self, project_id: str, schedule_input: ScheduleInput
+    ) -> dict:
+        """
+        Create a scheduled scan for a project.
+
+        Args:
+            project_id (str):
+            schedule_input (`ScheduleInput`):
+
+        Returns:
+            dict with schedule_id, code, message
+        """
+        url = f"{self.base_url}/schedules/{project_id}"
+        response = self.api_client.call_api(
+            method="POST",
+            url=url,
+            json={k: v for k, v in asdict(schedule_input).items() if v is not None},
+        )
+        return response.json()
+
+    def get_a_schedule_by_project_id(self, project_id: str) -> dict:
+        """
+        Get a scheduled scan by project ID.
+
+        Args:
+            project_id (str): The project ID whose schedule to retrieve.
+
+        Returns:
+            dict
+        """
+        url = f"{self.base_url}/schedules/{project_id}"
+        response = self.api_client.call_api(method="GET", url=url)
+        return response.json()
+
+    def update_a_schedule(
+        self, project_id: str, schedule_input: ScheduleInput
+    ) -> bool:
+        """
+        Update a scheduled scan. Only send the fields to be changed.
+
+        Args:
+            project_id (str): The project ID whose schedule to update.
+            schedule_input (`ScheduleInput`):
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/schedules/{project_id}"
+        response = self.api_client.call_api(
+            method="PATCH",
+            url=url,
+            json={k: v for k, v in asdict(schedule_input).items() if v is not None},
+        )
+        return response.status_code == NO_CONTENT
+
+    def get_project_tags_by_filters(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        search: str = None,
+    ) -> dict:
+        """
+        Get tags with filtering and pagination.
+
+        Args:
+            offset (int): Items to skip. Default: 0
+            limit (int): Max results. Default: 20
+            search (str): Partial match on tag key or value
+
+        Returns:
+            dict with _links, totalCount, totalFilteredCount, items
+        """
+        url = f"{self.base_url}/tagsByFilters"
+        params = {"offset": offset, "limit": limit, "search": search}
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def reassign_a_project(
+        self,
+        project_id: str,
+        application_ids_to_disassociate: List[str],
+        application_ids_to_associate: List[str],
+    ) -> bool:
+        """
+        Reassign a project from source applications to destination applications.
+
+        Args:
+            project_id (str): ID of the project to reassign
+            application_ids_to_disassociate (List[str]): Source application IDs
+            application_ids_to_associate (List[str]): Destination application IDs
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/reassign/{project_id}"
+        body = {
+            "applicationIdsToDisassociate": application_ids_to_disassociate,
+            "applicationIdsToAssociate": application_ids_to_associate,
+        }
+        response = self.api_client.call_api(method="PUT", url=url, json=body)
+        return response.status_code == NO_CONTENT
+
     def update_project_group(
         self, project_id: str, groups: List[str]
     ) -> bool:
@@ -549,6 +721,78 @@ def update_specific_project_fields(
 
 def delete_a_project(project_id: str) -> bool:
     return ProjectsAPI().delete_a_project(project_id=project_id)
+
+
+def delete_a_schedule(project_id: str) -> bool:
+    return ProjectsAPI().delete_a_schedule(project_id=project_id)
+
+
+def get_a_list_of_schedules(
+    offset: int = 0,
+    limit: int = 20,
+    search: str = None,
+    name: str = None,
+    active: bool = None,
+    frequency: List[str] = None,
+    from_creation_date: str = None,
+    to_creation_date: str = None,
+    from_trigger_date: str = None,
+    to_trigger_date: str = None,
+    sort: List[str] = None,
+) -> dict:
+    return ProjectsAPI().get_a_list_of_schedules(
+        offset=offset,
+        limit=limit,
+        search=search,
+        name=name,
+        active=active,
+        frequency=frequency,
+        from_creation_date=from_creation_date,
+        to_creation_date=to_creation_date,
+        from_trigger_date=from_trigger_date,
+        to_trigger_date=to_trigger_date,
+        sort=sort,
+    )
+
+
+def create_a_schedule(project_id: str, schedule_input: ScheduleInput) -> dict:
+    return ProjectsAPI().create_a_schedule(
+        project_id=project_id, schedule_input=schedule_input
+    )
+
+
+def get_a_schedule_by_project_id(project_id: str) -> dict:
+    return ProjectsAPI().get_a_schedule_by_project_id(project_id=project_id)
+
+
+def update_a_schedule(
+    project_id: str, schedule_input: ScheduleInput
+) -> bool:
+    return ProjectsAPI().update_a_schedule(
+        project_id=project_id, schedule_input=schedule_input
+    )
+
+
+def get_project_tags_by_filters(
+    offset: int = 0,
+    limit: int = 20,
+    search: str = None,
+) -> dict:
+    return ProjectsAPI().get_project_tags_by_filters(
+        offset=offset, limit=limit, search=search
+    )
+
+
+def reassign_a_project(
+    project_id: str,
+    application_ids_to_disassociate: List[str],
+    application_ids_to_associate: List[str],
+) -> bool:
+    return ProjectsAPI().reassign_a_project(
+        project_id=project_id,
+        application_ids_to_disassociate=application_ids_to_disassociate,
+        application_ids_to_associate=application_ids_to_associate,
+    )
 
 
 def update_project_group(project_id: str, groups: List[str]) -> bool:
