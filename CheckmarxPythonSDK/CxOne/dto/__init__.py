@@ -78,6 +78,9 @@ from .DastScanAuthParameters import DastScanAuthParameters
 from .DastScanAuthVerification import DastScanAuthVerification
 from .DastScanConfig import DastScanConfig
 from .DastScanFilter import DastScanFilter
+from .DastScanGroupBy import DastScanGroupBy
+from .DastScanGroupCount import DastScanGroupCount
+from .DastScanGroupFilter import DastScanGroupFilter
 from .DastScanInsight import DastScanInsight
 from .DastScanOption import DastScanOption
 from .DastScanOptions import DastScanOptions

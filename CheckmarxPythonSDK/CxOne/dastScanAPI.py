@@ -19,6 +19,9 @@ from .dto import (
     DastGroupBy,
     DastRunScanInput,
     DastScanFilter,
+    DastScanGroupBy,
+    DastScanGroupCount,
+    DastScanGroupFilter,
     DastScanSortBy,
     DastScanStatus,
     DastScanType,
@@ -427,14 +430,55 @@ class DastScanAPI(object):
         )
         return 200 <= response.status_code < 300
 
-    def get_scans_count_by_group(self, group_by: str = None, **params) -> dict:
-        """GET /scans/groups — count scans grouped by a parameter (e.g.
-        initiator, scantype)."""
-        query = {"groupBy": group_by, **params}
+    def get_scans_count_by_group(
+        self,
+        environment_id: str,
+        group_by: List[DastScanGroupBy] = None,
+        filter_: DastScanGroupFilter = None,
+        groups: List[str] = None,
+        last_scan_status: List[DastScanStatus] = None,
+        search: str = None,
+        tags: List[str] = None,
+    ) -> List[DastScanGroupCount]:
+        """GET /scans/groups — count of scans per group on an Environment.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required by
+                the API. Sent as the `environmentID` query param
+                (uppercase ID per the doc).
+            group_by (list of DastScanGroupBy, optional): columns to
+                group by. Documented values are initiator, scantype,
+                projectId, riskRating.
+            filter_ (DastScanGroupFilter, optional): partial-match filter
+                on initiator, scan_type, risk_rating.
+            groups (list of str, optional): filter by user groups.
+            last_scan_status (list of DastScanStatus, optional): filter
+                by last scan status. Sent as `LastScanStatus` (capital L).
+            search (str, optional): substring search in initiator/lastStatus.
+            tags (list of str, optional): filter by tags.
+
+        Returns:
+            list of DastScanGroupCount.
+        """
+        params = {
+            "environmentID": environment_id,
+            "groupBy": (
+                [g.value if isinstance(g, DastScanGroupBy) else g for g in group_by]
+                if group_by else None
+            ),
+            "groups": groups,
+            "LastScanStatus": (
+                [s.value if isinstance(s, DastScanStatus) else s for s in last_scan_status]
+                if last_scan_status else None
+            ),
+            "search": search,
+            "tags": tags,
+        }
+        params.update(_flatten_object_param("filter", filter_))
         response = self.api_client.call_api(
-            method="GET", url=f"{self.base_url}/scans/groups", params=query
+            method="GET", url=f"{self.base_url}/scans/groups", params=params,
         )
-        return response.json()
+        return [DastScanGroupCount.from_dict(b) for b in (response.json() or [])]
 
     def get_scan_by_id(self, scan_id: str) -> dict:
         """GET /scan/{scanId} — info about a specific DAST scan with a
@@ -542,8 +586,20 @@ def dast_delete_scan(scan_id: str, environment_id: str) -> bool:
     return DastScanAPI().delete_scan(scan_id=scan_id, environment_id=environment_id)
 
 
-def get_scans_count_by_group(group_by: str = None, **params) -> dict:
-    return DastScanAPI().get_scans_count_by_group(group_by=group_by, **params)
+def get_scans_count_by_group(
+    environment_id: str,
+    group_by: List[DastScanGroupBy] = None,
+    filter_: DastScanGroupFilter = None,
+    groups: List[str] = None,
+    last_scan_status: List[DastScanStatus] = None,
+    search: str = None,
+    tags: List[str] = None,
+) -> List[DastScanGroupCount]:
+    return DastScanAPI().get_scans_count_by_group(
+        environment_id=environment_id, group_by=group_by, filter_=filter_,
+        groups=groups, last_scan_status=last_scan_status,
+        search=search, tags=tags,
+    )
 
 
 def dast_get_scan_by_id(scan_id: str) -> dict:

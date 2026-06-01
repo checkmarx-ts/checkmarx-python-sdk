@@ -8,7 +8,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
     get_environments_count_by_group, run_scan, run_public_scan, update_scan,
-    dast_cancel_scan, dast_delete_scan, get_scans,
+    dast_cancel_scan, dast_delete_scan, get_scans, get_scans_count_by_group,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -22,6 +22,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     DastScanType, DastGroupBy, DastEnvironmentGroupCount,
     DastRunScanInput, DastScanUpdate,
     DastScansCollection, DastScan, DastScanFilter, DastScanSortBy, DastScanStatus,
+    DastScanGroupBy, DastScanGroupCount,
 )
 
 
@@ -413,6 +414,20 @@ def test_get_scans():
     # NOTE: the live API returns an empty string for `environmentId` on
     # the scan object rather than echoing the queried env. environment_id
     # is parsed correctly — just don't expect it to match.
+
+
+def test_get_scans_count_by_group():
+    envs = get_environments()
+    env_with_scan = next((e for e in envs.environments if e.last_scan_id), None)
+    if env_with_scan is None:
+        pytest.skip("no environments have scans on this tenant")
+    buckets = get_scans_count_by_group(
+        environment_id=env_with_scan.environment_id,
+        group_by=[DastScanGroupBy.INITIATOR],
+    )
+    assert isinstance(buckets, list)
+    assert all(isinstance(b, DastScanGroupCount) for b in buckets)
+    assert buckets, "expected at least one bucket on an env that has scans"
 
 
 @pytest.mark.skip(
