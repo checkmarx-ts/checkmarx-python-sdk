@@ -9,6 +9,7 @@ from CheckmarxPythonSDK.CxOne import (
     update_environment, get_environment_by_id, delete_environment,
     get_environments_count_by_group, run_scan, run_public_scan, update_scan,
     dast_cancel_scan, dast_delete_scan, get_scans, get_scans_count_by_group,
+    dast_get_scan_by_id,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -414,6 +415,16 @@ def test_get_scans():
     # NOTE: the live API returns an empty string for `environmentId` on
     # the scan object rather than echoing the queried env. environment_id
     # is parsed correctly — just don't expect it to match.
+
+
+def test_dast_get_scan_by_id():
+    envs = get_environments()
+    env_with_scan = next((e for e in envs.environments if e.last_scan_id), None)
+    if env_with_scan is None:
+        pytest.skip("no environments have scans on this tenant")
+    scan = dast_get_scan_by_id(scan_id=env_with_scan.last_scan_id)
+    assert isinstance(scan, DastScan)
+    assert scan.scan_id == env_with_scan.last_scan_id
 
 
 def test_get_scans_count_by_group():

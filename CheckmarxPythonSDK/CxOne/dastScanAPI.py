@@ -18,6 +18,7 @@ from .dto import (
     DastEnvironmentUpdate,
     DastGroupBy,
     DastRunScanInput,
+    DastScan,
     DastScanFilter,
     DastScanGroupBy,
     DastScanGroupCount,
@@ -480,13 +481,26 @@ class DastScanAPI(object):
         )
         return [DastScanGroupCount.from_dict(b) for b in (response.json() or [])]
 
-    def get_scan_by_id(self, scan_id: str) -> dict:
-        """GET /scan/{scanId} — info about a specific DAST scan with a
-        risks overview."""
+    def get_scan_by_id(self, scan_id: str) -> DastScan:
+        """GET /scan/{scanId} — info about a specific DAST scan including
+        a risks overview.
+
+        The live response shape is identical to one element of the
+        get_scans response, so this reuses the existing DastScan DTO.
+        (Doc claims riskLevel is a string and alertRiskLevel has short
+        keys — both incorrect; live data has full object shape with
+        criticalCount/highCount/etc.)
+
+        Args:
+            scan_id (str): UUID of the scan.
+
+        Returns:
+            DastScan
+        """
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/scan/{scan_id}"
         )
-        return response.json()
+        return DastScan.from_dict(response.json())
 
     def get_scan_log(self, scan_id: str) -> str:
         """GET /log/{scanId} — retrieve the log for a scan."""
@@ -602,7 +616,7 @@ def get_scans_count_by_group(
     )
 
 
-def dast_get_scan_by_id(scan_id: str) -> dict:
+def dast_get_scan_by_id(scan_id: str) -> DastScan:
     return DastScanAPI().get_scan_by_id(scan_id=scan_id)
 
 
