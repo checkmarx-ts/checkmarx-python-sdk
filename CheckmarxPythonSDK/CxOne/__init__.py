@@ -447,6 +447,10 @@ from .uploadsAPI import (
     UploadsAPI,
     create_a_pre_signed_url_to_upload_files,
     upload_zip_content_for_scanning,
+    start_multipart_upload,
+    get_multipart_presigned_url,
+    complete_multipart_upload,
+    abort_multipart_upload,
 )
 from .versionsAPI import VersionsAPI
 from .webhookAPI import WebHookAPI
