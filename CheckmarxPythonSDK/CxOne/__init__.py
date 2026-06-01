@@ -182,6 +182,19 @@ from .flagsAPI import (
     get_all_feature_flags,
     get_feature_flag,
 )
+from .globalInventoryReaderAPI import (
+    GlobalInventoryReaderAPI,
+    get_api_changes,
+    get_api_inventory,
+    get_data_origin,
+    get_api_inventory_group,
+    get_inventory_metadata,
+    get_global_parameters,
+    get_api_risks,
+    get_risk_groups,
+    get_risk_widget,
+    get_risk_details,
+)
 from .healthCheckServiceAPI import (
     HealthCheckServiceAPI,
     get_health_of_the_database,
