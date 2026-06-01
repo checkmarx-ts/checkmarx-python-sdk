@@ -453,4 +453,13 @@ from .uploadsAPI import (
     abort_multipart_upload,
 )
 from .versionsAPI import VersionsAPI
-from .webhookAPI import WebHookAPI
+from .webhookAPI import (
+    WebHookAPI,
+    create_a_webhook_for_a_tenant,
+    get_a_list_of_webhooks_related_to_tenant,
+    create_a_webhook_on_project,
+    get_a_list_of_webhooks_related_to_project,
+    get_webhook_by_id,
+    update_webhook_by_id,
+    delete_webhook_by_id,
+)

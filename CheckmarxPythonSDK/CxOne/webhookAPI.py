@@ -151,3 +151,47 @@ class WebHookAPI(object):
             url=f"{self.base_url}/{webhook_id}",
         )
         return response.status_code == NO_CONTENT
+
+
+def create_a_webhook_for_a_tenant(webhook_input: WebHookInput) -> WebHook:
+    return WebHookAPI().create_a_webhook_for_a_tenant(webhook_input=webhook_input)
+
+
+def get_a_list_of_webhooks_related_to_tenant(
+    offset: int = 0, limit: int = 10
+) -> WebHooksCollection:
+    return WebHookAPI().get_a_list_of_webhooks_related_to_tenant(
+        offset=offset, limit=limit
+    )
+
+
+def create_a_webhook_on_project(
+    project_id: str, webhook_input: WebHookInput
+) -> WebHook:
+    return WebHookAPI().create_a_webhook_on_project(
+        project_id=project_id, webhook_input=webhook_input
+    )
+
+
+def get_a_list_of_webhooks_related_to_project(
+    project_id: str, offset: int = 0, limit: int = 10
+) -> WebHooksCollection:
+    return WebHookAPI().get_a_list_of_webhooks_related_to_project(
+        project_id=project_id, offset=offset, limit=limit
+    )
+
+
+def get_webhook_by_id(webhook_id: str) -> WebHook:
+    return WebHookAPI().get_webhook_by_id(webhook_id=webhook_id)
+
+
+def update_webhook_by_id(
+    webhook_id: str, webhook_input: WebHookInput
+) -> bool:
+    return WebHookAPI().update_webhook_by_id(
+        webhook_id=webhook_id, webhook_input=webhook_input
+    )
+
+
+def delete_webhook_by_id(webhook_id: str) -> bool:
+    return WebHookAPI().delete_webhook_by_id(webhook_id=webhook_id)
