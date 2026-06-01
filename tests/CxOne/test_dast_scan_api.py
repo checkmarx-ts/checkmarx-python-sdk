@@ -7,7 +7,7 @@ import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
-    get_environments_count_by_group, run_scan, update_scan,
+    get_environments_count_by_group, run_scan, run_public_scan, update_scan,
     dast_cancel_scan, dast_delete_scan, get_scans,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
@@ -413,6 +413,29 @@ def test_get_scans():
     # NOTE: the live API returns an empty string for `environmentId` on
     # the scan object rather than echoing the queried env. environment_id
     # is parsed correctly — just don't expect it to match.
+
+
+@pytest.mark.skip(
+    reason="Requires an Environment fully configured via the UI's DAST "
+           "Environment Setup Wizard (with a working auth session). "
+           "Bare API-created envs return HTTP 400 'failed to get auth session'."
+)
+def test_run_public_scan():
+    env_id = create_environment(DastEnvironmentInput(
+        domain=f"sdk-public-{int(time.time())}",
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
+    ))
+    try:
+        scan_id = run_public_scan(environment_id=env_id)
+        assert isinstance(scan_id, str) and len(scan_id) == 36
+        try:
+            dast_cancel_scan(scan_id=scan_id, environment_id=env_id)
+            dast_delete_scan(scan_id=scan_id, environment_id=env_id)
+        except Exception:
+            pass
+    finally:
+        delete_environment(env_id)
 
 
 def test_delete_environment():

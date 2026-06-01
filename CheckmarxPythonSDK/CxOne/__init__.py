@@ -130,6 +130,7 @@ from .dastScanAPI import (
     get_environments_count_by_group,
     get_scans,
     run_scan,
+    run_public_scan,
     update_scan,
     dast_cancel_scan,
     dast_delete_scan,

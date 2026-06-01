@@ -351,6 +351,28 @@ class DastScanAPI(object):
             scan_id = scan_id[1:-1]
         return scan_id
 
+    def run_public_scan(self, environment_id: str) -> str:
+        """POST /publicScan — start a scan against a preconfigured Environment.
+
+        Unlike run_scan, no ZAP configuration file is uploaded; the
+        Environment must already be set up via the Checkmarx One web UI
+        (Workspaces > Environments > DAST Environment Setup Wizard).
+
+        Args:
+            environment_id (str): UUID of the preconfigured Environment.
+
+        Returns:
+            str: the UUID of the created scan, returned as plain text.
+        """
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/publicScan",
+            json={"environmentID": environment_id},
+        )
+        scan_id = response.text.strip()
+        if scan_id.startswith('"') and scan_id.endswith('"'):
+            scan_id = scan_id[1:-1]
+        return scan_id
+
     def update_scan(self, scan: DastScanUpdate) -> str:
         """PUT /scan — edit the configuration of an existing scan.
 
@@ -502,6 +524,10 @@ def get_scans(
 
 def run_scan(scan: DastRunScanInput) -> str:
     return DastScanAPI().run_scan(scan=scan)
+
+
+def run_public_scan(environment_id: str) -> str:
+    return DastScanAPI().run_public_scan(environment_id=environment_id)
 
 
 def update_scan(scan: DastScanUpdate) -> str:
