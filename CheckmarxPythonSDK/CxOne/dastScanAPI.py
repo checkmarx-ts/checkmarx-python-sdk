@@ -4,11 +4,23 @@ Endpoints under <server>/api/dast/scans. Endpoints with documented
 response shapes return DTO objects; the rest are stubs that return
 the raw parsed JSON response until their schemas are pinned down.
 """
-import json
 from typing import List
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from .dto import TenantOverview, DastEnvironmentsCollection
+from .dto import (
+    TenantOverview,
+    DastEnvironmentsCollection,
+    DastEnvironmentFilter,
+    DastSortBy,
+)
+
+
+def _flatten_object_param(name: str, obj_filter) -> dict:
+    """Expand a DastEnvironmentFilter into bracketed nested query params
+    (e.g. filter[scantype]=DAST), which is what the API expects."""
+    if obj_filter is None:
+        return {}
+    return {f"{name}[{k}]": v for k, v in obj_filter.to_dict().items()}
 
 
 class DastScanAPI(object):
@@ -67,13 +79,13 @@ class DastScanAPI(object):
 
     def get_environments(
         self,
-        filter: dict = None,
+        filter: DastEnvironmentFilter = None,
         from_: int = None,
         groups: List[str] = None,
         last_status: List[str] = None,
-        match: dict = None,
+        match: DastEnvironmentFilter = None,
         search: str = None,
-        sort: List[str] = None,
+        sort: List[DastSortBy] = None,
         tags: List[str] = None,
         to: int = None,
     ) -> DastEnvironmentsCollection:
@@ -81,16 +93,23 @@ class DastScanAPI(object):
         summary and risk overview.
 
         Args:
-            filter (dict, optional): Partial match on domain, url, scantype,
-                environmentId, projectId, lastRiskRating, authSuccess,
-                tunnelState. Serialized to JSON in the query string.
+            filter (DastEnvironmentFilter, optional): Partial-match filter on
+                domain, url, scan_type, environment_id, project_id,
+                last_risk_rating, auth_success, tunnel_state. Serialized to
+                JSON in the query string.
             from_ (int, optional): Pagination start offset. Default 0.
             groups (list of str, optional): Filter by user groups.
             last_status (list of str, optional): Filter by last scan status —
                 New, Running, Finished, Failed, Cancelled.
-            match (dict, optional): Exact match on the same fields as filter.
+            match (DastEnvironmentFilter, optional): Exact-match filter on the
+                same fields as `filter`.
             search (str, optional): Substring search in domain or url.
-            sort (list of str, optional): Sort by domain, url, scantype,
+            sort (list of DastSortBy, optional): Columns to sort by, in
+                priority order. Each entry is serialized as "<column>:asc";
+                pass a raw "<column>:desc" string in the list to override
+                direction per column. The live API rejects bare column
+                names with HTTP 400 even though the published spec lists
+                only column names. Valid columns are domain, url, scantype,
                 lastscantime, lastscanstatus, lastriskrating, created,
                 authsuccess.
             tags (list of str, optional): Filter by tags.
@@ -100,16 +119,22 @@ class DastScanAPI(object):
             DastEnvironmentsCollection
         """
         params = {
-            "filter": json.dumps(filter) if filter is not None else None,
             "from": from_,
             "groups": groups,
             "lastStatus": last_status,
-            "match": json.dumps(match) if match is not None else None,
             "search": search,
-            "sort": sort,
+            # Default direction is asc; caller can pass a raw "col:desc"
+            # string in the list to override per column.
+            "sort": (
+                [s if ":" in str(s) else f"{s.value if isinstance(s, DastSortBy) else s}:asc"
+                 for s in sort]
+                if sort else None
+            ),
             "tags": tags,
             "to": to,
         }
+        params.update(_flatten_object_param("filter", filter))
+        params.update(_flatten_object_param("match", match))
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/environments", params=params
         )
@@ -209,13 +234,13 @@ def get_environment_by_id(env_id: str) -> dict:
 
 
 def get_environments(
-    filter: dict = None,
+    filter: DastEnvironmentFilter = None,
     from_: int = None,
     groups: List[str] = None,
     last_status: List[str] = None,
-    match: dict = None,
+    match: DastEnvironmentFilter = None,
     search: str = None,
-    sort: List[str] = None,
+    sort: List[DastSortBy] = None,
     tags: List[str] = None,
     to: int = None,
 ) -> DastEnvironmentsCollection:

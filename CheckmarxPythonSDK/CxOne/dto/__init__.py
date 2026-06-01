@@ -49,8 +49,14 @@ from .CreateRoleRequest import CreateRoleRequest
 from .CredentialRepresentation import CredentialRepresentation
 from .Credentials import Credentials
 from .CustomState import CustomState
+from .DastAuthSuccess import DastAuthSuccess
 from .DastEnvironment import DastEnvironment
+from .DastEnvironmentFilter import DastEnvironmentFilter
 from .DastEnvironmentsCollection import DastEnvironmentsCollection
+from .DastLastRiskRating import DastLastRiskRating
+from .DastSortBy import DastSortBy
+from .DastSortOrder import DastSortOrder
+from .DastTunnelState import DastTunnelState
 from .DebugMessage import DebugMessage
 from .DebugMessageResponse import DebugMessageResponse
 from .DefaultConfig import DefaultConfig
