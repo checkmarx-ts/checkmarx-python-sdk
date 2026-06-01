@@ -119,6 +119,23 @@ from .customStateAPI import (
     create_a_custom_state,
     delete_a_custom_state,
 )
+from .dastScanAPI import (
+    DastScanAPI,
+    get_tenant_overview,
+    create_environment,
+    update_environment,
+    delete_environment,
+    get_environment_by_id,
+    get_environments_count_by_group,
+    get_scans,
+    run_scan,
+    update_scan,
+    dast_cancel_scan,
+    dast_delete_scan,
+    get_scans_count_by_group,
+    dast_get_scan_by_id,
+    get_scan_log,
+)
 from .flagsAPI import (
     FeatureFlagAPI,
     get_all_feature_flags,
