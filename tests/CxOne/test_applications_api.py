@@ -5,6 +5,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_all_application_tags,
     get_an_application_by_id,
     update_an_application,
+    partial_update_an_application,
     delete_an_application,
     create_an_application_rule,
     get_a_list_of_rules_for_a_specific_application,
@@ -73,6 +74,45 @@ def test_update_an_application():
         application_id=application_id, application_input=application_input
     )
     assert is_successful is True
+
+
+def test_partial_update_an_application():
+    import datetime
+
+    app_name = "happy-test-partial-update-{}".format(
+        datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    )
+
+    # 1. Create
+    application_input = ApplicationInput(
+        name=app_name,
+        description="before partial update",
+        tags={"initial": "tag"},
+    )
+    created = create_an_application(application_input=application_input)
+    application_id = created.id
+    assert application_id is not None
+
+    # 2. Partial update (name=None is filtered out by the method)
+    partial_input = ApplicationInput(
+        name=None,
+        description="after partial update",
+        tags={"partial": "update"},
+    )
+    is_successful = partial_update_an_application(
+        application_id=application_id, application_input=partial_input
+    )
+    assert is_successful is True
+
+    # 3. Verify fields changed, name preserved
+    app = get_an_application_by_id(application_id=application_id)
+    assert app.name == app_name
+    assert app.description == "after partial update"
+    assert "partial" in app.tags
+
+    # 4. Cleanup
+    is_deleted = delete_an_application(application_id=application_id)
+    assert is_deleted is True
 
 
 def test_create_an_application_rule():

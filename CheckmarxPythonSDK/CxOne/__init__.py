@@ -65,6 +65,7 @@ from .applicationsAPI import (
     get_all_application_tags,
     get_an_application_by_id,
     update_an_application,
+    partial_update_an_application,
     delete_an_application,
     create_an_application_rule,
     get_a_list_of_rules_for_a_specific_application,

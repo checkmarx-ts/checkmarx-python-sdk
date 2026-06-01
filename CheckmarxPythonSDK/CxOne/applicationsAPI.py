@@ -131,6 +131,27 @@ class ApplicationsAPI(object):
         )
         return response.status_code == NO_CONTENT
 
+    def partial_update_an_application(
+        self, application_id: str, application_input: ApplicationInput
+    ) -> bool:
+        """
+        Change or add application details by submitting only those fields
+        you wish to edit. Tags will be appended to existing tags, not replaced.
+
+        Args:
+            application_id (str):
+            application_input (`ApplicationInput`):
+
+        Returns:
+            bool
+        """
+        response = self.api_client.call_api(
+            method="PATCH",
+            url=f"{self.base_url}/{application_id}",
+            json={k: v for k, v in asdict(application_input).items() if v is not None},
+        )
+        return response.status_code == NO_CONTENT
+
     def delete_an_application(self, application_id: str) -> bool:
         """
         Args:
@@ -269,6 +290,14 @@ def update_an_application(
 
 def delete_an_application(application_id: str) -> bool:
     return ApplicationsAPI().delete_an_application(application_id)
+
+
+def partial_update_an_application(
+    application_id: str, application_input: ApplicationInput
+) -> bool:
+    return ApplicationsAPI().partial_update_an_application(
+        application_id, application_input
+    )
 
 
 def create_an_application_rule(application_id: str, rule_input: RuleInput) -> Rule:
