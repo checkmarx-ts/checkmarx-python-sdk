@@ -9,7 +9,7 @@ from CheckmarxPythonSDK.CxOne import (
     update_environment, get_environment_by_id, delete_environment,
     get_environments_count_by_group, run_scan, run_public_scan, update_scan,
     dast_cancel_scan, dast_delete_scan, get_scans, get_scans_count_by_group,
-    dast_get_scan_by_id,
+    dast_get_scan_by_id, get_scan_log,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -415,6 +415,23 @@ def test_get_scans():
     # NOTE: the live API returns an empty string for `environmentId` on
     # the scan object rather than echoing the queried env. environment_id
     # is parsed correctly — just don't expect it to match.
+
+
+def test_get_scan_log():
+    envs = get_environments()
+    env_with_scan = next(
+        (e for e in envs.environments if e.last_scan_id and e.has_report),
+        None,
+    )
+    if env_with_scan is None:
+        # Fall back to any env with a scan; the API may still return a log.
+        env_with_scan = next((e for e in envs.environments if e.last_scan_id), None)
+    if env_with_scan is None:
+        pytest.skip("no environments have scans on this tenant")
+    archive = get_scan_log(scan_id=env_with_scan.last_scan_id)
+    assert isinstance(archive, bytes)
+    # ZIP files start with the "PK" magic bytes
+    assert archive[:2] == b"PK", f"expected ZIP magic, got {archive[:8]!r}"
 
 
 def test_dast_get_scan_by_id():

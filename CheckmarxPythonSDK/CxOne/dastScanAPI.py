@@ -502,12 +502,24 @@ class DastScanAPI(object):
         )
         return DastScan.from_dict(response.json())
 
-    def get_scan_log(self, scan_id: str) -> str:
-        """GET /log/{scanId} — retrieve the log for a scan."""
+    def get_scan_log(self, scan_id: str) -> bytes:
+        """GET /log/{scanId} — download the log archive for a scan.
+
+        Despite the doc's "text file" wording, the response is a binary
+        ZIP archive (Content-Type: application/zip) containing the
+        scan logs. The caller is responsible for writing it to disk
+        if persistence is needed.
+
+        Args:
+            scan_id (str): UUID of the scan.
+
+        Returns:
+            bytes: raw ZIP file content.
+        """
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/log/{scan_id}"
         )
-        return response.text
+        return response.content
 
 
 # ----- Module-level conveniences -----
@@ -620,5 +632,5 @@ def dast_get_scan_by_id(scan_id: str) -> DastScan:
     return DastScanAPI().get_scan_by_id(scan_id=scan_id)
 
 
-def get_scan_log(scan_id: str) -> str:
+def get_scan_log(scan_id: str) -> bytes:
     return DastScanAPI().get_scan_log(scan_id=scan_id)
