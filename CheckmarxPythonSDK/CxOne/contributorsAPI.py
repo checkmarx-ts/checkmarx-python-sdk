@@ -71,6 +71,25 @@ class ContributorsAPI(object):
         response = self.api_client.call_api(method="GET", url=url)
         return response.content
 
+    def get_contributor_insights_details(
+        self, type: str = None
+    ) -> dict:
+        """
+        Get contributor insights details for the current tenant.
+
+        Args:
+            type (str): Filter by type. One of: SCM, DeveloperAssist
+
+        Returns:
+            dict with items array
+        """
+        url = f"{self.base_url}/insights_details"
+        params = {"type": type}
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
 
 def get_allowed_and_current_contributors_for_the_current_tenant() -> Contributors:
     return (
@@ -94,3 +113,7 @@ def get_number_of_unfamiliar_projects() -> ContributorUnfamiliarProjects:
 
 def get_unfamiliar_projects_in_csv() -> bytes:
     return ContributorsAPI().get_unfamiliar_projects_in_csv()
+
+
+def get_contributor_insights_details(type: str = None) -> dict:
+    return ContributorsAPI().get_contributor_insights_details(type=type)

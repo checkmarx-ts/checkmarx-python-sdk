@@ -52,6 +52,8 @@ from .accessManagementAPI import (
 from .apisecAPI import (
     ApiSecAPI,
     get_scan_apisec_risk_overview,
+    get_api_parameters,
+    get_parameters,
 )
 from .logsAPI import (
     LogsAPI,
@@ -105,6 +107,7 @@ from .cloudInsightsServiceAPI import (
     get_cloud_insight_account,
     delete_cloud_insight_account,
     get_account_logs,
+    get_account_log_by_id,
     get_all_containers_for_an_account_id,
     get_resources_filtered_by_group,
 )
@@ -118,6 +121,7 @@ from .contributorsAPI import (
     get_allowed_and_current_contributors_for_the_current_tenant,
     get_contributors_details_for_current_tenant_exported_in_csv,
     get_contributor_insights_for_current_tenant,
+    get_contributor_insights_details,
     get_number_of_unfamiliar_projects,
     get_unfamiliar_projects_in_csv,
 )
@@ -274,6 +278,7 @@ from .reportAPI import (
     ReportAPI,
     create_scan_report_v2,
     create_scan_report,
+    get_report_status,
     get_scan_report,
     get_risk_scan_report,
     create_sca_scan_report,

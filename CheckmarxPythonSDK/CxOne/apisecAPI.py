@@ -605,6 +605,29 @@ class ApiSecAPI(object):
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return Parameter.from_dict(response.json())
 
+    def get_parameters(self, api_id: str = None) -> Parameter:
+        """
+        Get all parameters for the API (YAML-specified path).
+
+        Args:
+            api_id (str): API ID
+
+        Returns:
+            Parameter
+        """
+        url = f"{self.base_url}/api/parameter/"
+        params = {"api_id": api_id}
+        response = self.api_client.call_api(method="GET", url=url, params=params)
+        return Parameter.from_dict(response.json())
+
 
 def get_scan_apisec_risk_overview(scan_id: str) -> ApiSecRisksOverview:
     return ApiSecAPI().get_scan_apisec_risk_overview(scan_id)
+
+
+def get_api_parameters(api_id: str) -> Parameter:
+    return ApiSecAPI().get_api_parameters(api_id=api_id)
+
+
+def get_parameters(api_id: str = None) -> Parameter:
+    return ApiSecAPI().get_parameters(api_id=api_id)

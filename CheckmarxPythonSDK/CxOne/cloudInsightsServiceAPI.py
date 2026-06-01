@@ -149,6 +149,23 @@ class CloudInsightsServiceAPI(object):
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return PaginatedAccountLogsListResponse.from_dict(response.json())
 
+    def get_account_log_by_id(
+        self, account_id: str, log_id: str
+    ) -> dict:
+        """
+        Get a single account log by ID.
+
+        Args:
+            account_id (str): Cloud Insights account ID
+            log_id (str): Cloud Insights log ID
+
+        Returns:
+            dict
+        """
+        url = f"{self.base_url}/accounts/{account_id}/logs/{log_id}"
+        response = self.api_client.call_api(method="GET", url=url)
+        return response.json()
+
     def get_all_containers_for_an_account_id(
         self,
         account_id: str,
@@ -312,6 +329,12 @@ def get_account_logs(
         description=description,
         created_at_start=created_at_start,
         created_at_end=created_at_end,
+    )
+
+
+def get_account_log_by_id(account_id: str, log_id: str) -> dict:
+    return CloudInsightsServiceAPI().get_account_log_by_id(
+        account_id=account_id, log_id=log_id
     )
 
 

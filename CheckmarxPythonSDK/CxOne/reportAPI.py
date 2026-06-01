@@ -130,6 +130,25 @@ class ReportAPI(object):
                 time.sleep(2)
         return report_id
 
+    def get_report_status(self, report_id: str, return_url: bool = True) -> dict:
+        """
+        Get the status of a report.
+
+        Args:
+            report_id (str):
+            return_url (bool): Include the download URL in response.
+                Default: True
+
+        Returns:
+            dict with reportId, status, url, filename
+        """
+        url = f"{self.base_url}/{report_id}"
+        params = {"returnUrl": return_url}
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
     def get_scan_report(self, report_id: str) -> dict:
         """
         Args:
@@ -240,6 +259,12 @@ def create_scan_report(
 ) -> str:
     return ReportAPI().create_scan_report(
         file_format=file_format, scan_id=scan_id, project_id=project_id
+    )
+
+
+def get_report_status(report_id: str, return_url: bool = True) -> dict:
+    return ReportAPI().get_report_status(
+        report_id=report_id, return_url=return_url
     )
 
 
