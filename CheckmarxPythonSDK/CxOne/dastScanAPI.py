@@ -315,10 +315,20 @@ class DastScanAPI(object):
             body = body[1:-1]
         return body
 
-    def cancel_scan(self, scan: dict) -> bool:
-        """PATCH /scan — cancel a scan that is currently running."""
+    def cancel_scan(self, scan_id: str, environment_id: str) -> bool:
+        """PATCH /scan — cancel a scan that is currently running.
+
+        Args:
+            scan_id (str): UUID of the scan to cancel.
+            environment_id (str): UUID of the Environment the scan
+                is running on. Both are required by the API.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
         response = self.api_client.call_api(
-            method="PATCH", url=f"{self.base_url}/scan", json=scan
+            method="PATCH", url=f"{self.base_url}/scan",
+            json={"scanId": scan_id, "environmentID": environment_id},
         )
         return 200 <= response.status_code < 300
 
@@ -417,8 +427,8 @@ def update_scan(scan: DastScanUpdate) -> str:
     return DastScanAPI().update_scan(scan=scan)
 
 
-def dast_cancel_scan(scan: dict) -> bool:
-    return DastScanAPI().cancel_scan(scan=scan)
+def dast_cancel_scan(scan_id: str, environment_id: str) -> bool:
+    return DastScanAPI().cancel_scan(scan_id=scan_id, environment_id=environment_id)
 
 
 def dast_delete_scan(scan: dict) -> bool:
