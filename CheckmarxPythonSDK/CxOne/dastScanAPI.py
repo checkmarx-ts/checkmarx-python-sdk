@@ -127,7 +127,7 @@ class DastScanAPI(object):
 
     def get_environments(
         self,
-        filter: DastEnvironmentFilter = None,
+        filter_: DastEnvironmentFilter = None,
         from_: int = None,
         groups: List[str] = None,
         last_status: List[str] = None,
@@ -141,10 +141,11 @@ class DastScanAPI(object):
         summary and risk overview.
 
         Args:
-            filter (DastEnvironmentFilter, optional): Partial-match filter on
+            filter_ (DastEnvironmentFilter, optional): Partial-match filter on
                 domain, url, scan_type, environment_id, project_id,
                 last_risk_rating, auth_success, tunnel_state. Serialized to
-                JSON in the query string.
+                JSON in the query string. (Trailing underscore avoids
+                shadowing the built-in `filter`.)
             from_ (int, optional): Pagination start offset. Default 0.
             groups (list of str, optional): Filter by user groups.
             last_status (list of str, optional): Filter by last scan status —
@@ -181,7 +182,7 @@ class DastScanAPI(object):
             "tags": tags,
             "to": to,
         }
-        params.update(_flatten_object_param("filter", filter))
+        params.update(_flatten_object_param("filter", filter_))
         params.update(_flatten_object_param("match", match))
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/environments", params=params
@@ -191,7 +192,7 @@ class DastScanAPI(object):
     def get_environments_count_by_group(
         self,
         group_by: List[DastGroupBy],
-        filter: DastEnvironmentFilter = None,
+        filter_: DastEnvironmentFilter = None,
         groups: List[str] = None,
         search: str = None,
         tags: List[str] = None,
@@ -201,7 +202,8 @@ class DastScanAPI(object):
         Args:
             group_by (list of DastGroupBy): one or more columns to group by.
                 Required.
-            filter (DastEnvironmentFilter, optional): partial-match filter.
+            filter_ (DastEnvironmentFilter, optional): partial-match filter.
+                (Trailing underscore avoids shadowing the built-in `filter`.)
             groups (list of str, optional): filter by user groups.
             search (str, optional): substring search in domain or url.
             tags (list of str, optional): filter by tags.
@@ -215,7 +217,7 @@ class DastScanAPI(object):
             "search": search,
             "tags": tags,
         }
-        params.update(_flatten_object_param("filter", filter))
+        params.update(_flatten_object_param("filter", filter_))
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/environments/groups", params=params,
         )
@@ -306,7 +308,7 @@ def get_environment_by_id(env_id: str) -> DastEnvironment:
 
 
 def get_environments(
-    filter: DastEnvironmentFilter = None,
+    filter_: DastEnvironmentFilter = None,
     from_: int = None,
     groups: List[str] = None,
     last_status: List[str] = None,
@@ -317,20 +319,20 @@ def get_environments(
     to: int = None,
 ) -> DastEnvironmentsCollection:
     return DastScanAPI().get_environments(
-        filter=filter, from_=from_, groups=groups, last_status=last_status,
+        filter_=filter_, from_=from_, groups=groups, last_status=last_status,
         match=match, search=search, sort=sort, tags=tags, to=to,
     )
 
 
 def get_environments_count_by_group(
     group_by: List[DastGroupBy],
-    filter: DastEnvironmentFilter = None,
+    filter_: DastEnvironmentFilter = None,
     groups: List[str] = None,
     search: str = None,
     tags: List[str] = None,
 ) -> List[DastEnvironmentGroupCount]:
     return DastScanAPI().get_environments_count_by_group(
-        group_by=group_by, filter=filter, groups=groups, search=search, tags=tags,
+        group_by=group_by, filter_=filter_, groups=groups, search=search, tags=tags,
     )
 
 

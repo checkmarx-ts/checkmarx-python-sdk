@@ -61,7 +61,7 @@ def test_dast_environment_filter_to_dict():
 
 def test_get_environments_with_filter_dto():
     f = DastEnvironmentFilter(scan_type=DastScanType.DAST)
-    collection = get_environments(filter=f, to=5)
+    collection = get_environments(filter_=f, to=5)
     assert isinstance(collection, DastEnvironmentsCollection)
     for env in collection.environments:
         # _coerce_scan_type maps the wire "DAST" to the enum member;
