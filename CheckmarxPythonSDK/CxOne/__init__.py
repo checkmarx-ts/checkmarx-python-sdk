@@ -138,6 +138,13 @@ from .dastScanAPI import (
     dast_get_scan_by_id,
     get_scan_log,
 )
+from .dastResultsAPI import (
+    DastResultsAPI,
+    get_results,
+    update_results,
+    get_result_info,
+    get_results_count_by_group,
+)
 from .flagsAPI import (
     FeatureFlagAPI,
     get_all_feature_flags,
