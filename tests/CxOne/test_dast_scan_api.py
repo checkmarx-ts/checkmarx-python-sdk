@@ -1,8 +1,10 @@
 import time
 
+import pytest
+
 from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
-    update_environment, get_environment_by_id,
+    update_environment, get_environment_by_id, delete_environment,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -167,9 +169,12 @@ def test_create_environment():
         scan_type=DastScanType.DAST,
     )
     env_id = create_environment(inp)
-    assert isinstance(env_id, str) and env_id
-    # Should look like a UUID (36 chars with dashes), not the raw API endpoint
-    assert len(env_id) == 36 and env_id.count("-") == 4
+    try:
+        assert isinstance(env_id, str) and env_id
+        # Should look like a UUID (36 chars with dashes), not the raw API endpoint
+        assert len(env_id) == 36 and env_id.count("-") == 4
+    finally:
+        delete_environment(env_id)
 
 
 def test_dast_environment_update_to_dict():
@@ -221,12 +226,28 @@ def test_update_environment():
         url="https://example.com",
         scan_type=DastScanType.DAST,
     ))
-    new_domain = original + "-renamed"
-    ok = update_environment(DastEnvironmentUpdate(
-        environment_id=env_id,
-        domain=new_domain,
+    try:
+        new_domain = original + "-renamed"
+        ok = update_environment(DastEnvironmentUpdate(
+            environment_id=env_id,
+            domain=new_domain,
+        ))
+        assert ok is True
+        refreshed = get_environment_by_id(env_id)
+        # get_environment_by_id is still a raw-dict stub — read the key directly.
+        assert refreshed.get("domain") == new_domain
+    finally:
+        delete_environment(env_id)
+
+
+def test_delete_environment():
+    env_id = create_environment(DastEnvironmentInput(
+        domain=f"sdk-delete-{int(time.time())}",
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
     ))
+    ok = delete_environment(env_id)
     assert ok is True
-    refreshed = get_environment_by_id(env_id)
-    # get_environment_by_id is still a raw-dict stub — read the key directly.
-    assert refreshed.get("domain") == new_domain
+    # Subsequent GET should fail — the env no longer exists.
+    with pytest.raises(Exception):
+        get_environment_by_id(env_id)

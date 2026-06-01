@@ -91,10 +91,19 @@ class DastScanAPI(object):
         )
         return 200 <= response.status_code < 300
 
-    def delete_environment(self, environment: dict) -> bool:
-        """DELETE /environment — delete an existing DAST Environment."""
+    def delete_environment(self, environment_id: str) -> bool:
+        """DELETE /environment — delete an existing DAST Environment.
+
+        Args:
+            environment_id (str): UUID of the Environment to delete.
+                Passed as the `environmentId` query parameter.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
         response = self.api_client.call_api(
-            method="DELETE", url=f"{self.base_url}/environment", json=environment
+            method="DELETE", url=f"{self.base_url}/environment",
+            params={"environmentId": environment_id},
         )
         return 200 <= response.status_code < 300
 
@@ -253,8 +262,8 @@ def update_environment(environment: DastEnvironmentUpdate) -> bool:
     return DastScanAPI().update_environment(environment=environment)
 
 
-def delete_environment(environment: dict) -> bool:
-    return DastScanAPI().delete_environment(environment=environment)
+def delete_environment(environment_id: str) -> bool:
+    return DastScanAPI().delete_environment(environment_id=environment_id)
 
 
 def get_environment_by_id(env_id: str) -> dict:
