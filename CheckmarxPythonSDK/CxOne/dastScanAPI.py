@@ -12,8 +12,10 @@ from .dto import (
     DastEnvironment,
     DastEnvironmentsCollection,
     DastEnvironmentFilter,
+    DastEnvironmentGroupCount,
     DastEnvironmentInput,
     DastEnvironmentUpdate,
+    DastGroupBy,
     DastSortBy,
 )
 
@@ -186,14 +188,38 @@ class DastScanAPI(object):
         )
         return DastEnvironmentsCollection.from_dict(response.json())
 
-    def get_environments_count_by_group(self, group_by: str = None, **params) -> dict:
-        """GET /environments/groups — count Environments grouped by a parameter
-        (e.g. domain, url)."""
-        query = {"groupBy": group_by, **params}
+    def get_environments_count_by_group(
+        self,
+        group_by: List[DastGroupBy],
+        filter: DastEnvironmentFilter = None,
+        groups: List[str] = None,
+        search: str = None,
+        tags: List[str] = None,
+    ) -> List[DastEnvironmentGroupCount]:
+        """GET /environments/groups — count of Environments per group.
+
+        Args:
+            group_by (list of DastGroupBy): one or more columns to group by.
+                Required.
+            filter (DastEnvironmentFilter, optional): partial-match filter.
+            groups (list of str, optional): filter by user groups.
+            search (str, optional): substring search in domain or url.
+            tags (list of str, optional): filter by tags.
+
+        Returns:
+            list of DastEnvironmentGroupCount, one per bucket.
+        """
+        params = {
+            "groupBy": [g.value if isinstance(g, DastGroupBy) else g for g in group_by],
+            "groups": groups,
+            "search": search,
+            "tags": tags,
+        }
+        params.update(_flatten_object_param("filter", filter))
         response = self.api_client.call_api(
-            method="GET", url=f"{self.base_url}/environments/groups", params=query
+            method="GET", url=f"{self.base_url}/environments/groups", params=params,
         )
-        return response.json()
+        return [DastEnvironmentGroupCount.from_dict(b) for b in (response.json() or [])]
 
     # ----- Scans -----
 
@@ -296,8 +322,16 @@ def get_environments(
     )
 
 
-def get_environments_count_by_group(group_by: str = None, **params) -> dict:
-    return DastScanAPI().get_environments_count_by_group(group_by=group_by, **params)
+def get_environments_count_by_group(
+    group_by: List[DastGroupBy],
+    filter: DastEnvironmentFilter = None,
+    groups: List[str] = None,
+    search: str = None,
+    tags: List[str] = None,
+) -> List[DastEnvironmentGroupCount]:
+    return DastScanAPI().get_environments_count_by_group(
+        group_by=group_by, filter=filter, groups=groups, search=search, tags=tags,
+    )
 
 
 def get_scans(**params) -> dict:

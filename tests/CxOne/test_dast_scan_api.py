@@ -5,6 +5,7 @@ import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
+    get_environments_count_by_group,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -15,7 +16,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     DastSessionManagementHeader, DastScanOptions, DastScanOption,
     DastEnvironmentUpdate, DastAutomationScript, DastAutomationType,
     DastAutomationAction, DastAutomationScriptType, DastAutomationEngine,
-    DastScanType,
+    DastScanType, DastGroupBy, DastEnvironmentGroupCount,
 )
 
 
@@ -255,6 +256,19 @@ def test_get_environment_by_id():
         assert env.scan_type == DastScanType.DAST or env.scan_type == "DAST"
     finally:
         delete_environment(env_id)
+
+
+def test_get_environments_count_by_group():
+    buckets = get_environments_count_by_group(group_by=[DastGroupBy.SCAN_TYPE])
+    assert isinstance(buckets, list)
+    assert all(isinstance(b, DastEnvironmentGroupCount) for b in buckets)
+    # When grouping by scan_type, the sum of itemCount should equal the total
+    # environments_count from the tenant overview.
+    total = sum(b.item_count or 0 for b in buckets)
+    overview = get_tenant_overview()
+    assert total == overview.environments_count
+    # Each bucket's `groups` is a list with one entry (the scan type value)
+    assert all(b.groups and len(b.groups) == 1 for b in buckets)
 
 
 def test_delete_environment():

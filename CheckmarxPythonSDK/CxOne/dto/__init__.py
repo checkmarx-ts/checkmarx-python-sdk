@@ -63,10 +63,12 @@ from .DastConfigFileSettings import DastConfigFileSettings
 from .DastCustomHeader import DastCustomHeader
 from .DastEnvironment import DastEnvironment
 from .DastEnvironmentFilter import DastEnvironmentFilter
+from .DastEnvironmentGroupCount import DastEnvironmentGroupCount
 from .DastEnvironmentInput import DastEnvironmentInput
 from .DastEnvironmentSettings import DastEnvironmentSettings
 from .DastEnvironmentUpdate import DastEnvironmentUpdate
 from .DastEnvironmentsCollection import DastEnvironmentsCollection
+from .DastGroupBy import DastGroupBy
 from .DastLastRiskRating import DastLastRiskRating
 from .DastPollHeader import DastPollHeader
 from .DastScanAuth import DastScanAuth
