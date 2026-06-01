@@ -168,6 +168,78 @@ class SastResultsAPI(object):
             "totalCount": resp.get("totalCount"),
         }
 
+    def get_sast_results_compare_by_scans(
+        self,
+        scan_id: str,
+        base_scan_id: str,
+        severity: List[str] = None,
+        status: List[str] = None,
+        query: str = None,
+        language: List[str] = None,
+        query_ids: List[str] = None,
+        offset: int = 0,
+        limit: int = 20,
+        sort: str = None,
+        include_additional_columns: bool = False,
+    ) -> dict:
+        """
+        Compare SAST results between two scans.
+
+        Args:
+            scan_id (str): Scan ID to use as the newest in the comparison
+            base_scan_id (str): Scan ID to use as the oldest
+            severity (List[str]): Filter by severity
+            status (List[str]): Filter by status (NEW, RECURRENT, FIXED)
+            query (str): Filter by query (exact match)
+            language (List[str]): Filter by language
+            query_ids (List[str]): Filter by query IDs
+            offset (int): Items to skip. Default: 0
+            limit (int): Max results (1-10000). Default: 20
+            sort (str): Sort with -/+ prefix
+            include_additional_columns (bool): Include extra columns
+
+        Returns:
+            dict
+        """
+        url = f"{self.base_url}/compare"
+        params = {
+            "scan-id": scan_id,
+            "base-scan-id": base_scan_id,
+            "severity": severity,
+            "status": status,
+            "query": query,
+            "language": language,
+            "query-ids": query_ids,
+            "offset": offset,
+            "limit": limit,
+            "sort": sort,
+            "include-additional-columns": include_additional_columns,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def get_similar_results(
+        self, scan_id: str, results_hash: List[str]
+    ) -> dict:
+        """
+        Get similar results for result hashes.
+
+        Args:
+            scan_id (str): ID of the scan
+            results_hash (List[str]): Array of result hashes
+
+        Returns:
+            dict with similarResults, totalCounts, groupingMode
+        """
+        url = f"{self.base_url}/similar-results"
+        body = {"scanId": scan_id, "resultsHash": results_hash}
+        response = self.api_client.call_api(
+            method="POST", url=url, json=body
+        )
+        return response.json()
+
 
 def get_sast_results_by_scan_id(
     scan_id: str,
@@ -246,4 +318,40 @@ def get_sast_results_by_scan_id(
         offset=offset,
         limit=limit,
         sort=sort,
+    )
+
+
+def get_sast_results_compare_by_scans(
+    scan_id: str,
+    base_scan_id: str,
+    severity: List[str] = None,
+    status: List[str] = None,
+    query: str = None,
+    language: List[str] = None,
+    query_ids: List[str] = None,
+    offset: int = 0,
+    limit: int = 20,
+    sort: str = None,
+    include_additional_columns: bool = False,
+) -> dict:
+    return SastResultsAPI().get_sast_results_compare_by_scans(
+        scan_id=scan_id,
+        base_scan_id=base_scan_id,
+        severity=severity,
+        status=status,
+        query=query,
+        language=language,
+        query_ids=query_ids,
+        offset=offset,
+        limit=limit,
+        sort=sort,
+        include_additional_columns=include_additional_columns,
+    )
+
+
+def get_similar_results(
+    scan_id: str, results_hash: List[str]
+) -> dict:
+    return SastResultsAPI().get_similar_results(
+        scan_id=scan_id, results_hash=results_hash
     )

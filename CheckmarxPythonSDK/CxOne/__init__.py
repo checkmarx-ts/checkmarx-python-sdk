@@ -364,6 +364,8 @@ from .sastResourceManagementServiceAPI import (
 from .sastResultsAPI import (
     SastResultsAPI,
     get_sast_results_by_scan_id,
+    get_sast_results_compare_by_scans,
+    get_similar_results,
 )
 from .sastResultsPredicatesAPI import (
     SastResultsPredicatesAPI,
