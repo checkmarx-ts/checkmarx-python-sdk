@@ -375,6 +375,13 @@ from .sastScanMetadataServiceAPI import (
     get_metadata_of_scan,
     get_engine_metrics_of_scan,
     get_engine_versions_of_scan,
+    delete_persisted_dom,
+    get_default_file_exclusion_config,
+    get_tenant_file_exclusion_config,
+    get_project_file_exclusion_config,
+    check_persisted_dom_exists,
+    update_tenant_file_exclusion_config,
+    update_project_file_exclusion_config,
 )
 from .scanConfigurationAPI import (
     ScanConfigurationAPI,
