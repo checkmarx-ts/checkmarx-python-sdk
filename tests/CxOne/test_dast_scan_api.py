@@ -2,6 +2,7 @@ import time
 
 from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
+    update_environment, get_environment_by_id,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -10,6 +11,9 @@ from CheckmarxPythonSDK.CxOne.dto import (
     DastEnvironmentInput, DastEnvironmentSettings, DastCliSettings, DastAuthSettings,
     DastTotpField, DastConfigFileSettings, DastCustomHeader,
     DastSessionManagementHeader, DastScanOptions, DastScanOption,
+    DastEnvironmentUpdate, DastAutomationScript, DastAutomationType,
+    DastAutomationAction, DastAutomationScriptType, DastAutomationEngine,
+    DastScanType,
 )
 
 
@@ -53,11 +57,13 @@ def test_dast_environment_filter_to_dict():
 
 
 def test_get_environments_with_filter_dto():
-    f = DastEnvironmentFilter(scan_type="DAST")
+    f = DastEnvironmentFilter(scan_type=DastScanType.DAST)
     collection = get_environments(filter=f, to=5)
     assert isinstance(collection, DastEnvironmentsCollection)
     for env in collection.environments:
-        assert env.scan_type == "DAST" or "DAST" in (env.scan_type or "")
+        # _coerce_scan_type maps the wire "DAST" to the enum member;
+        # equality works either way because StrEnum compares with strings.
+        assert env.scan_type == DastScanType.DAST or env.scan_type == "DAST"
 
 
 def test_dast_sort_by_enum_values():
@@ -81,7 +87,7 @@ def test_dast_environment_input_to_dict():
     inp = DastEnvironmentInput(
         domain="example.com",
         url="https://example.com",
-        scan_type="DAST",
+        scan_type=DastScanType.DAST,
         project_ids=["project-uuid"],
         tags=["production"],
         is_public=False,
@@ -158,9 +164,65 @@ def test_create_environment():
     inp = DastEnvironmentInput(
         domain=f"sdk-test-{int(time.time())}",
         url="https://example.com",
-        scan_type="DAST",
+        scan_type=DastScanType.DAST,
     )
     env_id = create_environment(inp)
     assert isinstance(env_id, str) and env_id
     # Should look like a UUID (36 chars with dashes), not the raw API endpoint
     assert len(env_id) == 36 and env_id.count("-") == 4
+
+
+def test_dast_environment_update_to_dict():
+    upd = DastEnvironmentUpdate(
+        environment_id="uuid",
+        domain="example.com",
+        tags=["production", "updated"],
+        app_ids=["app-uuid"],
+        primary_app_ids=["primary-app-uuid"],
+        tunnel_id="tunnel-uuid",
+        automation_scripts=[
+            DastAutomationScript(
+                type=DastAutomationType.SCRIPT,
+                action=DastAutomationAction.ADD,
+                script_type=DastAutomationScriptType.HTTP_SENDER,
+                inline="logger.info('hello');",
+                engine=DastAutomationEngine.ECMASCRIPT_GRAALJS,
+                name="my-script",
+            ),
+        ],
+    )
+    assert upd.to_dict() == {
+        "environmentId": "uuid",
+        "domain": "example.com",
+        "tags": ["production", "updated"],
+        "appIds": ["app-uuid"],
+        "primaryAppIds": ["primary-app-uuid"],
+        "tunnelId": "tunnel-uuid",
+        "automationScripts": [{
+            "type": "script",
+            "action": "add",
+            "scriptType": "httpsender",
+            "inline": "logger.info('hello');",
+            "engine": "ECMAScript : Graal.js",
+            "name": "my-script",
+        }],
+    }
+
+
+def test_update_environment():
+    # Create a throwaway env, update its domain, then verify the change.
+    original = f"sdk-update-{int(time.time())}"
+    env_id = create_environment(DastEnvironmentInput(
+        domain=original,
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
+    ))
+    new_domain = original + "-renamed"
+    ok = update_environment(DastEnvironmentUpdate(
+        environment_id=env_id,
+        domain=new_domain,
+    ))
+    assert ok is True
+    refreshed = get_environment_by_id(env_id)
+    # get_environment_by_id is still a raw-dict stub — read the key directly.
+    assert refreshed.get("domain") == new_domain

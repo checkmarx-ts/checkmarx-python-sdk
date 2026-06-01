@@ -53,6 +53,11 @@ from .DastAlertRiskLevel import DastAlertRiskLevel
 from .DastApplication import DastApplication
 from .DastAuthSettings import DastAuthSettings
 from .DastAuthSuccess import DastAuthSuccess
+from .DastAutomationAction import DastAutomationAction
+from .DastAutomationEngine import DastAutomationEngine
+from .DastAutomationScript import DastAutomationScript
+from .DastAutomationScriptType import DastAutomationScriptType
+from .DastAutomationType import DastAutomationType
 from .DastCliSettings import DastCliSettings
 from .DastConfigFileSettings import DastConfigFileSettings
 from .DastCustomHeader import DastCustomHeader
@@ -60,6 +65,7 @@ from .DastEnvironment import DastEnvironment
 from .DastEnvironmentFilter import DastEnvironmentFilter
 from .DastEnvironmentInput import DastEnvironmentInput
 from .DastEnvironmentSettings import DastEnvironmentSettings
+from .DastEnvironmentUpdate import DastEnvironmentUpdate
 from .DastEnvironmentsCollection import DastEnvironmentsCollection
 from .DastLastRiskRating import DastLastRiskRating
 from .DastPollHeader import DastPollHeader
@@ -69,6 +75,7 @@ from .DastScanAuthVerification import DastScanAuthVerification
 from .DastScanConfig import DastScanConfig
 from .DastScanOption import DastScanOption
 from .DastScanOptions import DastScanOptions
+from .DastScanType import DastScanType
 from .DastScanUser import DastScanUser
 from .DastSessionManagement import DastSessionManagement
 from .DastSessionManagementHeader import DastSessionManagementHeader

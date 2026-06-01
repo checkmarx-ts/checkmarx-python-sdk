@@ -5,6 +5,7 @@ from .DastAlertRiskLevel import DastAlertRiskLevel
 from .DastApplication import DastApplication
 from .DastScanConfig import DastScanConfig
 from .DastLastRiskRating import DastLastRiskRating
+from .DastScanType import DastScanType
 
 
 def _coerce_risk_rating(value):
@@ -19,13 +20,24 @@ def _coerce_risk_rating(value):
         return value
 
 
+def _coerce_scan_type(value):
+    """Documented enum: DAST | DASTAPI. Fall back to raw string if a future
+    value lands before the SDK is updated."""
+    if value is None:
+        return None
+    try:
+        return DastScanType.get(value)
+    except ValueError:
+        return value
+
+
 @dataclass
 class DastEnvironment:
     environment_id: str = None
     tunnel_id: str = None
     domain: str = None
     url: str = None
-    scan_type: str = None
+    scan_type: Union[DastScanType, str] = None
     project_ids: List[str] = None
     tags: List[str] = None
     groups: List[str] = None
@@ -57,7 +69,7 @@ class DastEnvironment:
             tunnel_id=item.get("tunnelId"),
             domain=item.get("domain"),
             url=item.get("url"),
-            scan_type=item.get("scanType"),
+            scan_type=_coerce_scan_type(item.get("scanType")),
             project_ids=item.get("projectIds"),
             tags=item.get("tags"),
             groups=item.get("groups"),

@@ -12,6 +12,7 @@ from .dto import (
     DastEnvironmentsCollection,
     DastEnvironmentFilter,
     DastEnvironmentInput,
+    DastEnvironmentUpdate,
     DastSortBy,
 )
 
@@ -73,12 +74,22 @@ class DastScanAPI(object):
             env_id = env_id[1:-1]
         return env_id
 
-    def update_environment(self, environment: dict) -> dict:
-        """PUT /environment — update an existing DAST Environment."""
+    def update_environment(self, environment: DastEnvironmentUpdate) -> bool:
+        """PUT /environment — update an existing DAST Environment.
+
+        Args:
+            environment (DastEnvironmentUpdate): the partial update.
+                environment_id is required; only the fields you set are
+                sent (None values are dropped).
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
         response = self.api_client.call_api(
-            method="PUT", url=f"{self.base_url}/environment", json=environment
+            method="PUT", url=f"{self.base_url}/environment",
+            json=environment.to_dict(),
         )
-        return response.json()
+        return 200 <= response.status_code < 300
 
     def delete_environment(self, environment: dict) -> bool:
         """DELETE /environment — delete an existing DAST Environment."""
@@ -238,7 +249,7 @@ def create_environment(environment: DastEnvironmentInput) -> str:
     return DastScanAPI().create_environment(environment=environment)
 
 
-def update_environment(environment: dict) -> dict:
+def update_environment(environment: DastEnvironmentUpdate) -> bool:
     return DastScanAPI().update_environment(environment=environment)
 
 
