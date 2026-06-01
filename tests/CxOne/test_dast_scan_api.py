@@ -8,7 +8,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_tenant_overview, get_environments, create_environment,
     update_environment, get_environment_by_id, delete_environment,
     get_environments_count_by_group, run_scan, update_scan,
-    dast_cancel_scan,
+    dast_cancel_scan, dast_delete_scan,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
@@ -364,6 +364,31 @@ def test_cancel_scan():
             configuration_file=config_path,
         ))
         ok = dast_cancel_scan(scan_id=scan_id, environment_id=env_id)
+        assert ok is True
+    finally:
+        os.unlink(config_path)
+        delete_environment(env_id)
+
+
+def test_delete_scan():
+    env_id = create_environment(DastEnvironmentInput(
+        domain=f"sdk-delscan-{int(time.time())}",
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
+    ))
+    config_path = tempfile.NamedTemporaryFile(suffix=".yaml", delete=False).name
+    with open(config_path, "w") as f:
+        f.write("---\nenv:\n  contexts:\n    - name: dummy\n")
+    try:
+        scan_id = run_scan(DastRunScanInput(
+            environment_id=env_id,
+            scan_type=DastScanType.DAST,
+            configuration_file=config_path,
+        ))
+        # Cancel before delete — the API rejects deleting a running scan
+        # in some cases (saw this in CxSAST too).
+        dast_cancel_scan(scan_id=scan_id, environment_id=env_id)
+        ok = dast_delete_scan(scan_id=scan_id, environment_id=env_id)
         assert ok is True
     finally:
         os.unlink(config_path)

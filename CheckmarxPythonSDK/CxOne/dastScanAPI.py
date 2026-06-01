@@ -332,10 +332,20 @@ class DastScanAPI(object):
         )
         return 200 <= response.status_code < 300
 
-    def delete_scan(self, scan: dict) -> bool:
-        """DELETE /scan — delete an existing scan."""
+    def delete_scan(self, scan_id: str, environment_id: str) -> bool:
+        """DELETE /scan — delete an existing DAST scan.
+
+        Args:
+            scan_id (str): UUID of the scan to delete.
+            environment_id (str): UUID of the Environment the scan belongs
+                to. Both are required and sent as query parameters.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
         response = self.api_client.call_api(
-            method="DELETE", url=f"{self.base_url}/scan", json=scan
+            method="DELETE", url=f"{self.base_url}/scan",
+            params={"scanId": scan_id, "environmentId": environment_id},
         )
         return 200 <= response.status_code < 300
 
@@ -431,8 +441,8 @@ def dast_cancel_scan(scan_id: str, environment_id: str) -> bool:
     return DastScanAPI().cancel_scan(scan_id=scan_id, environment_id=environment_id)
 
 
-def dast_delete_scan(scan: dict) -> bool:
-    return DastScanAPI().delete_scan(scan=scan)
+def dast_delete_scan(scan_id: str, environment_id: str) -> bool:
+    return DastScanAPI().delete_scan(scan_id=scan_id, environment_id=environment_id)
 
 
 def get_scans_count_by_group(group_by: str = None, **params) -> dict:
