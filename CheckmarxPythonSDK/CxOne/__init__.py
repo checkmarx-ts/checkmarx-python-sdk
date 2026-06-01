@@ -88,6 +88,13 @@ from .byorResultsHandlerV2API import (
     create_byor_import,
     get_job_by_id,
     patch_job_by_id,
+    delete_import,
+    get_aggregate_results,
+    get_a_list_of_imports,
+    get_latest_imports,
+    get_imports_summaries,
+    get_import_results,
+    bulk_triage_import_results,
 )
 from .cloudInsightsServiceAPI import (
     CloudInsightsServiceAPI,
