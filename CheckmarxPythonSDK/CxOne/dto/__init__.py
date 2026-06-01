@@ -49,9 +49,14 @@ from .CreateRoleRequest import CreateRoleRequest
 from .CredentialRepresentation import CredentialRepresentation
 from .Credentials import Credentials
 from .CustomState import CustomState
+from .DastAlertRiskLevel import DastAlertRiskLevel
+from .DastApplication import DastApplication
+from .DastAuthSettings import DastAuthSettings
 from .DastAuthSuccess import DastAuthSuccess
+from .DastCliSettings import DastCliSettings
 from .DastEnvironment import DastEnvironment
 from .DastEnvironmentFilter import DastEnvironmentFilter
+from .DastEnvironmentSettings import DastEnvironmentSettings
 from .DastEnvironmentsCollection import DastEnvironmentsCollection
 from .DastLastRiskRating import DastLastRiskRating
 from .DastSortBy import DastSortBy

@@ -1,6 +1,22 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 from .RiskLevel import RiskLevel
+from .DastAlertRiskLevel import DastAlertRiskLevel
+from .DastApplication import DastApplication
+from .DastEnvironmentSettings import DastEnvironmentSettings
+from .DastLastRiskRating import DastLastRiskRating
+
+
+def _coerce_risk_rating(value):
+    """The doc enumerates High/Medium/Low/None, but the live API has been
+    observed to return descriptive strings like 'High risk' / 'No risk'.
+    Try the enum first; fall back to the raw string for unknown values."""
+    if value is None:
+        return None
+    try:
+        return DastLastRiskRating.get(value)
+    except ValueError:
+        return value
 
 
 @dataclass
@@ -16,11 +32,11 @@ class DastEnvironment:
     is_public: bool = None
     has_auth: bool = None
     created: str = None
-    settings: dict = None
-    applications: List[dict] = None
+    settings: DastEnvironmentSettings = None
+    applications: List[DastApplication] = None
     risk_level: RiskLevel = None
-    alert_risk_level: dict = None
-    risk_rating: str = None
+    alert_risk_level: DastAlertRiskLevel = None
+    risk_rating: Union[DastLastRiskRating, str] = None
     last_alert_risk_rating: str = None
     last_scan_id: str = None
     last_scan_time: str = None
@@ -47,11 +63,13 @@ class DastEnvironment:
             is_public=item.get("isPublic"),
             has_auth=item.get("hasAuth"),
             created=item.get("created"),
-            settings=item.get("settings"),
-            applications=item.get("applications"),
+            settings=DastEnvironmentSettings.from_dict(item["settings"]) if item.get("settings") else None,
+            applications=[
+                DastApplication.from_dict(a) for a in (item.get("applications") or [])
+            ],
             risk_level=RiskLevel.from_dict(item["riskLevel"]) if item.get("riskLevel") else None,
-            alert_risk_level=item.get("alertRiskLevel"),
-            risk_rating=item.get("riskRating"),
+            alert_risk_level=DastAlertRiskLevel.from_dict(item["alertRiskLevel"]) if item.get("alertRiskLevel") else None,
+            risk_rating=_coerce_risk_rating(item.get("riskRating")),
             last_alert_risk_rating=item.get("lastAlertRiskRating"),
             last_scan_id=item.get("lastScanID"),
             last_scan_time=item.get("lastScanTime"),
