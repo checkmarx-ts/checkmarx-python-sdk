@@ -185,6 +185,7 @@ from .StatusDetails import StatusDetails
 from .SubCheck import SubCheck
 from .SubsetScan import SubsetScan
 from .TaskInfo import TaskInfo
+from .TenantOverview import TenantOverview
 from .TimeStamp import TimeStamp
 from .TotalCounters import TotalCounters
 from .Tree import Tree

@@ -6,6 +6,7 @@ shapes are pinned down.
 """
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from .dto import TenantOverview
 
 
 class DastScanAPI(object):
@@ -21,12 +22,16 @@ class DastScanAPI(object):
 
     # ----- General -----
 
-    def get_tenant_overview(self) -> dict:
-        """GET /tenant — aggregated data about DAST Environments in the tenant."""
+    def get_tenant_overview(self) -> TenantOverview:
+        """GET /tenant — aggregated data about DAST Environments in the tenant.
+
+        Returns:
+            TenantOverview with tenant_id, environments_count, risk_rating.
+        """
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/tenant"
         )
-        return response.json()
+        return TenantOverview.from_dict(response.json())
 
     # ----- Environments -----
 
@@ -131,7 +136,7 @@ class DastScanAPI(object):
 
 # ----- Module-level conveniences -----
 
-def get_tenant_overview() -> dict:
+def get_tenant_overview() -> TenantOverview:
     return DastScanAPI().get_tenant_overview()
 
 
