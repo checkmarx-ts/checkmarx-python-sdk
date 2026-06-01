@@ -1,8 +1,15 @@
-from CheckmarxPythonSDK.CxOne import get_tenant_overview, get_environments
+import time
+
+from CheckmarxPythonSDK.CxOne import (
+    get_tenant_overview, get_environments, create_environment,
+)
 from CheckmarxPythonSDK.CxOne.dto import (
     TenantOverview, DastEnvironmentsCollection, DastEnvironment,
     DastEnvironmentFilter, DastLastRiskRating, DastAuthSuccess, DastTunnelState,
     DastSortBy, DastAlertRiskLevel, DastApplication, DastScanConfig,
+    DastEnvironmentInput, DastEnvironmentSettings, DastCliSettings, DastAuthSettings,
+    DastTotpField, DastConfigFileSettings, DastCustomHeader,
+    DastSessionManagementHeader, DastScanOptions, DastScanOption,
 )
 
 
@@ -68,3 +75,92 @@ def test_get_environments_with_sort():
         assert desc.environments[0].created >= desc.environments[-1].created
         # asc and desc should reverse the relative order of the extremes
         assert asc.environments[0].environment_id == desc.environments[-1].environment_id
+
+
+def test_dast_environment_input_to_dict():
+    inp = DastEnvironmentInput(
+        domain="example.com",
+        url="https://example.com",
+        scan_type="DAST",
+        project_ids=["project-uuid"],
+        tags=["production"],
+        is_public=False,
+        has_auth=True,
+        settings=DastEnvironmentSettings(
+            cli_settings=DastCliSettings(output="/tmp/out", retry=3, retry_delay=5000, update_interval=10000),
+            auth_settings=DastAuthSettings(
+                verification_url="https://example.com/verify",
+                logged_in_regex="Welcome.*",
+                login_page_wait=2000,
+                include_paths=["https://example.com/api/.*"],
+            ),
+        ),
+    )
+    assert inp.to_dict() == {
+        "domain": "example.com",
+        "url": "https://example.com",
+        "scanType": "DAST",
+        "projectIds": ["project-uuid"],
+        "tags": ["production"],
+        "isPublic": False,
+        "hasAuth": True,
+        "settings": {
+            "cliSettings": {
+                "output": "/tmp/out", "retry": 3,
+                "retryDelay": 5000, "updateInterval": 10000,
+            },
+            "authSettings": {
+                "verificationUrl": "https://example.com/verify",
+                "loggedInRegex": "Welcome.*",
+                "loginPageWait": 2000,
+                "includePaths": ["https://example.com/api/.*"],
+            },
+        },
+    }
+
+
+def test_dast_environment_settings_full_shape():
+    """Exercise every nested DTO under settings to lock down the wire keys."""
+    s = DastEnvironmentSettings(
+        cli_settings=DastCliSettings(jvm_properties="-Xmx2g", log_level="DEBUG"),
+        auth_settings=DastAuthSettings(
+            logged_out_regex="Please log in",
+            poll_post_data="user=x",
+            totp_field=DastTotpField(attribute="name", value="otp"),
+            poll_additional_headers="X-Foo: bar",
+        ),
+        config_file_settings=DastConfigFileSettings(exclude_paths=["/admin/.*"]),
+        custom_headers=[DastCustomHeader(header="X-API", value="123", url="https://example.com/api/.*")],
+        session_management=[DastSessionManagementHeader(header="Cookie", value="sid=abc")],
+        scan_options=DastScanOptions(
+            scan_option=DastScanOption.DEEP,
+            include_server=True,
+            slow_app=False,
+        ),
+    )
+    assert s.to_dict() == {
+        "cliSettings": {"jvmProperties": "-Xmx2g", "logLevel": "DEBUG"},
+        "authSettings": {
+            "loggedOutRegex": "Please log in",
+            "pollPostData": "user=x",
+            "totpField": {"attribute": "name", "value": "otp"},
+            "pollAdditionalHeaders": "X-Foo: bar",
+        },
+        "configFileSettings": {"excludePaths": ["/admin/.*"]},
+        "customHeaders": [{"header": "X-API", "value": "123", "url": "https://example.com/api/.*"}],
+        "sessionManagement": [{"header": "Cookie", "value": "sid=abc"}],
+        "scanOptions": {"scanOption": "deep", "includeServer": True, "slowApp": False},
+    }
+
+
+def test_create_environment():
+    # Minimal create — domain/url/scan_type are the required fields.
+    inp = DastEnvironmentInput(
+        domain=f"sdk-test-{int(time.time())}",
+        url="https://example.com",
+        scan_type="DAST",
+    )
+    env_id = create_environment(inp)
+    assert isinstance(env_id, str) and env_id
+    # Should look like a UUID (36 chars with dashes), not the raw API endpoint
+    assert len(env_id) == 36 and env_id.count("-") == 4

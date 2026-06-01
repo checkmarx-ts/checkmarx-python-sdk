@@ -11,6 +11,7 @@ from .dto import (
     TenantOverview,
     DastEnvironmentsCollection,
     DastEnvironmentFilter,
+    DastEnvironmentInput,
     DastSortBy,
 )
 
@@ -49,12 +50,28 @@ class DastScanAPI(object):
 
     # ----- Environments -----
 
-    def create_environment(self, environment: dict) -> dict:
-        """POST /environment — create a new Environment to be scanned by DAST."""
+    def create_environment(self, environment: DastEnvironmentInput) -> str:
+        """POST /environment — create a new Environment to be scanned by DAST.
+
+        Args:
+            environment (DastEnvironmentInput): the new Environment's
+                configuration. domain, url, and scan_type are required.
+
+        Returns:
+            str: the unique identifier of the created Environment in
+            Checkmarx One. The endpoint responds with plain text
+            (Accept: text/plain).
+        """
         response = self.api_client.call_api(
-            method="POST", url=f"{self.base_url}/environment", json=environment
+            method="POST", url=f"{self.base_url}/environment",
+            json=environment.to_dict(),
         )
-        return response.json()
+        env_id = response.text.strip()
+        # The endpoint returns the raw UUID, but some gateways wrap it in
+        # quotes — strip them so callers always get a bare id.
+        if env_id.startswith('"') and env_id.endswith('"'):
+            env_id = env_id[1:-1]
+        return env_id
 
     def update_environment(self, environment: dict) -> dict:
         """PUT /environment — update an existing DAST Environment."""
@@ -217,7 +234,7 @@ def get_tenant_overview() -> TenantOverview:
     return DastScanAPI().get_tenant_overview()
 
 
-def create_environment(environment: dict) -> dict:
+def create_environment(environment: DastEnvironmentInput) -> str:
     return DastScanAPI().create_environment(environment=environment)
 
 
