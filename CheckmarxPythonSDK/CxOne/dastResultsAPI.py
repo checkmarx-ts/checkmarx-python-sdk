@@ -13,6 +13,8 @@ from .dto import (
     DastResultsChangelogInput,
     DastResultsCollection,
     DastResultsFilter,
+    DastResultsGroupBy,
+    DastResultsGroupCount,
     DastResultsSortBy,
 )
 
@@ -130,14 +132,45 @@ class DastResultsAPI(object):
             data = data["results"]
         return DastResultDetail.from_dict(data)
 
-    def get_results_count_by_group(self, scan_id: str, **params) -> dict:
-        """GET /results/{scan_id}/group — count of results per group
-        on a specific scan."""
+    def get_results_count_by_group(
+        self,
+        scan_id: str,
+        group_by: List[DastResultsGroupBy] = None,
+        filter_: DastResultsFilter = None,
+        search: str = None,
+    ) -> List[DastResultsGroupCount]:
+        """GET /results/{scan_id}/group — count of results per group.
+
+        Args:
+            scan_id (str): UUID of the scan.
+            group_by (list of DastResultsGroupBy, optional): columns to
+                group by. The wire param is `group` (singular) — this
+                SDK uses `group_by` for consistency with sibling
+                endpoints.
+            filter_ (DastResultsFilter, optional): partial-match filter
+                (severity, name, method, status, state, url, path,
+                owasp). alert_similarity_id is on the shared DTO but
+                ignored by this endpoint.
+            search (str, optional): substring search.
+
+        Returns:
+            list of DastResultsGroupCount. Each bucket has `count` and
+            `group` (a list of values — one entry per group_by column
+            in the order they were requested).
+        """
+        params = {
+            "group": (
+                [g.value if isinstance(g, DastResultsGroupBy) else g for g in group_by]
+                if group_by else None
+            ),
+            "search": search,
+        }
+        params.update(_flatten_filter("filter", filter_))
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/results/{scan_id}/group",
             params=params,
         )
-        return response.json()
+        return [DastResultsGroupCount.from_dict(b) for b in (response.json() or [])]
 
 
 # ----- Module-level conveniences -----
@@ -165,5 +198,12 @@ def get_result_info(result_id: str, scan_id: str) -> DastResultDetail:
     return DastResultsAPI().get_result_info(result_id=result_id, scan_id=scan_id)
 
 
-def get_results_count_by_group(scan_id: str, **params) -> dict:
-    return DastResultsAPI().get_results_count_by_group(scan_id=scan_id, **params)
+def get_results_count_by_group(
+    scan_id: str,
+    group_by: List[DastResultsGroupBy] = None,
+    filter_: DastResultsFilter = None,
+    search: str = None,
+) -> List[DastResultsGroupCount]:
+    return DastResultsAPI().get_results_count_by_group(
+        scan_id=scan_id, group_by=group_by, filter_=filter_, search=search,
+    )

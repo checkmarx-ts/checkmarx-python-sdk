@@ -82,6 +82,8 @@ from .DastResultsChangelogInput import DastResultsChangelogInput
 from .DastResultsChangelogType import DastResultsChangelogType
 from .DastResultsCollection import DastResultsCollection
 from .DastResultsFilter import DastResultsFilter
+from .DastResultsGroupBy import DastResultsGroupBy
+from .DastResultsGroupCount import DastResultsGroupCount
 from .DastResultsSortBy import DastResultsSortBy
 from .DastRunScanInput import DastRunScanInput
 from .DastScan import DastScan

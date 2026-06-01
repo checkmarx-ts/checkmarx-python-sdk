@@ -2,12 +2,13 @@ import pytest
 
 from CheckmarxPythonSDK.CxOne import (
     get_environments, get_scans, get_results, get_result_info,
-    update_results,
+    update_results, get_results_count_by_group,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     DastResultsCollection, DastResult, DastResultsFilter,
     DastResultStatus, DastResultsSortBy, DastResultDetail,
     DastResultsChangelogInput, DastResultsChangelogType,
+    DastResultsGroupBy, DastResultsGroupCount,
 )
 
 
@@ -98,6 +99,22 @@ def test_update_results():
     assert any(marker in (t or "") for t in notes_text), (
         f"expected note {marker!r} in changelog, got texts: {notes_text}"
     )
+
+
+def test_get_results_count_by_group():
+    scan_id = _find_scan_with_results()
+    if not scan_id:
+        pytest.skip("no scan with results on this tenant")
+    buckets = get_results_count_by_group(
+        scan_id=scan_id,
+        group_by=[DastResultsGroupBy.SEVERITY],
+    )
+    assert isinstance(buckets, list)
+    assert all(isinstance(b, DastResultsGroupCount) for b in buckets)
+    # The grouped counts should reconcile with the total from get_results.
+    total = sum(b.count or 0 for b in buckets)
+    coll = get_results(scan_id=scan_id, per_page=1)
+    assert total == coll.total, f"buckets sum {total} != total {coll.total}"
 
 
 def test_get_results_with_sort():
