@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.6 - 2026-06-01
+* [Add] DAST Scans Service REST API (CxOne/dastScanAPI.py) — all 14 endpoints typed end-to-end: tenant overview; create/update/delete/retrieve Environments; list Environments with filter/match/sort/pagination; count Environments by group; run/update/cancel/delete scans; multipart scan upload; list scans; count scans by group; retrieve scan info; download scan log (ZIP)
+* [Add] Run public scan endpoint (POST /api/dast/scans/publicScan) for preconfigured Environments
+* [Add] DAST Results Service REST API (CxOne/dastResultsAPI.py) — all 4 endpoints typed: retrieve results with filter/sort/pagination; update results (changelog: severity/state/notes); retrieve detailed result info; count results by group
+* [Add] ~50 new DTOs under CxOne/dto/ covering DAST Environment, Scan, Result, and ScanConfig trees plus enums for status, state, sort columns, group-by columns, and severity
+* [Add] Live integration tests for both services under tests/CxOne/
+
 1.8.5 - 2026-05-29
 * [Fix] Detect CxOne by Keycloak OIDC URL shape so refresh_token auth works on single-tenant deployments (<tenant>.cxone.cloud), not just iam.checkmarx.net
 
