@@ -411,6 +411,12 @@ from .scansAPI import (
     cancel_scan,
     delete_scan,
     get_a_detailed_workflow_of_a_scan,
+    get_field_values,
+    get_a_list_of_scans_brief,
+    get_scan_tags,
+    update_scan_tags,
+    rescan,
+    set_scan_recalculation_flag,
     get_scans_by_filters,
 )
 

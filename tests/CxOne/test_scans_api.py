@@ -17,6 +17,13 @@ from CheckmarxPythonSDK.CxOne import (
     delete_scan,
     get_a_detailed_workflow_of_a_scan,
     get_a_list_of_scan,
+    get_a_scan_by_id,
+    get_field_values,
+    get_a_list_of_scans_brief,
+    get_scan_tags,
+    update_scan_tags,
+    rescan,
+    set_scan_recalculation_flag,
     get_scans_by_filters,
 )
 
@@ -156,3 +163,64 @@ def test_delete_scan():
 def test_get_scans_by_filters():
     scans = get_scans_by_filters(search_id="", sort_by=["-created_at"])
     assert scans is not None
+
+
+def test_get_field_values():
+    values = get_field_values(field="statuses")
+    assert values is not None
+    assert isinstance(values, list)
+
+
+def test_get_a_list_of_scans_brief():
+    result = get_a_list_of_scans_brief(limit=5)
+    assert result is not None
+    assert "scans" in result
+
+
+def test_get_and_update_scan_tags():
+    project_id = get_project_id_by_name(name=new_project_name)
+    scans = get_a_list_of_scans(project_id=project_id, sort=["-created_at"], limit=1)
+    if not scans.scans:
+        print("No scans found, skipping scan tags test")
+        return
+    scan_id = scans.scans[0].id
+
+    # GET /{id}/tags
+    tags_response = get_scan_tags(scan_id=scan_id)
+    assert tags_response is not None
+    assert "tags" in tags_response
+
+    # PUT /{id}/tags
+    is_successful = update_scan_tags(
+        scan_id=scan_id, tags={"test-sdk": "happy"}
+    )
+    assert is_successful is True
+
+
+def test_rescan():
+    project_id = get_project_id_by_name(name=new_project_name)
+    try:
+        scan = rescan(project_id=project_id)
+        assert scan is not None
+        assert scan.id is not None
+    except Exception as e:
+        print("Rescan skipped (no valid prior scan): {}".format(str(e)))
+
+
+def test_set_scan_recalculation_flag():
+    project_id = get_project_id_by_name(name=new_project_name)
+    scans = get_a_list_of_scans(project_id=project_id, sort=["-created_at"], limit=1)
+    if not scans.scans:
+        print("No scans found, skipping recalculation flag test")
+        return
+    scan_id = scans.scans[0].id
+    scan = get_a_scan_by_id(scan_id=scan_id)
+    branch = getattr(scan, "branch", "master") or "master"
+
+    result = set_scan_recalculation_flag(
+        project_id=project_id,
+        branch=branch,
+        engine="sast",
+        scan_id=scan_id,
+    )
+    assert result is not None

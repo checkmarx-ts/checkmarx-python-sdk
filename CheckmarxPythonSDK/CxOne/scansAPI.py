@@ -4,7 +4,7 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 from httpx import Response
 from deprecated import deprecated
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK, CREATED
 
 from .dto import (
     ScanInput,
@@ -240,6 +240,186 @@ class ScansAPI(object):
             TaskInfo.from_dict(item)
             for item in (response.json() or [])
         ]
+
+    def get_field_values(
+        self,
+        field: str,
+        offset: int = 0,
+        limit: int = 20,
+        search: str = None,
+    ) -> List[str]:
+        """
+        Get values for a specific field across all scans.
+
+        Args:
+            field (str): Field name. One of: project-names, scan-ids,
+                tags-keys, tags-values, branches, statuses, initiators,
+                source-origins, source-types
+            offset (int): Items to skip. Default: 0
+            limit (int): Max results. Default: 20
+            search (str): Search term to filter results
+
+        Returns:
+            List[str]
+        """
+        url = f"{self.base_url}/fieldValues"
+        params = {"field": field, "offset": offset, "limit": limit, "search": search}
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def get_a_list_of_scans_brief(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        scan_ids: List[str] = None,
+        groups: List[str] = None,
+        tags_keys: List[str] = None,
+        tags_values: List[str] = None,
+        statuses: List[str] = None,
+        project_id: str = None,
+        project_ids: List[str] = None,
+        source_types: List[str] = None,
+        source_origins: List[str] = None,
+        from_date: str = None,
+        to_date: str = None,
+        sort: List[str] = None,
+        search: str = None,
+        project_names: List[str] = None,
+        initiators: List[str] = None,
+        branch: str = None,
+        branches: List[str] = None,
+    ) -> dict:
+        """
+        Get a list of lean scan summaries with filtering and pagination.
+
+        Args:
+            offset (int): Items to skip. Default: 0
+            limit (int): Max results. Default: 20
+            scan_ids (List[str]): Filter by scan IDs (OR)
+            groups (List[str]): Filter by project groups (OR)
+            tags_keys (List[str]): Filter by tag keys (OR)
+            tags_values (List[str]): Filter by tag values (OR)
+            statuses (List[str]): Filter by status (OR)
+            project_id (str): Filter by single project ID
+            project_ids (List[str]): Filter by multiple project IDs (OR)
+            source_types (List[str]): Filter by source type
+            source_origins (List[str]): Filter by source origin
+            from_date (str): Earliest scan date (RFC3339)
+            to_date (str): Latest scan date (RFC3339)
+            sort (List[str]): Sort fields
+            search (str): Substring search across all scan columns
+            project_names (List[str]): Filter by project name
+            initiators (List[str]): Filter by initiator
+            branch (str): Filter by Git branch
+            branches (List[str]): Filter by Git branches
+
+        Returns:
+            dict with totalCount, filteredTotalCount, _links, scans
+        """
+        url = f"{self.base_url}/scansBrief"
+        params = {
+            "offset": offset,
+            "limit": limit,
+            "scan-ids": scan_ids,
+            "groups": groups,
+            "tags-keys": tags_keys,
+            "tags-values": tags_values,
+            "statuses": statuses,
+            "project-id": project_id,
+            "project-ids": project_ids,
+            "source-types": source_types,
+            "source-origins": source_origins,
+            "from-date": from_date,
+            "to-date": to_date,
+            "sort": sort,
+            "search": search,
+            "project-names": project_names,
+            "initiators": initiators,
+            "branch": branch,
+            "branches": branches,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def get_scan_tags(self, scan_id: str) -> dict:
+        """
+        Get the tags for a specific scan.
+
+        Args:
+            scan_id (str):
+
+        Returns:
+            dict with a 'tags' key
+        """
+        url = f"{self.base_url}/{scan_id}/tags"
+        response = self.api_client.call_api(method="GET", url=url)
+        return response.json()
+
+    def update_scan_tags(self, scan_id: str, tags: dict) -> bool:
+        """
+        Modify scan tags. The provided tags replace all existing tags.
+
+        Args:
+            scan_id (str):
+            tags (dict): Key-value pairs of tags to set.
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/{scan_id}/tags"
+        response = self.api_client.call_api(
+            method="PUT", url=url, json={"tags": tags}
+        )
+        return response.status_code in (OK, NO_CONTENT)
+
+    def rescan(self, project_id: str) -> Scan:
+        """
+        Run a last valid scan for the project.
+
+        Args:
+            project_id (str):
+
+        Returns:
+            Scan
+        """
+        url = f"{self.base_url}/rescan"
+        response = self.api_client.call_api(
+            method="POST", url=url, json={"project_id": project_id}
+        )
+        return Scan.from_dict(response.json())
+
+    def set_scan_recalculation_flag(
+        self,
+        project_id: str,
+        branch: str,
+        engine: str,
+        scan_id: str,
+    ) -> dict:
+        """
+        Set the need-recalculation flag for a scan.
+
+        Args:
+            project_id (str):
+            branch (str):
+            engine (str):
+            scan_id (str):
+
+        Returns:
+            dict with project_id, branch, engine, scan_id, status
+        """
+        url = f"{self.base_url}/need-recalculation"
+        body = {
+            "project_id": project_id,
+            "branch": branch,
+            "engine": engine,
+            "scan_id": scan_id,
+        }
+        response = self.api_client.call_api(method="PUT", url=url, json=body)
+        return response.json()
 
     def sca_recalculate(self, project_id: str, branch: str) -> Response:
         """
@@ -530,4 +710,85 @@ def get_scans_by_filters(
         source_types=source_types,
         search_id=search_id,
         sort_by=sort_by,
+    )
+
+
+def get_field_values(
+    field: str,
+    offset: int = 0,
+    limit: int = 20,
+    search: str = None,
+) -> List[str]:
+    return ScansAPI().get_field_values(
+        field=field, offset=offset, limit=limit, search=search
+    )
+
+
+def get_a_list_of_scans_brief(
+    offset: int = 0,
+    limit: int = 20,
+    scan_ids: List[str] = None,
+    groups: List[str] = None,
+    tags_keys: List[str] = None,
+    tags_values: List[str] = None,
+    statuses: List[str] = None,
+    project_id: str = None,
+    project_ids: List[str] = None,
+    source_types: List[str] = None,
+    source_origins: List[str] = None,
+    from_date: str = None,
+    to_date: str = None,
+    sort: List[str] = None,
+    search: str = None,
+    project_names: List[str] = None,
+    initiators: List[str] = None,
+    branch: str = None,
+    branches: List[str] = None,
+) -> dict:
+    return ScansAPI().get_a_list_of_scans_brief(
+        offset=offset,
+        limit=limit,
+        scan_ids=scan_ids,
+        groups=groups,
+        tags_keys=tags_keys,
+        tags_values=tags_values,
+        statuses=statuses,
+        project_id=project_id,
+        project_ids=project_ids,
+        source_types=source_types,
+        source_origins=source_origins,
+        from_date=from_date,
+        to_date=to_date,
+        sort=sort,
+        search=search,
+        project_names=project_names,
+        initiators=initiators,
+        branch=branch,
+        branches=branches,
+    )
+
+
+def get_scan_tags(scan_id: str) -> dict:
+    return ScansAPI().get_scan_tags(scan_id=scan_id)
+
+
+def update_scan_tags(scan_id: str, tags: dict) -> bool:
+    return ScansAPI().update_scan_tags(scan_id=scan_id, tags=tags)
+
+
+def rescan(project_id: str) -> Scan:
+    return ScansAPI().rescan(project_id=project_id)
+
+
+def set_scan_recalculation_flag(
+    project_id: str,
+    branch: str,
+    engine: str,
+    scan_id: str,
+) -> dict:
+    return ScansAPI().set_scan_recalculation_flag(
+        project_id=project_id,
+        branch=branch,
+        engine=engine,
+        scan_id=scan_id,
     )
