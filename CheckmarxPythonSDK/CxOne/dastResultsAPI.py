@@ -9,6 +9,7 @@ from typing import List
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
+    DastResultDetail,
     DastResultsCollection,
     DastResultsFilter,
     DastResultsSortBy,
@@ -90,14 +91,30 @@ class DastResultsAPI(object):
         )
         return response.json()
 
-    def get_result_info(self, result_id: str, scan_id: str) -> dict:
-        """GET /results/info/{result_id}/{scan_id} — detailed info
-        about a specific result on a specific scan."""
+    def get_result_info(self, result_id: str, scan_id: str) -> DastResultDetail:
+        """GET /results/info/{result_id}/{scan_id} — detailed info about
+        a specific result.
+
+        Doc shows the response wrapped as {"results": {...}}, but live
+        returns the fields at the top level. Unwraps defensively in
+        case the API ever matches the doc.
+
+        Args:
+            result_id (str): UUID of the result.
+            scan_id (str): UUID of the scan it belongs to.
+
+        Returns:
+            DastResultDetail
+        """
         response = self.api_client.call_api(
             method="GET",
             url=f"{self.base_url}/results/info/{result_id}/{scan_id}",
         )
-        return response.json()
+        data = response.json()
+        # Doc says wrapped under "results"; live returns flat. Handle both.
+        if isinstance(data, dict) and isinstance(data.get("results"), dict):
+            data = data["results"]
+        return DastResultDetail.from_dict(data)
 
     def get_results_count_by_group(self, scan_id: str, **params) -> dict:
         """GET /results/{scan_id}/group — count of results per group
@@ -130,7 +147,7 @@ def update_results(changelog: dict) -> dict:
     return DastResultsAPI().update_results(changelog=changelog)
 
 
-def get_result_info(result_id: str, scan_id: str) -> dict:
+def get_result_info(result_id: str, scan_id: str) -> DastResultDetail:
     return DastResultsAPI().get_result_info(result_id=result_id, scan_id=scan_id)
 
 

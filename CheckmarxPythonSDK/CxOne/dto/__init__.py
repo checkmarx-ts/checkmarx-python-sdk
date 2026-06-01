@@ -72,6 +72,9 @@ from .DastGroupBy import DastGroupBy
 from .DastLastRiskRating import DastLastRiskRating
 from .DastPollHeader import DastPollHeader
 from .DastResult import DastResult
+from .DastResultChangelogEntry import DastResultChangelogEntry
+from .DastResultDetail import DastResultDetail
+from .DastResultNote import DastResultNote
 from .DastResultState import DastResultState
 from .DastResultStatus import DastResultStatus
 from .DastResultsCollection import DastResultsCollection
