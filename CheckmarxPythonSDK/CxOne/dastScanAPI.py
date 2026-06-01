@@ -9,6 +9,7 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
     TenantOverview,
+    DastEnvironment,
     DastEnvironmentsCollection,
     DastEnvironmentFilter,
     DastEnvironmentInput,
@@ -107,12 +108,20 @@ class DastScanAPI(object):
         )
         return 200 <= response.status_code < 300
 
-    def get_environment_by_id(self, env_id: str) -> dict:
-        """GET /environment/{envId} — retrieve a specific Environment."""
+    def get_environment_by_id(self, env_id: str) -> DastEnvironment:
+        """GET /environment/{envId} — retrieve a specific Environment by
+        UUID, including its most recent scan summary and risk overview.
+
+        Args:
+            env_id (str): the Environment's UUID.
+
+        Returns:
+            DastEnvironment
+        """
         response = self.api_client.call_api(
             method="GET", url=f"{self.base_url}/environment/{env_id}"
         )
-        return response.json()
+        return DastEnvironment.from_dict(response.json())
 
     def get_environments(
         self,
@@ -266,7 +275,7 @@ def delete_environment(environment_id: str) -> bool:
     return DastScanAPI().delete_environment(environment_id=environment_id)
 
 
-def get_environment_by_id(env_id: str) -> dict:
+def get_environment_by_id(env_id: str) -> DastEnvironment:
     return DastScanAPI().get_environment_by_id(env_id=env_id)
 
 

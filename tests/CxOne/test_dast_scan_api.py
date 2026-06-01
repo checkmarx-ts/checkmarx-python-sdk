@@ -234,8 +234,25 @@ def test_update_environment():
         ))
         assert ok is True
         refreshed = get_environment_by_id(env_id)
-        # get_environment_by_id is still a raw-dict stub — read the key directly.
-        assert refreshed.get("domain") == new_domain
+        assert isinstance(refreshed, DastEnvironment)
+        assert refreshed.domain == new_domain
+    finally:
+        delete_environment(env_id)
+
+
+def test_get_environment_by_id():
+    domain = f"sdk-get-{int(time.time())}"
+    env_id = create_environment(DastEnvironmentInput(
+        domain=domain,
+        url="https://example.com",
+        scan_type=DastScanType.DAST,
+    ))
+    try:
+        env = get_environment_by_id(env_id)
+        assert isinstance(env, DastEnvironment)
+        assert env.environment_id == env_id
+        assert env.domain == domain
+        assert env.scan_type == DastScanType.DAST or env.scan_type == "DAST"
     finally:
         delete_environment(env_id)
 
