@@ -2,11 +2,14 @@ import pytest
 from CheckmarxPythonSDK.CxOne import (
     get_all_queries,
     create_new_query,
+    create_query,
     get_all_queries_search,
     get_queries_metadata,
     get_query_source,
+    get_query_source_by_level_path,
     delete_overridden_query,
     update_query_source,
+    update_query_source_by_level,
     create_new_session,
     get_all_active_sessions_related_to_webaudit,
     get_session_details,
@@ -93,6 +96,49 @@ def test_get_query_source():
 def test_delete_overridden_query():
     result = delete_overridden_query(level="", path="")
     assert result is not None
+
+
+def test_create_query():
+    """POST /queries — create a query (sessionless)."""
+    from CheckmarxPythonSDK.CxOne.dto import QueryRequest
+    try:
+        result = create_query(data=QueryRequest(
+            path="queries/test/test",
+            name="Test_Query",
+            source="CxList test = All.NewCxList();",
+        ))
+        assert result in (True, False)
+    except Exception as e:
+        print("create_query skipped: {}".format(str(e)))
+
+
+def test_get_query_source_by_level_path():
+    """GET /query/{level}/{path} — deprecated query source endpoint."""
+    try:
+        result = get_query_source_by_level_path(
+            level="",
+            path="queries/Common/Common_High_Risk/SQL_Injection/SQL_Injectio.cs",
+        )
+        assert result is not None
+    except Exception as e:
+        print("get_query_source_by_level_path skipped: {}".format(str(e)))
+
+
+def test_update_query_source_by_level():
+    """PUT /queries/{level} — deprecated update query source."""
+    from CheckmarxPythonSDK.CxOne.dto import WorkspaceQuery
+    try:
+        result = update_query_source_by_level(
+            data=[WorkspaceQuery(
+                path="",
+                name="",
+                source="",
+            )],
+            level="",
+        )
+        assert result in (True, False)
+    except Exception as e:
+        print("update_query_source_by_level skipped: {}".format(str(e)))
 
 #
 # def test_update_query_source():

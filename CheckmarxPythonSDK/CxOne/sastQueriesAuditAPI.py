@@ -136,6 +136,61 @@ class SastQueriesAuditAPI(object):
         )
         return response.status_code == OK
 
+    def create_query(self, data: QueryRequest) -> bool:
+        """
+        Create a new query (sessionless).
+
+        Args:
+            data (QueryRequest):
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/queries"
+        response = self.api_client.call_api(
+            method="POST", url=url,
+            json={k: v for k, v in asdict(data).items() if v is not None}
+        )
+        return response.status_code == OK
+
+    def update_query_source_by_level(
+        self, data: List[WorkspaceQuery], level: str
+    ) -> bool:
+        """
+        Update query source at a level (deprecated, sessionless).
+
+        Args:
+            data (List[WorkspaceQuery]):
+            level (str): corp or projectId
+
+        Returns:
+            bool
+        """
+        url = f"{self.base_url}/queries/{level}"
+        response = self.api_client.call_api(
+            method="PUT",
+            url=url,
+            json=[asdict(query) for query in data],
+        )
+        return response.status_code == OK
+
+    def get_query_source_by_level_path(
+        self, level: str, path: str
+    ) -> Query:
+        """
+        Get query source at level/path (deprecated endpoint).
+
+        Args:
+            level (str):
+            path (str):
+
+        Returns:
+            Query
+        """
+        url = f"{self.base_url}/query/{level}/{path}"
+        response = self.api_client.call_api(method="GET", url=url)
+        return Query.from_dict(response.json())
+
     def create_new_session(self, data: SessionRequest) -> SessionResponse:
         """
         Args:
@@ -410,6 +465,24 @@ def update_query_source(
 ) -> bool:
     return SastQueriesAuditAPI().update_query_source(
         data=data, session_id=session_id, level=level
+    )
+
+
+def create_query(data: QueryRequest) -> bool:
+    return SastQueriesAuditAPI().create_query(data=data)
+
+
+def update_query_source_by_level(
+    data: List[WorkspaceQuery], level: str
+) -> bool:
+    return SastQueriesAuditAPI().update_query_source_by_level(
+        data=data, level=level
+    )
+
+
+def get_query_source_by_level_path(level: str, path: str) -> Query:
+    return SastQueriesAuditAPI().get_query_source_by_level_path(
+        level=level, path=path
     )
 
 
