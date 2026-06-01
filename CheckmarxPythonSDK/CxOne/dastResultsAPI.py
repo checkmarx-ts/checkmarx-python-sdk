@@ -10,6 +10,7 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
     DastResultDetail,
+    DastResultsChangelogInput,
     DastResultsCollection,
     DastResultsFilter,
     DastResultsSortBy,
@@ -83,13 +84,26 @@ class DastResultsAPI(object):
         )
         return DastResultsCollection.from_dict(response.json())
 
-    def update_results(self, changelog: dict) -> dict:
-        """POST /changelog — edit severity/comments/state on one or
-        more results (single or batch)."""
+    def update_results(self, changelog: DastResultsChangelogInput) -> bool:
+        """POST /changelog — update severity/state/notes on one or more
+        results (single or batch).
+
+        Args:
+            changelog (DastResultsChangelogInput): the update payload.
+                similarity_id_2 / environment_id / scan_id are required;
+                severity / state / note / type / alert_similarity_id /
+                custom_state_id are optional. When type=ALERT,
+                alert_similarity_id is required.
+
+        Returns:
+            bool: True if the API returned a 2xx status. Response body
+            is plain-text "OK" on success.
+        """
         response = self.api_client.call_api(
-            method="POST", url=f"{self.base_url}/changelog", json=changelog,
+            method="POST", url=f"{self.base_url}/changelog",
+            json=changelog.to_dict(),
         )
-        return response.json()
+        return 200 <= response.status_code < 300
 
     def get_result_info(self, result_id: str, scan_id: str) -> DastResultDetail:
         """GET /results/info/{result_id}/{scan_id} — detailed info about
@@ -143,7 +157,7 @@ def get_results(
     )
 
 
-def update_results(changelog: dict) -> dict:
+def update_results(changelog: DastResultsChangelogInput) -> bool:
     return DastResultsAPI().update_results(changelog=changelog)
 
 

@@ -75,8 +75,11 @@ from .DastResult import DastResult
 from .DastResultChangelogEntry import DastResultChangelogEntry
 from .DastResultDetail import DastResultDetail
 from .DastResultNote import DastResultNote
+from .DastResultSeverity import DastResultSeverity
 from .DastResultState import DastResultState
 from .DastResultStatus import DastResultStatus
+from .DastResultsChangelogInput import DastResultsChangelogInput
+from .DastResultsChangelogType import DastResultsChangelogType
 from .DastResultsCollection import DastResultsCollection
 from .DastResultsFilter import DastResultsFilter
 from .DastResultsSortBy import DastResultsSortBy
