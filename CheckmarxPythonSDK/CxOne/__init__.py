@@ -126,6 +126,7 @@ from .dastScanAPI import (
     update_environment,
     delete_environment,
     get_environment_by_id,
+    get_environments,
     get_environments_count_by_group,
     get_scans,
     run_scan,

@@ -1,12 +1,14 @@
-"""DAST Scans Service REST API (stubs).
+"""DAST Scans Service REST API.
 
-Endpoints under <server>/api/dast/scans. Each method returns the raw
-parsed JSON response — DTO classes can be added later as the response
-shapes are pinned down.
+Endpoints under <server>/api/dast/scans. Endpoints with documented
+response shapes return DTO objects; the rest are stubs that return
+the raw parsed JSON response until their schemas are pinned down.
 """
+import json
+from typing import List
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from .dto import TenantOverview
+from .dto import TenantOverview, DastEnvironmentsCollection
 
 
 class DastScanAPI(object):
@@ -62,6 +64,56 @@ class DastScanAPI(object):
             method="GET", url=f"{self.base_url}/environment/{env_id}"
         )
         return response.json()
+
+    def get_environments(
+        self,
+        filter: dict = None,
+        from_: int = None,
+        groups: List[str] = None,
+        last_status: List[str] = None,
+        match: dict = None,
+        search: str = None,
+        sort: List[str] = None,
+        tags: List[str] = None,
+        to: int = None,
+    ) -> DastEnvironmentsCollection:
+        """GET /environments — DAST Environments with their most recent scan
+        summary and risk overview.
+
+        Args:
+            filter (dict, optional): Partial match on domain, url, scantype,
+                environmentId, projectId, lastRiskRating, authSuccess,
+                tunnelState. Serialized to JSON in the query string.
+            from_ (int, optional): Pagination start offset. Default 0.
+            groups (list of str, optional): Filter by user groups.
+            last_status (list of str, optional): Filter by last scan status —
+                New, Running, Finished, Failed, Cancelled.
+            match (dict, optional): Exact match on the same fields as filter.
+            search (str, optional): Substring search in domain or url.
+            sort (list of str, optional): Sort by domain, url, scantype,
+                lastscantime, lastscanstatus, lastriskrating, created,
+                authsuccess.
+            tags (list of str, optional): Filter by tags.
+            to (int, optional): Pagination end offset.
+
+        Returns:
+            DastEnvironmentsCollection
+        """
+        params = {
+            "filter": json.dumps(filter) if filter is not None else None,
+            "from": from_,
+            "groups": groups,
+            "lastStatus": last_status,
+            "match": json.dumps(match) if match is not None else None,
+            "search": search,
+            "sort": sort,
+            "tags": tags,
+            "to": to,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environments", params=params
+        )
+        return DastEnvironmentsCollection.from_dict(response.json())
 
     def get_environments_count_by_group(self, group_by: str = None, **params) -> dict:
         """GET /environments/groups — count Environments grouped by a parameter
@@ -154,6 +206,23 @@ def delete_environment(environment: dict) -> bool:
 
 def get_environment_by_id(env_id: str) -> dict:
     return DastScanAPI().get_environment_by_id(env_id=env_id)
+
+
+def get_environments(
+    filter: dict = None,
+    from_: int = None,
+    groups: List[str] = None,
+    last_status: List[str] = None,
+    match: dict = None,
+    search: str = None,
+    sort: List[str] = None,
+    tags: List[str] = None,
+    to: int = None,
+) -> DastEnvironmentsCollection:
+    return DastScanAPI().get_environments(
+        filter=filter, from_=from_, groups=groups, last_status=last_status,
+        match=match, search=search, sort=sort, tags=tags, to=to,
+    )
 
 
 def get_environments_count_by_group(group_by: str = None, **params) -> dict:

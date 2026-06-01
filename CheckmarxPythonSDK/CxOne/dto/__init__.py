@@ -49,6 +49,8 @@ from .CreateRoleRequest import CreateRoleRequest
 from .CredentialRepresentation import CredentialRepresentation
 from .Credentials import Credentials
 from .CustomState import CustomState
+from .DastEnvironment import DastEnvironment
+from .DastEnvironmentsCollection import DastEnvironmentsCollection
 from .DebugMessage import DebugMessage
 from .DebugMessageResponse import DebugMessageResponse
 from .DefaultConfig import DefaultConfig
@@ -145,6 +147,7 @@ from .ResultResponse import ResultResponse
 from .ResultsResponse import ResultsResponse
 from .ResultsSummary import ResultsSummary
 from .ResultsSummaryTree import ResultsSummaryTree
+from .RiskLevel import RiskLevel
 from .Role import Role
 from .RoleWithDetails import RoleWithDetails
 from .Rule import Rule
