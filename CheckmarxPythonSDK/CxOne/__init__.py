@@ -26,6 +26,10 @@ from .accessControlAPI import (
     post_service_token,
     post_bulk_entities_find,
 )
+from .analyticsAPI import (
+    AnalyticsAPI,
+    query_kpi,
+)
 from .aiAssetsAPI import (
     AiAssetsAPI,
     get_ai_findings,
