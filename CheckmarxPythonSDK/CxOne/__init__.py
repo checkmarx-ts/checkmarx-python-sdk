@@ -589,6 +589,10 @@ from .scannersResultsAPI import (
     ScannersResultsAPI,
     get_all_scanners_results_by_scan_id,
 )
+from .staticCorrelatorAPI import (
+    StaticCorrelatorAPI,
+    update_risk,
+)
 
 from .scansAPI import (
     ScansAPI,
