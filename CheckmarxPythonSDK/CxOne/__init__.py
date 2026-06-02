@@ -154,6 +154,15 @@ from .contributorsAPI import (
     get_number_of_unfamiliar_projects,
     get_unfamiliar_projects_in_csv,
 )
+from .cxLinkAPI import (
+    CxLinkAPI,
+    get_links,
+    get_link,
+    create_link,
+    update_link,
+    delete_link,
+    recreate_link,
+)
 from .customStateAPI import (
     CustomStateAPI,
     get_all_custom_states,
