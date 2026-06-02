@@ -26,6 +26,15 @@ from .accessControlAPI import (
     post_service_token,
     post_bulk_entities_find,
 )
+from .aiAssetsAPI import (
+    AiAssetsAPI,
+    get_ai_findings,
+    get_ai_findings_aggregate,
+    get_ai_finding_by_id,
+    get_ai_asset_types,
+    get_ai_assets,
+    get_ai_applications,
+)
 
 from .accessManagementAPI import (
     AccessManagementAPI,
