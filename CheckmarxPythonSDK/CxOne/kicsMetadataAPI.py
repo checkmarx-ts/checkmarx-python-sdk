@@ -15,9 +15,9 @@ class KicsMetadataAPI(object):
             f"/api/kics-metadata"
         )
 
-    def get_scans_metadata(self, scan_ids: List[str]) -> dict:
+    def get_kics_scans_metadata(self, scan_ids: List[str]) -> dict:
         """
-        Get scan metadata for multiple scan IDs.
+        Get KICS scan metadata for multiple scan IDs.
 
         Args:
             scan_ids (List[str]): List of scan UUIDs
@@ -32,9 +32,9 @@ class KicsMetadataAPI(object):
         )
         return response.json()
 
-    def get_scan_metadata(self, scan_id: str) -> dict:
+    def get_kics_scan_metadata(self, scan_id: str) -> dict:
         """
-        Get scan metadata for a single scan.
+        Get KICS scan metadata for a single scan.
 
         Args:
             scan_id (str): Scan UUID
@@ -49,9 +49,9 @@ class KicsMetadataAPI(object):
 
 # ---- Module-level convenience functions ----
 
-def get_scans_metadata(scan_ids: List[str]) -> dict:
-    return KicsMetadataAPI().get_scans_metadata(scan_ids=scan_ids)
+def get_kics_scans_metadata(scan_ids: List[str]) -> dict:
+    return KicsMetadataAPI().get_kics_scans_metadata(scan_ids=scan_ids)
 
 
-def get_scan_metadata(scan_id: str) -> dict:
-    return KicsMetadataAPI().get_scan_metadata(scan_id=scan_id)
+def get_kics_scan_metadata(scan_id: str) -> dict:
+    return KicsMetadataAPI().get_kics_scan_metadata(scan_id=scan_id)

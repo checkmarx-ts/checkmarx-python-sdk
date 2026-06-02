@@ -264,8 +264,8 @@ from .kicsResultsAPI import (
 )
 from .kicsMetadataAPI import (
     KicsMetadataAPI,
-    get_scans_metadata,
-    get_scan_metadata,
+    get_kics_scans_metadata,
+    get_kics_scan_metadata,
 )
 from .kicsResultsPredicatesAPI import (
     KicsResultsPredicatesAPI,

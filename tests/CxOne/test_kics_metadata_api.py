@@ -1,8 +1,8 @@
 import pytest
 
 from CheckmarxPythonSDK.CxOne import (
-    get_scans_metadata,
-    get_scan_metadata,
+    get_kics_scans_metadata,
+    get_kics_scan_metadata,
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
 
@@ -15,19 +15,19 @@ def _get_kics_scan_id():
     return None
 
 
-def test_get_scans_metadata():
+def test_get_kics_scans_metadata():
     scan_id = _get_kics_scan_id()
     if not scan_id:
         pytest.skip("No completed KICS scan found")
-    result = get_scans_metadata(scan_ids=[scan_id])
+    result = get_kics_scans_metadata(scan_ids=[scan_id])
     assert result is not None
     assert "scans" in result
 
 
-def test_get_scan_metadata():
+def test_get_kics_scan_metadata():
     scan_id = _get_kics_scan_id()
     if not scan_id:
         pytest.skip("No completed KICS scan found")
-    result = get_scan_metadata(scan_id=scan_id)
+    result = get_kics_scan_metadata(scan_id=scan_id)
     assert result is not None
     assert "scanId" in result
