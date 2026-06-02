@@ -210,6 +210,14 @@ from .flagsAPI import (
     get_all_feature_flags,
     get_feature_flag,
 )
+from .fusionResultsAPI import (
+    FusionResultsAPI,
+    get_applications,
+    get_application_summary,
+    get_application_resources,
+    get_application_microservices,
+    get_application_risk_scores,
+)
 from .globalInventoryReaderAPI import (
     GlobalInventoryReaderAPI,
     get_api_changes,
