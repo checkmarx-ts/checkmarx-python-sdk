@@ -32,7 +32,6 @@ jobs:
       max-parallel: 3
       matrix:
         pver:
-          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
@@ -51,6 +50,7 @@ jobs:
         shell: bash
         run: |
           pip config set global.index-url https://pypi.echohq.com/simple
+          pip install --upgrade pip
           pip install . pylint
   
       - name: Pylint
