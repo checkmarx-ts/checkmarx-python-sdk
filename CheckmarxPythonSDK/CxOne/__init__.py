@@ -34,6 +34,9 @@ from .aiAssetsAPI import (
     get_ai_asset_types,
     get_ai_assets,
     get_ai_applications,
+    get_global_inventory_results,
+    get_global_inventory_result_by_id,
+    aggregate_global_inventory_results,
 )
 
 from .accessManagementAPI import (

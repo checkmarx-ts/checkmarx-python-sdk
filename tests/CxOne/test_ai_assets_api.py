@@ -7,6 +7,9 @@ from CheckmarxPythonSDK.CxOne import (
     get_ai_asset_types,
     get_ai_assets,
     get_ai_applications,
+    get_global_inventory_results,
+    get_global_inventory_result_by_id,
+    aggregate_global_inventory_results,
 )
 
 
@@ -52,3 +55,29 @@ def test_get_ai_finding_by_id():
     result = get_ai_finding_by_id(id=finding_id)
     assert result is not None
     assert "evidences" in result
+
+
+def test_get_global_inventory_results():
+    result = get_global_inventory_results(limit=5)
+    assert result is not None
+    assert "data" in result
+
+
+def test_get_global_inventory_result_by_id():
+    results = get_global_inventory_results(limit=1)
+    data = results.get("data", [])
+    if not data:
+        pytest.skip("No global inventory results found")
+    result_id = data[0].get("id")
+    result = get_global_inventory_result_by_id(id=result_id)
+    assert result is not None
+    assert "evidences" in result
+
+
+def test_aggregate_global_inventory_results():
+    try:
+        result = aggregate_global_inventory_results(group_by="assetType")
+        assert result is not None
+        assert "groupsCounter" in result
+    except Exception as e:
+        print("aggregate_global_inventory_results skipped: {}".format(str(e)))

@@ -178,6 +178,116 @@ class AiAssetsAPI(object):
         )
         return response.json()
 
+    # ---- AI Supply Chain Global Inventory (same /api/ai-sc base) ----
+
+    def get_global_inventory_results(
+        self,
+        limit: int = None,
+        offset: int = 0,
+        project_ids: str = None,
+        asset_names: str = None,
+        providers: str = None,
+        search: str = None,
+        asset_type_ids: str = None,
+        application_ids: str = None,
+        order_column: str = None,
+        order_direction: str = None,
+        include_evidences: bool = False,
+    ) -> dict:
+        """
+        Get a list of all results for the tenant (global inventory).
+
+        Args:
+            limit (int): Max results (1-100)
+            offset (int): Items to skip. Default: 0
+            project_ids (str): Comma-separated project UUIDs
+            asset_names (str): Comma-separated asset names
+            providers (str): Comma-separated providers
+            search (str): Search term
+            asset_type_ids (str): Comma-separated asset type UUIDs
+            application_ids (str): Comma-separated application UUIDs
+            order_column (str): created-at, updated-at, scan-date,
+                project-name, asset-name
+            order_direction (str): asc, desc, ASC, DESC
+            include_evidences (bool): Include evidence details
+
+        Returns:
+            dict with data, total, currentPage, lastPage
+        """
+        url = f"{self.base_url}/global-inventory/results"
+        params = {
+            "limit": limit,
+            "offset": offset,
+            "project-ids": project_ids,
+            "asset-names": asset_names,
+            "providers": providers,
+            "search": search,
+            "asset-type-ids": asset_type_ids,
+            "application-ids": application_ids,
+            "order-column": order_column,
+            "order-direction": order_direction,
+            "include-evidences": include_evidences,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def get_global_inventory_result_by_id(self, id: str) -> dict:
+        """
+        Get a specific global inventory result by ID.
+
+        Args:
+            id (str): Result ID (uuid)
+
+        Returns:
+            dict with id, asset, project, evidences, etc.
+        """
+        url = f"{self.base_url}/global-inventory/result/{id}"
+        response = self.api_client.call_api(method="GET", url=url)
+        return response.json()
+
+    def aggregate_global_inventory_results(
+        self,
+        group_by: str,
+        project_ids: str = None,
+        asset_names: str = None,
+        providers: str = None,
+        search: str = None,
+        asset_type_ids: str = None,
+        application_ids: str = None,
+    ) -> dict:
+        """
+        Aggregate global inventory results grouped by specified fields.
+
+        Args:
+            group_by (str): assetType, projectName, applicationName,
+                assetName, or provider
+            project_ids (str): Comma-separated project UUIDs
+            asset_names (str): Comma-separated asset names
+            providers (str): Comma-separated providers
+            search (str): Search term
+            asset_type_ids (str): Comma-separated asset type UUIDs
+            application_ids (str): Comma-separated application UUIDs
+
+        Returns:
+            dict with groupsCounter
+        """
+        url = f"{self.base_url}/global-inventory/results/aggregate"
+        params = {
+            "group-by": group_by,
+            "project-ids": project_ids,
+            "asset-names": asset_names,
+            "providers": providers,
+            "search": search,
+            "asset-type-ids": asset_type_ids,
+            "application-ids": application_ids,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
 
 # ---- Module-level convenience functions ----
 
@@ -236,3 +346,45 @@ def get_ai_assets(limit: int = None, offset: int = 0) -> dict:
 
 def get_ai_applications(limit: int = None, offset: int = 0) -> dict:
     return AiAssetsAPI().get_applications(limit=limit, offset=offset)
+
+
+def get_global_inventory_results(
+    limit: int = None,
+    offset: int = 0,
+    project_ids: str = None,
+    asset_names: str = None,
+    providers: str = None,
+    search: str = None,
+    asset_type_ids: str = None,
+    application_ids: str = None,
+    order_column: str = None,
+    order_direction: str = None,
+    include_evidences: bool = False,
+) -> dict:
+    return AiAssetsAPI().get_global_inventory_results(
+        limit=limit, offset=offset, project_ids=project_ids,
+        asset_names=asset_names, providers=providers, search=search,
+        asset_type_ids=asset_type_ids, application_ids=application_ids,
+        order_column=order_column, order_direction=order_direction,
+        include_evidences=include_evidences,
+    )
+
+
+def get_global_inventory_result_by_id(id: str) -> dict:
+    return AiAssetsAPI().get_global_inventory_result_by_id(id=id)
+
+
+def aggregate_global_inventory_results(
+    group_by: str,
+    project_ids: str = None,
+    asset_names: str = None,
+    providers: str = None,
+    search: str = None,
+    asset_type_ids: str = None,
+    application_ids: str = None,
+) -> dict:
+    return AiAssetsAPI().aggregate_global_inventory_results(
+        group_by=group_by, project_ids=project_ids, asset_names=asset_names,
+        providers=providers, search=search, asset_type_ids=asset_type_ids,
+        application_ids=application_ids,
+    )
