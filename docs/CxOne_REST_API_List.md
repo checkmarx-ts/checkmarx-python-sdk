@@ -140,13 +140,13 @@
 | DATA_RETENTION.yaml | DataRetentionAPI | `abort_process` | POST | `/api/data-retention/{id}/abort` |
 | FEATURE_FLAG.yaml | FeatureFlagAPI | `get_all_feature_flags` | GET | `/api/flags` |
 | FEATURE_FLAG.yaml | FeatureFlagAPI | `get_feature_flag` | GET | `/api/flags/{name}` |
-| FUSION_DISPATCHER.yaml | FusionDispatcherAPI |  | POST |  |
-| FUSION_DISPATCHER.yaml | FusionDispatcherAPI |  | GET |  |
-| FUSION_RESULTS.yaml | FusionResultsAPI |  | GET |  |
-| FUSION_RESULTS.yaml | FusionResultsAPI |  | GET |  |
-| FUSION_RESULTS.yaml | FusionResultsAPI |  | GET |  |
-| FUSION_RESULTS.yaml | FusionResultsAPI |  | GET |  |
-| FUSION_RESULTS.yaml | FusionResultsAPI |  | GET |  |
+| FUSION_DISPATCHER.yaml | FusionDispatcherAPI | `correlate` | POST | `/api/correlation/dispatcher/{id}/correlate` |
+| FUSION_DISPATCHER.yaml | FusionDispatcherAPI | `get_scan_status` | GET | `/api/correlation/dispatcher/{id}/scan-status` |
+| FUSION_RESULTS.yaml | FusionResultsAPI | `get_applications` | GET | `/api/correlation/results/applications` |
+| FUSION_RESULTS.yaml | FusionResultsAPI | `get_application_summary` | GET | `/api/correlation/results/applications/{id}/summary` |
+| FUSION_RESULTS.yaml | FusionResultsAPI | `get_application_resources` | GET | `/api/correlation/results/applications/{id}/resources` |
+| FUSION_RESULTS.yaml | FusionResultsAPI | `get_application_microservices` | GET | `/api/correlation/results/applications/{id}/microservices` |
+| FUSION_RESULTS.yaml | FusionResultsAPI | `get_application_risk_scores` | GET | `/api/correlation/results/applications/{id}/risk-scores` |
 | GLOBAL_INVENTORY_READER.yaml | GlobalInventoryReaderAPI | `get_api_changes` | GET | `/api/apisec/global/api/api-changes/` |
 | GLOBAL_INVENTORY_READER.yaml | GlobalInventoryReaderAPI | `get_api_inventory` | GET | `/api/apisec/global/api/inventory/` |
 | GLOBAL_INVENTORY_READER.yaml | GlobalInventoryReaderAPI | `get_data_origin` | GET | `/api/apisec/global/api/inventory/data_origins` |
@@ -157,19 +157,19 @@
 | GLOBAL_INVENTORY_READER.yaml | GlobalInventoryReaderAPI | `get_risk_groups` | GET | `/api/apisec/global/api/risk/group/{group_column}` |
 | GLOBAL_INVENTORY_READER.yaml | GlobalInventoryReaderAPI | `get_risk_widget` | GET | `/api/apisec/global/api/risk/widget` |
 | GLOBAL_INVENTORY_READER.yaml | GlobalInventoryReaderAPI | `get_risk_details` | GET | `/api/apisec/global/api/risk/{risk_id}` |
-| KICS_METADATA.yaml | KicsMetadataAPI |  | GET |  |
-| KICS_METADATA.yaml | KicsMetadataAPI |  | GET |  |
+| KICS_METADATA.yaml | KicsMetadataAPI | `get_kics_scans_metadata` | GET | `/api/kics-metadata/` |
+| KICS_METADATA.yaml | KicsMetadataAPI | `get_kics_scan_metadata` | GET | `/api/kics-metadata/{scan-id}` |
 | KICS_RESULTS.yaml | KicsResultsAPI | `get_kics_results_by_scan_id` | GET | `/api/kics-results` |
-| KICS_RESULTS_PREDICATES.yaml | KicsResultsPredicatesAPI |  | GET |  |
-| KICS_RESULTS_PREDICATES.yaml | KicsResultsPredicatesAPI |  | GET |  |
-| KICS_RESULTS_PREDICATES.yaml | KicsResultsPredicatesAPI |  | POST |  |
-| LISTS.yaml | ListsAPI |  | GET |  |
-| LISTS.yaml | ListsAPI |  | GET |  |
-| LISTS.yaml | ListsAPI |  | GET |  |
+| KICS_RESULTS_PREDICATES.yaml | KicsResultsPredicatesAPI | `get_predicates_by_similarity_id` | GET | `/api/kics-results-predicates/{similarityID}` |
+| KICS_RESULTS_PREDICATES.yaml | KicsResultsPredicatesAPI | `get_predicates_changes` | GET | `/api/kics-results-predicates/{similarityID}/projects/{projectID}` |
+| KICS_RESULTS_PREDICATES.yaml | KicsResultsPredicatesAPI | `create_predicate` | POST | `/api/kics-results-predicates/` |
+| LISTS.yaml | ListsAPI | `get_severities` | GET | `/api/lists/severities` |
+| LISTS.yaml | ListsAPI | `get_states` | GET | `/api/lists/states` |
+| LISTS.yaml | ListsAPI | `get_statuses` | GET | `/api/lists/statuses` |
 | LOGS.yaml | LogsAPI | `get_log` | GET | `/api/logs/{scan-id}/{engine}` |
-| ORGANIZATIONAL_DOMAINS.yaml | OrganizationalDomainsAPI |  | GET |  |
-| ORGANIZATIONAL_DOMAINS.yaml | OrganizationalDomainsAPI |  | POST |  |
-| ORGANIZATIONAL_DOMAINS.yaml | OrganizationalDomainsAPI |  | DELETE |  |
+| ORGANIZATIONAL_DOMAINS.yaml | OrganizationalDomainsAPI | `list_organizational_domains` | GET | `/api/organizational-domains` |
+| ORGANIZATIONAL_DOMAINS.yaml | OrganizationalDomainsAPI | `add_organizational_domains` | POST | `/api/organizational-domains` |
+| ORGANIZATIONAL_DOMAINS.yaml | OrganizationalDomainsAPI | `delete_organizational_domain` | DELETE | `/api/organizational-domains/{id}` |
 | PRESET_MANAGER.yaml | SastPresetManagerAPI | `get_sast_presets` | GET | `/api/preset-manager/{scanner}/presets` |
 | PRESET_MANAGER.yaml | SastPresetManagerAPI | `get_sast_preset_by_id` | GET | `/api/preset-manager/{scanner}/presets/{id}` |
 | PRESET_MANAGER.yaml | SastPresetManagerAPI | `create_sast_preset` | POST | `/api/preset-manager/{scanner}/presets` |
@@ -223,8 +223,8 @@
 | REPORTS_API.yaml | ReportAPI | `create_scan_report_v2` | POST | `/api/reports/v2` |
 | REPORTS_API.yaml | ReportAPI | `get_report_status` | GET | `/api/reports/{reportId}` |
 | REPORTS_API.yaml | ReportAPI | `get_scan_report` | GET | `/api/reports/{reportId}/download` |
-| REPOSITORY_INSIGHTS.yaml | RepositoryInsightsAPI |  | GET |  |
-| REPOSITORY_INSIGHTS.yaml | RepositoryInsightsAPI |  | POST |  |
+| REPOSITORY_INSIGHTS.yaml | RepositoryInsightsAPI | `get_project_repositories` | GET | `/api/insights/project/{project-id}` |
+| REPOSITORY_INSIGHTS.yaml | RepositoryInsightsAPI | `get_insights_by_repository` | POST | `/api/insights/repository` |
 | REPOSTORE.yaml | RepoStoreServiceAPI | `check_if_scan_has_source_code_available` | HEAD | `/api/repostore/scans/{scan-id}` |
 | REPOSTORE.yaml | RepoStoreServiceAPI | `download_source_code_from_specific_scan` | GET | `/api/repostore/code/{scan-id}` |
 | REPOSTORE.yaml | RepoStoreServiceAPI | `view_scanned_source_files` | GET | `/api/repostore/files/{scan-id}` |
@@ -234,13 +234,13 @@
 | RESOURCE_MANAGEMENT.yaml | SastResourceManagementServiceAPI | `get_sast_scans` | GET | `/api/sast-rm/scans` |
 | RESOURCE_MANAGEMENT.yaml | SastResourceManagementServiceAPI | `get_sast_scan_by_id` | GET | `/api/sast-rm/scans/{id}` |
 | RESOURCE_MANAGEMENT.yaml | SastResourceManagementServiceAPI | `delete_sast_scan` | DELETE | `/api/sast-rm/scans/{id}` |
-| RESULTS_OVERVIEW.yaml | ResultsOverviewAPI |  | GET |  |
+| RESULTS_OVERVIEW.yaml | ResultsOverviewAPI | `get_projects_overview` | GET | `/api/results-overview/projects` |
 | RESULTS_SUMMARY.yaml | ResultsSummaryAPI | `get_results_summary_by_scan_id` | GET | `/api/scan-summary` |
-| RISK_MANAGEMENT.yaml | RiskManagementAPI |  | GET |  |
-| RISK_MANAGEMENT.yaml | RiskManagementAPI |  | GET |  |
-| RISK_MANAGEMENT.yaml | RiskManagementAPI |  | GET |  |
-| RISK_MANAGEMENT.yaml | RiskManagementAPI |  | PUT |  |
-| RISK_MANAGEMENT.yaml | RiskManagementAPI |  | PUT |  |
+| RISK_MANAGEMENT.yaml | RiskManagementAPI | `get_summary` | GET | `/api/risk-management/summary` |
+| RISK_MANAGEMENT.yaml | RiskManagementAPI | `get_results` | GET | `/api/risk-management/{applicationId}/results` |
+| RISK_MANAGEMENT.yaml | RiskManagementAPI | `get_score_card` | GET | `/api/risk-management/result/{id}` |
+| RISK_MANAGEMENT.yaml | RiskManagementAPI | `update_result_state` | PUT | `/api/risk-management/{applicationId}/results/{id}` |
+| RISK_MANAGEMENT.yaml | RiskManagementAPI | `update_assignees` | PUT | `/api/risk-management/updateAssignees` |
 | RUNTIME_IMAGES.yaml | — | — | — | (no endpoints defined) |
 | SAST_METADATA.yaml | SastScanMetadataServiceAPI | `get_metadata_of_scans` | GET | `/api/sast-metadata` |
 | SAST_METADATA.yaml | SastScanMetadataServiceAPI | `get_metadata_of_scan` | GET | `/api/sast-metadata/{scan-id}` |
@@ -298,7 +298,7 @@
 | SAST_RESULTS.yaml | SastResultsAPI | `get_sast_results_by_scan_id` | GET | `/api/sast-results` |
 | SAST_RESULTS.yaml | SastResultsAPI | `get_sast_results_compare_by_scans` | GET | `/api/sast-results/compare` |
 | SAST_RESULTS.yaml | SastResultsAPI | `get_similar_results` | POST | `/api/sast-results/similar-results` |
-| SAST_RESULTS_COMPARE.yaml | SastResultsCompareAPI |  | GET |  |
+| SAST_RESULTS_COMPARE.yaml | SastResultsCompareAPI | `get_compare_status` | GET | `/api/scans-compare/sast/status` |
 | SAST_RESULTS_PREDICATES.yaml | SastResultsPredicatesAPI | `get_all_predicates_for_similarity_id` | GET | `/api/sast-results-predicates/{similarityId}` |
 | SAST_RESULTS_PREDICATES.yaml | SastResultsPredicatesAPI | `get_latest_predicates_for_similarity_id` | GET | `/api/sast-results-predicates/{similarityId}/latest` |
 | SAST_RESULTS_PREDICATES.yaml | SastResultsPredicatesAPI | `predicate_severity_and_state_by_similarity_id_and_project_id` | POST | `/api/sast-results-predicates` |
@@ -341,7 +341,7 @@
 | SSCS_READER.yaml | MicroEnginesAPI | `read_engine_results` | GET | `/api/micro-engines/read/results/{project}/{scan}/{engine}` |
 | SSCS_READER.yaml | MicroEnginesAPI | `read_result_groups` | GET | `/api/micro-engines/read/results/{project}/{scan}/{engine}/groups/{column}` |
 | SSCS_READER.yaml | MicroEnginesAPI | `read_scan_overview` | GET | `/api/micro-engines/read/scans/{scan}/scan-overview` |
-| STATIC_CORRELATOR.yaml | StaticCorrelatorAPI |  | PUT |  |
+| STATIC_CORRELATOR.yaml | StaticCorrelatorAPI | `update_risk` | PUT | `/api/apisec/correlator/api/risk/{scanId}` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_risk_summary_by_origin` | GET | `/api/apisec/static/api/scan/{scan_id}/risks-origin` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_scan_apisec_risk_overview` | GET | `/api/apisec/static/api/scan/{scan_id}/risks-overview` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_all_risk_types` | GET | `/api/apisec/static/api/scan/{scan_id}/risks-types` |
