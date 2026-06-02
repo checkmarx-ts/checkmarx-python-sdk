@@ -237,6 +237,22 @@ from .kicsResultsAPI import (
     KicsResultsAPI,
     get_kics_results_by_scan_id,
 )
+from .microEnginesAPI import (
+    MicroEnginesAPI,
+    get_predicates_history,
+    get_projects,
+    get_project,
+    get_engine_results,
+    get_result_groups,
+    get_scan_overview,
+    read_predicates_history,
+    read_projects,
+    read_project,
+    read_engine_results,
+    read_result_groups,
+    read_scan_overview,
+    post_predicates,
+)
 from .KeycloakAPI import (
     AttackDetectionApi,
     AuthenticationManagementApi,
