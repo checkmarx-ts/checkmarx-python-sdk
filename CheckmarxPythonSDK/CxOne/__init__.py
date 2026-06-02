@@ -151,6 +151,16 @@ from .customStateAPI import (
     create_a_custom_state,
     delete_a_custom_state,
 )
+from .dataRetentionAPI import (
+    DataRetentionAPI,
+    get_data_retention_processes,
+    get_locked_scans,
+    get_process_status,
+    lock_scans,
+    unlock_scans,
+    start_data_retention_process,
+    abort_process,
+)
 from .dastScanAPI import (
     DastScanAPI,
     get_tenant_overview,
