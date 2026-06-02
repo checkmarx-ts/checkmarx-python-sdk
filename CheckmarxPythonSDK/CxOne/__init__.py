@@ -222,6 +222,11 @@ from .flagsAPI import (
     get_all_feature_flags,
     get_feature_flag,
 )
+from .fusionDispatcherAPI import (
+    FusionDispatcherAPI,
+    correlate,
+    get_scan_status,
+)
 from .fusionResultsAPI import (
     FusionResultsAPI,
     get_applications,
