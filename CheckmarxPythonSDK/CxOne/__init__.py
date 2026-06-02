@@ -389,6 +389,14 @@ from .repoStoreServiceAPI import (
     view_source_code_of_specified_file,
     get_the_list_of_branches_inside_a_git_repository,
 )
+from .riskManagementAPI import (
+    RiskManagementAPI,
+    get_summary,
+    get_results,
+    get_score_card,
+    update_result_state,
+    update_assignees,
+)
 from .resultsSummaryAPI import (
     ResultsSummaryAPI,
     get_summary_for_many_scans,
