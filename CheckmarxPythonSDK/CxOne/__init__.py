@@ -420,6 +420,11 @@ from .reportAPI import (
     create_sca_scan_report,
     get_sca_scan_report,
 )
+from .repositoryInsightsAPI import (
+    RepositoryInsightsAPI,
+    get_project_repositories,
+    get_insights_by_repository,
+)
 from .repoStoreServiceAPI import (
     RepoStoreServiceAPI,
     check_if_scan_has_source_code_available,
