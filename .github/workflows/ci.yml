@@ -1,0 +1,59 @@
+name: CI Build
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  execute-build:
+    runs-on: cx-public-ubuntu-x64
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          pip3 config set global.index-url https://pypi.echohq.com/simple
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build Package
+        run: |
+          pip install --upgrade pip build
+          python -m build
+
+  execute-pylint:
+    runs-on: cx-public-ubuntu-x64
+    strategy:
+      max-parallel: 3
+      matrix:
+        pver:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+    steps:
+      - name: Fetch Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '${{ matrix.pver }}'
+
+      - name: Install packages
+        shell: bash
+        run: |
+          pip config set global.index-url https://pypi.echohq.com/simple
+          pip install --upgrade pip
+          pip install . pylint
+  
+      - name: Pylint
+        shell: bash
+        run: |
+          pylint --disable=all --enable=E,F --disable=E1121 --score=false CheckmarxPythonSDK
