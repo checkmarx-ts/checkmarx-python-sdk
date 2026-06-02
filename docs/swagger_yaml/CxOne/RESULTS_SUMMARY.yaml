@@ -71,6 +71,13 @@ paths:
               $ref: "#/components/schemas/ResultTypesEnum"
           required: false
           description: "Exclude results of the types specified in the array"
+        - in: query
+          name: exclude-compliance
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: If false (default), fetches compliance data and populates complianceCounters. If true, skips the Configuration Service call and returns empty complianceCounters (for performance optimization).
       summary: Get a summary of scan results
       description: "Get summary of scan results for one or more scans.<br>Note: A separate summary is returned for each of the specified scans."
       operationId: summaryByScansIds
@@ -179,6 +186,8 @@ components:
           $ref: "#/components/schemas/MicroEnginesCounters"
         containersCounters:
           $ref: "#/components/schemas/ContainersCounters"
+        aiscCounters:
+          $ref: "#/components/schemas/AiscCounters"
     SastCounters:
       type: object
       description: Counters for vulnerabilities identified by the SAST scanner
@@ -333,7 +342,7 @@ components:
         complianceCounters:
           type: array
           uniqueItems: true
-          description: An array of counters by compliance
+          description: "An array of counters by compliance <br> Note: Data is returned only if the `exclude-compliance` parameter is false (default)."
           items:
             $ref: "#/components/schemas/ComplianceSummary"
         filesScannedCounter:
@@ -936,7 +945,7 @@ components:
         customStateCounters:
           type: array
           nullable: true
-          description: "NOT CURRENTLY SUPPORTED FOR MicroEngines SCANNER. Returns null"
+          description: "An array of counters by custom state <br> Note: Data is returned only if the `apply-predicates` parameter is true."
           uniqueItems: true
           items:
             type: object
@@ -1103,6 +1112,16 @@ components:
         totalCounter:
           type: integer
           description: Total number of MicroEngines vulnerabilities
+    AiscCounters:
+      type: object
+      description: Counters for assets and asset types identified by the AI SC engine
+      properties:
+        assetsCounter:
+          type: integer
+          description: Number of assets identified by the AI SC engine
+        assetTypesCounter:
+          type: integer
+          description: Number of asset types identified by the AI SC engine
     SeverityEnum:
       type: string
       description: Severity of a vulnerability

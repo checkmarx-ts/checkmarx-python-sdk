@@ -33,6 +33,16 @@ paths:
         - $ref: '#/components/parameters/authHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
         - $ref: '#/components/parameters/versionHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fileSize:
+                  type: integer
+                  format: int64
       responses:
         '200':
           description: OK

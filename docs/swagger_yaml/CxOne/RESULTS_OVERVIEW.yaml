@@ -1,0 +1,238 @@
+openapi: 3.0.2
+info:
+  description: API deprecated, please refer to Projects Overview API
+  title: service results overview api
+  version: 1.0.0
+paths:
+  "/projects":
+    get:
+      deprecated: true
+      summary: "Get overview for the tenant projects"
+      parameters:
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: projectIds
+          in: query
+          required: true
+          description: a comma separated list of project ids
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          style: form
+          explode: false
+        - name: includeGroups
+          in: query
+          required: false
+          description: set as true if you want to include project groups
+          schema:
+            type: boolean
+        - name: includeApplications
+          in: query
+          required: false
+          description: set as true if you want to include project applications
+          schema:
+            type: boolean
+        - name: calculateFromMainBranch
+          in: query
+          required: false
+          description: set as true if you only want to use the main branch for severities calculations
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/projectsOverview'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    projectsOverview:
+      type: array
+      description: array of projects information
+      items:
+        $ref: '#/components/schemas/info'
+    info:
+      type: object
+      properties:
+        projectId:
+          type: string
+        projectName:
+          type: string
+        createdAt:
+          type: string
+        sourceOrigin:
+          type: string
+        sourceType:
+          type: string
+        initiator:
+          type: string
+        lastScanDate:
+          type: string
+        groups:
+          type: array
+          description: array of project groups
+          nullable: true
+          items:
+            $ref: '#/components/schemas/idName'
+        applications:
+          type: array
+          description: array of project groups
+          nullable: true
+          items:
+            $ref: '#/components/schemas/idName'
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityCounter'
+        engineCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/engineCounter'
+    engineCounter:
+      type: object
+      properties:
+        scanId:
+          type: string
+        name:
+          type: string
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityCounter'
+        severityStatusCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityStatusCounter'
+        statusCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/statusCounter'
+        stateCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/stateCounter'
+        sourceFileCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/fileCounter'
+        totalCounter:
+          type: integer
+    idName:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    severityCounter:
+      type: object
+      properties:
+        severity:
+          type: string
+        counter:
+          type: integer
+    severityStatusCounter:
+      type: object
+      properties:
+        severity:
+          type: string
+        status:
+          type: string
+        counter:
+          type: integer
+    statusCounter:
+      type: object
+      properties:
+        status:
+          type: string
+        counter:
+          type: integer
+    stateCounter:
+      type: object
+      properties:
+        state:
+          type: string
+        counter:
+          type: integer
+    fileCounter:
+      type: object
+      properties:
+        file:
+          type: string
+        counter:
+          type: integer
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: array
+          items:
+            type: string
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/results-overview
+security:
+  - Login: []

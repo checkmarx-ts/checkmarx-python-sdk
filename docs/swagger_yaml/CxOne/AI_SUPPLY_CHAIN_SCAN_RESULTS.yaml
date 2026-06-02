@@ -1,0 +1,610 @@
+openapi: 3.1.0
+info:
+  description: "AI Supply Results Service REST API"
+  title: "AI Supply Results Service"
+  version: 1.0.0
+paths:
+  # Project scan results endpoints
+
+  # Get AI Supply results for a specific scan of a project
+  "/scans/{scanId}/results":
+    get:
+      tags:
+        - "Scan Results"
+      summary: Get AI Supply result for a specific scan
+      description: "Scan ID is a required query param. You can limit results by using pagination and/or setting filters.<br>Note: An AND operator is applied between filters, and an OR operator is applied to multiple values for each filter."
+      operationId: GetScanResult
+      parameters:
+        - $ref: "#/components/parameters/ScanIdParam"
+        # filters:
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/AssetTypeIdsParam"
+        - $ref: "#/components/parameters/AssetNamesParam"
+        - $ref: "#/components/parameters/ProvidersParam"
+        - $ref: "#/components/parameters/VersionParam"
+        - $ref: "#/components/parameters/FirstDetectionDateTimeParam"
+        - $ref: "#/components/parameters/StateParam"
+        - $ref: "#/components/parameters/PathParam"
+        # pagination and ordering
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/OffsetParam"
+        - $ref: "#/components/parameters/ScanResultsOrderColumnParam"
+        - $ref: "#/components/parameters/ScanResultsOrderDirectionParam"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedScanResultsResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  # Aggregate scan results for a specific filter set
+  "/scans/{scanId}/results/aggregate":
+    get:
+      tags:
+        - "Scan Results"
+      summary: "Aggregate scan results groups by specified fields"
+      operationId: GetAggregateScanResultsGroups
+      parameters:
+        - $ref: "#/components/parameters/ScanIdParam"
+        # filters:
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/AssetTypeIdsParam"
+        - $ref: "#/components/parameters/AssetNamesParam"
+        - $ref: "#/components/parameters/ProvidersParam"
+        - $ref: "#/components/parameters/VersionParam"
+        - $ref: "#/components/parameters/FirstDetectionDateTimeParam"
+        - $ref: "#/components/parameters/StateParam"
+        - $ref: "#/components/parameters/PathParam"
+        # grouping
+        - $ref: "#/components/parameters/ResultsGroupByParam"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/ScanResultsGroupsAggregationResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  # LLM risk details for a specific asset within a scan
+  "/scans/{scanId}/assets/{assetId}/risks":
+    get:
+      tags:
+        - "Scan Results"
+      summary: Get LLM-assessed risks for a specific asset in a scan
+      description: >
+        Returns a paginated, filtered list of risk findings for one asset (by discovery asset_id). Filters and pagination are optional query parameters; omitting them returns all risks with default pagination. AND logic is applied between different filter fields; OR logic within each comma-separated field. Data is sourced from the ai-sc-risks service.
+
+      operationId: GetAssetRisks
+      parameters:
+        - $ref: "#/components/parameters/ScanIdParam"
+        - $ref: "#/components/parameters/AssetIdPathParam"
+        - $ref: "#/components/parameters/AssetRisksSeveritiesParam"
+        - $ref: "#/components/parameters/AssetRisksNamesParam"
+        - $ref: "#/components/parameters/AssetRisksRiskIdsParam"
+        - $ref: "#/components/parameters/AssetRisksFilePathParam"
+        - $ref: "#/components/parameters/SearchParam"
+        - $ref: "#/components/parameters/AssetRisksOrderColumnParam"
+        - $ref: "#/components/parameters/AssetRisksOrderDirectionParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/OffsetParam"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetRisksResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "503":
+          description: Upstream risks service temporarily unavailable
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    PaginatedScanResultsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScanResult"
+          description: list of returned objects
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: currentPage
+    ScanResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for a scan result
+        assetType:
+          $ref: "#/components/schemas/AssetTypeName"
+        assetTypeId:
+          $ref: "#/components/schemas/AssetTypeId"
+        assetName:
+          $ref: "#/components/schemas/AssetName"
+        assetId:
+          $ref: "#/components/schemas/AssetId"
+        provider:
+          type: string
+        version:
+          type: string
+        firstDetectionDateTime:
+          type: string
+          format: date-time
+        state:
+          $ref: "#/components/schemas/State"
+        path:
+          type: string
+        startLine:
+          type: integer
+          description: Start line number (1-based)
+        startColumn:
+          type: integer
+          description: Start column number (0-based)
+        endLine:
+          type: integer
+          description: End line number (1-based)
+        endColumn:
+          type: integer
+          description: End column number (0-based)
+        riskSummary:
+          $ref: "#/components/schemas/RiskSummary"
+          description: >
+            Optional LLM risk rollup for the asset when risk enrichment is available. Omitted when summaries are not loaded or not applicable.
+
+    RiskSummary:
+      type: object
+      description: Aggregated risk counts for an asset (from ai-sc-risks enrichment).
+      properties:
+        assetId:
+          type: string
+          description: Discovery asset identifier; use as the path segment when calling GetAssetRisks.
+        totalRisks:
+          type: integer
+          format: int32
+          description: Total number of risk findings for the asset.
+        riskCountBySeverity:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          description: Count of risks keyed by severity label (e.g. CRITICAL, HIGH).
+    AssetName:
+      type: string
+      description: The asset type display name.
+    AssetId:
+      type: string
+      format: uuid4
+      description: The asset ID.
+      examples:
+        - "123e4567-e89b-12d3-a456-426614174000"
+    State:
+      type: string
+      enum:
+        - Snoozed
+        - Muted
+        - Unresolved
+    AssetTypeId:
+      type: string
+      format: uuid4
+      description: The asset type ID.
+      examples:
+        - "223e4567-e89b-12d3-a456-426614174001"
+    AssetTypeName:
+      type: string
+      description: The asset type name.
+      enum:
+        - model
+        - sdk
+        - framework
+    Position:
+      type: object
+      properties:
+        line:
+          type: integer
+          description: Line number (1-based)
+        column:
+          type: integer
+          description: Column number (0-based)
+      description: A position within a source file
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+    ScanResultsGroupCounter:
+      type: object
+      properties:
+        assetTypeId:
+          $ref: "#/components/schemas/AssetTypeId"
+        assetType:
+          $ref: "#/components/schemas/AssetTypeName"
+        assetName:
+          $ref: "#/components/schemas/AssetName"
+        provider:
+          type: string
+        version:
+          type: string
+        state:
+          $ref: "#/components/schemas/State"
+        count:
+          type: integer
+          description: The count for the field value.
+    ScanResultsGroupsAggregationResponse:
+      type: object
+      properties:
+        scanGroupsCounter:
+          type: array
+          description: An array of field counters.
+          items:
+            $ref: "#/components/schemas/ScanResultsGroupCounter"
+    AssetRisksResponse:
+      type: object
+      properties:
+        scanId:
+          type: string
+          format: uuid4
+          description: Scan ID
+        assetId:
+          type: string
+          description: Discovery asset identifier (same as path parameter)
+        assetName:
+          type: string
+          description: Human-readable asset name from the risks service
+        assetUrl:
+          type: string
+          description: Resolved URL for the asset when available
+        totalRisks:
+          type: integer
+          description: Total number of risks matching the applied filters (before pagination)
+        currentPage:
+          type: integer
+          description: The current 1-based page number
+        lastPage:
+          type: integer
+          description: The last available page number given the current limit
+        riskCountBySeverity:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Risk count keyed by severity label computed over the filtered set
+          examples:
+            - HIGH: 2
+              CRITICAL: 1
+        risks:
+          type: array
+          description: The page of risk items matching the applied filters
+          items:
+            $ref: "#/components/schemas/RiskItem"
+    RiskItem:
+      type: object
+      properties:
+        riskId:
+          type: string
+          description: Stable identifier for the risk finding
+        name:
+          type: string
+        severity:
+          type: string
+          description: Severity label (e.g. HIGH, MEDIUM, LOW, CRITICAL)
+        description:
+          type: string
+        locations:
+          type: array
+          description: All file locations where this risk was detected
+          items:
+            $ref: "#/components/schemas/RiskLocation"
+        remediation:
+          type: string
+    RiskLocation:
+      type: object
+      properties:
+        filePath:
+          type: string
+          description: Path of the file where the risk was found
+        details:
+          $ref: "#/components/schemas/RiskDetails"
+    RiskDetails:
+      type: object
+      properties:
+        line:
+          type: integer
+          description: Line number where the risk was detected
+        sink:
+          type: string
+        source:
+          type: string
+        snippet:
+          type: string
+        extra:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional key-value context from the risk engine
+  responses:
+    "401":
+      description: "Unauthorized, Access token is missing or invalid"
+    "403":
+      description: "Forbidden"
+    "500":
+      description: "Internal server error"
+    "404":
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+    "400":
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/Error"
+  parameters:
+    ProvidersParam:
+      name: providers
+      in: query
+      description: Comma-separated list of providers to filter by
+      required: false
+      schema:
+        type: string
+        examples:
+          - "openai,gemini,anthropic"
+    AssetNamesParam:
+      name: asset-names
+      in: query
+      description: Comma-separated list of asset names to filter by
+      required: false
+      schema:
+        type: string
+        examples:
+          - "gpt-4,claude-3"
+    AssetTypeIdsParam:
+      name: asset-type-ids
+      in: query
+      description: Comma-separated list of asset type IDs to filter by
+      required: false
+      schema:
+        $ref: "#/components/schemas/AssetTypeId"
+    SearchParam:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+    LimitParam:
+      name: limit
+      in: query
+      description: limit the number of results
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    OffsetParam:
+      name: offset
+      in: query
+      description: 1-based page number (page 1 returns the first limit results, page 2 the next, etc.)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    ScanIdParam:
+      name: scanId
+      in: path
+      description: Scan ID
+      required: true
+      schema:
+        type: string
+        format: uuid4
+    AssetIdPathParam:
+      name: assetId
+      in: path
+      description: >
+        Discovery asset_id for the asset within the scan (must match asset_id stored with LLM risks). URL-encode reserved characters if present (e.g. %2F for a slash).
+
+      required: true
+      schema:
+        type: string
+    AssetRisksSeveritiesParam:
+      name: severities
+      in: query
+      required: false
+      description: >
+        Comma-separated severity labels to include (case-insensitive). Risks whose severity is not in this list are excluded.
+
+      schema:
+        type: string
+        examples:
+          - "CRITICAL,HIGH"
+    AssetRisksNamesParam:
+      name: names
+      in: query
+      required: false
+      description: >
+        Comma-separated exact risk names to include (case-insensitive).
+
+      schema:
+        type: string
+        examples:
+          - "SQL Injection,Path Traversal"
+    AssetRisksRiskIdsParam:
+      name: riskIds
+      in: query
+      required: false
+      description: Comma-separated risk IDs to include.
+      schema:
+        type: string
+        examples:
+          - "r1,r2,r3"
+    AssetRisksFilePathParam:
+      name: filePath
+      in: query
+      required: false
+      description: >
+        Substring match applied to the file path of any risk location. Risks with no matching location are excluded.
+
+      schema:
+        type: string
+        examples:
+          - "src/auth"
+    AssetRisksOrderColumnParam:
+      name: orderColumn
+      in: query
+      description: Column to sort results by.
+      required: false
+      schema:
+        type: string
+        enum:
+          - name
+          - severity
+          - riskId
+        examples:
+          - "severity"
+    AssetRisksOrderDirectionParam:
+      name: orderDirection
+      in: query
+      description: Sort direction.
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        examples:
+          - "desc"
+    ResultIdParam:
+      name: resultId
+      in: path
+      description: Result ID
+      required: true
+      schema:
+        type: string
+        format: uuid4
+    ResultsGroupByParam:
+      name: groupBy
+      in: query
+      description: >
+        Comma-separated list of fields to group by (1 to 3 fields, no duplicates). Supported values: assetType, assetName, provider. Example: groupBy=assetType,provider
+
+      required: true
+      schema:
+        type: string
+        examples:
+          - "assetType,provider"
+        enum:
+          - assetType
+          - assetName
+          - provider
+          - assetType,provider
+          - assetType,assetName
+          - provider,assetType
+          - provider,assetName
+          - assetName,provider
+          - assetName,assetType
+          - assetType,assetName,provider
+          - assetType,provider,assetName
+          - provider,assetType,assetName
+          - provider,assetName,assetType
+          - assetName,provider,assetType
+          - assetName,assetType,provider
+    ScanResultsOrderColumnParam:
+      name: orderColumn
+      in: query
+      description: Column to sort by
+      required: false
+      schema:
+        type: string
+        enum:
+          - assetType
+          - assetName
+          - provider
+          - version
+          - firstDetectionDateTime
+          - state
+        default: assetName
+    ScanResultsOrderDirectionParam:
+      name: orderDirection
+      in: query
+      description: Sort direction
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+          - ASC
+          - DESC
+        default: desc
+    VersionParam:
+      name: version
+      in: query
+      description: Filter results by version
+      required: false
+      schema:
+        type: string
+    FirstDetectionDateTimeParam:
+      name: firstDetectionDateTime
+      in: query
+      description: Filter results by detection time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    StateParam:
+      name: state
+      in: query
+      description: "Filter results by state<br> Note (TBD): Must be an exact match, case insensitive."
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    PathParam:
+      name: path
+      in: query
+      description: Filter results by file location
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/ai-sc/reader
+security:
+  - Login: []

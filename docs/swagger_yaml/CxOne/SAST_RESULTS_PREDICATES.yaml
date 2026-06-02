@@ -41,23 +41,6 @@ paths:
             type: string
           required: false
           description: ID of the scan this predicate is submitted for (optional).
-        - in: query
-          name: offset
-          schema:
-            type: integer
-            minimum: 0
-            default: "0"
-          required: false
-          description: The number of results to skip before returning results set.
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 100
-          required: false
-          description: The maximum number of results to return
       responses:
         '200':
           description: successful operation
@@ -241,6 +224,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/WebError'
   '/':
+    get:
+      tags:
+        - predicates
+      summary: get all predicates by attack vector ID
+      description: >
+        get all predicates for attack vector ID
+
+      operationId: getPredicatesByAttackVectorID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: attack-vector-id
+          schema:
+            type: string
+          required: true
+          description: ID of the Attack vector to get
+        - in: query
+          name: similarity-id
+          schema:
+            type: string
+          required: false
+          description: filter by similarity ID identifier
+        - in: query
+          name: project-ids
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+          description: filter by project-ids. OR operator between the items. if not set will return all projects.
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+          required: false
+          description: ID of the scan this predicate is submitted for (optional).
+        - in: query
+          name: include-comment-json
+          schema:
+            type: boolean
+          required: false
+          description: if true, will include the comment's JSON data in the response.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predicateHistoryPerProject:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PredicateHistoryWithAttackVector'
+                  totalCount:
+                    type: integer
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '404':
+          description: No predicates found for the given criteria.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
     post:
       tags:
         - predicates
@@ -408,6 +479,98 @@ paths:
                     type: string
                   data:
                     type: object
+  '/predicates-status':
+    post:
+      tags:
+        - predicates
+      summary: Get predicates update status
+      description: >
+        Checks if update predicates is currently running for a given scan ID and similar results IDs. The similar results IDs can be either similarity IDs or attack vector IDs depending on the tenant configuration.
+
+      operationId: getPredicatesStatus
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - scanID
+                - similarResultsIDs
+              properties:
+                scanID:
+                  type: string
+                  description: Scan ID to check
+                  example: "scan-id-1"
+                similarResultsIDs:
+                  type: array
+                  items:
+                    type: string
+                  description: List of similarity IDs or attack vector IDs to check (max 200)
+                  example: ["similar-result-id-1", "similar-result-id-2"]
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isUpdatePredicatesRunning:
+                    type: boolean
+                    description: Indicates if update predicates is currently running
+                    example: false
+                  groupingMode:
+                    type: string
+                    description: The grouping mode used (either "Similarity ID" or "Attack Vector ID")
+                    example: "Similarity ID"
+                    enum:
+                      - "Similarity ID"
+                      - "Attack Vector ID"
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '403':
+          description: Forbidden - Missing permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '404':
+          description: Scan not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '503':
+          description: Service temporarily unavailable - Redis is down or unreachable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 5003
+                message: "Service temporarily unavailable - unable to check update status"
+                data: null
   '/recalculateSummaryCounters':
     post:
       tags:
@@ -459,6 +622,192 @@ paths:
                     type: string
                   data:
                     type: object
+  '/attack-vector':
+    post:
+      tags:
+        - predicates
+      summary: Create predicates by attack vector ID with bulk updates
+      description: >
+        Creates new predicate entries for SAST results by attack vector ID.  Supports bulk updates across all similarity groups or filtered updates for a specific similarity group.
+
+      operationId: createPredicatesByAttackVector
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    required:
+                      - attackVectorId
+                      - projectId
+                    properties:
+                      attackVectorId:
+                        type: string
+                        description: Attack vector identifier - 16-character hexadecimal string representing a 64-bit hash.
+                        pattern: '^[0-9a-fA-F]{16}$'
+                      projectId:
+                        type: string
+                        format: uuid
+                        description: Project UUID
+                      scanId:
+                        type: string
+                        format: uuid
+                        description: ID of the scan
+                      state:
+                        $ref: '#/components/schemas/StateEnum'
+                      severity:
+                        $ref: '#/components/schemas/SeverityEnum'
+                      comment:
+                        type: string
+                        maxLength: 1024
+                        description: Comment explaining the change
+                      filterBySimilarityId:
+                        type: string
+                        description: Filter to specific similarity group
+                      allowInconsistentStates:
+                        type: boolean
+                        default: false
+                        description: Allow updates even when similarity groups have different states.
+                  example:
+                    - attackVectorId: "5f4d3c2b1a0e9f8d"
+                      projectId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      scanId: "7b12a8f3-4c5d-4e7f-8a9b-1c2d3e4f5a6b"
+                      state: "TO_VERIFY"
+                      severity: "HIGH"
+                      comment: "Security review required"
+                      filterBySimilarityId: "similarity-123"
+                      allowInconsistentStates: false
+                - type: array
+                  items:
+                    type: object
+                    required:
+                      - attackVectorId
+                      - projectId
+                    properties:
+                      attackVectorId:
+                        type: string
+                        description: Attack vector identifier - 16-character hexadecimal string representing a 64-bit hash.
+                        pattern: '^[0-9a-fA-F]{16}$'
+                      projectId:
+                        type: string
+                        format: uuid
+                        description: Project UUID
+                      scanId:
+                        type: string
+                        format: uuid
+                        description: ID of the scan this predicate is submitted for
+                      severity:
+                        $ref: '#/components/schemas/SeverityEnum'
+                      comment:
+                        type: string
+                        maxLength: 1024
+                        description: Comment explaining the change (max length 1024 characters)
+                      customStateId:
+                        type: integer
+                        description: ID of the custom state (relevant only if custom state feature flag is on)
+                        default: 100
+                      filterBySimilarityId:
+                        type: string
+                        description: Filter to specific similarity group
+                      allowInconsistentStates:
+                        type: boolean
+                        default: false
+                        description: Allow updates even when similarity groups have different states
+                  example:
+                    - attackVectorId: "5f4d3c2b1a0e9f8d"
+                      projectId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      scanId: "7b12a8f3-4c5d-4e7f-8a9b-1c2d3e4f5a6b"
+                      severity: "CRITICAL"
+                      comment: "Security review required"
+                      customStateId: 100
+                      filterBySimilarityId: "similarity-123"
+                      allowInconsistentStates: false
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '201':
+          description: >
+            Predicates processed successfully. Returns empty JSON object.
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        '400':
+          description: >
+            Bad Request - Empty array, invalid array format, missing required fields,  invalid state/severity values, or no update fields provided.
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              examples:
+                emptyArray:
+                  summary: Empty array or invalid format
+                  value:
+                    code: 4000
+                    message: "Request body must be a non-empty array"
+                    data: null
+                invalidRequest:
+                  summary: Invalid request body
+                  value:
+                    code: 4004
+                    message: "Invalid request: missing required fields or invalid values"
+                    data: null
+        '403':
+          description: Forbidden - Missing permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '404':
+          description: Not Found - Attack vector ID does not exist or no results found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 5011
+                message: "Attack vector ID not found or no results available"
+                data: null
+        '405':
+          description: Method Not Allowed - Feature flag SAST_ADVANCED_GROUPING_ENABLED is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 4002
+                message: "Feature flag SAST_ADVANCED_GROUPING_ENABLED is disabled"
+                data: null
+        '409':
+          description: >
+            Conflict - Inconsistent states detected (bulk update with state provided without override). Only returned for single attack vector requests.
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 4091
+                message: "Inconsistent states detected across similarity groups. Set allowInconsistentStates=true to override"
+                data: null
+        '500':
+          description: Internal Server Error - Database operation failed or internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
   '/{similarityID}/{projectID}/{predicateID}':
     delete:
       tags:
@@ -545,6 +894,27 @@ components:
         projectId:
           type: string
           description: ID of the related project ID.
+        predicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredicateWithCommentJSON'
+        totalCount:
+          type: integer
+        initialPredicateValues:
+          $ref: '#/components/schemas/InitialPredicateValues'
+    PredicateHistoryWithAttackVector:
+      type: object
+      description: Predicate history with attack vector ID (only for attack vector queries)
+      properties:
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        attackVectorId:
+          type: string
+          description: ID of the related attack vector (16-character hexadecimal).
         predicates:
           type: array
           items:

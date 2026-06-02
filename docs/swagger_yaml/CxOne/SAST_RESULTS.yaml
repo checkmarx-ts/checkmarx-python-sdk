@@ -68,6 +68,12 @@ paths:
           required: false
           description: "Filter results by the vulnerability group<br> Note: Can be a substring of the group name."
         - in: query
+          name: group-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified group value.
+        - in: query
           name: compliance
           schema:
             type: string
@@ -115,7 +121,13 @@ paths:
           schema:
             type: string
           required: false
-          description: "Filter results by query<br> Note: Must be an exact match."
+          description: "Filter results by query name<br> Note: Can be a substring of the query name."
+        - in: query
+          name: query-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified query value.
         - in: query
           name: language
           schema:
@@ -152,6 +164,18 @@ paths:
             $ref: "#/components/schemas/OperationIntEnum"
           required: false
           description: The operator that you would like to apply to the specified similarity id value.
+        - in: query
+          name: attack-vector-id
+          schema:
+            type: string
+          required: false
+          description: Filter results by attack vector id.
+        - in: query
+          name: attack-vector-id-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified attack vector id value.
         - in: query
           name: source-file
           schema:
@@ -464,6 +488,13 @@ paths:
             default: "+severity,-queryname"
           required: false
           description: Sort results by the specified parameter. Enter '-/+' for descending/ascending order, followed by the parameter.
+        - in: query
+          name: include-additional-columns
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: "Include additional columns in the response (e.g., attack-vector-id) . When true, additional columns will be included for results."
       responses:
         "200":
           description: Successful operation
@@ -480,6 +511,80 @@ paths:
                     type: integer
         "400":
           description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+  "/similar-results":
+    post:
+      tags:
+        - SAST Scan Results
+      summary: Get similar results for result hashes
+      description: Retrieves similar results information for given result hashes to support advanced grouping functionality. The project ID is automatically derived from the provided scan ID to ensure consistency and proper authorization.
+      operationId: getSimilarResults
+      parameters:
+        - $ref: "#/components/parameters/authHeader"
+        - $ref: "#/components/parameters/versionHeader"
+        - $ref: "#/components/parameters/correlationIdHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - scanId
+                - resultsHash
+              properties:
+                scanId:
+                  type: string
+                  description: ID of the scan to get similar results for
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+                resultsHash:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of result hashes to get similar results for
+                  example: ["hash1", "hash2", "hash3"]
+      responses:
+        "200":
+          description: Successfully retrieved similar results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarResultsResponse"
+        "400":
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "401":
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "403":
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "404":
+          description: Scan not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "405":
+          description: Advanced grouping feature is not enabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebError"
+        "500":
+          description: Internal server error.
           content:
             application/json:
               schema:
@@ -507,6 +612,7 @@ components:
     VisibleColumnsEnum:
       type: string
       enum:
+        - attack-vector-id
         - BFL
         - bfl-group-size
         - bfl-name
@@ -579,6 +685,9 @@ components:
         similarityID:
           type: integer
           description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
+        attackVectorID:
+          type: string
+          description: The attack vector identifier associated with this result
         uniqueID:
           type: integer
           deprecated: true
@@ -650,6 +759,10 @@ components:
         similarityID:
           type: integer
           description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
+        attackVectorID:
+          type: string
+          nullable: true
+          description: The attack vector identifier associated with this result
         uniqueID:
           type: integer
           deprecated: true
@@ -798,6 +911,50 @@ components:
         codeChangeDetails:
           type: string
           description: Specific details regarding the code change/s
+    SimilarResultsResponse:
+      type: object
+      description: Response containing similar results information for the requested result hashes
+      properties:
+        similarResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarResultObject"
+          description: Array of similar result objects
+        totalCounts:
+          type: integer
+          description: Total number of similar results returned (count - 1 to exclude the input result itself)
+          example: 1
+        groupingMode:
+          type: string
+          description: The grouping mode used for the results
+          enum:
+            - "Similarity ID"
+            - "Attack Vector ID"
+          example: "similarity id"
+    SimilarResultObject:
+      type: object
+      description: Similar result information for a specific result hash
+      properties:
+        id:
+          type: string
+          description: The similar result identifier
+          example: "abc123def456"
+        resultHash:
+          type: string
+          description: The result hash this similar result corresponds to
+          example: "hash1"
+        similarResultsCount:
+          type: integer
+          description: Count of similar results in this group
+          example: 5
+        isStateInconsistent:
+          type: boolean
+          description: Indicates if there are inconsistent states within the group
+          example: false
+        isSeverityInconsistent:
+          type: boolean
+          description: Indicates if there are inconsistent severities within the group
+          example: false
   parameters:
     authHeader:
       in: header

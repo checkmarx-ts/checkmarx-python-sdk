@@ -146,6 +146,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WebError'
+  '/insights_details':
+    get:
+      tags:
+        - Contributors
+      summary: get contributor insights details for current tenant
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: type
+          required: false
+          description: Filter insights by type
+          schema:
+            type: string
+            enum:
+              - SCM
+              - DeveloperAssist
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContributorsInsights'
+        '400':
+          description: Invalid request supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
 components:
   schemas:
     Contributors:
@@ -180,6 +222,35 @@ components:
         unfamiliarProjects:
           type: integer
           description: Number of projects scanned in the last 90 days where contributors couldn't be counted.
+    ContributorsInsights:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Number of contributors in all scanned projects.
+        max:
+          type: integer
+          description: Maximum number of contributors in any single project.
+        type:
+          type: string
+          enum:
+            - SCM
+            - DeveloperAssist
+        insights:
+          type: array
+          items:
+            $ref: '#/components/schemas/Insights'
+    Insights:
+      type: object
+      properties:
+        sourceName:
+          type: string
+          example: "GitHub"
+        contributorCount:
+          type: integer
+        projectCount:
+          type: integer
+          optional: true
   parameters:
     authHeader:
       in: header
@@ -205,6 +276,25 @@ components:
         type: string
         example: "*/*; version=1.0"
         pattern: .*version\s*=\s*([\d|.]+)
+  responses:
+    BadRequest:
+      description: Bad request (invalid payload).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WebError'
+    Unauthorized:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WebError'
+    Forbidden:
+      description: Forbidden (missing required role).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WebError'
   securitySchemes:
     Login:
       type: oauth2

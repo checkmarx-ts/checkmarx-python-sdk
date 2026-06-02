@@ -1,4 +1,4 @@
-openapi: 3.0.2
+openapi: 3.1.0
 info:
   description: AST risk management
   title: Risk management API
@@ -41,10 +41,12 @@ paths:
         - $ref: '#/components/parameters/sort'
         - $ref: '#/components/parameters/type'
         - $ref: '#/components/parameters/vulnerabilityName'
+        - $ref: '#/components/parameters/project-criticality'
         - $ref: '#/components/parameters/runtime'
         - $ref: '#/components/parameters/origin'
         - $ref: '#/components/parameters/riskScore'
         - $ref: '#/components/parameters/createdAt'
+        - $ref: '#/components/parameters/additionalTrait'
         - $ref: '#/components/parameters/offset'
         - $ref: '#/components/parameters/limit'
       responses:
@@ -62,6 +64,108 @@ paths:
           $ref: '#/components/responses/403'
         '500':
           $ref: '#/components/responses/500'
+  "/result/{id}":
+    get:
+      description: Get Score Card information
+      tags:
+        - Results
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - in: path
+          name: id
+          required: true
+          description: ID of the vulnerability result
+          schema:
+            type: string
+            format: uuid
+            example: "12345678-abcd-1234-abcd-abcd12345678"
+      responses:
+        '200':
+          description: "Result Score Card"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SastScoreCard'
+                  - $ref: '#/components/schemas/ScaScoreCard'
+                  - $ref: '#/components/schemas/KicsScoreCard'
+                  - $ref: '#/components/schemas/ByorScoreCard'
+                discriminator:
+                  propertyName: type
+                  mapping:
+                    SastScoreCard: '#/components/schemas/SastScoreCard'
+                    ScaScoreCard: '#/components/schemas/ScaScoreCard'
+                    KicsScoreCard: '#/components/schemas/KicsScoreCard'
+                    ByorScoreCard: '#/components/schemas/ByorScoreCard'
+              examples:
+                SastScoreCardExample:
+                  summary: Example response for SastScoreCard
+                  value:
+                    engine: "sast"
+                    data:
+                      confidentiality: 3
+                      integrity: 3
+                      availability: 1
+                      affected_scope: 1
+                      required_privileges: 3
+                      difficulty_of_attack: 3
+                      correlation: false
+                      is_public: false
+                      runtime: false
+                ScaScoreCardExample:
+                  summary: Example response for ScaScoreCard
+                  value:
+                    engine: "sca"
+                    data:
+                      cvss_v2: 7.5
+                      cvss_v3: 8.5
+                      cvss_v4: 9.5
+                      confidentiality: "high"
+                      integrity: "high"
+                      availability: "high"
+                      kev: true
+                      fixed: true
+                      vulnerable_path: "vulnerable/path"
+                      attack_vector: "network"
+                      attack_complexity: "low"
+                      privileges_required: "none"
+                      user_interaction: "none"
+                      scope: "changed"
+                      exploit_db: true
+                      epss: 0.1
+                      epss_percentile: 0.7
+                      is_public: true
+                      runtime: true
+                      published_since: 360
+                      no_cve: "cve"
+                      direct_dependency: "direct"
+                      modified_cvss: 8
+                      exploitable_path: true
+                      vulnerable_package_occurrences: 52
+                KicsScoreCardExample:
+                  summary: Example response for KicsScoreCard
+                  value:
+                    engine: "kics"
+                    data:
+                      severity: "critical"
+                ByorScoreCardExample:
+                  summary: Example response for ByorScoreCard
+                  value:
+                    engine: "byor"
+                    data:
+                      severity: "critical"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
   "/{applicationId}/results/{id}":
     put:
       description: Update result
@@ -95,6 +199,37 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/updateAssignees":
+    put:
+      description: Update assignees for multiple results
+      tags:
+        - Results
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/updateAssignees"
+      responses:
+        '200':
+          description: "Assignees updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateAssigneesResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
         '500':
           $ref: '#/components/responses/500'
 components:
@@ -164,32 +299,64 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         name:
           type: string
         hash:
-          type: string
-        type:
-          type: string
-        risk:
-          $ref: '#/components/schemas/risk'
-        createdAt:
-          type: string
-          nullable: true
-        projects:
-          type: array
-          items:
-            $ref: '#/components/schemas/project'
-        state:
-          $ref: '#/components/schemas/state'
-        scanId:
           type: string
         engine:
           type: string
           enum:
             - sast
             - sca
+            - kics
+            - byor
+        type:
+          type: string
+          enum:
+            - vulnerability
+            - license
+            - iac
+            - secret
+            - sca_supply
+            - sca_dependency
+        risk:
+          $ref: '#/components/schemas/risk'
+        createdAt:
+          type: string
+          format: date-time
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/project'
+        state:
+          type: string
+          enum:
+            - new
+            - processing
+            - analyzed
+        scanId:
+          type: string
         metadata:
           type: object
+          additionalProperties:
+            type: string
+        additionalTrait:
+          type: string
+          enum:
+            - exploitable_path
+            - suspected_malware
+            - neither
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/userInfo'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/groupInfo'
+        author:
+          type: string
     resultUpdate:
       type: object
       properties:
@@ -225,6 +392,7 @@ components:
             - risk-score
             - created-at
             - vulnerability-name
+            - additional-trait
         direction:
           type: string
           enum:
@@ -242,6 +410,7 @@ components:
             - origin
             - risk-score
             - created-at
+            - additional-trait
         value:
           type: string
     state:
@@ -250,6 +419,220 @@ components:
         - new
         - processing
         - analyzed
+    SastScoreCard:
+      type: object
+      properties:
+        engine:
+          type: string
+        data:
+          type: object
+          properties:
+            confidentiality:
+              type: integer
+            integrity:
+              type: integer
+            availability:
+              type: integer
+            affected_scope:
+              type: integer
+            required_privileges:
+              type: integer
+            difficulty_of_attack:
+              type: integer
+            correlation:
+              type: boolean
+            is_public:
+              type: boolean
+            runtime:
+              type: boolean
+    ScaScoreCard:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          type: object
+          properties:
+            cvss_v2:
+              type: number
+            cvss_v3:
+              type: number
+            cvss_v4:
+              type: number
+            confidentiality:
+              type: string
+            integrity:
+              type: string
+            availability:
+              type: string
+            kev:
+              type: boolean
+            fixed:
+              type: boolean
+            vulnerable_path:
+              type: string
+            attack_vector:
+              type: string
+            attack_complexity:
+              type: string
+            privileges_required:
+              type: string
+            user_interaction:
+              type: string
+            scope:
+              type: string
+            exploit_db:
+              type: boolean
+            epss:
+              type: number
+            epss_percentile:
+              type: number
+            is_public:
+              type: boolean
+            runtime:
+              type: boolean
+            published_since:
+              type: integer
+            no_cve:
+              type: string
+            direct_dependency:
+              type: string
+            modified_cvss:
+              type: number
+            exploitable_path:
+              type: boolean
+            vulnerable_package_occurrences:
+              type: integer
+    KicsScoreCard:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          type: object
+          properties:
+            severity:
+              type: string
+              enum:
+                - critical
+                - high
+                - medium
+                - low
+                - none
+    ByorScoreCard:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          type: object
+          properties:
+            severity:
+              type: string
+              enum:
+                - critical
+                - high
+                - medium
+                - low
+                - none
+    userInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    groupInfo:
+      type: object
+      properties:
+        groupId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    updateAssignees:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            required:
+              - resultId
+              - applicationId
+            properties:
+              resultId:
+                type: string
+                format: uuid
+                description: "ID of the vulnerability result"
+              applicationId:
+                type: string
+                format: uuid
+                description: "ID of the application"
+              usersToAdd:
+                type: array
+                items:
+                  type: string
+                description: "List of user IDs to add"
+              usersToRemove:
+                type: array
+                items:
+                  type: string
+                description: "List of user IDs to remove"
+              groupsToAdd:
+                type: array
+                items:
+                  type: string
+                description: "List of group IDs to add"
+              groupsToRemove:
+                type: array
+                items:
+                  type: string
+                description: "List of group IDs to remove"
+    updateAssigneesResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            type: object
+            properties:
+              resultId:
+                type: string
+                format: uuid
+                description: "ID of the vulnerability result"
+              success:
+                type: boolean
+                description: "Whether the update was successful"
+              errorMessage:
+                type: string
+                description: "Error message if the update failed"
+              userErrors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/entityError'
+                description: "List of user-related errors"
+              groupErrors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/entityError'
+                description: "List of group-related errors"
+    entityError:
+      type: object
+      properties:
+        entityId:
+          type: string
+          description: "ID of the user or group"
+        errorMessage:
+          type: string
+          description: "Error message"
+        actionType:
+          type: string
+          enum: ["ADD", "REMOVE"]
+          description: "Type of action that failed"
   responses:
     '400':
       description: "Bad Request"
@@ -257,6 +640,9 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
+            default:
+              code: 400
+              message: ""
     '401':
       description: "Unauthorized, Access token is missing or invalid"
     '403':
@@ -267,12 +653,27 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
+            default:
+              code: 404
+              message: ""
     '500':
       description: "Internal error"
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
+            default:
+              code: 500
+              message: ""
+    '503':
+      description: "Service not available"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+            default:
+              code: 503
+              message: ""
   parameters:
     authHeader:
       in: header
@@ -343,6 +744,18 @@ components:
       description: |
         Multiple values allowed, separated by comma.
       example: [SQL_Injection, CVE-2014-4172]
+    project-criticality:
+      in: query
+      name: project-criticality
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: |
+        Multiple values allowed, separated by comma.
+      example: [critical, none]
     runtime:
       in: query
       name: runtime
@@ -365,6 +778,22 @@ components:
             - type: number
       example: [10-20, 5]
       description: "Shows results only from the selected range of days.\nMultiple values allowed, separated by comma.\nValues can be exact number of days or range of days.\nUse the following pattern where n is an integer in a range of 0<=n<=MaxInt : \n'n': exact number of days.\n'n-n': range of days.\n'-n': from n days ago until now.\n'n-': from n days ago and before.\nExample: created-at=5,10-20,30-,-2.\nSummary: results from exactly 5 days ago, results from 10 to 20 days ago, results from 30 days ago and above, results from 2 days ago until now.\n"
+    additionalTrait:
+      in: query
+      name: additional-trait
+      required: false
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - exploitable_path
+            - suspected_malware
+            - neither
+      description: |
+        Multiple values allowed, separated by comma.
+      example: [exploitable_path, suspected_malware]
     origin:
       in: query
       name: origin
@@ -397,7 +826,7 @@ components:
       schema:
         type: string
       example: -risk-score
-      description: "Options: vulnerability-name, type, created-at, risk-score. \nOptional prefix `+` sorts ascending.  \nPrefix `-` sorts descending.  \nAllows only one sort field.\nIf empty, defaults to sort=-risk-score.\n"
+      description: "Options: vulnerability-name, type, created-at, risk-score, additional-trait. \nOptional prefix `+` sorts ascending.  \nPrefix `-` sorts descending.  \nAllows only one sort field.\nIf empty, defaults to sort=-risk-score.\n"
     search:
       in: query
       name: search

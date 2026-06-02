@@ -86,6 +86,15 @@ paths:
               type: string
           explode: false
           description: Application tags, filter by the values in the tags map (OR operation between the items)
+        - in: query
+          name: application-ids
+          schema:
+            type: array
+            items:
+              type: string
+            maxItems: 200
+          explode: false
+          description: Application ids, Only exact matches are returned. (OR operator is used for multiple IDs.) Maximum 200 IDs allowed.
       responses:
         '200':
           description: OK
@@ -167,6 +176,40 @@ paths:
             schema:
               type: object
               $ref: '#/components/schemas/applicationInput'
+            encoding:
+              Applications:
+                contentType: application/json
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the updated Application
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    patch:
+      tags:
+        - Applications
+      summary: Update an application fields
+      description: "Change or add application details by re-submitting only those fields you wish to edit.\nThe request body can include one or all of the fields documented below in the Body section.\n\nIMPORTANT  \nThe values you set for tags will not replace existing tags, but rather append new tags in addition to the existing ones.\nIn order to delete existing tags, use the Update an application endpoint.\n"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              type: object
+              $ref: '#/components/schemas/applicationFieldsInput'
             encoding:
               Applications:
                 contentType: application/json
@@ -388,6 +431,11 @@ components:
         description:
           type: string
           description: "A description of the application"
+        type:
+          type: string
+          enum: ["internal", "business"]
+          default: "business"
+          description: The type of application
         criticality:
           type: integer
           minimum: 1
@@ -407,6 +455,34 @@ components:
           additionalProperties:
             type: string
           description: Application tags
+    applicationFieldsInput:
+      properties:
+        name:
+          type: string
+          description: The application name
+        description:
+          type: string
+          description: "A description of the application"
+        type:
+          type: string
+          enum: ["internal", "business"]
+          default: "business"
+          description: The type of application
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the application
+        tags:
+          type: object
+          example:
+            "test": ""
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Application tags
     createdApplication:
       properties:
         id:
@@ -418,6 +494,11 @@ components:
         description:
           type: string
           description: "A description of the application"
+        type:
+          type: string
+          enum: ["internal", "business"]
+          default: "business"
+          description: The type of application
         criticality:
           type: integer
           minimum: 1
@@ -454,6 +535,11 @@ components:
         description:
           type: string
           description: A description of the application
+        type:
+          type: string
+          enum: ["internal", "business"]
+          default: "business"
+          description: The type of application
         criticality:
           type: integer
           minimum: 1

@@ -333,12 +333,9 @@ components:
         scannedAt: scannedAt
         scanId: scanId
         name: 2ms
-        partial: true
       properties:
         name:
           $ref: '#/components/schemas/Engine'
-        partial:
-          type: boolean
         scanId:
           type: string
         scannedAt:
@@ -377,7 +374,6 @@ components:
     EngineResult:
       example:
         severity: critical
-        commitUrl: commitUrl
         lineContent: lineContent
         similarityId: similarityId
         path: path
@@ -389,15 +385,10 @@ components:
         validity: Valid
         lineNumber: 0
         ruleId: ruleId
-        isInSource: true
         status: New
       properties:
-        commitUrl:
-          type: string
         id:
           type: string
-        isInSource:
-          type: boolean
         lineContent:
           type: string
         lineNumber:
@@ -427,7 +418,6 @@ components:
       example:
         entries:
           - severity: critical
-            commitUrl: commitUrl
             lineContent: lineContent
             similarityId: similarityId
             path: path
@@ -439,10 +429,8 @@ components:
             validity: Valid
             lineNumber: 0
             ruleId: ruleId
-            isInSource: true
             status: New
           - severity: critical
-            commitUrl: commitUrl
             lineContent: lineContent
             similarityId: similarityId
             path: path
@@ -454,7 +442,6 @@ components:
             validity: Valid
             lineNumber: 0
             ruleId: ruleId
-            isInSource: true
             status: New
         totalCount: 6
       properties:
@@ -468,7 +455,6 @@ components:
     Group:
       example:
         metadata:
-          severity: critical
           ruleName: ruleName
           ruleDescription: ruleDescription
         count: 0
@@ -485,13 +471,11 @@ components:
       example:
         entries:
           - metadata:
-              severity: critical
               ruleName: ruleName
               ruleDescription: ruleDescription
             count: 0
             columnValue: columnValue
           - metadata:
-              severity: critical
               ruleName: ruleName
               ruleDescription: ruleDescription
             count: 0
@@ -634,11 +618,9 @@ components:
           - scannedAt: scannedAt
             scanId: scanId
             name: 2ms
-            partial: true
           - scannedAt: scannedAt
             scanId: scanId
             name: 2ms
-            partial: true
         lastScanMetadata:
           scannedAt: scannedAt
           id: id
@@ -682,11 +664,9 @@ components:
               - scannedAt: scannedAt
                 scanId: scanId
                 name: 2ms
-                partial: true
               - scannedAt: scannedAt
                 scanId: scanId
                 name: 2ms
-                partial: true
             lastScanMetadata:
               scannedAt: scannedAt
               id: id
@@ -703,11 +683,9 @@ components:
               - scannedAt: scannedAt
                 scanId: scanId
                 name: 2ms
-                partial: true
               - scannedAt: scannedAt
                 scanId: scanId
                 name: 2ms
-                partial: true
             lastScanMetadata:
               scannedAt: scannedAt
               id: id
@@ -737,7 +715,6 @@ components:
         - Fixed
     RuleInfo:
       example:
-        severity: critical
         ruleName: ruleName
         ruleDescription: ruleDescription
       properties:
@@ -745,8 +722,6 @@ components:
           type: string
         ruleName:
           type: string
-        severity:
-          $ref: '#/components/schemas/Severity'
       type: object
     ScanInfo:
       example:

@@ -77,6 +77,12 @@ paths:
           required: false
           description: The operator that you would like to apply to the specified similarity id value.
         - in: query
+          name: attack-vector-id
+          schema:
+            type: string
+          required: false
+          description: Filter results by attack vector id (exact match only).
+        - in: query
           name: source-file
           schema:
             type: string
@@ -209,6 +215,18 @@ paths:
             $ref: "#/components/schemas/OperationIntEnum"
           required: false
           description: The operator that you would like to apply to the specified sconfidence-score value.
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: "Filter results by query name<br> Note: Can be a substring of the query name."
+        - in: query
+          name: query-operation
+          schema:
+            $ref: "#/components/schemas/OperationEnum"
+          required: false
+          description: The operator that you would like to apply to the specified query value.
         - in: query
           name: query-ids
           schema:

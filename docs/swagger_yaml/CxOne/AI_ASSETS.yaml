@@ -1,0 +1,599 @@
+openapi: 3.1.0
+info:
+  description: "AI Supply Results Service REST API"
+  title: "AI Supply Results Service"
+  version: 1.0.0
+paths:
+  "/findings":
+    get:
+      tags:
+        - Findings
+      summary: Get a list of all findings for a specific tenant
+      operationId: GetFindings
+      parameters:
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/projectIdsParam"
+        - $ref: "#/components/parameters/assetNamesParam"
+        - $ref: "#/components/parameters/providersParam"
+        - $ref: "#/components/parameters/searchParam"
+        - $ref: "#/components/parameters/assetTypeIdsParam"
+        - $ref: "#/components/parameters/applicationIdsParam"
+        - $ref: "#/components/parameters/orderColumnParam"
+        - $ref: "#/components/parameters/orderDirectionParam"
+        - $ref: "#/components/parameters/includeEvidenceParam"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/paginatedFindingsListResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/findings/aggregate":
+    get:
+      tags:
+        - Findings
+      summary: Aggregate findings groups by specified fields
+      operationId: AggregateFindingGroups
+      parameters:
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/projectIdsParam"
+        - $ref: "#/components/parameters/assetNamesParam"
+        - $ref: "#/components/parameters/providersParam"
+        - $ref: "#/components/parameters/searchParam"
+        - $ref: "#/components/parameters/assetTypeIdsParam"
+        - $ref: "#/components/parameters/applicationIdsParam"
+        - $ref: "#/components/parameters/groupByParam"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/groupsAggregation'
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/finding/{id}":
+    get:
+      tags:
+        - Findings
+      summary: Get a specific finding by id
+      operationId: GetFindingByID
+      parameters:
+        - $ref: "#/components/parameters/findingIdParam"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/findingWithEvidences"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/asset-types":
+    get:
+      tags:
+        - Asset Types
+      summary: Get a list of all asset types
+      operationId: GetAssetTypes
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/asset_type"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/assets":
+    get:
+      tags:
+        - Assets
+      summary: Get a list of all assets for a specific tenant
+      operationId: GetAssets
+      parameters:
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/paginatedAssetsListResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+  "/applications":
+    get:
+      tags:
+        - Applications
+      summary: Get a list of all applications for a specific tenant
+      operationId: GetApplications
+      parameters:
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/paginatedApplicationsListResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+components:
+  schemas:
+    paginatedFindingsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/finding"
+          description: list of returned objects
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: currentPage
+    paginatedAssetsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/asset"
+          description: list of returned objects
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: lastPage
+    paginatedApplicationsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/application"
+          description: list of returned objects
+        total:
+          type: integer
+          description: total
+        currentPage:
+          type: integer
+          description: currentPage
+        lastPage:
+          type: integer
+          description: lastPage
+    finding:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for a finding
+        asset_id:
+          type: string
+          format: uuid4
+          description: The asset id that identifies the type of the finding
+        project_id:
+          type: string
+          format: uuid4
+          description: The project id where the finding was found
+        tenant_id:
+          type: string
+          format: uuid4
+          description: The tenant id where the finding belongs to
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        asset:
+          $ref: '#/components/schemas/asset'
+        project:
+          $ref: '#/components/schemas/project'
+    findingWithEvidences:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for a finding
+        asset_id:
+          type: string
+          format: uuid4
+          description: The asset id that identifies the type of the finding
+        project_id:
+          type: string
+          format: uuid4
+          description: The project id where the finding was found
+        tenant_id:
+          type: string
+          format: uuid4
+          description: The tenant id where the finding belongs to
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        asset:
+          $ref: '#/components/schemas/asset'
+        project:
+          $ref: '#/components/schemas/project'
+        evidences:
+          type: array
+          items:
+            $ref: "#/components/schemas/evidence"
+          description: list of evidences
+    evidence:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the evidence
+        evidence_path:
+          type: string
+          description: The evidence path
+        evidence_line_start:
+          type: integer
+          description: The evidence line start
+        evidence_line_end:
+          type: integer
+          description: The evidence line end
+        evidence_column_start:
+          type: integer
+          description: The evidence column start
+        evidence_column_end:
+          type: integer
+          description: The evidence column end
+        evidence_type:
+          type: string
+          description: The type of the evidence
+        finding_id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the finding id where the evidence relates to
+        created_at:
+          type: string
+          format: date-time
+    asset:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the asset
+        asset_identifier:
+          type: string
+          description: The asset identifier
+        asset_name:
+          type: string
+          description: The asset name
+        asset_type_id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the asset type
+        asset_url:
+          type: string
+          description: The asset url
+        provider:
+          type: string
+          description: The asset provider
+        license:
+          type: string
+          description: The asset license
+        license_url:
+          type: string
+          description: The asset license url
+        created_at:
+          type: string
+          format: date-time
+        asset_type:
+          $ref: '#/components/schemas/asset_type'
+    asset_type:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the asset type
+        match_format:
+          type: string
+          description: The asset type match format
+        display_format:
+          type: string
+          description: The asset type display format
+        created_at:
+          type: string
+          format: date-time
+    project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the project
+        name:
+          type: string
+          description: The project name
+        scan_id:
+          type: string
+          format: uuid4
+          description: The scan id associated with the project
+        scan_date:
+          type: string
+          format: date-time
+          description: The date of the scan associated with the project
+        tenant_id:
+          type: string
+          format: uuid4
+          description: The tenant id where the project belongs to
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        applications:
+          type: array
+          items:
+            $ref: "#/components/schemas/application"
+          description: list of applications associated with the project
+    application:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          description: A unique identifier for the application
+        name:
+          type: string
+          description: The application name
+        tenant_id:
+          type: string
+          format: uuid4
+          description: The tenant id where the application belongs to
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+    groupsAggregation:
+      type: object
+      properties:
+        groupsCounter:
+          type: array
+          items:
+            type: object
+            properties:
+              assetType:
+                type: string
+                description: The asset type.
+                enum:
+                  - model
+                  - sdk
+                  - framework
+              assetTypeName:
+                type: string
+                description: The asset type display name.
+              assetTypeId:
+                type: string
+                format: uuid4
+                description: The asset type ID.
+              projectName:
+                type: string
+                description: The project name.
+                example: My AI Project
+              projectId:
+                type: string
+                format: uuid4
+                description: The project ID.
+              applicationName:
+                type: string
+                description: The application name.
+                example: AI App
+              applicationId:
+                type: string
+                format: uuid4
+                description: The application ID.
+              count:
+                type: integer
+                description: The count for the field value.
+          description: An array of field counters.
+  responses:
+    "401":
+      description: "Unauthorized, Access token is missing or invalid"
+    "403":
+      description: "Forbidden"
+    "500":
+      description: "Internal server error"
+    "404":
+      description: Not Found
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/error"
+    "400":
+      description: Bad Request
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: "#/components/schemas/error"
+  parameters:
+    projectIdsParam:
+      name: project-ids
+      in: query
+      description: Comma-separated list of project IDs to filter by
+      required: false
+      schema:
+        type: string
+        example: "123e4567-e89b-12d3-a456-426614174000,223e4567-e89b-12d3-a456-426614174001"
+    providersParam:
+      name: providers
+      in: query
+      description: Comma-separated list of providers to filter by
+      required: false
+      schema:
+        type: string
+        example: "openai,huggingface"
+    assetNamesParam:
+      name: asset-names
+      in: query
+      description: Comma-separated list of asset names to filter by
+      required: false
+      schema:
+        type: string
+        example: "gpt-4,claude-3"
+    assetTypeIdsParam:
+      name: asset-type-ids
+      in: query
+      description: Comma-separated list of asset type IDs to filter by
+      required: false
+      schema:
+        type: string
+        example: "123e4567-e89b-12d3-a456-426614174000,223e4567-e89b-12d3-a456-426614174001"
+    searchParam:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      in: query
+      description: limit the number of results
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    offsetParam:
+      name: offset
+      in: query
+      description: offset the results
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    findingIdParam:
+      name: id
+      in: path
+      description: Finding ID
+      required: true
+      schema:
+        type: string
+        format: uuid4
+    applicationIdsParam:
+      name: application-ids
+      in: query
+      description: Comma-separated list of application IDs to filter by
+      required: false
+      schema:
+        type: string
+        example: "123e4567-e89b-12d3-a456-426614174000,223e4567-e89b-12d3-a456-426614174001"
+    groupByParam:
+      name: group-by
+      in: query
+      description: Fields to group by (e.g., assetType, projectName, applicationName)
+      required: true
+      schema:
+        type: string
+        enum:
+          - assetType
+          - projectName
+          - applicationName
+    orderColumnParam:
+      name: order-column
+      in: query
+      description: Column to sort by
+      required: false
+      schema:
+        type: string
+        enum:
+          - created-at
+          - updated-at
+          - scan-date
+          - project-name
+          - asset-name
+        default: created-at
+    orderDirectionParam:
+      name: order-direction
+      in: query
+      description: Sort direction
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+          - ASC
+          - DESC
+        default: desc
+    includeEvidenceParam:
+      name: include-evidences
+      in: query
+      description: Whether to include evidence details in the response (true/false)
+      required: false
+      schema:
+        type: boolean
+        default: false
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/ai-sc
+security:
+  - Login: []

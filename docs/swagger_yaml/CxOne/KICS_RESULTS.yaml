@@ -44,6 +44,18 @@ paths:
           required: false
           description: Filter by source file name
         - in: query
+          name: result-id
+          schema:
+            type: string
+          required: false
+          description: Filter by result ID (the ID field in the response).
+        - in: query
+          name: similarity-id
+          schema:
+            type: string
+          required: false
+          description: Filter by similarity ID (the similarityID field in the response).
+        - in: query
           name: apply-predicates
           schema:
             type: boolean
@@ -111,7 +123,7 @@ components:
           type: string
           description: ID of the result
         similarityID:
-          type: integer
+          type: string
           description: A value assigned to a specific vulnerability instance in your scan, based on the first and last nodes.<br>This enables CxAST to track that particular instance in future scans.
         severity:
           $ref: '#/components/schemas/SeverityEnum'
@@ -148,49 +160,58 @@ components:
         queryUrl:
           type: string
           format: uri
-          description: The name of the query/vulnerability
+          description: The query url
         fileName:
           type: string
-          description: Query group name
+          description: Query file name
         line:
           type: integer
-          description: Query group name
+          description: Vulnerability Line
         platform:
           type: string
-          description: Query group name
+          description: Platform name
         issueType:
           type: string
-          description: Query group name
+          description: KICS Issue Type
         searchKey:
           type: string
-          description: Query group name
+          description: Search Key to find the vulnerability
         searchValue:
           type: integer
-          description: Query group name
+          description: Search Value to make the vulnerability unique
         expectedValue:
           type: string
-          description: Query group name
+          description: Results Expected Value
         actualValue:
           type: string
-          description: Query group name
+          description: Results Actual Value
         value:
           type: string
-          description: Query group name
+          description: Value for the vulnerability
         description:
           type: string
-          description: Query group name
+          description: Query description
         comments:
           type: string
-          description: Query group name
+          description: Comments
         category:
           type: string
-          description: Query group name
+          description: Query Category
         resourceName:
           type: string
           description: Resource name
         resourceType:
           type: string
           description: Resource type
+        cwe:
+          type: string
+          description: Common Weakness Enumeration
+        riskScore:
+          type: string
+          description: Risk Score Value
+        cloudProvider:
+          type: string
+          description: Cloud Provider Value
     ResultNode:
       type: object
       properties:

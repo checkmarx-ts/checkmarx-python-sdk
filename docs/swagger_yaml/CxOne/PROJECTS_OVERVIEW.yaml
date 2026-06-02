@@ -43,6 +43,14 @@ paths:
             type: array
             items:
               type: string
+        - name: applications
+          in: query
+          required: false
+          description: a list of application names to filter projects
+          schema:
+            type: array
+            items:
+              type: string
         - name: tag-keys
           in: query
           required: false
@@ -83,7 +91,7 @@ paths:
         - name: to-date
           in: query
           required: false
-          description: the start date to filter projects
+          description: the end date to filter projects
           schema:
             $ref: '#/components/schemas/datetime'
         - name: is-deployed
@@ -98,6 +106,12 @@ paths:
           description: whether the project is publicly exposed in runtime or not
           schema:
             type: boolean
+        - name: search
+          in: query
+          required: false
+          description: Search for a string that is a partial match (sub-string) for the project name attribute.
+          schema:
+            type: string
         - name: sort
           in: query
           description: A comma-separated list of sort criteria. Each criterion is formatted as '+field,-field2' or '-field,+field2' where 'field' and 'filed2 are the names of the fields to sort by and '+' or '-' specifies descending or ascending order.
@@ -108,7 +122,7 @@ paths:
             uniqueItems: true
             items:
               type: string
-              enum: [name, scan-origin, last-scan-date, source-type, risk-level, is-public]
+              enum: [name, scan-origin, last-scan-date, source-type, risk-level, is-public, applications]
             default: +last_scanned_at
       responses:
         '200':
@@ -177,6 +191,14 @@ paths:
           in: query
           required: false
           description: a list of group ids to filter projects
+          schema:
+            type: array
+            items:
+              type: string
+        - name: applications
+          in: query
+          required: false
+          description: a list of application names to filter projects
           schema:
             type: array
             items:
@@ -302,12 +324,25 @@ components:
         importedProjName:
           type: string
           description: The imported project name
+        projectOrigin:
+          type: string
+          description: The SCM for which this project was created, e.g., GitHub, GitLab, etc. For manual projects no value is returned.
         totalCounters:
           $ref: '#/components/schemas/TotalCounters'
         enginesData:
           type: array
           items:
             $ref: '#/components/schemas/EngineData'
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        isDeployed:
+          type: boolean
+          description: Whether the project is deployed in runtime or not.
+        isPublic:
+          type: boolean
+          description: Whether the project is publicly exposed in runtime or not.
     TotalCounters:
       type: object
       properties:
@@ -340,6 +375,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SeverityCounters'
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Application ID
+        name:
+          type: string
+          description: Application name
     offset:
       name: offset
       in: query
@@ -361,7 +405,7 @@ components:
       type: string
       description: RFC3339 formatted datetime or a unix timestamp in seconds
       format: date-time
-      example: "2006-01-02T15:04:05Z07:00"
+      example: "2006-01-02T15:04:05Z"
     error:
       type: object
       properties:

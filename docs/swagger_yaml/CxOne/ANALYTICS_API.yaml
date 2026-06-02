@@ -1,0 +1,690 @@
+openapi: 3.0.3
+info:
+  title: Analytics
+  version: v1.0.0
+paths:
+  /analyticsAPI/v1:
+    post:
+      tags:
+        - analytics-api-controller
+      summary: Query kpi
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+      operationId: query
+      requestBody:
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/AnalyticsKpiQuery'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SeverityDistribution"
+                  - $ref: "#/components/schemas/StateDistribution"
+                  - $ref: "#/components/schemas/StatusDistribution"
+                  - $ref: "#/components/schemas/SeverityAndStateDistribution"
+                  - $ref: "#/components/schemas/SeverityOvertimeDistribution"
+                  - $ref: "#/components/schemas/FixedVulnerabilitiesBySeverityDistribution"
+                  - $ref: "#/components/schemas/MeanTimeToResolutionDistribution"
+                  - $ref: "#/components/schemas/MostCommonVulnerabilitiesDistribution"
+                  - $ref: "#/components/schemas/AgingVulnerabilitiesDistribution"
+                  - $ref: "#/components/schemas/AllVulnerabilities"
+                  - $ref: "#/components/schemas/AgingAndSeveritiesResponse"
+                  - $ref: "#/components/schemas/IDEDataResponse"
+                  - $ref: "#/components/schemas/IDEDistributionResponse"
+                discriminator:
+                  propertyName: kpi
+                  mapping:
+                    vulnerabilitiesBySeverityTotal: "#/components/schemas/SeverityDistribution"
+                    vulnerabilitiesByStateTotal: "#/components/schemas/StateDistribution"
+                    vulnerabilitiesByStatusTotal: "#/components/schemas/StatusDistribution"
+                    vulnerabilitiesBySeverityAndStateTotal: "#/components/schemas/SeverityAndStateDistribution"
+                    vulnerabilitiesBySeverityOvertime: "#/components/schemas/SeverityOvertimeDistribution"
+                    fixedVulnerabilitiesBySeverityOvertime: "#/components/schemas/FixedVulnerabilitiesBySeverityDistribution"
+                    meanTimeToResolution: "#/components/schemas/MeanTimeToResolutionDistribution"
+                    mostCommonVulnerabilities: "#/components/schemas/MostCommonVulnerabilitiesDistribution"
+                    mostAgingVulnerabilities: "#/components/schemas/AgingVulnerabilitiesDistribution"
+                    allVulnerabilities: "#/components/schemas/AllVulnerabilities"
+                    agingTotal: "#/components/schemas/AgingAndSeveritiesResponse"
+                    ideTotal: "#/components/schemas/IDEDataResponse"
+                    ideOvertime: "#/components/schemas/IDEDistributionResponse"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+components:
+  schemas:
+    AnalyticsKpiQuery:
+      oneOf:
+        - $ref: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+        - $ref: "#/components/schemas/AnalyticsKpiQueryWithFixedKpis"
+      discriminator:
+        propertyName: kpi
+        mapping:
+          fixedVulnerabilitiesBySeverityOvertime: "#/components/schemas/AnalyticsKpiQueryWithFixedKpis"
+          meanTimeToResolution: "#/components/schemas/AnalyticsKpiQueryWithFixedKpis"
+          vulnerabilitiesBySeverityTotal: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          vulnerabilitiesByStateTotal: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          vulnerabilitiesByStatusTotal: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          vulnerabilitiesBySeverityAndStateTotal: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          vulnerabilitiesBySeverityOvertime: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          mostCommonVulnerabilities: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          mostAgingVulnerabilities: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          allVulnerabilities: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          agingTotal: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          ideTotal: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+          ideOvertime: "#/components/schemas/AnalyticsKpiQueryWithStatus"
+      example:
+        projects: ["string", "string"]
+        applications: ["string", "string"]
+        environments: ["string"]
+        scanners: ["sast"]
+        applicationTags: ["string"]
+        projectTags: ["string"]
+        scanTags: ["string"]
+        states: ["toVerify"]
+        status: ["NEW"]
+        severities: ["critical"]
+        branchNames: ["master", "dev"]
+        timezone: "GMT"
+        groupIds: ["f11ed28f-067a-4481-98f5-f2cfc00be0b4", "671a347c-398f-42b6-aba0-1e570be61465"]
+        startDate: "2025-01-01T09:30:00"
+        endDate: "2025-02-14T14:30:00"
+        kpi: vulnerabilitiesBySeverityTotal
+        limit: 50
+        offset: 0
+    AnalyticsKpiQueryBase:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            anyOf:
+              - type: string
+                description: "Project ID"
+              - type: string
+                description: "Project Name"
+        applications:
+          type: array
+          items:
+            anyOf:
+              - type: string
+                description: "Application ID"
+              - type: string
+                description: "Application Name"
+        environments:
+          type: array
+          items:
+            anyOf:
+              - type: string
+                description: "Environment ID"
+              - type: string
+                description: "Environment Name"
+        scanners:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScannerType"
+        applicationTags:
+          type: array
+          items:
+            type: string
+        projectTags:
+          type: array
+          items:
+            type: string
+        scanTags:
+          type: array
+          items:
+            type: string
+        states:
+          type: array
+          items:
+            $ref: "#/components/schemas/StateType"
+        severities:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeverityType"
+        branchNames:
+          type: array
+          description: "List of strings representing the name of the selected branches"
+          items:
+            type: string
+        timezone:
+          type: string
+          description: "A valid timezone identifier. This will convert the input and output dates to the selected timezone"
+        groupIds:
+          type: array
+          description: "List of UUIDs representing the IDs of the selected groups"
+          items:
+            type: string
+        startDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
+          format: date-time
+          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
+        endDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
+          format: date-time
+          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
+        limit:
+          type: integer
+          description: "Number between 1 and 100 for mostCommonVulnerabilities, mostAgingVulnerabilities KPI types and between 1 and 1000 for allVulnerabilities KPI type. Required for all three KPI types."
+          minimum: 1
+          maximum: 100
+        offset:
+          type: integer
+          description: "Required for allVulnerabilities"
+          minimum: 0
+          maximum: 100000
+    AnalyticsKpiQueryWithStatus:
+      allOf:
+        - $ref: "#/components/schemas/AnalyticsKpiQueryBase"
+        - type: object
+          required: [kpi]
+          properties:
+            kpi:
+              $ref: "#/components/schemas/KpiType"
+            status:
+              type: array
+              items:
+                $ref: "#/components/schemas/StatusType"
+    AnalyticsKpiQueryWithFixedKpis:
+      allOf:
+        - $ref: "#/components/schemas/AnalyticsKpiQueryBase"
+        - type: object
+          required: [kpi]
+          properties:
+            kpi:
+              $ref: "#/components/schemas/KpiTypeFixed"
+    ScannerType:
+      type: string
+      enum:
+        - sast
+        - iac
+        - sca
+        - dast
+        - containers
+    StateType:
+      type: string
+      enum:
+        - toVerify
+        - notExploitable
+        - proposedNotExploitable
+        - confirmed
+        - urgent
+    SeverityType:
+      type: string
+      enum:
+        - critical
+        - high
+        - medium
+        - low
+        - information
+    StatusType:
+      type: string
+      enum:
+        - NEW
+        - RECURRENT
+    KpiType:
+      type: string
+      enum:
+        - vulnerabilitiesBySeverityTotal
+        - vulnerabilitiesBySeverityOvertime
+        - vulnerabilitiesByStateTotal
+        - vulnerabilitiesByStatusTotal
+        - vulnerabilitiesBySeverityAndStateTotal
+        - mostCommonVulnerabilities
+        - mostAgingVulnerabilities
+        - allVulnerabilities
+        - agingTotal
+        - ideTotal
+        - ideOvertime
+    KpiTypeFixed:
+      type: string
+      enum:
+        - fixedVulnerabilitiesBySeverityOvertime
+        - meanTimeToResolution
+    DistributionItem:
+      type: object
+      properties:
+        label:
+          type: string
+        density:
+          type: number
+          format: float
+        percentage:
+          type: number
+          format: float
+        results:
+          type: integer
+    SeverityDistribution:
+      type: object
+      properties:
+        distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionItem"
+        loc:
+          type: integer
+        total:
+          type: integer
+      example:
+        distribution:
+          - label: "Critical"
+            density: 14.43
+            percentage: 8.78
+            results: 60
+          - label: "High"
+            density: 31.51
+            percentage: 19.18
+            results: 131
+          - label: "Medium"
+            density: 45.95
+            percentage: 27.96
+            results: 191
+          - label: "Low"
+            density: 60.14
+            percentage: 36.6
+            results: 250
+          - label: "Information"
+            density: 12.27
+            percentage: 7.47
+            results: 51
+        loc: 4157
+        total: 683
+    StateDistribution:
+      type: object
+      properties:
+        distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionItem"
+        loc:
+          type: integer
+        total:
+          type: integer
+      example:
+        distribution:
+          - label: "To Verify"
+            density: 162.62
+            percentage: 98.98
+            results: 676
+          - label: "Not Exploitable"
+            density: 0.24
+            percentage: 0.15
+            results: 1
+          - label: "Proposed Not Exploitable"
+            density: 0.24
+            percentage: 0.15
+            results: 1
+          - label: "Confirmed"
+            density: 0.48
+            percentage: 0.29
+            results: 2
+          - label: "Urgent"
+            density: 0.72
+            percentage: 0.44
+            results: 3
+        loc: 4157
+        total: 683
+    StatusDistribution:
+      type: object
+      properties:
+        distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionItem"
+        loc:
+          type: integer
+        total:
+          type: integer
+      example:
+        distribution:
+          - label: "New"
+            density: 110.18
+            percentage: 67.06
+            results: 458
+          - label: "Recurrent"
+            density: 54.13
+            percentage: 32.94
+            results: 225
+        loc: 4157
+        total: 683
+    SeverityAndStateDistribution:
+      type: array
+      items:
+        type: object
+        properties:
+          label:
+            type: string
+          results:
+            type: integer
+          severities:
+            type: array
+            items:
+              type: object
+              properties:
+                label:
+                  type: string
+                results:
+                  type: integer
+      example:
+        - label: "To Verify"
+          results: 676
+          severities:
+            - label: "Critical"
+              results: 56
+            - label: "High"
+              results: 131
+            - label: "Medium"
+              results: 189
+            - label: "Low"
+              results: 249
+            - label: "Information"
+              results: 51
+        - label: "Not Exploitable"
+          results: 1
+          severities:
+            - label: "Critical"
+              results: 0
+            - label: "High"
+              results: 0
+            - label: "Medium"
+              results: 1
+            - label: "Low"
+              results: 0
+            - label: "Information"
+              results: 0
+        - label: "Proposed Not Exploitable"
+          results: 1
+          severities:
+            - label: "Critical"
+              results: 0
+            - label: "High"
+              results: 0
+            - label: "Medium"
+              results: 0
+            - label: "Low"
+              results: 1
+            - label: "Information"
+              results: 0
+        - label: "Confirmed"
+          results: 2
+          severities:
+            - label: "Critical"
+              results: 1
+            - label: "High"
+              results: 0
+            - label: "Medium"
+              results: 1
+            - label: "Low"
+              results: 0
+            - label: "Information"
+              results: 0
+        - label: "Urgent"
+          results: 3
+          severities:
+            - label: "Critical"
+              results: 3
+            - label: "High"
+              results: 0
+            - label: "Medium"
+              results: 0
+            - label: "Low"
+              results: 0
+            - label: "Information"
+              results: 0
+        - label: "Totals"
+          results: 683
+          severities:
+            - label: "Critical"
+              results: 60
+            - label: "High"
+              results: 131
+            - label: "Medium"
+              results: 191
+            - label: "Low"
+              results: 250
+            - label: "Information"
+              results: 51
+    TimeSeriesValue:
+      type: object
+      properties:
+        time:
+          type: integer
+          format: int64
+        value:
+          type: integer
+        date:
+          type: string
+          format: date-time
+    SeverityOvertimeItem:
+      type: object
+      properties:
+        label:
+          type: string
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimeSeriesValue"
+    SeverityOvertimeDistribution:
+      type: array
+      items:
+        $ref: "#/components/schemas/SeverityOvertimeItem"
+    FixedVulnerabilitiesBySeverityDistribution:
+      type: array
+      items:
+        $ref: "#/components/schemas/SeverityOvertimeItem"
+    MeanTimeToResolutionDistribution:
+      type: object
+      properties:
+        meanTimeData:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              results:
+                type: integer
+              meanTime:
+                type: integer
+                description: "meantime that took to fix the results (in days)"
+        meanTimeStateData:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              results:
+                type: integer
+              meanTime:
+                type: integer
+                description: "meantime that took to fix the results (in days)"
+        totalResults:
+          type: integer
+    MostCommonVulnerabilitiesItem:
+      type: object
+      properties:
+        vulnerabilityName:
+          type: string
+        total:
+          type: integer
+        severities:
+          type: array
+          items:
+            $ref: "#/components/schemas/VulnerabilitySeverity"
+    VulnerabilitySeverity:
+      type: object
+      properties:
+        label:
+          type: string
+        results:
+          type: integer
+    MostCommonVulnerabilitiesDistribution:
+      type: array
+      items:
+        $ref: "#/components/schemas/MostCommonVulnerabilitiesItem"
+    AgingVulnerabilitiesItem:
+      type: object
+      properties:
+        vulnerabilityName:
+          type: string
+        total:
+          type: integer
+        severities:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              results:
+                type: integer
+    AgingVulnerabilitiesDistribution:
+      type: array
+      items:
+        $ref: "#/components/schemas/AgingVulnerabilitiesItem"
+    AllVulnerabilities:
+      type: object
+      properties:
+        allVulnerabilities:
+          type: object
+          properties:
+            vulnerabilityName:
+              type: string
+            scanner:
+              type: string
+            total:
+              type: integer
+            severities:
+              type: array
+              items:
+                type: object
+                properties:
+                  label:
+                    type: string
+                  results:
+                    type: integer
+        page:
+          type: integer
+          description: "Current page number"
+    AgingAndSeveritiesResponse:
+      type: object
+      properties:
+        agingAndSeverities:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgingSeverityItem'
+    AgingSeverityItem:
+      type: object
+      properties:
+        label:
+          type: string
+          example: "30 Days"
+        results:
+          type: integer
+          example: 1331
+        severities:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeverityResultItem'
+    SeverityResultItem:
+      type: object
+      properties:
+        label:
+          type: string
+          enum:
+            - Critical
+            - High
+            - Medium
+            - Low
+            - Information
+          example: "High"
+        results:
+          type: integer
+          example: 235
+    IDEDataResponse:
+      type: object
+      properties:
+        ideData:
+          type: array
+          items:
+            $ref: '#/components/schemas/IDEDataItem'
+    IDEDataItem:
+      type: object
+      properties:
+        label:
+          type: string
+          example: "JetBrains"
+        scans:
+          type: number
+          format: float
+          example: 335.0
+        developers:
+          type: number
+          format: float
+          example: 4.0
+    IDEDistributionResponse:
+      type: object
+      properties:
+        distribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/IDEDistributionItem'
+    IDEDistributionItem:
+      type: object
+      properties:
+        label:
+          type: string
+          example: "JetBrains"
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/IDEDistributionValue'
+    IDEDistributionValue:
+      type: object
+      properties:
+        time:
+          type: integer
+          format: int64
+          example: 1742688000000
+        scans:
+          type: number
+          format: float
+          nullable: true
+          example: 10.0
+        developers:
+          type: number
+          format: float
+          example: 2.0
+        date:
+          type: string
+          format: date-time
+          example: "2025-03-23 00:00:00"
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/data_analytics
+security:
+  - Login: []

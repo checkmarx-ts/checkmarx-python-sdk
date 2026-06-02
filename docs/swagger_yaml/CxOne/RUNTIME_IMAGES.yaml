@@ -1,0 +1,13 @@
+
+servers:
+  - url: /api/runtime-images
+security:
+  - Login: []
+components:
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}

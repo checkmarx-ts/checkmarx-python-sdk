@@ -131,6 +131,12 @@ paths:
           schema:
             type: string
           description: Project repository url, filtered by the repo url given
+        - in: query
+          name: imported-projects
+          required: false
+          schema:
+            type: boolean
+          description: Whether the project was imported (true/false)
       responses:
         '200':
           description: OK
@@ -178,6 +184,52 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+  /tagsByFilters:
+    get:
+      tags:
+        - Projects
+      summary: Get tags with filtering and pagination
+      description: "Get project tags with advanced filtering capabilities, and pagination support. Returns a paginated response with links and metadata."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search text, filtered by partial match on tag key OR tag value.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/tagsFilterResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          description: Internal server error
   /last-scan:
     get:
       tags:
@@ -413,6 +465,39 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+    patch:
+      tags:
+        - Projects
+      summary: Update a project fields
+      description: "Change or add project details by re-submitting only those fields you wish to edit. \nParameters that you don't submit will remain unchanged. \nThe request body can include one or all of the fields documented below in the Body section.\n\nIMPORTANT  \nIf you submit new values for groups or tags, these will not replace the existing items, \nbut rather append new items in addition to the existing ones. \nHowever, specifically for groups, if you submit an empty array this will delete all existing groups. \nIn order to delete existing tags, use the Update a project endpoint.\n"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/projectUpdateFields'
+            encoding:
+              projects:
+                contentType: application/json
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL to use when retrieving details about the updated project
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
   /app/{id}:
     get:
       tags:
@@ -443,6 +528,286 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+  /schedules:
+    get:
+      tags:
+        - Projects
+      summary: Get scheduled scans with filtering and pagination
+      description: "Get  scheduled scans with advanced filtering capabilities, and pagination support. Returns a paginated response with links and metadata."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: "The number of items to skip before starting to collect the result set."
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: "The number of items to return."
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: "Search text, filtered by partial match on schedule name."
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: "Schedule name, can be filtered by partial name. Mutually exclusive to names and name-regex."
+        - in: query
+          name: active
+          schema:
+            type: boolean
+          description: "Whether the schedule is active or not."
+        - in: query
+          name: frequency
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+          description: "Schedule frequencies. filter by the frequencies given. Searching exact match with an OR operation between them."
+        - in: query
+          name: from-creation-date
+          schema:
+            type: string
+            format: date-time
+          explode: false
+          description: "Filter for the earliest date and time of a created schedule for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: to-creation-date
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the latest date and time of a created schedule for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: from-trigger-date
+          schema:
+            type: string
+            format: date-time
+          explode: false
+          description: "Filter for the earliest date and time of a triggered schedule for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: to-trigger-date
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the latest date and time of a triggered schedule for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: sort
+          schema:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              type: string
+              enum: [-created_at, +created_at, -status, +status, +name, -name, +trigger_time, -trigger_time]
+            default:
+              - +created_at
+              - +status
+            description: "Sort results by the specified parameter. Enter '+/-' for ascending/descending order, followed by the parameter."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/getSchedulesResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  /schedules/{id}:
+    get:
+      tags:
+        - Projects
+      summary: Get scheduling by project ID (resource ID)
+      description: Get scheduler scan by project id
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/getScheduledScanResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    delete:
+      tags:
+        - Projects
+      summary: Delete a scheduled scan for project
+      description: Delete scheduler scan by project id
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    post:
+      tags:
+        - Projects
+      summary: Create scheduled scan for this project
+      description: Create scheduler by project id.
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/createScheduledScanRequest'
+            encoding:
+              projects:
+                contentType: application/json
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/createScheduledScanResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    patch:
+      tags:
+        - Projects
+      summary: Update scheduled scan for this project
+      description: Update scheduled scan settings for a project (only send the parameters that should be updated)
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/pathId'
+      requestBody:
+        required: true
+        content:
+          application/json; version=1.0:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/updateScheduledScanRequest'
+                - type: object
+                  properties:
+                    active:
+                      type: boolean
+            encoding:
+              projects:
+                contentType: application/json
+      responses:
+        '204':
+          description: No Content
+          content:
+            application/json; version=1.0:
+              schema:
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  /reassign/{id}:
+    put:
+      summary: Reassign project to different applications
+      description: Reassign a project from a list of source applications to a list of destination applications.
+      operationId: reassignProject
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the project to be reassigned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                applicationIdsToDisassociate:
+                  type: array
+                  items:
+                    type: string
+                  description: List of source application IDs
+                applicationIdsToAssociate:
+                  type: array
+                  items:
+                    type: string
+                  description: List of destination application IDs
+              required:
+                - applicationIdsToDisassociate
+                - applicationIdsToAssociate
+      responses:
+        '204':
+          description: Project reassigned successfully, no content returned
+        '400':
+          description: Bad request – invalid input or validation failure
+        '403':
+          description: Forbidden – user not authorized to perform this action
+        '404':
+          description: Not found – project or applications not found
+        '500':
+          description: Internal server error
 components:
   schemas:
     project:
@@ -558,7 +923,6 @@ components:
         tags:
           type: object
           example:
-            "test": ""
             "priority": "high"
           additionalProperties:
             type: string
@@ -589,7 +953,6 @@ components:
         tags:
           type: object
           example:
-            "test": ""
             "priority": "high"
           additionalProperties:
             type: string
@@ -601,6 +964,46 @@ components:
           default: 3
           example: 3
           description: Criticality level of the project
+    projectUpdateFields:
+      properties:
+        name:
+          type: string
+          description: "A project name"
+        repoUrl:
+          type: string
+          description: The reprosentive repository URL
+        mainBranch:
+          type: string
+          description: The Git main branch
+        criticality:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          example: 3
+          description: Criticality level of the project\
+        tags:
+          type: object
+          example:
+            "priority": "high"
+          additionalProperties:
+            type: string
+          description: Project tags
+        groups:
+          type: array
+          description: The groups authorized for this project
+          items:
+            type: string
+        scmRepoId:
+          type: string
+          description: The SCM repository identifier
+        repoId:
+          type: integer
+          format: uint64
+          description: The repository identifier
+        privatePackage:
+          type: boolean
+          description: Whether the project is a private package
     projectsCollection:
       properties:
         totalCount:
@@ -650,6 +1053,192 @@ components:
         sourceOrigin:
           type: string
           description: "The scan last origin (e.g. Jenkins, Checkmarx AST, Github action, Github Webhook)"
+    getScheduledScanResponse:
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for a scheduled job."
+        projectID:
+          type: string
+          description: "A unique identifier for the project."
+        name:
+          type: string
+          description: "Scheduled scan's name"
+        start_time:
+          $ref: '#/components/schemas/time'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        frequency:
+          $ref: '#/components/schemas/frequency'
+        days:
+          $ref: '#/components/schemas/days'
+        active:
+          type: boolean
+          description: "is scheduled task active"
+        branch:
+          type: string
+          description: "The scan branch"
+        engines:
+          type: array
+          description: "The scan engines"
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            "priority": "high"
+          description: "scan tags"
+        trigger_time:
+          type: string
+          format: date-time
+    getScheduledScansResponse:
+      allOf:
+        - $ref: '#/components/schemas/getScheduledScanResponse'
+        - type: object
+          properties:
+            project_name:
+              type: string
+              description: "The name of the project"
+    createScheduledScanRequest:
+      required: [start_time, frequency, engines, branch]
+      properties:
+        name:
+          type: string
+          description: "Scheduled scan's name"
+        start_time:
+          $ref: '#/components/schemas/time'
+        frequency:
+          $ref: '#/components/schemas/frequency'
+        days:
+          $ref: '#/components/schemas/days'
+        engines:
+          $ref: '#/components/schemas/engines'
+        branch:
+          type: string
+          description: "Specific git branch"
+        tags:
+          $ref: '#/components/schemas/tags'
+      anyOf:
+        - properties:
+            frequency:
+              type: string
+              enum:
+                - weekly
+            days:
+              required: [days]
+              description: "For weekly scans, 'days' is required."
+          required: [days]
+    createScheduledScanResponse:
+      properties:
+        code:
+          description: "code block"
+          type: string
+        schedule_id:
+          description: "scheduled job id"
+          type: string
+        message:
+          description: "event message"
+          type: string
+    _linksResponse:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+        prev:
+          type: object
+          properties:
+            href:
+              type: string
+        next:
+          type: object
+          properties:
+            href:
+              type: string
+        first:
+          type: object
+          properties:
+            href:
+              type: string
+        last:
+          type: object
+          properties:
+            href:
+              type: string
+    totalCountResponse:
+      type: integer
+      minimum: 0
+      description: "The number of total records."
+    totalFilteredCountResponse:
+      type: integer
+      minimum: 0
+      description: "The number of total records matching the applied filter."
+    getSchedulesResponse:
+      type: array
+      description: "Get a list of scheduled scans"
+      properties:
+        schedules:
+          $ref: '#/components/schemas/getScheduledScansResponse'
+        totalCount:
+          $ref: '#/components/schemas/totalCountResponse'
+        totalFilteredCount:
+          $ref: '#/components/schemas/totalFilteredCountResponse'
+      example:
+        schedules:
+          - id: "abc123"
+            projectID: "proj123"
+            name: "schedule name"
+            start_time: "14:00"
+            created_at: "2021-01-01T00:00:00Z"
+            updated_at: "2021-01-01T00:00:00Z"
+            frequency: "weekly"
+            days: ["Monday"]
+            active: true
+            branch: "main"
+            engines: ["SAST"]
+            tags:
+              "priority": "high"
+            trigger_time: "2021-01-01T14:00:00Z"
+            project_name: "MyProject"
+        totalCount: 1
+        totalFilteredCount: 1
+    updateScheduledScanRequest:
+      properties:
+        name:
+          type: string
+          description: "Scheduled scan's name"
+        start_time:
+          $ref: '#/components/schemas/time'
+        frequency:
+          $ref: '#/components/schemas/frequency'
+        days:
+          $ref: '#/components/schemas/days'
+        engines:
+          $ref: '#/components/schemas/engines'
+        branch:
+          type: string
+          description: "Specific git branch"
+        tags:
+          $ref: '#/components/schemas/tags'
+        new_project_id:
+          type: string
+          description: "New project id that should be associated to this schedule"
+      anyOf:
+        - properties:
+            frequency:
+              type: string
+              enum:
+                - weekly
+            days:
+              required: [days]
+              description: "For weekly scans, 'days' is required."
+          required: [days]
     error:
       properties:
         message:
@@ -658,6 +1247,73 @@ components:
           type: string
         code:
           type: integer
+    time:
+      type: string
+      example: "14:00"
+      pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+      description: "Specifies the time at which the scheduled scan will be triggered. The time must be provided in GMT and follow the 24-hour format (e.g., 14:00 for 2 PM)."
+    frequency:
+      type: string
+      enum:
+        - daily
+        - weekly
+      description: |
+        Specifies the frequency of scan execution.
+        - daily: The scan runs every day of the week (7 days).
+        - weekly: The scan runs on specified days of the week. Use this option to select specific days.
+    days:
+      type: array
+      items:
+        type: string
+        enum:
+          - Monday
+          - Tuesday
+          - Wednesday
+          - Thursday
+          - Friday
+          - Saturday
+          - Sunday
+      description: |
+        Specifies the days of the week for the scan if the frequency is set to "weekly".
+      minItems: 1
+    engines:
+      type: array
+      items:
+        type: string
+        enum:
+          - SCA
+          - SAST
+          - KICS
+      description: |
+        Specifies scan engine type
+      minItems: 1
+    tags:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        "priority": "high"
+      description: |
+        - Add tag to all scans that triggered by specific scheduler
+        - all tags will be replaced on update
+    tagsFilterResponse:
+      properties:
+        _links:
+          $ref: '#/components/schemas/_linksResponse'
+        totalCount:
+          $ref: '#/components/schemas/totalCountResponse'
+        totalFilteredCount:
+          $ref: '#/components/schemas/totalFilteredCountResponse'
+        items:
+          type: object
+          example:
+            "test": [""]
+            "priority": ["high", "low"]
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Project custom tags
   responses:
     '401':
       description: "Unauthorized, Access token is missing or invalid"

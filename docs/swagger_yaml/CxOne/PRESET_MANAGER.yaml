@@ -262,9 +262,14 @@ components:
       in: path
       required: true
       name: id
-      example: 1234
+      description: "Preset identifier. Accepts either an integer (e.g., 1234) for SAST or a UUID string (e.g., '123e4567-e89b-12d3-a456-426614174000') for IaC."
       schema:
-        type: integer
+        oneOf:
+          - type: integer
+            example: 1234
+          - type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
     Scanner:
       in: path
       required: true

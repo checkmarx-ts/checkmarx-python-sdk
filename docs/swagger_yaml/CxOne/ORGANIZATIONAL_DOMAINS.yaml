@@ -1,0 +1,279 @@
+openapi: 3.0.2
+info:
+  title: Organizational Domains  API
+  description: Organizational Domains APIs
+  version: 1.0.0
+paths:
+  '':
+    get:
+      tags:
+        - OrganizationalDomains
+      summary: List organizational domains for a tenant
+      description: |
+        Returns the organizational domains registered for the given tenant.
+        Supports optional search (contains match) and pagination.
+
+        **Authorization:** Requires the role `manage-organizational-domains`.
+      operationId: listOrganizationalDomains
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: search
+          in: query
+          required: false
+          description: Optional search term (case-insensitive contains match). If empty or not provided, no filtering is applied.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: A paginated list of organizational domains.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationalDomainListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+        - OrganizationalDomains
+      summary: Add organizational domains to a tenant
+      description: |
+        Adds one or more domains to a tenant.
+
+        The endpoint supports multiple domains in a single request using a semicolon-separated string
+        (e.g. "a.com;b.com;c.org").
+
+        **Authorization:** Requires the role `manage-organizational-domains`.
+      operationId: addOrganizationalDomains
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddOrganizationalDomainsRequest'
+            examples:
+              single:
+                summary: Single domain
+                value:
+                  domains: "example.com"
+              multiple:
+                summary: Multiple domains separated by semicolon
+                value:
+                  domains: "example.com;sub.example.com;example.org"
+      responses:
+        '200':
+          description: All domains processed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddOrganizationalDomainsResponse'
+        '207':
+          description: All domains processed, but some are invalid domains.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddOrganizationalDomainsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  '/{id}':
+    delete:
+      tags:
+        - OrganizationalDomains
+      summary: Remove an organizational domain from a tenant
+      description: |
+        Removes the specified domain from the tenant's organizational domains.
+
+        **Authorization:** Requires the role `manage-organizational-domains`.
+      operationId: deleteOrganizationalDomain
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: id
+          in: path
+          required: true
+          description: Id of the domain to remove.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Domain successfully removed.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Domain not found for the tenant.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+components:
+  schemas:
+    OrganizationalDomain:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        domain:
+          type: string
+          example: "example.com"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-01-09T10:15:30Z"
+        createdBy:
+          type: string
+          nullable: true
+          example: "user-456"
+      required: [id, tenantId, domain, createdAt]
+    OrganizationalDomainListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationalDomain'
+        total:
+          type: integer
+          example: 3
+      required: [items, total]
+    AddOrganizationalDomainsRequest:
+      type: object
+      properties:
+        domains:
+          type: string
+          description: Semicolon-separated domains string (e.g. "a.com;b.com;c.org").
+          example: "example.com;example.org"
+      required: [domains]
+    AddOrganizationalDomainsResponse:
+      type: object
+      description: |
+        Result of processing the provided domains string.
+        - added: domains successfully added
+        - invalid: domains rejected due to invalid format or other reasons
+      properties:
+        added:
+          type: array
+          items:
+            type: string
+          example: ["example.com", "example.org"]
+        invalid:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidDomain'
+          example: [{"domain": "http://bad.com", "reason": "invalid domain format"}]
+      required: [added, invalid]
+    InvalidDomain:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: domain name string
+        reason:
+          type: string
+          description: reason why is invalid
+      required: [domain, reason]
+    WebError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: integer
+        message:
+          type: string
+        data:
+          type: object
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "correlation id to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+    offset:
+      name: offset
+      in: query
+      required: false
+      description: The request offset (1-based).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        example: 1
+    limit:
+      name: limit
+      in: query
+      required: false
+      description: The number of items per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+        example: 10
+  responses:
+    BadRequest:
+      description: Bad request (invalid payload).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WebError'
+    Unauthorized:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WebError'
+    Forbidden:
+      description: Forbidden (missing required role).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WebError'
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/organizational-domains
+security:
+  - Login: []

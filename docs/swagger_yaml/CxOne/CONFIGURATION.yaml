@@ -343,104 +343,6 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
-  /view-settings/{view-key}:
-    get:
-      tags:
-        - View settings
-      summary: "Get view settings by view key"
-      description: ""
-      parameters:
-        - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
-        - $ref: '#/components/parameters/correlationIdHeader'
-        - name: view-key
-          in: path
-          description: view-key
-          required: true
-          schema:
-            type: string
-            enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json; version=1.0:
-              schema:
-                $ref: '#/components/schemas/viewSettingsOut'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-    delete:
-      tags:
-        - View settings
-      summary: "Delete view settings by view key"
-      description: ""
-      parameters:
-        - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
-        - $ref: '#/components/parameters/correlationIdHeader'
-        - name: view-key
-          in: path
-          description: view-key
-          required: true
-          schema:
-            type: string
-            enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
-      responses:
-        '204':
-          description: "No Content"
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-  /view-settings:
-    post:
-      tags:
-        - View settings
-      summary: "Create view settings"
-      description: ""
-      parameters:
-        - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
-        - $ref: '#/components/parameters/correlationIdHeader'
-      requestBody:
-        description: "The configs for a given view"
-        required: true
-        content:
-          application/json; version=1.0:
-            schema:
-              $ref: '#/components/schemas/viewSettings'
-      responses:
-        '204':
-          description: "No Content"
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-    put:
-      tags:
-        - View settings
-      summary: "Update view settings"
-      description: ""
-      parameters:
-        - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
-        - $ref: '#/components/parameters/correlationIdHeader'
-      requestBody:
-        description: "The configs for a given view"
-        required: true
-        content:
-          application/json; version=1.0:
-            schema:
-              $ref: '#/components/schemas/viewSettings'
-      responses:
-        '204':
-          description: "No Content"
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
 components:
   schemas:
     scanParameter:
@@ -521,28 +423,6 @@ components:
         associatedProjects:
           type: integer
           description: "The number of associated projects"
-    viewSettingsOut:
-      type: object
-      description: "A view settings response"
-      properties:
-        view:
-          type: string
-          enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
-          description: "A view key"
-        config:
-          type: object
-          description: "View settings config"
-    viewSettings:
-      type: object
-      description: "A view settings response"
-      properties:
-        view:
-          description: "A view key"
-          type: string
-          enum: ["view_projects_page", "view_applications_page", "view_sast_results_page", "view_scans_page"]
-        config:
-          type: object
-          description: "View settings config"
     error:
       type: object
       properties:

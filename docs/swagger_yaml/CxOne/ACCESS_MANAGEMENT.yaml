@@ -611,49 +611,6 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
-  /has-batch-access:
-    get:
-      tags:
-        - Access Management
-      summary: Check access to resource for batch of actions
-      description: Check if the current user (as identified by JWT token) has permission to do a particular actions on a particular resource.
-      operationId: hasBatchAccess
-      parameters:
-        - name: resource-id
-          in: query
-          description: The unique identifier of the resource
-          required: true
-          schema:
-            type: string
-        - name: resource-type
-          in: query
-          description: The type of resource. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
-          example: 'project'
-          required: true
-          schema:
-            type: string
-            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global']
-        - name: actions
-          in: query
-          description: The actions for which you are checking if permission is granted. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HasBatchAccess'
-        400:
-          $ref: '#/components/responses/400'
-        404:
-          $ref: '#/components/responses/404'
-        500:
-          $ref: '#/components/responses/500'
   /get-resources:
     get:
       tags:
@@ -1749,14 +1706,6 @@ components:
         accessGranted:
           type: boolean
           description: Access to the resource is granted or not
-    HasBatchAccess:
-      type: object
-      properties:
-        actionAccess:
-          type: array
-          items:
-            type: boolean
-            description: Access to the resource with action is granted or not
     GetResourcesResponse:
       type: object
       properties:

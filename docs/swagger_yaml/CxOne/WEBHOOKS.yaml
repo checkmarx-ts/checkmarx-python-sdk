@@ -49,12 +49,6 @@ paths:
         - $ref: '#/components/parameters/authHeader'
         - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
-        - name: search
-          in: query
-          required: false
-          description: "Search term to filter webhooks by name and url"
-          schema:
-            type: string
         - name: offset
           in: query
           schema:

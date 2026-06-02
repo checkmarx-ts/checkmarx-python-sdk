@@ -8,8 +8,8 @@ paths:
     get:
       tags:
         - predicates
-      summary: get all predicates for similarity id
-      description: get all predicates for similarity id
+      summary: get all predicates for similarity id.
+      description: get all predicates for similarity id.
       operationId: getPredicatesBySimilarityID
       parameters:
         - $ref: '#/components/parameters/authHeader'
@@ -20,7 +20,7 @@ paths:
           schema:
             type: string
           required: true
-          description: ID of the similarity to get
+          description: ID of the similarity to get.
         - in: query
           name: project-ids
           schema:
@@ -29,9 +29,16 @@ paths:
               type: string
           required: false
           description: filter by project-ids. OR operator between the items. if not set will return all projects.
+        - in: query
+          name: scan-id
+          schema:
+            type: string
+            format: uuid
+          required: false
+          description: ID of the scan this predicate is submitted for (optional).
       responses:
         '200':
-          description: successful operation
+          description: Successful operation.
           content:
             application/json:
               schema:
@@ -55,12 +62,67 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WebError'
+  '/{similarityID}/projects/{projectID}':
+    get:
+      tags:
+        - predicates
+      summary: get predicates changes for similarity id and project id.
+      description: get predicates changes showing only what changed between predicates for a specific similarity ID within a project ID.
+      operationId: getPredicatesChangesBySimilarityIDAndProjectID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: path
+          name: similarityID
+          schema:
+            type: string
+          required: true
+          description: ID of the similarity to get.
+        - in: path
+          name: projectID
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: ID of the project to get.
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredicatesChangesResponse'
+        '400':
+          description: Invalid request supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '403':
+          description: Insufficient permissions to view predicates changes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
   '/':
     post:
       tags:
         - predicates
-      summary: predicate Severity and State by Similiarty ID and Project ID
-      description: predicate Severity and State by Similiarty ID and Project ID
+      summary: predicate Severity and State by Similiarty ID and Project ID.
+      description: predicate Severity and State by Similiarty ID and Project ID.
       operationId: PredicateBySimiliartyIdAndProjectId
       parameters:
         - $ref: '#/components/parameters/authHeader'
@@ -70,66 +132,10 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - type: array
-                  items:
-                    type: object
-                    properties:
-                      similarityId:
-                        type: string
-                        description: ID of the related similarity ID.
-                      scanId:
-                        type: string
-                        description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
-                      projectId:
-                        type: string
-                        description: ID of the related project ID.
-                      severity:
-                        $ref: '#/components/schemas/SeverityEnum'
-                      state:
-                        $ref: '#/components/schemas/StateEnum'
-                      comment:
-                        type: string
-                        description: comment that describes why the state has predicated
-                    example:
-                      similarityId: string
-                      scanId: string
-                      projectId: string
-                      severity: CRITICAL
-                      state: TO_VERIFY
-                      comment: string
-                - type: array
-                  items:
-                    type: object
-                    properties:
-                      similarityId:
-                        type: string
-                        description: ID of the related similarity ID.
-                      scanId:
-                        type: string
-                        description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
-                      projectId:
-                        type: string
-                        description: ID of the related project ID.
-                      severity:
-                        $ref: '#/components/schemas/SeverityEnum'
-                      comment:
-                        type: string
-                        description: comment that describes why the state has predicated
-                      customStateId:
-                        type: integer
-                        description: ID of the custom state (relevant only if custom state feature flag is on)
-                        default: 100
-                    example:
-                      similarityId: string
-                      scanId: string
-                      projectId: string
-                      severity: CRITICAL
-                      comment: "string"
-                      customStateId: 100
+              $ref: '#/components/schemas/PredicateRequestBody'
       responses:
         '201':
-          description: successful operation
+          description: Successful operation.
         '401':
           description: Unauthorized.
           content:
@@ -167,6 +173,67 @@ components:
             $ref: '#/components/schemas/Predicate'
         totalCount:
           type: integer
+    PredicatesChangesResponse:
+      type: object
+      properties:
+        projectId:
+          type: string
+          description: ID of the related project ID.
+        similarityId:
+          type: string
+          description: ID of the related similarity ID.
+        latestChanges:
+          $ref: '#/components/schemas/LeanPredicateChangeResponse'
+        predicates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredicateChangeResponse'
+        totalCount:
+          type: integer
+    LeanPredicateChangeResponse:
+      type: object
+      properties:
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+          nullable: true
+        state:
+          $ref: '#/components/schemas/StateEnum'
+          nullable: true
+        stateId:
+          type: integer
+          description: ID of the state.
+          nullable: true
+        comment:
+          type: string
+          description: comment that describe why the state has predicated.
+          nullable: true
+    PredicateChangeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the predicate.
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+          nullable: true
+        state:
+          $ref: '#/components/schemas/StateEnum'
+          nullable: true
+        stateId:
+          type: integer
+          description: ID of the state.
+          nullable: true
+        comment:
+          type: string
+          description: comment that describe why the state has predicated.
+          nullable: true
+        createdBy:
+          type: string
+          description: the user name that created this entry.
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation date of the entry.
     Predicate:
       type: object
       properties:
@@ -195,7 +262,45 @@ components:
         createdAt:
           type: string
           format: date
-          description: Creation date of the entry
+          description: Creation date of the entry.
+    PredicateRequestBody:
+      type: array
+      description: Array of predicate objects. When optional predicates feature flag is enabled, at least one optional field (severity, state, comment, or customStateId) must be provided. Otherwise, the full body is always required.
+      items:
+        type: object
+        required:
+          - similarityId
+          - scanId
+          - projectId
+        properties:
+          similarityId:
+            type: string
+            description: ID of the related similarity ID.
+          scanId:
+            type: string
+            description: ID of the scan this predicate is submitted for (optional, to be used for summary calculation).
+          projectId:
+            type: string
+            description: ID of the related project ID.
+          severity:
+            $ref: '#/components/schemas/SeverityEnum'
+          state:
+            $ref: '#/components/schemas/StateEnum'
+          comment:
+            type: string
+            description: Comment that describes why the state has predicated.
+          customStateId:
+            type: integer
+            description: ID of the custom state (relevant only if custom state feature flag is on). Cannot be used together with state.
+            default: 100
+        example:
+          similarityId: string
+          scanId: string
+          projectId: string
+          severity: CRITICAL
+          state: TO_VERIFY
+          comment: string
+          customStateId: 100
     WebError:
       type: object
       properties:
@@ -208,7 +313,7 @@ components:
           type: object
     StateEnum:
       type: string
-      description: state enum of a result.
+      description: State enum of a result.
       enum:
         - TO_VERIFY
         - NOT_EXPLOITABLE
@@ -217,7 +322,7 @@ components:
         - URGENT
     SeverityEnum:
       type: string
-      description: Severity enum of a result
+      description: Severity enum of a result.
       enum:
         - CRITICAL
         - HIGH
@@ -234,7 +339,7 @@ components:
         format: JWT
     correlationIdHeader:
       in: header
-      name: CorrelationId
+      name: X-Correlation-Id
       required: false
       description: "correlation id to keep track of a flow if many APIs are involved"
       schema:

@@ -67,6 +67,10 @@ components:
           type: string
         loc:
           type: integer
+          description: Lines of code (prioritizes kicsLoc when available, falls back to total LOC from repostore)
+        kicsLoc:
+          type: integer
+          description: KICS-specific IaC lines calculated by the analyzer (0 if not calculated)
         fileCount:
           type: integer
     scanInfoCollection:

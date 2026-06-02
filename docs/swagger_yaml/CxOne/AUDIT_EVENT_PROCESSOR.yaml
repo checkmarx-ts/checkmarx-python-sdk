@@ -1,0 +1,210 @@
+openapi: 3.0.2
+info:
+  description: "CxAST Audit Event Processor service REST API"
+  version: 1.0.0
+  title: "Audit Event Processor"
+paths:
+  /:
+    get:
+      tags:
+        - Audit Event Processor
+      summary: "Get a list of audit events"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: "The number of results to skip before returning results"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 100
+            maximum: 1000
+          description: "The maximum number of results to return"
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the earliest date and time of a event for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          description: "Filter for the latest date and time of a event for which you would like to show results. Time must be entered in RFC3339 Date (Extend) format (e.g. 2021-06-02T12:14:18.028555Z)"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/eventsCollection'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    eventsCollection:
+      type: object
+      description: "A JSON object containing the list of audit events returned by the GET request."
+      properties:
+        filteredTotalCount:
+          type: integer
+          minimum: 0
+          description: "The number of results returned, based on the applied filters."
+        _links:
+          type: object
+          description: "HATEOAS-style pagination links"
+          properties:
+            first:
+              type: object
+              properties:
+                href:
+                  type: string
+                  description: "URL for the first page"
+            last:
+              type: object
+              properties:
+                href:
+                  type: string
+                  description: "URL for the last page"
+            next:
+              type: object
+              properties:
+                href:
+                  type: string
+                  description: "URL for the next page"
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  description: "URL for the current page"
+        events:
+          type: array
+          description: "An array containing the audit events returned, based on the applied filters."
+          items:
+            $ref: '#/components/schemas/auditEvent'
+    auditEvent:
+      type: object
+      properties:
+        eventID:
+          type: string
+          format: uuid
+        eventDate:
+          type: string
+          format: date-time
+        eventType:
+          type: string
+        auditResource:
+          type: string
+        actionType:
+          type: string
+        actionUserId:
+          type: string
+          format: uuid
+        ipAddress:
+          type: string
+          nullable: true
+        tenantID:
+          type: string
+          format: uuid
+        data:
+          description: Arbitrary event payload
+          type: object
+          additionalProperties: true
+      required:
+        - eventID
+        - eventDate
+        - eventType
+        - auditResource
+        - actionType
+        - actionUserId
+        - tenantID
+        - data
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "A message describing the error"
+        type:
+          type: string
+          description: "The type of the error"
+        code:
+          type: integer
+          description: "The error code"
+  responses:
+    '401':
+      description: "Unauthorized, access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+    '404':
+      description: "Not Found"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '400':
+      description: "Bad Request"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+    '500':
+      description: "Internal Server Error"
+      content:
+        application/json; version=1.0:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationIdHeader:
+      in: header
+      name: CorrelationId
+      required: false
+      description: "This ID is used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    versionHeader:
+      in: header
+      name: Accept
+      required: false
+      description: "The API version should be appended to this header"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/audit-events
+security:
+  - Login: []

@@ -6,14 +6,15 @@ info:
 paths:
   "/imports":
     post:
+      tags:
+        - Imports
       parameters:
         - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
       requestBody:
         required: true
         content:
-          application/json; version=1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/importRequest"
             encoding:
@@ -34,20 +35,108 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
-  "/jobs/{id}":
     get:
+      tags:
+        - Imports
+      summary: Get list of imports
+      description: Returns a paginated list of imports
       parameters:
         - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
-        - $ref: "#/components/parameters/idPath"
+        - name: offset
+          in: query
+          required: false
+          description: Pagination offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: limit
+          in: query
+          required: false
+          description: Number of items to return
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+        - name: sort
+          in: query
+          required: false
+          description: list items order (asc or desc)
+          example: +created-at
+          schema:
+            type: string
+            enum: ["+created_at", "-created_at"]
+            default: -created-at
+        - name: from-date
+          in: query
+          required: false
+          description: starting date (YYYY-MM-DD) for the 'date imported' range
+          schema:
+            type: string
+        - name: to-date
+          in: query
+          required: false
+          description: finish date (YYYY-MM-DD) for the 'date imported' range
+          schema:
+            type: string
+        - name: file-type
+          in: query
+          required: false
+          description: import file type
+          schema:
+            $ref: '#/components/schemas/fileType'
+        - name: search
+          in: query
+          required: false
+          description: search by project name
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          description: Import's statuses
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/importStatus'
+        - name: engine
+          in: query
+          required: false
+          description: filter by a result's engine search term
+          schema:
+            type: string
+        - name: import-id
+          in: query
+          required: false
+          description: importID's to be filtered
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: project-id
+          in: query
+          required: false
+          description: projectID's to be filtered
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
       responses:
         '200':
-          description: ""
+          description: A paginated list of imports
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/getJob'
+                $ref: '#/components/schemas/importsPaged'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -56,24 +145,349 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
-    patch:
+  "/imports/{import_id}":
+    delete:
+      tags:
+        - Imports
       parameters:
         - $ref: '#/components/parameters/authHeader'
-        - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
-        - $ref: "#/components/parameters/idPath"
+        - name: import_id
+          in: path
+          required: true
+          description: ID of the import
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: "Import delete successfully"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+  "/imports/{import_id}/results":
+    get:
+      tags:
+        - Results
+      summary: Get results for a specific import
+      description: Returns all results associated with a given import ID
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: import_id
+          in: path
+          required: true
+          description: ID of the import
+          schema:
+            type: string
+            format: uuid
+        - name: result-id
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result IDs
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: state
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's state
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resultState'
+        - name: status
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's statuses
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resultStatus'
+        - name: severity
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's severities
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/severity'
+        - name: days-open
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for one or more day's ranges on days-open
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 0-30
+                - 31-60
+                - 61-90
+                - 90-
+        - name: search
+          in: query
+          required: false
+          description: Optional search term to filter results by vulnerability name
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: sort by one of result's fields, +<field>(ascending) or -<field>(descending) - e.g. sort=+name (vulnerability name)
+          schema:
+            type: string
+            enum: [-severity, +severity, -name, +name, -status, +status, -days-open, +days-open]
+      responses:
+        '200':
+          description: Import results successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resultsPaged'
+  "/imports/summaries":
+    get:
+      tags:
+        - Summaries
+      summary: Get summaries for imports
+      description: Returns summaries for the specified import IDs
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: import-ids
+          in: query
+          required: true
+          description: Comma-separated list of import IDs to get summaries for
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000,550e8400-e29b-41d4-a716-446655440001"
+        - name: severity
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's severities
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/severity'
+        - name: state
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's state
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resultState'
+        - name: status
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's statuses
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resultStatus'
+      responses:
+        '200':
+          description: Successfully retrieved import summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/importSummariesResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/imports/latest":
+    get:
+      tags:
+        - Imports
+      summary: Last import by project IDs
+      description: Get latest import given a project IDs
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-ids
+          in: query
+          required: true
+          description: projectID's to be filtered
+          style: form
+          explode: false
+        - name: status
+          in: query
+          required: false
+          description: Import's statuses
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/importStatus'
+      responses:
+        '200':
+          description: A object mapping the project-id to the latest import
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/latestImport'
+              example:
+                "5a8591dd-4039-49df-9202-96385ba3eff8":
+                  importId: "84402506-7f34-4409-8ec1-a4e0ffb6b608"
+                  projectId: "5a8591dd-4039-49df-9202-96385ba3eff8"
+                  tenantId: "f97df110-f4de-492e-8849-4a6af68026b0"
+                  createdAt: "2019-08-24T14:15:22Z"
+                  status: "completed"
+                  engines: "CheckMarx,Sneaks"
+                  errors: []
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  "/imports/{import_id}/results/triages":
+    put:
+      tags:
+        - Triages
+      summary: Bulk triage results
+      description: "Make result's triages"
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: import_id
+          in: path
+          required: true
+          description: ID of the import
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
-          application/json; version=1.0:
+          application/json:
             schema:
-              $ref: "#/components/schemas/patchRequest"
+              $ref: "#/components/schemas/bulkTriage"
             encoding:
-              resultUpdate:
+              triageUpdate:
                 contentType: application/json
       responses:
         '204':
-          description: ""
+          description: "Triage updated"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/aggregate":
+    get:
+      tags:
+        - Results
+      summary: Get aggregated results
+      description: Returns aggregated results by a specific field (state, status, or severity)
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: import-id
+          in: query
+          required: true
+          description: ID of the import
+          schema:
+            type: string
+            format: uuid
+        - name: group-by-field
+          in: query
+          required: true
+          description: Field to group results by
+          schema:
+            type: string
+            enum:
+              - state
+              - status
+              - severity
+        - name: state
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's state
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resultState'
+        - name: status
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's statuses
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resultStatus'
+        - name: severity
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: filter for result's severities
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/severity'
+        - name: days-open
+          in: query
+          required: false
+          style: form
+          explode: false
+          description: The amount of days since the result's first time found (Intervals to be filtered)
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["0-30", "31-60", "61-90", "91-"]
+        - name: search
+          in: query
+          required: false
+          description: Optional search term to filter results
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregated results successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aggregateResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -84,6 +498,135 @@ paths:
           $ref: '#/components/responses/404'
 components:
   schemas:
+    importSummariesResponse:
+      type: object
+      properties:
+        importSummaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/importSummary'
+        totalCount:
+          type: integer
+          description: Total number of import summaries returned
+          example: 2
+    importSummary:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        importId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440001"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T12:00:00Z"
+        counters:
+          $ref: '#/components/schemas/summaryCounters'
+    summaryCounters:
+      type: object
+      properties:
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityCounter'
+        statusCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/statusCounter'
+        stateCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/stateCounter'
+        severityStatusCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityStatusCounter'
+        ageCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ageCounter'
+        sourceFileCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/nameCounter'
+        rulesCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/nameCounter'
+        engineCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/nameCounter'
+        totalCounter:
+          type: integer
+          example: 100
+    severityCounter:
+      type: object
+      properties:
+        severity:
+          type: string
+          enum: [Info, Low, Medium, High, Critical]
+        counter:
+          type: integer
+          example: 5
+    statusCounter:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "NEW"
+        counter:
+          type: integer
+          example: 10
+    stateCounter:
+      type: object
+      properties:
+        state:
+          type: string
+          example: "TO_VERIFY"
+        counter:
+          type: integer
+          example: 7
+    severityStatusCounter:
+      type: object
+      properties:
+        severity:
+          type: string
+          example: "MEDIUM"
+        status:
+          type: string
+          example: "NEW"
+        counter:
+          type: integer
+          example: 3
+    ageCounter:
+      type: object
+      properties:
+        age:
+          type: string
+          description: "Days open range"
+          example: "31-60"
+          enum: ["0-30", "31-60", "90-"]
+        counter:
+          type: integer
+          example: 5
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityCounter'
+    nameCounter:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "example.go"
+        counter:
+          type: integer
+          example: 5
     importRequest:
       type: object
       properties:
@@ -99,41 +642,6 @@ components:
         importId:
           type: string
           description: The id of the new import
-    getJob:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: "The id of the import"
-          example: "123e4567-e89b-12d3-a456-426614174000"
-        projectId:
-          type: string
-          format: uuid
-          description: "The id of the project that the import belongs to"
-          example: "40ff967a-7b3c-412f-a0f7-76010cc43f6f"
-        status:
-          type: string
-          enum: [Importing, Done, Import Failed, Canceling, Import Canceled]
-          description: "Current status of the import"
-          readOnly: true
-          example: "Importing"
-        percentage:
-          type: string
-          description: "Current percentage of the import"
-          example: "10"
-        error:
-          type: string
-          description: "Reason for import failure(only shown in case import fails)"
-          example: "file size exceeds limit"
-      required: [id, projectId, status, percentage]
-    patchRequest:
-      type: object
-      properties:
-        status:
-          type: string
-          example: 'Canceled'
-          description: 'Canceled is the only valid input.'
     error:
       type: object
       properties:
@@ -141,10 +649,318 @@ components:
           type: string
         code:
           type: integer
-        details:
+        data:
           type: array
           items:
             type: string
+    resultsPaged:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        totalFilteredCount:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/result'
+        _links:
+          type: object
+          properties:
+            self:
+              type: string
+            next:
+              type: string
+            previous:
+              type: string
+      required:
+        - items
+        - totalCount
+        - totalFilteredCount
+        - _links
+    importsPaged:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        totalFilteredCount:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/import'
+        _links:
+          type: object
+          properties:
+            self:
+              type: string
+            next:
+              type: string
+            previous:
+              type: string
+    latestImport:
+      properties:
+        importId:
+          type: string
+          format: uuid
+          description: Unique identifier of the import
+        projectId:
+          type: string
+          format: uuid
+          description: ID of the project this import belongs to
+        tenantId:
+          type: string
+          format: uuid
+          description: ID of the tenant this import belongs to
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the import was created
+        status:
+          type: string
+          description: Status of the import (e.g., "completed", "failed")
+        engines:
+          type: string
+          description: Comma-separated list of engines used in the import
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of errors that occurred during import, if any
+        hasSummary:
+          type: boolean
+          description: Indicates if this import has a summary associated.
+    resultStatus:
+      type: string
+      enum:
+        - 'NEW'
+        - 'RECURRENT'
+    resultState:
+      type: string
+      example: 'TO_VERIFY'
+      enum:
+        - 'TO_VERIFY'
+        - 'NOT_EXPLOITABLE'
+        - 'PROPOSED_NOT_EXPLOITABLE'
+        - 'CONFIRMED'
+        - 'URGENT'
+    result:
+      type: object
+      properties:
+        id:
+          type: string
+          description: result_id
+          format: uuid
+          example: "40ff967a-7b3c-412f-a0f7-76010cc43f6f"
+        name:
+          type: string
+          example: rule name xyz
+        riskLevel:
+          $ref: '#/components/schemas/riskLevel'
+        status:
+          $ref: '#/components/schemas/resultStatus'
+        state:
+          $ref: '#/components/schemas/resultState'
+        daysOpen:
+          type: number
+          example: 230
+        metadata:
+          $ref: '#/components/schemas/metadata'
+    metadata:
+      type: object
+      properties:
+        fixes:
+          type: array
+          items: {}
+          description: Array of fixes for the vulnerability
+        lineStart:
+          type: integer
+          description: Start line number of the vulnerability
+          example: 217
+        lineEnd:
+          type: integer
+          description: End line number of the vulnerability
+          example: 243
+        remediationText:
+          type: string
+          description: Suggested remediation for the vulnerability
+          example: "Don't use strict equality to determine if an account has enough Ether or tokens."
+        blame:
+          $ref: '#/components/schemas/blame'
+    assignedUser:
+      type: object
+      description: Represents a user assignment
+      properties:
+        userId:
+          type: string
+          description: ID of the assigned user
+          example: "user123"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the user was assigned
+          example: "2023-01-01T00:00:00Z"
+    assignedGroup:
+      type: object
+      description: Represents a group assignment
+      properties:
+        groupId:
+          type: string
+          description: ID of the assigned group
+          example: "group456"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the group was assigned
+          example: "2023-01-01T00:00:00Z"
+    blame:
+      type: object
+      properties:
+        author:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "John Doe"
+            email:
+              type: string
+              example: "john.doe@example.com"
+            isBot:
+              type: boolean
+              example: false
+            isEmailValid:
+              type: boolean
+              example: true
+        commit:
+          type: string
+          example: "8e207f3146ec2c493691e3ef6cb5d04bad045434"
+        commitDateTime:
+          type: string
+          format: date-time
+          example: "2006-01-02T15:04:05+07:00"
+    fileType:
+      type: string
+      enum:
+        - sarif
+    importStatus:
+      type: string
+      enum:
+        - Importing
+        - Done
+        - Import Failed
+        - Canceling
+        - Import Canceled
+    riskLevel:
+      type: string
+      enum: ["CRITICAL", "HIGH", "MEDIUM", "LOW", "NO RISK"]
+      example: CRITICAL
+    import:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectName:
+          type: string
+        engines:
+          type: array
+          items:
+            type: string
+        fileType:
+          $ref: '#/components/schemas/fileType'
+        riskLevel:
+          $ref: '#/components/schemas/riskLevel'
+        severityCounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/severityCounter'
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/importStatus'
+        progress:
+          type: number
+          description: It describes the import progress in percentage
+        importErrors:
+          type: array
+          items:
+            type: string
+        hasSummary:
+          type: boolean
+          description: Indicates if this import has a summary associated.
+      required:
+        - id
+        - projectName
+        - fileType
+    bulkTriage:
+      type: object
+      properties:
+        projectId:
+          description: project-id
+          type: string
+          format: uuid
+        resultIds:
+          description: All results id's to be patched
+          type: array
+          maxItems: 1000
+          items:
+            type: string
+            format: uuid
+          example: ['result_id1', 'result_id2', 'result_id3']
+        state:
+          type: string
+          description: State of the triage (case sensitive)
+          example: 'TO_VERIFY'
+          enum:
+            - TO_VERIFY
+            - NOT_EXPLOITABLE
+            - PROPOSED_NOT_EXPLOITABLE
+            - CONFIRMED
+            - URGENT
+        severity:
+          $ref: '#/components/schemas/severity'
+      required:
+        - projectId
+        - resultIds
+    severity:
+      type: string
+      description: Severity of the triage (case sensitive)
+      example: 'CRITICAL'
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    aggregateResponse:
+      type: object
+      properties:
+        summaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/aggregateSummary'
+        totalCount:
+          type: integer
+          description: Total number of aggregated items
+    aggregateSummary:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of items in this group
+        state:
+          type: string
+          description: The state value if grouping by state
+          enum: [TO_VERIFY, NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE, CONFIRMED, URGENT]
+        status:
+          type: string
+          description: The status value if grouping by status
+          enum: [new, recurrent]
+        severity:
+          type: string
+          description: The severity value if grouping by severity
+          $ref: '#/components/schemas/riskLevel'
   responses:
     '400':
       description: "Bad Request"
@@ -158,6 +974,12 @@ components:
       description: "Forbidden"
     '404':
       description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '409':
+      description: "Conflict"
       content:
         application/json:
           schema:

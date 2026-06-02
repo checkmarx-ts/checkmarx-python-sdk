@@ -106,6 +106,25 @@ paths:
           $ref: '#/components/responses/401'
         '404':
           $ref: '#/components/responses/404'
+  "/default-file-exclusion-config":
+    get:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+      responses:
+        '200':
+          description: "The default file exclusion config"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileExclusionConfig'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
   "/file-exclusion-config":
     patch:
       parameters:
@@ -120,8 +139,12 @@ paths:
               additionalProperties:
                 type: boolean
       responses:
-        '204':
-          description: "The tenant file exclusion config has been updated successfully"
+        '200':
+          description: "The updated tenant file exclusion config"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileExclusionConfig'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -166,8 +189,12 @@ paths:
               additionalProperties:
                 type: boolean
       responses:
-        '204':
-          description: "The project file exclusion config has been updated successfully"
+        '200':
+          description: "The updated project file exclusion config"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileExclusionConfig'
         '400':
           $ref: '#/components/responses/400'
         '401':
