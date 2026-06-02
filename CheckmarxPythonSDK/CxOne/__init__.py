@@ -450,6 +450,10 @@ from .riskManagementAPI import (
     update_result_state,
     update_assignees,
 )
+from .resultsOverviewAPI import (
+    ResultsOverviewAPI,
+    get_projects_overview,
+)
 from .resultsSummaryAPI import (
     ResultsSummaryAPI,
     get_summary_for_many_scans,
