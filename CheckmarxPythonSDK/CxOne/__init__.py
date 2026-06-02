@@ -263,6 +263,12 @@ from .kicsResultsPredicatesAPI import (
     get_predicates_changes,
     create_predicate,
 )
+from .listsAPI import (
+    ListsAPI,
+    get_severities,
+    get_states,
+    get_statuses,
+)
 from .microEnginesAPI import (
     MicroEnginesAPI,
     get_predicates_history,
