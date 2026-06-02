@@ -31,11 +31,13 @@ jobs:
           python-version: "3.12"
 
       - name: Setup Python Build Env
-        run: pip3 install virtualenv
+        run: |
+          pip3 config set global.index-url https://pypi.echohq.com/simple
+          pip3 install virtualenv
 
       - name: Scan with CxOne++ Action
         id: cxscan
-        uses: checkmarx-ts/cxone-plusplus-github-action@9e69646151d1564d227e7979ce9780b422bdf2f4
+        uses: checkmarx-ts/cxone-plusplus-github-action@c922a363fd998c18521cc308eba96e7341ff6018 # v3
         with:
           cx-tenant: ${{ secrets.CXONE_TENANT }}
           cx-client-id: ${{ secrets.CXONE_CLIENT_ID }}
