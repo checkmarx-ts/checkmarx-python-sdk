@@ -288,6 +288,168 @@ class AiAssetsAPI(object):
         )
         return response.json()
 
+    # ---- AI Supply Chain Scan Results (/api/ai-sc/reader) ----
+
+    def get_scan_results(
+        self,
+        scan_id: str,
+        search: str = None,
+        asset_type_ids: str = None,
+        asset_names: str = None,
+        providers: str = None,
+        version: str = None,
+        first_detection_date_time: str = None,
+        state: List[str] = None,
+        path: str = None,
+        limit: int = None,
+        offset: int = 1,
+        order_column: str = None,
+        order_direction: str = None,
+    ) -> dict:
+        """
+        Get AI supply chain results for a specific scan.
+
+        Args:
+            scan_id (str): Scan ID (uuid)
+            search (str): Full-text search
+            asset_type_ids (str): Comma-separated asset type UUIDs
+            asset_names (str): Comma-separated asset names
+            providers (str): Comma-separated providers
+            version (str): Filter by version
+            first_detection_date_time (str): Filter by detection time (date-time)
+            state (List[str]): Filter by state
+            path (str): Filter by file location
+            limit (int): Max results (1-100)
+            offset (int): 1-based page number. Default: 1
+            order_column (str): assetType, assetName, provider, version,
+                firstDetectionDateTime, state. Default: assetName
+            order_direction (str): asc, desc, ASC, DESC. Default: desc
+
+        Returns:
+            dict with data, total, currentPage, lastPage
+        """
+        url = f"{self.base_url}/reader/scans/{scan_id}/results"
+        params = {
+            "search": search,
+            "asset-type-ids": asset_type_ids,
+            "asset-names": asset_names,
+            "providers": providers,
+            "version": version,
+            "firstDetectionDateTime": first_detection_date_time,
+            "state": state,
+            "path": path,
+            "limit": limit,
+            "offset": offset,
+            "orderColumn": order_column,
+            "orderDirection": order_direction,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def aggregate_scan_results(
+        self,
+        scan_id: str,
+        group_by: str,
+        search: str = None,
+        asset_type_ids: str = None,
+        asset_names: str = None,
+        providers: str = None,
+        version: str = None,
+        first_detection_date_time: str = None,
+        state: List[str] = None,
+        path: str = None,
+    ) -> dict:
+        """
+        Aggregate scan results groups by specified fields.
+
+        Args:
+            scan_id (str): Scan ID (uuid)
+            group_by (str): 1-3 comma-separated fields:
+                assetType, assetName, provider
+            search (str): Full-text search
+            asset_type_ids (str): Comma-separated asset type UUIDs
+            asset_names (str): Comma-separated asset names
+            providers (str): Comma-separated providers
+            version (str): Filter by version
+            first_detection_date_time (str): Filter by detection time
+            state (List[str]): Filter by state
+            path (str): Filter by file location
+
+        Returns:
+            dict with scanGroupsCounter
+        """
+        url = f"{self.base_url}/reader/scans/{scan_id}/results/aggregate"
+        params = {
+            "groupBy": group_by,
+            "search": search,
+            "asset-type-ids": asset_type_ids,
+            "asset-names": asset_names,
+            "providers": providers,
+            "version": version,
+            "firstDetectionDateTime": first_detection_date_time,
+            "state": state,
+            "path": path,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
+    def get_asset_risks(
+        self,
+        scan_id: str,
+        asset_id: str,
+        severities: str = None,
+        names: str = None,
+        risk_ids: str = None,
+        file_path: str = None,
+        search: str = None,
+        order_column: str = None,
+        order_direction: str = None,
+        limit: int = None,
+        offset: int = 1,
+    ) -> dict:
+        """
+        Get LLM-assessed risks for a specific asset in a scan.
+
+        Args:
+            scan_id (str): Scan ID (uuid)
+            asset_id (str): Discovery asset ID
+            severities (str): Comma-separated severity labels
+            names (str): Comma-separated risk names (case-insensitive)
+            risk_ids (str): Comma-separated risk IDs
+            file_path (str): Substring match on file paths
+            search (str): Full-text search
+            order_column (str): name, severity, riskId
+            order_direction (str): asc, desc
+            limit (int): Max results (1-100)
+            offset (int): 1-based page number. Default: 1
+
+        Returns:
+            dict with scanId, assetId, assetName, risks, riskCountBySeverity
+        """
+        url = (
+            f"{self.base_url}/reader/scans/{scan_id}"
+            f"/assets/{asset_id}/risks"
+        )
+        params = {
+            "severities": severities,
+            "names": names,
+            "riskIds": risk_ids,
+            "filePath": file_path,
+            "search": search,
+            "orderColumn": order_column,
+            "orderDirection": order_direction,
+            "limit": limit,
+            "offset": offset,
+        }
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
 
 # ---- Module-level convenience functions ----
 
@@ -387,4 +549,70 @@ def aggregate_global_inventory_results(
         group_by=group_by, project_ids=project_ids, asset_names=asset_names,
         providers=providers, search=search, asset_type_ids=asset_type_ids,
         application_ids=application_ids,
+    )
+
+
+def get_scan_results(
+    scan_id: str,
+    search: str = None,
+    asset_type_ids: str = None,
+    asset_names: str = None,
+    providers: str = None,
+    version: str = None,
+    first_detection_date_time: str = None,
+    state: List[str] = None,
+    path: str = None,
+    limit: int = None,
+    offset: int = 1,
+    order_column: str = None,
+    order_direction: str = None,
+) -> dict:
+    return AiAssetsAPI().get_scan_results(
+        scan_id=scan_id, search=search, asset_type_ids=asset_type_ids,
+        asset_names=asset_names, providers=providers, version=version,
+        first_detection_date_time=first_detection_date_time, state=state,
+        path=path, limit=limit, offset=offset, order_column=order_column,
+        order_direction=order_direction,
+    )
+
+
+def aggregate_scan_results(
+    scan_id: str,
+    group_by: str,
+    search: str = None,
+    asset_type_ids: str = None,
+    asset_names: str = None,
+    providers: str = None,
+    version: str = None,
+    first_detection_date_time: str = None,
+    state: List[str] = None,
+    path: str = None,
+) -> dict:
+    return AiAssetsAPI().aggregate_scan_results(
+        scan_id=scan_id, group_by=group_by, search=search,
+        asset_type_ids=asset_type_ids, asset_names=asset_names,
+        providers=providers, version=version,
+        first_detection_date_time=first_detection_date_time,
+        state=state, path=path,
+    )
+
+
+def get_asset_risks(
+    scan_id: str,
+    asset_id: str,
+    severities: str = None,
+    names: str = None,
+    risk_ids: str = None,
+    file_path: str = None,
+    search: str = None,
+    order_column: str = None,
+    order_direction: str = None,
+    limit: int = None,
+    offset: int = 1,
+) -> dict:
+    return AiAssetsAPI().get_asset_risks(
+        scan_id=scan_id, asset_id=asset_id, severities=severities,
+        names=names, risk_ids=risk_ids, file_path=file_path,
+        search=search, order_column=order_column,
+        order_direction=order_direction, limit=limit, offset=offset,
     )
