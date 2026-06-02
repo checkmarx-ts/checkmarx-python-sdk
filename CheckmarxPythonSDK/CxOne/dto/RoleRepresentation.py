@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .dto import Composites
+from . import Composites
 
 
 @dataclass
