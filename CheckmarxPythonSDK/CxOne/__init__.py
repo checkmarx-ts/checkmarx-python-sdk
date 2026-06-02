@@ -267,6 +267,17 @@ from .projectsOverviewAPI import (
     get_tenant_projects_overview,
     get_project_counters,
 )
+from .presetManagerAPI import (
+    PresetManagerAPI,
+    get_scanner_presets,
+    get_scanner_preset_by_id,
+    create_scanner_preset,
+    update_scanner_preset,
+    delete_scanner_preset,
+    clone_scanner_preset,
+    get_scanner_query_families,
+    get_scanner_queries_by_family,
+)
 from .queryEditorAPI import (
     QueryEditorAPI,
     create_new_audit_session,
