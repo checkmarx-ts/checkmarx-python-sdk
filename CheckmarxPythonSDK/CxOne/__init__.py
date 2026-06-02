@@ -285,6 +285,12 @@ from .microEnginesAPI import (
     read_scan_overview,
     post_predicates,
 )
+from .organizationalDomainsAPI import (
+    OrganizationalDomainsAPI,
+    list_organizational_domains,
+    add_organizational_domains,
+    delete_organizational_domain,
+)
 from .KeycloakAPI import (
     AttackDetectionApi,
     AuthenticationManagementApi,
