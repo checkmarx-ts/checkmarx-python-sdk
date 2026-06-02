@@ -607,7 +607,7 @@ class ApiSecAPI(object):
 
     def get_parameters(self, api_id: str = None) -> Parameter:
         """
-        Get all parameters for the API (YAML-specified path).
+        Get all parameters for the API (STATIC_INVENTORY_READER YAML path).
 
         Args:
             api_id (str): API ID
@@ -615,7 +615,7 @@ class ApiSecAPI(object):
         Returns:
             Parameter
         """
-        url = f"{self.base_url}/api/parameter/"
+        url = f"{self.base_url}/parameter/"
         params = {"api_id": api_id}
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return Parameter.from_dict(response.json())
