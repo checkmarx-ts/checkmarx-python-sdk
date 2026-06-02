@@ -32,8 +32,8 @@ jobs:
 
       - name: Setup Python Build Env
         run: |
-          pip3 config set global.index-url https://pypi.echohq.com/simple
-          pip3 install virtualenv
+          pip config set global.index-url https://pypi.echohq.com/simple
+          pip install virtualenv
 
       - name: Scan with CxOne++ Action
         id: cxscan
@@ -43,4 +43,3 @@ jobs:
           cx-client-id: ${{ secrets.CXONE_CLIENT_ID }}
           cx-client-secret: ${{ secrets.CXONE_CLIENT_SECRET }}
           upload-sarif-file: false
-          additional-scan-params: --sast-filter '!**/build,!**/tests,!**/examples,!**/docs' --sca-filter '!**/build'
