@@ -527,6 +527,10 @@ from .sastResourceManagementServiceAPI import (
     delete_sast_scan,
     get_sast_scans,
 )
+from .sastResultsCompareAPI import (
+    SastResultsCompareAPI,
+    get_compare_status,
+)
 from .sastResultsAPI import (
     SastResultsAPI,
     get_sast_results_by_scan_id,
