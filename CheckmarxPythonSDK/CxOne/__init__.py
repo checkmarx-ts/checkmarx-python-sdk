@@ -114,6 +114,10 @@ from .applicationsAPI import (
     update_an_application_rule,
     delete_an_application_rule,
 )
+from .auditEventProcessorAPI import (
+    AuditEventProcessorAPI,
+    get_audit_events,
+)
 from .applicationsOverviewAPI import (
     ApplicationsOverviewAPI,
     get_applications_overview,
