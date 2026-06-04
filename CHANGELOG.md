@@ -1,6 +1,41 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.7 - 2026-06-02
+* [Add] AiAssetsAPI — AI supply chain asset management (findings, asset types, assets, applications, global inventory results, scan results, risks)
+* [Add] AnalyticsAPI — KPI query endpoint
+* [Add] ApplicationsOverviewAPI — applications overview / aggregate / count
+* [Add] AuditEventProcessorAPI — audit event listing
+* [Add] CxLinkAPI — CxOne link/tunnel management (CRUD + recreate)
+* [Add] DataRetentionAPI — data retention processes, locked scans, lock/unlock, start/abort
+* [Add] FusionDispatcherAPI — correlation dispatcher
+* [Add] FusionResultsAPI — correlation results (applications, summary, resources, microservices, risk scores)
+* [Add] GlobalInventoryReaderAPI — APIsec global inventory (api changes, inventory, data origin, risks, risk groups/widget/details)
+* [Add] KicsMetadataAPI — KICS scan metadata
+* [Add] KicsResultsPredicatesAPI — KICS results predicates
+* [Add] ListsAPI — enum value lists
+* [Add] MicroEnginesAPI — SSCS micro-engines service (13 endpoints)
+* [Add] OrganizationalDomainsAPI — organizational domain management
+* [Add] RepositoryInsightsAPI — repository insights
+* [Add] ResultsOverviewAPI — project results overview
+* [Add] RiskManagementAPI — risk management service
+* [Add] SastPresetManagerAPI — SAST/IaC preset management (renamed from PresetManagerAPI with sast_ method prefix)
+* [Add] SastResultsCompareAPI — SAST scan comparison
+* [Add] StaticCorrelatorAPI — APIsec risk correlation
+* [Add] ByorResultsHandlerV2API — additional V2 endpoints (imports CRUD, aggregate, summaries, triage)
+* [Add] cx-audit endpoints — create query, query source, update by level
+* [Add] SAST results endpoints — compare scans, similar results, attack-vector, changelog, status
+* [Add] SAST metadata endpoints — DOM persistence, file exclusion configs
+* [Add] scan API endpoints — fieldValues, scansBrief, tags, rescan, recalculation
+* [Add] project API endpoints — schedules CRUD, tagsByFilters, reassign
+* [Add] multipart upload endpoints — start, presigned, complete, abort
+* [Add] webhook module-level functions — get by ID, create on project, etc.
+* [Add] cxiam endpoints — API keys, group managers, OTP, PIP, token exchange
+* [Add] PATCH endpoint for partial application update
+* [Add] CxOne REST API List documentation with full endpoint mapping table, swagger YAML files, cross-reference
+* [Fix] doubled /api/ path in get_parameters (STATIC_INVENTORY_READER)
+* [Fix] broken method/path entries in CxOne REST API list
+
 1.8.6 - 2026-06-01
 * [Add] DAST Scans Service REST API (CxOne/dastScanAPI.py) — all 14 endpoints typed end-to-end: tenant overview; create/update/delete/retrieve Environments; list Environments with filter/match/sort/pagination; count Environments by group; run/update/cancel/delete scans; multipart scan upload; list scans; count scans by group; retrieve scan info; download scan log (ZIP)
 * [Add] Run public scan endpoint (POST /api/dast/scans/publicScan) for preconfigured Environments
