@@ -3,7 +3,7 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 
 
-class SastPresetManagerAPI(object):
+class PresetManagerAPI(object):
 
     def __init__(self, api_client: ApiClient = None):
         if api_client is None:
@@ -210,7 +210,7 @@ def get_sast_presets(
     search_term: str = None,
     exact_match: bool = False,
 ) -> dict:
-    return SastPresetManagerAPI().get_sast_presets(
+    return PresetManagerAPI().get_sast_presets(
         scanner=scanner, limit=limit, offset=offset, fields=fields,
         sort=sort, include_details=include_details,
         search_term=search_term, exact_match=exact_match,
@@ -218,37 +218,37 @@ def get_sast_presets(
 
 
 def get_sast_preset_by_id(scanner: str, id) -> dict:
-    return SastPresetManagerAPI().get_sast_preset_by_id(scanner=scanner, id=id)
+    return PresetManagerAPI().get_sast_preset_by_id(scanner=scanner, id=id)
 
 
 def create_sast_preset(scanner: str, name: str, queries: List[dict],
                           description: str = None) -> dict:
-    return SastPresetManagerAPI().create_preset(
+    return PresetManagerAPI().create_preset(
         scanner=scanner, name=name, queries=queries, description=description,
     )
 
 
 def update_sast_preset(scanner: str, id, name: str, queries: List[dict],
                           description: str = None) -> dict:
-    return SastPresetManagerAPI().update_preset(
+    return PresetManagerAPI().update_preset(
         scanner=scanner, id=id, name=name, queries=queries,
         description=description,
     )
 
 
 def delete_sast_preset(scanner: str, id) -> bool:
-    return SastPresetManagerAPI().delete_preset(scanner=scanner, id=id)
+    return PresetManagerAPI().delete_preset(scanner=scanner, id=id)
 
 
 def clone_sast_preset(scanner: str, id, name: str,
                          description: str = None) -> dict:
-    return SastPresetManagerAPI().clone_preset(
+    return PresetManagerAPI().clone_preset(
         scanner=scanner, id=id, name=name, description=description,
     )
 
 
 def get_sast_query_families(scanner: str, search_term: str = None) -> List[str]:
-    return SastPresetManagerAPI().get_query_families(
+    return PresetManagerAPI().get_query_families(
         scanner=scanner, search_term=search_term,
     )
 
@@ -256,6 +256,6 @@ def get_sast_query_families(scanner: str, search_term: str = None) -> List[str]:
 def get_sast_queries_by_family(
     scanner: str, query_family: str, search_term: str = None
 ) -> List[dict]:
-    return SastPresetManagerAPI().get_queries_by_family(
+    return PresetManagerAPI().get_queries_by_family(
         scanner=scanner, query_family=query_family, search_term=search_term,
     )

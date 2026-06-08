@@ -367,8 +367,8 @@ from .projectsOverviewAPI import (
     get_tenant_projects_overview,
     get_project_counters,
 )
-from .sastPresetManagerAPI import (
-    SastPresetManagerAPI,
+from .presetManagerAPI import (
+    PresetManagerAPI,
     get_sast_presets,
     get_sast_preset_by_id,
     create_sast_preset,
