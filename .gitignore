@@ -122,3 +122,5 @@ build
 *.csv
 
 .claude
+*.txt
+*.json
