@@ -15,7 +15,7 @@ class PresetManagerAPI(object):
             f"/api/preset-manager"
         )
 
-    def get_sast_presets(
+    def get_scanner_presets(
         self,
         scanner: str,
         limit: int = 10,
@@ -57,7 +57,7 @@ class PresetManagerAPI(object):
         )
         return response.json()
 
-    def get_sast_preset_by_id(self, scanner: str, id) -> dict:
+    def get_scanner_preset_by_id(self, scanner: str, id) -> dict:
         """
         Get a preset by ID.
 
@@ -200,7 +200,7 @@ class PresetManagerAPI(object):
 
 # ---- Module-level convenience functions ----
 
-def get_sast_presets(
+def get_scanner_presets(
     scanner: str,
     limit: int = 10,
     offset: int = 0,
@@ -210,25 +210,25 @@ def get_sast_presets(
     search_term: str = None,
     exact_match: bool = False,
 ) -> dict:
-    return PresetManagerAPI().get_sast_presets(
+    return PresetManagerAPI().get_scanner_presets(
         scanner=scanner, limit=limit, offset=offset, fields=fields,
         sort=sort, include_details=include_details,
         search_term=search_term, exact_match=exact_match,
     )
 
 
-def get_sast_preset_by_id(scanner: str, id) -> dict:
-    return PresetManagerAPI().get_sast_preset_by_id(scanner=scanner, id=id)
+def get_scanner_preset_by_id(scanner: str, id) -> dict:
+    return PresetManagerAPI().get_scanner_preset_by_id(scanner=scanner, id=id)
 
 
-def create_sast_preset(scanner: str, name: str, queries: List[dict],
+def create_scanner_preset(scanner: str, name: str, queries: List[dict],
                           description: str = None) -> dict:
     return PresetManagerAPI().create_preset(
         scanner=scanner, name=name, queries=queries, description=description,
     )
 
 
-def update_sast_preset(scanner: str, id, name: str, queries: List[dict],
+def update_scanner_preset(scanner: str, id, name: str, queries: List[dict],
                           description: str = None) -> dict:
     return PresetManagerAPI().update_preset(
         scanner=scanner, id=id, name=name, queries=queries,
@@ -236,24 +236,24 @@ def update_sast_preset(scanner: str, id, name: str, queries: List[dict],
     )
 
 
-def delete_sast_preset(scanner: str, id) -> bool:
+def delete_scanner_preset(scanner: str, id) -> bool:
     return PresetManagerAPI().delete_preset(scanner=scanner, id=id)
 
 
-def clone_sast_preset(scanner: str, id, name: str,
+def clone_scanner_preset(scanner: str, id, name: str,
                          description: str = None) -> dict:
     return PresetManagerAPI().clone_preset(
         scanner=scanner, id=id, name=name, description=description,
     )
 
 
-def get_sast_query_families(scanner: str, search_term: str = None) -> List[str]:
+def get_scanner_query_families(scanner: str, search_term: str = None) -> List[str]:
     return PresetManagerAPI().get_query_families(
         scanner=scanner, search_term=search_term,
     )
 
 
-def get_sast_queries_by_family(
+def get_scanner_queries_by_family(
     scanner: str, query_family: str, search_term: str = None
 ) -> List[dict]:
     return PresetManagerAPI().get_queries_by_family(

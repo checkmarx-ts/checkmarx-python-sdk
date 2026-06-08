@@ -369,14 +369,14 @@ from .projectsOverviewAPI import (
 )
 from .presetManagerAPI import (
     PresetManagerAPI,
-    get_sast_presets,
-    get_sast_preset_by_id,
-    create_sast_preset,
-    update_sast_preset,
-    delete_sast_preset,
-    clone_sast_preset,
-    get_sast_query_families,
-    get_sast_queries_by_family,
+    get_scanner_presets,
+    get_scanner_preset_by_id,
+    create_scanner_preset,
+    update_scanner_preset,
+    delete_scanner_preset,
+    clone_scanner_preset,
+    get_scanner_query_families,
+    get_scanner_queries_by_family,
 )
 from .queryEditorAPI import (
     QueryEditorAPI,
