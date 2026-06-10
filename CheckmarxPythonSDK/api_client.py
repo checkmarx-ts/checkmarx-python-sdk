@@ -36,6 +36,7 @@ def create_session(configuration: Configuration) -> httpx.Client:
         cert=configuration.cert,
         proxy=configuration.proxy,
         transport=httpx.HTTPTransport(retries=3, verify=verify),
+        follow_redirects=True,
         headers={"User-Agent": f"checkmarx-python-sdk/{__version__}"},
     )
 

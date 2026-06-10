@@ -22,6 +22,8 @@ class SastResultsPredicatesAPI(object):
         project_ids: List[str] = None,
         include_comment_json: bool = None,
         scan_id: str = None,
+        offset: int = 0,
+        limit: int = 100,
     ) -> dict:
         """
         Args:
@@ -29,6 +31,8 @@ class SastResultsPredicatesAPI(object):
             project_ids (list of str):
             include_comment_json (bool):
             scan_id (str):
+            offset (int):
+            limit (int):
 
         Returns:
             dict
@@ -38,6 +42,8 @@ class SastResultsPredicatesAPI(object):
             "project-ids": project_ids,
             "include-comment-json": include_comment_json,
             "scan-id": scan_id,
+            "offset": offset,
+            "limit": limit,
         }
         response = self.api_client.call_api(
             method="GET", url=url, params=params
@@ -245,12 +251,16 @@ def get_all_predicates_for_similarity_id(
     project_ids: List[str] = None,
     include_comment_json: bool = None,
     scan_id: str = None,
+    offset: int = 0,
+    limit: int = 100,
 ) -> dict:
     return SastResultsPredicatesAPI().get_all_predicates_for_similarity_id(
         similarity_id=similarity_id,
         project_ids=project_ids,
         include_comment_json=include_comment_json,
         scan_id=scan_id,
+        offset=offset,
+        limit=limit,
     )
 
 
