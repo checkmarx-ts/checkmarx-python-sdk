@@ -1486,8 +1486,11 @@ class ScansAPI(object):
         """
         Fetch all SAST results for a scan by paginating through all pages.
 
-        Deduplicates by path_id to work around a server-side issue where
-        the last page of /cxrestapi/sast/results may return duplicate data.
+        On the final page, uses the exact remaining result count as the limit
+        rather than the full page size. This avoids a server-side boundary bug
+        in /cxrestapi/sast/results where passing a limit larger than the number
+        of remaining results causes the last page to return earlier (duplicate)
+        data instead of the actual trailing results.
 
         Args:
             scan_id (int): Unique ID of a scan
@@ -1500,21 +1503,35 @@ class ScansAPI(object):
         all_results = []
         seen_path_ids = set()
         offset = 0
+        total_count = None
 
         while True:
+            # On the final page, fetch only the exact number of remaining
+            # results to avoid the server pagination boundary bug.
+            if total_count is not None:
+                remaining = total_count - offset
+                if remaining <= 0:
+                    break
+                current_limit = min(limit, remaining)
+            else:
+                current_limit = limit
+
             page = self.get_scan_results_in_paged_mode(
-                scan_id=scan_id, offset=offset, limit=limit, lcid=lcid
+                scan_id=scan_id, offset=offset, limit=current_limit, lcid=lcid
             )
             if page is None or not page.results:
                 break
+
+            if total_count is None:
+                total_count = page.total_count
 
             for result in page.results:
                 if result.path_id not in seen_path_ids:
                     seen_path_ids.add(result.path_id)
                     all_results.append(result)
 
-            if offset + limit >= page.total_count:
+            if offset + current_limit >= total_count:
                 break
-            offset += limit
+            offset += current_limit
 
         return all_results
