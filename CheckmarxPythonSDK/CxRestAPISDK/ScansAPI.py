@@ -1486,11 +1486,12 @@ class ScansAPI(object):
         """
         Fetch all SAST results for a scan by paginating through all pages.
 
-        On the final page, uses the exact remaining result count as the limit
-        rather than the full page size. This avoids a server-side boundary bug
-        in /cxrestapi/sast/results where passing a limit larger than the number
-        of remaining results causes the last page to return earlier (duplicate)
-        data instead of the actual trailing results.
+        .. note::
+
+           The /cxrestapi/sast/results endpoint interprets ``offset`` as a
+           **page number** (number of pages to skip), not a record count.
+           This method accounts for that by incrementing offset by 1 per
+           page rather than by the page size.
 
         Args:
             scan_id (int): Unique ID of a scan
@@ -1502,36 +1503,22 @@ class ScansAPI(object):
         """
         all_results = []
         seen_path_ids = set()
-        offset = 0
-        total_count = None
+        offset = 0  # page number, not record offset
 
         while True:
-            # On the final page, fetch only the exact number of remaining
-            # results to avoid the server pagination boundary bug.
-            if total_count is not None:
-                remaining = total_count - offset
-                if remaining <= 0:
-                    break
-                current_limit = min(limit, remaining)
-            else:
-                current_limit = limit
-
             page = self.get_scan_results_in_paged_mode(
-                scan_id=scan_id, offset=offset, limit=current_limit, lcid=lcid
+                scan_id=scan_id, offset=offset, limit=limit, lcid=lcid
             )
             if page is None or not page.results:
                 break
-
-            if total_count is None:
-                total_count = page.total_count
 
             for result in page.results:
                 if result.path_id not in seen_path_ids:
                     seen_path_ids.add(result.path_id)
                     all_results.append(result)
 
-            if offset + current_limit >= total_count:
+            if offset * limit + len(page.results) >= page.total_count:
                 break
-            offset += current_limit
+            offset += 1
 
         return all_results
