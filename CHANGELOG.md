@@ -6,6 +6,10 @@ All notable changes to this project will be documented in  this file.
 * [Add] get_all_scan_results method in CxRestAPISDK ScansAPI — safe pagination helper that correctly walks all pages and deduplicates by path_id
 * [Add] examples/CxSAST/dump_all_path_ids.py — example script dumping all path_ids from a scan using get_all_scan_results
 * [Add] tests/CxSAST/CxRestAPI/test_sast_results_pagination.py — diagnostic tests for SAST results pagination
+* [Add] CxPortalWebService.get_sources_by_scan_id — retrieve per-file source code for specific files in a scan (Portal SOAP GetSourcesByScanID)
+* [Add] CxPortalWebService.get_source_by_scan_id — deprecated singular variant; CxSAST 9.x returns "no longer supported"
+* [Add] CxPortalWebService.get_file_names_for_path — get file names associated with a result path (Portal SOAP GetFileNamesForPath)
+* [Add] tests for get_sources_by_scan_id, get_file_names_for_path, and get_source_by_scan_id
 
 1.8.7 - 2026-06-02
 * [Add] AiAssetsAPI — AI supply chain asset management (findings, asset types, assets, applications, global inventory results, scan results, risks)
