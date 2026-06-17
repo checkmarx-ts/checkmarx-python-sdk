@@ -1227,6 +1227,33 @@ class CxPortalWebService(object):
             "ErrorMessage": getattr(response, "ErrorMessage", None),
         }
 
+    def get_source_by_scan_id(self, scan_id: int, file_name: str) -> dict:
+        """Retrieve source code for a specific file in a scan (deprecated).
+
+        This SOAP operation is no longer supported in CxSAST 9.x. The server
+        returns IsSuccesfull=False with "This action is no longer supported."
+        Use :meth:`CxAuditWebService.get_source_code_for_scan` instead, which
+        returns a base64-encoded zip of all source files for the scan.
+
+        Args:
+            scan_id (int):
+            file_name (str): the file path to retrieve source for
+
+        Returns:
+            dict: always IsSuccesfull=False on 9.x
+        """
+        response = self.suds_client.execute(
+            "GetSourceByScanID",
+            sessionID="0",
+            scanID=str(scan_id),
+            fileToRetreive=file_name,
+        )
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "source": getattr(response, "source", None),
+        }
+
     def unlock_scan(self, scan_id: int) -> dict:
         """
 
@@ -1485,6 +1512,12 @@ def lock_scan(scan_id: int) -> dict:
 
 def postpone_scan(scan_id: int) -> dict:
     return CxPortalWebService().postpone_scan(scan_id=scan_id)
+
+
+def get_source_by_scan_id(scan_id: int, file_name: str) -> dict:
+    return CxPortalWebService().get_source_by_scan_id(
+        scan_id=scan_id, file_name=file_name
+    )
 
 
 def unlock_scan(scan_id: int) -> dict:
