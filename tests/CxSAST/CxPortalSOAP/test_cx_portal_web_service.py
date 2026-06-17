@@ -34,6 +34,9 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     get_results_for_scan,
     get_result_path,
     get_pivot_data,
+    get_sources_by_scan_id,
+    get_file_names_for_path,
+    get_source_by_scan_id,
 )
 from .. import get_project_id
 
@@ -310,3 +313,49 @@ def test_postpone_scan():
     scan_id = _get_scan_id()
     response = postpone_scan(scan_id=scan_id)
     assert response.get("IsSuccesfull") is True
+
+
+def test_get_file_names_for_path():
+    scan_id = _get_scan_id()
+    response = get_file_names_for_path(scan_id=scan_id, path_id=1)
+    assert response["IsSuccesfull"] is True
+    assert len(response["fileNames"]) > 0
+    assert all(isinstance(fn, str) for fn in response["fileNames"])
+
+
+def test_get_sources_by_scan_id():
+    scan_id = _get_scan_id()
+    # Get a file name from a known path
+    file_info = get_file_names_for_path(scan_id=scan_id, path_id=1)
+    assert file_info["IsSuccesfull"] is True
+    file_names = file_info["fileNames"]
+
+    response = get_sources_by_scan_id(
+        scan_id=scan_id, file_names=file_names,
+    )
+    assert response["IsSuccesfull"] is True
+    assert len(response["sources"]) == len(file_names)
+    for src in response["sources"]:
+        assert "Source" in src
+        assert "IsSuccesfull" in src
+        assert len(str(src["Source"])) > 0
+
+    # Test with multiple files
+    if len(file_names) >= 1:
+        response = get_sources_by_scan_id(
+            scan_id=scan_id, file_names=file_names[:1],
+        )
+        assert response["IsSuccesfull"] is True
+        assert len(response["sources"]) == 1
+        assert len(str(response["sources"][0]["Source"])) > 0
+
+
+def test_get_source_by_scan_id_deprecated():
+    """Verify the deprecated singular endpoint returns the expected error."""
+    scan_id = _get_scan_id()
+    response = get_source_by_scan_id(
+        scan_id=scan_id,
+        file_name=r"\src\main\webapp\vulnerability\DisplayMessage.jsp",
+    )
+    assert response["IsSuccesfull"] is False
+    assert "no longer supported" in response.get("ErrorMessage", "")

@@ -1232,8 +1232,7 @@ class CxPortalWebService(object):
 
         This SOAP operation is no longer supported in CxSAST 9.x. The server
         returns IsSuccesfull=False with "This action is no longer supported."
-        Use :meth:`CxAuditWebService.get_source_code_for_scan` instead, which
-        returns a base64-encoded zip of all source files for the scan.
+        Use :meth:`get_sources_by_scan_id` (plural) instead.
 
         Args:
             scan_id (int):
@@ -1252,6 +1251,89 @@ class CxPortalWebService(object):
             "IsSuccesfull": response.IsSuccesfull,
             "ErrorMessage": getattr(response, "ErrorMessage", None),
             "source": getattr(response, "source", None),
+        }
+
+    def get_sources_by_scan_id(self, scan_id: int, file_names: list) -> dict:
+        """Retrieve source code for specific files in a scan.
+
+        Args:
+            scan_id (int):
+            file_names (list of str): file paths to retrieve source for
+
+        Returns:
+            dict::
+                {
+                    "IsSuccesfull": True,
+                    "ErrorMessage": None,
+                    "sources": [
+                        {"IsSuccesfull": True, "Source": "<content>", "Encode": "Unicode (UTF-8)"},
+                        ...
+                    ],
+                }
+        """
+        files_array = self.suds_client.factory.ArrayOfString(list(file_names))
+        response = self.suds_client.execute(
+            "GetSourcesByScanID",
+            sessionID="0",
+            scanID=str(scan_id),
+            filesToRetreive=files_array,
+        )
+        content_list = getattr(
+            response, "cxWSResponseSourcesContent", None
+        )
+        sources = []
+        if content_list:
+            items = getattr(content_list, "CxWSResponseSourceContent", None)
+            if items is not None:
+                if not isinstance(items, list):
+                    items = [items]
+                sources = [
+                    {
+                        "IsSuccesfull": item.IsSuccesfull,
+                        "Source": item.Source,
+                    }
+                    for item in items
+                ]
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "Encode": getattr(response, "Encode", None),
+            "sources": sources,
+        }
+
+    def get_file_names_for_path(self, scan_id: int, path_id: int) -> dict:
+        """Get file names associated with a result path.
+
+        Args:
+            scan_id (int):
+            path_id (int):
+
+        Returns:
+            dict::
+                {
+                    "IsSuccesfull": True,
+                    "ErrorMessage": None,
+                    "fileNames": ["\\\\path\\\\to\\\\file.jsp"],
+                }
+        """
+        response = self.suds_client.execute(
+            "GetFileNamesForPath",
+            sessionId="0",
+            scanId=scan_id,
+            pathId=path_id,
+        )
+        fnames = getattr(response, "fileNames", None)
+        file_names = []
+        if fnames:
+            strings = getattr(fnames, "string", None)
+            if strings is not None:
+                if not isinstance(strings, list):
+                    strings = [strings]
+                file_names = strings
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "fileNames": file_names,
         }
 
     def unlock_scan(self, scan_id: int) -> dict:
@@ -1517,6 +1599,18 @@ def postpone_scan(scan_id: int) -> dict:
 def get_source_by_scan_id(scan_id: int, file_name: str) -> dict:
     return CxPortalWebService().get_source_by_scan_id(
         scan_id=scan_id, file_name=file_name
+    )
+
+
+def get_sources_by_scan_id(scan_id: int, file_names: list) -> dict:
+    return CxPortalWebService().get_sources_by_scan_id(
+        scan_id=scan_id, file_names=file_names
+    )
+
+
+def get_file_names_for_path(scan_id: int, path_id: int) -> dict:
+    return CxPortalWebService().get_file_names_for_path(
+        scan_id=scan_id, path_id=path_id
     )
 
 

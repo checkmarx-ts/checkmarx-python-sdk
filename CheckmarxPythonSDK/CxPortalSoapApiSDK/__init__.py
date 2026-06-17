@@ -33,6 +33,8 @@ from .CxPortalWebService import (
     postpone_scan,
     unlock_scan,
     get_source_by_scan_id,
+    get_sources_by_scan_id,
+    get_file_names_for_path,
 )
 
 from .CxAuditWebService import (
