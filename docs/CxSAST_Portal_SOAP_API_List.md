@@ -1,36 +1,109 @@
 # The CxSAST Portal SOAP API list
 1. cx portal web service
     - add_license_expiration_notification
+    - cancel_scan
+    - cancel_scan_report
+    - count_lines
     - create_new_preset
     - create_scan_report
+    - delete_custom_field
     - delete_preset
     - delete_project
     - delete_projects
+    - delete_scan
+    - delete_scans
     - export_preset
     - export_queries
     - get_associated_group_list
+    - get_child_nodes
     - get_compare_scan_results
+    - get_configuration_set_list
+    - get_custom_field_values
+    - get_custom_fields
+    - get_cwe_description
+    - get_executable_list
+    - get_file_names_for_path
     - get_import_queries_status
     - get_path_comments_history
-    - get_queries_categories
-    - get_query_collection
-    - get_query_id_by_language_group_and_query_name
-    - get_name_of_user_who_marked_false_positive_from_comments_history
+    - get_pivot_data
+    - get_preset_details
     - get_preset_list
     - get_projects_display_data
+    - get_projects_with_scans
+    - get_queries_categories
+    - get_queries_for_scan
+    - get_query_collection
+    - get_query_collection_for_language
+    - get_query_collection_with_inactive
+    - get_query_description
+    - get_query_description_by_query_id
+    - get_query_id_by_language_group_and_query_name
+    - get_query_short_description
+    - get_name_of_user_who_marked_false_positive_from_comments_history
     - get_result_path
+    - get_result_paths_for_query
+    - get_result_state_flags
+    - get_result_state_list
+    - get_result_summary
+    - get_results
+    - get_results_by_severity
+    - get_results_for_query
     - get_results_for_scan
+    - get_scan_logs
+    - get_scan_properties
+    - get_scan_report
+    - get_scan_report_status
+    - get_scan_summary
+    - get_scans_display_data_for_all_projects
+    - get_scans_statuses
+    - get_server_language_list
+    - get_server_license_basic
     - get_server_license_data
+    - get_server_license_data_extended
     - get_server_license_summary
+    - get_source_by_scan_id
+    - get_sources_by_scan_id
+    - get_status_of_single_scan
     - get_user_profile_data
     - get_version_number
     - get_version_number_as_int
     - import_preset
     - import_queries
+    - is_alive
+    - is_private_cloud
+    - is_smtp_host_configured
+    - is_valid_preset_name
     - lock_scan
+    - postpone_scan
     - unlock_scan
+    - update_preset
+    - update_result_comment
+    - update_result_state
+    - update_scan_comment
 2. cx Audit web service
     - get_files_extensions
     - get_source_code_for_scan
     - upload_queries
-    
+    - get_results
+    - get_result_summary
+    - get_result_state_list
+    - update_result_state
+    - update_scan_comment
+    - get_project_scans
+    - get_projects_with_scans
+    - get_query_collection
+    - get_query_collection_for_language
+    - get_query_description
+    - get_query_description_by_query_id
+    - get_queries_categories
+    - get_preset_details
+    - get_preset_list
+    - get_path_comments_history
+    - get_project_configuration
+    - get_license_details
+    - get_engine_configuration
+    - get_hierarchy_group_tree
+    - get_ancestry_group_tree
+    - keep_alive
+    - import_queries
+    - get_cache

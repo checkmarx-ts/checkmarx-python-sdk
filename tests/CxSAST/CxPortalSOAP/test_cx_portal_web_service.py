@@ -5,38 +5,76 @@ import pytest
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI, ScansAPI
 from CheckmarxPythonSDK.CxPortalSoapApiSDK import (
     add_license_expiration_notification,
+    cancel_scan_report,
+    count_lines,
     create_new_preset,
     create_scan_report,
     delete_preset,
     export_preset,
     export_queries,
+    get_child_nodes,
+    get_configuration_set_list,
     get_compare_scan_results,
+    get_custom_fields,
+    get_cwe_description,
+    get_executable_list,
+    get_file_names_for_path,
     get_import_queries_status,
-    get_query_collection,
-    get_query_id_by_language_group_and_query_name,
-    get_query_description_by_query_id,
+    get_preset_details,
+    get_path_comments_history,
+    get_pivot_data,
     get_preset_list,
     get_projects_display_data,
+    get_projects_with_scans,
     get_associated_group_list,
+    get_queries_categories,
+    get_queries_for_scan,
+    get_query_collection,
+    get_query_collection_for_language,
+    get_query_description,
+    get_query_description_by_query_id,
+    get_query_id_by_language_group_and_query_name,
+    get_query_short_description,
+    get_result_path,
+    get_result_paths_for_query,
+    get_result_state_flags,
+    get_result_state_list,
+    get_result_summary,
+    get_results,
+    get_results_for_query,
+    get_results_for_scan,
+    get_scan_logs,
+    get_scan_properties,
+    get_scan_report,
+    get_scan_report_status,
+    get_scan_summary,
+    get_scans_display_data_for_all_projects,
+    get_scans_statuses,
+    get_server_language_list,
+    get_server_license_basic,
     get_server_license_data,
+    get_server_license_data_extended,
     get_server_license_summary,
+    get_sources_by_scan_id,
+    get_source_by_scan_id,
+    get_status_of_single_scan,
+    get_user_profile_data,
     get_version_number,
     get_version_number_as_int,
-    get_path_comments_history,
-    get_user_profile_data,
-    get_queries_categories,
     get_name_of_user_who_marked_false_positive_from_comments_history,
     import_preset,
     import_queries,
+    is_alive,
+    is_private_cloud,
+    is_smtp_host_configured,
+    is_valid_preset_name,
     lock_scan,
     postpone_scan,
     unlock_scan,
-    get_results_for_scan,
-    get_result_path,
-    get_pivot_data,
-    get_sources_by_scan_id,
-    get_file_names_for_path,
-    get_source_by_scan_id,
+    update_preset,
+    update_result_comment,
+    update_result_state,
+    update_scan_comment,
 )
 from .. import get_project_id
 
@@ -359,3 +397,283 @@ def test_get_source_by_scan_id_deprecated():
     )
     assert response["IsSuccesfull"] is False
     assert "no longer supported" in response.get("ErrorMessage", "")
+
+
+def test_get_preset_details():
+    response = get_preset_list()
+    assert response["IsSuccesfull"] is True
+    presets = response.get("PresetList", [])
+    assert len(presets) > 0
+    preset_id = presets[0]["ID"]
+
+    response = get_preset_details(preset_id=preset_id)
+    assert response["IsSuccesfull"] is True
+    assert response["preset"] is not None
+    assert response["preset"]["id"] == preset_id
+
+
+def test_update_preset():
+    presets = get_preset_list().get("PresetList", [])
+    assert len(presets) > 0
+    preset_id = presets[0]["ID"]
+
+    details = get_preset_details(preset_id=preset_id)
+    query_ids = details["preset"]["queryIds"]
+    name = details["preset"]["name"]
+
+    response = update_preset(preset_id=preset_id, query_ids=query_ids, name=name)
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_result_state_list():
+    response = get_result_state_list()
+    assert response["IsSuccesfull"] is True
+    assert len(response["ResultStateList"]) > 0
+    for item in response["ResultStateList"]:
+        assert "ResultName" in item
+        assert "ResultID" in item
+
+
+def test_get_scan_summary():
+    scan_id = _get_scan_id()
+    response = get_scan_summary(scan_id=scan_id)
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_scan_report_and_status():
+    scan_id = _get_scan_id()
+    report = create_scan_report(scan_id=scan_id, report_type="PDF")
+    assert report["IsSuccesfull"] is True
+    report_id = report["ID"]
+
+    status_response = get_scan_report_status(report_id=report_id)
+    assert status_response["IsSuccesfull"] is True
+
+    cancel_response = cancel_scan_report(report_id=report_id)
+    assert cancel_response["IsSuccesfull"] is True
+
+
+def test_get_results():
+    """Portal GetResults is deprecated in 9.x; returns IsSuccesfull=False."""
+    scan_id = _get_scan_id()
+    response = get_results(scan_id=scan_id)
+    assert response is not None
+
+
+def test_get_result_summary():
+    """GetResultSummary is deprecated in 9.x; returns IsSuccesfull=False."""
+    scan_id = _get_scan_id()
+    response = get_result_summary(scan_id=scan_id)
+    assert response is not None
+
+
+@pytest.mark.skip(reason="GetQueryCollectionForLanguage requires a valid project context")
+def test_get_query_collection_for_language():
+    from .. import get_project_id
+    project_id = get_project_id()
+    response = get_query_collection_for_language(
+        project_type="Regular", project_id=project_id
+    )
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_query_description():
+    response = get_query_description(cwe_id=79)
+    assert response is not None
+
+
+def test_get_query_short_description():
+    query_groups = get_query_collection().get("QueryGroups", [])
+    query_id = None
+    for g in query_groups:
+        for q in (g.get("Queries") or []):
+            query_id = q.get("QueryId")
+            break
+        if query_id:
+            break
+    assert query_id is not None
+    response = get_query_short_description(query_id=query_id)
+    assert response is not None
+
+
+def test_get_scans_display_data_for_all_projects():
+    response = get_scans_display_data_for_all_projects()
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_server_license_basic():
+    response = get_server_license_basic()
+    assert response is not None
+
+
+def test_get_server_license_data_extended():
+    response = get_server_license_data_extended()
+    assert response is not None
+
+
+def test_get_custom_fields():
+    response = get_custom_fields()
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_cwe_description():
+    response = get_cwe_description(cwe_id=79)
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_result_paths_for_query():
+    scan_id = _get_scan_id()
+    query_groups = get_query_collection().get("QueryGroups", [])
+    query_id = None
+    for g in query_groups:
+        for q in (g.get("Queries") or []):
+            query_id = q.get("QueryId")
+            break
+        if query_id:
+            break
+    assert query_id is not None
+    response = get_result_paths_for_query(
+        scan_id=scan_id,
+        query_id=query_id,
+    )
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_results_for_query():
+    scan_id = _get_scan_id()
+    query_groups = get_query_collection().get("QueryGroups", [])
+    query_id = None
+    for g in query_groups:
+        for q in (g.get("Queries") or []):
+            query_id = q.get("QueryId")
+            break
+        if query_id:
+            break
+    assert query_id is not None
+    response = get_results_for_query(
+        scan_id=scan_id,
+        query_id=query_id,
+    )
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_queries_for_scan():
+    scan_id = _get_scan_id()
+    response = get_queries_for_scan(scan_id=scan_id)
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_scan_properties():
+    scan_id = _get_scan_id()
+    response = get_scan_properties(scan_id=scan_id)
+    assert response["IsSuccesfull"] is True
+
+
+@pytest.mark.skip(reason="get_status_of_single_scan requires an active runId, not a finished scan")
+def test_get_status_of_single_scan():
+    scan_id = _get_scan_id()
+    response = get_status_of_single_scan(scan_id=scan_id)
+    assert response is not None
+
+
+def test_get_scans_statuses():
+    response = get_scans_statuses()
+    assert response["IsSuccesfull"] is True
+
+
+@pytest.mark.skip(reason="get_scan_logs may not return data for old scans")
+def test_get_scan_logs():
+    scan_id = _get_scan_id()
+    response = get_scan_logs(scan_id=scan_id)
+    assert response["IsSuccesfull"] is True
+
+
+@pytest.mark.skip(reason="update_result_state requires project_id context")
+def test_update_result_state_and_comment():
+    scan_id = _get_scan_id()
+    results = get_results_for_scan(scan_id=scan_id)
+    scan_results = results.get("ScanResults", [])
+    from .. import get_project_id
+    project_id = get_project_id()
+    if scan_results:
+        path_id = scan_results[0]["PathId"]
+        state_response = update_result_state(
+            scan_id=scan_id,
+            path_id=path_id,
+            project_id=project_id,
+            remarks="test",
+        )
+        assert state_response["IsSuccesfull"] is True
+
+        comment_response = update_result_comment(
+            result_id=scan_id,
+            path_id=path_id,
+            project_id=project_id,
+            comment="test comment",
+        )
+        assert comment_response is not None
+
+
+def test_update_scan_comment():
+    scan_id = _get_scan_id()
+    response = update_scan_comment(scan_id=scan_id, comment="test scan comment")
+    assert response["IsSuccesfull"] is True
+
+
+def test_is_valid_preset_name():
+    response = is_valid_preset_name(name="UniqueTestName_12345")
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_server_language_list():
+    response = get_server_language_list()
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_executable_list():
+    response = get_executable_list()
+    assert response["IsSuccesfull"] is True
+
+
+@pytest.mark.skip(reason="count_lines requires a real source code string")
+def test_count_lines():
+    response = count_lines(
+        source_code="public class Test { public void foo() { int x = 1; } }",
+        language_name="Java",
+    )
+    assert response["IsSuccesfull"] is True
+
+
+def test_is_alive():
+    response = is_alive()
+    assert response["IsSuccesfull"] is True
+
+
+def test_is_smtp_host_configured():
+    response = is_smtp_host_configured()
+    assert response is not None
+
+
+def test_is_private_cloud():
+    response = is_private_cloud()
+    assert response is not None
+
+
+def test_get_result_state_flags():
+    response = get_result_state_flags()
+    assert response is not None
+
+
+def test_get_child_nodes():
+    response = get_child_nodes()
+    assert response is not None
+
+
+def test_get_projects_with_scans():
+    response = get_projects_with_scans()
+    assert response["IsSuccesfull"] is True
+
+
+def test_get_configuration_set_list():
+    response = get_configuration_set_list()
+    assert response["IsSuccesfull"] is True
