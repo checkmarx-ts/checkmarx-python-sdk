@@ -1,211 +1,216 @@
-# The CxSAST and CxOSA REST API list
+# The CxSAST and CxOSA REST API List
 
-1. For REST API, use Bearer Token for authentication
-    - auth_headers (This is a global variable that stored token)
-2. TeamAPI
-    - create_team
-    - get_all_teams
-    - get_team_id_by_team_full_name                                         **(provided by SDK)**
-    - get_team_full_name_by_team_id                                         **(provided by SDK)**
-3. ProjectsAPI
-    - get_all_project_details
-    - create_project_with_default_configuration
-    - get_project_id_by_project_name_and_team_full_name                     **(provided by SDK)**
-    - get_project_details_by_id
-    - update_project_by_id
-    - update_project_name_team_id
-    - delete_project_by_id
-    - create_project_if_not_exists_by_project_name_and_team_full_name       **(provided by SDK)**
-    - delete_project_if_exists_by_project_name_and_team_full_name           **(provided by SDK)**
-    - create_branched_project
-    - get_all_issue_tracking_systems
-    - get_issue_tracking_system_id_by_name
-    - get_issue_tracking_system_details_by_id
-    - get_project_exclude_settings_by_project_id
-    - set_project_exclude_settings_by_project_id
-    - get_remote_source_settings_for_git_by_project_id
-    - set_remote_source_setting_to_git
-    - get_remote_source_settings_for_svn_by_project_id
-    - set_remote_source_settings_to_svn
-    - get_remote_source_settings_for_tfs_by_project_id
-    - set_remote_source_settings_to_tfs
-    - get_remote_source_settings_for_custom_by_project_id
-    - set_remote_source_setting_for_custom_by_project_id
-    - get_remote_source_settings_for_shared_by_project_id
-    - set_remote_source_settings_to_shared
-    - get_remote_source_settings_for_perforce_by_project_id
-    - set_remote_source_settings_to_perforce
-    - set_remote_source_setting_to_git_using_ssh
-    - set_remote_source_setting_to_svn_using_ssh
-    - upload_source_code_zip_file
-    - set_data_retention_settings_by_project_id
-    - set_issue_tracking_system_as_jira_by_id
-    - get_all_preset_details
-    - get_preset_id_by_name
-    - get_preset_details_by_preset_id
-    - set_project_queue_setting
-    - update_project_queue_setting
-    - set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection
-4. CustomTasksAPI
-    - get_all_custom_tasks
-    - get_custom_task_id_by_name
-    - get_custom_task_by_id
-    - get_custom_task_by_name
-5. CustomFieldsAPI
-    - get_all_custom_fields
-    - get_custom_field_id_by_name
-6. ScansAPI
-    - get_all_scans_for_project
-    - get_last_scan_id_of_a_project
-    - create_new_scan
-    - get_sast_scan_details_by_scan_id
-    - add_or_update_a_comment_by_scan_id
-    - delete_scan_by_scan_id
-    - get_statistics_results_by_scan_id
-    - get_scan_queue_details_by_scan_id
-    - update_queued_scan_status_by_scan_id
-    - get_all_scan_details_in_queue
-    - get_scan_settings_by_project_id
-    - define_sast_scan_settings
-    - update_sast_scan_settings
-    - define_sast_scan_scheduling_settings
-    - assign_ticket_to_scan_results
-    - publish_last_scan_results_to_management_and_orchestration_by_project_id
-    - get_the_publish_last_scan_results_to_management_and_orchestration_status
-    - get_short_vulnerability_description_for_a_scan_result
-    - register_scan_report
-    - get_report_status_by_id
-    - get_report_by_id
-    - is_scanning_finished                                                      **(provided by SDK)**
-    - is_report_generation_finished                                             **(provided by SDK)**
-    - get_scan_results_of_a_specific_query
-    - get_scan_results_for_a_specific_query_group_by_best_fix_location
-    - update_scan_result_labels_fields
-    - create_new_scan_with_settings
-    - get_scan_result_labels_fields
-    - get_scan_logs
-    - get_basic_metrics_of_a_scan
-    - get_parsed_files_metrics_of_a_scan
-    - get_failed_queries_metrics_of_a_scan
-    - get_failed_general_queries_metrics_of_a_scan
-    - get_succeeded_general_queries_metrics_of_a_scan
-7. DataRetentionAPI
-    - stop_data_retention
-    - define_data_retention_date_range
-    - define_data_retention_by_number_of_scans
-    - get_data_retention_request_status
-    - define_data_retention_by_rolling_date
-    - define_data_retention_by_rolling_months
-8. EnginesAPI
-    - get_all_engine_server_details
-    - get_engine_id_by_name
-    - register_engine
-    - unregister_engine_by_engine_id
-    - get_engine_details
-    - update_engine_server
-    - get_all_engine_configurations
-    - get_engine_configuration_id_by_name
-    - get_engine_configuration_by_id
-9. OsaAPI
-    - get_all_osa_scan_details_for_project
-    - get_last_osa_scan_id_of_a_project
-    - get_osa_scan_by_scan_id
-    - create_an_osa_scan_request
-    - get_all_osa_file_extensions
-    - get_osa_licenses_by_id
-    - get_osa_scan_libraries
-    - get_osa_scan_vulnerabilities_by_id
-    - get_first_vulnerability_id
-    - get_osa_scan_vulnerability_comments_by_id
-    - get_osa_scan_summary_report
-10. possible Exceptions
-    - BadRequestError                                           **(provided by SDK)**
-    - NotFoundError                                             **(provided by SDK)**
-    - CxError                                                   **(provided by SDK)**
-11. AccessControlAPI
-    - get_all_assignable_users
-    - get_all_authentication_providers
-    - submit_first_admin_user
-    - get_admin_user_exists_confirmation
-    - get_all_ldap_role_mapping
-    - update_ldap_role_mapping
-    - delete_ldap_role_mapping
-    - test_ldap_server_connection
-    - get_user_entries_by_search_criteria
-    - get_group_entries_by_search_criteria
-    - get_all_ldap_servers
-    - create_new_ldap_server
-    - get_ldap_server_by_id
-    - update_ldap_server
-    - delete_ldap_server
-    - get_ldap_team_mapping
-    - update_ldap_team_mapping
-    - delete_ldap_team_mapping
-    - get_my_profile
-    - update_my_profile
-    - get_all_oidc_clients
-    - create_new_oidc_client
-    - get_oidc_client_by_id
-    - update_an_oidc_client
-    - delete_an_oidc_client
-    - get_all_permissions
-    - get_permission_by_id
-    - get_all_roles
-    - get_role_id_by_name
-    - create_new_role
-    - get_role_by_id
-    - update_a_role
-    - delete_a_role
-    - get_all_saml_identity_providers
-    - create_new_saml_identity_provider
-    - get_saml_identity_provider_by_id
-    - update_new_saml_identity_provider
-    - delete_a_saml_identity_provider
-    - get_details_of_saml_role_mappings
-    - set_saml_group_and_role_mapping_details
-    - get_saml_service_provider_metadata
-    - get_saml_service_provider
-    - update_a_saml_service_provider
-    - get_details_of_saml_team_mappings
-    - set_saml_group_and_team_mapping_details
-    - get_all_service_providers
-    - get_service_provider_by_id
-    - get_all_smtp_settings
-    - create_smtp_settings
-    - get_smtp_settings_by_id
-    - update_smtp_settings
-    - delete_smtp_settings
-    - test_smtp_connection
-    - get_all_system_locales
-    - get_members_by_team_id
-    - update_members_by_team_id
-    - add_a_user_to_a_team
-    - delete_a_member_from_a_team
-    - get_all_teams
-    - get_team_id_by_full_name
-    - create_new_team
-    - get_team_by_id
-    - update_a_team
-    - delete_a_team
-    - generate_a_new_token_signing_certificate
-    - upload_a_new_token_signing_certificate
-    - get_all_users
-    - get_user_id_by_name
-    - create_new_user
-    - get_user_by_id
-    - update_a_user
-    - delete_a_user
-    - migrate_existing_user
-    - get_all_windows_domains
-    - get_windows_domain_id_by_name
-    - create_a_new_windows_domain
-    - get_windows_domain_by_id
-    - update_a_windows_domain
-    - delete_a_windows_domain
-    - get_windows_domain_user_entries_by_search_criteria
-12. Configuration API
-    - get_cx_component_configuration_settings
-    - update_cx_component_configuration_settings
-13 . Queries API
-    - get_the_full_description_of_the_query
-    - get_query_id_and_query_version_code
+| Python Class | Method | HTTP | Endpoint Path |
+|---|---|---|---|
+| TeamAPI | `get_all_teams` | GET | `/cxrestapi/auth/teams` |
+| TeamAPI | `create_team` | POST | `/cxrestapi/auth/teams` |
+| TeamAPI | `get_team_id_by_team_full_name` | — | (utility) |
+| TeamAPI | `get_team_full_name_by_team_id` | — | (utility) |
+| ProjectsAPI | `get_all_project_details` | GET | `/cxrestapi/projects` |
+| ProjectsAPI | `create_project_with_default_configuration` | POST | `/cxrestapi/projects` |
+| ProjectsAPI | `get_project_id_by_project_name_and_team_full_name` | — | (utility) |
+| ProjectsAPI | `get_project_details_by_id` | GET | `/cxrestapi/projects/{project_id}` |
+| ProjectsAPI | `update_project_by_id` | PUT | `/cxrestapi/projects/{project_id}` |
+| ProjectsAPI | `update_project_name_team_id` | PATCH | `/cxrestapi/projects/{project_id}` |
+| ProjectsAPI | `delete_project_by_id` | DELETE | `/cxrestapi/projects/{project_id}` |
+| ProjectsAPI | `create_project_if_not_exists_by_project_name_and_team_full_name` | — | (utility) |
+| ProjectsAPI | `delete_project_if_exists_by_project_name_and_team_full_name` | — | (utility) |
+| ProjectsAPI | `create_branched_project` | POST | `/cxrestapi/projects/{project_id}/branch` |
+| ProjectsAPI | `get_branch_project_status` | GET | `/cxrestapi/projects/branch/{branch_project_id}` |
+| ProjectsAPI | `get_project_branching_status` | GET | `/cxrestapi/projects/branch/{project_id}` |
+| ProjectsAPI | `get_all_issue_tracking_systems` | GET | `/cxrestapi/issueTrackingSystems` |
+| ProjectsAPI | `get_issue_tracking_system_id_by_name` | — | (utility) |
+| ProjectsAPI | `get_issue_tracking_system_details_by_id` | GET | `/cxrestapi/issueTrackingSystems/{id}/metadata` |
+| ProjectsAPI | `get_project_exclude_settings_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/excludeSettings` |
+| ProjectsAPI | `set_project_exclude_settings_by_project_id` | PUT | `/cxrestapi/projects/{project_id}/sourceCode/excludeSettings` |
+| ProjectsAPI | `get_remote_source_settings_for_git_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git` |
+| ProjectsAPI | `set_remote_source_setting_to_git` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git` |
+| ProjectsAPI | `get_remote_source_settings_for_svn_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/svn` |
+| ProjectsAPI | `set_remote_source_settings_to_svn` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/svn` |
+| ProjectsAPI | `get_remote_source_settings_for_tfs_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/tfs` |
+| ProjectsAPI | `set_remote_source_settings_to_tfs` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/tfs` |
+| ProjectsAPI | `get_remote_source_settings_for_custom_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/custom` |
+| ProjectsAPI | `set_remote_source_setting_for_custom_by_project_id` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/custom` |
+| ProjectsAPI | `get_remote_source_settings_for_shared_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/shared` |
+| ProjectsAPI | `set_remote_source_settings_to_shared` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/shared` |
+| ProjectsAPI | `get_remote_source_settings_for_perforce_by_project_id` | GET | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/perforce` |
+| ProjectsAPI | `set_remote_source_settings_to_perforce` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/perforce` |
+| ProjectsAPI | `set_remote_source_setting_to_git_using_ssh` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/git/ssh` |
+| ProjectsAPI | `set_remote_source_setting_to_svn_using_ssh` | POST | `/cxrestapi/projects/{project_id}/sourceCode/remoteSettings/svn/ssh` |
+| ProjectsAPI | `upload_source_code_zip_file` | POST | `/cxrestapi/projects/{project_id}/sourceCode/attachments` |
+| ProjectsAPI | `set_data_retention_settings_by_project_id` | POST | `/cxrestapi/projects/{project_id}/dataRetentionSettings` |
+| ProjectsAPI | `set_issue_tracking_system_as_jira_by_id` | POST | `/cxrestapi/projects/{project_id}/issueTrackingSettings/jira` |
+| ProjectsAPI | `get_all_preset_details` | GET | `/cxrestapi/sast/presets` |
+| ProjectsAPI | `get_preset_id_by_name` | — | (utility) |
+| ProjectsAPI | `get_preset_details_by_preset_id` | GET | `/cxrestapi/sast/presets/{preset_id}` |
+| ProjectsAPI | `set_project_queue_setting` | POST | `/cxrestapi/sast/project/{project_id}/queueSettings` |
+| ProjectsAPI | `update_project_queue_setting` | PUT | `/cxrestapi/sast/project/{project_id}/queueSettings` |
+| ProjectsAPI | `set_project_next_scheduled_scan_to_be_excluded_from_no_code_change_detection` | POST | `/cxrestapi/projects/{project_id}/forceScanOnNoCodeChanges` |
+| ProjectsAPI | `force_scan_on_no_code_changes` | POST | `/cxrestapi/projects/{project_id}/forceScanOnNoCodeChanges` |
+| ProjectsAPI | `precheck_team` | GET | `/cxrestapi/projects/precheck/teams/{team_id}` |
+| ProjectsAPI | `get_path_filter` | GET | `/cxrestapi/projects/{project_id}/sourceCode/pathFilter` |
+| ProjectsAPI | `set_path_filter` | PUT | `/cxrestapi/projects/{project_id}/sourceCode/pathFilter` |
+| ProjectsAPI | `get_project_validity_for_running_incremental_scan` | GET | `/cxrestapi/projects/{project_id}/incrementalScanValidityStatus` |
+| CustomTasksAPI | `get_all_custom_tasks` | GET | `/cxrestapi/customTasks` |
+| CustomTasksAPI | `get_custom_task_id_by_name` | — | (utility) |
+| CustomTasksAPI | `get_custom_task_by_id` | GET | `/cxrestapi/customTasks/{task_id}` |
+| CustomTasksAPI | `get_custom_task_by_name` | GET | `/cxrestapi/customTasks/name/{task_name}` |
+| CustomFieldsAPI | `get_all_custom_fields` | GET | `/cxrestapi/customFields` |
+| CustomFieldsAPI | `get_custom_field_id_by_name` | — | (utility) |
+| ScansAPI | `get_all_scans_for_project` | GET | `/cxrestapi/sast/scans` |
+| ScansAPI | `get_last_scan_id_of_a_project` | — | (utility) |
+| ScansAPI | `create_new_scan` | POST | `/cxrestapi/sast/scans` |
+| ScansAPI | `get_sast_scan_details_by_scan_id` | GET | `/cxrestapi/sast/scans/{scan_id}` |
+| ScansAPI | `add_or_update_a_comment_by_scan_id` | PATCH | `/cxrestapi/sast/scans/{scan_id}` |
+| ScansAPI | `delete_scan_by_scan_id` | DELETE | `/cxrestapi/sast/scans/{scan_id}` |
+| ScansAPI | `get_statistics_results_by_scan_id` | GET | `/cxrestapi/sast/scans/{scan_id}/resultsStatistics` |
+| ScansAPI | `get_scan_queue_details_by_scan_id` | GET | `/cxrestapi/sast/scansQueue/{scan_id}` |
+| ScansAPI | `update_queued_scan_status_by_scan_id` | PATCH | `/cxrestapi/sast/scansQueue/{scan_id}` |
+| ScansAPI | `cancel_scan` | PATCH | `/cxrestapi/sast/scansQueue/{scan_id}` |
+| ScansAPI | `get_all_scan_details_in_queue` | GET | `/cxrestapi/sast/scansQueue` |
+| ScansAPI | `get_scan_settings_by_project_id` | GET | `/cxrestapi/sast/scanSettings/{project_id}` |
+| ScansAPI | `define_sast_scan_settings` | POST | `/cxrestapi/sast/scanSettings` |
+| ScansAPI | `update_sast_scan_settings` | PUT | `/cxrestapi/sast/scanSettings` |
+| ScansAPI | `define_sast_scan_scheduling_settings` | PUT | `/cxrestapi/sast/project/{project_id}/scheduling` |
+| ScansAPI | `assign_ticket_to_scan_results` | POST | `/cxrestapi/sast/results/tickets` |
+| ScansAPI | `publish_last_scan_results_to_management_and_orchestration_by_project_id` | POST | `/cxrestapi/sast/projects/{project_id}/publisher/policyFindings` |
+| ScansAPI | `get_the_publish_last_scan_results_to_management_and_orchestration_status` | GET | `/cxrestapi/sast/projects/{project_id}/publisher/policyFindings/status` |
+| ScansAPI | `get_short_vulnerability_description_for_a_scan_result` | GET | `/cxrestapi/sast/scans/{scan_id}/results/{path_id}/shortDescription` |
+| ScansAPI | `register_scan_report` | POST | `/cxrestapi/reports/sastScan` |
+| ScansAPI | `get_report_status_by_id` | GET | `/cxrestapi/reports/sastScan/{report_id}/status` |
+| ScansAPI | `get_report_by_id` | GET | `/cxrestapi/reports/sastScan/{report_id}` |
+| ScansAPI | `is_scanning_finished` | — | (utility) |
+| ScansAPI | `is_report_generation_finished` | — | (utility) |
+| ScansAPI | `get_scan_results_of_a_specific_query` | GET | `/cxrestapi/sast/results/attack-vectors` |
+| ScansAPI | `get_scan_results_for_a_specific_query_group_by_best_fix_location` | GET | `/cxrestapi/sast/results/attack-vectors-by-bfl` |
+| ScansAPI | `update_scan_result_labels_fields` | PATCH | `/cxrestapi/sast/scans/{scan_id}/results/{result_id}/labels` |
+| ScansAPI | `create_new_scan_with_settings` | POST | `/cxrestapi/sast/scanWithSettings` |
+| ScansAPI | `get_scan_result_labels_fields` | GET | `/cxrestapi/sast/scans/{scan_id}/results/{result_id}/labels` |
+| ScansAPI | `get_scan_logs` | GET | `/cxrestapi/sast/scans/{scan_id}/logs` |
+| ScansAPI | `get_basic_metrics_of_a_scan` | GET | `/cxrestapi/sast/scans/{scan_id}/statistics` |
+| ScansAPI | `get_parsed_files_metrics_of_a_scan` | GET | `/cxrestapi/sast/scans/{scan_id}/parsedFiles` |
+| ScansAPI | `get_failed_queries_metrics_of_a_scan` | GET | `/cxrestapi/sast/scans/{scan_id}/failedQueries` |
+| ScansAPI | `get_failed_general_queries_metrics_of_a_scan` | GET | `/cxrestapi/sast/scans/{scan_id}/failedGeneralQueries` |
+| ScansAPI | `get_succeeded_general_queries_metrics_of_a_scan` | GET | `/cxrestapi/sast/scans/{scan_id}/succeededGeneralQueries` |
+| ScansAPI | `get_result_path_comments_history` | GET | `/cxrestapi/sast/resultPathCommentsHistory` |
+| ScansAPI | `lock_scan` | PUT | `/cxrestapi/sast/lockScan` |
+| ScansAPI | `unlock_scan` | PUT | `/cxrestapi/sast/unLockScan` |
+| ScansAPI | `get_scan_result_labels_action_fields` | GET | `/cxrestapi/sast/scans/{scan_id}/actionResults/{path_id}/labels` |
+| ScansAPI | `get_compare_results_of_two_scans` | GET | `/cxrestapi/sast/scans/{old_scan_id}/compareResultsTo/{new_scan_id}` |
+| ScansAPI | `get_compare_results_summary_of_two_scans` | GET | `/cxrestapi/sast/scans/{old_scan_id}/compareSummaryTo/{new_scan_id}` |
+| ScansAPI | `get_a_collection_of_scans_by_project` | GET | `/cxrestapi/sast/scans` |
+| ScansAPI | `get_scan_results_in_paged_mode` | GET | `/cxrestapi/sast/results` |
+| ScansAPI | `get_all_scan_results` | — | (utility — paginates `get_scan_results_in_paged_mode`) |
+| DataRetentionAPI | `stop_data_retention` | POST | `/cxrestapi/sast/dataRetention/stop` |
+| DataRetentionAPI | `define_data_retention_date_range` | POST | `/cxrestapi/sast/dataRetention/byDateRange` |
+| DataRetentionAPI | `define_data_retention_by_number_of_scans` | POST | `/cxrestapi/sast/dataRetention/byNumberOfScans` |
+| DataRetentionAPI | `get_data_retention_request_status` | GET | `/cxrestapi/sast/dataRetention/{request_id}/status` |
+| DataRetentionAPI | `define_data_retention_by_rolling_date` | — | (utility) |
+| DataRetentionAPI | `define_data_retention_by_rolling_months` | — | (utility) |
+| EnginesAPI | `get_all_engine_server_details` | GET | `/cxrestapi/sast/engineServers` |
+| EnginesAPI | `get_engine_id_by_name` | — | (utility) |
+| EnginesAPI | `register_engine` | POST | `/cxrestapi/sast/engineServers` |
+| EnginesAPI | `unregister_engine_by_engine_id` | DELETE | `/cxrestapi/sast/engineServers/{engine_id}` |
+| EnginesAPI | `get_engine_details` | GET | `/cxrestapi/sast/engineServers/{engine_id}` |
+| EnginesAPI | `update_engine_server` | PUT | `/cxrestapi/sast/engineServers/{engine_id}` |
+| EnginesAPI | `update_an_engine_server_by_edit_single_field` | PATCH | `/cxrestapi/sast/engineServers/{engine_id}` |
+| EnginesAPI | `get_all_engine_configurations` | GET | `/cxrestapi/sast/engineConfigurations` |
+| EnginesAPI | `get_engine_configuration_id_by_name` | — | (utility) |
+| EnginesAPI | `get_engine_configuration_by_id` | GET | `/cxrestapi/sast/engineConfigurations/{configuration_id}` |
+| OsaAPI | `get_all_osa_scan_details_for_project` | GET | `/cxrestapi/osa/scans` |
+| OsaAPI | `get_last_osa_scan_id_of_a_project` | — | (utility) |
+| OsaAPI | `get_osa_scan_by_scan_id` | GET | `/cxrestapi/osa/scans/{scan_id}` |
+| OsaAPI | `create_an_osa_scan_request` | POST | `/cxrestapi/osa/scans` |
+| OsaAPI | `get_all_osa_file_extensions` | GET | `/cxrestapi/osa/fileextensions` |
+| OsaAPI | `get_osa_licenses_by_id` | GET | `/cxrestapi/osa/licenses` |
+| OsaAPI | `get_osa_scan_libraries` | GET | `/cxrestapi/osa/libraries` |
+| OsaAPI | `get_osa_scan_vulnerabilities_by_id` | GET | `/cxrestapi/osa/vulnerabilities` |
+| OsaAPI | `get_first_vulnerability_id` | — | (utility) |
+| OsaAPI | `get_osa_scan_vulnerability_comments_by_id` | GET | `/cxrestapi/osa/vulnerabilities/{vulnerability_id}/comments` |
+| OsaAPI | `get_osa_scan_summary_report` | GET | `/cxrestapi/osa/reports` |
+| AccessControlAPI | `get_all_assignable_users` | GET | `/cxrestapi/auth/AssignableUsers` |
+| AccessControlAPI | `get_all_authentication_providers` | GET | `/cxrestapi/auth/AuthenticationProviders` |
+| AccessControlAPI | `submit_first_admin_user` | POST | `/cxrestapi/auth/Users/FirstAdmin` |
+| AccessControlAPI | `get_admin_user_exists_confirmation` | GET | `/cxrestapi/auth/Users/FirstAdminExistence` |
+| AccessControlAPI | `get_all_ldap_role_mapping` | GET | `/cxrestapi/auth/LDAPRoleMappings` |
+| AccessControlAPI | `update_ldap_role_mapping` | PUT | `/cxrestapi/auth/LDAPServers/{id}/RoleMappings` |
+| AccessControlAPI | `delete_ldap_role_mapping` | DELETE | `/cxrestapi/auth/LDAPRoleMappings/{id}` |
+| AccessControlAPI | `test_ldap_server_connection` | POST | `/cxrestapi/auth/LDAPServers/TestConnection` |
+| AccessControlAPI | `get_user_entries_by_search_criteria` | GET | `/cxrestapi/auth/LDAPServers/{id}/UserEntries` |
+| AccessControlAPI | `get_group_entries_by_search_criteria` | GET | `/cxrestapi/auth/LDAPServers/{id}/GroupEntries` |
+| AccessControlAPI | `get_all_ldap_servers` | GET | `/cxrestapi/auth/LDAPServers` |
+| AccessControlAPI | `create_new_ldap_server` | POST | `/cxrestapi/auth/LDAPServers` |
+| AccessControlAPI | `get_ldap_server_by_id` | GET | `/cxrestapi/auth/LDAPServers/{id}` |
+| AccessControlAPI | `update_ldap_server` | PUT | `/cxrestapi/auth/LDAPServers/{id}` |
+| AccessControlAPI | `delete_ldap_server` | DELETE | `/cxrestapi/auth/LDAPServers/{id}` |
+| AccessControlAPI | `get_ldap_team_mapping` | GET | `/cxrestapi/auth/LDAPTeamMappings` |
+| AccessControlAPI | `update_ldap_team_mapping` | PUT | `/cxrestapi/auth/LDAPServers/{id}/TeamMappings` |
+| AccessControlAPI | `delete_ldap_team_mapping` | DELETE | `/cxrestapi/auth/LDAPTeamMappings/{id}` |
+| AccessControlAPI | `get_my_profile` | GET | `/cxrestapi/auth/MyProfile` |
+| AccessControlAPI | `update_my_profile` | PUT | `/cxrestapi/auth/MyProfile` |
+| AccessControlAPI | `get_all_oidc_clients` | GET | `/cxrestapi/auth/OIDCClients` |
+| AccessControlAPI | `create_new_oidc_client` | POST | `/cxrestapi/auth/OIDCClients` |
+| AccessControlAPI | `get_oidc_client_by_id` | GET | `/cxrestapi/auth/OIDCClients/{id}` |
+| AccessControlAPI | `update_an_oidc_client` | PUT | `/cxrestapi/auth/OIDCClients/{id}` |
+| AccessControlAPI | `delete_an_oidc_client` | DELETE | `/cxrestapi/auth/OIDCClients/{id}` |
+| AccessControlAPI | `get_all_permissions` | GET | `/cxrestapi/auth/Permissions` |
+| AccessControlAPI | `get_permission_by_id` | GET | `/cxrestapi/auth/Permissions/{id}` |
+| AccessControlAPI | `get_all_roles` | GET | `/cxrestapi/auth/Roles` |
+| AccessControlAPI | `get_role_id_by_name` | — | (utility) |
+| AccessControlAPI | `create_new_role` | POST | `/cxrestapi/auth/Roles` |
+| AccessControlAPI | `get_role_by_id` | GET | `/cxrestapi/auth/Roles/{id}` |
+| AccessControlAPI | `update_a_role` | PUT | `/cxrestapi/auth/Roles/{id}` |
+| AccessControlAPI | `delete_a_role` | DELETE | `/cxrestapi/auth/Roles/{id}` |
+| AccessControlAPI | `get_all_saml_identity_providers` | GET | `/cxrestapi/auth/SamlIdentityProviders` |
+| AccessControlAPI | `create_new_saml_identity_provider` | POST | `/cxrestapi/auth/SamlIdentityProviders` |
+| AccessControlAPI | `get_saml_identity_provider_by_id` | GET | `/cxrestapi/auth/SamlIdentityProviders/{id}` |
+| AccessControlAPI | `update_new_saml_identity_provider` | PUT | `/cxrestapi/auth/SamlIdentityProviders/{id}` |
+| AccessControlAPI | `delete_a_saml_identity_provider` | DELETE | `/cxrestapi/auth/SamlIdentityProviders/{id}` |
+| AccessControlAPI | `get_details_of_saml_role_mappings` | GET | `/cxrestapi/auth/SamlRoleMappings` |
+| AccessControlAPI | `set_saml_group_and_role_mapping_details` | PUT | `/cxrestapi/auth/SamlIdentityProviders/{samlProviderId}/RoleMappings` |
+| AccessControlAPI | `get_saml_service_provider_metadata` | GET | `/cxrestapi/auth/SamlServiceProvider/metadata` |
+| AccessControlAPI | `get_saml_service_provider` | GET | `/cxrestapi/auth/SamlServiceProvider` |
+| AccessControlAPI | `update_a_saml_service_provider` | PUT | `/cxrestapi/auth/SamlServiceProvider` |
+| AccessControlAPI | `get_details_of_saml_team_mappings` | GET | `/cxrestapi/auth/SamlTeamMappings` |
+| AccessControlAPI | `set_saml_group_and_team_mapping_details` | PUT | `/cxrestapi/auth/SamlIdentityProviders/{id}/TeamMappings` |
+| AccessControlAPI | `get_all_service_providers` | GET | `/cxrestapi/auth/ServiceProviders` |
+| AccessControlAPI | `get_service_provider_by_id` | GET | `/cxrestapi/auth/ServiceProviders/{id}` |
+| AccessControlAPI | `get_all_smtp_settings` | GET | `/cxrestapi/auth/SMTPSettings` |
+| AccessControlAPI | `create_smtp_settings` | POST | `/cxrestapi/auth/SMTPSettings` |
+| AccessControlAPI | `get_smtp_settings_by_id` | GET | `/cxrestapi/auth/SMTPSettings/{id}` |
+| AccessControlAPI | `update_smtp_settings` | PUT | `/cxrestapi/auth/SMTPSettings/{id}` |
+| AccessControlAPI | `delete_smtp_settings` | DELETE | `/cxrestapi/auth/SMTPSettings/{id}` |
+| AccessControlAPI | `test_smtp_connection` | POST | `/cxrestapi/auth/SMTPSettings/testconnection` |
+| AccessControlAPI | `get_all_system_locales` | GET | `/cxrestapi/auth/SystemLocales` |
+| AccessControlAPI | `get_members_by_team_id` | GET | `/cxrestapi/auth/Teams/{id}/Users` |
+| AccessControlAPI | `update_members_by_team_id` | PUT | `/cxrestapi/auth/Teams/{teamId}/Users` |
+| AccessControlAPI | `add_a_user_to_a_team` | POST | `/cxrestapi/auth/Teams/{teamId}/Users/{userId}` |
+| AccessControlAPI | `delete_a_member_from_a_team` | DELETE | `/cxrestapi/auth/Teams/{teamId}/Users/{userId}` |
+| AccessControlAPI | `get_all_teams` | GET | `/cxrestapi/auth/Teams` |
+| AccessControlAPI | `get_team_id_by_full_name` | — | (utility) |
+| AccessControlAPI | `create_new_team` | POST | `/cxrestapi/auth/Teams` |
+| AccessControlAPI | `create_teams_recursively` | — | (utility) |
+| AccessControlAPI | `get_team_by_id` | GET | `/cxrestapi/auth/Teams/{id}` |
+| AccessControlAPI | `update_a_team` | PUT | `/cxrestapi/auth/Teams/{id}` |
+| AccessControlAPI | `delete_a_team` | DELETE | `/cxrestapi/auth/Teams/{id}` |
+| AccessControlAPI | `generate_a_new_token_signing_certificate` | POST | `/cxrestapi/auth/TokenSigningCertificateGeneration` |
+| AccessControlAPI | `upload_a_new_token_signing_certificate` | POST | `/cxrestapi/auth/TokenSigningCertificate` |
+| AccessControlAPI | `get_all_users` | GET | `/cxrestapi/auth/Users` |
+| AccessControlAPI | `get_user_id_by_name` | — | (utility) |
+| AccessControlAPI | `create_new_user` | POST | `/cxrestapi/auth/Users` |
+| AccessControlAPI | `get_user_by_id` | GET | `/cxrestapi/auth/Users/{id}` |
+| AccessControlAPI | `update_a_user` | PUT | `/cxrestapi/auth/Users/{id}` |
+| AccessControlAPI | `delete_a_user` | DELETE | `/cxrestapi/auth/Users/{id}` |
+| AccessControlAPI | `migrate_existing_user` | POST | `/cxrestapi/auth/Users/migration` |
+| AccessControlAPI | `get_all_windows_domains` | GET | `/cxrestapi/auth/WindowsDomains` |
+| AccessControlAPI | `get_windows_domain_id_by_name` | — | (utility) |
+| AccessControlAPI | `create_a_new_windows_domain` | POST | `/cxrestapi/auth/WindowsDomains` |
+| AccessControlAPI | `get_windows_domain_by_id` | GET | `/cxrestapi/auth/WindowsDomains/{id}` |
+| AccessControlAPI | `update_a_windows_domain` | PUT | `/cxrestapi/auth/WindowsDomains/{id}` |
+| AccessControlAPI | `delete_a_windows_domain` | DELETE | `/cxrestapi/auth/WindowsDomains/{id}` |
+| AccessControlAPI | `get_windows_domain_user_entries_by_search_criteria` | GET | `/cxrestapi/auth/WindowsDomains/{id}/UserEntries` |
+| ConfigurationAPI | `get_cx_component_configuration_settings` | GET | `/cxrestapi/configurationsExtended/{group}` |
+| ConfigurationAPI | `update_cx_component_configuration_settings` | PUT | `/cxrestapi/configurationsExtended/{group}` |
+| QueriesAPI | `get_the_full_description_of_the_query` | GET | `/cxrestapi/queries/{query_id}/cxDescription` |
+| QueriesAPI | `get_query_id_and_query_version_code` | GET | `/cxrestapi/queries/queryVersionCode` |
+| QueriesAPI | `get_preset_detail` | GET | `/cxrestapi/sast/presetDetails/{preset_id}` |
