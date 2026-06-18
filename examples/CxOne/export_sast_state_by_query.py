@@ -23,7 +23,7 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.sastResultsAPI import SastResultsAPI
 
-OUTPUT_CSV = Path(__file__).resolve().parent / "sast_state_by_query_v5.csv"
+OUTPUT_CSV = Path(__file__).resolve().parent / "sast_state_by_query_v6.csv"
 STATES = ["TO_VERIFY", "CONFIRMED", "URGENT",
            "NOT_EXPLOITABLE", "PROPOSED_NOT_EXPLOITABLE"]
 
