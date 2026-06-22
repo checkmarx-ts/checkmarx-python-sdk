@@ -434,7 +434,10 @@ def run_scan_and_generate_reports(arguments):
         return
 
     logger.info(f"deleting zip file: {zip_file_path}")
-    pathlib.Path(zip_file_path).unlink()
+    try:
+        pathlib.Path(zip_file_path).unlink()
+    except PermissionError:
+        logger.warning("could not delete zip file, it may be in use by another process")
 
     if report_xml:
         generate_report(scan_id=scan_id, report_type="XML", report_file_path=report_xml)

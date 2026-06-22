@@ -253,6 +253,11 @@ class ApiClient:
         if params:
             params = {k: v for k, v in params.items() if v is not None}
 
+        # httpx auto-sets Content-Type for multipart uploads; explicit Content-Type
+        # from get_headers() would override it, breaking file uploads.
+        if files and headers:
+            headers.pop("Content-Type", None)
+
         response = self.session.request(
             method=method,
             url=url,
