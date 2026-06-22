@@ -353,14 +353,33 @@ class ProjectsAPI(object):
     def get_branch_project_status(
         self, branch_project_id: int, api_version: str = "4.0"
     ) -> str:
-        result = False
+        """
+        Get the branching status of a branched project.
+
+        Args:
+            branch_project_id (int): Unique Id of the branched project
+            api_version (str, optional):
+
+        Returns:
+            str: The status value. Known values:
+                - "Started"
+                - "InProgress"
+                - "Completed"
+                - "Failed"
+                Returns None if the request fails.
+        """
+        result = None
         url = f"{self.base_url}/cxrestapi/projects/branch/{branch_project_id}"
         response = self.api_client.call_api(
             "GET", url, headers=get_headers(api_version=api_version)
         )
         if response.status_code == OK:
             item = response.json()
-            result = item["status"]["id"] == 2
+            status = item.get("status") or {}
+            if isinstance(status, dict):
+                result = status.get("value")
+            else:
+                result = status
         return result
 
     def get_all_issue_tracking_systems(
