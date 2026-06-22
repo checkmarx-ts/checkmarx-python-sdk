@@ -165,6 +165,8 @@ from .Permission import Permission
 from .PlatformSummary import PlatformSummary
 from .Predicate import Predicate
 from .PredicateHistory import PredicateHistory
+from .PredicateInitialValues import PredicateInitialValues
+from .PredicateHistoryResponse import PredicateHistoryResponse
 from .PredicateWithCommentJSON import PredicateWithCommentJSON
 from .PredicateWithCommentsJSON import PredicateWithCommentsJSON
 from .Preset import Preset

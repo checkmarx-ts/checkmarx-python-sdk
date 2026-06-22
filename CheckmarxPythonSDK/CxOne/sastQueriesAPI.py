@@ -48,17 +48,22 @@ class SastQueriesAPI(object):
         ]
 
     def get_sast_query_description(
-        self, ids: List[str]
+        self,
+        ids: List[str],
+        scan_id: str = None,
+        tenant_id: str = None,
     ) -> List[QueryDescription]:
         """
         Args:
             ids (List[str]): list of query ids.
+            scan_id (str): optional scan ID for context.
+            tenant_id (str): optional tenant ID.
 
         Returns:
             List[QueryDescription]
         """
         url = f"{self.base_url}/descriptions"
-        params = {"ids": ids}
+        params = {"ids": ids, "scan-id": scan_id, "tenant-id": tenant_id}
         response = self.api_client.call_api(
             method="GET", url=url, params=params
         )
@@ -121,8 +126,12 @@ def get_sast_queries_presets() -> List[Preset]:
 
 def get_sast_query_description(
     ids: List[str],
+    scan_id: str = None,
+    tenant_id: str = None,
 ) -> List[QueryDescription]:
-    return SastQueriesAPI().get_sast_query_description(ids=ids)
+    return SastQueriesAPI().get_sast_query_description(
+        ids=ids, scan_id=scan_id, tenant_id=tenant_id,
+    )
 
 
 def get_mapping_between_ast_and_sast_query_ids() -> List[dict]:

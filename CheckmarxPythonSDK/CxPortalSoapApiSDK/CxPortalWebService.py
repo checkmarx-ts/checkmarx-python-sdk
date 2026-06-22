@@ -1227,6 +1227,115 @@ class CxPortalWebService(object):
             "ErrorMessage": getattr(response, "ErrorMessage", None),
         }
 
+    def get_source_by_scan_id(self, scan_id: int, file_name: str) -> dict:
+        """Retrieve source code for a specific file in a scan (deprecated).
+
+        This SOAP operation is no longer supported in CxSAST 9.x. The server
+        returns IsSuccesfull=False with "This action is no longer supported."
+        Use :meth:`get_sources_by_scan_id` (plural) instead.
+
+        Args:
+            scan_id (int):
+            file_name (str): the file path to retrieve source for
+
+        Returns:
+            dict: always IsSuccesfull=False on 9.x
+        """
+        response = self.suds_client.execute(
+            "GetSourceByScanID",
+            sessionID="0",
+            scanID=str(scan_id),
+            fileToRetreive=file_name,
+        )
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "source": getattr(response, "source", None),
+        }
+
+    def get_sources_by_scan_id(self, scan_id: int, file_names: list) -> dict:
+        """Retrieve source code for specific files in a scan.
+
+        Args:
+            scan_id (int):
+            file_names (list of str): file paths to retrieve source for
+
+        Returns:
+            dict::
+                {
+                    "IsSuccesfull": True,
+                    "ErrorMessage": None,
+                    "sources": [
+                        {"IsSuccesfull": True, "Source": "<content>", "Encode": "Unicode (UTF-8)"},
+                        ...
+                    ],
+                }
+        """
+        files_array = self.suds_client.factory.ArrayOfString(list(file_names))
+        response = self.suds_client.execute(
+            "GetSourcesByScanID",
+            sessionID="0",
+            scanID=str(scan_id),
+            filesToRetreive=files_array,
+        )
+        content_list = getattr(
+            response, "cxWSResponseSourcesContent", None
+        )
+        sources = []
+        if content_list:
+            items = getattr(content_list, "CxWSResponseSourceContent", None)
+            if items is not None:
+                if not isinstance(items, list):
+                    items = [items]
+                sources = [
+                    {
+                        "IsSuccesfull": item.IsSuccesfull,
+                        "Source": item.Source,
+                    }
+                    for item in items
+                ]
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "Encode": getattr(response, "Encode", None),
+            "sources": sources,
+        }
+
+    def get_file_names_for_path(self, scan_id: int, path_id: int) -> dict:
+        """Get file names associated with a result path.
+
+        Args:
+            scan_id (int):
+            path_id (int):
+
+        Returns:
+            dict::
+                {
+                    "IsSuccesfull": True,
+                    "ErrorMessage": None,
+                    "fileNames": ["\\\\path\\\\to\\\\file.jsp"],
+                }
+        """
+        response = self.suds_client.execute(
+            "GetFileNamesForPath",
+            sessionId="0",
+            scanId=scan_id,
+            pathId=path_id,
+        )
+        fnames = getattr(response, "fileNames", None)
+        file_names = []
+        if fnames:
+            strings = getattr(fnames, "string", None)
+            if strings is not None:
+                if not isinstance(strings, list):
+                    strings = [strings]
+                file_names = strings
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "fileNames": file_names,
+        }
+
     def unlock_scan(self, scan_id: int) -> dict:
         """
 
@@ -1242,6 +1351,744 @@ class CxPortalWebService(object):
         return {
             "IsSuccesfull": response["IsSuccesfull"],
             "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def get_preset_details(self, preset_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetPresetDetails", sessionId="0", id=preset_id
+        )
+        preset = getattr(response, "preset", None)
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "preset": (
+                {
+                    "queryIds": getattr(getattr(preset, "queryIds", None), "long", []),
+                    "id": preset.id,
+                    "name": preset.name,
+                    "owningteam": preset.owningteam,
+                    "isPublic": preset.isPublic,
+                    "owner": getattr(preset, "owner", None),
+                    "isUserAllowToUpdate": preset.isUserAllowToUpdate,
+                    "isUserAllowToDelete": preset.isUserAllowToDelete,
+                    "IsDuplicate": preset.IsDuplicate,
+                }
+                if preset
+                else None
+            ),
+        }
+
+    def update_preset(self, preset_id: int, query_ids: list, name: str) -> dict:
+        factory = self.suds_client.factory
+        query_id_list = factory.ArrayOfLong(query_ids)
+        cx_preset_detail = factory.CxPresetDetails(
+            queryIds=query_id_list,
+            id=preset_id,
+            name=name,
+            owningteam=1,
+            isPublic=True,
+            isUserAllowToUpdate=True,
+            isUserAllowToDelete=True,
+            IsDuplicate=False,
+        )
+        response = self.suds_client.execute(
+            "UpdatePreset", sessionId="0", presrt=cx_preset_detail
+        )
+        preset = getattr(response, "preset", None)
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "preset": (
+                {
+                    "queryIds": getattr(getattr(preset, "queryIds", None), "long", []),
+                    "id": preset.id,
+                    "name": preset.name,
+                    "owningteam": preset.owningteam,
+                    "isPublic": preset.isPublic,
+                    "owner": getattr(preset, "owner", None),
+                    "isUserAllowToUpdate": preset.isUserAllowToUpdate,
+                    "isUserAllowToDelete": preset.isUserAllowToDelete,
+                    "IsDuplicate": preset.IsDuplicate,
+                }
+                if preset
+                else None
+            ),
+        }
+
+    def get_result_state_list(self) -> dict:
+        response = self.suds_client.execute("GetResultStateList", sessionID="0")
+        result_state_list = getattr(
+            response, "ResultStateList", None
+        )
+        items = getattr(result_state_list, "ResultState", []) if result_state_list else []
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ResultStateList": [
+                {
+                    "ResultName": item.ResultName,
+                    "ResultID": item.ResultID,
+                    "ResultPermission": item.ResultPermission,
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_scan_report(self, report_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetScanReport", SessionID="0", ReportID=report_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScanResults": getattr(response, "ScanResults", None),
+            "containsAllResults": response["containsAllResults"],
+        }
+
+    def get_scan_report_status(self, report_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetScanReportStatus", SessionID="0", ReportID=report_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "Status": getattr(response, "Status", None),
+        }
+
+    def cancel_scan_report(self, report_id: int) -> dict:
+        response = self.suds_client.execute(
+            "CancelScanReport", SessionID="0", ReportID=report_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def get_results(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetResults", sessionId="0", scanId=scan_id
+        )
+        result_collection = getattr(response, "ResultCollection", None)
+        results = []
+        if result_collection:
+            query_groups = getattr(result_collection, "QueryGroups", None)
+            if query_groups:
+                groups = getattr(query_groups, "CxWSQueryGroup", [])
+                if not isinstance(groups, list):
+                    groups = [groups]
+                for qg in groups:
+                    for qr in (getattr(getattr(qg, "QueryResults", None), "CxWSQueryResult", []) or []):
+                        if not isinstance(qr, list):
+                            qr_list = [qr] if qr else []
+                        else:
+                            qr_list = qr
+                        for item in qr_list:
+                            results.append({
+                                "QueryId": item.QueryId,
+                                "QueryName": item.QueryName,
+                                "QueryVersionCode": item.QueryVersionCode,
+                                "QueryGroupName": getattr(item, "QueryGroupName", None),
+                                "ResultPathList": getattr(item, "ResultPathList", None),
+                            })
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "Results": results,
+        }
+
+    def get_result_summary(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetResultSummary", sessionId="0", scanId=scan_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ResultSummary": getattr(response, "ResultSummary", None),
+        }
+
+    def get_query_collection_for_language(
+        self, project_type: str = "Regular", project_id: int = 0
+    ) -> dict:
+        response = self.suds_client.execute(
+            "GetQueryCollectionForLanguage",
+            sessionId="0",
+            projectType=project_type,
+            projectId=project_id,
+        )
+        query_groups = []
+        for query_group in response.QueryGroups.CxWSQueryGroup:
+            queries = []
+            if query_group.Queries:
+                for query in query_group.Queries.CxWSQuery:
+                    queries.append({
+                        "QueryId": query.QueryId,
+                        "Name": query.Name,
+                        "Severity": query.Severity,
+                        "Status": query.Status,
+                        "Cwe": query.Cwe,
+                        "Source": query.Source,
+                        "IsExecutable": query.IsExecutable,
+                        "QueryVersionCode": query.QueryVersionCode,
+                        "Type": query.Type,
+                        "CxDescriptionID": query.CxDescriptionID,
+                    })
+            query_groups.append({
+                "Name": query_group.Name,
+                "Language": query_group.Language,
+                "LanguageName": query_group.LanguageName,
+                "PackageTypeName": query_group.PackageTypeName,
+                "PackageId": query_group.PackageId,
+                "Queries": queries,
+            })
+        return {
+            "IsSuccesfull": response.IsSuccesfull,
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "QueryGroups": query_groups,
+        }
+
+    def get_query_description(self, cwe_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetQueryDescription", sessionId="0", cweID=cwe_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "QueryDescription": getattr(response, "QueryDescription", None),
+        }
+
+    def get_query_short_description(self, query_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetQueryShortDescription", sessionId="0", queryId=query_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "QueryShortDescription": getattr(response, "QueryShortDescription", None),
+        }
+
+    def get_scans_display_data_for_all_projects(self) -> dict:
+        response = self.suds_client.execute(
+            "GetScansDisplayDataForAllProjects", sessionID="0"
+        )
+        scans_list = getattr(response, "ScansDisplayData", None)
+        items = (
+            getattr(scans_list, "ScanDisplayData", [])
+            if scans_list
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScansDisplayData": [
+                {
+                    "ScanID": item.ScanID,
+                    "ProjectID": item.ProjectID,
+                    "ProjectName": item.ProjectName,
+                    "TeamName": item.TeamName,
+                    "ScanStartDate": getattr(item, "ScanStartDate", None),
+                    "ScanFinishDate": getattr(item, "ScanFinishDate", None),
+                    "ScanStatus": getattr(item, "ScanStatus", None),
+                    "ScanType": getattr(item, "ScanType", None),
+                    "TotalResults": item.TotalResults,
+                    "HighResults": item.HighResults,
+                    "MediumResults": item.MediumResults,
+                    "LowResults": item.LowResults,
+                    "InfoResults": item.InfoResults,
+                    "IsLocked": item.IsLocked,
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_scan_summary(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetScanSummary", i_SessionID="0", i_ScanID=scan_id, auditEvent=False
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScanSummary": getattr(response, "ScanSummary", None),
+            "Partial": getattr(response, "Partial", None),
+        }
+
+    def get_server_license_basic(self) -> dict:
+        response = self.suds_client.execute("GetServerLicenseBasic", sessionID="0")
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "LicenseExpirationDate": getattr(response, "LicenseExpirationDate", None),
+            "ShouldDisplayExpirationDate": response["ShouldDisplayExpirationDate"],
+            "Edition": getattr(response, "Edition", None),
+        }
+
+    def get_server_license_data_extended(self) -> dict:
+        response = self.suds_client.execute(
+            "GetServerLicenseDataExtended", sessionID="0"
+        )
+        supported_languages = response.SupportedLanguages
+        return {
+            "ExpirationDate": response["ExpirationDate"],
+            "ExpirationDateIso": getattr(response, "ExpirationDateIso", None),
+            "MaxConcurrentScans": response["MaxConcurrentScans"],
+            "MaxLOC": response["MaxLOC"],
+            "HID": response["HID"],
+            "SupportedLanguages": (
+                [
+                    {"isSupported": item["isSupported"], "language": item["language"]}
+                    for item in supported_languages["SupportedLanguage"]
+                ]
+                if supported_languages
+                else None
+            ),
+            "MaxUsers": response["MaxUsers"],
+            "CurrentUsers": response["CurrentUsers"],
+            "MaxAuditUsers": response["MaxAuditUsers"],
+            "CurrentAuditUsers": response["CurrentAuditUsers"],
+            "IsOsaEnabled": response["IsOsaEnabled"],
+            "OsaExpirationDate": response["OsaExpirationDate"],
+            "Edition": response["Edition"],
+            "ProjectsAllowed": response["ProjectsAllowed"],
+            "CurrentProjectsCount": response["CurrentProjectsCount"],
+        }
+
+    def get_custom_fields(self) -> dict:
+        response = self.suds_client.execute("GetCustomFields", sessionID="0")
+        fields_array = getattr(response, "fieldsArray", None)
+        items = (
+            getattr(fields_array, "CxWSCustomField", [])
+            if fields_array
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "fieldsArray": [
+                {
+                    "Id": item.Id,
+                    "Name": item.Name,
+                    "IsMandatory": item.IsMandatory,
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_custom_field_values(self, project_id: int, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetCustomFieldValues",
+            sessionID="0",
+            projectID=project_id,
+            scanID=scan_id,
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "customFieldValues": getattr(response, "customFieldValues", None),
+        }
+
+    def get_result_paths_for_query(
+        self, scan_id: int, query_id: int
+    ) -> dict:
+        response = self.suds_client.execute(
+            "GetResultPathsForQuery",
+            sessionId="0",
+            scanId=scan_id,
+            queryId=query_id,
+        )
+        paths = getattr(response, "Paths", None)
+        items = getattr(paths, "CxWSResultPath", []) if paths else []
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "Paths": [
+                {
+                    "PathId": item.PathId,
+                    "SimilarityId": item.SimilarityId,
+                    "Nodes": getattr(item, "Nodes", None),
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_results_for_query(
+        self, scan_id: int, query_id: int
+    ) -> dict:
+        response = self.suds_client.execute(
+            "GetResultsForQuery",
+            sessionID="0",
+            scanId=scan_id,
+            queryId=query_id,
+        )
+        results = getattr(response, "Results", None)
+        items = (
+            getattr(results, "CxWSSingleResultData", [])
+            if results
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "Results": [
+                {
+                    "QueryId": item.QueryId,
+                    "PathId": item.PathId,
+                    "SourceFolder": item.SourceFolder,
+                    "SourceFile": item.SourceFile,
+                    "SourceLine": item.SourceLine,
+                    "SourceObject": item.SourceObject,
+                    "DestFolder": item.DestFolder,
+                    "DestFile": item.DestFile,
+                    "DestLine": item.DestLine,
+                    "NumberOfNodes": item.NumberOfNodes,
+                    "DestObject": item.DestObject,
+                    "Comment": item.Comment,
+                    "State": item.State,
+                    "Severity": item.Severity,
+                    "AssignedUser": item.AssignedUser,
+                    "ConfidenceLevel": item.ConfidenceLevel,
+                    "ResultStatus": item.ResultStatus,
+                    "IssueTicketID": item.IssueTicketID,
+                    "QueryVersionCode": item.QueryVersionCode,
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_queries_for_scan(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetQueriesForScan", sessionID="0", scanId=scan_id
+        )
+        query_groups = getattr(response, "QueryGroups", None)
+        groups = (
+            getattr(query_groups, "CxWSQueryGroup", [])
+            if query_groups
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "QueryGroups": [
+                {
+                    "Name": qg.Name,
+                    "Language": qg.Language,
+                    "LanguageName": qg.LanguageName,
+                    "Queries": [
+                        {
+                            "QueryId": q.QueryId,
+                            "Name": q.Name,
+                            "Severity": q.Severity,
+                        }
+                        for q in (getattr(qg.Queries, "CxWSQuery", []) or [])
+                    ],
+                }
+                for qg in (groups if isinstance(groups, list) else [groups])
+            ],
+        }
+
+    def get_scan_properties(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetScanProperties", sessionID="0", ScanID=scan_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScanProperties": getattr(response, "ScanProperties", None),
+        }
+
+    def get_status_of_single_scan(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetStatusOfSingleScan", sessionID="0", runId=str(scan_id)
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScanStatus": getattr(response, "ScanStatus", None),
+        }
+
+    def get_scans_statuses(self) -> dict:
+        response = self.suds_client.execute(
+            "GetScansStatuses",
+            sessionID="0",
+        )
+        statuses = getattr(response, "ScansStatusesList", None)
+        items = (
+            getattr(statuses, "ScanStatus", [])
+            if statuses
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScansStatusesList": [
+                {
+                    "ScanID": item.ScanID,
+                    "Status": getattr(item, "Status", None),
+                    "TotalPercent": item.TotalPercent,
+                    "StagePercent": item.StagePercent,
+                    "Stage": getattr(item, "Stage", None),
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_scan_logs(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetScanLogs", sessionID="0", scanId=scan_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ScanLogs": getattr(response, "ScanLogs", None),
+        }
+
+    def update_result_state(
+        self,
+        scan_id: int,
+        path_id: int,
+        project_id: int,
+        remarks: str = "",
+        result_label_type: str = "Remark",
+        data: str = "",
+    ) -> dict:
+        response = self.suds_client.execute(
+            "UpdateResultState",
+            sessionID="0",
+            scanId=scan_id,
+            PathId=path_id,
+            projectId=project_id,
+            Remarks=remarks,
+            ResultLabelType=result_label_type,
+            data=data,
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def update_result_comment(
+        self, result_id: int, path_id: int, project_id: int, comment: str
+    ) -> dict:
+        response = self.suds_client.execute(
+            "UpdateResultComment",
+            sessionID="0",
+            ResultId=result_id,
+            PathId=path_id,
+            projectId=project_id,
+            comment=comment,
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def update_scan_comment(self, scan_id: int, comment: str) -> dict:
+        response = self.suds_client.execute(
+            "UpdateScanComment",
+            sessionID="0",
+            ScanID=scan_id,
+            Comment=comment,
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def is_valid_preset_name(self, name: str) -> dict:
+        response = self.suds_client.execute(
+            "IsValidPresetName", sessionID="0", presetName=name
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def get_server_language_list(self) -> dict:
+        response = self.suds_client.execute(
+            "GetServerLanguageList", sessionID="0"
+        )
+        lang_list = getattr(response, "LanguageList", None)
+        items = (
+            getattr(lang_list, "CxWSProjectLanguage", [])
+            if lang_list
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "LanguageList": [
+                {
+                    "LanguageName": item.LanguageName,
+                    "LanguageOrder": getattr(item, "LanguageOrder", None),
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_executable_list(self) -> dict:
+        response = self.suds_client.execute(
+            "GetExecutableList", sessionId="0"
+        )
+        exec_list = getattr(response, "ExecutableList", None)
+        items = (
+            getattr(exec_list, "CxWSExecutable", [])
+            if exec_list
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ExecutableList": [
+                {
+                    "ExecutableName": item.ExecutableName,
+                    "ExeSettings": getattr(item, "ExeSettings", None),
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def count_lines(self, source_code: str, language_name: str) -> dict:
+        response = self.suds_client.execute(
+            "CountLines",
+            sessionID="0",
+            sourceCode=source_code,
+            languageName=language_name,
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "LineCount": getattr(response, "LineCount", None),
+        }
+
+    def is_alive(self) -> dict:
+        response = self.suds_client._client.service.IsAlive()
+        return {
+            "IsSuccesfull": bool(response),
+            "ErrorMessage": None,
+        }
+
+    def is_smtp_host_configured(self) -> dict:
+        response = self.suds_client.execute("IsSMTPHostConfigured")
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def is_private_cloud(self) -> dict:
+        response = self.suds_client.execute("IsPrivateCloud")
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def get_cwe_description(self, cwe_id: int) -> dict:
+        response = self.suds_client.execute(
+            "GetCWEDescription", sessionId="0", cweID=cwe_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "CWEDescription": getattr(response, "CWEDescription", None),
+        }
+
+    def get_result_state_flags(self) -> dict:
+        response = self.suds_client.execute(
+            "GetResultStateFlags", sessionID="0"
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def cancel_scan(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "CancelScan", SessionID="0", scanID=scan_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def delete_scan(self, scan_id: int) -> dict:
+        response = self.suds_client.execute(
+            "DeleteScan", sessionID="0", scanID=scan_id
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def delete_scans(self, scan_ids: list) -> dict:
+        factory = self.suds_client.factory
+        scan_id_list = factory.ArrayOfLong(scan_ids)
+        response = self.suds_client.execute(
+            "DeleteScans", sessionID="0", scanIDs=scan_id_list
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+        }
+
+    def get_child_nodes(
+        self, team_id: str = "", level: int = 0, team_path: str = ""
+    ) -> dict:
+        response = self.suds_client.execute(
+            "GetChildNodes",
+            sessionID="0",
+            pTeamId=team_id,
+            pLevel=level,
+            pTeamPath=team_path,
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ChildNodes": getattr(response, "ChildNodes", None),
+        }
+
+    def get_projects_with_scans(self) -> dict:
+        response = self.suds_client.execute(
+            "GetProjectsWithScans", sessionId="0"
+        )
+        project_list = getattr(response, "projectList", None)
+        items = (
+            getattr(project_list, "ProjectDisplayData", [])
+            if project_list
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "projectList": [
+                {
+                    "ProjectName": item.ProjectName,
+                    "projectID": item.projectID,
+                    "Group": item.Group,
+                    "TotalScans": item.TotalScans,
+                    "LastScanDate": getattr(item, "LastScanDate", None),
+                    "Owner": item.Owner,
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
+        }
+
+    def get_configuration_set_list(self) -> dict:
+        response = self.suds_client.execute(
+            "GetConfigurationSetList", SessionID="0"
+        )
+        config_list = getattr(response, "ConfigSetList", None)
+        items = (
+            getattr(config_list, "ConfigurationSet", [])
+            if config_list
+            else []
+        )
+        return {
+            "IsSuccesfull": response["IsSuccesfull"],
+            "ErrorMessage": getattr(response, "ErrorMessage", None),
+            "ConfigSetList": [
+                {
+                    "ID": item.ID,
+                    "ConfigSetName": item.ConfigSetName,
+                }
+                for item in (items if isinstance(items, list) else [items])
+            ],
         }
 
 
@@ -1487,5 +2334,227 @@ def postpone_scan(scan_id: int) -> dict:
     return CxPortalWebService().postpone_scan(scan_id=scan_id)
 
 
+def get_source_by_scan_id(scan_id: int, file_name: str) -> dict:
+    return CxPortalWebService().get_source_by_scan_id(
+        scan_id=scan_id, file_name=file_name
+    )
+
+
+def get_sources_by_scan_id(scan_id: int, file_names: list) -> dict:
+    return CxPortalWebService().get_sources_by_scan_id(
+        scan_id=scan_id, file_names=file_names
+    )
+
+
+def get_file_names_for_path(scan_id: int, path_id: int) -> dict:
+    return CxPortalWebService().get_file_names_for_path(
+        scan_id=scan_id, path_id=path_id
+    )
+
+
 def unlock_scan(scan_id: int) -> dict:
     return CxPortalWebService().unlock_scan(scan_id=scan_id)
+
+
+def get_preset_details(preset_id: int) -> dict:
+    return CxPortalWebService().get_preset_details(preset_id=preset_id)
+
+
+def update_preset(preset_id: int, query_ids: list, name: str) -> dict:
+    return CxPortalWebService().update_preset(
+        preset_id=preset_id, query_ids=query_ids, name=name
+    )
+
+
+def get_result_state_list() -> dict:
+    return CxPortalWebService().get_result_state_list()
+
+
+def get_scan_report(report_id: int) -> dict:
+    return CxPortalWebService().get_scan_report(report_id=report_id)
+
+
+def get_scan_report_status(report_id: int) -> dict:
+    return CxPortalWebService().get_scan_report_status(report_id=report_id)
+
+
+def cancel_scan_report(report_id: int) -> dict:
+    return CxPortalWebService().cancel_scan_report(report_id=report_id)
+
+
+def get_results(scan_id: int) -> dict:
+    return CxPortalWebService().get_results(scan_id=scan_id)
+
+
+def get_result_summary(scan_id: int) -> dict:
+    return CxPortalWebService().get_result_summary(scan_id=scan_id)
+
+
+def get_query_collection_for_language(
+    project_type: str = "Regular", project_id: int = 0
+) -> dict:
+    return CxPortalWebService().get_query_collection_for_language(
+        project_type=project_type, project_id=project_id
+    )
+
+
+def get_query_description(cwe_id: int) -> dict:
+    return CxPortalWebService().get_query_description(cwe_id=cwe_id)
+
+
+def get_query_short_description(query_id: int) -> dict:
+    return CxPortalWebService().get_query_short_description(query_id=query_id)
+
+
+def get_scans_display_data_for_all_projects() -> dict:
+    return CxPortalWebService().get_scans_display_data_for_all_projects()
+
+
+def get_scan_summary(scan_id: int) -> dict:
+    return CxPortalWebService().get_scan_summary(scan_id=scan_id)
+
+
+def get_server_license_basic() -> dict:
+    return CxPortalWebService().get_server_license_basic()
+
+
+def get_server_license_data_extended() -> dict:
+    return CxPortalWebService().get_server_license_data_extended()
+
+
+def get_custom_fields() -> dict:
+    return CxPortalWebService().get_custom_fields()
+
+
+def get_custom_field_values(project_id: int, scan_id: int) -> dict:
+    return CxPortalWebService().get_custom_field_values(
+        project_id=project_id, scan_id=scan_id
+    )
+
+
+def get_result_paths_for_query(scan_id: int, query_id: int) -> dict:
+    return CxPortalWebService().get_result_paths_for_query(
+        scan_id=scan_id, query_id=query_id
+    )
+
+
+def get_results_for_query(scan_id: int, query_id: int) -> dict:
+    return CxPortalWebService().get_results_for_query(
+        scan_id=scan_id, query_id=query_id
+    )
+
+
+def get_queries_for_scan(scan_id: int) -> dict:
+    return CxPortalWebService().get_queries_for_scan(scan_id=scan_id)
+
+
+def get_scan_properties(scan_id: int) -> dict:
+    return CxPortalWebService().get_scan_properties(scan_id=scan_id)
+
+
+def get_status_of_single_scan(scan_id: int) -> dict:
+    return CxPortalWebService().get_status_of_single_scan(scan_id=scan_id)
+
+
+def get_scans_statuses() -> dict:
+    return CxPortalWebService().get_scans_statuses()
+
+
+def get_scan_logs(scan_id: int) -> dict:
+    return CxPortalWebService().get_scan_logs(scan_id=scan_id)
+
+
+def update_result_state(
+    scan_id: int,
+    path_id: int,
+    project_id: int,
+    remarks: str = "",
+    result_label_type: str = "Remark",
+    data: str = "",
+) -> dict:
+    return CxPortalWebService().update_result_state(
+        scan_id=scan_id,
+        path_id=path_id,
+        project_id=project_id,
+        remarks=remarks,
+        result_label_type=result_label_type,
+        data=data,
+    )
+
+
+def update_result_comment(
+    result_id: int, path_id: int, project_id: int, comment: str
+) -> dict:
+    return CxPortalWebService().update_result_comment(
+        result_id=result_id, path_id=path_id, project_id=project_id, comment=comment
+    )
+
+
+def update_scan_comment(scan_id: int, comment: str) -> dict:
+    return CxPortalWebService().update_scan_comment(scan_id=scan_id, comment=comment)
+
+
+def is_valid_preset_name(name: str) -> dict:
+    return CxPortalWebService().is_valid_preset_name(name=name)
+
+
+def get_server_language_list() -> dict:
+    return CxPortalWebService().get_server_language_list()
+
+
+def get_executable_list() -> dict:
+    return CxPortalWebService().get_executable_list()
+
+
+def count_lines(source_code: str, language_name: str) -> dict:
+    return CxPortalWebService().count_lines(
+        source_code=source_code, language_name=language_name
+    )
+
+
+def is_alive() -> dict:
+    return CxPortalWebService().is_alive()
+
+
+def is_smtp_host_configured() -> dict:
+    return CxPortalWebService().is_smtp_host_configured()
+
+
+def is_private_cloud() -> dict:
+    return CxPortalWebService().is_private_cloud()
+
+
+def get_cwe_description(cwe_id: int) -> dict:
+    return CxPortalWebService().get_cwe_description(cwe_id=cwe_id)
+
+
+def get_result_state_flags() -> dict:
+    return CxPortalWebService().get_result_state_flags()
+
+
+def cancel_scan(scan_id: int) -> dict:
+    return CxPortalWebService().cancel_scan(scan_id=scan_id)
+
+
+def delete_scan(scan_id: int) -> dict:
+    return CxPortalWebService().delete_scan(scan_id=scan_id)
+
+
+def delete_scans(scan_ids: list) -> dict:
+    return CxPortalWebService().delete_scans(scan_ids=scan_ids)
+
+
+def get_child_nodes(
+    team_id: str = "", level: int = 0, team_path: str = ""
+) -> dict:
+    return CxPortalWebService().get_child_nodes(
+        team_id=team_id, level=level, team_path=team_path
+    )
+
+
+def get_projects_with_scans() -> dict:
+    return CxPortalWebService().get_projects_with_scans()
+
+
+def get_configuration_set_list() -> dict:
+    return CxPortalWebService().get_configuration_set_list()

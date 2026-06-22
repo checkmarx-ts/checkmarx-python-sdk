@@ -99,13 +99,27 @@ def test_create_branched_project():
 
 def test_get_branch_project_status():
     projects_api = ProjectsAPI()
-    branch_project_id = projects_api.get_project_id_by_project_name_and_team_full_name("test-branch", team_full_name)
-    if branch_project_id is None:
-        pytest.skip("Branched project 'test-branch' does not exist")
-    time.sleep(60)
-    result = projects_api.get_branch_project_status(branch_project_id)
-    assert result is True
-    projects_api.delete_project_by_id(branch_project_id)
+    project_id = get_project_id()
+    if project_id is None:
+        pytest.skip("No project available to branch from")
+    branched_project_name = "test-branch-status"
+    projects_api.delete_project_if_exists_by_project_name_and_team_full_name(
+        branched_project_name, team_full_name
+    )
+    branched_project = projects_api.create_branched_project(project_id, branched_project_name)
+    branched_project_id = branched_project.id
+    print(f"branched project created with id: {branched_project_id}")
+
+    print("polling branch project status...")
+    while True:
+        status = projects_api.get_branch_project_status(branched_project_id)
+        print(f"  status: {status}")
+        if status == "Completed":
+            break
+        time.sleep(10)
+
+    assert status == "Completed"
+    projects_api.delete_project_by_id(branched_project_id)
 
 
 def test_get_all_issue_tracking_systems():

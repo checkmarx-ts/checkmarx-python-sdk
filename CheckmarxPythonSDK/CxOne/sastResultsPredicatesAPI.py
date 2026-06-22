@@ -1,7 +1,9 @@
+from typing import List
+
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED, OK
-from typing import List
+from .dto import PredicateHistoryResponse
 
 
 class SastResultsPredicatesAPI(object):
@@ -22,34 +24,40 @@ class SastResultsPredicatesAPI(object):
         project_ids: List[str] = None,
         include_comment_json: bool = None,
         scan_id: str = None,
-    ) -> dict:
+        offset: int = 0,
+        limit: int = 100,
+    ) -> PredicateHistoryResponse:
         """
         Args:
             similarity_id (str):
             project_ids (list of str):
             include_comment_json (bool):
             scan_id (str):
+            offset (int):
+            limit (int):
 
         Returns:
-            dict
+            PredicateHistoryResponse
         """
         url = f"{self.base_url}/{similarity_id}"
         params = {
             "project-ids": project_ids,
             "include-comment-json": include_comment_json,
             "scan-id": scan_id,
+            "offset": offset,
+            "limit": limit,
         }
         response = self.api_client.call_api(
             method="GET", url=url, params=params
         )
-        return response.json()
+        return PredicateHistoryResponse.from_dict(response.json())
 
     def get_latest_predicates_for_similarity_id(
         self,
         similarity_id: str,
         project_ids: List[str] = None,
         scan_id: str = None,
-    ) -> dict:
+    ) -> PredicateHistoryResponse:
         """
         Args:
             similarity_id (str):
@@ -57,14 +65,14 @@ class SastResultsPredicatesAPI(object):
             scan_id (str):
 
         Returns:
-            dict
+            PredicateHistoryResponse
         """
         url = f"{self.base_url}/{similarity_id}/latest"
         params = {"project-ids": project_ids, "scan-id": scan_id}
         response = self.api_client.call_api(
             method="GET", url=url, params=params
         )
-        return response.json()
+        return PredicateHistoryResponse.from_dict(response.json())
 
     def predicate_severity_and_state_by_similarity_id_and_project_id(
         self, data: List[dict]
@@ -245,12 +253,16 @@ def get_all_predicates_for_similarity_id(
     project_ids: List[str] = None,
     include_comment_json: bool = None,
     scan_id: str = None,
-) -> dict:
+    offset: int = 0,
+    limit: int = 100,
+) -> PredicateHistoryResponse:
     return SastResultsPredicatesAPI().get_all_predicates_for_similarity_id(
         similarity_id=similarity_id,
         project_ids=project_ids,
         include_comment_json=include_comment_json,
         scan_id=scan_id,
+        offset=offset,
+        limit=limit,
     )
 
 
@@ -258,7 +270,7 @@ def get_latest_predicates_for_similarity_id(
     similarity_id: str,
     project_ids: List[str] = None,
     scan_id: str = None,
-) -> dict:
+) -> PredicateHistoryResponse:
     return SastResultsPredicatesAPI().get_latest_predicates_for_similarity_id(
         similarity_id=similarity_id,
         project_ids=project_ids,

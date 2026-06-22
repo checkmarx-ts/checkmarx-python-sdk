@@ -1,6 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.8 - 2026-06-15
+* [Fix] CxRestAPISDK get_all_scan_results — the /cxrestapi/sast/results endpoint interprets offset as a page number (records skipped = offset * limit), not a record count. Fixed pagination loop to increment offset by 1 per page instead of by the page size, which was causing results to be silently skipped.
+* [Add] get_all_scan_results method in CxRestAPISDK ScansAPI — safe pagination helper that correctly walks all pages and deduplicates by path_id
+* [Add] examples/CxSAST/dump_all_path_ids.py — example script dumping all path_ids from a scan using get_all_scan_results
+* [Add] tests/CxSAST/CxRestAPI/test_sast_results_pagination.py — diagnostic tests for SAST results pagination
+* [Add] CxPortalWebService.get_sources_by_scan_id — retrieve per-file source code for specific files in a scan (Portal SOAP GetSourcesByScanID)
+* [Add] CxPortalWebService.get_source_by_scan_id — deprecated singular variant; CxSAST 9.x returns "no longer supported"
+* [Add] CxPortalWebService.get_file_names_for_path — get file names associated with a result path (Portal SOAP GetFileNamesForPath)
+* [Add] tests for get_sources_by_scan_id, get_file_names_for_path, and get_source_by_scan_id
+* [Fix] get_branch_project_status — replaced magic number `item["status"]["id"] == 2` with status name extraction via `status.get("value")`; now returns string ("Started"/"InProgress"/"Completed"/"Failed") instead of bool; added docstring with known status values; handles both dict and plain-string status formats
+* [Update] test_get_branch_project_status — now creates a real branch from an existing project, polls and displays all intermediate statuses, asserts on status name string
+* [Fix] api_client.call_api — strip explicit Content-Type header when files are present so httpx can auto-set multipart/form-data boundary; fixes 400/500 errors on file upload endpoints
+
 1.8.7 - 2026-06-02
 * [Add] AiAssetsAPI — AI supply chain asset management (findings, asset types, assets, applications, global inventory results, scan results, risks)
 * [Add] AnalyticsAPI — KPI query endpoint

@@ -1481,3 +1481,44 @@ class ScansAPI(object):
             result = CxScanResultsPage.from_dict(data)
 
         return result
+
+    def get_all_scan_results(self, scan_id, lcid=None, limit=200):
+        """
+        Fetch all SAST results for a scan by paginating through all pages.
+
+        .. note::
+
+           The /cxrestapi/sast/results endpoint interprets ``offset`` as a
+           **page number** (number of pages to skip), not a record count.
+           This method accounts for that by incrementing offset by 1 per
+           page rather than by the page size.
+
+        Args:
+            scan_id (int): Unique ID of a scan
+            lcid    (int): Language Id
+            limit   (int): Page size for each request (default 200)
+
+        Returns:
+            :obj:`list` of :obj:`CxScanResult`
+        """
+        all_results = []
+        seen_path_ids = set()
+        offset = 0  # page number, not record offset
+
+        while True:
+            page = self.get_scan_results_in_paged_mode(
+                scan_id=scan_id, offset=offset, limit=limit, lcid=lcid
+            )
+            if page is None or not page.results:
+                break
+
+            for result in page.results:
+                if result.path_id not in seen_path_ids:
+                    seen_path_ids.add(result.path_id)
+                    all_results.append(result)
+
+            if offset * limit + len(page.results) >= page.total_count:
+                break
+            offset += 1
+
+        return all_results

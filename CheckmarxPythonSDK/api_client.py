@@ -36,6 +36,7 @@ def create_session(configuration: Configuration) -> httpx.Client:
         cert=configuration.cert,
         proxy=configuration.proxy,
         transport=httpx.HTTPTransport(retries=3, verify=verify),
+        follow_redirects=True,
         headers={"User-Agent": f"checkmarx-python-sdk/{__version__}"},
     )
 
@@ -251,6 +252,11 @@ class ApiClient:
 
         if params:
             params = {k: v for k, v in params.items() if v is not None}
+
+        # httpx auto-sets Content-Type for multipart uploads; explicit Content-Type
+        # from get_headers() would override it, breaking file uploads.
+        if files and headers:
+            headers.pop("Content-Type", None)
 
         response = self.session.request(
             method=method,
