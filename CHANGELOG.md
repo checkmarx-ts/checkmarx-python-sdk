@@ -12,9 +12,7 @@ All notable changes to this project will be documented in  this file.
 * [Add] tests for get_sources_by_scan_id, get_file_names_for_path, and get_source_by_scan_id
 * [Fix] get_branch_project_status — replaced magic number `item["status"]["id"] == 2` with status name extraction via `status.get("value")`; now returns string ("Started"/"InProgress"/"Completed"/"Failed") instead of bool; added docstring with known status values; handles both dict and plain-string status formats
 * [Update] test_get_branch_project_status — now creates a real branch from an existing project, polls and displays all intermediate statuses, asserts on status name string
-* [Add] examples/CxSAST/CxCliPy.py — CLI script for CxSAST scanning with `--branch_project` support; updated OData API to use latest SDK import
 * [Fix] api_client.call_api — strip explicit Content-Type header when files are present so httpx can auto-set multipart/form-data boundary; fixes 400/500 errors on file upload endpoints
-* [Fix] examples/CxSAST/CxCliPy.py — handle PermissionError when deleting temp zip file on Windows
 
 1.8.7 - 2026-06-02
 * [Add] AiAssetsAPI — AI supply chain asset management (findings, asset types, assets, applications, global inventory results, scan results, risks)
