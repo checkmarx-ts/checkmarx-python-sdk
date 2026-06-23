@@ -24,12 +24,11 @@ def create_session(configuration: Configuration) -> httpx.Client:
     if raw_verify is False:
         verify = False
     else:
-        ctx = ssl.create_default_context()
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ctx.maximum_version = ssl.TLSVersion.TLSv1_3
-        if raw_verify is True:
-            ctx.load_verify_locations(certifi.where())
-        else:
+        ctx.load_verify_locations(certifi.where())
+        if raw_verify is not True:
             ctx.load_verify_locations(raw_verify)
         verify = ctx
     return httpx.Client(
