@@ -3,6 +3,7 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 
 from .dto import (
+    ScaProjectWithConfigurations,
     ScaRegistryConfigRequest,
     ScaRegistryConfigResponse,
     ScaRegistryConfiguration,
@@ -256,30 +257,53 @@ class ScaPrivateRegistryConfigAPI(object):
     # Project endpoints
     # =========================================================================
 
-    def get_projects_with_configurations(self) -> dict:
+    def get_projects_with_configurations(
+        self, page_number: int, page_size: int = 5
+    ) -> List[ScaProjectWithConfigurations]:
         """Retrieve a list of Checkmarx projects with their associated private
         registries configurations.
 
+        Args:
+            page_number (int): Page number to retrieve (required).
+            page_size (int): Number of results per page. Default: 5.
+
         Returns:
-            dict: List of projects with their associated configurations.
+            List[ScaProjectWithConfigurations]: List of projects with their
+            associated configurations.
         """
         url = f"{self.base_url}{self._base_path}/projects"
-        response = self.api_client.call_api(method="GET", url=url)
-        return response.json()
+        params = {"PageNumber": page_number, "PageSize": page_size}
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return [
+            ScaProjectWithConfigurations.from_dict(item)
+            for item in response.json()
+        ]
 
-    def get_projects_by_configuration(self, config_id: str) -> dict:
+    def get_projects_by_configuration(
+        self, config_id: str
+    ) -> List[ScaProjectWithConfigurations]:
         """Retrieve a list of Checkmarx projects associated with a particular
         configuration.
+
+        Filters at the project level — only projects associated with the
+        requested configId are returned. Within those projects, you may see
+        other configurations also associated with that same project.
 
         Args:
             config_id (str): Unique identifier of the configuration.
 
         Returns:
-            dict: List of projects associated with the configuration.
+            List[ScaProjectWithConfigurations]: List of projects associated
+            with the configuration.
         """
         url = f"{self.base_url}{self._base_path}/projects/configuration/{config_id}"
         response = self.api_client.call_api(method="GET", url=url)
-        return response.json()
+        return [
+            ScaProjectWithConfigurations.from_dict(item)
+            for item in response.json()
+        ]
 
     def disassociate_all_projects_from_configuration(
         self, config_id: str
@@ -637,25 +661,41 @@ def disassociate_configurations_from_tag(tag_id: str) -> bool:
     )
 
 
-def get_projects_with_configurations() -> dict:
+def get_projects_with_configurations(
+    page_number: int, page_size: int = 5
+) -> List[ScaProjectWithConfigurations]:
     """Retrieve a list of Checkmarx projects with their associated private
     registries configurations.
 
+    Args:
+        page_number (int): Page number to retrieve (required).
+        page_size (int): Number of results per page. Default: 5.
+
     Returns:
-        dict: List of projects with their associated configurations.
+        List[ScaProjectWithConfigurations]: List of projects with their
+        associated configurations.
     """
-    return ScaPrivateRegistryConfigAPI().get_projects_with_configurations()
+    return ScaPrivateRegistryConfigAPI().get_projects_with_configurations(
+        page_number, page_size
+    )
 
 
-def get_projects_by_configuration(config_id: str) -> dict:
+def get_projects_by_configuration(
+    config_id: str,
+) -> List[ScaProjectWithConfigurations]:
     """Retrieve a list of Checkmarx projects associated with a particular
     configuration.
+
+    Filters at the project level — only projects associated with the requested
+    configId are returned. Within those projects, you may see other
+    configurations also associated with that same project.
 
     Args:
         config_id (str): Unique identifier of the configuration.
 
     Returns:
-        dict: List of projects associated with the configuration.
+        List[ScaProjectWithConfigurations]: List of projects associated with
+        the configuration.
     """
     return ScaPrivateRegistryConfigAPI().get_projects_by_configuration(
         config_id

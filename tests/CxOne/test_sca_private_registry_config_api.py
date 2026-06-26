@@ -13,6 +13,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_configuration,
     get_configurations_by_tag,
     get_project_configurations,
+    get_projects_by_configuration,
+    get_projects_with_configurations,
     get_tags_with_configurations,
     update_configuration,
 )
@@ -267,6 +269,27 @@ def test_disassociate_configurations_from_tag():
     assert result is True
 
     delete_tag(tag_id)
+
+
+def test_get_projects_with_configurations():
+    result = get_projects_with_configurations(page_number=1, page_size=5)
+    assert result is not None
+    assert isinstance(result, list)
+    if result:
+        item = result[0]
+        assert item.id is not None
+        assert item.tenantId is not None
+
+
+def test_get_projects_by_configuration():
+    configs = get_all_configurations(page_number=1, page_size=1)
+    if not configs:
+        pytest.skip("No configurations found")
+    config_id = configs[0].id
+
+    result = get_projects_by_configuration(config_id)
+    assert result is not None
+    assert isinstance(result, list)
 
 
 def test_get_configurations_by_tag():

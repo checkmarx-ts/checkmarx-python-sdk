@@ -20,6 +20,9 @@ from .ScaRegistryConfigRequest import (
 from .ScaRegistryConfigResponse import (
     ScaRegistryConfigResponse,
 )
+from .ScaProjectWithConfigurations import (
+    ScaProjectWithConfigurations,
+)
 from .ScaTagWithConfigurations import (
     ScaTagWithConfigurations,
 )
