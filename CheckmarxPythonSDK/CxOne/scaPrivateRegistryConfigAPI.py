@@ -6,6 +6,7 @@ from .dto import (
     ScaRegistryConfigRequest,
     ScaRegistryConfigResponse,
     ScaRegistryConfiguration,
+    ScaTagWithConfigurations,
 )
 
 
@@ -198,18 +199,25 @@ class ScaPrivateRegistryConfigAPI(object):
         )
         return response.status_code == 204
 
-    def get_configurations_by_tag(self, tag_id: str) -> dict:
+    def get_configurations_by_tag(
+        self, tag_id: str
+    ) -> List[ScaTagWithConfigurations]:
         """Retrieve a list of configurations associated with a specific tag.
 
         Args:
             tag_id (str): Unique identifier of the tag.
 
         Returns:
-            dict: List of configurations associated with the tag.
+            List[ScaTagWithConfigurations]: List of tags with their associated
+            configurations. Each item contains the tag id, tenantId, name,
+            and a list of configurations.
         """
         url = f"{self.base_url}{self._base_path}/configurations/tag/{tag_id}"
         response = self.api_client.call_api(method="GET", url=url)
-        return response.json()
+        return [
+            ScaTagWithConfigurations.from_dict(item)
+            for item in response.json()
+        ]
 
     def associate_configurations_with_tag(
         self, tag_id: str, config_ids: List[str]
@@ -578,14 +586,18 @@ def disassociate_configurations_from_project(
     )
 
 
-def get_configurations_by_tag(tag_id: str) -> dict:
+def get_configurations_by_tag(
+    tag_id: str,
+) -> List[ScaTagWithConfigurations]:
     """Retrieve a list of configurations associated with a specific tag.
 
     Args:
         tag_id (str): Unique identifier of the tag.
 
     Returns:
-        dict: List of configurations associated with the tag.
+        List[ScaTagWithConfigurations]: List of tags with their associated
+        configurations. Each item contains the tag id, tenantId, name, and a
+        list of configurations.
     """
     return ScaPrivateRegistryConfigAPI().get_configurations_by_tag(tag_id)
 
