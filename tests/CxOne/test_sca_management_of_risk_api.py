@@ -3,11 +3,13 @@ from CheckmarxPythonSDK.CxOne import (
     update_package_state_bulk,
     update_supply_chain_risk,
     update_supply_chain_risks_bulk,
+    update_vulnerabilities_bulk,
     update_vulnerability,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     BulkPackageEntry,
     BulkSupplyChainRiskEntry,
+    BulkVulnerabilityEntry,
     PackageAction,
     PackageActionValue,
     SupplyChainRiskAction,
@@ -15,6 +17,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     UpdatePackageStateRequest,
     UpdateSupplyChainRiskRequest,
     UpdateSupplyChainRisksBulkRequest,
+    UpdateVulnerabilitiesBulkRequest,
     UpdateVulnerabilityRequest,
 )
 
@@ -147,6 +150,29 @@ def test_update_vulnerability():
         ],
     )
     result = update_vulnerability(request)
+    assert result is not None
+
+
+def test_update_vulnerabilities_bulk():
+    request = UpdateVulnerabilitiesBulkRequest(
+        packageVulnerabilitiesProfile=[
+            BulkVulnerabilityEntry(
+                packageName="rc",
+                packageVersion="1.2.9",
+                packageManager="Npm",
+                vulnerabilityId="Cx91a93696-98ae",
+                projectIds=["b8401dbb-ae8f-43f6-bbd2-dd0aa53b66e6"],
+            ),
+        ],
+        actions=[
+            SupplyChainRiskAction(
+                actionType="ChangeState",
+                value="ToVerify",
+                comment="Bulk change state via SDK test",
+            ),
+        ],
+    )
+    result = update_vulnerabilities_bulk(request)
     assert result is not None
 
 

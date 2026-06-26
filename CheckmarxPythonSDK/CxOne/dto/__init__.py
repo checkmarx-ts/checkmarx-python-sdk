@@ -30,6 +30,10 @@ from .UpdatePackageStateBulkRequest import (
 from .UpdatePackageStateRequest import (
     UpdatePackageStateRequest,
 )
+from .UpdateVulnerabilitiesBulkRequest import (
+    BulkVulnerabilityEntry,
+    UpdateVulnerabilitiesBulkRequest,
+)
 from .UpdateVulnerabilityRequest import (
     UpdateVulnerabilityRequest,
 )

@@ -7,6 +7,7 @@ from .dto import (
     UpdatePackageStateRequest,
     UpdateSupplyChainRiskRequest,
     UpdateSupplyChainRisksBulkRequest,
+    UpdateVulnerabilitiesBulkRequest,
     UpdateVulnerabilityRequest,
 )
 
@@ -213,14 +214,18 @@ class ScaManagementOfRiskAPI(object):
         return {}
 
     def update_vulnerabilities_bulk(
-        self, vulnerabilities_data: List[dict]
+        self, request: UpdateVulnerabilitiesBulkRequest
     ) -> dict:
         """Change the state and risk score for several specific instances of
         vulnerabilities.
 
+        The same actions are applied to all vulnerabilities in the
+        packageVulnerabilitiesProfile list.
+
         Args:
-            vulnerabilities_data (List[dict]): List of vulnerability update
-                payloads.
+            request (UpdateVulnerabilitiesBulkRequest): Bulk update payload
+                containing packageVulnerabilitiesProfile (list of vulnerability
+                entries) and shared actions.
 
         Returns:
             dict: Response from the API.
@@ -228,10 +233,24 @@ class ScaManagementOfRiskAPI(object):
         url = (
             f"{self.base_url}{self._base_path}/package-vulnerabilities/bulk"
         )
+        body = {
+            "packageVulnerabilitiesProfile": [
+                v.to_dict() for v in request.packageVulnerabilitiesProfile
+            ],
+            "actions": [a.to_dict() for a in request.actions],
+        }
         response = self.api_client.call_api(
-            method="POST", url=url, json=vulnerabilities_data
+            method="POST",
+            url=url,
+            json=body,
+            headers={
+                "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain, application/json, text/json",
+            },
         )
-        return response.json()
+        if response.content:
+            return response.json()
+        return {}
 
 
 # =============================================================================
@@ -341,17 +360,21 @@ def update_vulnerability(
     return ScaManagementOfRiskAPI().update_vulnerability(request)
 
 
-def update_vulnerabilities_bulk(vulnerabilities_data: List[dict]) -> dict:
+def update_vulnerabilities_bulk(
+    request: UpdateVulnerabilitiesBulkRequest,
+) -> dict:
     """Change the state and risk score for several specific instances of
     vulnerabilities.
 
+    The same actions are applied to all vulnerabilities in the
+    packageVulnerabilitiesProfile list.
+
     Args:
-        vulnerabilities_data (List[dict]): List of vulnerability update
-            payloads.
+        request (UpdateVulnerabilitiesBulkRequest): Bulk update payload
+            containing packageVulnerabilitiesProfile (list of vulnerability
+            entries) and shared actions.
 
     Returns:
         dict: Response from the API.
     """
-    return ScaManagementOfRiskAPI().update_vulnerabilities_bulk(
-        vulnerabilities_data
-    )
+    return ScaManagementOfRiskAPI().update_vulnerabilities_bulk(request)
