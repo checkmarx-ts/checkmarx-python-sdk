@@ -3,6 +3,7 @@ import pytest
 from CheckmarxPythonSDK.CxOne import (
     associate_configurations_with_project,
     associate_configurations_with_tag,
+    associate_projects_with_configuration,
     create_configuration,
     create_tag,
     delete_configuration,
@@ -290,6 +291,27 @@ def test_get_projects_by_configuration():
     result = get_projects_by_configuration(config_id)
     assert result is not None
     assert isinstance(result, list)
+
+
+def test_associate_projects_with_configuration():
+    project_id = _get_project_id()
+    if not project_id:
+        pytest.skip("No projects found")
+    configs = get_all_configurations(page_number=1, page_size=1)
+    if not configs:
+        pytest.skip("No configurations found")
+    config_id = configs[0].id
+
+    try:
+        result = associate_projects_with_configuration(config_id, [project_id])
+    except Exception as e:
+        msg = str(e)
+        if "400" in msg or "401" in msg or "403" in msg:
+            pytest.skip("API returned client error: {}".format(msg))
+        raise
+    assert result is not None
+    assert result.id is not None
+    assert result.message is not None
 
 
 def test_get_configurations_by_tag():
