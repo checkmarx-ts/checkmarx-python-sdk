@@ -30,6 +30,10 @@ from .UpdatePackageStateBulkRequest import (
 from .UpdatePackageStateRequest import (
     UpdatePackageStateRequest,
 )
+from .UpdateSupplyChainRisksBulkRequest import (
+    BulkSupplyChainRiskEntry,
+    UpdateSupplyChainRisksBulkRequest,
+)
 from .UpdateSupplyChainRiskRequest import (
     UpdateSupplyChainRiskRequest,
 )

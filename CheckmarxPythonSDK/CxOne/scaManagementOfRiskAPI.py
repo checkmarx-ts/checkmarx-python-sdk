@@ -6,6 +6,7 @@ from .dto import (
     UpdatePackageStateBulkRequest,
     UpdatePackageStateRequest,
     UpdateSupplyChainRiskRequest,
+    UpdateSupplyChainRisksBulkRequest,
 )
 
 
@@ -134,13 +135,18 @@ class ScaManagementOfRiskAPI(object):
         return {}
 
     def update_supply_chain_risks_bulk(
-        self, risks_data: List[dict]
+        self, request: UpdateSupplyChainRisksBulkRequest
     ) -> dict:
         """Change the state and risk score for several specific instances of
         supply chain risks (e.g., Suspected Malware).
 
+        The same actions are applied to all risks in the
+        packageSupplyChainRisks list.
+
         Args:
-            risks_data (List[dict]): List of supply chain risk update payloads.
+            request (UpdateSupplyChainRisksBulkRequest): Bulk update payload
+                containing packageSupplyChainRisks (list of risk entries) and
+                shared actions.
 
         Returns:
             dict: Response from the API.
@@ -148,10 +154,24 @@ class ScaManagementOfRiskAPI(object):
         url = (
             f"{self.base_url}{self._base_path}/package-supply-chain-risks/bulk"
         )
+        body = {
+            "packageSupplyChainRisks": [
+                r.to_dict() for r in request.packageSupplyChainRisks
+            ],
+            "actions": [a.to_dict() for a in request.actions],
+        }
         response = self.api_client.call_api(
-            method="POST", url=url, json=risks_data
+            method="POST",
+            url=url,
+            json=body,
+            headers={
+                "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain, application/json, text/json",
+            },
         )
-        return response.json()
+        if response.content:
+            return response.json()
+        return {}
 
     # =========================================================================
     # Management of Risk — Vulnerabilities
@@ -264,17 +284,24 @@ def update_supply_chain_risk(
     return ScaManagementOfRiskAPI().update_supply_chain_risk(request)
 
 
-def update_supply_chain_risks_bulk(risks_data: List[dict]) -> dict:
+def update_supply_chain_risks_bulk(
+    request: UpdateSupplyChainRisksBulkRequest,
+) -> dict:
     """Change the state and risk score for several specific instances of supply
     chain risks (e.g., Suspected Malware).
 
+    The same actions are applied to all risks in the packageSupplyChainRisks
+    list.
+
     Args:
-        risks_data (List[dict]): List of supply chain risk update payloads.
+        request (UpdateSupplyChainRisksBulkRequest): Bulk update payload
+            containing packageSupplyChainRisks (list of risk entries) and
+            shared actions.
 
     Returns:
         dict: Response from the API.
     """
-    return ScaManagementOfRiskAPI().update_supply_chain_risks_bulk(risks_data)
+    return ScaManagementOfRiskAPI().update_supply_chain_risks_bulk(request)
 
 
 def update_vulnerability(vulnerability_data: dict) -> dict:

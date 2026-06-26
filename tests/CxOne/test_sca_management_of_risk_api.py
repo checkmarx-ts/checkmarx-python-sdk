@@ -2,15 +2,18 @@ from CheckmarxPythonSDK.CxOne import (
     update_package_state,
     update_package_state_bulk,
     update_supply_chain_risk,
+    update_supply_chain_risks_bulk,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
     BulkPackageEntry,
+    BulkSupplyChainRiskEntry,
     PackageAction,
     PackageActionValue,
     SupplyChainRiskAction,
     UpdatePackageStateBulkRequest,
     UpdatePackageStateRequest,
     UpdateSupplyChainRiskRequest,
+    UpdateSupplyChainRisksBulkRequest,
 )
 
 
@@ -95,6 +98,29 @@ def test_update_supply_chain_risk():
         ],
     )
     result = update_supply_chain_risk(request)
+    assert result is not None
+
+
+def test_update_supply_chain_risks_bulk():
+    request = UpdateSupplyChainRisksBulkRequest(
+        packageSupplyChainRisks=[
+            BulkSupplyChainRiskEntry(
+                packageName="coa",
+                packageVersion="3.1.3",
+                packageManager="Npm",
+                supplyChainRiskId="6057d4e5-4760-a3f8-c8e6-bf57a8505af5",
+                projectIds=["b8401dbb-ae8f-43f6-bbd2-dd0aa53b66e6"],
+            ),
+        ],
+        actions=[
+            SupplyChainRiskAction(
+                actionType="ChangeState",
+                value="ToVerify",
+                comment="Bulk change state via SDK test",
+            ),
+        ],
+    )
+    result = update_supply_chain_risks_bulk(request)
     assert result is not None
 
 
