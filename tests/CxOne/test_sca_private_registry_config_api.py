@@ -4,8 +4,10 @@ from CheckmarxPythonSDK.CxOne import (
     associate_configurations_with_project,
     create_configuration,
     delete_configuration,
+    disassociate_configurations_from_project,
     get_all_configurations,
     get_configuration,
+    get_project_configurations,
     update_configuration,
 )
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
@@ -176,3 +178,37 @@ def test_associate_configurations_with_project():
     assert result is not None
     assert result.id is not None
     assert result.message is not None
+
+
+def test_get_project_configurations():
+    project_id = _get_project_id()
+    if not project_id:
+        pytest.skip("No projects found")
+    result = get_project_configurations(project_id)
+    assert result is not None
+    assert isinstance(result, list)
+    if result:
+        config = result[0]
+        assert config.id is not None
+        assert config.configurationName is not None
+
+
+def test_disassociate_configurations_from_project():
+    project_id = _get_project_id()
+    if not project_id:
+        pytest.skip("No projects found")
+    configs = get_all_configurations(page_number=1, page_size=1)
+    if not configs:
+        pytest.skip("No configurations found")
+    config_id = configs[0].id
+
+    try:
+        associate_configurations_with_project(project_id, [config_id])
+    except Exception as e:
+        msg = str(e)
+        if "400" in msg or "401" in msg or "403" in msg:
+            pytest.skip("Associate API returned client error: {}".format(msg))
+        raise
+
+    result = disassociate_configurations_from_project(project_id, [config_id])
+    assert result is True

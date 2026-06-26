@@ -134,7 +134,9 @@ class ScaPrivateRegistryConfigAPI(object):
         )
         return response.status_code == 200
 
-    def get_project_configurations(self, project_id: str) -> dict:
+    def get_project_configurations(
+        self, project_id: str
+    ) -> List[ScaRegistryConfiguration]:
         """Retrieve all configurations associated with a particular Checkmarx
         project.
 
@@ -142,11 +144,15 @@ class ScaPrivateRegistryConfigAPI(object):
             project_id (str): Unique identifier of the project.
 
         Returns:
-            dict: List of configurations associated with the project.
+            List[ScaRegistryConfiguration]: List of configurations associated
+            with the project.
         """
         url = f"{self.base_url}{self._base_path}/configurations/project/{project_id}"
         response = self.api_client.call_api(method="GET", url=url)
-        return response.json()
+        return [
+            ScaRegistryConfiguration.from_dict(item)
+            for item in response.json()
+        ]
 
     def associate_configurations_with_project(
         self, project_id: str, config_ids: List[str]
@@ -169,19 +175,27 @@ class ScaPrivateRegistryConfigAPI(object):
         return ScaRegistryConfigResponse.from_dict(response.json())
 
     def disassociate_configurations_from_project(
-        self, project_id: str
+        self, project_id: str, config_ids: List[str] = None
     ) -> bool:
-        """Disassociate all private repo configurations from a particular
-        Checkmarx project.
+        """Disassociate private repo configurations from a particular Checkmarx
+        project. This does not delete the configurations; it merely
+        disassociates them from this project.
 
         Args:
             project_id (str): Unique identifier of the project.
+            config_ids (List[str]): List of configuration IDs to disassociate.
+                If omitted, disassociates all configurations from the project.
 
         Returns:
             bool: True if disassociation was successful.
         """
         url = f"{self.base_url}{self._base_path}/configurations/project/{project_id}"
-        response = self.api_client.call_api(method="DELETE", url=url)
+        params = None
+        if config_ids:
+            params = {"configurationIds": config_ids}
+        response = self.api_client.call_api(
+            method="DELETE", url=url, params=params
+        )
         return response.status_code == 204
 
     def get_configurations_by_tag(self, tag_id: str) -> dict:
@@ -506,7 +520,9 @@ def update_configuration(
     )
 
 
-def get_project_configurations(project_id: str) -> dict:
+def get_project_configurations(
+    project_id: str,
+) -> List[ScaRegistryConfiguration]:
     """Retrieve all configurations associated with a particular Checkmarx
     project.
 
@@ -514,11 +530,10 @@ def get_project_configurations(project_id: str) -> dict:
         project_id (str): Unique identifier of the project.
 
     Returns:
-        dict: List of configurations associated with the project.
+        List[ScaRegistryConfiguration]: List of configurations associated with
+        the project.
     """
-    return ScaPrivateRegistryConfigAPI().get_project_configurations(
-        project_id
-    )
+    return ScaPrivateRegistryConfigAPI().get_project_configurations(project_id)
 
 
 def associate_configurations_with_project(
@@ -540,19 +555,24 @@ def associate_configurations_with_project(
     )
 
 
-def disassociate_configurations_from_project(project_id: str) -> bool:
-    """Disassociate all private repo configurations from a particular Checkmarx
-    project.
+def disassociate_configurations_from_project(
+    project_id: str, config_ids: List[str] = None
+) -> bool:
+    """Disassociate private repo configurations from a particular Checkmarx
+    project. This does not delete the configurations; it merely disassociates
+    them from this project.
 
     Args:
         project_id (str): Unique identifier of the project.
+        config_ids (List[str]): List of configuration IDs to disassociate.
+            If omitted, disassociates all configurations from the project.
 
     Returns:
         bool: True if disassociation was successful.
     """
     return (
         ScaPrivateRegistryConfigAPI().disassociate_configurations_from_project(
-            project_id
+            project_id, config_ids
         )
     )
 
