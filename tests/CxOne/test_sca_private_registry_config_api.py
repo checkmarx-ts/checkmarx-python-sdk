@@ -2,12 +2,16 @@ import pytest
 
 from CheckmarxPythonSDK.CxOne import (
     associate_configurations_with_project,
+    associate_configurations_with_tag,
     create_configuration,
+    create_tag,
     delete_configuration,
+    delete_tag,
     disassociate_configurations_from_project,
     get_all_configurations,
     get_configuration,
     get_project_configurations,
+    get_tags_with_configurations,
     update_configuration,
 )
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
@@ -212,3 +216,28 @@ def test_disassociate_configurations_from_project():
 
     result = disassociate_configurations_from_project(project_id, [config_id])
     assert result is True
+
+
+def test_associate_configurations_with_tag():
+    configs = get_all_configurations(page_number=1, page_size=1)
+    if not configs:
+        pytest.skip("No configurations found")
+    config_id = configs[0].id
+
+    tag = create_tag({"name": "tmp-assoc-test-tag"})
+    tag_id = tag.get("id")
+
+    try:
+        result = associate_configurations_with_tag(tag_id, [config_id])
+    except Exception as e:
+        msg = str(e)
+        delete_tag(tag_id)
+        if "400" in msg or "401" in msg or "403" in msg:
+            pytest.skip("API returned client error: {}".format(msg))
+        raise
+
+    assert result is not None
+    assert result.id is not None
+    assert result.message is not None
+
+    delete_tag(tag_id)

@@ -213,7 +213,7 @@ class ScaPrivateRegistryConfigAPI(object):
 
     def associate_configurations_with_tag(
         self, tag_id: str, config_ids: List[str]
-    ) -> dict:
+    ) -> ScaRegistryConfigResponse:
         """Associate one or more existing private repository configurations
         with a particular tag.
 
@@ -222,13 +222,14 @@ class ScaPrivateRegistryConfigAPI(object):
             config_ids (List[str]): List of configuration IDs to associate.
 
         Returns:
-            dict: Response indicating the association result.
+            ScaRegistryConfigResponse: Response containing the association id
+            and a message.
         """
         url = f"{self.base_url}{self._base_path}/configurations/tag/{tag_id}"
         response = self.api_client.call_api(
-            method="POST", url=url, json={"configIds": config_ids}
+            method="POST", url=url, json=config_ids
         )
-        return response.json()
+        return ScaRegistryConfigResponse.from_dict(response.json())
 
     def disassociate_configurations_from_tag(self, tag_id: str) -> bool:
         """Disassociate all private repo configurations from a particular tag.
@@ -591,7 +592,7 @@ def get_configurations_by_tag(tag_id: str) -> dict:
 
 def associate_configurations_with_tag(
     tag_id: str, config_ids: List[str]
-) -> dict:
+) -> ScaRegistryConfigResponse:
     """Associate one or more existing private repository configurations with a
     particular tag.
 
@@ -600,7 +601,8 @@ def associate_configurations_with_tag(
         config_ids (List[str]): List of configuration IDs to associate.
 
     Returns:
-        dict: Response indicating the association result.
+        ScaRegistryConfigResponse: Response containing the association id and
+        a message.
     """
     return ScaPrivateRegistryConfigAPI().associate_configurations_with_tag(
         tag_id, config_ids
