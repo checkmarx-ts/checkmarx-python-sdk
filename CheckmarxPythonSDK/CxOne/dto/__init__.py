@@ -22,6 +22,10 @@ from .ScaRegistryConfigResponse import (
 )
 from .PackageActionValue import PackageActionValue
 from .PackageAction import PackageAction
+from .UpdatePackageStateBulkRequest import (
+    BulkPackageEntry,
+    UpdatePackageStateBulkRequest,
+)
 from .UpdatePackageStateRequest import (
     UpdatePackageStateRequest,
 )

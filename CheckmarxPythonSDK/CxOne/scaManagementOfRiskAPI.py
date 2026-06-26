@@ -2,7 +2,10 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 
-from .dto import UpdatePackageStateRequest
+from .dto import (
+    UpdatePackageStateBulkRequest,
+    UpdatePackageStateRequest,
+)
 
 
 class ScaManagementOfRiskAPI(object):
@@ -59,22 +62,37 @@ class ScaManagementOfRiskAPI(object):
         return response.status_code == 201
 
     def update_package_state_bulk(
-        self, packages_data: List[dict]
-    ) -> dict:
+        self, request: UpdatePackageStateBulkRequest
+    ) -> bool:
         """Mute several packages so that the associated vulnerabilities will
         be ignored in the scan results.
 
+        Alternatively, you can mark packages as "snooze" to ignore results
+        for a limited time period. The same actions are applied to all
+        packages in the packagesProfile list.
+
         Args:
-            packages_data (List[dict]): List of package state update payloads.
+            request (UpdatePackageStateBulkRequest): Bulk update payload
+                containing packagesProfile (list of package entries) and
+                actions to apply to all of them.
 
         Returns:
-            dict: Response from the API.
+            bool: True if the bulk update was successful.
         """
         url = f"{self.base_url}{self._base_path}/packages/bulk"
+        body = {
+            "packagesProfile": [
+                p.to_dict() for p in request.packagesProfile
+            ],
+            "actions": [a.to_dict() for a in request.actions],
+        }
         response = self.api_client.call_api(
-            method="POST", url=url, json=packages_data
+            method="POST",
+            url=url,
+            json=body,
+            headers={"Content-Type": "application/json-patch+json"},
         )
-        return response.json()
+        return response.status_code == 201
 
     # =========================================================================
     # Management of Risk — Supply Chain Risks
@@ -188,17 +206,25 @@ def update_package_state(request: UpdatePackageStateRequest) -> bool:
     return ScaManagementOfRiskAPI().update_package_state(request)
 
 
-def update_package_state_bulk(packages_data: List[dict]) -> dict:
+def update_package_state_bulk(
+    request: UpdatePackageStateBulkRequest,
+) -> bool:
     """Mute several packages so that the associated vulnerabilities will be
     ignored in the scan results.
 
+    Alternatively, you can mark packages as "snooze" to ignore results for a
+    limited time period. The same actions are applied to all packages in the
+    packagesProfile list.
+
     Args:
-        packages_data (List[dict]): List of package state update payloads.
+        request (UpdatePackageStateBulkRequest): Bulk update payload containing
+            packagesProfile (list of package entries) and actions to apply to
+            all of them.
 
     Returns:
-        dict: Response from the API.
+        bool: True if the bulk update was successful.
     """
-    return ScaManagementOfRiskAPI().update_package_state_bulk(packages_data)
+    return ScaManagementOfRiskAPI().update_package_state_bulk(request)
 
 
 def update_supply_chain_risk(risk_data: dict) -> dict:

@@ -1,7 +1,12 @@
-from CheckmarxPythonSDK.CxOne import update_package_state
+from CheckmarxPythonSDK.CxOne import (
+    update_package_state,
+    update_package_state_bulk,
+)
 from CheckmarxPythonSDK.CxOne.dto import (
+    BulkPackageEntry,
     PackageAction,
     PackageActionValue,
+    UpdatePackageStateBulkRequest,
     UpdatePackageStateRequest,
 )
 
@@ -41,6 +46,28 @@ def test_update_package_state_snooze():
         ],
     )
     result = update_package_state(request)
+    assert result is True
+
+
+def test_update_package_state_bulk():
+    request = UpdatePackageStateBulkRequest(
+        packagesProfile=[
+            BulkPackageEntry(
+                packageName="@babel/runtime",
+                packageVersion="7.24.0",
+                packageManager="Npm",
+                projectId="b8401dbb-ae8f-43f6-bbd2-dd0aa53b66e6",
+            ),
+        ],
+        actions=[
+            PackageAction(
+                actionType="Ignore",
+                value=PackageActionValue(state="Muted"),
+                comment="Bulk mute via SDK test",
+            ),
+        ],
+    )
+    result = update_package_state_bulk(request)
     assert result is True
 
 
