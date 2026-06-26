@@ -2,6 +2,7 @@ import pytest
 
 from CheckmarxPythonSDK.CxOne import (
     create_configuration,
+    delete_configuration,
     get_all_configurations,
     get_configuration,
 )
@@ -69,3 +70,30 @@ def test_get_configuration():
     assert result.content is not None
     assert result.packageManager is not None
     assert result.lastUpdate is not None
+
+
+def test_delete_configuration():
+    config_request = ScaRegistryConfigRequest(
+        configurationName="tmp-delete-test-config",
+        content=(
+            '<?xml version="1.0" encoding="utf-8"?>\n'
+            "<configuration>\n"
+            '  <packageSources>\n'
+            '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />\n'
+            '    <add key="Tmp" value="${{cx.test.url}}/tmp/" />\n'
+            "  </packageSources>\n"
+            "  <packageSourceCredentials>\n"
+            "    <Tmp>\n"
+            '      <add key="Username" value="${{cx.test.username}}" />\n'
+            '      <add key="ClearTextPassword" value="${{cx.test.password}}" />\n'
+            "    </Tmp>\n"
+            "  </packageSourceCredentials>\n"
+            "</configuration>"
+        ),
+        packageManager="nuget",
+    )
+    created = create_configuration(config_request)
+    config_id = created.id
+
+    result = delete_configuration(config_id)
+    assert result is True

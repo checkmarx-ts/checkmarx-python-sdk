@@ -106,7 +106,7 @@ class ScaPrivateRegistryConfigAPI(object):
         """
         url = f"{self.base_url}{self._base_path}/configurations/{config_id}"
         response = self.api_client.call_api(method="DELETE", url=url)
-        return response.ok
+        return response.status_code == 204
 
     def update_configuration(self, config_id: str, update_data: dict) -> dict:
         """Modify the name and/or content of a particular configuration.
@@ -171,7 +171,7 @@ class ScaPrivateRegistryConfigAPI(object):
         """
         url = f"{self.base_url}{self._base_path}/configurations/project/{project_id}"
         response = self.api_client.call_api(method="DELETE", url=url)
-        return response.ok
+        return response.status_code == 204
 
     def get_configurations_by_tag(self, tag_id: str) -> dict:
         """Retrieve a list of configurations associated with a specific tag.
@@ -216,7 +216,7 @@ class ScaPrivateRegistryConfigAPI(object):
         """
         url = f"{self.base_url}{self._base_path}/configurations/tag/{tag_id}"
         response = self.api_client.call_api(method="DELETE", url=url)
-        return response.ok
+        return response.status_code == 204
 
     # =========================================================================
     # Project endpoints
@@ -260,7 +260,7 @@ class ScaPrivateRegistryConfigAPI(object):
         """
         url = f"{self.base_url}{self._base_path}/projects/configuration/{config_id}"
         response = self.api_client.call_api(method="DELETE", url=url)
-        return response.ok
+        return response.status_code == 204
 
     def associate_projects_with_configuration(
         self, config_id: str, project_ids: List[str]
@@ -351,7 +351,7 @@ class ScaPrivateRegistryConfigAPI(object):
         """
         url = f"{self.base_url}{self._base_path}/tags/{tag_id}"
         response = self.api_client.call_api(method="DELETE", url=url)
-        return response.ok
+        return response.status_code == 204
 
     def get_tags_by_configuration(self, config_id: str) -> dict:
         """Retrieve a list of all tags associated with a particular
@@ -399,7 +399,7 @@ class ScaPrivateRegistryConfigAPI(object):
         """
         url = f"{self.base_url}{self._base_path}/tags/configuration/{config_id}"
         response = self.api_client.call_api(method="DELETE", url=url)
-        return response.ok
+        return response.status_code == 204
 
 
 # =============================================================================
