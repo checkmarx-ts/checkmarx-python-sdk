@@ -14,6 +14,15 @@ from .AiTriageVulnerability import (
     AiTriageVulnerability,
 )
 from .ApiSecCounters import ApiSecCounters
+from .ScaRegistryConfigRequest import (
+    ScaRegistryConfigRequest,
+)
+from .ScaRegistryConfigResponse import (
+    ScaRegistryConfigResponse,
+)
+from .ScaRegistryConfiguration import (
+    ScaRegistryConfiguration,
+)
 from .Application import Application
 from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
