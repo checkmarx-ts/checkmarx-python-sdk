@@ -22,12 +22,16 @@ from .ScaRegistryConfigResponse import (
 )
 from .PackageActionValue import PackageActionValue
 from .PackageAction import PackageAction
+from .SupplyChainRiskAction import SupplyChainRiskAction
 from .UpdatePackageStateBulkRequest import (
     BulkPackageEntry,
     UpdatePackageStateBulkRequest,
 )
 from .UpdatePackageStateRequest import (
     UpdatePackageStateRequest,
+)
+from .UpdateSupplyChainRiskRequest import (
+    UpdateSupplyChainRiskRequest,
 )
 from .ScaProjectWithConfigurations import (
     ScaProjectWithConfigurations,
