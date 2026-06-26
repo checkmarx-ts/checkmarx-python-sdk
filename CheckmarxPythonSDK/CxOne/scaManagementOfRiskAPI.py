@@ -7,6 +7,7 @@ from .dto import (
     UpdatePackageStateRequest,
     UpdateSupplyChainRiskRequest,
     UpdateSupplyChainRisksBulkRequest,
+    UpdateVulnerabilityRequest,
 )
 
 
@@ -178,22 +179,38 @@ class ScaManagementOfRiskAPI(object):
     # =========================================================================
 
     def update_vulnerability(
-        self, vulnerability_data: dict
+        self, request: UpdateVulnerabilityRequest
     ) -> dict:
         """Change the state and risk score for a specific instance of a
         vulnerability.
 
+        For each action, you must add a comment explaining the rationale.
+        You can specify one or more projects for which the change will take
+        effect.
+
         Args:
-            vulnerability_data (dict): Vulnerability update payload.
+            request (UpdateVulnerabilityRequest): Vulnerability update payload
+                containing packageName, packageVersion, packageManager,
+                vulnerabilityId, projectIds, and actions.
 
         Returns:
             dict: Response from the API.
         """
         url = f"{self.base_url}{self._base_path}/package-vulnerabilities"
+        body = request.to_dict()
+        body["actions"] = [a.to_dict() for a in request.actions]
         response = self.api_client.call_api(
-            method="POST", url=url, json=vulnerability_data
+            method="POST",
+            url=url,
+            json=body,
+            headers={
+                "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain, application/json, text/json",
+            },
         )
-        return response.json()
+        if response.content:
+            return response.json()
+        return {}
 
     def update_vulnerabilities_bulk(
         self, vulnerabilities_data: List[dict]
@@ -304,17 +321,24 @@ def update_supply_chain_risks_bulk(
     return ScaManagementOfRiskAPI().update_supply_chain_risks_bulk(request)
 
 
-def update_vulnerability(vulnerability_data: dict) -> dict:
+def update_vulnerability(
+    request: UpdateVulnerabilityRequest,
+) -> dict:
     """Change the state and risk score for a specific instance of a
     vulnerability.
 
+    For each action, you must add a comment explaining the rationale. You can
+    specify one or more projects for which the change will take effect.
+
     Args:
-        vulnerability_data (dict): Vulnerability update payload.
+        request (UpdateVulnerabilityRequest): Vulnerability update payload
+            containing packageName, packageVersion, packageManager,
+            vulnerabilityId, projectIds, and actions.
 
     Returns:
         dict: Response from the API.
     """
-    return ScaManagementOfRiskAPI().update_vulnerability(vulnerability_data)
+    return ScaManagementOfRiskAPI().update_vulnerability(request)
 
 
 def update_vulnerabilities_bulk(vulnerabilities_data: List[dict]) -> dict:
