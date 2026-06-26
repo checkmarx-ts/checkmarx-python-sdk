@@ -20,6 +20,11 @@ from .ScaRegistryConfigRequest import (
 from .ScaRegistryConfigResponse import (
     ScaRegistryConfigResponse,
 )
+from .PackageActionValue import PackageActionValue
+from .PackageAction import PackageAction
+from .UpdatePackageStateRequest import (
+    UpdatePackageStateRequest,
+)
 from .ScaProjectWithConfigurations import (
     ScaProjectWithConfigurations,
 )

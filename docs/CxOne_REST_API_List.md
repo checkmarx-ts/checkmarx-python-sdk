@@ -313,6 +313,12 @@
 | SAST_RESULTS_PREDICATES.yaml | SastResultsPredicatesAPI | `get_predicates_status` | POST | `/api/sast-results-predicates/predicates-status` |
 | SAST_RESULTS_SUMMARY.yaml | SastResultsSummaryAPI | `get_sast_scan_summary_by_scan_id` | GET | `/api/sast-scan-summary` |
 | SAST_RESULTS_SUMMARY.yaml | SastResultsSummaryAPI | `compare_sast_scan_summary_aggregate` | GET | `/api/sast-scan-summary/compare/aggregate` |
+| SCA_MANAGEMENT_OF_RISK.yaml | ScaManagementOfRiskAPI | `update_package_state` | POST | `/api/sca/management-of-risk/packages` |
+| SCA_MANAGEMENT_OF_RISK.yaml | ScaManagementOfRiskAPI | `update_package_state_bulk` | POST | `/api/sca/management-of-risk/packages/bulk` |
+| SCA_MANAGEMENT_OF_RISK.yaml | ScaManagementOfRiskAPI | `update_supply_chain_risk` | POST | `/api/sca/management-of-risk/package-supply-chain-risks` |
+| SCA_MANAGEMENT_OF_RISK.yaml | ScaManagementOfRiskAPI | `update_supply_chain_risks_bulk` | POST | `/api/sca/management-of-risk/package-supply-chain-risks/bulk` |
+| SCA_MANAGEMENT_OF_RISK.yaml | ScaManagementOfRiskAPI | `update_vulnerability` | POST | `/api/sca/management-of-risk/package-vulnerabilities` |
+| SCA_MANAGEMENT_OF_RISK.yaml | ScaManagementOfRiskAPI | `update_vulnerabilities_bulk` | POST | `/api/sca/management-of-risk/package-vulnerabilities/bulk` |
 | SCA_PRIVATE_REGISTRY_CONFIG.yaml | ScaPrivateRegistryConfigAPI | `get_all_configurations` | GET | `/api/sca/registries-configuration/configurations` |
 | SCA_PRIVATE_REGISTRY_CONFIG.yaml | ScaPrivateRegistryConfigAPI | `create_configuration` | POST | `/api/sca/registries-configuration/configurations` |
 | SCA_PRIVATE_REGISTRY_CONFIG.yaml | ScaPrivateRegistryConfigAPI | `get_configuration` | GET | `/api/sca/registries-configuration/configurations/{configId}` |

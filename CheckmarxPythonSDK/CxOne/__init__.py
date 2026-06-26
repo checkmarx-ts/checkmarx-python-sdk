@@ -619,6 +619,16 @@ from .scaPrivateRegistryConfigAPI import (
     disassociate_all_tags_from_configuration,
 )
 
+from .scaManagementOfRiskAPI import (
+    ScaManagementOfRiskAPI,
+    update_package_state,
+    update_package_state_bulk,
+    update_supply_chain_risk,
+    update_supply_chain_risks_bulk,
+    update_vulnerability,
+    update_vulnerabilities_bulk,
+)
+
 from .scannersResultsAPI import (
     ScannersResultsAPI,
     get_all_scanners_results_by_scan_id,
