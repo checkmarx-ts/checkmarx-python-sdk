@@ -5,6 +5,7 @@ from CheckmarxPythonSDK.CxOne import (
     delete_configuration,
     get_all_configurations,
     get_configuration,
+    update_configuration,
 )
 from CheckmarxPythonSDK.CxOne.dto import ScaRegistryConfigRequest
 
@@ -97,3 +98,51 @@ def test_delete_configuration():
 
     result = delete_configuration(config_id)
     assert result is True
+
+
+def test_update_configuration():
+    # Create a config first
+    create_req = ScaRegistryConfigRequest(
+        configurationName="tmp-update-test-config",
+        content=(
+            '<?xml version="1.0" encoding="utf-8"?>\n'
+            "<configuration>\n"
+            '  <packageSources>\n'
+            '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />\n'
+            "  </packageSources>\n"
+            "</configuration>"
+        ),
+        packageManager="nuget",
+    )
+    created = create_configuration(create_req)
+    config_id = created.id
+
+    # Update it
+    update_req = ScaRegistryConfigRequest(
+        configurationName="tmp-update-test-config-modified",
+        content=(
+            '<?xml version="1.0" encoding="utf-8"?>\n'
+            "<configuration>\n"
+            '  <packageSources>\n'
+            '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />\n'
+            '    <add key="Updated" value="${{cx.test.url}}/updated/" />\n'
+            "  </packageSources>\n"
+            "  <packageSourceCredentials>\n"
+            "    <Updated>\n"
+            '      <add key="Username" value="${{cx.test.username}}" />\n'
+            '      <add key="ClearTextPassword" value="${{cx.test.password}}" />\n'
+            "    </Updated>\n"
+            "  </packageSourceCredentials>\n"
+            "</configuration>"
+        ),
+        packageManager="nuget",
+    )
+    result = update_configuration(config_id, update_req)
+    assert result is True
+
+    # Verify the update
+    updated = get_configuration(config_id)
+    assert updated.configurationName == "tmp-update-test-config-modified"
+
+    # Cleanup
+    delete_configuration(config_id)

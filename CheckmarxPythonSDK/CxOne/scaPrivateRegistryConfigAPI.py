@@ -108,21 +108,31 @@ class ScaPrivateRegistryConfigAPI(object):
         response = self.api_client.call_api(method="DELETE", url=url)
         return response.status_code == 204
 
-    def update_configuration(self, config_id: str, update_data: dict) -> dict:
-        """Modify the name and/or content of a particular configuration.
+    def update_configuration(
+        self, config_id: str, config_request: ScaRegistryConfigRequest
+    ) -> bool:
+        """Modify the name and content of a particular configuration.
+
+        The request body must contain the configuration content. Use the
+        relevant template (NuGet XML, Maven settings.xml, or NPM .npmrc)
+        and replace placeholder values with your real credentials.
 
         Args:
             config_id (str): Unique identifier of the configuration.
-            update_data (dict): Fields to update (e.g. name, credentials).
+            config_request (ScaRegistryConfigRequest): Updated configuration
+                properties including configurationName, content, and
+                packageManager.
 
         Returns:
-            dict: The updated configuration.
+            bool: True if the update was successful.
         """
         url = f"{self.base_url}{self._base_path}/configurations/{config_id}"
         response = self.api_client.call_api(
-            method="PATCH", url=url, json=update_data
+            method="PATCH",
+            url=url,
+            json=config_request.to_dict(),
         )
-        return response.json()
+        return response.status_code == 200
 
     def get_project_configurations(self, project_id: str) -> dict:
         """Retrieve all configurations associated with a particular Checkmarx
@@ -472,18 +482,26 @@ def delete_configuration(config_id: str) -> bool:
     return ScaPrivateRegistryConfigAPI().delete_configuration(config_id)
 
 
-def update_configuration(config_id: str, update_data: dict) -> dict:
-    """Modify the name and/or content of a particular configuration.
+def update_configuration(
+    config_id: str, config_request: ScaRegistryConfigRequest
+) -> bool:
+    """Modify the name and content of a particular configuration.
+
+    The request body must contain the configuration content. Use the relevant
+    template (NuGet XML, Maven settings.xml, or NPM .npmrc) and replace
+    placeholder values with your real credentials.
 
     Args:
         config_id (str): Unique identifier of the configuration.
-        update_data (dict): Fields to update (e.g. name, credentials).
+        config_request (ScaRegistryConfigRequest): Updated configuration
+            properties including configurationName, content, and
+            packageManager.
 
     Returns:
-        dict: The updated configuration.
+        bool: True if the update was successful.
     """
     return ScaPrivateRegistryConfigAPI().update_configuration(
-        config_id, update_data
+        config_id, config_request
     )
 
 
