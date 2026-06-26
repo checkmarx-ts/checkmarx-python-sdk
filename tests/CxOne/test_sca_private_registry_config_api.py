@@ -8,6 +8,7 @@ from CheckmarxPythonSDK.CxOne import (
     delete_configuration,
     delete_tag,
     disassociate_configurations_from_project,
+    disassociate_configurations_from_tag,
     get_all_configurations,
     get_configuration,
     get_configurations_by_tag,
@@ -240,6 +241,30 @@ def test_associate_configurations_with_tag():
     assert result is not None
     assert result.id is not None
     assert result.message is not None
+
+    delete_tag(tag_id)
+
+
+def test_disassociate_configurations_from_tag():
+    configs = get_all_configurations(page_number=1, page_size=1)
+    if not configs:
+        pytest.skip("No configurations found")
+    config_id = configs[0].id
+
+    tag = create_tag({"name": "tmp-disassoc-tag-test"})
+    tag_id = tag.get("id")
+
+    try:
+        associate_configurations_with_tag(tag_id, [config_id])
+    except Exception as e:
+        delete_tag(tag_id)
+        msg = str(e)
+        if "400" in msg or "401" in msg or "403" in msg:
+            pytest.skip("Associate API returned client error: {}".format(msg))
+        raise
+
+    result = disassociate_configurations_from_tag(tag_id)
+    assert result is True
 
     delete_tag(tag_id)
 
