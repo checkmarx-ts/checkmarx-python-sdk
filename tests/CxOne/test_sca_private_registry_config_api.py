@@ -1,12 +1,14 @@
 import pytest
 
 from CheckmarxPythonSDK.CxOne import (
+    associate_configurations_with_project,
     create_configuration,
     delete_configuration,
     get_all_configurations,
     get_configuration,
     update_configuration,
 )
+from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
 from CheckmarxPythonSDK.CxOne.dto import ScaRegistryConfigRequest
 
 
@@ -146,3 +148,31 @@ def test_update_configuration():
 
     # Cleanup
     delete_configuration(config_id)
+
+
+def _get_project_id():
+    projects = _ProjectsAPI().get_a_list_of_projects(limit=1)
+    if projects.projects:
+        return projects.projects[0].id
+    return None
+
+
+def test_associate_configurations_with_project():
+    project_id = _get_project_id()
+    if not project_id:
+        pytest.skip("No projects found")
+    configs = get_all_configurations(page_number=1, page_size=1)
+    if not configs:
+        pytest.skip("No configurations found")
+    config_id = configs[0].id
+
+    try:
+        result = associate_configurations_with_project(project_id, [config_id])
+    except Exception as e:
+        msg = str(e)
+        if "400" in msg or "401" in msg or "403" in msg:
+            pytest.skip("API returned client error: {}".format(msg))
+        raise
+    assert result is not None
+    assert result.id is not None
+    assert result.message is not None

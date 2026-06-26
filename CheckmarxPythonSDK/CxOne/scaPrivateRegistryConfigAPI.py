@@ -150,7 +150,7 @@ class ScaPrivateRegistryConfigAPI(object):
 
     def associate_configurations_with_project(
         self, project_id: str, config_ids: List[str]
-    ) -> dict:
+    ) -> ScaRegistryConfigResponse:
         """Associate one or more existing private repository configurations
         with a particular Checkmarx project.
 
@@ -159,13 +159,14 @@ class ScaPrivateRegistryConfigAPI(object):
             config_ids (List[str]): List of configuration IDs to associate.
 
         Returns:
-            dict: Response indicating the association result.
+            ScaRegistryConfigResponse: Response containing the association id
+            and a message.
         """
         url = f"{self.base_url}{self._base_path}/configurations/project/{project_id}"
         response = self.api_client.call_api(
-            method="POST", url=url, json={"configIds": config_ids}
+            method="POST", url=url, json=config_ids
         )
-        return response.json()
+        return ScaRegistryConfigResponse.from_dict(response.json())
 
     def disassociate_configurations_from_project(
         self, project_id: str
@@ -522,7 +523,7 @@ def get_project_configurations(project_id: str) -> dict:
 
 def associate_configurations_with_project(
     project_id: str, config_ids: List[str]
-) -> dict:
+) -> ScaRegistryConfigResponse:
     """Associate one or more existing private repository configurations with a
     particular Checkmarx project.
 
@@ -531,7 +532,8 @@ def associate_configurations_with_project(
         config_ids (List[str]): List of configuration IDs to associate.
 
     Returns:
-        dict: Response indicating the association result.
+        ScaRegistryConfigResponse: Response containing the association id and
+        a message.
     """
     return ScaPrivateRegistryConfigAPI().associate_configurations_with_project(
         project_id, config_ids
