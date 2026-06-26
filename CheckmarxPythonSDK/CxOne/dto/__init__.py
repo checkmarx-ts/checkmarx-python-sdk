@@ -1,5 +1,18 @@
 # encoding: utf-8
 from .AddAssignmentRoles import AddAssignmentRoles
+from .AiTrProcessResult import AiTrProcessResult
+from .AiTrProcessStatusResponse import (
+    AiTrProcessStatusResponse,
+)
+from .AiTriageTriggerRequest import (
+    AiTriageTriggerRequest,
+)
+from .AiTriageTriggerResponse import (
+    AiTriageTriggerResponse,
+)
+from .AiTriageVulnerability import (
+    AiTriageVulnerability,
+)
 from .ApiSecCounters import ApiSecCounters
 from .Application import Application
 from .ApplicationInput import ApplicationInput

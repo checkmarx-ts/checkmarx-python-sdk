@@ -46,6 +46,13 @@ from .aiAssetsAPI import (
     get_asset_risks,
 )
 
+from .aiTriageAndRemediationAPI import (
+    AiTriageAndRemediationAPI,
+    retrieve_process_status,
+    trigger_ai_triage,
+    trigger_ai_remediation,
+)
+
 from .accessManagementAPI import (
     AccessManagementAPI,
     create_an_assignment,

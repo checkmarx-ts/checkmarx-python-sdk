@@ -60,6 +60,9 @@
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `get_scan_results` | GET | `/api/ai-sc/reader/scans/{scanId}/results` |
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `aggregate_scan_results` | GET | `/api/ai-sc/reader/scans/{scanId}/results/aggregate` |
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `get_asset_risks` | GET | `/api/ai-sc/reader/scans/{scanId}/assets/{assetId}/risks` |
+| AI_TRIAGE.yaml | AiTriageAndRemediationAPI | `trigger_ai_triage` | POST | `/api/v1/ai-triage/trigger` |
+| AI_TRIAGE.yaml | AiTriageAndRemediationAPI | `trigger_ai_remediation` | POST | `/api/v1/ai-remediation/trigger` |
+| AI_TRIAGE.yaml | AiTriageAndRemediationAPI | `retrieve_process_status` | GET | `/api/v1/ai-tr/process/{processId}` |
 | ANALYTICS_API.yaml | AnalyticsAPI | `query_kpi` | POST | `/api/data_analytics/analyticsAPI/v1` |
 | APPLICATIONS.yaml | ApplicationsAPI | `create_an_application` | POST | `/api/applications` |
 | APPLICATIONS.yaml | ApplicationsAPI | `get_a_list_of_applications` | GET | `/api/applications` |
