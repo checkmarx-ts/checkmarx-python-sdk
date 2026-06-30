@@ -18,7 +18,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: |
-          pip3 config set global.index-url https://pypi.echohq.com/simple
+          pip config set global.index-url https://__token__:${{ secrets.ECHO_LIBRARIES_ACCESS_KEY }}@pypi.echohq.com/simple
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Build Package
