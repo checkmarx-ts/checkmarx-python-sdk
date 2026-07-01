@@ -18,7 +18,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: |
-          pip3 config set global.index-url https://pypi.echohq.com/simple
+          pip config set global.index-url https://:${{ secrets.ECHO_LIBRARIES_ACCESS_KEY }}@pypi.echohq.com/simple
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Build Package
@@ -49,7 +49,7 @@ jobs:
       - name: Install packages
         shell: bash
         run: |
-          pip config set global.index-url https://pypi.echohq.com/simple
+          pip config set global.index-url https://:${{ secrets.ECHO_LIBRARIES_ACCESS_KEY }}@pypi.echohq.com/simple
           pip install --upgrade pip
           pip install . pylint
   
