@@ -85,7 +85,9 @@ class ApplicationsAPI(object):
         app_collection = self.get_a_list_of_applications(name=name)
         applications = app_collection.applications
         if applications:
-            return applications[0].id
+            for application in applications:
+                if application.name == name:
+                    return application.id
         return None
 
     def get_all_application_tags(self) -> dict:
