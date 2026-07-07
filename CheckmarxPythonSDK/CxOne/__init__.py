@@ -46,6 +46,13 @@ from .aiAssetsAPI import (
     get_asset_risks,
 )
 
+from .aiTriageAndRemediationAPI import (
+    AiTriageAndRemediationAPI,
+    retrieve_process_status,
+    trigger_ai_triage,
+    trigger_ai_remediation,
+)
+
 from .accessManagementAPI import (
     AccessManagementAPI,
     create_an_assignment,
@@ -583,6 +590,43 @@ from .scanConfigurationAPI import (
     delete_a_sast_default_config,
     update_project_repo_url,
     update_project_token,
+)
+
+from .scaPrivateRegistryConfigAPI import (
+    ScaPrivateRegistryConfigAPI,
+    get_all_configurations,
+    create_configuration,
+    get_configuration,
+    delete_configuration,
+    update_configuration,
+    get_project_configurations,
+    associate_configurations_with_project,
+    disassociate_configurations_from_project,
+    get_configurations_by_tag,
+    associate_configurations_with_tag,
+    disassociate_configurations_from_tag,
+    get_projects_with_configurations,
+    get_projects_by_configuration,
+    disassociate_all_projects_from_configuration,
+    associate_projects_with_configuration,
+    get_tags_with_configurations,
+    create_tag,
+    get_tag,
+    update_tag,
+    delete_tag,
+    get_tags_by_configuration,
+    associate_tags_with_configuration,
+    disassociate_all_tags_from_configuration,
+)
+
+from .scaManagementOfRiskAPI import (
+    ScaManagementOfRiskAPI,
+    update_package_state,
+    update_package_state_bulk,
+    update_supply_chain_risk,
+    update_supply_chain_risks_bulk,
+    update_vulnerability,
+    update_vulnerabilities_bulk,
 )
 
 from .scannersResultsAPI import (

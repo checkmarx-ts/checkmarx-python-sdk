@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.8.9 - 2026-06-24
+* [Fix] SSL context creation for self-signed CA certificates without BasicConstraints — switched from ssl.create_default_context() to ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT) to avoid VERIFY_X509_STRICT enforcement, matching urllib3's behavior
+
 1.8.8 - 2026-06-15
 * [Fix] CxRestAPISDK get_all_scan_results — the /cxrestapi/sast/results endpoint interprets offset as a page number (records skipped = offset * limit), not a record count. Fixed pagination loop to increment offset by 1 per page instead of by the page size, which was causing results to be silently skipped.
 * [Add] get_all_scan_results method in CxRestAPISDK ScansAPI — safe pagination helper that correctly walks all pages and deduplicates by path_id

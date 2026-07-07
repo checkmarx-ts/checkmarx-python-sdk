@@ -1,6 +1,58 @@
 # encoding: utf-8
 from .AddAssignmentRoles import AddAssignmentRoles
+from .AiTrProcessResult import AiTrProcessResult
+from .AiTrProcessStatusResponse import (
+    AiTrProcessStatusResponse,
+)
+from .AiTriageTriggerRequest import (
+    AiTriageTriggerRequest,
+)
+from .AiTriageTriggerResponse import (
+    AiTriageTriggerResponse,
+)
+from .AiTriageVulnerability import (
+    AiTriageVulnerability,
+)
 from .ApiSecCounters import ApiSecCounters
+from .ScaRegistryConfigRequest import (
+    ScaRegistryConfigRequest,
+)
+from .ScaRegistryConfigResponse import (
+    ScaRegistryConfigResponse,
+)
+from .PackageActionValue import PackageActionValue
+from .PackageAction import PackageAction
+from .SupplyChainRiskAction import SupplyChainRiskAction
+from .UpdatePackageStateBulkRequest import (
+    BulkPackageEntry,
+    UpdatePackageStateBulkRequest,
+)
+from .UpdatePackageStateRequest import (
+    UpdatePackageStateRequest,
+)
+from .UpdateVulnerabilitiesBulkRequest import (
+    BulkVulnerabilityEntry,
+    UpdateVulnerabilitiesBulkRequest,
+)
+from .UpdateVulnerabilityRequest import (
+    UpdateVulnerabilityRequest,
+)
+from .UpdateSupplyChainRisksBulkRequest import (
+    BulkSupplyChainRiskEntry,
+    UpdateSupplyChainRisksBulkRequest,
+)
+from .UpdateSupplyChainRiskRequest import (
+    UpdateSupplyChainRiskRequest,
+)
+from .ScaProjectWithConfigurations import (
+    ScaProjectWithConfigurations,
+)
+from .ScaTagWithConfigurations import (
+    ScaTagWithConfigurations,
+)
+from .ScaRegistryConfiguration import (
+    ScaRegistryConfiguration,
+)
 from .Application import Application
 from .ApplicationInput import ApplicationInput
 from .ApplicationsCollection import ApplicationsCollection
