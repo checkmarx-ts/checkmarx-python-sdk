@@ -1452,7 +1452,8 @@ class CxPortalWebService(object):
         return {
             "IsSuccesfull": response["IsSuccesfull"],
             "ErrorMessage": getattr(response, "ErrorMessage", None),
-            "Status": getattr(response, "Status", None),
+            "IsReady": getattr(response, "IsReady", None),
+            "IsFailed": getattr(response, "IsFailed", None),
         }
 
     def cancel_scan_report(self, report_id: int) -> dict:
