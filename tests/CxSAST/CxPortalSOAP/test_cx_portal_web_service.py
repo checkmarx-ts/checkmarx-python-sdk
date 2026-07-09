@@ -448,6 +448,12 @@ def test_get_scan_report_and_status():
 
     status_response = get_scan_report_status(report_id=report_id)
     assert status_response["IsSuccesfull"] is True
+    # SOAP response exposes IsReady/IsFailed booleans (not the "Status"
+    # field the doc-derived stub previously returned as always-None).
+    assert "IsReady" in status_response
+    assert "IsFailed" in status_response
+    assert isinstance(status_response["IsReady"], bool)
+    assert isinstance(status_response["IsFailed"], bool)
 
     cancel_response = cancel_scan_report(report_id=report_id)
     assert cancel_response["IsSuccesfull"] is True
