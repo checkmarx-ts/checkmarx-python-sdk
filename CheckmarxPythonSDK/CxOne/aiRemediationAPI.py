@@ -1,24 +1,21 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
-    AiTrProcessStatusResponse,
-    AiTriageTriggerRequest,
-    AiTriageTriggerResponse,
+    AiRemediationRequest,
+    AiRemediationResponse,
+    AiRemediationDetails,
 )
 
 
 class AiRemediationAPI(object):
     """API client for the AI Remediation REST API.
 
-    Enables programmatic triggering and status tracking for AI-driven
-    vulnerability remediation workflows. AI Remediation first runs AI Triage
-    and then, when applicable, opens a pull request with the suggested
-    remediation. For manual projects, the remediation workflow updates the RO
-    table without opening a pull request.
-
-    When a trigger request is submitted, the API returns a processId that can
-    be used to track the asynchronous process. Currently supported for SAST
-    and SCA scanners only.
+    Submits requests to generate AI-powered remediation for vulnerabilities
+    within a scan and retrieves remediation details. AI Remediation first runs
+    AI Triage and then, when applicable, opens a pull request with the
+    suggested remediation. For manual projects, the remediation workflow
+    updates the RO table without opening a pull request. Currently supported
+    for SAST and SCA scanners only.
     """
 
     def __init__(self, api_client: ApiClient = None):
@@ -27,116 +24,105 @@ class AiRemediationAPI(object):
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
         self.base_url = (
-            f"{self.api_client.configuration.server_base_url}/api/v1/ai-remediation"
+            f"{self.api_client.configuration.server_base_url}/api/remediation"
         )
 
     def trigger_ai_remediation(
-        self, trigger_request: AiTriageTriggerRequest
-    ) -> AiTriageTriggerResponse:
-        """Trigger an AI Remediation of one or more vulnerabilities identified
-        in your projects.
+        self, remediation_request: AiRemediationRequest
+    ) -> AiRemediationResponse:
+        """Submit a request to generate AI-powered remediation for one or more
+        vulnerabilities within a scan.
 
-        AI Remediation first runs AI Triage and then, when applicable, opens a
-        pull request with the suggested remediation. For manual projects, the
-        remediation workflow updates the RO table without opening a pull
-        request.
-
-        Returns a processId that can be used to track the status of the
-        request. Currently supported for SAST and SCA scanners only.
-
-        For SAST vulnerabilities, similarityId and attackVectorId are mutually
-        exclusive. Supplying both values in the same request item returns a
-        validation error.
+        The request is processed asynchronously. A successful request returns
+        202 Accepted. Use retrieve_ai_remediation_details to poll for results.
 
         Args:
-            trigger_request (AiTriageTriggerRequest): Request body containing a
-                list of one or more vulnerabilities to remediate. Each
-                vulnerability requires a projectId and either a similarityId
-                or attackVectorId (for SAST).
+            remediation_request (AiRemediationRequest): Request body containing
+                the scan ID and one or more scanner buckets (scannerType +
+                resultIDs). Result IDs are obtained from the alternateId field
+                returned by GET /api/results. URL-encoding the IDs is highly
+                recommended. At least one bucket is required.
 
         Returns:
-            AiTriageTriggerResponse: Response containing the processId
-            (unique identifier of the triggered AI Remediation process) and
-            status (e.g. 'in_progress' or 'rejected').
+            AiRemediationResponse: Response containing status ('accepted'),
+            published flag, existingState, and remediationJobId.
         """
-        url = f"{self.base_url}/trigger"
+        url = f"{self.base_url}/remediate"
         response = self.api_client.call_api(
             method="POST",
             url=url,
-            json={
-                "vulnerabilities": [
-                    v.to_dict() for v in trigger_request.vulnerabilities
-                ]
-            },
+            headers={"Accept": "application/json"},
+            json=remediation_request.to_dict(),
         )
-        return AiTriageTriggerResponse.from_dict(response.json())
+        return AiRemediationResponse.from_dict(response.json())
 
-    def retrieve_process_status(
-        self, process_id: str
-    ) -> AiTrProcessStatusResponse:
-        """Retrieve the status of a triggered AI Remediation process.
+    def retrieve_ai_remediation_details(
+        self, scan_id: str, result_id: str
+    ) -> AiRemediationDetails:
+        """Retrieve AI Remediation details for a specific vulnerability within
+        a scan.
 
-        Returns the overall batch status and per-vulnerability status results.
-        Use this to poll for completion after triggering a process with
-        trigger_ai_remediation.
+        If remediation is still in progress or has failed, the response
+        contains the current job status. Otherwise, the completed remediation
+        details are returned.
 
         Args:
-            process_id (str): Unique identifier of the triggered process,
-                returned by trigger_ai_remediation.
+            scan_id (str): Unique identifier of the scan.
+            result_id (str): Use the alternateId returned by GET /api/results.
+                URL-encoding is highly recommended.
 
         Returns:
-            AiTrProcessStatusResponse: Response containing the overall process
-            status (e.g. 'in_progress', 'completed', 'completed_with_errors',
-            'failed') and per-vulnerability results.
+            AiRemediationDetails: Scan ID and per-result remediation details
+            including auto-PR status, code diffs, analysis, and generated
+            tests.
         """
-        url = f"{self.api_client.configuration.server_base_url}/api/v1/ai-tr/process/{process_id}"
-        response = self.api_client.call_api(method="GET", url=url)
-        return AiTrProcessStatusResponse.from_dict(response.json())
+        url = f"{self.base_url}/remediation-details/{scan_id}/{result_id}"
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            headers={"Accept": "application/json"},
+        )
+        return AiRemediationDetails.from_dict(response.json())
 
 
-def trigger_ai_remediation(trigger_request: AiTriageTriggerRequest) -> AiTriageTriggerResponse:
-    """Trigger an AI Remediation of one or more vulnerabilities identified in
-    your projects.
+def trigger_ai_remediation(
+    remediation_request: AiRemediationRequest,
+) -> AiRemediationResponse:
+    """Submit a request to generate AI-powered remediation for one or more
+    vulnerabilities within a scan.
 
-    AI Remediation first runs AI Triage and then, when applicable, opens a
-    pull request with the suggested remediation. For manual projects, the
-    remediation workflow updates the RO table without opening a pull request.
-
-    Returns a processId that can be used to track the status of the request.
-    Currently supported for SAST and SCA scanners only.
-
-    For SAST vulnerabilities, similarityId and attackVectorId are mutually
-    exclusive. Supplying both values in the same request item returns a
-    validation error.
+    The request is processed asynchronously. A successful request returns
+    202 Accepted. Use retrieve_ai_remediation_details to poll for results.
 
     Args:
-        trigger_request (AiTriageTriggerRequest): Request body containing a
-            list of one or more vulnerabilities to remediate. Each
-            vulnerability requires a projectId and either a similarityId
-            or attackVectorId (for SAST).
+        remediation_request (AiRemediationRequest): Request body containing the
+            scan ID and one or more scanner buckets (scannerType + resultIDs).
+            Result IDs are obtained from the alternateId field returned by
+            GET /api/results. URL-encoding the IDs is highly recommended. At
+            least one bucket is required.
 
     Returns:
-        AiTriageTriggerResponse: Response containing the processId (unique
-        identifier of the triggered AI Remediation process) and status
-        (e.g. 'in_progress' or 'rejected').
+        AiRemediationResponse: Response containing status ('accepted'),
+        published flag, existingState, and remediationJobId.
     """
-    return AiRemediationAPI().trigger_ai_remediation(trigger_request)
+    return AiRemediationAPI().trigger_ai_remediation(remediation_request)
 
 
-def retrieve_process_status(process_id: str) -> AiTrProcessStatusResponse:
-    """Retrieve the status of a triggered AI Remediation process.
+def retrieve_ai_remediation_details(scan_id: str, result_id: str) -> AiRemediationDetails:
+    """Retrieve AI Remediation details for a specific vulnerability within a
+    scan.
 
-    Returns the overall batch status and per-vulnerability status results.
-    Use this to poll for completion after triggering a process with
-    trigger_ai_remediation.
+    If remediation is still in progress or has failed, the response contains
+    the current job status. Otherwise, the completed remediation details are
+    returned.
 
     Args:
-        process_id (str): Unique identifier of the triggered process, returned
-            by trigger_ai_remediation.
+        scan_id (str): Unique identifier of the scan.
+        result_id (str): Use the alternateId returned by GET /api/results.
+            URL-encoding is highly recommended.
 
     Returns:
-        AiTrProcessStatusResponse: Response containing the overall process
-        status (e.g. 'in_progress', 'completed', 'completed_with_errors',
-        'failed') and per-vulnerability results.
+        AiRemediationDetails: Scan ID and per-result remediation details
+        including auto-PR status, code diffs, analysis, and generated tests.
     """
-    return AiRemediationAPI().retrieve_process_status(process_id)
+    return AiRemediationAPI().retrieve_ai_remediation_details(scan_id, result_id)

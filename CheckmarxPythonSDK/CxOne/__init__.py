@@ -49,11 +49,12 @@ from .aiAssetsAPI import (
 from .aiTriageAPI import (
     AiTriageAPI,
     trigger_ai_triage,
-    retrieve_process_status,
+    retrieve_ai_triage_results,
 )
 from .aiRemediationAPI import (
     AiRemediationAPI,
     trigger_ai_remediation,
+    retrieve_ai_remediation_details,
 )
 
 from .accessManagementAPI import (

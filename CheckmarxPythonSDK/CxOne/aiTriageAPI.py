@@ -1,21 +1,18 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
-    AiTrProcessStatusResponse,
-    AiTriageTriggerRequest,
-    AiTriageTriggerResponse,
+    AiTriageRequest,
+    AiTriageResponse,
+    AiTriageResult,
 )
 
 
 class AiTriageAPI(object):
     """API client for the AI Triage REST API.
 
-    Enables programmatic triggering and status tracking for AI-driven
-    vulnerability triage workflows. When a trigger request is submitted, the
-    API returns a processId that can be used to track the asynchronous process.
-
-    AI Triage updates the vulnerability risk state and records a changelog
-    with a comment. Currently supported for SAST and SCA scanners only.
+    Submits requests to triage vulnerabilities within a scan and retrieves
+    triage results. AI Triage updates the vulnerability risk state and records
+    a changelog with a comment. Currently supported for SAST and SCA scanners.
     """
 
     def __init__(self, api_client: ApiClient = None):
@@ -24,107 +21,106 @@ class AiTriageAPI(object):
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
         self.base_url = (
-            f"{self.api_client.configuration.server_base_url}/api/v1/ai-triage"
+            f"{self.api_client.configuration.server_base_url}/api/ai-triage"
         )
 
     def trigger_ai_triage(
-        self, trigger_request: AiTriageTriggerRequest
-    ) -> AiTriageTriggerResponse:
-        """Trigger an AI Triage of one or more vulnerabilities identified in
-        your projects.
+        self, triage_request: AiTriageRequest
+    ) -> AiTriageResponse:
+        """Submit a request to triage vulnerabilities within a scan.
 
-        Returns a processId that can be used to track the status of the
-        request. Currently supported for SAST and SCA scanners only.
-
-        For SAST vulnerabilities, similarityId and attackVectorId are mutually
-        exclusive. Supplying both values in the same request item returns a
-        validation error.
+        The request is processed asynchronously. A successful request returns
+        202 Accepted. Use retrieve_ai_triage_results to poll for results.
 
         Args:
-            trigger_request (AiTriageTriggerRequest): Request body containing a
-                list of one or more vulnerabilities to triage. Each
-                vulnerability requires a projectId and either a similarityId
-                or attackVectorId (for SAST).
+            triage_request (AiTriageRequest): Request body containing the scan
+                ID and one or more scanner buckets (scannerType + resultIDs).
+                Result IDs are obtained from the alternateId field returned by
+                GET /api/results. URL-encoding the IDs is highly recommended.
 
         Returns:
-            AiTriageTriggerResponse: Response containing the processId
-            (unique identifier of the triggered AI Triage process) and
-            status (e.g. 'in_progress' or 'rejected').
+            AiTriageResponse: Response containing scanID, status ('accepted'),
+            triageID, published flag, and existingTriageState.
         """
-        url = f"{self.base_url}/trigger"
+        url = f"{self.base_url}/triage"
         response = self.api_client.call_api(
             method="POST",
             url=url,
-            json={
-                "vulnerabilities": [
-                    v.to_dict() for v in trigger_request.vulnerabilities
-                ]
-            },
+            headers={"Accept": "application/json"},
+            json=triage_request.to_dict(),
         )
-        return AiTriageTriggerResponse.from_dict(response.json())
+        return AiTriageResponse.from_dict(response.json())
 
-    def retrieve_process_status(
-        self, process_id: str
-    ) -> AiTrProcessStatusResponse:
-        """Retrieve the status of a triggered AI Triage process.
+    def retrieve_ai_triage_results(
+        self, project_id: str, group_id: str
+    ) -> AiTriageResult:
+        """Retrieve AI Triage results for a vulnerability group within a project.
 
-        Returns the overall batch status and per-vulnerability status results.
-        Use this to poll for completion after triggering a process with
-        trigger_ai_triage.
+        Returns the full triage analysis if triage has completed, or the
+        current job status if still in progress. If the triage operation
+        failed, returns a failed job status.
+
+        The recommended way to obtain group_id is to call GET /api/risks for
+        the specified project and use the groupId field of the corresponding
+        risk object. If group_id contains reserved URL characters (e.g. #),
+        URL-encode the value before passing it (replace # with %23).
 
         Args:
-            process_id (str): Unique identifier of the triggered process,
-                returned by trigger_ai_triage.
+            project_id (str): Unique identifier of the project.
+            group_id (str): Identifier of the vulnerability group. URL-encode
+                if the value contains reserved characters.
 
         Returns:
-            AiTrProcessStatusResponse: Response containing the overall process
-            status (e.g. 'in_progress', 'completed', 'completed_with_errors',
-            'failed') and per-vulnerability results.
+            AiTriageResult: Triage verdict, summary, confidence score,
+            reachability, exploitability, and supporting analysis details.
         """
-        url = f"{self.api_client.configuration.server_base_url}/api/v1/ai-tr/process/{process_id}"
-        response = self.api_client.call_api(method="GET", url=url)
-        return AiTrProcessStatusResponse.from_dict(response.json())
+        url = f"{self.base_url}/triage/{project_id}/{group_id}"
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            headers={"Accept": "application/json"},
+        )
+        return AiTriageResult.from_dict(response.json())
 
 
-def trigger_ai_triage(trigger_request: AiTriageTriggerRequest) -> AiTriageTriggerResponse:
-    """Trigger an AI Triage of one or more vulnerabilities identified in your
-    projects.
+def trigger_ai_triage(triage_request: AiTriageRequest) -> AiTriageResponse:
+    """Submit a request to triage vulnerabilities within a scan.
 
-    Returns a processId that can be used to track the status of the request.
-    Currently supported for SAST and SCA scanners only.
-
-    For SAST vulnerabilities, similarityId and attackVectorId are mutually
-    exclusive. Supplying both values in the same request item returns a
-    validation error.
-
-    Args:
-        trigger_request (AiTriageTriggerRequest): Request body containing a
-            list of one or more vulnerabilities to triage. Each vulnerability
-            requires a projectId and either a similarityId or attackVectorId
-            (for SAST).
-
-    Returns:
-        AiTriageTriggerResponse: Response containing the processId (unique
-        identifier of the triggered AI Triage process) and status
-        (e.g. 'in_progress' or 'rejected').
-    """
-    return AiTriageAPI().trigger_ai_triage(trigger_request)
-
-
-def retrieve_process_status(process_id: str) -> AiTrProcessStatusResponse:
-    """Retrieve the status of a triggered AI Triage process.
-
-    Returns the overall batch status and per-vulnerability status results.
-    Use this to poll for completion after triggering a process with
-    trigger_ai_triage.
+    The request is processed asynchronously. A successful request returns
+    202 Accepted. Use retrieve_ai_triage_results to poll for results.
 
     Args:
-        process_id (str): Unique identifier of the triggered process, returned
-            by trigger_ai_triage.
+        triage_request (AiTriageRequest): Request body containing the scan ID
+            and one or more scanner buckets (scannerType + resultIDs). Result
+            IDs are obtained from the alternateId field returned by
+            GET /api/results. URL-encoding the IDs is highly recommended.
 
     Returns:
-        AiTrProcessStatusResponse: Response containing the overall process
-        status (e.g. 'in_progress', 'completed', 'completed_with_errors',
-        'failed') and per-vulnerability results.
+        AiTriageResponse: Response containing scanID, status ('accepted'),
+        triageID, published flag, and existingTriageState.
     """
-    return AiTriageAPI().retrieve_process_status(process_id)
+    return AiTriageAPI().trigger_ai_triage(triage_request)
+
+
+def retrieve_ai_triage_results(project_id: str, group_id: str) -> AiTriageResult:
+    """Retrieve AI Triage results for a vulnerability group within a project.
+
+    Returns the full triage analysis if triage has completed, or the current
+    job status if still in progress. If the triage operation failed, returns
+    a failed job status.
+
+    The recommended way to obtain group_id is to call GET /api/risks for the
+    specified project and use the groupId field of the corresponding risk
+    object. If group_id contains reserved URL characters (e.g. #), URL-encode
+    the value before passing it (replace # with %23).
+
+    Args:
+        project_id (str): Unique identifier of the project.
+        group_id (str): Identifier of the vulnerability group. URL-encode if
+            the value contains reserved characters.
+
+    Returns:
+        AiTriageResult: Triage verdict, summary, confidence score,
+        reachability, exploitability, and supporting analysis details.
+    """
+    return AiTriageAPI().retrieve_ai_triage_results(project_id, group_id)
