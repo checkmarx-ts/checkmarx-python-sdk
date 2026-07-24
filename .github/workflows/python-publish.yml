@@ -30,7 +30,7 @@ jobs:
         pip install --upgrade pip build
         python -m build
     - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+      uses: step-security/gh-action-pypi-publish@ef63b3f651e4131083ceb916595ce721a1959385 # v1.14.0
       with:
           user: __token__
           password: ${{ secrets.Checkmarx_Python_SDK_PYPI_PASSWORD }}
