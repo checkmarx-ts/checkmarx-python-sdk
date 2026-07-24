@@ -1,17 +1,26 @@
+from urllib.parse import quote
+
 import pytest
 
 from CheckmarxPythonSDK.CxOne import (
-    retrieve_process_status,
     trigger_ai_triage,
+    retrieve_ai_triage_results,
     trigger_ai_remediation,
+    retrieve_ai_remediation_details,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
-    AiTriageTriggerRequest,
-    AiTriageVulnerability,
+    AiTriageRequest,
+    AiTriageResponse,
+    AiTriageResult,
+    TriageBucket,
+    AiRemediationRequest,
+    AiRemediationResponse,
+    AiRemediationDetails,
+    RemediationBucket,
 )
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
-from CheckmarxPythonSDK.CxOne import SastResultsAPI as _SastResultsAPI
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
+from CheckmarxPythonSDK.CxOne import ScannersResultsAPI as _ScannersResultsAPI
 
 
 def _get_project_id():
@@ -31,13 +40,14 @@ def _get_sast_scan_id(project_id):
     return None
 
 
-def _get_sast_similarity_id(scan_id):
-    results = _SastResultsAPI().get_sast_results_by_scan_id(
-        scan_id=scan_id, limit=1, include_nodes=False
+def _get_sast_result(scan_id):
+    """Return the first SAST result that has an alternate_id."""
+    results = _ScannersResultsAPI().get_all_scanners_results_by_scan_id(
+        scan_id=scan_id, limit=5
     )
-    data = results.get("results", [])
-    if data:
-        return data[0].similarity_id
+    for result in results.results or []:
+        if result.type == "sast" and result.alternate_id and result.similarity_id:
+            return result
     return None
 
 
@@ -48,28 +58,63 @@ def test_trigger_ai_triage():
     scan_id = _get_sast_scan_id(project_id)
     if not scan_id:
         pytest.skip("No completed SAST scan found")
-    similarity_id = _get_sast_similarity_id(scan_id)
-    if not similarity_id:
-        pytest.skip("No SAST results found")
+    result = _get_sast_result(scan_id)
+    if not result:
+        pytest.skip("No SAST result with alternateId found")
 
-    request = AiTriageTriggerRequest(
-        vulnerabilities=[
-            AiTriageVulnerability(
-                projectId=project_id,
-                similarityId=similarity_id,
+    request = AiTriageRequest(
+        scanID=scan_id,
+        buckets=[
+            TriageBucket(
+                scannerType="sast",
+                resultIDs=[quote(result.alternate_id, safe="")],
             )
-        ]
+        ],
     )
     try:
         response = trigger_ai_triage(request)
     except Exception as e:
         msg = str(e)
-        if "400" in msg or "401" in msg or "403" in msg:
-            pytest.skip("API returned client error: {}".format(msg))
+        if any(code in msg for code in ("400", "401", "402", "403", "422")):
+            pytest.skip(f"API returned client error: {msg}")
         raise
-    assert response is not None
-    assert response.processId is not None
-    assert response.status in ("in_progress", "rejected")
+
+    assert isinstance(response, AiTriageResponse)
+    assert response.status == "accepted"
+    assert response.triageID is not None
+    assert isinstance(response.published, bool)
+
+
+def test_retrieve_ai_triage_results():
+    project_id = _get_project_id()
+    if not project_id:
+        pytest.skip("No projects found")
+    scan_id = _get_sast_scan_id(project_id)
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    result = _get_sast_result(scan_id)
+    if not result:
+        pytest.skip("No SAST result with similarityId found")
+
+    # For SAST, group_id is the similarityId (URL-encoded if needed)
+    group_id = quote(result.similarity_id, safe="")
+
+    try:
+        triage_result = retrieve_ai_triage_results(
+            project_id=project_id,
+            group_id=group_id,
+        )
+    except Exception as e:
+        msg = str(e)
+        if any(code in msg for code in ("401", "403", "404", "422")):
+            pytest.skip(f"API returned client error: {msg}")
+        raise
+
+    assert isinstance(triage_result, AiTriageResult)
+    assert triage_result.triageStatus in (
+        "NOT_TRIAGED", "IN_PROGRESS", "FAILED", "VULNERABLE",
+        "PROPOSED_NOT_EXPLOITABLE", "UNCERTAIN", "RISK_ACCEPTED",
+    )
 
 
 def test_trigger_ai_remediation():
@@ -79,72 +124,57 @@ def test_trigger_ai_remediation():
     scan_id = _get_sast_scan_id(project_id)
     if not scan_id:
         pytest.skip("No completed SAST scan found")
-    similarity_id = _get_sast_similarity_id(scan_id)
-    if not similarity_id:
-        pytest.skip("No SAST results found")
+    result = _get_sast_result(scan_id)
+    if not result:
+        pytest.skip("No SAST result with alternateId found")
 
-    request = AiTriageTriggerRequest(
-        vulnerabilities=[
-            AiTriageVulnerability(
-                projectId=project_id,
-                similarityId=similarity_id,
+    request = AiRemediationRequest(
+        scanID=scan_id,
+        buckets=[
+            RemediationBucket(
+                scannerType="sast",
+                resultIDs=[quote(result.alternate_id, safe="")],
             )
-        ]
+        ],
     )
     try:
         response = trigger_ai_remediation(request)
     except Exception as e:
         msg = str(e)
-        if "400" in msg or "401" in msg or "403" in msg:
-            pytest.skip("API returned client error: {}".format(msg))
+        if any(code in msg for code in ("400", "401", "402", "403", "422")):
+            pytest.skip(f"API returned client error: {msg}")
         raise
-    assert response is not None
-    assert response.processId is not None
-    assert response.status in ("in_progress", "rejected")
+
+    assert isinstance(response, AiRemediationResponse)
+    assert response.status == "accepted"
+    assert response.remediationJobId is not None
+    assert isinstance(response.published, bool)
 
 
-def test_retrieve_process_status():
-    """Test retrieving process status after triggering an AI Triage.
-
-    First triggers an AI Triage to obtain a valid processId, then polls
-    the status endpoint.
-    """
+def test_retrieve_ai_remediation_details():
     project_id = _get_project_id()
     if not project_id:
         pytest.skip("No projects found")
     scan_id = _get_sast_scan_id(project_id)
     if not scan_id:
         pytest.skip("No completed SAST scan found")
-    similarity_id = _get_sast_similarity_id(scan_id)
-    if not similarity_id:
-        pytest.skip("No SAST results found")
+    result = _get_sast_result(scan_id)
+    if not result:
+        pytest.skip("No SAST result with alternateId found")
 
-    request = AiTriageTriggerRequest(
-        vulnerabilities=[
-            AiTriageVulnerability(
-                projectId=project_id,
-                similarityId=similarity_id,
-            )
-        ]
-    )
+    result_id = quote(result.alternate_id, safe="")
+
     try:
-        trigger_response = trigger_ai_triage(request)
+        details = retrieve_ai_remediation_details(
+            scan_id=scan_id,
+            result_id=result_id,
+        )
     except Exception as e:
         msg = str(e)
-        if "400" in msg or "401" in msg or "403" in msg:
-            pytest.skip("Trigger API returned client error: {}".format(msg))
+        if any(code in msg for code in ("401", "403", "404", "422")):
+            pytest.skip(f"API returned client error: {msg}")
         raise
 
-    process_id = trigger_response.processId
-    assert process_id is not None
-
-    status_response = retrieve_process_status(process_id)
-    assert status_response is not None
-    assert status_response.processId == process_id
-    assert status_response.status in (
-        "in_progress",
-        "completed",
-        "completed_with_errors",
-        "failed",
-    )
-    assert isinstance(status_response.results, list)
+    assert isinstance(details, AiRemediationDetails)
+    assert details.scanID is not None
+    assert isinstance(details.results, list)
