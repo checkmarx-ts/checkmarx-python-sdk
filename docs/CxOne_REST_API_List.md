@@ -63,9 +63,10 @@
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `get_scan_results` | GET | `/api/ai-sc/reader/scans/{scanId}/results` |
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `aggregate_scan_results` | GET | `/api/ai-sc/reader/scans/{scanId}/results/aggregate` |
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `get_asset_risks` | GET | `/api/ai-sc/reader/scans/{scanId}/assets/{assetId}/risks` |
-| AI_TRIAGE.yaml | AiTriageAndRemediationAPI | `trigger_ai_triage` | POST | `/api/v1/ai-triage/trigger` |
-| AI_TRIAGE.yaml | AiTriageAndRemediationAPI | `trigger_ai_remediation` | POST | `/api/v1/ai-remediation/trigger` |
-| AI_TRIAGE.yaml | AiTriageAndRemediationAPI | `retrieve_process_status` | GET | `/api/v1/ai-tr/process/{processId}` |
+| AI_TRIAGE.yaml | AiTriageAPI | `trigger_ai_triage` | POST | `/api/ai-triage/triage` |
+| AI_TRIAGE.yaml | AiTriageAPI | `retrieve_ai_triage_results` | GET | `/api/ai-triage/triage/{project_id}/{group_id}` |
+| AI_REMEDIATION.yaml | AiRemediationAPI | `trigger_ai_remediation` | POST | `/api/remediation/remediate` |
+| AI_REMEDIATION.yaml | AiRemediationAPI | `retrieve_ai_remediation_details` | GET | `/api/remediation/remediation-details/{scan_id}/{result_id}` |
 | ANALYTICS_API.yaml | AnalyticsAPI | `query_kpi` | POST | `/api/data_analytics/analyticsAPI/v1` |
 | APPLICATIONS.yaml | ApplicationsAPI | `create_an_application` | POST | `/api/applications` |
 | APPLICATIONS.yaml | ApplicationsAPI | `get_a_list_of_applications` | GET | `/api/applications` |
