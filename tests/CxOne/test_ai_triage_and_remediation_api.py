@@ -26,6 +26,18 @@ from CheckmarxPythonSDK.CxOne import SastResultsAPI as _SastResultsAPI
 _PROJECT_NAME = "happy-cook/WebGoat"
 _QUERY_NAME = "SQL_Injection"
 
+# Triage statuses that indicate a result is not exploitable — remediation on
+# these wastes credits and produces no actionable output.
+_SKIP_REMEDIATION_STATUSES = {
+    "PROPOSED_NOT_EXPLOITABLE",
+    "RISK_ACCEPTED",
+}
+
+_VALID_TRIAGE_STATUSES = {
+    "NOT_TRIAGED", "IN_PROGRESS", "FAILED", "VULNERABLE",
+    "PROPOSED_NOT_EXPLOITABLE", "UNCERTAIN", "RISK_ACCEPTED",
+}
+
 
 @pytest.fixture(scope="session")
 def project_id():
@@ -61,6 +73,21 @@ def sql_injection_result(scan_id):
     pytest.skip(
         f"No '{_QUERY_NAME}' SAST result found in the latest scan of '{_PROJECT_NAME}'"
     )
+
+
+@pytest.fixture(scope="session")
+def triage_status(project_id, sql_injection_result):
+    """Return the completed triageStatus for the result, or None if not yet available.
+
+    Used by remediation tests to skip when the result is already determined to
+    be non-exploitable, avoiding unnecessary credit consumption.
+    """
+    group_id = quote(str(sql_injection_result.similarity_id), safe="")
+    try:
+        result = retrieve_ai_triage_results(project_id=project_id, group_id=group_id)
+        return result.triageStatus
+    except Exception:
+        return None
 
 
 def test_trigger_ai_triage(project_id, scan_id, sql_injection_result):
@@ -104,10 +131,7 @@ def test_get_ai_triage_status(project_id, scan_id, sql_injection_result):
     assert isinstance(result, AiTriageResult)
     # stream may contain only heartbeats if triage is still in progress
     if result.triageStatus is not None:
-        assert result.triageStatus in (
-            "NOT_TRIAGED", "IN_PROGRESS", "FAILED", "VULNERABLE",
-            "PROPOSED_NOT_EXPLOITABLE", "UNCERTAIN", "RISK_ACCEPTED",
-        )
+        assert result.triageStatus in _VALID_TRIAGE_STATUSES
 
 
 def test_retrieve_ai_triage_results(project_id, scan_id, sql_injection_result):
@@ -129,13 +153,16 @@ def test_retrieve_ai_triage_results(project_id, scan_id, sql_injection_result):
     assert isinstance(triage_result, AiTriageResult)
     # triageStatus is None when the job is still processing (different response shape)
     if triage_result.triageStatus is not None:
-        assert triage_result.triageStatus in (
-            "NOT_TRIAGED", "IN_PROGRESS", "FAILED", "VULNERABLE",
-            "PROPOSED_NOT_EXPLOITABLE", "UNCERTAIN", "RISK_ACCEPTED",
+        assert triage_result.triageStatus in _VALID_TRIAGE_STATUSES
+
+
+def test_trigger_ai_remediation(project_id, scan_id, sql_injection_result, triage_status):
+    if triage_status in _SKIP_REMEDIATION_STATUSES:
+        pytest.skip(
+            f"Skipping remediation: AI triage determined result is '{triage_status}' "
+            f"— triggering remediation would waste credits with no actionable output"
         )
 
-
-def test_trigger_ai_remediation(project_id, scan_id, sql_injection_result):
     # resultIDs in the JSON body should be raw (not URL-encoded)
     request = AiRemediationRequest(
         scanID=scan_id,
@@ -165,7 +192,12 @@ def test_trigger_ai_remediation(project_id, scan_id, sql_injection_result):
         assert response.existingState is not None
 
 
-def test_retrieve_ai_remediation_details(project_id, scan_id, sql_injection_result):
+def test_retrieve_ai_remediation_details(project_id, scan_id, sql_injection_result, triage_status):
+    if triage_status in _SKIP_REMEDIATION_STATUSES:
+        pytest.skip(
+            f"Skipping remediation details: AI triage determined result is '{triage_status}'"
+        )
+
     result_id = quote(sql_injection_result.result_hash, safe="")
     try:
         details = retrieve_ai_remediation_details(
