@@ -65,6 +65,7 @@
 | AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml | AiAssetsAPI | `get_asset_risks` | GET | `/api/ai-sc/reader/scans/{scanId}/assets/{assetId}/risks` |
 | AI_TRIAGE.yaml | AiTriageAPI | `trigger_ai_triage` | POST | `/api/ai-triage/triage` |
 | AI_TRIAGE.yaml | AiTriageAPI | `retrieve_ai_triage_results` | GET | `/api/ai-triage/triage/{project_id}/{group_id}` |
+| SSE_GATEWAY | AiTriageAPI | `get_ai_triage_status` | GET | `/api/ssegateway/triage-status` |
 | AI_REMEDIATION.yaml | AiRemediationAPI | `trigger_ai_remediation` | POST | `/api/remediation/remediate` |
 | AI_REMEDIATION.yaml | AiRemediationAPI | `retrieve_ai_remediation_details` | GET | `/api/remediation/remediation-details/{scan_id}/{result_id}` |
 | ANALYTICS_API.yaml | AnalyticsAPI | `query_kpi` | POST | `/api/data_analytics/analyticsAPI/v1` |
