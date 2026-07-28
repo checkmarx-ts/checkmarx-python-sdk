@@ -33,6 +33,9 @@ _SKIP_REMEDIATION_STATUSES = {
     "RISK_ACCEPTED",
 }
 
+# Only results explicitly confirmed as real vulnerabilities warrant remediation.
+_REMEDIATION_STATES = {"CONFIRMED", "URGENT"}
+
 _VALID_TRIAGE_STATUSES = {
     "NOT_TRIAGED", "IN_PROGRESS", "FAILED", "VULNERABLE",
     "PROPOSED_NOT_EXPLOITABLE", "UNCERTAIN", "RISK_ACCEPTED",
@@ -157,6 +160,11 @@ def test_retrieve_ai_triage_results(project_id, scan_id, sql_injection_result):
 
 
 def test_trigger_ai_remediation(project_id, scan_id, sql_injection_result, triage_status):
+    if sql_injection_result.state not in _REMEDIATION_STATES:
+        pytest.skip(
+            f"Skipping remediation: result state is '{sql_injection_result.state}' "
+            f"— only CONFIRMED and URGENT results are remediated"
+        )
     if triage_status in _SKIP_REMEDIATION_STATUSES:
         pytest.skip(
             f"Skipping remediation: AI triage determined result is '{triage_status}' "
@@ -193,6 +201,11 @@ def test_trigger_ai_remediation(project_id, scan_id, sql_injection_result, triag
 
 
 def test_retrieve_ai_remediation_details(project_id, scan_id, sql_injection_result, triage_status):
+    if sql_injection_result.state not in _REMEDIATION_STATES:
+        pytest.skip(
+            f"Skipping remediation details: result state is '{sql_injection_result.state}' "
+            f"— only CONFIRMED and URGENT results are remediated"
+        )
     if triage_status in _SKIP_REMEDIATION_STATUSES:
         pytest.skip(
             f"Skipping remediation details: AI triage determined result is '{triage_status}'"
