@@ -1,3 +1,5 @@
+import json
+
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
@@ -51,6 +53,51 @@ class AiTriageAPI(object):
         )
         return AiTriageResponse.from_dict(response.json())
 
+    def get_ai_triage_status(
+        self, engine: str, group_id: int, project_id: str
+    ) -> AiTriageResult:
+        """Poll the SSE gateway for real-time AI Triage status updates.
+
+        Connects to the Server-Sent Events endpoint and blocks until the
+        stream closes, then returns the last triage status event received.
+        Heartbeat frames (`:heartbeat`) are ignored.
+
+        Args:
+            engine (str): Scanner engine type, e.g. "sast".
+            group_id (int): Vulnerability group identifier (the similarityId
+                of the SAST result).
+            project_id (str): Unique identifier of the project.
+
+        Returns:
+            AiTriageResult: The last triage status event from the SSE stream,
+            or an empty AiTriageResult if the stream contained only heartbeats.
+        """
+        url = (
+            f"{self.api_client.configuration.server_base_url}"
+            "/api/ssegateway/triage-status"
+        )
+        params = {
+            "engine": engine,
+            "groupId": group_id,
+            "projectId": project_id,
+        }
+        response = self.api_client.call_api(
+            method="GET",
+            url=url,
+            params=params,
+            headers={"Accept": "text/event-stream"},
+        )
+        last_event = {}
+        for line in response.text.splitlines():
+            line = line.strip()
+            if line.startswith("data:"):
+                payload = line[len("data:"):].strip()
+                try:
+                    last_event = json.loads(payload)
+                except json.JSONDecodeError:
+                    pass
+        return AiTriageResult.from_dict(last_event)
+
     def retrieve_ai_triage_results(
         self, project_id: str, group_id: str
     ) -> AiTriageResult:
@@ -81,6 +128,28 @@ class AiTriageAPI(object):
             headers={"Accept": "application/json"},
         )
         return AiTriageResult.from_dict(response.json())
+
+
+def get_ai_triage_status(
+    engine: str, group_id: int, project_id: str
+) -> AiTriageResult:
+    """Poll the SSE gateway for real-time AI Triage status updates.
+
+    Connects to the Server-Sent Events endpoint and blocks until the stream
+    closes, then returns the last triage status event received. Heartbeat
+    frames (`:heartbeat`) are ignored.
+
+    Args:
+        engine (str): Scanner engine type, e.g. "sast".
+        group_id (int): Vulnerability group identifier (the similarityId of
+            the SAST result).
+        project_id (str): Unique identifier of the project.
+
+    Returns:
+        AiTriageResult: The last triage status event from the SSE stream, or
+        an empty AiTriageResult if the stream contained only heartbeats.
+    """
+    return AiTriageAPI().get_ai_triage_status(engine, group_id, project_id)
 
 
 def trigger_ai_triage(triage_request: AiTriageRequest) -> AiTriageResponse:
