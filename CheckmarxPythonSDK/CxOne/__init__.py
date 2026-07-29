@@ -57,6 +57,10 @@ from .aiRemediationAPI import (
     trigger_ai_remediation,
     retrieve_ai_remediation_details,
 )
+from .risksAPI import (
+    RisksAPI,
+    get_risks,
+)
 
 from .accessManagementAPI import (
     AccessManagementAPI,

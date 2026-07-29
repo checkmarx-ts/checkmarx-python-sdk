@@ -68,6 +68,7 @@
 | SSE_GATEWAY | AiTriageAPI | `get_ai_triage_status` | GET | `/api/ssegateway/triage-status` |
 | AI_REMEDIATION.yaml | AiRemediationAPI | `trigger_ai_remediation` | POST | `/api/remediation/remediate` |
 | AI_REMEDIATION.yaml | AiRemediationAPI | `retrieve_ai_remediation_details` | GET | `/api/remediation/remediation-details/{scan_id}/{result_id}` |
+| RISK_ORCHESTRATION.yaml | RisksAPI | `get_risks` | GET | `/api/risks` |
 | ANALYTICS_API.yaml | AnalyticsAPI | `query_kpi` | POST | `/api/data_analytics/analyticsAPI/v1` |
 | APPLICATIONS.yaml | ApplicationsAPI | `create_an_application` | POST | `/api/applications` |
 | APPLICATIONS.yaml | ApplicationsAPI | `get_a_list_of_applications` | GET | `/api/applications` |
