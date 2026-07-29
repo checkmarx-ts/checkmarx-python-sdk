@@ -1,18 +1,28 @@
 # encoding: utf-8
 from .AddAssignmentRoles import AddAssignmentRoles
-from .AiTrProcessResult import AiTrProcessResult
-from .AiTrProcessStatusResponse import (
-    AiTrProcessStatusResponse,
-)
-from .AiTriageTriggerRequest import (
-    AiTriageTriggerRequest,
-)
-from .AiTriageTriggerResponse import (
-    AiTriageTriggerResponse,
-)
-from .AiTriageVulnerability import (
-    AiTriageVulnerability,
-)
+from .TriageBucket import TriageBucket
+from .AiTriageRequest import AiTriageRequest
+from .AiTriageResponse import AiTriageResponse
+from .RemediationBucket import RemediationBucket
+from .AiRemediationRequest import AiRemediationRequest
+from .AiRemediationResponse import AiRemediationResponse
+from .AutoPr import AutoPr
+from .RemediationAnalysis import RemediationAnalysis
+from .FileChange import FileChange
+from .TestFile import TestFile
+from .TestCreation import TestCreation
+from .RemediationData import RemediationData
+from .RemediationResult import RemediationResult
+from .AiRemediationDetails import AiRemediationDetails
+from .ConfidenceScore import ConfidenceScore
+from .ReachabilityAnalysis import ReachabilityAnalysis
+from .ExploitabilityAnalysis import ExploitabilityAnalysis
+from .TriageAnalysis import TriageAnalysis
+from .VulnerabilityMetadata import VulnerabilityMetadata
+from .VerificationStep import VerificationStep
+from .RepositoryInfo import RepositoryInfo
+from .ReasoningTrace import ReasoningTrace
+from .AiTriageResult import AiTriageResult
 from .ApiSecCounters import ApiSecCounters
 from .ScaRegistryConfigRequest import (
     ScaRegistryConfigRequest,
