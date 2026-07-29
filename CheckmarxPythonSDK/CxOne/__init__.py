@@ -60,6 +60,7 @@ from .aiRemediationAPI import (
 from .risksAPI import (
     RisksAPI,
     get_risks,
+    get_risks_ai_insights,
 )
 
 from .accessManagementAPI import (
