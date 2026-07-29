@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from .dto import RisksAiInsightsResponse, RisksResponse
+from .dto import RisksAggregateResponse, RisksAiInsightsResponse, RisksResponse
 
 
 class RisksAPI(object):
@@ -215,6 +215,75 @@ class RisksAPI(object):
         )
         return RisksAiInsightsResponse.from_dict(response.json())
 
+    def get_risks_aggregate(
+        self,
+        project_id: str,
+        group_by: List[str],
+        asset_name: List[str] = None,
+        engine: List[str] = None,
+        from_date: str = None,
+        limit: int = 50,
+        offset: int = 0,
+        origin: List[str] = None,
+        risk_name: List[str] = None,
+        severity: List[str] = None,
+        source: List[str] = None,
+        state: List[str] = None,
+        status: List[str] = None,
+        to_date: str = None,
+    ) -> RisksAggregateResponse:
+        """Return aggregated risk counters for a project.
+
+        Args:
+            project_id (str): Project UUID. Required.
+            group_by (List[str]): Grouping dimensions. Values: severity,
+                engine. At least one required. Supply both for a per-engine
+                per-severity breakdown.
+            asset_name (List[str]): Filter by asset name (repeatable).
+            engine (List[str]): Filter by engine. Values: SAST, IAC, SCA.
+            from_date (str): Filter by first detection from date (inclusive).
+                RFC3339 format.
+            limit (int): Max results. 1–10000. Default: 50.
+            offset (int): Results to skip. Default: 0.
+            origin (List[str]): Filter by scan origin (repeatable).
+            risk_name (List[str]): Filter by risk name (repeatable).
+            severity (List[str]): Filter by severity. Values: CRITICAL,
+                HIGH, MEDIUM, LOW, INFO.
+            source (List[str]): Filter by source (repeatable).
+            state (List[str]): Filter by state. Values: TO_VERIFY,
+                NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE, CONFIRMED, URGENT.
+            status (List[str]): Filter by status. Values: NEW, RECURRENT,
+                FIXED.
+            to_date (str): Filter by first detection to date (inclusive).
+                RFC3339 format.
+
+        Returns:
+            RisksAggregateResponse: List of RiskCounter objects.
+        """
+        params = {
+            "groupBy": group_by,
+            "projectId": project_id,
+            "assetName": asset_name,
+            "engine": engine,
+            "fromDate": from_date,
+            "limit": limit,
+            "offset": offset,
+            "origin": origin,
+            "riskName": risk_name,
+            "severity": severity,
+            "source": source,
+            "state": state,
+            "status": status,
+            "toDate": to_date,
+        }
+        response = self.api_client.call_api(
+            method="GET",
+            url=f"{self.base_url}/aggregate",
+            params=params,
+            headers={"Accept": "*/*; version=1.0"},
+        )
+        return RisksAggregateResponse.from_dict(response.json())
+
 
 def get_risks(
     project_id: str,
@@ -382,5 +451,66 @@ def get_risks_ai_insights(
         state=state,
         status=status,
         sub_asset_name=sub_asset_name,
+        to_date=to_date,
+    )
+
+
+def get_risks_aggregate(
+    project_id: str,
+    group_by: List[str],
+    asset_name: List[str] = None,
+    engine: List[str] = None,
+    from_date: str = None,
+    limit: int = 50,
+    offset: int = 0,
+    origin: List[str] = None,
+    risk_name: List[str] = None,
+    severity: List[str] = None,
+    source: List[str] = None,
+    state: List[str] = None,
+    status: List[str] = None,
+    to_date: str = None,
+) -> RisksAggregateResponse:
+    """Return aggregated risk counters for a project.
+
+    Args:
+        project_id (str): Project UUID. Required.
+        group_by (List[str]): Grouping dimensions. Values: severity, engine.
+            At least one required. Supply both for a per-engine per-severity
+            breakdown.
+        asset_name (List[str]): Filter by asset name (repeatable).
+        engine (List[str]): Filter by engine. Values: SAST, IAC, SCA.
+        from_date (str): Filter by first detection from date (inclusive).
+            RFC3339 format.
+        limit (int): Max results. 1–10000. Default: 50.
+        offset (int): Results to skip. Default: 0.
+        origin (List[str]): Filter by scan origin (repeatable).
+        risk_name (List[str]): Filter by risk name (repeatable).
+        severity (List[str]): Filter by severity. Values: CRITICAL, HIGH,
+            MEDIUM, LOW, INFO.
+        source (List[str]): Filter by source (repeatable).
+        state (List[str]): Filter by state. Values: TO_VERIFY,
+            NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE, CONFIRMED, URGENT.
+        status (List[str]): Filter by status. Values: NEW, RECURRENT, FIXED.
+        to_date (str): Filter by first detection to date (inclusive).
+            RFC3339 format.
+
+    Returns:
+        RisksAggregateResponse: List of RiskCounter objects.
+    """
+    return RisksAPI().get_risks_aggregate(
+        project_id=project_id,
+        group_by=group_by,
+        asset_name=asset_name,
+        engine=engine,
+        from_date=from_date,
+        limit=limit,
+        offset=offset,
+        origin=origin,
+        risk_name=risk_name,
+        severity=severity,
+        source=source,
+        state=state,
+        status=status,
         to_date=to_date,
     )
