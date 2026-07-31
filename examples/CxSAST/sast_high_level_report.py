@@ -7,7 +7,7 @@ from datetime import datetime
 import logging
 import sys
 
-from CheckmarxPythonSDK.CxODataApiSDK.HttpRequests import get_request
+from CheckmarxPythonSDK.CxODataApiSDK import ScansODataAPI
 from CheckmarxPythonSDK.CxPortalSoapApiSDK import get_compare_scan_results
 from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
 from CheckmarxPythonSDK.CxRestAPISDK import CustomFieldsAPI
@@ -16,6 +16,7 @@ from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 access_control_api = AccessControlAPI()
 custom_fields_api = CustomFieldsAPI()
 projects_api = ProjectsAPI()
+_scans_api = ScansODataAPI()
 
 
 class Summary:
@@ -96,7 +97,8 @@ def get_all_scans_in_date_range(args):
     )
 
     logging.debug(f"url: {url}")
-    return get_request(relative_url=url)
+    response = _scans_api.api_client.call_api(method="GET", url=f"{_scans_api.base_url}{url}")
+    return response.json().get("value")
 
 
 def get_scan_with_results(scan_id):
@@ -106,7 +108,8 @@ def get_scan_with_results(scan_id):
     )
 
     logging.debug(f"url: {url}")
-    scan = get_request(relative_url=url)[0]
+    response = _scans_api.api_client.call_api(method="GET", url=f"{_scans_api.base_url}{url}")
+    scan = response.json().get("value")[0]
     logging.debug(
         f'scan: id={scan["Id"]}'
         f',project_name={scan["ProjectName"]}'
