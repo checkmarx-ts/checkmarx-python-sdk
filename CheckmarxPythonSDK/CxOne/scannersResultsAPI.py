@@ -44,6 +44,16 @@ class ScannersResultsAPI(object):
         Returns:
             dict
         """
+
+        # The endpoint expects the severity, state and status values
+        # to be passed as comma-separated strings.
+        if severity:
+            severity = ','.join(severity)
+        if state:
+            state = ','.join(state)
+        if status:
+            status = ','.join(status)
+
         params = {
             "scan-id": scan_id,
             "severity": severity,
