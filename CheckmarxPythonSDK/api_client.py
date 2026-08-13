@@ -271,20 +271,3 @@ class ApiClient:
         check_response(response)
         return response
 
-    def head_request(self, url, auth=None, headers=None, json=None, params=None):
-        return self.call_api(method="HEAD", url=url, auth=auth, headers=headers, json=json, params=params)
-
-    def get_request(self, url, auth=None, headers=None, params=None):
-        return self.call_api(method="GET", url=url, auth=auth, headers=headers, params=params)
-
-    def post_request(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
-        return self.call_api(method="POST", url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
-
-    def put_request(self, url, data=None, files=None, auth=None, headers=None, params=None, json=None):
-        return self.call_api(method="PUT", url=url, data=data, files=files, auth=auth, headers=headers, params=params, json=json)
-
-    def patch_request(self, url, data=None, auth=None, headers=None, params=None, json=None):
-        return self.call_api(method="PATCH", url=url, data=data, auth=auth, headers=headers, params=params, json=json)
-
-    def delete_request(self, url, data=None, auth=None, headers=None, params=None, json=None):
-        return self.call_api(method="DELETE", url=url, data=data, auth=auth, headers=headers, params=params, json=json)
