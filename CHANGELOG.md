@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+1.9.0 - 2026-08-14
+* [Fix] get_scan_report_status field names — the CxPortal SOAP GetScanReportStatus response has no `Status` field; return the real `IsReady`/`IsFailed` booleans instead
+* [Add] Python 3.13 and 3.14 to setup.py classifiers, matching existing python_requires support
+* [StepSecurity] Apply security best practices to GitHub Actions workflows
+* [Refactor] Split AiTriageAndRemediationAPI into separate AiTriageAPI and AiRemediationAPI modules, with corrected endpoints/DTOs matching the Checkmarx One API reference, and a new get_ai_triage_status SSE endpoint
+* [Fix] GET /api/results — handle multiple filter parameter values correctly by joining them into a comma-separated list, as the endpoint expects
+* [Add] examples/CxOne/disable_exploitable_path_for_all_projects.py — dry-run-by-default script to disable the SCA "Exploitable Path" setting across every project in a tenant
+* [Refactor] Remove legacy head_request/get_request/post_request/put_request/patch_request/delete_request wrappers from ApiClient — all SDK modules now call call_api directly
+* [Refactor] examples/CxSAST/sast_high_level_report.py now uses ScansODataAPI.call_api instead of the removed CxODataApiSDK.HttpRequests.get_request
+
 1.8.9 - 2026-06-24
 * [Fix] SSL context creation for self-signed CA certificates without BasicConstraints — switched from ssl.create_default_context() to ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT) to avoid VERIFY_X509_STRICT enforcement, matching urllib3's behavior
 
