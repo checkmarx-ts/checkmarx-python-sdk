@@ -5,7 +5,7 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import RisksAggregateResponse, RisksAiInsightsResponse, RisksResponse
 
 
-class RisksAPI(object):
+class RiskOrchestrationAPI(object):
     """API client for the Risk Orchestration Service REST API.
 
     Provides access to aggregated project risks across all scanner engines.
@@ -338,7 +338,7 @@ def get_risks(
     Returns:
         RisksResponse: Pagination metadata and list of Risk objects.
     """
-    return RisksAPI().get_risks(
+    return RiskOrchestrationAPI().get_risks(
         project_id=project_id,
         asset_name=asset_name,
         asset_type=asset_type,
@@ -400,10 +400,11 @@ def get_risks_ai_insights(
         ai_triage_reachability (List[str]): Filter by reachability. Values:
             UNKNOWN, REACHABLE, NOT_REACHABLE, UNDETERMINED.
         ai_triage_status (List[str]): Filter by AI triage status. Values:
-            IN_PROGRESS, VULNERABLE, PROPOSED_NOT_EXPLOITABLE, RISK_ACCEPTED,
-            NOT_EXPLOITABLE, FAILED.
+            TO_VERIFY, NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE, CONFIRMED,
+            URGENT.
         asset_name (List[str]): Filter by asset name (repeatable).
-        asset_type (List[str]): Filter by asset type.
+        asset_type (List[str]): Filter by asset type. Values: ENDPOINT,
+            SOURCE_CODE, CONTAINER_IMAGE, MANIFEST_FILE, XML_FILE.
         engine (List[str]): Filter by engine. Values: SAST, IAC, SCA.
         from_date (str): Filter by first detection from date (inclusive).
             RFC3339 format.
@@ -414,11 +415,17 @@ def get_risks_ai_insights(
         remediation_status (List[str]): Filter by remediation status.
             Values: NOT_STARTED, IN_PROGRESS, COMPLETED, FAILED.
         risk_name (List[str]): Filter by risk name (repeatable).
-        severity (List[str]): Filter by severity.
-        sort (str): Sort field.
+        severity (List[str]): Filter by severity. Values: CRITICAL, HIGH,
+            MEDIUM, LOW, INFO.
+        sort (str): Sort field. Values: severity, state, riskName, status,
+            assetName, assetType, source, origin, firstDetectionDate,
+            aiTriageStatus, aiTriageExploitability, aiTriageReachability,
+            aiTriageFixability, aiTriageCompletedAt, remediationStatus,
+            remediationCompletedAt.
         source (List[str]): Filter by source (repeatable).
-        state (List[str]): Filter by state.
-        status (List[str]): Filter by status.
+        state (List[str]): Filter by state. Values: TO_VERIFY,
+            NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE, CONFIRMED, URGENT.
+        status (List[str]): Filter by status. Values: NEW, RECURRENT, FIXED.
         sub_asset_name (List[str]): Filter by sub-asset name (repeatable).
         to_date (str): Filter by first detection to date (inclusive).
             RFC3339 format.
@@ -427,7 +434,7 @@ def get_risks_ai_insights(
         RisksAiInsightsResponse: Pagination metadata and list of
             RiskWithAiInsights objects.
     """
-    return RisksAPI().get_risks_ai_insights(
+    return RiskOrchestrationAPI().get_risks_ai_insights(
         project_id=project_id,
         ai_triage_completed_at_from=ai_triage_completed_at_from,
         ai_triage_completed_at_to=ai_triage_completed_at_to,
@@ -498,7 +505,7 @@ def get_risks_aggregate(
     Returns:
         RisksAggregateResponse: List of RiskCounter objects.
     """
-    return RisksAPI().get_risks_aggregate(
+    return RiskOrchestrationAPI().get_risks_aggregate(
         project_id=project_id,
         group_by=group_by,
         asset_name=asset_name,
