@@ -146,8 +146,8 @@ class RisksAPI(object):
             ai_triage_reachability (List[str]): Filter by reachability. Values:
                 UNKNOWN, REACHABLE, NOT_REACHABLE, UNDETERMINED.
             ai_triage_status (List[str]): Filter by AI triage status. Values:
-                IN_PROGRESS, VULNERABLE, PROPOSED_NOT_EXPLOITABLE, RISK_ACCEPTED,
-                NOT_EXPLOITABLE, FAILED.
+                TO_VERIFY, NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE,
+                CONFIRMED, URGENT.
             asset_name (List[str]): Filter by asset name (repeatable).
             asset_type (List[str]): Filter by asset type. Values: ENDPOINT,
                 SOURCE_CODE, CONTAINER_IMAGE, MANIFEST_FILE, XML_FILE.
@@ -164,10 +164,10 @@ class RisksAPI(object):
             severity (List[str]): Filter by severity. Values: CRITICAL,
                 HIGH, MEDIUM, LOW, INFO.
             sort (str): Sort field. Values: severity, state, riskName, status,
-                assetName, assetType, subAssetName, source, origin,
-                firstDetectionDate, aiTriageStatus, aiTriageExploitability,
-                aiTriageReachability, aiTriageFixability, aiTriageCompletedAt,
-                remediationStatus, remediationCompletedAt.
+                assetName, assetType, source, origin, firstDetectionDate,
+                aiTriageStatus, aiTriageExploitability, aiTriageReachability,
+                aiTriageFixability, aiTriageCompletedAt, remediationStatus,
+                remediationCompletedAt.
             source (List[str]): Filter by source (repeatable).
             state (List[str]): Filter by state. Values: TO_VERIFY,
                 NOT_EXPLOITABLE, PROPOSED_NOT_EXPLOITABLE, CONFIRMED, URGENT.
