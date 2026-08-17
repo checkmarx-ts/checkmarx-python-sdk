@@ -1,4 +1,13 @@
 # encoding: utf-8
+from .AiTriageInsight import AiTriageInsight
+from .RemediationInsight import RemediationInsight
+from .Risk import Risk
+from .RiskCounter import RiskCounter
+from .RisksAggregateResponse import RisksAggregateResponse
+from .RisksAiInsightsResponse import RisksAiInsightsResponse
+from .RisksMetaData import RisksMetaData
+from .RisksResponse import RisksResponse
+from .RiskWithAiInsights import RiskWithAiInsights
 from .AddAssignmentRoles import AddAssignmentRoles
 from .TriageBucket import TriageBucket
 from .AiTriageRequest import AiTriageRequest
