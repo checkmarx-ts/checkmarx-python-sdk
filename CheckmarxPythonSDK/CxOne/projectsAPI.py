@@ -33,7 +33,7 @@ class ProjectsAPI(object):
         Returns:
             List[Project]: List of all projects
         """
-        logger.info("Start getting all projects")
+        logger.debug("Start getting all projects")
         projects = []
         offset = 0
         limit = 500
