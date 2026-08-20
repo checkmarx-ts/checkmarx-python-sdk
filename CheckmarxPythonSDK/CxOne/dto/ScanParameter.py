@@ -11,6 +11,8 @@ class ScanParameter:
     valueType: str = None
     valueTypeParams: str = None
     allowOverride: bool = None
+    alwaysOverride: bool = None
+    group: str = None
 
     @classmethod
     def from_dict(cls, item: dict) -> "ScanParameter":
@@ -23,4 +25,6 @@ class ScanParameter:
             valueType=item.get("valuetype"),
             valueTypeParams=item.get("valuetypeparams"),
             allowOverride=item.get("allowOverride"),
+            alwaysOverride=item.get("alwaysOverride"),
+            group=item.get("group"),
         )
