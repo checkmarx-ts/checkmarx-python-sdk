@@ -1,4 +1,5 @@
 import json
+from urllib.parse import quote
 
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
@@ -109,19 +110,22 @@ class AiTriageAPI(object):
 
         The recommended way to obtain group_id is to call GET /api/risks for
         the specified project and use the groupId field of the corresponding
-        risk object. If group_id contains reserved URL characters (e.g. #),
-        URL-encode the value before passing it (replace # with %23).
+        risk object. group_id may contain reserved URL characters (e.g. #,
+        as in an SCA group id like "CVE-2015-4852#-#Maven-commons-collections:
+        commons-collections-3.2.1#-#2db0b158-3068-4d7e-86e6-0d922f22a69c");
+        this method URL-encodes it before using it as a path parameter, so
+        callers should pass the raw value.
 
         Args:
             project_id (str): Unique identifier of the project.
-            group_id (str): Identifier of the vulnerability group. URL-encode
-                if the value contains reserved characters.
+            group_id (str): Identifier of the vulnerability group, as
+                returned by the API (no need to pre-encode it).
 
         Returns:
             AiTriageResult: Triage verdict, summary, confidence score,
             reachability, exploitability, and supporting analysis details.
         """
-        url = f"{self.base_url}/triage/{project_id}/{group_id}"
+        url = f"{self.base_url}/triage/{project_id}/{quote(str(group_id), safe='')}"
         response = self.api_client.call_api(
             method="GET",
             url=url,
@@ -180,13 +184,16 @@ def retrieve_ai_triage_results(project_id: str, group_id: str) -> AiTriageResult
 
     The recommended way to obtain group_id is to call GET /api/risks for the
     specified project and use the groupId field of the corresponding risk
-    object. If group_id contains reserved URL characters (e.g. #), URL-encode
-    the value before passing it (replace # with %23).
+    object. group_id may contain reserved URL characters (e.g. #, as in an
+    SCA group id like "CVE-2015-4852#-#Maven-commons-collections:commons-
+    collections-3.2.1#-#2db0b158-3068-4d7e-86e6-0d922f22a69c"); this function
+    URL-encodes it before using it as a path parameter, so callers should
+    pass the raw value.
 
     Args:
         project_id (str): Unique identifier of the project.
-        group_id (str): Identifier of the vulnerability group. URL-encode if
-            the value contains reserved characters.
+        group_id (str): Identifier of the vulnerability group, as returned
+            by the API (no need to pre-encode it).
 
     Returns:
         AiTriageResult: Triage verdict, summary, confidence score,
