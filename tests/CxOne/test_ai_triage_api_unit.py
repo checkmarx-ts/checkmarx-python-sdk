@@ -44,3 +44,16 @@ class TestRetrieveAiTriageResults:
 
         called_url = client.call_api.call_args.kwargs["url"]
         assert called_url == "https://example.com/api/ai-triage/triage/proj-1/12345"
+
+    def test_negative_integer_group_id_is_unchanged(self):
+        """SAST similarity_id values can be negative integers (e.g. -501015144).
+        '-' is an unreserved URL character, so quote() must leave it as-is
+        rather than encoding it.
+        """
+        client = _api_client()
+        api = AiTriageAPI(api_client=client)
+
+        api.retrieve_ai_triage_results(project_id="proj-1", group_id=-501015144)
+
+        called_url = client.call_api.call_args.kwargs["url"]
+        assert called_url == "https://example.com/api/ai-triage/triage/proj-1/-501015144"
