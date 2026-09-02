@@ -4,6 +4,7 @@ All notable changes to this project will be documented in  this file.
 1.9.1 - 2026-09-02
 * [Add] alwaysOverride and group fields to ScanParameter DTO
 * [Fix] Log "Start getting all projects" at DEBUG level instead of INFO in get_all_projects
+* [Fix] retrieve_ai_triage_results 404 — URL-encode group_id before using it as a path parameter, since SCA group ids can contain reserved characters (e.g. `#`) that get misread as a URL fragment
 
 1.9.0 - 2026-08-14
 * [Fix] get_scan_report_status field names — the CxPortal SOAP GetScanReportStatus response has no `Status` field; return the real `IsReady`/`IsFailed` booleans instead
