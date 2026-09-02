@@ -85,9 +85,10 @@ def triage_status(project_id, sql_injection_result):
     Used by remediation tests to skip when the result is already determined to
     be non-exploitable, avoiding unnecessary credit consumption.
     """
-    group_id = quote(str(sql_injection_result.similarity_id), safe="")
     try:
-        result = retrieve_ai_triage_results(project_id=project_id, group_id=group_id)
+        result = retrieve_ai_triage_results(
+            project_id=project_id, group_id=sql_injection_result.similarity_id
+        )
         return result.triageStatus
     except Exception:
         return None
@@ -138,11 +139,10 @@ def test_get_ai_triage_status(project_id, scan_id, sql_injection_result):
 
 
 def test_retrieve_ai_triage_results(project_id, scan_id, sql_injection_result):
-    group_id = quote(str(sql_injection_result.similarity_id), safe="")
     try:
         triage_result = retrieve_ai_triage_results(
             project_id=project_id,
-            group_id=group_id,
+            group_id=sql_injection_result.similarity_id,
         )
     except Exception as e:
         msg = str(e)
