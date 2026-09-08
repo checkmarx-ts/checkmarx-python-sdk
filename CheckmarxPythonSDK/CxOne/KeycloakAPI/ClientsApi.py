@@ -86,8 +86,8 @@ class ClientsApi:
             Relative path: /{realm}/clients
         """
         url = f"{self.base_url}/{realm}/clients"
-        print(f"Post request to {url}")
-        print(f"Request body: {client_representation.to_dict()}")
+        logger.info(f"Post request to {url}")
+        logger.info(f"Request body: {client_representation.to_dict()}")
         response = self.api_client.call_api("POST", url, json=client_representation.to_dict())
         return response.status_code == 201
 

@@ -1,4 +1,6 @@
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxOne import (
     get_applications,
@@ -24,7 +26,7 @@ def test_get_applications():
         assert result is not None
         assert "applications" in result
     except Exception as e:
-        print("get_applications skipped: {}".format(str(e)))
+        logger.warning("get_applications skipped: {}".format(str(e)))
 
 
 def test_get_application_summary():

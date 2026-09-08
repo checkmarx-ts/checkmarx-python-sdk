@@ -1,4 +1,6 @@
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxOne import (
     get_api_changes,
@@ -20,7 +22,7 @@ def test_get_api_changes():
         assert result is not None
         assert "api_changes" in result
     except Exception as e:
-        print("get_api_changes skipped: {}".format(str(e)))
+        logger.warning("get_api_changes skipped: {}".format(str(e)))
 
 
 def test_get_api_inventory():
@@ -29,7 +31,7 @@ def test_get_api_inventory():
         assert result is not None
         assert "entries" in result
     except Exception as e:
-        print("get_api_inventory skipped: {}".format(str(e)))
+        logger.warning("get_api_inventory skipped: {}".format(str(e)))
 
 
 def test_get_data_origin():
@@ -37,7 +39,7 @@ def test_get_data_origin():
         result = get_data_origin()
         assert result is not None
     except Exception as e:
-        print("get_data_origin skipped: {}".format(str(e)))
+        logger.warning("get_data_origin skipped: {}".format(str(e)))
 
 
 def test_get_api_inventory_group():
@@ -48,7 +50,7 @@ def test_get_api_inventory_group():
         assert result is not None
         assert "groups" in result
     except Exception as e:
-        print("get_api_inventory_group skipped: {}".format(str(e)))
+        logger.warning("get_api_inventory_group skipped: {}".format(str(e)))
 
 
 def test_get_inventory_metadata():
@@ -56,7 +58,7 @@ def test_get_inventory_metadata():
         result = get_inventory_metadata()
         assert result is not None
     except Exception as e:
-        print("get_inventory_metadata skipped: {}".format(str(e)))
+        logger.warning("get_inventory_metadata skipped: {}".format(str(e)))
 
 
 def test_get_global_parameters():
@@ -64,7 +66,7 @@ def test_get_global_parameters():
         result = get_global_parameters()
         assert result is not None
     except Exception as e:
-        print("get_global_parameters skipped: {}".format(str(e)))
+        logger.warning("get_global_parameters skipped: {}".format(str(e)))
 
 
 def test_get_api_risks():
@@ -72,7 +74,7 @@ def test_get_api_risks():
         result = get_api_risks(per_page=5)
         assert result is not None
     except Exception as e:
-        print("get_api_risks skipped: {}".format(str(e)))
+        logger.warning("get_api_risks skipped: {}".format(str(e)))
 
 
 def test_get_risk_groups():
@@ -81,7 +83,7 @@ def test_get_risk_groups():
         assert result is not None
         assert "groups" in result
     except Exception as e:
-        print("get_risk_groups skipped: {}".format(str(e)))
+        logger.warning("get_risk_groups skipped: {}".format(str(e)))
 
 
 def test_get_risk_widget():
@@ -89,7 +91,7 @@ def test_get_risk_widget():
         result = get_risk_widget()
         assert result is not None
     except Exception as e:
-        print("get_risk_widget skipped: {}".format(str(e)))
+        logger.warning("get_risk_widget skipped: {}".format(str(e)))
 
 
 def test_get_risk_details():
@@ -105,4 +107,4 @@ def test_get_risk_details():
         result = get_risk_details(risk_id=risk_id)
         assert result is not None
     except Exception as e:
-        print("get_risk_details skipped: {}".format(str(e)))
+        logger.warning("get_risk_details skipped: {}".format(str(e)))

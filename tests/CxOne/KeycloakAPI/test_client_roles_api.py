@@ -1,5 +1,7 @@
 import pytest
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientRolesApi import ClientRolesApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.RoleRepresentation import (
     RoleRepresentation,
 )
@@ -31,11 +33,11 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id
             )
             assert isinstance(roles, list)
-            print(f"Got {len(roles)} client roles")
+            logger.info(f"Got {len(roles)} client roles")
             for role in roles:
-                print(f"  - {role.name}")
+                logger.info(f"  - {role.name}")
         except Exception as e:
-            print(f"Error in test_get_client_roles: {e}")
+            logger.error(f"Error in test_get_client_roles: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -46,9 +48,9 @@ class TestClientRolesApi:
             created = self.client_roles_api.post_client_roles(
                 self.realm, self.test_client_id, role_representation
             )
-            print(f"Created client role: {created}")
+            logger.info(f"Created client role: {created}")
         except Exception as e:
-            print(f"Error in test_post_client_roles: {e}")
+            logger.error(f"Error in test_post_client_roles: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -59,9 +61,9 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id, self.test_role_name
             )
             assert role is not None
-            print(f"Got client role: {role.name}")
+            logger.info(f"Got client role: {role.name}")
         except Exception as e:
-            print(f"Error in test_get_client_role: {e}")
+            logger.error(f"Error in test_get_client_role: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -75,9 +77,9 @@ class TestClientRolesApi:
                 self.test_role_name,
                 role_representation,
             )
-            print(f"Updated client role: {updated}")
+            logger.info(f"Updated client role: {updated}")
         except Exception as e:
-            print(f"Error in test_put_client_role: {e}")
+            logger.error(f"Error in test_put_client_role: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -87,9 +89,9 @@ class TestClientRolesApi:
             deleted = self.client_roles_api.delete_client_role(
                 self.realm, self.test_client_id, self.test_role_name
             )
-            print(f"Deleted client role: {deleted}")
+            logger.info(f"Deleted client role: {deleted}")
         except Exception as e:
-            print(f"Error in test_delete_client_role: {e}")
+            logger.error(f"Error in test_delete_client_role: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -100,11 +102,11 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id, self.test_role_name
             )
             assert isinstance(composites, list)
-            print(f"Got {len(composites)} client role composites")
+            logger.info(f"Got {len(composites)} client role composites")
             for composite in composites:
-                print(f"  - {composite.name}")
+                logger.info(f"  - {composite.name}")
         except Exception as e:
-            print(f"Error in test_get_client_role_composites: {e}")
+            logger.error(f"Error in test_get_client_role_composites: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -118,9 +120,9 @@ class TestClientRolesApi:
                 self.test_role_name,
                 role_representation,
             )
-            print(f"Added client role composite: {added}")
+            logger.info(f"Added client role composite: {added}")
         except Exception as e:
-            print(f"Error in test_post_client_role_composites: {e}")
+            logger.error(f"Error in test_post_client_role_composites: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -130,9 +132,9 @@ class TestClientRolesApi:
             removed = self.client_roles_api.delete_client_role_composites(
                 self.realm, self.test_client_id, self.test_role_name
             )
-            print(f"Removed client role composites: {removed}")
+            logger.info(f"Removed client role composites: {removed}")
         except Exception as e:
-            print(f"Error in test_delete_client_role_composites: {e}")
+            logger.error(f"Error in test_delete_client_role_composites: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -146,11 +148,11 @@ class TestClientRolesApi:
                 self.test_client_uuid,
             )
             assert isinstance(composites, list)
-            print(f"Got {len(composites)} client role composites for client")
+            logger.info(f"Got {len(composites)} client role composites for client")
             for composite in composites:
-                print(f"  - {composite.name}")
+                logger.info(f"  - {composite.name}")
         except Exception as e:
-            print(f"Error in test_get_client_role_composites_client: {e}")
+            logger.error(f"Error in test_get_client_role_composites_client: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -161,11 +163,11 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id, self.test_role_name
             )
             assert isinstance(composites, list)
-            print(f"Got {len(composites)} client role composites for realm")
+            logger.info(f"Got {len(composites)} client role composites for realm")
             for composite in composites:
-                print(f"  - {composite.name}")
+                logger.info(f"  - {composite.name}")
         except Exception as e:
-            print(f"Error in test_get_client_role_composites_realm: {e}")
+            logger.error(f"Error in test_get_client_role_composites_realm: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -176,11 +178,11 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id, self.test_role_name
             )
             assert isinstance(groups, list)
-            print(f"Got {len(groups)} client role groups")
+            logger.info(f"Got {len(groups)} client role groups")
             for group in groups:
-                print(f"  - {group.name}")
+                logger.info(f"  - {group.name}")
         except Exception as e:
-            print(f"Error in test_get_client_role_groups: {e}")
+            logger.error(f"Error in test_get_client_role_groups: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -191,9 +193,9 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id, self.test_role_name
             )
             assert permissions is not None
-            print(f"Got client role management permissions: {permissions.to_dict()}")
+            logger.info(f"Got client role management permissions: {permissions.to_dict()}")
         except Exception as e:
-            print(f"Error in test_get_client_role_management_permissions: {e}")
+            logger.error(f"Error in test_get_client_role_management_permissions: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -204,11 +206,11 @@ class TestClientRolesApi:
                 self.realm, self.test_client_id, self.test_role_name
             )
             assert isinstance(users, list)
-            print(f"Got {len(users)} client role users")
+            logger.info(f"Got {len(users)} client role users")
             for user in users:
-                print(f"  - {user.username}")
+                logger.info(f"  - {user.username}")
         except Exception as e:
-            print(f"Error in test_get_client_role_users: {e}")
+            logger.error(f"Error in test_get_client_role_users: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -217,11 +219,11 @@ class TestClientRolesApi:
         try:
             roles = self.client_roles_api.get_roles_by_realm(self.realm)
             assert isinstance(roles, list)
-            print(f"Got {len(roles)} realm roles")
+            logger.info(f"Got {len(roles)} realm roles")
             for role in roles:
-                print(f"  - {role.name}")
+                logger.info(f"  - {role.name}")
         except Exception as e:
-            print(f"Error in test_get_roles_by_realm: {e}")
+            logger.error(f"Error in test_get_roles_by_realm: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -232,9 +234,9 @@ class TestClientRolesApi:
             created = self.client_roles_api.post_roles_by_realm(
                 self.realm, role_representation
             )
-            print(f"Created realm role: {created}")
+            logger.info(f"Created realm role: {created}")
         except Exception as e:
-            print(f"Error in test_post_roles_by_realm: {e}")
+            logger.error(f"Error in test_post_roles_by_realm: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -245,9 +247,9 @@ class TestClientRolesApi:
                 self.realm, self.test_role_name
             )
             assert role is not None
-            print(f"Got realm role by name: {role.name}")
+            logger.info(f"Got realm role by name: {role.name}")
         except Exception as e:
-            print(f"Error in test_get_role_by_realm_by_role_name: {e}")
+            logger.error(f"Error in test_get_role_by_realm_by_role_name: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -258,9 +260,9 @@ class TestClientRolesApi:
             updated = self.client_roles_api.put_role_by_realm_by_role_name(
                 self.realm, self.test_role_name, role_representation
             )
-            print(f"Updated realm role: {updated}")
+            logger.info(f"Updated realm role: {updated}")
         except Exception as e:
-            print(f"Error in test_put_role_by_realm_by_role_name: {e}")
+            logger.error(f"Error in test_put_role_by_realm_by_role_name: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -270,8 +272,8 @@ class TestClientRolesApi:
             deleted = self.client_roles_api.delete_role_by_realm_by_role_name(
                 self.realm, self.test_role_name
             )
-            print(f"Deleted realm role: {deleted}")
+            logger.info(f"Deleted realm role: {deleted}")
         except Exception as e:
-            print(f"Error in test_delete_role_by_realm_by_role_name: {e}")
+            logger.error(f"Error in test_delete_role_by_realm_by_role_name: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True

@@ -14,6 +14,8 @@ from CheckmarxPythonSDK.CxOne import (
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_sast_scan_id():
@@ -115,7 +117,7 @@ def test_check_persisted_dom_exists():
         )
         assert result in (True, False)
     except Exception as e:
-        print("check_persisted_dom_exists skipped: {}".format(str(e)))
+        logger.warning("check_persisted_dom_exists skipped: {}".format(str(e)))
 
 
 def test_delete_persisted_dom():
@@ -131,4 +133,4 @@ def test_delete_persisted_dom():
         )
         assert result in (True, False)
     except Exception as e:
-        print("delete_persisted_dom skipped: {}".format(str(e)))
+        logger.warning("delete_persisted_dom skipped: {}".format(str(e)))

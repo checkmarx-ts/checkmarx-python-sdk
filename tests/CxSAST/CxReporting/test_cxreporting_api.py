@@ -1,6 +1,8 @@
 import time
 from datetime import datetime
 from os.path import normpath, join, dirname
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxReporting.api import (
     retrieve_the_file_of_a_specific_report,
@@ -23,9 +25,9 @@ def check_report_generation_status_and_write_to_file(report_request, report_name
     report_status = "NEW"
     while report_status.upper() != "FINISHED":
         report_status = retrieve_the_status_of_a_specific_report(report_id=report_id)
-        print("report status: {}".format(report_status))
+        logger.info("report status: {}".format(report_status))
         if report_status.upper() == "FAILED":
-            print("Report generation failed!")
+            logger.error("Report generation failed!")
             return result
         time.sleep(2)
 

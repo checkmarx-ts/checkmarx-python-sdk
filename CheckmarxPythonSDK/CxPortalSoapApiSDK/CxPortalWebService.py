@@ -9,6 +9,8 @@ from os.path import exists
 from typing import List, Union
 from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.CxPortalSoapApiSDK.config import construct_configuration
+import logging
+logger = logging.getLogger(__name__)
 from .sudsClient import SudsClient
 
 
@@ -1152,7 +1154,7 @@ class CxPortalWebService(object):
 
         """
         if not exists(imported_file_path):
-            print("Error, the imported file {} not exist".format(imported_file_path))
+            logger.error("Error, the imported file {} not exist".format(imported_file_path))
             return
 
         with open(imported_file_path, "rb") as xml_file:
@@ -1177,7 +1179,7 @@ class CxPortalWebService(object):
 
         """
         if not exists(imported_file_path):
-            print("Error, the imported file {} not exist".format(imported_file_path))
+            logger.error("Error, the imported file {} not exist".format(imported_file_path))
             return
 
         with open(imported_file_path, "rb") as xml_file:

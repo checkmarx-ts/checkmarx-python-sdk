@@ -5,6 +5,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_similar_results,
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_sast_scan_id():
@@ -35,7 +37,7 @@ def test_get_sast_results_by_scan_id():
     page = 1
     sast_results_collection = get_sast_results_by_scan_id(scan_id=scan_id, offset=offset, limit=limit, state=["TO_VERIFY", "CONFIRMED"], include_nodes=False,)
     total_count = int(sast_results_collection.get("totalCount"))
-    print(f"number of totalCount results: {total_count}")
+    logger.info(f"number of totalCount results: {total_count}")
     sast_results = sast_results_collection.get("results")
     if total_count > limit:
         while True:
@@ -45,7 +47,7 @@ def test_get_sast_results_by_scan_id():
             sast_results_collection = get_sast_results_by_scan_id(scan_id=scan_id, offset=offset, limit=limit, state=["TO_VERIFY", "CONFIRMED"], include_nodes=False,)
             page += 1
             sast_results.extend(sast_results_collection.get("results"))
-    print(f"number of TO_VERIFY or CONFIRMED results: {len(sast_results)}")
+    logger.info(f"number of TO_VERIFY or CONFIRMED results: {len(sast_results)}")
     pass
 
 
@@ -62,7 +64,7 @@ def test_get_sast_results_compare_by_scans():
         assert result is not None
         assert "results" in result
     except Exception as e:
-        print("get_sast_results_compare_by_scans skipped: {}".format(str(e)))
+        logger.warning("get_sast_results_compare_by_scans skipped: {}".format(str(e)))
 
 
 def test_get_similar_results():
@@ -76,4 +78,4 @@ def test_get_similar_results():
         )
         assert result is not None
     except Exception as e:
-        print("get_similar_results skipped: {}".format(str(e)))
+        logger.warning("get_similar_results skipped: {}".format(str(e)))

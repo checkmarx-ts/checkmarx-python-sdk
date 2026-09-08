@@ -1,5 +1,7 @@
 import time
 import urllib.request
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxOne import (
     create_a_project,
@@ -181,7 +183,7 @@ def test_get_and_update_scan_tags():
     project_id = get_project_id_by_name(name=new_project_name)
     scans = get_a_list_of_scans(project_id=project_id, sort=["-created_at"], limit=1)
     if not scans.scans:
-        print("No scans found, skipping scan tags test")
+        logger.warning("No scans found, skipping scan tags test")
         return
     scan_id = scans.scans[0].id
 
@@ -204,14 +206,14 @@ def test_rescan():
         assert scan is not None
         assert scan.id is not None
     except Exception as e:
-        print("Rescan skipped (no valid prior scan): {}".format(str(e)))
+        logger.warning("Rescan skipped (no valid prior scan): {}".format(str(e)))
 
 
 def test_set_scan_recalculation_flag():
     project_id = get_project_id_by_name(name=new_project_name)
     scans = get_a_list_of_scans(project_id=project_id, sort=["-created_at"], limit=1)
     if not scans.scans:
-        print("No scans found, skipping recalculation flag test")
+        logger.warning("No scans found, skipping recalculation flag test")
         return
     scan_id = scans.scans[0].id
     scan = get_a_scan_by_id(scan_id=scan_id)

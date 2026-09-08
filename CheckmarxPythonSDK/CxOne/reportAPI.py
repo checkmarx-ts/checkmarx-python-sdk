@@ -2,6 +2,8 @@ import time
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
+import logging
+logger = logging.getLogger(__name__)
 
 
 class ReportAPI(object):
@@ -74,10 +76,10 @@ class ReportAPI(object):
             )
             status = response.json().get("status")
             if status == "completed":
-                print("Report has been generated successfully!")
+                logger.info("Report has been generated successfully!")
                 break
             else:
-                print("Generating report, please wait...")
+                logger.info("Generating report, please wait...")
                 time.sleep(2)
         return report_id
 
@@ -123,10 +125,10 @@ class ReportAPI(object):
             )
             status = response.json().get("status")
             if status == "completed":
-                print("Report has been generated successfully!")
+                logger.info("Report has been generated successfully!")
                 break
             else:
-                print("Generating report, please wait...")
+                logger.info("Generating report, please wait...")
                 time.sleep(2)
         return report_id
 
@@ -233,13 +235,13 @@ class ReportAPI(object):
                 response = self.api_client.call_api(
                     method="GET", url=download_url
                 )
-                print("Report has been generated successfully!")
+                logger.info("Report has been generated successfully!")
                 break
             if status == "Failed":
-                print(f"Error: {response.content}")
+                logger.error(f"Error: {response.content}")
                 break
             else:
-                print("Generating report, please wait...")
+                logger.info("Generating report, please wait...")
                 time.sleep(2)
         return response.json()
 

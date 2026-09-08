@@ -5,6 +5,8 @@ from typing import List
 from httpx import Response
 from deprecated import deprecated
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK, CREATED
+import logging
+logger = logging.getLogger(__name__)
 
 from .dto import (
     ScanInput,
@@ -481,10 +483,8 @@ class ScansAPI(object):
                     {"type": engine, "value": engine_configs[engine]}
                 )
             else:
-                print(
-                    f"Warning: Engine '{engine}' is not supported "
-                    f"and will be ignored."
-                )
+                logger.warning(f"Warning: Engine '{engine}' is not supported "
+                    f"and will be ignored.")
         return self.api_client.call_api(
             method="POST", url=self.base_url, json=scan_data
         )

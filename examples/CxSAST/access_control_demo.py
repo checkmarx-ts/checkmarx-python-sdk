@@ -32,6 +32,8 @@ process data line by line, record process progress (which line)
 import csv
 
 from CheckmarxPythonSDK.CxRestAPISDK import AccessControlAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def get_users_from_csv_file(file_path):
@@ -67,26 +69,22 @@ def add_users_from_csv_file(users):
         row_number = index + 2
         username = user.get("Username")
         if username in all_user_name:
-            print(
-                "Row No.{}, Username: {} already taken, will ignore this line".format(
+            logger.info("Row No.{}, Username: {} already taken, will ignore this line".format(
                     row_number, username
-                )
-            )
+                ))
             continue
 
         email = user.get("Email")
         if email in all_user_email:
-            print(
-                "Row No.{}, Email: {} already taken, will ignore this line".format(
+            logger.info("Row No.{}, Email: {} already taken, will ignore this line".format(
                     row_number, email
-                )
-            )
+                ))
             continue
 
         try:
             locale_id = all_locale_code.index(user.get("LocaleCode")) + 1
         except ValueError:
-            print("Wrong Locale Code in row No.{}, will use en-US".format(row_number))
+            logger.info("Wrong Locale Code in row No.{}, will use en-US".format(row_number))
             locale_id = 1
 
         role_ids = []

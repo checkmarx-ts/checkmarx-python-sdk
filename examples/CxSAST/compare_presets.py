@@ -8,6 +8,8 @@ in one of the presets but not in the other.
 import sys
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxPortalSoapApiSDK import get_query_collection
+import logging
+logger = logging.getLogger(__name__)
 
 projects_api = ProjectsAPI()
 
@@ -28,7 +30,7 @@ def compare_preset_details(preset_a, preset_b, query_map):
         queries.append(query_map[query_id])
 
     for q in sorted(queries):
-        print(q)
+        logger.info(q)
 
 
 def compare_presets(preset_a_name, preset_b_name):
@@ -45,11 +47,11 @@ def compare_presets(preset_a_name, preset_b_name):
     for preset in all_presets:
         if preset.name.lower() == preset_a_name.lower():
             if preset_a:
-                print(f'Warning: multiple presets match "{preset_a_name}"')
+                logger.warning(f'Warning: multiple presets match "{preset_a_name}"')
             preset_a = projects_api.get_preset_details_by_preset_id(preset.id)
         elif preset.name.lower() == preset_b_name.lower():
             if preset_b:
-                print(f'Warning: multiple presets match "{preset_b_name}"')
+                logger.warning(f'Warning: multiple presets match "{preset_b_name}"')
             preset_b = projects_api.get_preset_details_by_preset_id(preset.id)
 
     if not preset_a:
@@ -69,19 +71,19 @@ def compare_presets(preset_a_name, preset_b_name):
         for q in queries:
             query_map[q["QueryId"]] = f'{qg["PackageFullName"]}:{q["Name"]}'
 
-    print(f"Queries in {preset_a.name} but not in {preset_b.name}:")
+    logger.info(f"Queries in {preset_a.name} but not in {preset_b.name}:")
     compare_preset_details(preset_a, preset_b, query_map)
 
-    print()
+    logger.info("")
 
-    print(f"Queries in {preset_b.name} but not in {preset_a.name}:")
+    logger.info(f"Queries in {preset_b.name} but not in {preset_a.name}:")
     compare_preset_details(preset_b, preset_a, query_map)
 
 
 if __name__ == "__main__":
 
     if len(sys.argv) < 3:
-        print(f"usage: py {sys.argv[0]} <preset A> <preset B>", file=sys.stderr)
+        logger.error(f"usage: py {sys.argv[0]} <preset A> <preset B>")
         sys.exit(1)
 
     preset_a = sys.argv[1]
@@ -90,5 +92,5 @@ if __name__ == "__main__":
     try:
         compare_presets(preset_a, preset_b)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        logger.error(f"Error: {e}")
         sys.exit(2)

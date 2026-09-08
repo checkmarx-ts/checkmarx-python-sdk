@@ -10,6 +10,8 @@ from CheckmarxPythonSDK.CxOne import (
     bulk_triage_import_results,
 )
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_project_id():
@@ -33,7 +35,7 @@ def test_get_latest_imports():
         result = get_latest_imports(project_ids=[project_id])
         assert result is not None
     except Exception as e:
-        print("get_latest_imports skipped: {}".format(str(e)))
+        logger.warning("get_latest_imports skipped: {}".format(str(e)))
 
 
 def test_get_imports_summaries():
@@ -46,7 +48,7 @@ def test_get_imports_summaries():
         result = get_imports_summaries(import_ids=[import_id])
         assert result is not None
     except Exception as e:
-        print("get_imports_summaries skipped: {}".format(str(e)))
+        logger.warning("get_imports_summaries skipped: {}".format(str(e)))
 
 
 def test_get_aggregate_results():
@@ -61,7 +63,7 @@ def test_get_aggregate_results():
         )
         assert result is not None
     except Exception as e:
-        print("get_aggregate_results skipped: {}".format(str(e)))
+        logger.warning("get_aggregate_results skipped: {}".format(str(e)))
 
 
 def test_get_import_results():
@@ -74,7 +76,7 @@ def test_get_import_results():
         result = get_import_results(import_id=import_id)
         assert result is not None
     except Exception as e:
-        print("get_import_results skipped: {}".format(str(e)))
+        logger.warning("get_import_results skipped: {}".format(str(e)))
 
 
 def test_bulk_triage_import_results():
@@ -94,7 +96,7 @@ def test_bulk_triage_import_results():
         )
         assert result in (True, False)
     except Exception as e:
-        print("bulk_triage_import_results skipped: {}".format(str(e)))
+        logger.warning("bulk_triage_import_results skipped: {}".format(str(e)))
 
 
 def test_delete_import():
@@ -107,4 +109,4 @@ def test_delete_import():
         result = delete_import(import_id=import_id)
         assert result in (True, False)
     except Exception as e:
-        print("delete_import skipped: {}".format(str(e)))
+        logger.warning("delete_import skipped: {}".format(str(e)))

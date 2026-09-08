@@ -5,6 +5,8 @@ import ssl
 import time
 import typing
 from typing import Callable, Union
+import logging
+logger = logging.getLogger(__name__)
 from .configuration import Configuration
 from .rate_limiter import RateLimiter
 from .__version__ import __version__
@@ -166,9 +168,7 @@ def retry():
                                         base_wait * (2**retries), max_wait
                                     )
 
-                                print(
-                                    f"Rate limited (429), waiting {backoff_time:.2f} seconds before retrying..."
-                                )
+                                logger.info(f"Rate limited (429), waiting {backoff_time:.2f} seconds before retrying...")
                                 time.sleep(backoff_time)
                                 retries += 1
                                 continue
@@ -178,7 +178,7 @@ def retry():
                     return response
 
                 except Exception as e:
-                    print(f"error: {e}")
+                    logger.error(f"error: {e}")
                     raise
 
             if last_exception:

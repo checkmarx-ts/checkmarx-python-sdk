@@ -5,6 +5,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_insights_by_repository,
 )
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_get_project_repositories():
@@ -17,7 +19,7 @@ def test_get_project_repositories():
         assert result is not None
         assert "project_id" in result
     except Exception as e:
-        print("get_project_repositories skipped: {}".format(str(e)))
+        logger.warning("get_project_repositories skipped: {}".format(str(e)))
 
 
 def test_get_insights_by_repository():
@@ -28,4 +30,4 @@ def test_get_insights_by_repository():
         assert result is not None
         assert "insights" in result
     except Exception as e:
-        print("get_insights_by_repository skipped: {}".format(str(e)))
+        logger.warning("get_insights_by_repository skipped: {}".format(str(e)))

@@ -24,6 +24,8 @@ if env_path.exists():
             os.environ[key.strip()] = value.strip().strip("\"'")
 
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI, ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -41,21 +43,21 @@ def main():
         only_full_scans=True,
     )
     if not scan_id:
-        print("No qualifying scan found.")
+        logger.info("No qualifying scan found.")
         return
 
     results = scan_api.get_all_scan_results(scan_id=scan_id, limit=20)
     path_ids = [r.path_id for r in results]
     unique = len(set(path_ids))
 
-    print(f"Scan ID: {scan_id}")
-    print(f"Total fetched: {len(results)}")
-    print(f"Unique:        {unique}")
-    print(f"Duplicates:    {len(results) - unique}")
+    logger.info(f"Scan ID: {scan_id}")
+    logger.info(f"Total fetched: {len(results)}")
+    logger.info(f"Unique:        {unique}")
+    logger.info(f"Duplicates:    {len(results) - unique}")
 
-    print(f"\n--- All {len(path_ids)} path_ids ---")
+    logger.info(f"\n--- All {len(path_ids)} path_ids ---")
     for pid in path_ids:
-        print(pid)
+        logger.info(pid)
 
 
 if __name__ == "__main__":

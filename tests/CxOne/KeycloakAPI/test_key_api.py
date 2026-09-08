@@ -1,4 +1,6 @@
 from CheckmarxPythonSDK.CxOne.KeycloakAPI import KeyApi
+import logging
+logger = logging.getLogger(__name__)
 
 
 class TestKeyApi:
@@ -10,9 +12,9 @@ class TestKeyApi:
         try:
             keys_metadata = self.key_api.get_keys(realm=self.realm)
             assert keys_metadata is not None
-            print(f"Got keys metadata: {keys_metadata is not None}")
+            logger.info(f"Got keys metadata: {keys_metadata is not None}")
             if keys_metadata and keys_metadata.keys:
-                print(f"Number of keys: {len(keys_metadata.keys)}")
+                logger.info(f"Number of keys: {len(keys_metadata.keys)}")
         except Exception as e:
-            print(f"Error in test_get_keys: {e}")
+            logger.error(f"Error in test_get_keys: {e}")
         assert True

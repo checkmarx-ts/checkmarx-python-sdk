@@ -23,6 +23,8 @@ from CheckmarxPythonSDK.CxOne.dto import (
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_sast_scan_and_project_id():
@@ -129,7 +131,7 @@ def test_get_predicates_by_attack_vector_id():
         )
         assert result is not None
     except Exception as e:
-        print("get_predicates_by_attack_vector_id skipped: {}".format(str(e)))
+        logger.warning("get_predicates_by_attack_vector_id skipped: {}".format(str(e)))
 
 
 def test_get_predicates_changelog():
@@ -145,7 +147,7 @@ def test_get_predicates_changelog():
         )
         assert result is not None
     except Exception as e:
-        print("get_predicates_changelog skipped: {}".format(str(e)))
+        logger.warning("get_predicates_changelog skipped: {}".format(str(e)))
 
 
 def test_create_predicates_by_attack_vector():
@@ -166,7 +168,7 @@ def test_create_predicates_by_attack_vector():
         )
         assert result is not None
     except Exception as e:
-        print("create_predicates_by_attack_vector skipped: {}".format(str(e)))
+        logger.warning("create_predicates_by_attack_vector skipped: {}".format(str(e)))
 
 
 def test_get_predicates_status():
@@ -182,4 +184,4 @@ def test_get_predicates_status():
         assert result is not None
         assert "isUpdatePredicatesRunning" in result
     except Exception as e:
-        print("get_predicates_status skipped: {}".format(str(e)))
+        logger.warning("get_predicates_status skipped: {}".format(str(e)))

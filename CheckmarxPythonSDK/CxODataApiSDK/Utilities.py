@@ -1,6 +1,8 @@
 import csv
 from itertools import groupby
 from copy import deepcopy
+import logging
+logger = logging.getLogger(__name__)
 
 from .ProjectsODataAPI import (
     get_all_projects_id_name,
@@ -105,8 +107,8 @@ def get_all_results_with_count_for_each_project_json_format(
                     {"ScanId": scan_id, "ResultsWithQuery": results_with_query}
                 )
             except ValueError as e:
-                print(e)
-                print("Fail to fetch data for scan id: {id} ".format(id=scan_id))
+                logger.info(e)
+                logger.error("Fail to fetch data for scan id: {id} ".format(id=scan_id))
 
         project.update({"Scans": results_list})
 
@@ -167,11 +169,9 @@ def get_result(project, filter_false_positive=False, threshold=0):
 
     last_scan_id = get_last_scan_id_of_a_project(project_id=project_id)
     if not last_scan_id:
-        print(
-            "Project name: {name}, id : {id} has no scans".format(
+        logger.info("Project name: {name}, id : {id} has no scans".format(
                 name=project_name, id=project_id
-            )
-        )
+            ))
         return None
 
     last_full_scan_id = get_last_full_scan_id_of_a_project(project_id=project_id)
@@ -181,8 +181,8 @@ def get_result(project, filter_false_positive=False, threshold=0):
             scan_id=last_scan_id
         )
     except ValueError as e:
-        print("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
-        print("Exception: {error} ".format(error=e))
+        logger.error("Fail to get scan result for scan id: {id}".format(id=last_scan_id))
+        logger.error("Exception: {error} ".format(error=e))
         return None
 
     if last_scan_id != last_full_scan_id:
@@ -193,10 +193,8 @@ def get_result(project, filter_false_positive=False, threshold=0):
                 )
             )
         except Exception as e:
-            print(
-                "Fail to get scan result for scan id: {id}".format(id=last_full_scan_id)
-            )
-            print("Exception: {error} ".format(error=e))
+            logger.error("Fail to get scan result for scan id: {id}".format(id=last_full_scan_id))
+            logger.error("Exception: {error} ".format(error=e))
             return None
 
         result_list = merge_results_by_similarity_id(result_list, last_full_scan_result)

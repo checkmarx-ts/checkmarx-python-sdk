@@ -1,6 +1,8 @@
 import pytest
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.RolesByIdApi import RolesByIdApi
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.RolesApi import RolesApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.RoleRepresentation import (
     RoleRepresentation,
 )
@@ -37,22 +39,18 @@ class TestRolesByIdApi:
             delete_response = self.roles_api.delete_client_role(
                 self.realm, self.client_id, self.test_role_name
             )
-            print(f"Deleted role: {delete_response}")
+            logger.info(f"Deleted role: {delete_response}")
         except Exception as e:
-            print(
-                f"Error deleting role (might not exist or no server connection): {e}"
-            )
+            logger.error(f"Error deleting role (might not exist or no server connection): {e}")
         try:
             # Create test role
             role_representation = RoleRepresentation(name=self.test_role_name)
             created = self.roles_api.post_client_roles(
                 self.realm, self.client_id, role_representation
             )
-            print(f"Created role: {created}")
+            logger.info(f"Created role: {created}")
         except Exception as e:
-            print(
-                f"Error creating role (might already exist or no server connection): {e}"
-            )
+            logger.error(f"Error creating role (might already exist or no server connection): {e}")
         try:
             # Get role ID
             try:
@@ -62,8 +60,8 @@ class TestRolesByIdApi:
                 if len(roles) > 0:
                     test_role = roles[0]
                     test_role_id = test_role.id
-                    print(f"Found test role with ID: {test_role_id}")
-                    print(f"Role details: {test_role.to_dict()}")
+                    logger.info(f"Found test role with ID: {test_role_id}")
+                    logger.info(f"Role details: {test_role.to_dict()}")
 
                     # Test get_roles_by_id
                     try:
@@ -72,7 +70,7 @@ class TestRolesByIdApi:
                         )
                         assert role_by_id is not None
                         assert role_by_id.name == self.test_role_name
-                        print(f"Got role by ID: {role_by_id.to_dict()}")
+                        logger.info(f"Got role by ID: {role_by_id.to_dict()}")
 
                         # Test put_roles_by_id (update role)
                         updated_description = "Updated test role description"
@@ -81,23 +79,21 @@ class TestRolesByIdApi:
                             realm=self.realm, role_id=test_role_id, role_representation=role_by_id
                         )
                         assert updated is True
-                        print(f"Updated role: {updated}")
+                        logger.info(f"Updated role: {updated}")
 
                         # Verify update
                         updated_role = self.roles_by_id_api.get_roles_by_id(
                             realm=self.realm, role_id=test_role_id
                         )
                         assert updated_role.description == updated_description
-                        print(
-                            f"Verified updated role description: {updated_role.description}"
-                        )
+                        logger.info(f"Verified updated role description: {updated_role.description}")
 
                         # Test delete_roles_by_id (delete role)
                         deleted = self.roles_by_id_api.delete_roles_by_id(
                             realm=self.realm, role_id=test_role_id
                         )
                         assert deleted is True
-                        print(f"Deleted role: {deleted}")
+                        logger.info(f"Deleted role: {deleted}")
 
                         # Verify deletion
                         try:
@@ -106,17 +102,15 @@ class TestRolesByIdApi:
                             )
                             assert role_result is None, "Role should have been deleted"
                         except Exception as e:
-                            print(f"Verified role deletion: {e}")
+                            logger.info(f"Verified role deletion: {e}")
                     except Exception as e:
-                        print(f"Error testing role operations: {e}")
+                        logger.error(f"Error testing role operations: {e}")
                 else:
-                    print(
-                        f"Role {self.test_role_name} not found, skipping detailed tests"
-                    )
+                    logger.warning(f"Role {self.test_role_name} not found, skipping detailed tests")
             except Exception as e:
-                print(f"Error getting roles: {e}")
+                logger.error(f"Error getting roles: {e}")
         except Exception as e:
-            print(f"Error in test_client_role_crud_by_id: {e}")
+            logger.error(f"Error in test_client_role_crud_by_id: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -126,11 +120,9 @@ class TestRolesByIdApi:
             delete_response = self.roles_api.delete_client_role(
                 self.realm, self.client_id, self.test_role_name
             )
-            print(f"Deleted role: {delete_response}")
+            logger.info(f"Deleted role: {delete_response}")
         except Exception as e:
-            print(
-                f"Error deleting role (might not exist or no server connection): {e}"
-            )
+            logger.error(f"Error deleting role (might not exist or no server connection): {e}")
         try:
             # Create test role
             role_representation = RoleRepresentation(name=self.test_role_name)
@@ -138,9 +130,9 @@ class TestRolesByIdApi:
                 created = self.roles_api.post_client_roles(
                     self.realm, self.client_id, role_representation
                 )
-                print(f"Created test role: {created}")
+                logger.info(f"Created test role: {created}")
             except Exception as e:
-                print(f"Error creating test role: {e}")
+                logger.error(f"Error creating test role: {e}")
 
             # Get test role ID
             try:
@@ -150,7 +142,7 @@ class TestRolesByIdApi:
                 if len(roles) > 0:
                     self.test_role = roles[0]
                     self.test_role_id = self.test_role.id
-                    print(f"Test role ID: {self.test_role_id}")
+                    logger.info(f"Test role ID: {self.test_role_id}")
 
                     # Get some non-composite roles as child roles
                     try:
@@ -171,9 +163,7 @@ class TestRolesByIdApi:
                             if not role.composite and role.id != self.test_role_id
                         )
                         if len(non_composite_roles) > 0:
-                            print(
-                                f"Non-composite roles to add: {[role.name for role in non_composite_roles]}"
-                            )
+                            logger.info(f"Non-composite roles to add: {[role.name for role in non_composite_roles]}")
                             # Test post_roles_by_id_composites (add child roles)
                             try:
                                 added = (
@@ -181,7 +171,7 @@ class TestRolesByIdApi:
                                         self.realm, self.test_role_id, non_composite_roles
                                     )
                                 )
-                                print(f"Added child role to composite: {added}")
+                                logger.info(f"Added child role to composite: {added}")
 
                                 # Test get_roles_by_id_composites (get child roles)
                                 composites = (
@@ -189,35 +179,25 @@ class TestRolesByIdApi:
                                         self.realm, self.test_role_id
                                     )
                                 )
-                                print(f"Number of composites: {len(composites)}")
+                                logger.info(f"Number of composites: {len(composites)}")
                                 for role in composites:
-                                    print(
-                                        f"Composite role: {role.name} (ID: {role.id})"
-                                    )
+                                    logger.info(f"Composite role: {role.name} (ID: {role.id})")
 
                                 # Test get_roles_by_id_composites_client (get client-level child roles)
                                 client_composites = self.roles_by_id_api.get_roles_by_id_composites_client(
                                     self.realm, self.test_role_id, self.client_id
                                 )
-                                print(
-                                    f"Number of client composites: {len(client_composites)}"
-                                )
+                                logger.info(f"Number of client composites: {len(client_composites)}")
                                 for role in client_composites:
-                                    print(
-                                        f"Client composite role: {role.name} (ID: {role.id})"
-                                    )
+                                    logger.info(f"Client composite role: {role.name} (ID: {role.id})")
 
                                 # Test get_roles_by_id_composites_realm (get realm-level child roles)
                                 realm_composites = self.roles_by_id_api.get_roles_by_id_composites_realm(
                                     self.realm, self.test_role_id
                                 )
-                                print(
-                                    f"Number of realm composites: {len(realm_composites)}"
-                                )
+                                logger.info(f"Number of realm composites: {len(realm_composites)}")
                                 for role in realm_composites:
-                                    print(
-                                        f"Realm composite role: {role.name} (ID: {role.id})"
-                                    )
+                                    logger.info(f"Realm composite role: {role.name} (ID: {role.id})")
 
                                 # Test delete_roles_by_id_composites (remove child roles)
                                 removed = (
@@ -225,7 +205,7 @@ class TestRolesByIdApi:
                                         self.realm, self.test_role_id, role_representations=non_composite_roles
                                     )
                                 )
-                                print(f"Removed composites: {removed}")
+                                logger.info(f"Removed composites: {removed}")
 
                                 # Verify removal
                                 composites_after_removal = (
@@ -233,36 +213,28 @@ class TestRolesByIdApi:
                                         self.realm, self.test_role_id
                                     )
                                 )
-                                print(
-                                    f"Number of composites after removal: {len(composites_after_removal)}"
-                                )
+                                logger.info(f"Number of composites after removal: {len(composites_after_removal)}")
                             except Exception as e:
-                                print(f"Error testing composite operations: {e}")
+                                logger.error(f"Error testing composite operations: {e}")
                         else:
-                            print(
-                                "No non-composite roles found, skipping composite tests"
-                            )
+                            logger.warning("No non-composite roles found, skipping composite tests")
                     except Exception as e:
-                        print(f"Error getting roles for composites: {e}")
+                        logger.error(f"Error getting roles for composites: {e}")
                 else:
-                    print(
-                        f"Role {self.test_role_name} not found, skipping composite tests"
-                    )
+                    logger.warning(f"Role {self.test_role_name} not found, skipping composite tests")
             except Exception as e:
-                print(f"Error getting roles: {e}")
+                logger.error(f"Error getting roles: {e}")
         except Exception as e:
-            print(f"Error in test_role_composites_by_id: {e}")
+            logger.error(f"Error in test_role_composites_by_id: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
         try:
             delete_response = self.roles_api.delete_client_role(
                 self.realm, self.client_id, role_representation.name
             )
-            print(f"Deleted role: {delete_response}")
+            logger.info(f"Deleted role: {delete_response}")
         except Exception as e:
-            print(
-                f"Error deleting role (might not exist or no server connection): {e}"
-            )
+            logger.error(f"Error deleting role (might not exist or no server connection): {e}")
 
     def test_role_management_permissions(self):
         """Test role management permissions"""
@@ -273,9 +245,9 @@ class TestRolesByIdApi:
                 created = self.roles_api.post_client_roles(
                     self.realm, self.client_id, role_representation
                 )
-                print(f"Created test role for permissions: {created}")
+                logger.info(f"Created test role for permissions: {created}")
             except Exception as e:
-                print(f"Error creating test role for permissions: {e}")
+                logger.error(f"Error creating test role for permissions: {e}")
 
             # Get test role ID
             try:
@@ -285,7 +257,7 @@ class TestRolesByIdApi:
                 if len(roles) > 0:
                     self.test_role = roles[0]
                     self.test_role_id = self.test_role.id
-                    print(f"Test role ID for permissions: {self.test_role_id}")
+                    logger.info(f"Test role ID for permissions: {self.test_role_id}")
 
                     # Test get_roles_by_id_management_permissions
                     try:
@@ -295,7 +267,7 @@ class TestRolesByIdApi:
                             )
                         )
                         assert permissions is not None
-                        print(f"Management permissions: {permissions.to_dict()}")
+                        logger.info(f"Management permissions: {permissions.to_dict()}")
 
                         # Test put_roles_by_id_management_permissions
                         # Create a ManagementPermissionReference object
@@ -308,18 +280,14 @@ class TestRolesByIdApi:
                             )
                         )
                         assert updated_permissions is not None
-                        print(
-                            f"Updated management permissions: {updated_permissions.to_dict()}"
-                        )
+                        logger.info(f"Updated management permissions: {updated_permissions.to_dict()}")
                     except Exception as e:
-                        print(f"Error testing permission operations: {e}")
+                        logger.error(f"Error testing permission operations: {e}")
                 else:
-                    print(
-                        f"Role {self.test_role_name} not found, skipping permission tests"
-                    )
+                    logger.warning(f"Role {self.test_role_name} not found, skipping permission tests")
             except Exception as e:
-                print(f"Error getting roles: {e}")
+                logger.error(f"Error getting roles: {e}")
         except Exception as e:
-            print(f"Error in test_role_management_permissions: {e}")
+            logger.error(f"Error in test_role_management_permissions: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True

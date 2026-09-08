@@ -2,6 +2,8 @@ import pytest
 
 from CheckmarxPythonSDK.CxOne import get_projects_overview
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_get_projects_overview():
@@ -17,4 +19,4 @@ def test_get_projects_overview():
         assert result is not None
         assert isinstance(result, list)
     except Exception as e:
-        print("get_projects_overview skipped: {}".format(str(e)))
+        logger.warning("get_projects_overview skipped: {}".format(str(e)))

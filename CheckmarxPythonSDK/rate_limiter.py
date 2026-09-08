@@ -1,5 +1,7 @@
 import time
 import threading
+import logging
+logger = logging.getLogger(__name__)
 
 
 class TokenBucket:
@@ -51,9 +53,7 @@ class TokenBucket:
                 # Calculate wait time inside the lock, then sleep outside it
                 tokens_needed = tokens - self.tokens
                 wait_time = tokens_needed / self.refill_rate
-                print(
-                    f"Rate limiting: waiting {wait_time:.2f} seconds for {tokens_needed} tokens..."
-                )
+                logger.info(f"Rate limiting: waiting {wait_time:.2f} seconds for {tokens_needed} tokens...")
 
             # Sleep outside the lock so other threads are not blocked
             time.sleep(wait_time)

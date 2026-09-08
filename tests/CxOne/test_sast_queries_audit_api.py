@@ -1,4 +1,6 @@
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne import (
     get_all_queries,
     create_new_query,
@@ -109,7 +111,7 @@ def test_create_query():
         ))
         assert result in (True, False)
     except Exception as e:
-        print("create_query skipped: {}".format(str(e)))
+        logger.warning("create_query skipped: {}".format(str(e)))
 
 
 def test_get_query_source_by_level_path():
@@ -121,7 +123,7 @@ def test_get_query_source_by_level_path():
         )
         assert result is not None
     except Exception as e:
-        print("get_query_source_by_level_path skipped: {}".format(str(e)))
+        logger.warning("get_query_source_by_level_path skipped: {}".format(str(e)))
 
 
 def test_update_query_source_by_level():
@@ -138,7 +140,7 @@ def test_update_query_source_by_level():
         )
         assert result in (True, False)
     except Exception as e:
-        print("update_query_source_by_level skipped: {}".format(str(e)))
+        logger.warning("update_query_source_by_level skipped: {}".format(str(e)))
 
 #
 # def test_update_query_source():

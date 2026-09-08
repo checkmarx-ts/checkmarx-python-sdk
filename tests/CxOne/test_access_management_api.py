@@ -1,4 +1,6 @@
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne import (
     AccessManagementAPI,
     create_an_assignment,
@@ -87,7 +89,7 @@ def test_retrieve_entities():
     result = retrieve_entities(
         resource_id=resource_id, resource_type=resource_type, entity_types=None
     )
-    print(f"result: {result}")
+    logger.info(f"result: {result}")
     assert len(result) >= 1
 
 
@@ -98,7 +100,7 @@ def test_assignment_get_create_delete():
         resource_id="71fe66b9-b3ea-4fc7-8594-541d0a07a697",
     )
     if result is None:
-        print("assignment does not no exist, creating")
+        logger.info("assignment does not no exist, creating")
         result = create_an_assignment(
             assignment_input=AssignmentInput(
                 entityID="3a7cf5fc-6554-4136-918b-6f494656b2b0",
@@ -109,7 +111,7 @@ def test_assignment_get_create_delete():
             )
         )
         assert result is not None
-    print("assignment exist, deleting")
+    logger.info("assignment exist, deleting")
     result = delete_an_assignment(
         entity_id="3a7cf5fc-6554-4136-918b-6f494656b2b0",
         resource_id="71fe66b9-b3ea-4fc7-8594-541d0a07a697",
@@ -168,7 +170,7 @@ def test_retrieve_accessible_resources():
     result = retrieve_accessible_resources(
         resource_types=[ResourceType.APPLICATION], action="view-applications"
     )
-    print(f"result: {result}")
+    logger.info(f"result: {result}")
     assert result is not None
 
 
@@ -187,7 +189,7 @@ def test_retrieve_groups():
     offset = 0
     # ids = ["ba2d28a4-aac7-4859-90ed-e9fbfc62d947", "fb1941cd-28d7-4a1d-b305-120c69a0e8d8"]
     result = retrieve_groups(limit=limit, offset=offset)
-    print(f"result: {result}")
+    logger.info(f"result: {result}")
     assert len(result) > 0
 
 

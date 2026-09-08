@@ -1,5 +1,7 @@
 import time
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxScaApiSDK import (
     get_all_projects,
     check_if_project_already_exists,
@@ -544,14 +546,14 @@ def sbom_report_analysis(scan_id, file_format):
         response = get_scan_status(scan_id=scan_id)
         scan_status = response.get("name")
         if scan_status == "Scanning":
-            print("scanning ...")
+            logger.info("scanning ...")
             time.sleep(60)
             continue
         elif scan_status == "Done":
-            print("scan finished successfully!")
+            logger.info("scan finished successfully!")
             break
         elif scan_status == "Failed":
-            print("scan_status:{}, message:{}".format(scan_status, response.get("message")))
+            logger.info("scan_status:{}, message:{}".format(scan_status, response.get("message")))
             return
     export_id = create_sbom_report(scan_id, file_format)
     assert len(export_id) > 0

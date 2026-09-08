@@ -6,6 +6,8 @@ from CheckmarxPythonSDK.CxOne import (
 )
 from CheckmarxPythonSDK.CxOne import ProjectsAPI as _ProjectsAPI
 from CheckmarxPythonSDK.CxOne.dto import WebHookInput
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_webhook_api():
@@ -18,7 +20,7 @@ def test_get_webhook_by_id():
     response = WebHookAPI().get_a_list_of_webhooks_related_to_tenant(limit=100)
     webhooks = response.webhooks
     if not webhooks:
-        print("No webhooks found, skipping get_webhook_by_id")
+        logger.warning("No webhooks found, skipping get_webhook_by_id")
         return
     webhook_id = webhooks[0].id
     webhook = get_webhook_by_id(webhook_id=webhook_id)
@@ -30,7 +32,7 @@ def test_create_a_webhook_on_project():
     """POST /api/webhooks/projects/{project-id} — create then delete."""
     projects = _ProjectsAPI().get_a_list_of_projects(limit=1)
     if not projects.projects:
-        print("No projects found, skipping create webhook on project")
+        logger.warning("No projects found, skipping create webhook on project")
         return
     project_id = projects.projects[0].id
 

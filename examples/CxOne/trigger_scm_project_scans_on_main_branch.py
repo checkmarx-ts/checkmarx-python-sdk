@@ -23,13 +23,15 @@ from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.repoManagerAPI import RepoManagerAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def load_dotenv():
     """Load .env file from the project root."""
     env_path = Path(__file__).resolve().parents[2] / ".env"
     if not env_path.exists():
-        print(f"Warning: {env_path} not found, using environment variables.")
+        logger.warning(f"Warning: {env_path} not found, using environment variables.")
         return
     with open(env_path) as f:
         for line in f:
@@ -94,7 +96,7 @@ def main():
     repo_manager_api = RepoManagerAPI(api_client=api_client)
 
     project_list = projects_api.get_all_projects()
-    print(f"Found {len(project_list)} projects.\n")
+    logger.info(f"Found {len(project_list)} projects.\n")
 
     skipped = []
     scanned = []
@@ -135,12 +137,9 @@ def main():
 
         repo_identity = scm_repo_id if scm_repo_id else repo_url.rstrip("/").split("/")[-1]
 
-        print(
-            f"  {project.name}: "
+        logger.info(f"  {project.name}: "
             f"origin={origin}, org={organization}, "
-            f"repo_id={repo_id}, branch={main_branch}",
-            end=""
-        )
+            f"repo_id={repo_id}, branch={main_branch}")
 
         try:
             result = repo_manager_api.scm_managed_project_scan(
@@ -153,29 +152,29 @@ def main():
                 default_branch=main_branch,
             )
             if result.status_code in (200, 201, 202):
-                print(" -> OK")
+                logger.info(" -> OK")
                 scanned.append((project.name, "OK"))
             else:
-                print(f" -> FAILED (status={result.status_code})")
+                logger.error(f" -> FAILED (status={result.status_code})")
                 failed.append((project.name, f"status={result.status_code}"))
         except Exception as e:
-            print(f" -> FAILED: {e}")
+            logger.error(f" -> FAILED: {e}")
             failed.append((project.name, str(e)))
 
-    print(f"\n{'=' * 60}")
-    print(f"Summary: {len(project_list)} total")
-    print(f"  Scanned: {len(scanned)}")
-    print(f"  Skipped: {len(skipped)}")
-    print(f"  Failed:  {len(failed)}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"Summary: {len(project_list)} total")
+    logger.info(f"  Scanned: {len(scanned)}")
+    logger.warning(f"  Skipped: {len(skipped)}")
+    logger.error(f"  Failed:  {len(failed)}")
 
     if skipped:
-        print(f"\nSkipped:")
+        logger.warning(f"\nSkipped:")
         for name, reason in skipped:
-            print(f"  {name}: {reason}")
+            logger.info(f"  {name}: {reason}")
     if failed:
-        print(f"\nFailed:")
+        logger.error(f"\nFailed:")
         for name, error in failed:
-            print(f"  {name}: {error}")
+            logger.error(f"  {name}: {error}")
 
 
 if __name__ == "__main__":

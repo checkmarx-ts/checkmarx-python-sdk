@@ -1,4 +1,6 @@
 import urllib.request
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxOne import (
     create_a_pre_signed_url_to_upload_files,
@@ -17,7 +19,7 @@ def test_create_a_pre_signed_url_to_upload_files():
         zip_file_path,
     )
     url = create_a_pre_signed_url_to_upload_files()
-    print("url: {}".format(url))
+    logger.info("url: {}".format(url))
     assert url is not None
     result = upload_zip_content_for_scanning(
         upload_link=url,
