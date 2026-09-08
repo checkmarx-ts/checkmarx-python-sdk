@@ -1,9 +1,14 @@
 import pytest
 
 from CheckmarxPythonSDK.CxOne import (
-    get_environments, get_scans, get_results, get_result_info,
+    get_environments, get_scans, get_result_info,
     update_results, get_results_count_by_group,
 )
+# NOTE: `get_results` must be imported from dastResultsAPI directly — the
+# name exported by CheckmarxPythonSDK.CxOne resolves to
+# riskManagementAPI.get_results (a different endpoint with a different
+# signature), because that import comes later in CxOne/__init__.py.
+from CheckmarxPythonSDK.CxOne.dastResultsAPI import get_results
 from CheckmarxPythonSDK.CxOne.dto import (
     DastResultsCollection, DastResult, DastResultsFilter,
     DastResultStatus, DastResultsSortBy, DastResultDetail,
