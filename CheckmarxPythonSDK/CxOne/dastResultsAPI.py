@@ -38,7 +38,7 @@ class DastResultsAPI(object):
             f"{self.api_client.configuration.server_base_url}/api/dast/mfe-results"
         )
 
-    def get_results(
+    def dast_get_results(
         self,
         scan_id: str,
         filter_: DastResultsFilter = None,
@@ -175,7 +175,7 @@ class DastResultsAPI(object):
 
 # ----- Module-level conveniences -----
 
-def get_results(
+def dast_get_results(
     scan_id: str,
     filter_: DastResultsFilter = None,
     page: int = None,
@@ -184,7 +184,7 @@ def get_results(
     sort_by: List[DastResultsSortBy] = None,
     group: str = None,
 ) -> DastResultsCollection:
-    return DastResultsAPI().get_results(
+    return DastResultsAPI().dast_get_results(
         scan_id=scan_id, filter_=filter_, page=page, per_page=per_page,
         search=search, sort_by=sort_by, group=group,
     )

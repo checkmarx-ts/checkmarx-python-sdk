@@ -19,7 +19,7 @@ class ByorResultsHandlerAPI(object):
         self.api_client = api_client
         self.base_url = f"{self.api_client.configuration.server_base_url}/api/v1/byor"
 
-    def create_byor_import(self, import_request: ImportRequest) -> ImportResults:
+    def create_byor_import_v1(self, import_request: ImportRequest) -> ImportResults:
         """
         Args:
             import_request (ImportRequest):
@@ -64,8 +64,8 @@ class ByorResultsHandlerAPI(object):
         return TriageResponse.from_dict(response.json())
 
 
-def create_byor_import(import_request) -> ImportResults:
-    return ByorResultsHandlerAPI().create_byor_import(import_request)
+def create_byor_import_v1(import_request) -> ImportResults:
+    return ByorResultsHandlerAPI().create_byor_import_v1(import_request)
 
 
 def save_triage(triage_request: TriageRequest) -> bool:
