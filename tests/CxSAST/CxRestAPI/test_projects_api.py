@@ -12,6 +12,8 @@ from os.path import normpath, join, dirname
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.utilities.CxError import CxError
+import logging
+logger = logging.getLogger(__name__)
 
 from .. import get_project_id
 
@@ -108,12 +110,12 @@ def test_get_branch_project_status():
     )
     branched_project = projects_api.create_branched_project(project_id, branched_project_name)
     branched_project_id = branched_project.id
-    print(f"branched project created with id: {branched_project_id}")
+    logger.info(f"branched project created with id: {branched_project_id}")
 
-    print("polling branch project status...")
+    logger.info("polling branch project status...")
     while True:
         status = projects_api.get_branch_project_status(branched_project_id)
-        print(f"  status: {status}")
+        logger.info(f"  status: {status}")
         if status == "Completed":
             break
         time.sleep(10)

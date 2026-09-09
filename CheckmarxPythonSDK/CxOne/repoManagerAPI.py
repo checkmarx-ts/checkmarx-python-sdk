@@ -236,7 +236,7 @@ class RepoManagerAPI(object):
             url=url,
             params=params,
         )
-        print(response.json())
+        logger.info(response.json())
         return RepoOrgs(orgs=[RepoOrg(**item) for item in response.json().get("orgs")])
 
     def create_installation_of_scm_on_org(

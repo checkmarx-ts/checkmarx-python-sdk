@@ -4,6 +4,8 @@ import time
 import json
 from CheckmarxPythonSDK.utilities.compat import OK, CREATED
 from typing import Union
+import logging
+logger = logging.getLogger(__name__)
 from .dto import (
     CreateReportDTO,
 )
@@ -97,12 +99,12 @@ class CxReporting(object):
         )
         while report_status.upper() != "FINISHED":
             if "FAIL" in report_status.upper():
-                print("Report generation failed!")
+                logger.error("Report generation failed!")
                 return None
             report_status = self.retrieve_the_status_of_a_specific_report(
                 report_id=report_id
             )
-            print("report status: {}".format(report_status))
+            logger.info("report status: {}".format(report_status))
             time.sleep(2)
 
         return self.retrieve_the_file_of_a_specific_report(report_id=report_id)

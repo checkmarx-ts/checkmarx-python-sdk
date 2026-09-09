@@ -1,6 +1,8 @@
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_sample():
@@ -15,7 +17,7 @@ def test_sample():
         scans = scan_api.get_all_scans_for_project(project_id=project.project_id, scan_status='Finished')
 
         for scan in scans:
-            print(str(scan.id))
+            logger.info(str(scan.id))
 
 
 test_sample()

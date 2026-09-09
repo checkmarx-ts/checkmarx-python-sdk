@@ -2,6 +2,8 @@ import pytest
 
 from CheckmarxPythonSDK.CxOne import update_risk
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_apisec_scan_id():
@@ -27,4 +29,4 @@ def test_update_risk():
         )
         assert result is not None
     except Exception as e:
-        print("update_risk skipped: {}".format(str(e)))
+        logger.warning("update_risk skipped: {}".format(str(e)))

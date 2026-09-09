@@ -1,4 +1,6 @@
 from CheckmarxPythonSDK.CxOne.KeycloakAPI import RolesApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.RoleRepresentation import (
     RoleRepresentation,
 )
@@ -16,9 +18,9 @@ class TestRolesApi:
                 realm=self.realm, id=self.client_id
             )
             assert isinstance(client_roles, list)
-            print(f"Got {len(client_roles)} client roles")
+            logger.info(f"Got {len(client_roles)} client roles")
         except Exception as e:
-            print(f"Error in test_get_client_roles: {e}")
+            logger.error(f"Error in test_get_client_roles: {e}")
         assert True
 
     def test_client_role_crud(self):
@@ -37,7 +39,7 @@ class TestRolesApi:
                 id=self.client_id,
                 role_representation=role_representation,
             )
-            print(f"Create role {test_role_name} successful: {create_successful}")
+            logger.info(f"Create role {test_role_name} successful: {create_successful}")
 
             created_role = self.roles_api.get_client_role(
                 realm=self.realm, id=self.client_id, role_name=test_role_name
@@ -56,14 +58,14 @@ class TestRolesApi:
                 role_name=test_role_name,
                 role_representation=updated_role_representation,
             )
-            print(f"Update role {test_role_name} successful: {update_successful}")
+            logger.info(f"Update role {test_role_name} successful: {update_successful}")
 
             delete_successful = self.roles_api.delete_client_role(
                 realm=self.realm, id=self.client_id, role_name=test_role_name
             )
-            print(f"Delete role {test_role_name} successful: {delete_successful}")
+            logger.info(f"Delete role {test_role_name} successful: {delete_successful}")
         except Exception as e:
-            print(f"Error in test_client_role_crud: {e}")
+            logger.error(f"Error in test_client_role_crud: {e}")
         assert True
 
     def test_composite_role_operations(self):
@@ -86,7 +88,7 @@ class TestRolesApi:
                 id=self.client_id,
                 role_representation=composite_role_representation,
             )
-            print(f"Create temporary composite role successful: {create_successful}")
+            logger.info(f"Create temporary composite role successful: {create_successful}")
 
             all_roles = self.roles_api.get_client_roles(
                 realm=self.realm, id=self.client_id
@@ -100,14 +102,14 @@ class TestRolesApi:
                     role_name=temp_composite_role_name,
                     role_representations=non_composite_roles,
                 )
-                print(f"Add child roles successful: {add_successful}")
+                logger.info(f"Add child roles successful: {add_successful}")
 
                 composites = self.roles_api.get_client_role_composites(
                     realm=self.realm,
                     id=self.client_id,
                     role_name=temp_composite_role_name,
                 )
-                print(f"Got {len(composites)} child roles")
+                logger.info(f"Got {len(composites)} child roles")
 
                 remove_successful = self.roles_api.delete_client_role_composites(
                     realm=self.realm,
@@ -115,20 +117,20 @@ class TestRolesApi:
                     role_name=temp_composite_role_name,
                     role_representations=non_composite_roles,
                 )
-                print(f"Remove child roles successful: {remove_successful}")
+                logger.info(f"Remove child roles successful: {remove_successful}")
 
             self.roles_api.delete_client_role(
                 realm=self.realm, id=self.client_id, role_name=temp_composite_role_name
             )
         except Exception as e:
-            print(f"Error in test_composite_role_operations: {e}")
+            logger.error(f"Error in test_composite_role_operations: {e}")
         assert True
 
     def test_get_roles_by_realm(self):
         try:
             realm_roles = self.roles_api.get_roles_by_realm(realm=self.realm)
             assert isinstance(realm_roles, list)
-            print(f"Got {len(realm_roles)} realm roles")
+            logger.info(f"Got {len(realm_roles)} realm roles")
         except Exception as e:
-            print(f"Error in test_get_roles_by_realm: {e}")
+            logger.error(f"Error in test_get_roles_by_realm: {e}")
         assert True

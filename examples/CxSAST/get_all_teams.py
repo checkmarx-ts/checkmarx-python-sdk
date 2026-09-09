@@ -1,4 +1,6 @@
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI, config
+import logging
+logger = logging.getLogger(__name__)
 
 
 class ConfigOverride:
@@ -33,11 +35,11 @@ configs = {
 
 teamAPI = TeamAPI()
 for c in configs.values():
-    print(f'Retrieving data from {c["base_url"]}')
+    logger.info(f'Retrieving data from {c["base_url"]}')
     with ConfigOverride(c):
         teams = teamAPI.get_all_teams()
-        print(f"Found {len(teams)} teams")
+        logger.info(f"Found {len(teams)} teams")
         if len(teams) == 0:
-            print("Trying again...")
+            logger.info("Trying again...")
             teams = teamAPI.get_all_teams
-            print(f"Found {len(teams)} teams")
+            logger.info(f"Found {len(teams)} teams")

@@ -22,6 +22,8 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.scanConfigurationAPI import ScanConfigurationAPI
 from CheckmarxPythonSDK.CxOne.dto.ScanParameter import ScanParameter
+import logging
+logger = logging.getLogger(__name__)
 
 RECOMMENDED_EXCLUSIONS_KEY = "scan.config.sast.recommendedExclusions"
 
@@ -30,7 +32,7 @@ def load_dotenv():
     """Load .env file from the project root."""
     env_path = Path(__file__).resolve().parents[2] / ".env"
     if not env_path.exists():
-        print(f"Warning: {env_path} not found, using environment variables.")
+        logger.warning(f"Warning: {env_path} not found, using environment variables.")
         return
     with open(env_path) as f:
         for line in f:
@@ -94,26 +96,26 @@ def main():
     scan_config_api = ScanConfigurationAPI(api_client=api_client)
 
     projects = projects_api.get_all_projects()
-    print(f"Found {len(projects)} projects.\n")
+    logger.info(f"Found {len(projects)} projects.\n")
 
     # Step 1: Check all projects
-    print("=" * 60)
-    print("Step 1: Check all projects")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Step 1: Check all projects")
+    logger.info("=" * 60)
     needs_update = []
     for project in projects:
         param = get_exclusion_param(scan_config_api, project.id)
         value = param.value if param else "N/A"
         value_display = value if value != "" else "(empty)"
-        print(f"  {project.name}: {value_display}")
+        logger.info(f"  {project.name}: {value_display}")
         if is_false_or_empty(param):
             needs_update.append(project)
 
     # Step 2: Update projects that are false/empty
     if needs_update:
-        print(f"\n{'=' * 60}")
-        print(f"Step 2: Set to true for {len(needs_update)} project(s)")
-        print(f"{'=' * 60}")
+        logger.info(f"\n{'=' * 60}")
+        logger.info(f"Step 2: Set to true for {len(needs_update)} project(s)")
+        logger.info(f"{'=' * 60}")
         for project in needs_update:
             update_param = ScanParameter(
                 key=RECOMMENDED_EXCLUSIONS_KEY,
@@ -126,19 +128,19 @@ def main():
                 scan_parameters=[update_param],
             )
             status = "OK" if success else "FAILED"
-            print(f"  {project.name}: {status}")
+            logger.info(f"  {project.name}: {status}")
     else:
-        print("\nNo projects need updating.")
+        logger.info("\nNo projects need updating.")
 
     # Step 3: Verify all projects again
-    print(f"\n{'=' * 60}")
-    print("Step 3: Verify all projects")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info("Step 3: Verify all projects")
+    logger.info(f"{'=' * 60}")
     for project in projects:
         param = get_exclusion_param(scan_config_api, project.id)
         value = param.value if param else "N/A"
         value_display = value if value != "" else "(empty)"
-        print(f"  {project.name}: {value_display}")
+        logger.info(f"  {project.name}: {value_display}")
 
 
 if __name__ == "__main__":

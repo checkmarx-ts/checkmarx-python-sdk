@@ -1,5 +1,7 @@
 import pytest
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.ComponentApi import ComponentApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.ComponentRepresentation import (
     ComponentRepresentation,
 )
@@ -21,11 +23,11 @@ class TestComponentApi:
         try:
             components = self.component_api.get_components(self.realm)
             assert isinstance(components, list)
-            print(f"Got {len(components)} components")
+            logger.info(f"Got {len(components)} components")
             for component in components:
-                print(f"  - {component.name} (ID: {component.id})")
+                logger.info(f"  - {component.name} (ID: {component.id})")
         except Exception as e:
-            print(f"Error in test_get_components: {e}")
+            logger.error(f"Error in test_get_components: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -36,11 +38,11 @@ class TestComponentApi:
                 self.realm, name=self.test_component_name, type=self.test_component_type
             )
             assert isinstance(components, list)
-            print(f"Got {len(components)} components with filters")
+            logger.info(f"Got {len(components)} components with filters")
             for component in components:
-                print(f"  - {component.name} (ID: {component.id})")
+                logger.info(f"  - {component.name} (ID: {component.id})")
         except Exception as e:
-            print(f"Error in test_get_components_with_parameters: {e}")
+            logger.error(f"Error in test_get_components_with_parameters: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -53,9 +55,9 @@ class TestComponentApi:
             created = self.component_api.post_components(
                 self.realm, component_representation
             )
-            print(f"Created component: {created}")
+            logger.info(f"Created component: {created}")
         except Exception as e:
-            print(f"Error in test_post_components: {e}")
+            logger.error(f"Error in test_post_components: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -66,9 +68,9 @@ class TestComponentApi:
                 self.realm, self.test_component_id
             )
             assert component is not None
-            print(f"Got component: {component.name} (ID: {component.id})")
+            logger.info(f"Got component: {component.name} (ID: {component.id})")
         except Exception as e:
-            print(f"Error in test_get_component: {e}")
+            logger.error(f"Error in test_get_component: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -81,9 +83,9 @@ class TestComponentApi:
             updated = self.component_api.put_component(
                 self.realm, self.test_component_id, component_representation
             )
-            print(f"Updated component: {updated}")
+            logger.info(f"Updated component: {updated}")
         except Exception as e:
-            print(f"Error in test_put_component: {e}")
+            logger.error(f"Error in test_put_component: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -93,9 +95,9 @@ class TestComponentApi:
             deleted = self.component_api.delete_component(
                 self.realm, self.test_component_id
             )
-            print(f"Deleted component: {deleted}")
+            logger.info(f"Deleted component: {deleted}")
         except Exception as e:
-            print(f"Error in test_delete_component: {e}")
+            logger.error(f"Error in test_delete_component: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -106,11 +108,11 @@ class TestComponentApi:
                 self.realm, self.test_component_id
             )
             assert isinstance(sub_component_types, list)
-            print(f"Got {len(sub_component_types)} sub-component types")
+            logger.info(f"Got {len(sub_component_types)} sub-component types")
             for component_type in sub_component_types:
-                print(f"  - {component_type.id}")
+                logger.info(f"  - {component_type.id}")
         except Exception as e:
-            print(f"Error in test_get_sub_component_types: {e}")
+            logger.error(f"Error in test_get_sub_component_types: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -121,12 +123,10 @@ class TestComponentApi:
                 self.realm, self.test_component_id, type=self.test_component_type
             )
             assert isinstance(sub_component_types, list)
-            print(
-                f"Got {len(sub_component_types)} sub-component types with type filter"
-            )
+            logger.info(f"Got {len(sub_component_types)} sub-component types with type filter")
             for component_type in sub_component_types:
-                print(f"  - {component_type.id}")
+                logger.info(f"  - {component_type.id}")
         except Exception as e:
-            print(f"Error in test_get_sub_component_types_with_type: {e}")
+            logger.error(f"Error in test_get_sub_component_types_with_type: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True

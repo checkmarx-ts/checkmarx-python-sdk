@@ -10,6 +10,8 @@ from CheckmarxPythonSDK.CxOne import (
     abort_process,
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_scan_id():
@@ -69,4 +71,4 @@ def test_start_and_abort_process():
         is_aborted = abort_process(id=process_id)
         assert is_aborted is True
     except Exception as e:
-        print("start_and_abort_process skipped: {}".format(str(e)))
+        logger.error("start_and_abort_process skipped: {}".format(str(e)))

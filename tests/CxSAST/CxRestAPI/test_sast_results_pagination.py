@@ -5,6 +5,8 @@ This test paginates through all results and checks for duplicates using
 path_id as the unique key.
 """
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 from .. import get_project_id
 
 
@@ -59,11 +61,9 @@ def test_sast_results_pagination_no_duplicates():
             seen_path_ids.add(key)
 
         # Log page info for diagnostics
-        print(
-            f"Page {page_num}: offset={offset}, limit={limit}, "
+        logger.info(f"Page {page_num}: offset={offset}, limit={limit}, "
             f"fetched={len(batch)}, total={page.total_count}, "
-            f"seen={len(seen_path_ids)}"
-        )
+            f"seen={len(seen_path_ids)}")
 
         # Exit when we've fetched all results
         if offset + limit >= page.total_count:
@@ -72,21 +72,19 @@ def test_sast_results_pagination_no_duplicates():
         page_num += 1
 
     total_expected = all_results[0].total_count if all_results else 0
-    print(f"\nSummary: fetched {len(all_results)} results across {page_num} pages")
-    print(f"Server reported totalCount: {total_expected}")
-    print(f"Unique path_ids: {len(seen_path_ids)}")
+    logger.info(f"\nSummary: fetched {len(all_results)} results across {page_num} pages")
+    logger.info(f"Server reported totalCount: {total_expected}")
+    logger.info(f"Unique path_ids: {len(seen_path_ids)}")
 
     if duplicates:
         dup_path_ids = {d["path_id"] for d in duplicates}
         dup_pages = {d["page"] for d in duplicates}
-        print(f"\nERROR: Found {len(duplicates)} duplicate result(s)!")
-        print(f"Duplicate path_ids: {dup_path_ids}")
-        print(f"Pages with duplicates: {dup_pages}")
+        logger.error(f"\nERROR: Found {len(duplicates)} duplicate result(s)!")
+        logger.info(f"Duplicate path_ids: {dup_path_ids}")
+        logger.info(f"Pages with duplicates: {dup_pages}")
         for d in duplicates:
-            print(
-                f"  Duplicate: path_id={d['path_id']} on page {d['page']}, "
-                f"query={d['query']}, state={d['state']}, index={d['index']}"
-            )
+            logger.info(f"  Duplicate: path_id={d['path_id']} on page {d['page']}, "
+                f"query={d['query']}, state={d['state']}, index={d['index']}")
 
     assert len(duplicates) == 0, (
         f"Found {len(duplicates)} duplicate result(s) across pages. "
@@ -120,10 +118,8 @@ def test_sast_results_last_page_no_duplicate_with_previous():
         batch_ids = {r.path_id for r in page.results}
         page_path_ids.append((page_num, batch_ids))
 
-        print(
-            f"Page {page_num}: offset={offset}, count={len(page.results)}, "
-            f"total={page.total_count}"
-        )
+        logger.info(f"Page {page_num}: offset={offset}, count={len(page.results)}, "
+            f"total={page.total_count}")
 
         if offset + limit >= page.total_count:
             break
@@ -143,12 +139,10 @@ def test_sast_results_last_page_no_duplicate_with_previous():
             })
 
     if overlaps_found:
-        print(f"\nERROR: Found overlaps between consecutive pages!")
+        logger.error(f"\nERROR: Found overlaps between consecutive pages!")
         for ov in overlaps_found:
-            print(
-                f"  Overlap between pages {ov['pages']}: "
-                f"path_ids={ov['overlapping_path_ids']}"
-            )
+            logger.info(f"  Overlap between pages {ov['pages']}: "
+                f"path_ids={ov['overlapping_path_ids']}")
 
     assert len(overlaps_found) == 0, (
         f"Found {len(overlaps_found)} page overlap(s). "
@@ -189,10 +183,10 @@ def test_get_all_scan_results_no_duplicates():
             break
         offset += limit
 
-    print(f"Server totalCount: {total_from_server}")
-    print(f"Raw sum across pages: {raw_count}")
-    print(f"get_all_scan_results count: {len(results)}")
-    print(f"Unique path_ids: {len(unique_ids)}")
+    logger.info(f"Server totalCount: {total_from_server}")
+    logger.info(f"Raw sum across pages: {raw_count}")
+    logger.info(f"get_all_scan_results count: {len(results)}")
+    logger.info(f"Unique path_ids: {len(unique_ids)}")
 
     # No duplicates in helper result
     assert len(results) == len(unique_ids), (
@@ -202,7 +196,7 @@ def test_get_all_scan_results_no_duplicates():
     # If server has the bug, raw_count > total_from_server, but helper result
     # should equal unique count from raw pages
     if raw_count > total_from_server:
-        print(f"NOTE: Server pagination bug confirmed - raw count {raw_count} "
+        logger.info(f"NOTE: Server pagination bug confirmed - raw count {raw_count} "
               f"exceeds totalCount {total_from_server}")
         # The helper should filter out duplicates
         assert len(results) <= raw_count

@@ -5,6 +5,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_scan_status,
 )
 from CheckmarxPythonSDK.CxOne import FusionResultsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_app_id():
@@ -26,7 +28,7 @@ def test_get_scan_status():
         assert result is not None
         assert "scanStatus" in result
     except Exception as e:
-        print("get_scan_status skipped: {}".format(str(e)))
+        logger.warning("get_scan_status skipped: {}".format(str(e)))
 
 
 def test_correlate():
@@ -37,4 +39,4 @@ def test_correlate():
         result = correlate(id=app_id)
         assert result is True
     except Exception as e:
-        print("correlate skipped: {}".format(str(e)))
+        logger.warning("correlate skipped: {}".format(str(e)))

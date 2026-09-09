@@ -7,6 +7,8 @@ from CheckmarxPythonSDK.CxOne import (
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
 from CheckmarxPythonSDK.CxOne import KicsResultsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def _get_kics_data():
@@ -31,7 +33,7 @@ def test_get_predicates_by_similarity_id():
         assert result is not None
         assert "predicateHistoryPerProject" in result
     except Exception as e:
-        print("get_predicates_by_similarity_id skipped: {}".format(str(e)))
+        logger.warning("get_predicates_by_similarity_id skipped: {}".format(str(e)))
 
 
 def test_get_predicates_changes():
@@ -46,7 +48,7 @@ def test_get_predicates_changes():
         assert result is not None
         assert "predicates" in result
     except Exception as e:
-        print("get_predicates_changes skipped: {}".format(str(e)))
+        logger.warning("get_predicates_changes skipped: {}".format(str(e)))
 
 
 def test_create_predicate():
@@ -66,4 +68,4 @@ def test_create_predicate():
         )
         assert result is True
     except Exception as e:
-        print("create_predicate skipped: {}".format(str(e)))
+        logger.warning("create_predicate skipped: {}".format(str(e)))

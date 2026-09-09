@@ -22,6 +22,8 @@ from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.sastResultsAPI import SastResultsAPI
+import logging
+logger = logging.getLogger(__name__)
 
 OUTPUT_CSV = Path(__file__).resolve().parent / "sast_state_by_query_v6.csv"
 STATES = ["TO_VERIFY", "CONFIRMED", "URGENT",
@@ -31,7 +33,7 @@ STATES = ["TO_VERIFY", "CONFIRMED", "URGENT",
 def load_dotenv():
     env_path = Path(__file__).resolve().parents[2] / ".env"
     if not env_path.exists():
-        print(f"Warning: {env_path} not found, using environment variables.")
+        logger.warning(f"Warning: {env_path} not found, using environment variables.")
         return
     with open(env_path) as f:
         for line in f:
@@ -100,7 +102,7 @@ def main():
     sast_api = SastResultsAPI(api_client=api_client)
 
     all_projects = projects_api.get_all_projects()
-    print(f"Found {len(all_projects)} projects.")
+    logger.info(f"Found {len(all_projects)} projects.")
 
     project_lookup = {p.id: p for p in all_projects}
     project_ids = [p.id for p in all_projects]
@@ -126,7 +128,7 @@ def main():
             recent_scans[pid] = scan
         else:
             skipped_old += 1
-    print(f"Projects with a last scan on main branch: {len(last_scans)}"
+    logger.warning(f"Projects with a last scan on main branch: {len(last_scans)}"
           f" ({len(recent_scans)} within 2 days, {skipped_old} older)")
 
     headers = [
@@ -147,7 +149,7 @@ def main():
             name = project.name
             scan_id = scan.id
 
-            print(f"  [{i}/{total}] {name} ...", end=" ", flush=True)
+            logger.info(f"  [{i}/{total}] {name} ...")
 
             results = fetch_all_sast_results(sast_api, scan_id)
             # count by (query_name, state); capture query-level attributes
@@ -167,7 +169,7 @@ def main():
                     lang = r.language_name or ""
                     query_language[query] = lang
 
-            print(f"{len(results)} results, {len(state_counters)} queries")
+            logger.info(f"{len(results)} results, {len(state_counters)} queries")
 
             for query in sorted(state_counters):
                 s = state_counters[query]
@@ -183,7 +185,7 @@ def main():
                     "proposed_not_exploitable": s.get("PROPOSED_NOT_EXPLOITABLE", 0),
                 })
 
-    print(f"\nWrote to {OUTPUT_CSV}")
+    logger.info(f"\nWrote to {OUTPUT_CSV}")
 
 
 if __name__ == "__main__":

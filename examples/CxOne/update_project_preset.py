@@ -26,6 +26,8 @@ from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.scanConfigurationAPI import ScanConfigurationAPI
 from CheckmarxPythonSDK.CxOne.dto.ScanParameter import ScanParameter
+import logging
+logger = logging.getLogger(__name__)
 
 PRESET_KEY = "scan.config.sast.presetName"
 CSV_FILE = Path(__file__).resolve().parent / "project_to_be_update_preset.csv"
@@ -36,7 +38,7 @@ def load_dotenv():
     """Load .env file from the project root."""
     env_path = Path(__file__).resolve().parents[2] / ".env"
     if not env_path.exists():
-        print(f"Warning: {env_path} not found, using environment variables.")
+        logger.warning(f"Warning: {env_path} not found, using environment variables.")
         return
     with open(env_path) as f:
         for line in f:
@@ -81,7 +83,7 @@ def build_configuration() -> Configuration:
 def load_target_project_names():
     """Read project names from the CSV file."""
     if not CSV_FILE.exists():
-        print(f"Error: {CSV_FILE} not found.")
+        logger.error(f"Error: {CSV_FILE} not found.")
         return []
     with open(CSV_FILE, newline="") as f:
         reader = csv.DictReader(f)
@@ -98,9 +100,9 @@ def get_preset_param(api: ScanConfigurationAPI, project_id: str):
 def main():
     target_names = load_target_project_names()
     if not target_names:
-        print("No project names found in CSV file.")
+        logger.info("No project names found in CSV file.")
         return
-    print(f"Loaded {len(target_names)} project name(s) from {CSV_FILE.name}.\n")
+    logger.info(f"Loaded {len(target_names)} project name(s) from {CSV_FILE.name}.\n")
 
     configuration = build_configuration()
     api_client = ApiClient(configuration=configuration)
@@ -111,24 +113,24 @@ def main():
     all_projects = projects_api.get_all_projects()
     projects = [p for p in all_projects if p.name in target_names]
     if not projects:
-        print(f"No target projects found among {len(all_projects)} total projects.")
+        logger.info(f"No target projects found among {len(all_projects)} total projects.")
         return
-    print(f"Found {len(projects)} target project(s) out of {len(all_projects)} total.\n")
+    logger.info(f"Found {len(projects)} target project(s) out of {len(all_projects)} total.\n")
 
     # Step 1: Get current preset for target projects
-    print("=" * 60)
-    print("Step 1: Get current project preset")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Step 1: Get current project preset")
+    logger.info("=" * 60)
     for project in projects:
         param = get_preset_param(scan_config_api, project.id)
         value = param.value if param else "N/A"
         value_display = value if value != "" else "(empty)"
-        print(f"  {project.name}: {value_display}")
+        logger.info(f"  {project.name}: {value_display}")
 
     # Step 2: Update preset for target projects
-    print(f"\n{'=' * 60}")
-    print("Step 2: Update project preset")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info("Step 2: Update project preset")
+    logger.info(f"{'=' * 60}")
     for project in projects:
         update_param = ScanParameter(
             key=PRESET_KEY,
@@ -141,17 +143,17 @@ def main():
             scan_parameters=[update_param],
         )
         status = "OK" if success else "FAILED"
-        print(f"  {project.name}: {status}")
+        logger.info(f"  {project.name}: {status}")
 
     # Step 3: Verify preset for target projects
-    print(f"\n{'=' * 60}")
-    print("Step 3: Verify project preset")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info("Step 3: Verify project preset")
+    logger.info(f"{'=' * 60}")
     for project in projects:
         param = get_preset_param(scan_config_api, project.id)
         value = param.value if param else "N/A"
         value_display = value if value != "" else "(empty)"
-        print(f"  {project.name}: {value_display}")
+        logger.info(f"  {project.name}: {value_display}")
 
 
 if __name__ == "__main__":

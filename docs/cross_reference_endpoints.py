@@ -13,6 +13,8 @@ import re
 import sys
 import yaml
 from typing import Dict, List, Set, Tuple, Optional
+import logging
+logger = logging.getLogger(__name__)
 
 SDK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CXONE_DIR = os.path.join(SDK_DIR, "CheckmarxPythonSDK", "CxOne")
@@ -216,14 +218,14 @@ SKIP_YAML = {"keycloak.yaml"}  # handled separately
 
 
 def main():
-    print("=" * 70)
-    print("CxOne API Endpoint Cross-Reference: Python SDK vs Swagger YAML")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("CxOne API Endpoint Cross-Reference: Python SDK vs Swagger YAML")
+    logger.info("=" * 70)
 
     py_endpoints = scan_python_api_files()
     yaml_endpoints = {k: v for k, v in scan_yaml_files().items() if k not in SKIP_YAML}
 
-    print("\nParsed {} Python API files, {} YAML spec files.".format(
+    logger.info("\nParsed {} Python API files, {} YAML spec files.".format(
         len(py_endpoints), len(yaml_endpoints)))
 
     py_set: Set[str] = set()
@@ -244,9 +246,9 @@ def main():
     # =========================================================================
     # Section 1: Deprecated (Python only, not in YAML)
     # =========================================================================
-    print("\n" + "=" * 70)
-    print("1. DEPRECATED — in Python SDK but NOT in any YAML")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.warning("1. DEPRECATED — in Python SDK but NOT in any YAML")
+    logger.info("=" * 70)
 
     deprecated: List[Tuple[str, str]] = []
     for fname in sorted(py_raw.keys()):
@@ -258,19 +260,19 @@ def main():
         current = ""
         for fname, ep in sorted(deprecated, key=lambda x: (x[0], x[1])):
             if fname != current:
-                print("\n  {}".format(fname))
+                logger.info("\n  {}".format(fname))
                 current = fname
-            print("    {}".format(ep))
-        print("\n  Total deprecated: {}".format(len(deprecated)))
+            logger.info("    {}".format(ep))
+        logger.warning("\n  Total deprecated: {}".format(len(deprecated)))
     else:
-        print("  (none)")
+        logger.info("  (none)")
 
     # =========================================================================
     # Section 2: Missing (YAML only, not in Python)
     # =========================================================================
-    print("\n" + "=" * 70)
-    print("2. MISSING — in YAML but NOT in Python SDK (need to add)")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("2. MISSING — in YAML but NOT in Python SDK (need to add)")
+    logger.info("=" * 70)
 
     missing: List[Tuple[str, str]] = []
     for fname in sorted(yaml_raw.keys()):
@@ -282,12 +284,12 @@ def main():
         current = ""
         for fname, ep in sorted(missing, key=lambda x: (x[0], x[1])):
             if fname != current:
-                print("\n  {}".format(fname))
+                logger.info("\n  {}".format(fname))
                 current = fname
-            print("    {}".format(ep))
-        print("\n  Total missing: {}".format(len(missing)))
+            logger.info("    {}".format(ep))
+        logger.info("\n  Total missing: {}".format(len(missing)))
     else:
-        print("  (none)")
+        logger.info("  (none)")
 
     # =========================================================================
     # Section 3: Summary
@@ -296,21 +298,21 @@ def main():
     total_py = sum(len(v) for v in py_raw.values())
     total_yaml = sum(len(v) for v in yaml_raw.values())
 
-    print("\n" + "=" * 70)
-    print("3. SUMMARY")
-    print("=" * 70)
-    print("  Python endpoints:    {}".format(total_py))
-    print("  YAML endpoints:      {}".format(total_yaml))
-    print("  Matched:             {}".format(matched))
-    print("  Deprecated (py-only): {}".format(len(deprecated)))
-    print("  Missing (yaml-only): {}".format(len(missing)))
+    logger.info("\n" + "=" * 70)
+    logger.info("3. SUMMARY")
+    logger.info("=" * 70)
+    logger.info("  Python endpoints:    {}".format(total_py))
+    logger.info("  YAML endpoints:      {}".format(total_yaml))
+    logger.info("  Matched:             {}".format(matched))
+    logger.warning("  Deprecated (py-only): {}".format(len(deprecated)))
+    logger.info("  Missing (yaml-only): {}".format(len(missing)))
 
     # =========================================================================
     # Section 4: Entirely new YAML services
     # =========================================================================
-    print("\n" + "=" * 70)
-    print("4. ENTIRELY NEW YAML SERVICES (no Python API file)")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("4. ENTIRELY NEW YAML SERVICES (no Python API file)")
+    logger.info("=" * 70)
 
     yaml_prefixes: Dict[str, str] = {}
     for fname in sorted(os.listdir(YAML_DIR)):
@@ -340,10 +342,10 @@ def main():
     if unmatched:
         for fname, prefix in unmatched:
             ep_count = len(yaml_raw.get(fname, []))
-            print("  {}  (prefix: {}, {} endpoints)".format(fname, prefix, ep_count))
-        print("  Total new services: {}".format(len(unmatched)))
+            logger.info("  {}  (prefix: {}, {} endpoints)".format(fname, prefix, ep_count))
+        logger.info("  Total new services: {}".format(len(unmatched)))
     else:
-        print("  (none)")
+        logger.info("  (none)")
 
 
 if __name__ == "__main__":

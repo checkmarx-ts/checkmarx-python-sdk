@@ -1,4 +1,6 @@
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxOne import (
     get_projects,
@@ -65,7 +67,7 @@ def test_get_engine_results():
         )
         assert result is not None
     except Exception as e:
-        print("get_engine_results skipped: {}".format(str(e)))
+        logger.warning("get_engine_results skipped: {}".format(str(e)))
 
 
 def test_get_result_groups():
@@ -79,7 +81,7 @@ def test_get_result_groups():
         )
         assert result is not None
     except Exception as e:
-        print("get_result_groups skipped: {}".format(str(e)))
+        logger.warning("get_result_groups skipped: {}".format(str(e)))
 
 
 def test_read_projects():

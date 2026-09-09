@@ -5,6 +5,8 @@ from CheckmarxPythonSDK.CxOne import (
     AccessControlAPI,
 )
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.GroupsApi import GroupsApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.GroupRepresentation import (
     GroupRepresentation,
 )
@@ -71,7 +73,7 @@ class TestProjectsApi:
                 # If no groups exist, we'll set group_id to None
                 self.group_id = None
         except Exception as e:
-            print(f"Error creating group: {str(e)}")
+            logger.error(f"Error creating group: {str(e)}")
             self.group_id = None
     
     def teardown_method(self):
@@ -95,7 +97,7 @@ class TestProjectsApi:
     
     def test_get_all_projects(self):
         projects = self.projects_api.get_all_projects()
-        print(f"number of all projects: {len(projects)}")
+        logger.info(f"number of all projects: {len(projects)}")
         assert projects is not None
     
     def test_create_a_project(self):
@@ -129,14 +131,14 @@ class TestProjectsApi:
                     self.projects_api.delete_a_project(project_id=test_project_id)
         except Exception as e:
             # Skip this test if group or realm doesn't exist
-            print(f"Skipping test_create_a_project_with_group: {str(e)}")
+            logger.warning(f"Skipping test_create_a_project_with_group: {str(e)}")
     
     def test_get_a_list_of_projects(self):
         response = self.projects_api.get_a_list_of_projects()
-        print(f"number of projects: {len(response.projects)}")
-        print(f"first 10 projects:")
+        logger.info(f"number of projects: {len(response.projects)}")
+        logger.info(f"first 10 projects:")
         for project in response.projects[:10]:
-            print(f"Project: {project.name} (id: {project.id})")
+            logger.info(f"Project: {project.name} (id: {project.id})")
         assert len(response.projects) > 1
     
     def test_get_a_list_of_projects_with_ids(self):
@@ -159,14 +161,14 @@ class TestProjectsApi:
         response = self.projects_api.get_a_list_of_projects(name="test")
         assert len(response.projects) > 0
         for project in response.projects:
-            print(f"Project: {project.name} (id: {project.id})")
+            logger.info(f"Project: {project.name} (id: {project.id})")
         assert response is not None
     
     def test_get_a_list_of_project_with_name_regex(self):
         response = self.projects_api.get_a_list_of_projects(name_regex="(?i)test$")
         assert len(response.projects) >= 0
         for project in response.projects:
-            print(f"Project: {project.name} (id: {project.id})")
+            logger.info(f"Project: {project.name} (id: {project.id})")
         assert response is not None
     
     def test_get_project_id_by_name(self):
@@ -175,43 +177,43 @@ class TestProjectsApi:
     
     def test_get_all_tags(self):
         tags = self.projects_api.get_all_project_tags()
-        print(f"number of tags: {len(tags)}")
+        logger.info(f"number of tags: {len(tags)}")
         for tag in tags:
-            print(f"Tag: {tag}")
+            logger.info(f"Tag: {tag}")
         assert tags is not None
     
     def test_get_last_scan_info(self):
         response = self.projects_api.get_last_scan_info(limit=100)
-        print(f"number of last scans: {len(response.keys())}")
+        logger.info(f"number of last scans: {len(response.keys())}")
         for key, value in list(response.items())[:3]:
-            print(f"project_id:{key} Scan: {value})")
+            logger.info(f"project_id:{key} Scan: {value})")
         assert response is not None
     
     def test_get_last_scan_info_filter_by_project_ids(self):
         response = self.projects_api.get_last_scan_info(project_ids=[self.project_id_1, self.project_id_2])
-        print(f"number of last scans: {len(response.keys())}")
+        logger.info(f"number of last scans: {len(response.keys())}")
         for key, value in list(response.items())[:3]:
-            print(f"project_id:{key} Scan: {value})")
+            logger.info(f"project_id:{key} Scan: {value})")
         assert response is not None
     
     def test_get_last_scan_info_filter_by_application_id(self):
         try:
             application_id = "1247dffb-7dd3-4563-9170-1f10486fe00d"
             response = self.projects_api.get_last_scan_info(application_id=application_id)
-            print(f"number of last scans: {len(response.keys())}")
+            logger.info(f"number of last scans: {len(response.keys())}")
             for key, value in list(response.items())[:3]:
-                print(f"project_id:{key} Scan: {value})")
+                logger.info(f"project_id:{key} Scan: {value})")
             assert response is not None
         except Exception as e:
             # Skip this test if application doesn't exist
-            print(f"Skipping test_get_last_scan_info_filter_by_application_id: {str(e)}")
+            logger.warning(f"Skipping test_get_last_scan_info_filter_by_application_id: {str(e)}")
     
     def test_get_branches(self):
         branches = self.projects_api.get_branches()
-        print(f"number of branches: {len(branches)}")
-        print(f"first 10 branches:")
+        logger.info(f"number of branches: {len(branches)}")
+        logger.info(f"first 10 branches:")
         for branch in branches[:10]:
-            print(f"Branch: {branch} ")
+            logger.info(f"Branch: {branch} ")
         assert branches is not None
         if branches:
             assert len(branches) >= 1
@@ -220,28 +222,28 @@ class TestProjectsApi:
         try:
             project_id = ""
             branches = self.projects_api.get_branches(project_id=project_id)
-            print(f"number of branches for project_id: {len(branches)}")
+            logger.info(f"number of branches for project_id: {len(branches)}")
             for branch in branches[:10]:
-                print(f"Branch: {branch} ")
+                logger.info(f"Branch: {branch} ")
             pass
         except Exception as e:
             # Skip this test if there's an error
-            print(f"Skipping test_get_branches_filter_by_project_id: {str(e)}")
+            logger.warning(f"Skipping test_get_branches_filter_by_project_id: {str(e)}")
     
     def test_get_branches_filter_by_branch_name(self):
         try:
             branches = self.projects_api.get_branches(branch_name="main")
-            print(f"number of branches for branch_name: {len(branches)}")
+            logger.info(f"number of branches for branch_name: {len(branches)}")
             for branch in branches[:10]:
-                print(f"Branch: {branch} ")
+                logger.info(f"Branch: {branch} ")
             pass
         except Exception as e:
             # Skip this test if there's an error
-            print(f"Skipping test_get_branches_filter_by_branch_name: {str(e)}")
+            logger.warning(f"Skipping test_get_branches_filter_by_branch_name: {str(e)}")
     
     def test_get_a_project_by_id(self):
         project = self.projects_api.get_a_project_by_id(project_id=self.project_id_1)
-        print(f"Project: {project.name} (id: {project.id})")
+        logger.info(f"Project: {project.name} (id: {project.id})")
         assert project.name == self.project_name_1
         assert project.id == self.project_id_1
         assert project is not None
@@ -264,7 +266,7 @@ class TestProjectsApi:
         schedules = self.projects_api.get_a_list_of_schedules(limit=10)
         schedule_list = schedules.get("schedules", [])
         if not schedule_list:
-            print("No existing schedules found, skipping schedule CRUD test")
+            logger.warning("No existing schedules found, skipping schedule CRUD test")
             return
 
         project_id = schedule_list[0].get("projectID")
@@ -312,7 +314,7 @@ class TestProjectsApi:
             assert result.get("schedule_id") is not None
             self.projects_api.delete_a_schedule(project_id=project_id)
         except Exception as e:
-            print("Schedule create/delete skipped: {}".format(str(e)))
+            logger.warning("Schedule create/delete skipped: {}".format(str(e)))
         finally:
             self.projects_api.delete_a_project(project_id=project_id)
 
@@ -346,4 +348,4 @@ class TestProjectsApi:
             # Clean up
             self.projects_api.delete_a_project(project_id=project_id)
         except Exception as e:
-            print("Skipping test_reassign_a_project: {}".format(str(e)))
+            logger.warning("Skipping test_reassign_a_project: {}".format(str(e)))

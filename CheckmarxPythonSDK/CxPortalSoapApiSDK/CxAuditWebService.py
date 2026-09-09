@@ -1,6 +1,8 @@
 from os.path import exists
 from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.CxPortalSoapApiSDK.config import construct_configuration
+import logging
+logger = logging.getLogger(__name__)
 from .sudsClient import SudsClient
 
 
@@ -438,7 +440,7 @@ class CxAuditWebService(object):
 
     def import_queries(self, imported_file_path: str) -> dict:
         if not exists(imported_file_path):
-            print("Error, the imported file {} not exist".format(imported_file_path))
+            logger.error("Error, the imported file {} not exist".format(imported_file_path))
             return None
         with open(imported_file_path, "rb") as xml_file:
             imported_file = xml_file.read()

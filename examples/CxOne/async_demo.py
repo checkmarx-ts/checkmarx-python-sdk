@@ -4,6 +4,8 @@ import requests
 from CheckmarxPythonSDK.async_api_client import AsyncApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
+import logging
+logger = logging.getLogger(__name__)
 
 
 class RequestData:
@@ -43,7 +45,7 @@ response = requests.session().request(
     params=api_data.request_data.param,
     json=api_data.request_data.json,
 )
-print(response.json())
+logger.info(response.json())
 # response to ProjectsCollection
 
 
@@ -57,14 +59,12 @@ async def main():
             params=api_data.request_data.param,
             json=api_data.request_data.json,
         ) as response:
-            print(f"Status: {response.status}")
-            print(f"Content type: {response.headers['content-type']}")
+            logger.info(f"Status: {response.status}")
+            logger.info(f"Content type: {response.headers['content-type']}")
 
             # Use await to get the JSON data asynchronously
             data = await response.json()
-            print(
-                f"Location: {data['iss_position']['latitude']}, {data['iss_position']['longitude']}"
-            )
+            logger.info(f"Location: {data['iss_position']['latitude']}, {data['iss_position']['longitude']}")
             # response to ProjectsCollection
 
 

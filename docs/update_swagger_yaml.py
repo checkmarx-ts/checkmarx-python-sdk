@@ -13,6 +13,8 @@ import sys
 from typing import List, Optional
 from urllib.request import Request, urlopen
 from urllib.error import URLError
+import logging
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://sng.ast.checkmarx.net/spec/v1"
 OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -70,15 +72,15 @@ def file_md5(path: str) -> Optional[str]:
 
 
 def main() -> None:
-    print("Fetching file list from {}?...".format(BASE_URL))
+    logger.info("Fetching file list from {}?...".format(BASE_URL))
     try:
         html = fetch_page(BASE_URL + "?")
     except URLError as e:
-        print("ERROR: could not fetch index page: {}".format(e), file=sys.stderr)
+        logger.error("ERROR: could not fetch index page: {}".format(e))
         sys.exit(1)
 
     links = extract_yaml_links(html)
-    print("Found {} unique .yaml/.YAML links.".format(len(links)))
+    logger.info("Found {} unique .yaml/.YAML links.".format(len(links)))
 
     updated = 0
     added = 0
@@ -100,23 +102,23 @@ def main() -> None:
                 old_hash = file_md5(filepath)
                 new_hash = hashlib.md5(content).hexdigest()
                 if old_hash == new_hash:
-                    print("  {:50s}  unchanged".format(name))
+                    logger.info("  {:50s}  unchanged".format(name))
                     skipped += 1
                     continue
-                print("  {:50s}  updated".format(name))
+                logger.info("  {:50s}  updated".format(name))
                 updated += 1
             else:
-                print("  {:50s}  new file".format(name))
+                logger.info("  {:50s}  new file".format(name))
                 added += 1
 
             with open(filepath, "wb") as f:
                 f.write(content)
 
         except URLError as e:
-            print("  {:50s}  ERROR: {}".format(name, e), file=sys.stderr)
+            logger.error("  {:50s}  ERROR: {}".format(name, e))
             errors += 1
 
-    print("\nDone.  updated: {}  added: {}  skipped: {}  errors: {}".format(
+    logger.error("\nDone.  updated: {}  added: {}  skipped: {}  errors: {}".format(
         updated, added, skipped, errors))
 
 

@@ -7,6 +7,8 @@ from CheckmarxPythonSDK.configuration import Configuration
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.projectsAPI import ProjectsAPI
 from CheckmarxPythonSDK.CxOne.scansAPI import ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def make_api_client(
@@ -45,7 +47,7 @@ def example_refresh_token():
     scans_api = ScansAPI(api_client=api_client)
 
     projects = projects_api.get_all_projects()
-    print(f"Found {len(projects)} projects")
+    logger.info(f"Found {len(projects)} projects")
 
 
 # --- Example 2: client_credentials grant type ---
@@ -59,7 +61,7 @@ def example_client_credentials():
     projects_api = ProjectsAPI(api_client=api_client)
 
     projects = projects_api.get_all_projects()
-    print(f"Found {len(projects)} projects")
+    logger.info(f"Found {len(projects)} projects")
 
 
 # --- Example 3: two tenants simultaneously ---
@@ -78,8 +80,8 @@ def example_multi_tenant():
     projects_a = ProjectsAPI(api_client=client_a).get_all_projects()
     projects_b = ProjectsAPI(api_client=client_b).get_all_projects()
 
-    print(f"Tenant A: {len(projects_a)} projects")
-    print(f"Tenant B: {len(projects_b)} projects")
+    logger.info(f"Tenant A: {len(projects_a)} projects")
+    logger.info(f"Tenant B: {len(projects_b)} projects")
 
 
 if __name__ == "__main__":

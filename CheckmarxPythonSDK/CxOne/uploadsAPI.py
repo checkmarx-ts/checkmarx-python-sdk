@@ -5,6 +5,8 @@ import os
 from CheckmarxPythonSDK.utilities.compat import OK, NO_CONTENT
 from typing import List
 from os.path import exists
+import logging
+logger = logging.getLogger(__name__)
 
 
 class UploadsAPI(object):
@@ -46,7 +48,7 @@ class UploadsAPI(object):
             is_successful (bool)
         """
         if not zip_file_path or not exists(zip_file_path):
-            print("zip file path: {} does not exist".format(zip_file_path))
+            logger.info("zip file path: {} does not exist".format(zip_file_path))
         file_name = os.path.basename(zip_file_path)
         response = self.api_client.call_api(
             method="PUT",

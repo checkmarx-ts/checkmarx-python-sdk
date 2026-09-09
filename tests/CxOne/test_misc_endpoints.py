@@ -8,6 +8,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_account_logs,
 )
 from CheckmarxPythonSDK.CxOne import CloudInsightsServiceAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_get_account_log_by_id():
@@ -36,7 +38,7 @@ def test_get_account_log_by_id():
         assert result is not None
         assert "id" in result
     except Exception as e:
-        print("get_account_log_by_id skipped: {}".format(str(e)))
+        logger.warning("get_account_log_by_id skipped: {}".format(str(e)))
 
 
 def test_get_contributor_insights_details():
@@ -46,7 +48,7 @@ def test_get_contributor_insights_details():
         assert result is not None
         assert "items" in result
     except Exception as e:
-        print("get_contributor_insights_details skipped: {}".format(str(e)))
+        logger.warning("get_contributor_insights_details skipped: {}".format(str(e)))
 
 
 def test_get_report_status():
@@ -58,7 +60,7 @@ def test_get_report_status():
         )
         assert result is not None
     except Exception as e:
-        print("get_report_status skipped: {}".format(str(e)))
+        logger.warning("get_report_status skipped: {}".format(str(e)))
 
 
 def test_get_parameters():
@@ -67,4 +69,4 @@ def test_get_parameters():
         result = get_parameters()
         assert result is not None
     except Exception as e:
-        print("get_parameters skipped: {}".format(str(e)))
+        logger.warning("get_parameters skipped: {}".format(str(e)))

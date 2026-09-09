@@ -12,6 +12,8 @@ import os
 import sys
 from datetime import datetime, timezone
 from urllib.request import urlopen, Request
+import logging
+logger = logging.getLogger(__name__)
 
 # --- Configuration ---
 SERVER_URL = "https://deu.ast.checkmarx.net"
@@ -55,7 +57,7 @@ def api_request(method: str, path: str, body: dict = None, access_token: str = N
 
 def get_access_token() -> str:
     """Exchange API key for an access token."""
-    print("Obtaining access token from IAM...")
+    logger.info("Obtaining access token from IAM...")
     path = "/auth/realms/{}/protocol/openid-connect/token".format(
         "*"
     )
@@ -79,7 +81,7 @@ def get_access_token() -> str:
             token_data = json.loads(resp.read().decode("utf-8"))
             return token_data.get("access_token", "")
     except Exception as e:
-        print("Token exchange failed ({}), trying direct API key...".format(e))
+        logger.error("Token exchange failed ({}), trying direct API key...".format(e))
 
     # Fallback: use the API key directly as bearer token
     return API_KEY
@@ -101,7 +103,7 @@ def fetch_audit_events(access_token: str, start_date: str, end_date: str) -> lis
         all_events.extend(events)
 
         total = result.get("totalFilteredCount", 0)
-        print("  Page {}: fetched {} events (total filtered: {})".format(
+        logger.info("  Page {}: fetched {} events (total filtered: {})".format(
             page, len(events), total
         ))
 
@@ -114,37 +116,37 @@ def fetch_audit_events(access_token: str, start_date: str, end_date: str) -> lis
 
 
 def main():
-    print("=" * 80)
-    print("DEU Tenant Audit Events — April & May 2026")
-    print("=" * 80)
-    print("Tenant: *")
-    print("Server: {}".format(SERVER_URL))
+    logger.info("=" * 80)
+    logger.info("DEU Tenant Audit Events — April & May 2026")
+    logger.info("=" * 80)
+    logger.info("Tenant: *")
+    logger.info("Server: {}".format(SERVER_URL))
 
     access_token = get_access_token()
     if not access_token:
-        print("ERROR: Could not obtain access token", file=sys.stderr)
+        logger.error("ERROR: Could not obtain access token")
         sys.exit(1)
-    print("Access token obtained.")
+    logger.info("Access token obtained.")
 
     for month_name, (start, end) in MONTHS.items():
-        print()
-        print("-" * 80)
-        print("Fetching {} 2026 ({} to {})...".format(month_name.title(), start, end))
+        logger.info("")
+        logger.info("-" * 80)
+        logger.info("Fetching {} 2026 ({} to {})...".format(month_name.title(), start, end))
 
         try:
             all_events = fetch_audit_events(access_token, start, end)
         except Exception as e:
-            print("ERROR fetching {}: {}".format(month_name, e))
+            logger.error("ERROR fetching {}: {}".format(month_name, e))
             continue
 
-        print("Total events fetched: {}".format(len(all_events)))
+        logger.info("Total events fetched: {}".format(len(all_events)))
 
         # Filter for target resources
         filtered = [
             e for e in all_events
             if e.get("auditResource", "").lower() in TARGET_RESOURCES
         ]
-        print("Filtered events (Scans/Apps/Projects/Config): {}".format(len(filtered)))
+        logger.info("Filtered events (Scans/Apps/Projects/Config): {}".format(len(filtered)))
 
         # Save
         json_path = os.path.join(OUTPUT_DIR, "deu_audit_events_{}.json".format(month_name))
@@ -155,13 +157,13 @@ def main():
                        "events": filtered},
                       f, indent=2, default=str)
 
-        print("Saved: {} ({:,.0f} KB)".format(
+        logger.info("Saved: {} ({:,.0f} KB)".format(
             json_path, os.path.getsize(json_path) / 1024
         ))
 
-    print()
-    print("=" * 80)
-    print("Done. Files saved to: {}".format(OUTPUT_DIR))
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info("Done. Files saved to: {}".format(OUTPUT_DIR))
 
 
 if __name__ == "__main__":

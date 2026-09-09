@@ -24,6 +24,8 @@ from os.path import normpath, join, dirname, exists
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def scan_from_local(
@@ -46,24 +48,24 @@ def scan_from_local(
         report_folder = dirname(__file__)
 
     if not exists(zip_file_path):
-        print("zip file not found. \n abort scan.")
+        logger.error("zip file not found. \n abort scan.")
         return
     param_str = "team_full_name: {}, \n".format(team_full_name)
     param_str += "project_name: {}, \n".format(project_name)
     param_str += "report_type: {}, \n".format(report_type)
     param_str += "zip_file_path: {}, \n".format(zip_file_path)
     param_str += "report_folder: {}".format(report_folder)
-    print(param_str)
+    logger.info(param_str)
 
     team_api = TeamAPI()
     projects_api = ProjectsAPI()
     scan_api = ScansAPI()
 
     # 2. get team id
-    print("2. get team id")
+    logger.info("2. get team id")
     team_id = team_api.get_team_id_by_team_full_name(team_full_name)
     if not team_id:
-        print("team: {} not exist".format(team_full_name))
+        logger.info("team: {} not exist".format(team_full_name))
         return
 
     project_id = projects_api.get_project_id_by_project_name_and_team_full_name(
@@ -71,28 +73,28 @@ def scan_from_local(
     )
 
     # 3. create project with default configuration, will get project id
-    print("3. create project with default configuration, will get project id")
+    logger.info("3. create project with default configuration, will get project id")
     if not project_id:
         project = projects_api.create_project_with_default_configuration(
             project_name=project_name, team_id=team_id
         )
         project_id = project.id
-    print("project_id: {}".format(project_id))
+    logger.info("project_id: {}".format(project_id))
 
     # 4. upload source code zip file
-    print("4. upload source code zip file")
+    logger.info("4. upload source code zip file")
     projects_api.upload_source_code_zip_file(project_id, str(zip_file_path))
 
     # 6. set data retention settings by project id
-    print("6. set data retention settings by project id")
+    logger.info("6. set data retention settings by project id")
     projects_api.set_data_retention_settings_by_project_id(
         project_id=project_id, scans_to_keep=3
     )
 
     # 7. define SAST scan settings
-    print("7. define SAST scan settings")
+    logger.info("7. define SAST scan settings")
     preset_id = projects_api.get_preset_id_by_name(preset_name="All")
-    print("preset id: {}".format(preset_id))
+    logger.info("preset id: {}".format(preset_id))
     scan_api.define_sast_scan_settings(project_id=project_id, preset_id=preset_id)
 
     projects_api.set_project_exclude_settings_by_project_id(
@@ -100,17 +102,17 @@ def scan_from_local(
     )
 
     # 8. create new scan, will get a scan id
-    print("8. create new scan, will get a scan id")
+    logger.info("8. create new scan, will get a scan id")
     scan = scan_api.create_new_scan(project_id=project_id)
     scan_id = scan.id
-    print("scan_id : {}".format(scan_id))
+    logger.info("scan_id : {}".format(scan_id))
 
     # 9. get scan details by scan id
-    print("9. get scan details by scan id")
+    logger.info("9. get scan details by scan id")
     while True:
         scan_detail = scan_api.get_sast_scan_details_by_scan_id(scan_id=scan_id)
         scan_status = scan_detail.status.name
-        print("scan_status: {}".format(scan_status))
+        logger.info("scan_status: {}".format(scan_status))
         if scan_status == "Finished":
             break
         elif scan_status == "Failed":
@@ -118,24 +120,24 @@ def scan_from_local(
         time.sleep(10)
 
     # 11[optional]. get statistics results by scan id
-    print("11[optional]. get statistics results by scan id")
+    logger.info("11[optional]. get statistics results by scan id")
     statistics = scan_api.get_statistics_results_by_scan_id(scan_id=scan_id)
     if statistics:
-        print(statistics)
+        logger.info(statistics)
 
     # 12. register scan report
-    print("12. register scan report")
+    logger.info("12. register scan report")
     report = scan_api.register_scan_report(scan_id=scan_id, report_type=report_type)
     report_id = report.report_id
-    print("report_id : {}".format(report_id))
+    logger.info("report_id : {}".format(report_id))
 
     # 13. get report status by id
-    print("13. get report status by id")
+    logger.info("13. get report status by id")
     while not scan_api.is_report_generation_finished(report_id):
         time.sleep(10)
 
     # 14. get report by id
-    print("14. get report by id")
+    logger.info("14. get report by id")
     report_content = scan_api.get_report_by_id(report_id)
 
     time_stamp = datetime.now().strftime("_%Y_%m_%d_%H_%M_%S")

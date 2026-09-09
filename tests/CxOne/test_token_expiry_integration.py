@@ -1,5 +1,7 @@
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.api_client import ApiClient
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_expired_token_is_refreshed_and_request_succeeds():
@@ -20,4 +22,4 @@ def test_expired_token_is_refreshed_and_request_succeeds():
     assert response.status_code == 200
     states = response.json()
     assert states is not None
-    print(f"states: {states}")
+    logger.info(f"states: {states}")

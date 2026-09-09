@@ -1,4 +1,6 @@
 from CheckmarxPythonSDK.CxOne.KeycloakAPI import ClientsApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.ClientRepresentation import (
     ClientRepresentation,
 )
@@ -13,11 +15,11 @@ class TestClientsApi:
         try:
             clients = self.clients_api.get_clients(realm=self.realm)
             for client in clients:
-                print(client)
+                logger.info(client)
             assert isinstance(clients, list)
-            print(f"Got {len(clients)} clients")
+            logger.info(f"Got {len(clients)} clients")
         except Exception as e:
-            print(f"Error in test_get_clients: {e}")
+            logger.error(f"Error in test_get_clients: {e}")
         assert True
 
     def test_client_crud(self):
@@ -40,7 +42,7 @@ class TestClientsApi:
             create_successful = self.clients_api.post_clients(
                 realm=self.realm, client_representation=client_representation
             )
-            print(f"Create client {test_client_id} successful: {create_successful}")
+            logger.info(f"Create client {test_client_id} successful: {create_successful}")
 
             client_id = None
             created_clients = self.clients_api.get_clients(
@@ -54,20 +56,20 @@ class TestClientsApi:
                 assert created_client is not None
 
                 created_client.name = "test_client_2026_02_24_updated"
-                print(f"Update client {created_client.client_id} to {created_client.name}")
+                logger.info(f"Update client {created_client.client_id} to {created_client.name}")
                 update_successful = self.clients_api.put_client(
                     realm=self.realm,
                     id=client_id,
                     client_representation=created_client,
                 )
-                print(f"Update client successful: {update_successful}")
+                logger.info(f"Update client successful: {update_successful}")
 
                 delete_successful = self.clients_api.delete_client_by_realm_by_id(
                     realm=self.realm, id=client_id
                 )
-                print(f"Delete client successful: {delete_successful}")
+                logger.info(f"Delete client successful: {delete_successful}")
         except Exception as e:
-            print(f"Error in test_client_crud: {e}")
+            logger.error(f"Error in test_client_crud: {e}")
         assert True
 
     def test_client_secret_operations(self):
@@ -75,19 +77,19 @@ class TestClientsApi:
             clients = self.clients_api.get_clients(realm=self.realm)
             if clients:
                 test_client = clients[0]
-                print(f"Testing with client: {test_client.client_id}")
+                logger.info(f"Testing with client: {test_client.client_id}")
 
                 secret = self.clients_api.get_client_secret(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Got client secret: {secret is not None}")
+                logger.info(f"Got client secret: {secret is not None}")
 
                 new_secret = self.clients_api.post_client_secret(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Generated new secret: {new_secret is not None}")
+                logger.info(f"Generated new secret: {new_secret is not None}")
         except Exception as e:
-            print(f"Error in test_client_secret_operations: {e}")
+            logger.error(f"Error in test_client_secret_operations: {e}")
         assert True
 
     def test_client_scopes(self):
@@ -95,19 +97,19 @@ class TestClientsApi:
             clients = self.clients_api.get_clients(realm=self.realm)
             if clients:
                 test_client = clients[0]
-                print(f"Testing with client: {test_client.client_id}")
+                logger.info(f"Testing with client: {test_client.client_id}")
 
                 default_scopes = self.clients_api.get_default_client_scopes(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Got {len(default_scopes)} default scopes")
+                logger.info(f"Got {len(default_scopes)} default scopes")
 
                 optional_scopes = self.clients_api.get_optional_client_scopes(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Got {len(optional_scopes)} optional scopes")
+                logger.info(f"Got {len(optional_scopes)} optional scopes")
         except Exception as e:
-            print(f"Error in test_client_scopes: {e}")
+            logger.error(f"Error in test_client_scopes: {e}")
         assert True
 
     def test_client_sessions(self):
@@ -115,19 +117,19 @@ class TestClientsApi:
             clients = self.clients_api.get_clients(realm=self.realm)
             if clients:
                 test_client = clients[0]
-                print(f"Testing with client: {test_client.client_id}")
+                logger.info(f"Testing with client: {test_client.client_id}")
 
                 session_count = self.clients_api.get_session_count(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Session count: {session_count}")
+                logger.info(f"Session count: {session_count}")
 
                 offline_session_count = self.clients_api.get_offline_session_count(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Offline session count: {offline_session_count}")
+                logger.info(f"Offline session count: {offline_session_count}")
         except Exception as e:
-            print(f"Error in test_client_sessions: {e}")
+            logger.error(f"Error in test_client_sessions: {e}")
         assert True
 
     def test_other_client_methods(self):
@@ -135,17 +137,17 @@ class TestClientsApi:
             clients = self.clients_api.get_clients(realm=self.realm)
             if clients:
                 test_client = clients[0]
-                print(f"Testing with client: {test_client.client_id}")
+                logger.info(f"Testing with client: {test_client.client_id}")
 
                 permissions = self.clients_api.get_client_management_permissions(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Got management permissions: {permissions is not None}")
+                logger.info(f"Got management permissions: {permissions is not None}")
 
                 service_account_user = self.clients_api.get_service_account_user(
                     realm=self.realm, id=test_client.id
                 )
-                print(f"Got service account user: {service_account_user is not None}")
+                logger.info(f"Got service account user: {service_account_user is not None}")
         except Exception as e:
-            print(f"Error in test_other_client_methods: {e}")
+            logger.error(f"Error in test_other_client_methods: {e}")
         assert True

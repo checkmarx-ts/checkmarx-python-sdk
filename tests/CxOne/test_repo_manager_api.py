@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne import (
     RepoManagerAPI,
     get_repos,
@@ -21,7 +23,7 @@ repo_manager = RepoManagerAPI()
 def test_get_all_scm_types_v2():
     all_scm_types = repo_manager.get_all_scm_types_v2()
     for scm in all_scm_types:
-        print(scm)
+        logger.info(scm)
     assert len(all_scm_types) > 1
 
 
@@ -37,7 +39,7 @@ def test_get_github_app_info():
     result = repo_manager.get_github_app_info(
         auth_code=os.getenv("GITHUBAPP_AUTH_CODE")
     )
-    print(result)
+    logger.info(result)
     assert result is not None
 
 def test_create_token_for_github_app():
@@ -54,8 +56,8 @@ def test_get_all_repo_orgs_for_a_scm_type():
         page_size=50,
     )
     for repo_org in repo_orgs.orgs:
-        print(type(repo_org))
-        print(repo_org)
+        logger.info(type(repo_org))
+        logger.info(repo_org)
     assert len(repo_orgs.orgs) > 0
 
 
@@ -65,7 +67,7 @@ def test_create_installation_of_scm_on_org():
         auth_code=os.getenv("GITHUBAPP_AUTH_CODE"),
         org_name="happy-cook",
     )
-    print(installation)
+    logger.info(installation)
     assert installation is not None
 
 
@@ -82,8 +84,8 @@ def test_get_all_repos_of_an_org_for_a_scm():
         is_user=False,
     )
     for repo in all_repos.repos:
-        print(type(repo))
-        print(repo)
+        logger.info(type(repo))
+        logger.info(repo)
     assert len(all_repos.repos) > 0
 
 
@@ -113,7 +115,7 @@ def test_github_app_import():
         webhook_enabled=True,
     ) for repo in all_repos.repos if repo.name != "WebGoat"]
     for repo_request in repo_requests:
-        print(repo_request)
+        logger.info(repo_request)
     response = repo_manager.repo_import(
         origin=origin, 
         organization=github_org, 

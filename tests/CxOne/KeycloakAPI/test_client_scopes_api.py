@@ -1,5 +1,7 @@
 import pytest
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.ClientScopesApi import ClientScopesApi
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne.KeycloakAPI.dto.ClientScopeRepresentation import (
     ClientScopeRepresentation,
 )
@@ -18,11 +20,11 @@ class TestClientScopesApi:
         try:
             client_scopes = self.client_scopes_api.get_client_scopes(self.realm)
             assert isinstance(client_scopes, list)
-            print(f"Got {len(client_scopes)} client scopes")
+            logger.info(f"Got {len(client_scopes)} client scopes")
             for client_scope in client_scopes:
-                print(f"  - {client_scope.name} (ID: {client_scope.id})")
+                logger.info(f"  - {client_scope.name} (ID: {client_scope.id})")
         except Exception as e:
-            print(f"Error in test_get_client_scopes: {e}")
+            logger.error(f"Error in test_get_client_scopes: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -35,9 +37,9 @@ class TestClientScopesApi:
             created = self.client_scopes_api.post_client_scopes(
                 self.realm, client_scope_representation
             )
-            print(f"Created client scope: {created}")
+            logger.info(f"Created client scope: {created}")
         except Exception as e:
-            print(f"Error in test_post_client_scopes: {e}")
+            logger.error(f"Error in test_post_client_scopes: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -48,9 +50,9 @@ class TestClientScopesApi:
                 self.realm, self.test_client_scope_id
             )
             assert client_scope is not None
-            print(f"Got client scope: {client_scope.name} (ID: {client_scope.id})")
+            logger.info(f"Got client scope: {client_scope.name} (ID: {client_scope.id})")
         except Exception as e:
-            print(f"Error in test_get_client_scope: {e}")
+            logger.error(f"Error in test_get_client_scope: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -63,9 +65,9 @@ class TestClientScopesApi:
             updated = self.client_scopes_api.put_client_scope(
                 self.realm, self.test_client_scope_id, client_scope_representation
             )
-            print(f"Updated client scope: {updated}")
+            logger.info(f"Updated client scope: {updated}")
         except Exception as e:
-            print(f"Error in test_put_client_scope: {e}")
+            logger.error(f"Error in test_put_client_scope: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -75,9 +77,9 @@ class TestClientScopesApi:
             deleted = self.client_scopes_api.delete_client_scope(
                 self.realm, self.test_client_scope_id
             )
-            print(f"Deleted client scope: {deleted}")
+            logger.info(f"Deleted client scope: {deleted}")
         except Exception as e:
-            print(f"Error in test_delete_client_scope: {e}")
+            logger.error(f"Error in test_delete_client_scope: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -86,11 +88,11 @@ class TestClientScopesApi:
         try:
             client_templates = self.client_scopes_api.get_client_templates(self.realm)
             assert isinstance(client_templates, list)
-            print(f"Got {len(client_templates)} client templates")
+            logger.info(f"Got {len(client_templates)} client templates")
             for client_template in client_templates:
-                print(f"  - {client_template.name} (ID: {client_template.id})")
+                logger.info(f"  - {client_template.name} (ID: {client_template.id})")
         except Exception as e:
-            print(f"Error in test_get_client_templates: {e}")
+            logger.error(f"Error in test_get_client_templates: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -103,9 +105,9 @@ class TestClientScopesApi:
             created = self.client_scopes_api.post_client_templates(
                 self.realm, client_scope_representation
             )
-            print(f"Created client template: {created}")
+            logger.info(f"Created client template: {created}")
         except Exception as e:
-            print(f"Error in test_post_client_templates: {e}")
+            logger.error(f"Error in test_post_client_templates: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -116,11 +118,9 @@ class TestClientScopesApi:
                 self.realm, self.test_client_template_id
             )
             assert client_template is not None
-            print(
-                f"Got client template: {client_template.name} (ID: {client_template.id})"
-            )
+            logger.info(f"Got client template: {client_template.name} (ID: {client_template.id})")
         except Exception as e:
-            print(f"Error in test_get_client_template: {e}")
+            logger.error(f"Error in test_get_client_template: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -133,9 +133,9 @@ class TestClientScopesApi:
             updated = self.client_scopes_api.put_client_template(
                 self.realm, self.test_client_template_id, client_scope_representation
             )
-            print(f"Updated client template: {updated}")
+            logger.info(f"Updated client template: {updated}")
         except Exception as e:
-            print(f"Error in test_put_client_template: {e}")
+            logger.error(f"Error in test_put_client_template: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True
 
@@ -145,8 +145,8 @@ class TestClientScopesApi:
             deleted = self.client_scopes_api.delete_client_template(
                 self.realm, self.test_client_template_id
             )
-            print(f"Deleted client template: {deleted}")
+            logger.info(f"Deleted client template: {deleted}")
         except Exception as e:
-            print(f"Error in test_delete_client_template: {e}")
+            logger.error(f"Error in test_delete_client_template: {e}")
         # Even if we can't connect to the server, the test should pass as we're testing the code structure
         assert True

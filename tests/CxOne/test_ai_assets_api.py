@@ -15,6 +15,8 @@ from CheckmarxPythonSDK.CxOne import (
     get_asset_risks,
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
+import logging
+logger = logging.getLogger(__name__)
 
 
 def test_get_ai_asset_types():
@@ -47,7 +49,7 @@ def test_get_ai_findings_aggregate():
         assert result is not None
         assert "groupsCounter" in result
     except Exception as e:
-        print("get_ai_findings_aggregate skipped: {}".format(str(e)))
+        logger.warning("get_ai_findings_aggregate skipped: {}".format(str(e)))
 
 
 def test_get_ai_finding_by_id():
@@ -84,7 +86,7 @@ def test_aggregate_global_inventory_results():
         assert result is not None
         assert "groupsCounter" in result
     except Exception as e:
-        print("aggregate_global_inventory_results skipped: {}".format(str(e)))
+        logger.warning("aggregate_global_inventory_results skipped: {}".format(str(e)))
 
 
 def _get_ai_scan_id():
@@ -104,7 +106,7 @@ def test_get_scan_results():
         assert result is not None
         assert "data" in result
     except Exception as e:
-        print("get_scan_results skipped: {}".format(str(e)))
+        logger.warning("get_scan_results skipped: {}".format(str(e)))
 
 
 def test_aggregate_scan_results():
@@ -118,7 +120,7 @@ def test_aggregate_scan_results():
         assert result is not None
         assert "scanGroupsCounter" in result
     except Exception as e:
-        print("aggregate_scan_results skipped: {}".format(str(e)))
+        logger.warning("aggregate_scan_results skipped: {}".format(str(e)))
 
 
 def test_get_asset_risks():
@@ -138,4 +140,4 @@ def test_get_asset_risks():
         assert result is not None
         assert "risks" in result
     except Exception as e:
-        print("get_asset_risks skipped: {}".format(str(e)))
+        logger.warning("get_asset_risks skipped: {}".format(str(e)))

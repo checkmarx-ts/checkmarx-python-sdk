@@ -7,6 +7,8 @@ import json
 import time
 from datetime import datetime
 from os.path import exists
+import logging
+logger = logging.getLogger(__name__)
 
 from CheckmarxPythonSDK.CxScaApiSDK import (
     check_if_project_already_exists,
@@ -33,56 +35,52 @@ def get_project_id(project_name):
 
 def sca_scan(project_name, zip_file_path):
     if not exists(zip_file_path):
-        print("zip_file_path:{} not exists. \n abort scan.".format(zip_file_path))
+        logger.error("zip_file_path:{} not exists. \n abort scan.".format(zip_file_path))
         return
 
     project_id = get_project_id(project_name)
-    print("project_id: {}".format(project_id))
+    logger.info("project_id: {}".format(project_id))
 
     upload_link = generate_upload_link_for_scanning(project_id=project_id)
     is_successful = upload_zip_content_for_scanning(upload_link, zip_file_path)
     if not is_successful:
-        print(
-            "Fail to upload file with upload link: {}  \n abort scan.".format(
+        logger.error("Fail to upload file with upload link: {}  \n abort scan.".format(
                 upload_link
-            )
-        )
+            ))
         return
 
     scan_id = scan_previously_uploaded_zip(
         project_id=project_id, uploaded_file_url=upload_link
     )
-    print("scan_id: {}".format(scan_id))
+    logger.info("scan_id: {}".format(scan_id))
 
     while True:
         response = get_scan_status(scan_id=scan_id)
         scan_status = response.get("name")
         if scan_status == "Scanning":
-            print("scanning ...")
+            logger.info("scanning ...")
             time.sleep(60)
             continue
         elif scan_status == "Done":
-            print("scan finished successfully!")
+            logger.info("scan finished successfully!")
             break
         elif scan_status == "Failed":
-            print(
-                "scan_status:{}, message:{}".format(
+            logger.info("scan_status:{}, message:{}".format(
                     scan_status, response.get("message")
-                )
-            )
+                ))
             return
 
     risk_report_summary = get_risk_report_summary(project_id=project_id)
-    print("risk_report_summary:{}".format(risk_report_summary))
+    logger.info("risk_report_summary:{}".format(risk_report_summary))
 
     packages = get_packages_of_a_scan(scan_id=scan_id)
-    print("get packages of a scan")
+    logger.info("get packages of a scan")
     vulnerabilities = get_vulnerabilities_of_a_scan(scan_id=scan_id)
-    print("get vulnerabilities of a scan")
+    logger.info("get vulnerabilities of a scan")
     licenses = get_licenses_of_a_scan(scan_id=scan_id)
-    print("get licenses of a scan")
+    logger.info("get licenses of a scan")
     time_stamp = datetime.now().strftime("_%Y_%m_%d_%H_%M_%S")
-    print("create sca json report")
+    logger.info("create sca json report")
     with open("sca_report" + time_stamp + ".json", "w") as out_file:
         out_file.write(
             json.dumps(

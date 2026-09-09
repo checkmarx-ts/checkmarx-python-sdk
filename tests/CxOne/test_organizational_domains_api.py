@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from CheckmarxPythonSDK.CxOne import (
     list_organizational_domains,
     add_organizational_domains,
@@ -27,4 +29,4 @@ def test_add_and_delete_organizational_domain():
                 assert is_deleted is True
                 break
     except Exception as e:
-        print("add/delete organizational domain skipped: {}".format(str(e)))
+        logger.warning("add/delete organizational domain skipped: {}".format(str(e)))

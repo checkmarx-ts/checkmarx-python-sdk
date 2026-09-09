@@ -6,6 +6,8 @@ import json
 from os.path import normpath, exists, abspath
 
 from CheckmarxPythonSDK.utilities.compat import OK, CREATED, NO_CONTENT, ACCEPTED
+import logging
+logger = logging.getLogger(__name__)
 from .sast.projects.dto import CxLink, CxProject, CxPreset
 from .sast.engines.dto import CxEngineServer, CxEngineConfiguration
 from .sast.scans.dto import (
@@ -1020,9 +1022,7 @@ class ScansAPI(object):
         url = f"{self.base_url}/cxrestapi/sast/scanWithSettings"
         file_name = os.path.basename(zipped_source_file_path)
         if not exists(normpath(abspath(zipped_source_file_path))):
-            print(
-                "zipped_source_file_path not exist: {}".format(zipped_source_file_path)
-            )
+            logger.info("zipped_source_file_path not exist: {}".format(zipped_source_file_path))
             return None
         fields = {
             "projectId": str(project_id),

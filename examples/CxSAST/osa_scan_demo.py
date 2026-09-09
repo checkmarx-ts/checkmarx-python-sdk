@@ -9,12 +9,14 @@ from os.path import dirname, normpath, join, exists
 from CheckmarxPythonSDK.CxRestAPISDK import TeamAPI
 from CheckmarxPythonSDK.CxRestAPISDK import ProjectsAPI
 from CheckmarxPythonSDK.CxRestAPISDK import OsaAPI
+import logging
+logger = logging.getLogger(__name__)
 
 directory = dirname(__file__)
 # the absolute path of the file config.ini
 zip_file_path = normpath(join(directory, "JavaVulnerableLab-master.zip"))
 if not exists(zip_file_path):
-    print("JavaVulnerableLab-master.zip not found under current directory.")
+    logger.info("JavaVulnerableLab-master.zip not found under current directory.")
 
 
 def osa_scan():
@@ -51,7 +53,7 @@ def osa_scan():
         if osa_scan_state == "Succeeded":
             break
         elif osa_scan_state == "Failed":
-            print("OSA scan failed")
+            logger.error("OSA scan failed")
             return
         else:
             time.sleep(1)
@@ -59,7 +61,7 @@ def osa_scan():
     # 6. get summary report
     summary_report = osa_api.get_osa_scan_summary_report(scan_id=scan_id)
 
-    print(summary_report)
+    logger.info(summary_report)
 
 
 if __name__ == "__main__":
