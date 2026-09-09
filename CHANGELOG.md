@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+Unreleased
+* [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
+
 1.9.1 - 2026-09-02
 * [Add] alwaysOverride and group fields to ScanParameter DTO
 * [Fix] Log "Start getting all projects" at DEBUG level instead of INFO in get_all_projects
