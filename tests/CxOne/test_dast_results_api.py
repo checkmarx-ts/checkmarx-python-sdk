@@ -1,7 +1,7 @@
 import pytest
 
 from CheckmarxPythonSDK.CxOne import (
-    get_environments, get_scans, get_results, get_result_info,
+    get_environments, get_scans, dast_get_results, get_result_info,
     update_results, get_results_count_by_group,
 )
 from CheckmarxPythonSDK.CxOne.dto import (
@@ -25,11 +25,11 @@ def _find_scan_with_results():
     return None
 
 
-def test_get_results():
+def test_dast_get_results():
     scan_id = _find_scan_with_results()
     if not scan_id:
         pytest.skip("no scan with results on this tenant")
-    coll = get_results(scan_id=scan_id, per_page=2)
+    coll = dast_get_results(scan_id=scan_id, per_page=2)
     assert isinstance(coll, DastResultsCollection)
     assert coll.total is not None and coll.total >= 1
     assert coll.pages_number is not None
@@ -45,7 +45,7 @@ def test_get_results_with_filter():
     if not scan_id:
         pytest.skip("no scan with results on this tenant")
     # Filter by status=Recurrent (saw this status in the live data).
-    coll = get_results(
+    coll = dast_get_results(
         scan_id=scan_id,
         filter_=DastResultsFilter(status=DastResultStatus.RECURRENT),
         per_page=5,
@@ -60,7 +60,7 @@ def test_get_result_info():
     scan_id = _find_scan_with_results()
     if not scan_id:
         pytest.skip("no scan with results on this tenant")
-    coll = get_results(scan_id=scan_id, per_page=1)
+    coll = dast_get_results(scan_id=scan_id, per_page=1)
     if not coll.results:
         pytest.skip("scan has no results")
     result_id = coll.results[0].id
@@ -77,7 +77,7 @@ def test_update_results():
     scan_id = _find_scan_with_results()
     if not scan_id:
         pytest.skip("no scan with results on this tenant")
-    coll = get_results(scan_id=scan_id, per_page=1)
+    coll = dast_get_results(scan_id=scan_id, per_page=1)
     if not coll.results:
         pytest.skip("scan has no results")
     result_id = coll.results[0].id
@@ -111,9 +111,9 @@ def test_get_results_count_by_group():
     )
     assert isinstance(buckets, list)
     assert all(isinstance(b, DastResultsGroupCount) for b in buckets)
-    # The grouped counts should reconcile with the total from get_results.
+    # The grouped counts should reconcile with the total from dast_get_results.
     total = sum(b.count or 0 for b in buckets)
-    coll = get_results(scan_id=scan_id, per_page=1)
+    coll = dast_get_results(scan_id=scan_id, per_page=1)
     assert total == coll.total, f"buckets sum {total} != total {coll.total}"
 
 
@@ -121,7 +121,7 @@ def test_get_results_with_sort():
     scan_id = _find_scan_with_results()
     if not scan_id:
         pytest.skip("no scan with results on this tenant")
-    coll = get_results(
+    coll = dast_get_results(
         scan_id=scan_id,
         sort_by=[DastResultsSortBy.SEVERITY],
         per_page=10,

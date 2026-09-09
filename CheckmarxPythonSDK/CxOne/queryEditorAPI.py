@@ -78,7 +78,7 @@ class QueryEditorAPI(object):
         response = self.api_client.call_api(method="DELETE", url=url)
         return response.status_code == NO_CONTENT
 
-    def get_the_logs_associated_to_the_audit_session(
+    def get_query_editor_session_logs(
         self, session_id: str
     ) -> bytes:
         """
@@ -124,7 +124,7 @@ class QueryEditorAPI(object):
         )
         return AsyncRequestResponse.from_dict(response.json())
 
-    def get_all_queries(
+    def get_query_editor_queries(
         self,
         session_id: str,
         level: str = None,
@@ -420,10 +420,10 @@ def delete_audit_session_with_specific_id(session_id: str) -> bool:
     )
 
 
-def get_the_logs_associated_to_the_audit_session(
+def get_query_editor_session_logs(
     session_id: str,
 ) -> bytes:
-    return QueryEditorAPI().get_the_logs_associated_to_the_audit_session(
+    return QueryEditorAPI().get_query_editor_session_logs(
         session_id=session_id
     )
 
@@ -444,13 +444,13 @@ def create_or_override_query(
     )
 
 
-def get_all_queries(
+def get_query_editor_queries(
     session_id: str,
     level: str = None,
     ids: List[str] = None,
     filters: List[str] = None,
 ) -> List[QueriesTree]:
-    return QueryEditorAPI().get_all_queries(
+    return QueryEditorAPI().get_query_editor_queries(
         session_id=session_id, level=level, ids=ids, filters=filters
     )
 

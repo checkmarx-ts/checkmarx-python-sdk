@@ -148,7 +148,7 @@ from .auditTrailAPI import (
 )
 from .byorResultsHandlerAPI import (
     ByorResultsHandlerAPI,
-    create_byor_import,
+    create_byor_import_v1,
     save_triage,
     get_triage,
 )
@@ -238,7 +238,7 @@ from .dastScanAPI import (
 )
 from .dastResultsAPI import (
     DastResultsAPI,
-    get_results,
+    dast_get_results,
     update_results,
     get_result_info,
     get_results_count_by_group,
@@ -401,10 +401,10 @@ from .queryEditorAPI import (
     create_new_audit_session,
     heath_check_to_ensure_audit_session_is_kept_alive,
     delete_audit_session_with_specific_id,
-    get_the_logs_associated_to_the_audit_session,
+    get_query_editor_session_logs,
     scan_the_audit_session_sources,
     create_or_override_query,
-    get_all_queries,
+    get_query_editor_queries,
     get_data_of_a_specified_query,
     delete_a_specified_custom_or_overridden_query,
     update_specified_query_metadata,

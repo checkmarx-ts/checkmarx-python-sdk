@@ -2,7 +2,7 @@ from .StrEnum import StrEnum
 
 
 class DastResultsSortBy(StrEnum):
-    """Columns that DastResultsAPI.get_results can sort by."""
+    """Columns that DastResultsAPI.dast_get_results can sort by."""
     STATUS = "status"
     NAME = "name"
     URL = "url"

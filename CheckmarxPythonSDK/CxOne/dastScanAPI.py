@@ -331,18 +331,24 @@ class DastScanAPI(object):
         }
         data = {k: v for k, v in data.items() if v is not None}
 
-        # Open files for the request. httpx closes the stream on its own.
+        # Read files fully and pass bytes to httpx: file objects passed to
+        # httpx are not closed by it, which leaks the handle and prevents
+        # deleting the file afterwards on Windows.
         files = {}
         if scan.configuration_file:
+            with open(scan.configuration_file, "rb") as fh:
+                config_content = fh.read()
             files["configurationFile"] = (
                 os.path.basename(scan.configuration_file),
-                open(scan.configuration_file, "rb"),
+                config_content,
                 "application/octet-stream",
             )
         if scan.api_file:
+            with open(scan.api_file, "rb") as fh:
+                api_content = fh.read()
             files["APIFile"] = (
                 os.path.basename(scan.api_file),
-                open(scan.api_file, "rb"),
+                api_content,
                 "application/octet-stream",
             )
 

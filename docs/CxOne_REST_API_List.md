@@ -92,7 +92,7 @@
 | BEST_FIX_LOCATION.yaml | SastBestFixLocationAPI | `get_bfl_graph_by_scan_id` | GET | `/api/bfl` |
 | BYOR_RESULTS_HANDLER.yaml | ByorResultsHandlerAPI | `get_triage` | GET | `/api/v1/byor/triage` |
 | BYOR_RESULTS_HANDLER.yaml | ByorResultsHandlerAPI | `save_triage` | POST | `/api/v1/byor/triage` |
-| BYOR_RESULTS_HANDLER.yaml | ByorResultsHandlerAPI | `create_byor_import` | POST | `/api/v1/byor/imports` |
+| BYOR_RESULTS_HANDLER.yaml | ByorResultsHandlerAPI | `create_byor_import_v1` | POST | `/api/v1/byor/imports` |
 | BYOR_RESULTS_HANDLER_V2.yaml | ByorResultsHandlerV2API | `create_byor_import` | POST | `/api/v2/byor/imports` |
 | BYOR_RESULTS_HANDLER_V2.yaml | ByorResultsHandlerV2API | `get_job_by_id` | GET | `/api/v2/byor/jobs/{job_id}` |
 | BYOR_RESULTS_HANDLER_V2.yaml | ByorResultsHandlerV2API | `patch_job_by_id` | PATCH | `/api/v2/byor/jobs/{job_id}` |
@@ -148,7 +148,7 @@
 | CXLINK.yaml | CxLinkAPI | `recreate_link` | PATCH | `/api/v1/link/links/{id}/recreate` |
 | CODE_REPOSITORY_PROJECT_IMPORT.yaml | CodeRepositoryProjectImportAPI | `import_code_repository` | POST | `/api/code-repository-project-import` |
 | CODE_REPOSITORY_PROJECT_IMPORT.yaml | CodeRepositoryProjectImportAPI | `retrieve_import_status` | GET | `/api/code-repository-project-import/{importId}` |
-| DAST_RESULTS.yaml | DastResultsAPI | `get_results` | GET | `/api/dast-results` |
+| DAST_RESULTS.yaml | DastResultsAPI | `dast_get_results` | GET | `/api/dast-results` |
 | DAST_RESULTS.yaml | DastResultsAPI | `update_results` | PUT | `/api/dast-results` |
 | DAST_RESULTS.yaml | DastResultsAPI | `get_result_info` | GET | `/api/dast-results/{resultId}` |
 | DAST_RESULTS.yaml | DastResultsAPI | `get_results_count_by_group` | GET | `/api/dast-results/count-by-group` |
@@ -251,10 +251,10 @@
 | QUERY_EDITOR.yaml | QueryEditorAPI | `create_new_audit_session` | POST | `/api/query-editor/sessions` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `heath_check_to_ensure_audit_session_is_kept_alive` | PATCH | `/api/query-editor/sessions/{sessionId}` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `delete_audit_session_with_specific_id` | DELETE | `/api/query-editor/sessions/{sessionId}` |
-| QUERY_EDITOR.yaml | QueryEditorAPI | `get_the_logs_associated_to_the_audit_session` | GET | `/api/query-editor/sessions/{sessionId}/logs` |
+| QUERY_EDITOR.yaml | QueryEditorAPI | `get_query_editor_session_logs` | GET | `/api/query-editor/sessions/{sessionId}/logs` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `scan_the_audit_session_sources` | POST | `/api/query-editor/sessions/{sessionId}/sources/scan` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `create_or_override_query` | POST | `/api/query-editor/sessions/{sessionId}/queries` |
-| QUERY_EDITOR.yaml | QueryEditorAPI | `get_all_queries` | GET | `/api/query-editor/sessions/{sessionId}/queries` |
+| QUERY_EDITOR.yaml | QueryEditorAPI | `get_query_editor_queries` | GET | `/api/query-editor/sessions/{sessionId}/queries` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `get_data_of_a_specified_query` | GET | `/api/query-editor/sessions/{sessionId}/queries/{editorQueryId}` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `delete_a_specified_custom_or_overridden_query` | DELETE | `/api/query-editor/sessions/{sessionId}/queries/{editorQueryId}` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `update_specified_query_metadata` | PUT | `/api/query-editor/sessions/{sessionId}/queries/{editorQueryId}/metadata` |

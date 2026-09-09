@@ -3,10 +3,10 @@ from CheckmarxPythonSDK.CxOne import (
     create_new_audit_session,
     heath_check_to_ensure_audit_session_is_kept_alive,
     delete_audit_session_with_specific_id,
-    get_the_logs_associated_to_the_audit_session,
+    get_query_editor_session_logs,
     scan_the_audit_session_sources,
     create_or_override_query,
-    get_all_queries,
+    get_query_editor_queries,
     get_data_of_a_specified_query,
     delete_a_specified_custom_or_overridden_query,
     update_specified_query_metadata,
@@ -47,8 +47,8 @@ def test_create_new_audit_session():
     def test_delete_audit_session_with_specific_id():
         delete_audit_session_with_specific_id
 
-    def test_get_the_logs_associated_to_the_audit_session():
-        get_the_logs_associated_to_the_audit_session
+    def test_get_query_editor_session_logs():
+        get_query_editor_session_logs
 
     def test_scan_the_audit_session_sources():
         scan_the_audit_session_sources
@@ -56,8 +56,8 @@ def test_create_new_audit_session():
     def test_create_or_override_query():
         create_or_override_query
 
-    def test_get_all_queries():
-        get_all_queries
+    def test_get_query_editor_queries():
+        get_query_editor_queries
 
     def test_get_data_of_a_specified_query():
         get_data_of_a_specified_query
