@@ -96,10 +96,39 @@ class TokenManager:
         self.current_token = self.token_refresh_func(*self.args, **self.kwargs)
 
 
+def _retry_after_seconds(response) -> typing.Optional[float]:
+    """
+    Parse a Retry-After header as a wait time in seconds.
+
+    Args:
+        response: the HTTP response whose headers are inspected.
+
+    Returns:
+        float seconds to wait, at least 1; None if the header is absent or unparseable.
+    """
+    retry_after = response.headers.get("Retry-After")
+    if not retry_after:
+        return None
+    try:
+        # If it's a number of seconds
+        return max(1, float(retry_after))
+    except ValueError:
+        # If it's a GMT date string, parse it
+        from email.utils import parsedate_to_datetime
+
+        import datetime
+
+        retry_date = parsedate_to_datetime(retry_after)
+        backoff_time = (
+            retry_date - datetime.datetime.now(datetime.timezone.utc)
+        ).total_seconds()
+        return max(1, backoff_time)
+
+
 def retry():
     """
-    Decorator that retries the HTTP request when receiving a 401 Unauthorized or 429 Too Many Requests response.
-    Uses self.configuration.max_retries to determine the retry count.
+    Decorator that retries the HTTP request when receiving a 401 Unauthorized, 429 Too Many Requests,
+    or 500/502/503/504 server error response. Uses self.configuration.max_retries to determine the retry count.
     """
 
     def decorator(func: Callable):
@@ -128,36 +157,31 @@ def retry():
                                 response.raise_for_status()
                         elif response.status_code in (500, 502, 503, 504):
                             if retries < max_retries:
+                                # Server-side errors such as gateway timeouts (504) often
+                                # resolve after a short wait — e.g. a report export may
+                                # still be generating server-side. Back off before retrying.
+                                backoff_time = _retry_after_seconds(response)
+                                if backoff_time is None:
+                                    # Exponential backoff: 5s, 10s, 20s, ... capped at 30s
+                                    base_wait = 5
+                                    max_wait = 30
+                                    backoff_time = min(
+                                        base_wait * (2**retries), max_wait
+                                    )
+
+                                logger.info(f"Server error ({response.status_code}), waiting {backoff_time:.2f} seconds before retrying...")
+                                time.sleep(backoff_time)
                                 retries += 1
                                 continue
                             else:
-                                response.raise_for_status()
+                                # Retries exhausted — raise the same ValueError format the
+                                # SDK has always used for HTTP errors.
+                                check_response(response)
                         elif response.status_code == 429:
                             if retries < max_retries:
                                 # Handle rate limiting
-                                backoff_time = None
                                 # 1. Try to get Retry-After header first
-                                if response.headers.get("Retry-After"):
-                                    retry_after = response.headers["Retry-After"]
-                                    try:
-                                        # If it's a number of seconds
-                                        backoff_time = int(retry_after)
-                                    except ValueError:
-                                        # If it's a GMT date string, parse it
-                                        from email.utils import parsedate_to_datetime
-
-                                        retry_date = parsedate_to_datetime(retry_after)
-                                        import datetime
-
-                                        backoff_time = (
-                                            retry_date
-                                            - datetime.datetime.now(
-                                                datetime.timezone.utc
-                                            )
-                                        ).total_seconds()
-                                        backoff_time = max(
-                                            1, backoff_time
-                                        )  # Ensure at least 1 second
+                                backoff_time = _retry_after_seconds(response)
 
                                 # 2. If no Retry-After, use exponential backoff
                                 if backoff_time is None:
@@ -173,8 +197,13 @@ def retry():
                                 retries += 1
                                 continue
                             else:
-                                response.raise_for_status()
+                                # Retries exhausted — raise the same ValueError format the
+                                # SDK has always used for HTTP errors.
+                                check_response(response)
 
+                    # Statuses the retry logic does not handle (e.g. 404, 400) must still
+                    # raise; success responses pass through unchanged.
+                    check_response(response)
                     return response
 
                 except Exception as e:
@@ -268,6 +297,8 @@ class ApiClient:
             timeout=self.configuration.timeout,
             headers=headers,
         )
-        check_response(response)
+        # Note: check_response() runs in the @retry wrapper after the retry
+        # decision, so 429/5xx responses reach the retry logic instead of
+        # raising immediately.
         return response
 
