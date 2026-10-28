@@ -162,9 +162,12 @@ def retry():
                                 # still be generating server-side. Back off before retrying.
                                 backoff_time = _retry_after_seconds(response)
                                 if backoff_time is None:
-                                    # Exponential backoff: 5s, 10s, 20s, ... capped at 30s
-                                    base_wait = 5
-                                    max_wait = 30
+                                    # Exponential backoff: 30s, 60s, 120s, ... capped at
+                                    # 180s (3 minutes). Gateway timeouts (504) often mean the
+                                    # operation is still running server-side, so the waits are
+                                    # generous enough to let report generation finish.
+                                    base_wait = 30
+                                    max_wait = 180
                                     backoff_time = min(
                                         base_wait * (2**retries), max_wait
                                     )

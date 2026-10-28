@@ -3,7 +3,7 @@ All notable changes to this project will be documented in  this file.
 
 1.9.2 - 2026-10-27
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
-* [Fix] api_client retry decorator — 500/502/503/504 responses are now actually retried (check_response used to raise before the retry logic could see them), with a backoff before each retry: honors Retry-After when present, otherwise exponential backoff (5s, 10s, 20s, ... capped at 30s). 429 handling now works the same way. Improves recovery from gateway timeouts such as SCA scan report export 504s.
+* [Fix] api_client retry decorator — 500/502/503/504 responses are now actually retried (check_response used to raise before the retry logic could see them), with a backoff before each retry: honors Retry-After when present, otherwise exponential backoff (30s, 60s, 120s, ... capped at 180s / 3 minutes). 429 handling now works the same way. Improves recovery from gateway timeouts such as SCA scan report export 504s.
 
 1.9.1 - 2026-09-02
 * [Add] alwaysOverride and group fields to ScanParameter DTO
