@@ -57,6 +57,16 @@ from .aiRemediationAPI import (
     trigger_ai_remediation,
     retrieve_ai_remediation_details,
 )
+from .aiAgentsCoordinatorAPI import (
+    AiAgentsCoordinatorAPI,
+    get_account_configuration,
+    update_account_configuration,
+    get_project_configuration,
+    update_project_configuration,
+    list_history,
+    list_history_field_values,
+    export_history_csv,
+)
 from .riskOrchestrationAPI import (
     RiskOrchestrationAPI,
     get_risks,
