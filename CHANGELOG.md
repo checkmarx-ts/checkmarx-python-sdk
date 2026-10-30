@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] AiAgentsCoordinatorAPI for the new /api/ai-agents-coordinator service — get/update the account- and project-level auto-triage/auto-remediation configuration (eligibility filters, allowOverride permissions), and list/export the auto-action execution history. Currently supported for SAST and SCA scanners.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02
