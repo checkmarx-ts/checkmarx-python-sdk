@@ -123,6 +123,8 @@ from .CustomState import CustomState
 from .DastAlertRiskLevel import DastAlertRiskLevel
 from .DastApiFileWithType import DastApiFileWithType
 from .DastApplication import DastApplication
+from .DastApplicationEnvironmentInfo import DastApplicationEnvironmentInfo
+from .DastApplicationEnvironmentWithPrimary import DastApplicationEnvironmentWithPrimary
 from .DastAuthSession import DastAuthSession
 from .DastAuthSessionCredentials import DastAuthSessionCredentials
 from .DastAuthSessionLoginStep import DastAuthSessionLoginStep

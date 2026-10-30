@@ -290,6 +290,15 @@ from .dastScanAPI import (
     get_correlation_capacity,
     deduct_credits,
     get_pentest_max_profile,
+    create_pipeline,
+    update_pipeline,
+    delete_pipeline,
+    associate_apps_with_environment,
+    associate_envs_with_application,
+    get_associated_apps,
+    get_associated_envs,
+    disassociate_apps_from_environment,
+    disassociate_envs_from_application,
 )
 from .dastResultsAPI import (
     DastResultsAPI,

@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] DastScanAPI pipeline and application-association methods — pipeline create/update/delete, associate/disassociate Applications with/from an Environment and vice versa, get associated apps/envs (with a primary-only filter).
 * [Add] DastScanAPI tunnels, sequences, recordings, correlations, pentest, and credits methods for the remaining /api/dast/scans/* endpoints — tunnel CRUD, sequence/recording CRUD and ordering, proxy-recorder file upload, correlations-scan and pentest-scan CRUD/listing (both feature-flag gated), and credits balance/action-rates/deduct/capacity.
 * [Add] DastScanAPI auth-session methods for the /api/dast/scans/authSession/* endpoints — create a session, get/get masked, update credentials/config file/recording file, bulk-replace API definition files, validate an API file, ping, switch to no-auth, upload/download the report and test log, get diagnostics/state/domains.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
