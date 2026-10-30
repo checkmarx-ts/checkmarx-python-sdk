@@ -541,6 +541,12 @@ class ApiSecAPI(object):
         Get the number of APIs identified in your source code that aren't
         in your documentation, for a particular scan.
 
+        Confirmed live: `count` can come back as null (not just 0) --
+        observed on several scans, apparently meaning "not computed"
+        as distinct from "computed, zero found" (a different scan
+        returned a real 0). Despite the doc declaring `count` as a
+        plain (non-nullable) integer, treat it as optional.
+
         Args:
             scan_id (str)
 
