@@ -22,22 +22,61 @@ class ReportAPI(object):
         file_format: str,
         scan_engines: List[str],
         scan_id: str,
+        severities: List[str] = None,
+        states: List[str] = None,
+        status: List[str] = None,
+        sections: List[str] = None,
+        report_type: str = "ui",
+        emails: List[str] = None,
+        report_filename: str = None,
+        timezone: str = None,
     ) -> str:
-        """
+        """POST /reports/v2 (reportName=improved-scan-report) — generate
+        an Improved Scan Report and poll until it's ready.
+
+        Confirmed live: the hardcoded severities filter previously sent
+        here -- ["high", "medium", "low", "information"] -- silently
+        excludes Critical, the single most severe category. The
+        generated report's own reportFilters section confirmed this
+        ("excluded": ["Critical"]) against a real scan with Critical
+        findings. Fixed by including "critical" in the default.
+
         Args:
-            file_format (str):
-            scan_engines (List[str]):
-            scan_id (str):
+            file_format (str): pdf, json, or csv. Required.
+            scan_engines (List[str]): Scanners to include: sast, sca,
+                iac, containers, microengines, apisec, byor. Required.
+            scan_id (str): The scan to report on. Required.
+            severities (List[str], optional): critical, high, medium,
+                low, information. Defaults to all five.
+            states (List[str], optional): to-verify, not-exploitable,
+                proposed-not-exploitable, urgent, confirmed. Defaults
+                to all five.
+            status (List[str], optional): new, recurrent. Defaults to
+                both.
+            sections (List[str], optional): scan-information,
+                results-overview, scan-results, resolved-results,
+                categories, vulnerability-details, scs-vulnerabilities.
+                Defaults to every section except scs-vulnerabilities
+                (SCS isn't one of this method's scan_engines options).
+            report_type (str, optional): cli, ui, or email. Defaults
+                to "ui".
+            emails (List[str], optional): Recipients; required by the
+                API when report_type is "email".
+            report_filename (str, optional): Defaults to the server's
+                own "Cx_ScanReport_{Scan_Date}" naming when omitted
+                (previously this sent an explicit empty string instead
+                of omitting the field).
+            timezone (str, optional): Applied to "overtime" KPIs.
+                Defaults to UTC.
 
         Returns:
-            str
+            str: the generated report's id.
         """
         url = f"{self.base_url}/v2"
         payload = {
             "fileFormat": file_format,
             "reportName": "improved-scan-report",
-            "reportFilename": "",
-            "sections": [
+            "sections": sections or [
                 "scan-information",
                 "results-overview",
                 "scan-results",
@@ -50,19 +89,25 @@ class ReportAPI(object):
             ],
             "filters": {
                 "scanners": scan_engines,
-                "severities": ["high", "medium", "low", "information"],
-                "states": [
+                "severities": severities or [
+                    "critical", "high", "medium", "low", "information",
+                ],
+                "states": states or [
                     "to-verify",
                     "confirmed",
                     "urgent",
                     "not-exploitable",
                     "proposed-not-exploitable",
                 ],
-                "status": ["new", "recurrent"],
+                "status": status or ["new", "recurrent"],
             },
-            "reportType": "ui",
-            "emails": [],
+            "reportType": report_type,
+            "emails": emails or [],
         }
+        if report_filename is not None:
+            payload["reportFilename"] = report_filename
+        if timezone is not None:
+            payload["timezone"] = timezone
         response = self.api_client.call_api(
             method="POST", url=url, json=payload
         )
@@ -247,12 +292,30 @@ class ReportAPI(object):
 
 
 def create_scan_report_v2(
-    file_format: str, scan_engines: List[str], scan_id: str
+    file_format: str,
+    scan_engines: List[str],
+    scan_id: str,
+    severities: List[str] = None,
+    states: List[str] = None,
+    status: List[str] = None,
+    sections: List[str] = None,
+    report_type: str = "ui",
+    emails: List[str] = None,
+    report_filename: str = None,
+    timezone: str = None,
 ) -> str:
     return ReportAPI().create_scan_report_v2(
         file_format=file_format,
         scan_engines=scan_engines,
         scan_id=scan_id,
+        severities=severities,
+        states=states,
+        status=status,
+        sections=sections,
+        report_type=report_type,
+        emails=emails,
+        report_filename=report_filename,
+        timezone=timezone,
     )
 
 
