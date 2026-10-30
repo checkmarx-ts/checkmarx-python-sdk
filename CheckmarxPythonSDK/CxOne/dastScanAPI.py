@@ -22,6 +22,16 @@ from .dto import (
     DastEnvironmentInput,
     DastEnvironmentUpdate,
     DastGroupBy,
+    DastCorrelationCapacityResponse,
+    DastCorrelationScansCollection,
+    DastCreateTunnelResponse,
+    DastFlagEnabled,
+    DastPentestMaxProfile,
+    DastPentestScansCollection,
+    DastPentestScanSettings,
+    DastRecording,
+    DastRecordingWithPosition,
+    DastRecordingsCollection,
     DastRunScanInput,
     DastScan,
     DastScanFilter,
@@ -30,6 +40,12 @@ from .dto import (
     DastScanGroupFilter,
     DastScanSortBy,
     DastScanStatus,
+    DastSequence,
+    DastSequenceScriptsResponse,
+    DastSimilarityIds,
+    DastSequenceWithRecordingCount,
+    DastTunnelResponse,
+    DastTunnelsResponse,
     DastScanType,
     DastScanUpdate,
     DastScansCollection,
@@ -1175,6 +1191,812 @@ class DastScanAPI(object):
         )
         return response.content
 
+    # ----- Tunnels -----
+    #
+    # A tunnel gives DAST a path into an Environment on a private network
+    # (via the zrok-based agent). Gated behind a feature flag on some
+    # tenants -- confirmed live to 503 "Service unavailable" when disabled.
+
+    def create_tunnel(
+        self, name: str, environment_id: str, url: str, description: str = None
+    ) -> DastCreateTunnelResponse:
+        """POST /tunnel — create a new tunnel for an Environment.
+
+        Args:
+            name (str): The tunnel's name. Required.
+            environment_id (str): UUID of the Environment. Required.
+            url (str): The local URL the tunnel exposes. Required.
+            description (str, optional): A description for the tunnel.
+
+        Returns:
+            DastCreateTunnelResponse
+        """
+        body = {
+            "name": name,
+            "environmentId": environment_id,
+            "url": url,
+            "description": description,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/tunnel", json=body,
+        )
+        return DastCreateTunnelResponse.from_dict(response.json())
+
+    def delete_tunnel_without_id(self) -> None:
+        """DELETE /tunnel/ — always returns 400 (no tunnel id supplied).
+
+        Included for completeness; there's no reason to call this —
+        use delete_tunnel(id) instead. Raises the same ValueError every
+        other non-2xx response raises (via check_response).
+        """
+        self.api_client.call_api(method="DELETE", url=f"{self.base_url}/tunnel/")
+
+    def delete_tunnel(self, id: str) -> bool:
+        """DELETE /tunnel/{id} — delete a tunnel.
+
+        Args:
+            id (str): The tunnel's ID. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/tunnel/{id}"
+        )
+        return 200 <= response.status_code < 300
+
+    def get_tunnel(self, tunnel_id: str) -> DastTunnelResponse:
+        """GET /tunnel/{tunnelId} — get a tunnel by ID.
+
+        Args:
+            tunnel_id (str): The tunnel's UUID. Required.
+
+        Returns:
+            DastTunnelResponse
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/tunnel/{tunnel_id}"
+        )
+        return DastTunnelResponse.from_dict(response.json())
+
+    def get_tunnel_by_name(self, name: str) -> DastTunnelResponse:
+        """GET /tunnelByName/{name} — get a tunnel by name.
+
+        Args:
+            name (str): The tunnel's name. Required.
+
+        Returns:
+            DastTunnelResponse
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/tunnelByName/{name}"
+        )
+        return DastTunnelResponse.from_dict(response.json())
+
+    def get_tunnels(self) -> DastTunnelsResponse:
+        """GET /tunnels — get all tunnels the caller can view.
+
+        Returns:
+            DastTunnelsResponse
+        """
+        response = self.api_client.call_api(method="GET", url=f"{self.base_url}/tunnels")
+        return DastTunnelsResponse.from_dict(response.json())
+
+    # ----- Sequences -----
+    #
+    # A sequence is an ordered chain of recordings (see Recordings below)
+    # that DAST replays together, e.g. to script a multi-step login flow.
+
+    def create_sequence(
+        self, environment_id: str, name: str, recording_ids: List[str]
+    ) -> DastSequence:
+        """POST /sequences — create a sequence from existing recordings.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            name (str): The sequence's name. Required.
+            recording_ids (List[str]): UUIDs of the recordings to chain
+                together, in order. Required.
+
+        Returns:
+            DastSequence
+        """
+        body = {
+            "environmentId": environment_id,
+            "name": name,
+            "recordingIds": recording_ids,
+        }
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/sequences", json=body,
+        )
+        return DastSequence.from_dict(response.json())
+
+    def delete_sequences(self, environment_id: str, sequence_ids: List[str]) -> bool:
+        """DELETE /sequences — delete sequences by ID.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            sequence_ids (List[str]): UUIDs of the sequences to delete.
+                Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        body = {"environmentId": environment_id, "sequenceIds": sequence_ids}
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/sequences", json=body,
+        )
+        return 200 <= response.status_code < 300
+
+    def update_sequences_order(
+        self, environment_id: str, sequence_ids: List[str]
+    ) -> bool:
+        """PUT /sequences/order — reorder an Environment's sequences.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            sequence_ids (List[str]): All of the environment's sequence
+                UUIDs, in the desired order. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        body = {"environmentId": environment_id, "sequenceIds": sequence_ids}
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/sequences/order", json=body,
+        )
+        return 200 <= response.status_code < 300
+
+    def update_sequence(
+        self,
+        sequence_id: str,
+        environment_id: str,
+        name: str,
+        recording_ids: List[str],
+    ) -> DastSequence:
+        """PUT /sequences/{sequenceId} — update a sequence's name and/or
+        recordings.
+
+        Confirmed live: the update itself works (verified via
+        get_sequence_recordings), but unlike the POST /sequences response,
+        this endpoint's response always comes back with an empty
+        recording_ids — not a sign the update failed.
+
+        Args:
+            sequence_id (str): UUID of the sequence to update. Required.
+            environment_id (str): UUID of the Environment. Required.
+            name (str): The sequence's new name. Required.
+            recording_ids (List[str]): UUIDs of the recordings to chain
+                together, in order. Required.
+
+        Returns:
+            DastSequence: note recording_ids is always empty here — see
+                get_sequence_recordings for the actual current list.
+        """
+        body = {
+            "environmentId": environment_id,
+            "name": name,
+            "recordingIds": recording_ids,
+        }
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/sequences/{sequence_id}", json=body,
+        )
+        return DastSequence.from_dict(response.json())
+
+    def get_sequence_scripts(self, env_id: str) -> DastSequenceScriptsResponse:
+        """GET /environments/{envId}/sequence-scripts — get the
+        environment's sequences as ordered recording-filename chains,
+        plus a zip archive of the recording files, for CLI use.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+
+        Returns:
+            DastSequenceScriptsResponse
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environments/{env_id}/sequence-scripts"
+        )
+        return DastSequenceScriptsResponse.from_dict(response.json())
+
+    def get_sequences(self, env_id: str) -> List[DastSequenceWithRecordingCount]:
+        """GET /environments/{envId}/sequences — get an environment's
+        sequences.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+
+        Returns:
+            List[DastSequenceWithRecordingCount]
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environments/{env_id}/sequences"
+        )
+        return [
+            DastSequenceWithRecordingCount.from_dict(s)
+            for s in (response.json() or [])
+        ]
+
+    def duplicate_sequence(self, env_id: str, sequence_id: str) -> DastSequence:
+        """POST /environments/{envId}/sequences/{sequenceId}/duplicate —
+        duplicate a sequence (name, recordings) and place the copy right
+        after the source sequence.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            sequence_id (str): UUID of the sequence to duplicate. Required.
+
+        Returns:
+            DastSequence: the newly created copy.
+        """
+        response = self.api_client.call_api(
+            method="POST",
+            url=f"{self.base_url}/environments/{env_id}/sequences/{sequence_id}/duplicate",
+        )
+        return DastSequence.from_dict(response.json())
+
+    def get_sequence_recordings(
+        self, env_id: str, sequence_id: str
+    ) -> List[DastRecordingWithPosition]:
+        """GET /environments/{envId}/sequences/{sequenceId}/recordings —
+        get the recordings making up a sequence, in order.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            sequence_id (str): UUID of the sequence. Required.
+
+        Returns:
+            List[DastRecordingWithPosition]
+        """
+        response = self.api_client.call_api(
+            method="GET",
+            url=(
+                f"{self.base_url}/environments/{env_id}/sequences/"
+                f"{sequence_id}/recordings"
+            ),
+        )
+        return [
+            DastRecordingWithPosition.from_dict(r) for r in (response.json() or [])
+        ]
+
+    # ----- Recordings -----
+    #
+    # A recording is a single scripted interaction (a Zest/HAR-style
+    # capture) that sequences chain together.
+
+    def create_recordings(
+        self,
+        environment_id: str,
+        files: List[str],
+        metadata: List[Dict[str, str]],
+    ) -> List[DastRecording]:
+        """POST /recordings — upload one or more recording files.
+
+        Confirmed live: the server matches each uploaded file to its
+        metadata entry by the file's multipart filename, which must
+        equal that entry's "name" — not by upload order or local
+        filename, despite the spec's plain `files: [binary]` array
+        shape giving no indication of this. This method handles that
+        for you (the actual local filenames in `files` don't matter).
+
+        Each file must also be genuine Zest (JSON) recording content;
+        a non-Zest file 400s with "failed to process ZST file content".
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            files (List[str]): Local paths of the recording files to
+                upload. Required.
+            metadata (List[Dict[str, str]]): One {"name": ...,
+                "description": ...} entry per `files` entry, in the same
+                order. Required.
+
+        Returns:
+            List[DastRecording]
+        """
+        data = {
+            "environmentId": environment_id,
+            "metadata": json.dumps(metadata),
+        }
+        file_fields = []
+        for path, meta in zip(files, metadata):
+            with open(path, "rb") as fh:
+                content = fh.read()
+            file_fields.append(
+                ("files", (meta["name"], content, "application/octet-stream"))
+            )
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/recordings",
+            data=data, files=file_fields,
+        )
+        return [DastRecording.from_dict(r) for r in (response.json() or [])]
+
+    def delete_recordings(
+        self, environment_id: str, recording_ids: List[str]
+    ) -> bool:
+        """DELETE /recordings — delete recordings (file, DB row, and from
+        any sequence they're part of).
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            recording_ids (List[str]): UUIDs of the recordings to delete.
+                Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        body = {"environmentId": environment_id, "recordingIds": recording_ids}
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/recordings", json=body,
+        )
+        return 200 <= response.status_code < 300
+
+    def update_recording(
+        self,
+        recording_id: str,
+        environment_id: str,
+        name: str = None,
+        description: str = None,
+        file: str = None,
+    ) -> DastRecording:
+        """PUT /recordings/{recordingId} — update a recording's name,
+        description, and/or underlying file.
+
+        Args:
+            recording_id (str): UUID of the recording to update. Required.
+            environment_id (str): UUID of the Environment. Required.
+            name (str, optional): The recording's new name.
+            description (str, optional): The recording's new description.
+            file (str, optional): Local path to a replacement .zst
+                recording file.
+
+        Returns:
+            DastRecording
+        """
+        data = {
+            "environmentId": environment_id,
+            "name": name,
+            "description": description,
+        }
+        data = {k: v for k, v in data.items() if v is not None}
+        files = {}
+        if file:
+            with open(file, "rb") as fh:
+                content = fh.read()
+            files["file"] = (os.path.basename(file), content, "application/octet-stream")
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/recordings/{recording_id}",
+            data=data, files=files,
+        )
+        return DastRecording.from_dict(response.json())
+
+    def get_environment_recordings(
+        self, env_id: str, from_: int = None, to: int = None
+    ) -> DastRecordingsCollection:
+        """GET /environments/{envId}/recordings — get an environment's
+        recordings.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            from_ (int, optional): Pagination start offset. (Trailing
+                underscore avoids shadowing the built-in `from`.)
+            to (int, optional): Pagination end offset.
+
+        Returns:
+            DastRecordingsCollection
+        """
+        params = {"from": from_, "to": to}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environments/{env_id}/recordings",
+            params=params,
+        )
+        return DastRecordingsCollection.from_dict(response.json())
+
+    def save_proxy_recorder_file(self, env_id: str, proxy_recorder_file: str) -> bool:
+        """PUT /environments/{envId}/proxyRecorderFile — save a
+        proxy-recorder HAR file for an environment.
+
+        Confirmed live: despite the spec calling this a ".zst compressed
+        HAR file", "zst" here means Zest (as everywhere else in this
+        auth/recording surface), not Zstandard compression — the server
+        rejects it with "failed to parse zst JSON" if the content isn't
+        plain JSON. The exact expected JSON shape (presumably Zest-
+        wrapped HAR data) isn't confirmed.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            proxy_recorder_file (str): Local path to the file. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        with open(proxy_recorder_file, "rb") as fh:
+            content = fh.read()
+        files = {
+            "proxyRecorderFile": (
+                os.path.basename(proxy_recorder_file), content, "application/octet-stream"
+            )
+        }
+        response = self.api_client.call_api(
+            method="PUT",
+            url=f"{self.base_url}/environments/{env_id}/proxyRecorderFile",
+            files=files,
+        )
+        return 200 <= response.status_code < 300
+
+    # ----- Correlations -----
+    #
+    # A correlations scan cross-references DAST findings against SAST/SCA
+    # projects to confirm whether a given vulnerability is actually
+    # reachable/exploitable. Gated behind a feature flag and a credits
+    # balance -- confirmed live to 503 when disabled, and the spec
+    # documents 402 "Payment required" when credits are insufficient.
+
+    def get_correlations_enabled(self) -> DastFlagEnabled:
+        """GET /correlations/enabled — whether correlations scans are
+        enabled for the tenant.
+
+        Returns:
+            DastFlagEnabled
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/correlations/enabled"
+        )
+        return DastFlagEnabled.from_dict(response.json())
+
+    def create_correlations_scan(
+        self,
+        environment_id: str,
+        scan_id: str,
+        similarity_ids: List[DastSimilarityIds],
+        projects: List[dict] = None,
+        project_uploads: List[dict] = None,
+        source: str = None,
+    ) -> str:
+        """POST /correlations/scan — create a correlations scan.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the DAST scan whose findings to
+                correlate. Required.
+            similarity_ids (List[DastSimilarityIds]): The findings to
+                correlate. Required.
+            projects (List[dict], optional): SAST/SCA projects to
+                correlate against (CorrelationProject shape: projectId
+                required, plus sourceId or scanId). Passed through as
+                raw dicts — not modeled as a DTO here.
+            project_uploads (List[dict], optional): Projects to correlate
+                against an ad-hoc upload (ProjectUploadPayload shape).
+                Passed through as raw dicts.
+            source (str, optional): Caller identifier.
+
+        Returns:
+            str: the new correlations scan's ID (plain-text response body).
+        """
+        body = {
+            "environmentId": environment_id,
+            "scanId": scan_id,
+            "similarityIds": [s.to_dict() for s in similarity_ids],
+            "projects": projects,
+            "projectUploads": project_uploads,
+            "source": source,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/correlations/scan", json=body,
+        )
+        return response.text.strip().strip('"')
+
+    def delete_correlations_scan(self, scan_id: str) -> str:
+        """DELETE /correlations/scan/{scanId} — delete a correlations scan.
+
+        Args:
+            scan_id (str): UUID of the correlations scan. Required.
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/correlations/scan/{scan_id}"
+        )
+        return response.text.strip().strip('"')
+
+    def cancel_correlations_scan(self, scan_id: str) -> str:
+        """PATCH /correlations/scan/{scanId} — cancel a correlations scan.
+
+        Args:
+            scan_id (str): UUID of the correlations scan. Required.
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        response = self.api_client.call_api(
+            method="PATCH", url=f"{self.base_url}/correlations/scan/{scan_id}"
+        )
+        return response.text.strip().strip('"')
+
+    def get_correlations_scan_status(
+        self, scan_id: str, environment_id: str
+    ) -> Optional[str]:
+        """GET /correlations/scan/{scanId}/status — get a correlations
+        scan's status.
+
+        Args:
+            scan_id (str): UUID of the correlations scan. Required.
+            environment_id (str): UUID of the Environment. Required.
+
+        Returns:
+            Optional[str]: the correlations scan's status.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/correlations/scan/{scan_id}/status",
+            params={"environmentId": environment_id},
+        )
+        return response.json().get("status")
+
+    def get_correlations_scans(
+        self,
+        environment_id: str,
+        scan_id: str = None,
+        correlation_id: str = None,
+        filter_: dict = None,
+        sort: List[str] = None,
+        search: str = None,
+        from_: int = None,
+        to: int = None,
+    ) -> DastCorrelationScansCollection:
+        """GET /correlations/scans — get correlations scans.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            scan_id (str, optional): Filter by DAST scan UUID.
+            correlation_id (str, optional): Filter by correlations scan UUID.
+            filter_ (dict, optional): Partial-match filter. Supported
+                keys: initiator (str), projectIds (List[str]),
+                source (List[str]), status (List[str]). (Trailing
+                underscore avoids shadowing the built-in `filter`.)
+            sort (List[str], optional): Columns to sort by.
+            search (str, optional): Free-text search.
+            from_ (int, optional): Pagination start offset. (Trailing
+                underscore avoids shadowing the built-in `from`.)
+            to (int, optional): Pagination end offset.
+
+        Returns:
+            DastCorrelationScansCollection
+        """
+        params = {
+            "environmentId": environment_id,
+            "scanId": scan_id,
+            "correlationId": correlation_id,
+            "sort": sort,
+            "search": search,
+            "from": from_,
+            "to": to,
+        }
+        if filter_:
+            params.update({f"filter[{k}]": v for k, v in filter_.items()})
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/correlations/scans", params=params,
+        )
+        return DastCorrelationScansCollection.from_dict(response.json())
+
+    # ----- Pentest -----
+    #
+    # A pentest scan runs an AI-driven penetration test against a DAST
+    # environment's findings. Same gating pattern as correlations: a
+    # feature flag (503 when disabled) and a credits balance (402 when
+    # insufficient).
+
+    def get_pentest_enabled(self) -> DastFlagEnabled:
+        """GET /pentest/enabled — whether AI pentester is enabled for the
+        tenant.
+
+        Returns:
+            DastFlagEnabled
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/pentest/enabled"
+        )
+        return DastFlagEnabled.from_dict(response.json())
+
+    def create_pentest_scan(
+        self,
+        environment_id: str,
+        scan_id: str,
+        similarity_ids: List[DastSimilarityIds],
+        settings: DastPentestScanSettings,
+        source: str = None,
+    ) -> str:
+        """POST /pentest/scan — create a pentest scan.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the DAST scan whose findings to
+                pentest. Required.
+            similarity_ids (List[DastSimilarityIds]): The findings to
+                pentest. Required.
+            settings (DastPentestScanSettings): The pentest's plan mode,
+                attack profile, and path filters. Required.
+            source (str, optional): Caller identifier.
+
+        Returns:
+            str: the new pentest scan's ID (plain-text response body).
+        """
+        body = {
+            "environmentId": environment_id,
+            "scanId": scan_id,
+            "similarityIds": [s.to_dict() for s in similarity_ids],
+            "settings": settings.to_dict(),
+            "source": source,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/pentest/scan", json=body,
+        )
+        return response.text.strip().strip('"')
+
+    def cancel_pentest_scan(self, scan_id: str) -> str:
+        """PATCH /pentest/scan/{scanId} — cancel a pentest scan.
+
+        Args:
+            scan_id (str): UUID of the pentest scan. Required.
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        response = self.api_client.call_api(
+            method="PATCH", url=f"{self.base_url}/pentest/scan/{scan_id}"
+        )
+        return response.text.strip().strip('"')
+
+    def delete_pentest_scan(self, scan_id: str) -> str:
+        """DELETE /pentest/scan/{scanId} — delete a pentest scan.
+
+        Args:
+            scan_id (str): UUID of the pentest scan. Required.
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/pentest/scan/{scan_id}"
+        )
+        return response.text.strip().strip('"')
+
+    def get_pentest_scans(
+        self,
+        environment_id: str,
+        scan_id: str = None,
+        pentest_scan_id: str = None,
+        filter_: dict = None,
+        sort: List[str] = None,
+        search: str = None,
+        from_: int = None,
+        to: int = None,
+    ) -> DastPentestScansCollection:
+        """GET /pentest/scans — get pentest scans.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            scan_id (str, optional): Filter by DAST scan UUID.
+            pentest_scan_id (str, optional): Filter by pentest scan UUID.
+            filter_ (dict, optional): Partial-match filter. Supported
+                keys: initiator (str), source (List[str]),
+                status (List[str]). (Trailing underscore avoids
+                shadowing the built-in `filter`.)
+            sort (List[str], optional): Columns to sort by.
+            search (str, optional): Free-text search.
+            from_ (int, optional): Pagination start offset. (Trailing
+                underscore avoids shadowing the built-in `from`.)
+            to (int, optional): Pagination end offset.
+
+        Returns:
+            DastPentestScansCollection
+        """
+        params = {
+            "environmentId": environment_id,
+            "scanId": scan_id,
+            "pentestScanId": pentest_scan_id,
+            "sort": sort,
+            "search": search,
+            "from": from_,
+            "to": to,
+        }
+        if filter_:
+            params.update({f"filter[{k}]": v for k, v in filter_.items()})
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/pentest/scans", params=params,
+        )
+        return DastPentestScansCollection.from_dict(response.json())
+
+    # ----- Credits -----
+    #
+    # Correlations and pentest scans (and possibly other actions) consume
+    # a shared tenant-level credits balance.
+
+    def get_credit_action_rates(self) -> dict:
+        """GET /credits/action-rates — get how many credits each action
+        costs.
+
+        Returns:
+            dict: raw response body. The spec documents this as an
+            untyped object with no fixed shape.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/credits/action-rates"
+        )
+        return response.json()
+
+    def get_credit_balance(self) -> dict:
+        """GET /credits/balance — get the tenant's current credits balance.
+
+        Returns:
+            dict: raw response body. The spec documents this as an
+            untyped object with no fixed shape.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/credits/balance"
+        )
+        return response.json()
+
+    def get_correlation_capacity(self) -> DastCorrelationCapacityResponse:
+        """GET /credits/correlation-capacity — get the tenant's remaining
+        correlation-scan capacity.
+
+        Returns:
+            DastCorrelationCapacityResponse
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/credits/correlation-capacity"
+        )
+        return DastCorrelationCapacityResponse.from_dict(response.json())
+
+    def deduct_credits(
+        self,
+        environment_id: str,
+        risk_names: List[str],
+        metadata: Dict[str, str] = None,
+    ) -> dict:
+        """POST /credits/deduct — deduct credits for an action.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            risk_names (List[str]): Names of the risks/actions being
+                charged for. Required.
+            metadata (Dict[str, str], optional): Additional metadata to
+                record with the deduction.
+
+        Returns:
+            dict: raw response body. The spec documents this as an
+            untyped object with no fixed shape.
+        """
+        body = {
+            "environment_id": environment_id,
+            "risk_names": risk_names,
+            "metadata": metadata,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/credits/deduct", json=body,
+        )
+        return response.json()
+
+    def get_pentest_max_profile(self) -> DastPentestMaxProfile:
+        """GET /credits/pentest-max-profile — get the maximum attack
+        profile the tenant can afford for pentest scans.
+
+        Confirmed live on a tenant with AI pentester disabled: 500
+        "failed to get pentest max profile", not the 503 that every other
+        gated endpoint in this file returns when its feature is off.
+
+        Returns:
+            DastPentestMaxProfile
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/credits/pentest-max-profile"
+        )
+        return DastPentestMaxProfile.from_dict(response.json())
+
 
 # ----- Module-level conveniences -----
 
@@ -1477,3 +2299,232 @@ def get_auth_session_state(env_id: str, uuid: str) -> Optional[str]:
 
 def get_auth_session_test_log(env_id: str, uuid: str) -> bytes:
     return DastScanAPI().get_auth_session_test_log(env_id=env_id, uuid=uuid)
+
+
+def create_tunnel(
+    name: str, environment_id: str, url: str, description: str = None
+) -> DastCreateTunnelResponse:
+    return DastScanAPI().create_tunnel(
+        name=name, environment_id=environment_id, url=url, description=description,
+    )
+
+
+def delete_tunnel_without_id() -> None:
+    return DastScanAPI().delete_tunnel_without_id()
+
+
+def delete_tunnel(id: str) -> bool:
+    return DastScanAPI().delete_tunnel(id=id)
+
+
+def get_tunnel(tunnel_id: str) -> DastTunnelResponse:
+    return DastScanAPI().get_tunnel(tunnel_id=tunnel_id)
+
+
+def get_tunnel_by_name(name: str) -> DastTunnelResponse:
+    return DastScanAPI().get_tunnel_by_name(name=name)
+
+
+def get_tunnels() -> DastTunnelsResponse:
+    return DastScanAPI().get_tunnels()
+
+
+def create_sequence(
+    environment_id: str, name: str, recording_ids: List[str]
+) -> DastSequence:
+    return DastScanAPI().create_sequence(
+        environment_id=environment_id, name=name, recording_ids=recording_ids,
+    )
+
+
+def delete_sequences(environment_id: str, sequence_ids: List[str]) -> bool:
+    return DastScanAPI().delete_sequences(
+        environment_id=environment_id, sequence_ids=sequence_ids,
+    )
+
+
+def update_sequences_order(environment_id: str, sequence_ids: List[str]) -> bool:
+    return DastScanAPI().update_sequences_order(
+        environment_id=environment_id, sequence_ids=sequence_ids,
+    )
+
+
+def update_sequence(
+    sequence_id: str, environment_id: str, name: str, recording_ids: List[str]
+) -> DastSequence:
+    return DastScanAPI().update_sequence(
+        sequence_id=sequence_id, environment_id=environment_id, name=name,
+        recording_ids=recording_ids,
+    )
+
+
+def get_sequence_scripts(env_id: str) -> DastSequenceScriptsResponse:
+    return DastScanAPI().get_sequence_scripts(env_id=env_id)
+
+
+def get_sequences(env_id: str) -> List[DastSequenceWithRecordingCount]:
+    return DastScanAPI().get_sequences(env_id=env_id)
+
+
+def duplicate_sequence(env_id: str, sequence_id: str) -> DastSequence:
+    return DastScanAPI().duplicate_sequence(env_id=env_id, sequence_id=sequence_id)
+
+
+def get_sequence_recordings(
+    env_id: str, sequence_id: str
+) -> List[DastRecordingWithPosition]:
+    return DastScanAPI().get_sequence_recordings(
+        env_id=env_id, sequence_id=sequence_id,
+    )
+
+
+def create_recordings(
+    environment_id: str, files: List[str], metadata: List[Dict[str, str]]
+) -> List[DastRecording]:
+    return DastScanAPI().create_recordings(
+        environment_id=environment_id, files=files, metadata=metadata,
+    )
+
+
+def delete_recordings(environment_id: str, recording_ids: List[str]) -> bool:
+    return DastScanAPI().delete_recordings(
+        environment_id=environment_id, recording_ids=recording_ids,
+    )
+
+
+def update_recording(
+    recording_id: str,
+    environment_id: str,
+    name: str = None,
+    description: str = None,
+    file: str = None,
+) -> DastRecording:
+    return DastScanAPI().update_recording(
+        recording_id=recording_id, environment_id=environment_id, name=name,
+        description=description, file=file,
+    )
+
+
+def get_environment_recordings(
+    env_id: str, from_: int = None, to: int = None
+) -> DastRecordingsCollection:
+    return DastScanAPI().get_environment_recordings(env_id=env_id, from_=from_, to=to)
+
+
+def save_proxy_recorder_file(env_id: str, proxy_recorder_file: str) -> bool:
+    return DastScanAPI().save_proxy_recorder_file(
+        env_id=env_id, proxy_recorder_file=proxy_recorder_file,
+    )
+
+
+def get_correlations_enabled() -> DastFlagEnabled:
+    return DastScanAPI().get_correlations_enabled()
+
+
+def create_correlations_scan(
+    environment_id: str,
+    scan_id: str,
+    similarity_ids: List[DastSimilarityIds],
+    projects: List[dict] = None,
+    project_uploads: List[dict] = None,
+    source: str = None,
+) -> str:
+    return DastScanAPI().create_correlations_scan(
+        environment_id=environment_id, scan_id=scan_id, similarity_ids=similarity_ids,
+        projects=projects, project_uploads=project_uploads, source=source,
+    )
+
+
+def delete_correlations_scan(scan_id: str) -> str:
+    return DastScanAPI().delete_correlations_scan(scan_id=scan_id)
+
+
+def cancel_correlations_scan(scan_id: str) -> str:
+    return DastScanAPI().cancel_correlations_scan(scan_id=scan_id)
+
+
+def get_correlations_scan_status(scan_id: str, environment_id: str) -> Optional[str]:
+    return DastScanAPI().get_correlations_scan_status(
+        scan_id=scan_id, environment_id=environment_id,
+    )
+
+
+def get_correlations_scans(
+    environment_id: str,
+    scan_id: str = None,
+    correlation_id: str = None,
+    filter_: dict = None,
+    sort: List[str] = None,
+    search: str = None,
+    from_: int = None,
+    to: int = None,
+) -> DastCorrelationScansCollection:
+    return DastScanAPI().get_correlations_scans(
+        environment_id=environment_id, scan_id=scan_id, correlation_id=correlation_id,
+        filter_=filter_, sort=sort, search=search, from_=from_, to=to,
+    )
+
+
+def get_pentest_enabled() -> DastFlagEnabled:
+    return DastScanAPI().get_pentest_enabled()
+
+
+def create_pentest_scan(
+    environment_id: str,
+    scan_id: str,
+    similarity_ids: List[DastSimilarityIds],
+    settings: DastPentestScanSettings,
+    source: str = None,
+) -> str:
+    return DastScanAPI().create_pentest_scan(
+        environment_id=environment_id, scan_id=scan_id, similarity_ids=similarity_ids,
+        settings=settings, source=source,
+    )
+
+
+def cancel_pentest_scan(scan_id: str) -> str:
+    return DastScanAPI().cancel_pentest_scan(scan_id=scan_id)
+
+
+def delete_pentest_scan(scan_id: str) -> str:
+    return DastScanAPI().delete_pentest_scan(scan_id=scan_id)
+
+
+def get_pentest_scans(
+    environment_id: str,
+    scan_id: str = None,
+    pentest_scan_id: str = None,
+    filter_: dict = None,
+    sort: List[str] = None,
+    search: str = None,
+    from_: int = None,
+    to: int = None,
+) -> DastPentestScansCollection:
+    return DastScanAPI().get_pentest_scans(
+        environment_id=environment_id, scan_id=scan_id, pentest_scan_id=pentest_scan_id,
+        filter_=filter_, sort=sort, search=search, from_=from_, to=to,
+    )
+
+
+def get_credit_action_rates() -> dict:
+    return DastScanAPI().get_credit_action_rates()
+
+
+def get_credit_balance() -> dict:
+    return DastScanAPI().get_credit_balance()
+
+
+def get_correlation_capacity() -> DastCorrelationCapacityResponse:
+    return DastScanAPI().get_correlation_capacity()
+
+
+def deduct_credits(
+    environment_id: str, risk_names: List[str], metadata: Dict[str, str] = None
+) -> dict:
+    return DastScanAPI().deduct_credits(
+        environment_id=environment_id, risk_names=risk_names, metadata=metadata,
+    )
+
+
+def get_pentest_max_profile() -> DastPentestMaxProfile:
+    return DastScanAPI().get_pentest_max_profile()
