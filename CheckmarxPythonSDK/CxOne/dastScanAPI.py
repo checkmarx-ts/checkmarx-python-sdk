@@ -53,6 +53,7 @@ from .dto import (
     DastScansOverTimeResponse,
     DastSequence,
     DastSequenceScriptsResponse,
+    DastSequencesReport,
     DastSimilarityIds,
     DastSequenceWithRecordingCount,
     DastSourceVersion,
@@ -562,6 +563,115 @@ class DastScanAPI(object):
             method="GET", url=f"{self.base_url}/log/{scan_id}"
         )
         return response.content
+
+    # ----- External scan -----
+    #
+    # Used by an external scan runner (e.g. a DAST engine not managed by
+    # CxOne's own scan orchestration) to report status/log/results back.
+    # Request bodies are left as raw dicts -- these are internal-plumbing
+    # endpoints with many optional, loosely-typed fields.
+
+    def update_external_scan(self, update: dict) -> str:
+        """PUT /externalScan — update an external scan's status, with no
+        effect on scans that aren't currently in "ExternalScan" status.
+
+        Confirmed live: calling this against a normal (non-ExternalScan)
+        completed scan returns 200 "scan updated successfully" but
+        leaves the scan's own state (status/statistics/results) alone,
+        matching the spec's documented no-op behavior.
+
+        Args:
+            update (dict): UpdateExternalScanRequest shape: scanId
+                required; environmentId, startTime, updateTime,
+                scanDuration, lastStatus, log, statistics, zapError,
+                zapExitStatus, errCode, errors, hasResultsError,
+                numLogFiles, insights, failedSequencesCount optional.
+                Required.
+
+        Returns:
+            str: the API's plain-text response body -- normally empty,
+            or "ProjectIDs:<comma-separated project ids>" once the scan
+            reaches a finished/failed state.
+        """
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/externalScan", json=update,
+        )
+        return response.text
+
+    def upload_external_scan_log(
+        self, environment_id: str, scan_id: str, log_path: str,
+        num_log_files: int = None,
+    ) -> bool:
+        """POST /externalScan/log — upload the log file of an external
+        scan.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the scan. Required.
+            log_path (str): Local path of the log file to upload.
+                Required.
+            num_log_files (int, optional): Total number of log files
+                being uploaded for this scan.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        data = {"environmentId": environment_id, "scanId": scan_id}
+        if num_log_files is not None:
+            data["numLogFiles"] = num_log_files
+        with open(log_path, "rb") as fh:
+            content = fh.read()
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/externalScan/log",
+            data=data,
+            files=[("log", (os.path.basename(log_path), content, "application/octet-stream"))],
+        )
+        return 200 <= response.status_code < 300
+
+    def upload_external_scan_results(
+        self,
+        environment_id: str,
+        scan_id: str,
+        results_path: str,
+        zap_error: str = None,
+        zap_exit_status: str = None,
+        error_code: str = None,
+        errors: List[str] = None,
+    ) -> bool:
+        """POST /externalScan/results — upload the results file of an
+        external scan.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the scan. Required.
+            results_path (str): Local path of the results file to
+                upload. Required.
+            zap_error (str, optional): ZAP error message, if any.
+            zap_exit_status (str, optional): ZAP process exit status.
+            error_code (str, optional): An error code, if the scan
+                failed.
+            errors (List[str], optional): Error messages, if any.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        data = {"environmentId": environment_id, "scanId": scan_id}
+        if zap_error is not None:
+            data["zapError"] = zap_error
+        if zap_exit_status is not None:
+            data["zapExitStatus"] = zap_exit_status
+        if error_code is not None:
+            data["errorCode"] = error_code
+        if errors:
+            data["errors"] = errors
+        with open(results_path, "rb") as fh:
+            content = fh.read()
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/externalScan/results",
+            data=data,
+            files=[("results", (os.path.basename(results_path), content, "application/octet-stream"))],
+        )
+        return 200 <= response.status_code < 300
 
     # ----- Auth Session -----
     #
@@ -1473,6 +1583,26 @@ class DastScanAPI(object):
         return [
             DastRecordingWithPosition.from_dict(r) for r in (response.json() or [])
         ]
+
+    def get_sequences_report(
+        self, env_id: str, scan_id: str
+    ) -> DastSequencesReport:
+        """GET /environments/{envId}/scans/{scanId}/sequences-report —
+        get a scan's sequences report (per-sequence/recording
+        pass/fail status, with a screenshot on failure).
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the scan. Required.
+
+        Returns:
+            DastSequencesReport
+        """
+        response = self.api_client.call_api(
+            method="GET",
+            url=f"{self.base_url}/environments/{env_id}/scans/{scan_id}/sequences-report",
+        )
+        return DastSequencesReport.from_dict(response.json())
 
     # ----- Recordings -----
     #
@@ -2745,6 +2875,35 @@ def get_scan_log(scan_id: str) -> bytes:
     return DastScanAPI().get_scan_log(scan_id=scan_id)
 
 
+def update_external_scan(update: dict) -> str:
+    return DastScanAPI().update_external_scan(update=update)
+
+
+def upload_external_scan_log(
+    environment_id: str, scan_id: str, log_path: str, num_log_files: int = None
+) -> bool:
+    return DastScanAPI().upload_external_scan_log(
+        environment_id=environment_id, scan_id=scan_id, log_path=log_path,
+        num_log_files=num_log_files,
+    )
+
+
+def upload_external_scan_results(
+    environment_id: str,
+    scan_id: str,
+    results_path: str,
+    zap_error: str = None,
+    zap_exit_status: str = None,
+    error_code: str = None,
+    errors: List[str] = None,
+) -> bool:
+    return DastScanAPI().upload_external_scan_results(
+        environment_id=environment_id, scan_id=scan_id, results_path=results_path,
+        zap_error=zap_error, zap_exit_status=zap_exit_status, error_code=error_code,
+        errors=errors,
+    )
+
+
 def create_auth_session(
     environment_id: str,
     session_type: str,
@@ -3009,6 +3168,10 @@ def get_sequence_recordings(
     return DastScanAPI().get_sequence_recordings(
         env_id=env_id, sequence_id=sequence_id,
     )
+
+
+def get_sequences_report(env_id: str, scan_id: str) -> DastSequencesReport:
+    return DastScanAPI().get_sequences_report(env_id=env_id, scan_id=scan_id)
 
 
 def create_recordings(
