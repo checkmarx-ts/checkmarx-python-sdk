@@ -103,6 +103,9 @@ from .ClientsWithResourcesResponse import (
     ClientsWithResourcesResponse,
 )
 from .ClientWithResource import ClientWithResource
+from .CloudConnectionStatus import CloudConnectionStatus
+from .CloudConnectionItem import CloudConnectionItem
+from .CloudConnectionsResponse import CloudConnectionsResponse
 from .CloudInsightAccount import CloudInsightAccount
 from .CloudInsightAccountLog import CloudInsightAccountLog
 from .CloudInsightContainer import CloudInsightContainer

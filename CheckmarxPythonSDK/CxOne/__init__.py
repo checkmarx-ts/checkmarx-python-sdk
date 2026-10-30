@@ -165,6 +165,10 @@ from .byorResultsHandlerV2API import (
     get_import_results,
     bulk_triage_import_results,
 )
+from .cloudConnectAPI import (
+    CloudConnectAPI,
+    get_cloud_connections,
+)
 from .cloudInsightsServiceAPI import (
     CloudInsightsServiceAPI,
     create_enrich_account,

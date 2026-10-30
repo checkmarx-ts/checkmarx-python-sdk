@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] CloudConnectAPI for the new /api/cloud-connect service (not previously covered by the SDK at all) — get_cloud_connections lists configured cloud/vendor connections (Sysdig, ECR, GHCR, DockerHub, JFrog, etc.) used for runtime cloud scanning, paginated and filterable by name. 3 new DTOs. The live spec shows the connection's per-consumer `statuses` list superseding the older single status/statusMessage/refreshDate fields (which the public API reference still documents, and which the server still returns) -- modeled both.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02
