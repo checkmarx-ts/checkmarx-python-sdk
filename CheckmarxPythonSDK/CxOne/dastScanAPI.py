@@ -12,6 +12,8 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
     TenantOverview,
     DastApiFileWithType,
+    DastApplicationEnvironmentInfo,
+    DastApplicationEnvironmentWithPrimary,
     DastAuthSession,
     DastAuthSessionReportData,
     DastAuthSessionTotp,
@@ -1997,6 +1999,229 @@ class DastScanAPI(object):
         )
         return DastPentestMaxProfile.from_dict(response.json())
 
+    # ----- Pipeline -----
+    #
+    # A pipeline tracks a multi-step CI/CD-driven scan workflow for an
+    # Environment (as opposed to the ad-hoc run_scan/run_public_scan
+    # flow). Only one pipeline operation may be in progress per
+    # Environment at a time -- the spec documents 409 otherwise.
+
+    def create_pipeline(
+        self, environment_id: str, cancel_older_pipelines: bool = None
+    ) -> str:
+        """POST /pipeline — create a pipeline for an Environment.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            cancel_older_pipelines (bool, optional): Whether to cancel
+                any other pipeline already running for this Environment.
+
+        Returns:
+            str: the new pipeline's ID (plain-text response body).
+        """
+        body = {
+            "environmentId": environment_id,
+            "cancelOlderPipelines": cancel_older_pipelines,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/pipeline", json=body,
+        )
+        return response.text.strip().strip('"')
+
+    def update_pipeline(
+        self,
+        id: str,
+        environment_id: str,
+        current_step_type: str,
+        current_step_id: str,
+    ) -> str:
+        """PUT /pipeline/{id} — advance a pipeline to its next step.
+
+        Args:
+            id (str): UUID of the pipeline. Required.
+            environment_id (str): UUID of the Environment. Required.
+            current_step_type (str): The pipeline step type now in
+                progress. Required.
+            current_step_id (str): UUID identifying the current step
+                (e.g. a scan ID). Required.
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        body = {
+            "environmentId": environment_id,
+            "currentStepType": current_step_type,
+            "currentStepId": current_step_id,
+        }
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/pipeline/{id}", json=body,
+        )
+        return response.text.strip().strip('"')
+
+    def delete_pipeline(self, id: str, environment_id: str) -> str:
+        """DELETE /pipeline/{id} — delete a pipeline.
+
+        Confirmed live: despite the spec listing no parameters at all for
+        this endpoint (and no request body), it 400s with "environmentId
+        query parameter is required" unless environment_id is passed as
+        a query param.
+
+        Args:
+            id (str): UUID of the pipeline. Required.
+            environment_id (str): UUID of the Environment. Required
+                (despite the spec not documenting this parameter).
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/pipeline/{id}",
+            params={"environmentId": environment_id},
+        )
+        return response.text.strip().strip('"')
+
+    # ----- Application association -----
+    #
+    # Links DAST Environments to CxOne Applications, independently of
+    # an Environment's own `applications`/project_ids fields.
+
+    def associate_apps_with_environment(
+        self, env_id: str, application_ids: List[str]
+    ) -> bool:
+        """POST /associateApps/{envId} — associate Applications with an
+        Environment.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            application_ids (List[str]): UUIDs of the Applications to
+                associate. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/associateApps/{env_id}",
+            json={"ApplicationIDs": application_ids},
+        )
+        return 200 <= response.status_code < 300
+
+    def associate_envs_with_application(
+        self,
+        app_id: str,
+        environment_ids: List[str],
+        primary_environment_id: str = None,
+    ) -> bool:
+        """POST /associateEnvs/{appId} — associate Environments with an
+        Application.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+            environment_ids (List[str]): UUIDs of the Environments to
+                associate. Required.
+            primary_environment_id (str, optional): UUID to set as the
+                Application's primary Environment; must also be included
+                in `environment_ids`.
+
+        Returns:
+            bool: the API's response body (itself a bare boolean).
+        """
+        body = {
+            "EnvironmentIDs": environment_ids,
+            "PrimaryEnvironmentID": primary_environment_id,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/associateEnvs/{app_id}", json=body,
+        )
+        return response.json()
+
+    def get_associated_apps(
+        self, env_id: str
+    ) -> List[DastApplicationEnvironmentWithPrimary]:
+        """GET /associatedApps/{envId} — get the Applications associated
+        with an Environment.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+
+        Returns:
+            List[DastApplicationEnvironmentWithPrimary]
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/associatedApps/{env_id}"
+        )
+        return [
+            DastApplicationEnvironmentWithPrimary.from_dict(a)
+            for a in (response.json() or [])
+        ]
+
+    def get_associated_envs(
+        self, app_id: str, primary: bool = None
+    ) -> List[DastApplicationEnvironmentInfo]:
+        """GET /associatedEnvs/{appId} — get the Environments associated
+        with an Application.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+            primary (bool, optional): Only return the primary
+                Environment.
+
+        Returns:
+            List[DastApplicationEnvironmentInfo]
+        """
+        params = {}
+        if primary is not None:
+            params["primary"] = "true" if primary else "false"
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/associatedEnvs/{app_id}",
+            params=params,
+        )
+        return [
+            DastApplicationEnvironmentInfo.from_dict(e)
+            for e in (response.json() or [])
+        ]
+
+    def disassociate_apps_from_environment(
+        self, env_id: str, application_ids: List[str]
+    ) -> bool:
+        """DELETE /disassociateApps/{envId} — disassociate Applications
+        from an Environment.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            application_ids (List[str]): UUIDs of the Applications to
+                disassociate. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/disassociateApps/{env_id}",
+            json={"ApplicationIDs": application_ids},
+        )
+        return 200 <= response.status_code < 300
+
+    def disassociate_envs_from_application(
+        self, app_id: str, environment_ids: List[str]
+    ) -> bool:
+        """DELETE /disassociateEnvs/{appId} — disassociate Environments
+        from an Application.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+            environment_ids (List[str]): UUIDs of the Environments to
+                disassociate. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        response = self.api_client.call_api(
+            method="DELETE", url=f"{self.base_url}/disassociateEnvs/{app_id}",
+            json={"EnvironmentIDs": environment_ids},
+        )
+        return 200 <= response.status_code < 300
+
 
 # ----- Module-level conveniences -----
 
@@ -2528,3 +2753,59 @@ def deduct_credits(
 
 def get_pentest_max_profile() -> DastPentestMaxProfile:
     return DastScanAPI().get_pentest_max_profile()
+
+
+def create_pipeline(environment_id: str, cancel_older_pipelines: bool = None) -> str:
+    return DastScanAPI().create_pipeline(
+        environment_id=environment_id, cancel_older_pipelines=cancel_older_pipelines,
+    )
+
+
+def update_pipeline(
+    id: str, environment_id: str, current_step_type: str, current_step_id: str
+) -> str:
+    return DastScanAPI().update_pipeline(
+        id=id, environment_id=environment_id, current_step_type=current_step_type,
+        current_step_id=current_step_id,
+    )
+
+
+def delete_pipeline(id: str, environment_id: str) -> str:
+    return DastScanAPI().delete_pipeline(id=id, environment_id=environment_id)
+
+
+def associate_apps_with_environment(env_id: str, application_ids: List[str]) -> bool:
+    return DastScanAPI().associate_apps_with_environment(
+        env_id=env_id, application_ids=application_ids,
+    )
+
+
+def associate_envs_with_application(
+    app_id: str, environment_ids: List[str], primary_environment_id: str = None
+) -> bool:
+    return DastScanAPI().associate_envs_with_application(
+        app_id=app_id, environment_ids=environment_ids,
+        primary_environment_id=primary_environment_id,
+    )
+
+
+def get_associated_apps(env_id: str) -> List[DastApplicationEnvironmentWithPrimary]:
+    return DastScanAPI().get_associated_apps(env_id=env_id)
+
+
+def get_associated_envs(
+    app_id: str, primary: bool = None
+) -> List[DastApplicationEnvironmentInfo]:
+    return DastScanAPI().get_associated_envs(app_id=app_id, primary=primary)
+
+
+def disassociate_apps_from_environment(env_id: str, application_ids: List[str]) -> bool:
+    return DastScanAPI().disassociate_apps_from_environment(
+        env_id=env_id, application_ids=application_ids,
+    )
+
+
+def disassociate_envs_from_application(app_id: str, environment_ids: List[str]) -> bool:
+    return DastScanAPI().disassociate_envs_from_application(
+        app_id=app_id, environment_ids=environment_ids,
+    )
