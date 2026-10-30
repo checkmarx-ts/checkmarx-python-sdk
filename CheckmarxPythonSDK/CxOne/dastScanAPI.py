@@ -4,12 +4,17 @@ Endpoints under <server>/api/dast/scans. Endpoints with documented
 response shapes return DTO objects; the rest are stubs that return
 the raw parsed JSON response until their schemas are pinned down.
 """
+import json
 import os
-from typing import List
+from typing import Dict, List, Optional
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from .dto import (
     TenantOverview,
+    DastApiFileWithType,
+    DastAuthSession,
+    DastAuthSessionReportData,
+    DastAuthSessionTotp,
     DastEnvironment,
     DastEnvironmentsCollection,
     DastEnvironmentFilter,
@@ -29,6 +34,7 @@ from .dto import (
     DastScanUpdate,
     DastScansCollection,
     DastSortBy,
+    DastTotpField,
 )
 
 
@@ -527,6 +533,648 @@ class DastScanAPI(object):
         )
         return response.content
 
+    # ----- Auth Session -----
+    #
+    # A distinct sub-workflow from the `authSettings`/`scanConfig` nested on
+    # DastEnvironment: these endpoints drive the interactive auth-session
+    # setup/verification flow (browser-recorded login, config file upload,
+    # credentials + TOTP, etc.) that happens before a scan can authenticate.
+
+    def create_auth_session(
+        self,
+        environment_id: str,
+        session_type: str,
+        url: str,
+        uuid: str = None,
+        method: str = None,
+    ) -> bool:
+        """POST /authSession — create a new auth session for an Environment.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            session_type (str): The type of session being created.
+                Required. Not documented/enumerated in the spec; "CLI" is
+                confirmed to work live (other values tried — BROWSER,
+                MANUAL, DAST, AUTH, and their lowercase forms — were
+                rejected with a generic "validation failed" 400).
+            url (str): The URL to authenticate against. Required.
+            uuid (str, optional): UUID to use for the new session; the
+                server generates one if omitted.
+            method (str, optional): Auth method hint.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        body = {
+            "EnvironmentID": environment_id,
+            "SessionType": session_type,
+            "URL": url,
+            "UUID": uuid,
+            "Method": method,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/authSession", json=body
+        )
+        return 200 <= response.status_code < 300
+
+    def update_auth_session_api_file(
+        self,
+        uuid: str,
+        environment_id: str,
+        api_file: str,
+        api_type: str = None,
+        api_url: str = None,
+        api_variables: Dict[str, str] = None,
+    ) -> str:
+        """PUT /authSession/apiFile — update the auth session's API
+        definition file.
+
+        Confirmed live: calling this on a session straight off
+        create_auth_session (before any other PUT has committed a method
+        on it, e.g. set_auth_session_no_auth or
+        update_auth_session_credentials) returns 200 with a file id, but
+        the file never actually attaches — get_auth_session_api_files_data
+        comes back empty afterward. Settle the session's method first.
+
+        Args:
+            uuid (str): The auth session's UUID. Required.
+            environment_id (str): UUID of the Environment. Required.
+            api_file (str): Local path to the API definition file
+                (OpenAPI/Postman/HAR/SOAP/GraphQL). Required.
+            api_type (str, optional): OPENAPI, POSTMAN, HAR, SOAP, or
+                GRAPHQL.
+            api_url (str, optional): The API's base URL.
+            api_variables (Dict[str, str], optional): Variable
+                substitutions for the file; sent as a JSON-encoded string.
+
+        Returns:
+            str: the uploaded file's ID.
+        """
+        data = {
+            "UUID": uuid,
+            "EnvironmentID": environment_id,
+            "APIType": api_type,
+            "APIURL": api_url,
+            "APIVariables": json.dumps(api_variables) if api_variables else None,
+        }
+        data = {k: v for k, v in data.items() if v is not None}
+        with open(api_file, "rb") as fh:
+            content = fh.read()
+        files = {
+            "APIFile": (os.path.basename(api_file), content, "application/octet-stream")
+        }
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/apiFile",
+            data=data, files=files,
+        )
+        return response.json().get("id")
+
+    def validate_auth_session_api_file(
+        self, api_file: str, api_type: str = None
+    ) -> dict:
+        """POST /authSession/apiFile/validate — validate an API definition
+        file's extension and content before uploading it for real.
+
+        Args:
+            api_file (str): Local path to the API definition file. Required.
+            api_type (str, optional): OPENAPI, POSTMAN, HAR, SOAP, or
+                GRAPHQL.
+
+        Returns:
+            dict: {"valid": bool, "error": str}. Always returns 200 with
+            the outcome in the body, even when invalid.
+        """
+        data = {"APIType": api_type} if api_type else {}
+        with open(api_file, "rb") as fh:
+            content = fh.read()
+        files = {
+            "APIFile": (os.path.basename(api_file), content, "application/octet-stream")
+        }
+        response = self.api_client.call_api(
+            method="POST", url=f"{self.base_url}/authSession/apiFile/validate",
+            data=data, files=files,
+        )
+        return response.json()
+
+    def bulk_replace_auth_session_api_files(
+        self,
+        environment_id: str,
+        auth_session_uuid: str = None,
+        files: List[str] = None,
+        api_types: List[str] = None,
+        api_variables: List[Dict[str, str]] = None,
+        api_urls: List[str] = None,
+        file_ids_to_keep: List[str] = None,
+        kept_files_updates: Dict[str, dict] = None,
+    ) -> List[str]:
+        """PUT /authSession/apiFiles — bulk replace the auth session's API
+        definition files.
+
+        This endpoint doesn't need an explicit auth session at all —
+        passing only `environment_id` works, and it creates/updates the
+        environment's auth session as a side effect. If you've just
+        called create_auth_session yourself, see
+        update_auth_session_api_file's docstring for a quirk around
+        files not attaching until the session's method has settled.
+
+        Args:
+            environment_id (str): UUID of the Environment. Required.
+            auth_session_uuid (str, optional): The auth session's UUID.
+            files (List[str], optional): Local paths of new API definition
+                files to upload.
+            api_types (List[str], optional): One entry per `files` entry,
+                in the same order. Must be the same length as `files`.
+            api_variables (List[Dict[str, str]], optional): One entry per
+                `files` entry; may be shorter than `files` (sparse). Each
+                dict is sent JSON-encoded.
+            api_urls (List[str], optional): One entry per `files` entry;
+                may be shorter than `files` (sparse).
+            file_ids_to_keep (List[str], optional): IDs of previously
+                uploaded files to keep as-is.
+            kept_files_updates (Dict[str, dict], optional): Updates
+                ({apiVariables, apiUrl}) for kept files, keyed by file ID;
+                sent as a single JSON-encoded object.
+
+        Returns:
+            List[str]: IDs of all files now associated with the auth
+            session (kept + newly uploaded).
+        """
+        # httpx's multipart encoder takes repeated form fields as a list
+        # *value* in the data dict (unlike `files`, which takes a list of
+        # (name, file) tuples for repeats under the same field name).
+        data: Dict[str, object] = {"environmentId": environment_id}
+        if auth_session_uuid:
+            data["AuthSessionUUID"] = auth_session_uuid
+        if api_types:
+            data["apiTypes"] = api_types
+        if api_variables:
+            data["apiVariables"] = [json.dumps(v) for v in api_variables]
+        if api_urls:
+            data["apiUrls"] = api_urls
+        if file_ids_to_keep:
+            data["fileIDsToKeep"] = file_ids_to_keep
+        if kept_files_updates:
+            data["keptFilesUpdates"] = json.dumps(kept_files_updates)
+
+        file_fields = []
+        for path in (files or []):
+            with open(path, "rb") as fh:
+                content = fh.read()
+            file_fields.append(
+                ("files", (os.path.basename(path), content, "application/octet-stream"))
+            )
+
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/apiFiles",
+            data=data, files=file_fields,
+        )
+        return response.json().get("fileIDs", [])
+
+    def update_auth_session_credentials(
+        self,
+        uuid: str,
+        environment_id: str,
+        login_page_url: str,
+        user_name: str,
+        password: str = None,
+        use_existing_password: bool = None,
+        totp: DastAuthSessionTotp = None,
+        use_existing_totp_secret: bool = None,
+        local_auth_test: bool = None,
+        totp_field: DastTotpField = None,
+    ) -> bool:
+        """PUT /authSession/credentials — update the auth session's
+        username/password credentials.
+
+        Args:
+            uuid (str): The auth session's UUID. Required.
+            environment_id (str): UUID of the Environment. Required.
+            login_page_url (str): The login page's URL. Required.
+            user_name (str): The username to authenticate with. Required.
+            password (str, optional): The password. Omit (with
+                use_existing_password=True) to keep the stored password.
+            use_existing_password (bool, optional): Keep the previously
+                stored password.
+            totp (DastAuthSessionTotp, optional): TOTP secret settings.
+            use_existing_totp_secret (bool, optional): Keep the previously
+                stored TOTP secret.
+            local_auth_test (bool, optional): Whether to run the auth test
+                from the local (non-tunneled) network.
+            totp_field (DastTotpField, optional): The form field the TOTP
+                code should be entered into.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        body = {
+            "UUID": uuid,
+            "EnvironmentID": environment_id,
+            "LoginPageURL": login_page_url,
+            "UserName": user_name,
+            "Password": password,
+            "UseExistingPassword": use_existing_password,
+            "TOTP": totp.to_dict() if totp else None,
+            "UseExistingTOTPSecret": use_existing_totp_secret,
+            "LocalAuthTest": local_auth_test,
+            "TotpField": totp_field.to_dict() if totp_field else None,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/credentials", json=body,
+        )
+        return 200 <= response.status_code < 300
+
+    def update_auth_session_file(
+        self,
+        uuid: str,
+        environment_id: str,
+        method: str,
+        use_existing_file: bool = None,
+        totp_secret_key: str = None,
+        totp_length: str = None,
+        totp_period: str = None,
+        use_existing_totp_secret: bool = None,
+        api_type: str = None,
+        authenticated: bool = None,
+        local_auth_test: bool = None,
+        totp_field_attribute: str = None,
+        totp_field_value: str = None,
+        recording_username_field: str = None,
+        recording_password_field: str = None,
+        recording_display_name: str = None,
+        use_existing_recording_password: bool = None,
+        configuration_file: str = None,
+        recording_file: str = None,
+    ) -> bool:
+        """PUT /authSession/file — update the auth session's config file
+        (ZAP config) or recording file (Zest script).
+
+        Args:
+            uuid (str): The auth session's UUID. Required.
+            environment_id (str): UUID of the Environment. Required.
+            method (str): CONFIG or RECORDING. Required.
+            use_existing_file (bool, optional): Keep the previously
+                uploaded file instead of uploading a new one.
+            totp_secret_key (str, optional): TOTP secret key.
+            totp_length (str, optional): TOTP code length.
+            totp_period (str, optional): TOTP refresh period, in seconds.
+            use_existing_totp_secret (bool, optional): Keep the previously
+                stored TOTP secret.
+            api_type (str, optional): OPENAPI, POSTMAN, HAR, SOAP, or
+                GRAPHQL, if the environment also has an API definition.
+            authenticated (bool, optional): Whether the uploaded recording
+                is already known to be authenticated.
+            local_auth_test (bool, optional): Whether to run the auth test
+                from the local (non-tunneled) network.
+            totp_field_attribute (str, optional): Form field attribute
+                the TOTP code should be entered into (RECORDING method).
+            totp_field_value (str, optional): Form field value selector
+                for the TOTP field (RECORDING method).
+            recording_username_field (str, optional): The username value
+                selected from the Zest recording.
+            recording_password_field (str, optional): The password value
+                selected from the Zest recording.
+            recording_display_name (str, optional): Optional display name
+                shown on screen after login.
+            use_existing_recording_password (bool, optional): Keep the
+                previously stored recording password; must leave
+                recording_password_field empty when True.
+            configuration_file (str, optional): Local path to the ZAP
+                config file. Required when method=CONFIG unless
+                use_existing_file=True.
+            recording_file (str, optional): Local path to the Zest
+                recording file. Required when method=RECORDING unless
+                use_existing_file=True.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        data = {
+            "UUID": uuid,
+            "EnvironmentID": environment_id,
+            "Method": method,
+            "UseExistingFile": use_existing_file,
+            "TOTPSecretKey": totp_secret_key,
+            "TOTPLength": totp_length,
+            "TOTPPeriod": totp_period,
+            "UseExistingTOTPSecret": use_existing_totp_secret,
+            "APIType": api_type,
+            "Authenticated": authenticated,
+            "LocalAuthTest": local_auth_test,
+            "TOTPFieldAttribute": totp_field_attribute,
+            "TOTPFieldValue": totp_field_value,
+            "RecordingUsernameField": recording_username_field,
+            "RecordingPasswordField": recording_password_field,
+            "RecordingDisplayName": recording_display_name,
+            "UseExistingRecordingPassword": use_existing_recording_password,
+        }
+        data = {k: str(v) for k, v in data.items() if v is not None}
+
+        files = {}
+        if configuration_file:
+            with open(configuration_file, "rb") as fh:
+                content = fh.read()
+            files["configurationFile"] = (
+                os.path.basename(configuration_file), content, "application/octet-stream"
+            )
+        if recording_file:
+            with open(recording_file, "rb") as fh:
+                content = fh.read()
+            files["recordingFile"] = (
+                os.path.basename(recording_file), content, "application/octet-stream"
+            )
+
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/file",
+            data=data, files=files,
+        )
+        return 200 <= response.status_code < 300
+
+    def get_auth_session(
+        self, env_id: str, uuid: str = None, auth_success: str = None
+    ) -> DastAuthSession:
+        """GET /authSession/{envId} — get the full auth session for an
+        Environment, including credentials and files.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str, optional): A specific auth session UUID, if the
+                Environment has more than one on record.
+            auth_success (str, optional): Filter by last auth test result.
+
+        Returns:
+            DastAuthSession
+        """
+        params = {"uuid": uuid, "authSuccess": auth_success}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}", params=params,
+        )
+        return DastAuthSession.from_dict(response.json())
+
+    def get_auth_session_api_file(
+        self, env_id: str, auth_session_uuid: str = None, file_uuid: str = None
+    ) -> bytes:
+        """GET /authSession/{envId}/apiFile — download an auth session's
+        API definition file.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            auth_session_uuid (str, optional): A specific auth session UUID.
+            file_uuid (str, optional): A specific file's UUID, if more
+                than one API file is attached.
+
+        Returns:
+            bytes: raw file content.
+        """
+        params = {"authSessionUUID": auth_session_uuid, "fileUUID": file_uuid}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/apiFile",
+            params=params,
+        )
+        return response.content
+
+    def delete_auth_session_api_file(self, env_id: str, api_file_id: str) -> bool:
+        """DELETE /authSession/{envId}/apiFile/{apiFileId} — delete one of
+        the auth session's API definition files.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            api_file_id (str): UUID of the API file to delete. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        response = self.api_client.call_api(
+            method="DELETE",
+            url=f"{self.base_url}/authSession/{env_id}/apiFile/{api_file_id}",
+        )
+        return 200 <= response.status_code < 300
+
+    def get_auth_session_api_files_data(
+        self, env_id: str, auth_session_uuid: str = None
+    ) -> List[DastApiFileWithType]:
+        """GET /authSession/{envId}/apiFilesData — get all of the auth
+        session's API definition files, with their content.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            auth_session_uuid (str, optional): A specific auth session UUID.
+
+        Returns:
+            List[DastApiFileWithType]
+        """
+        params = {"authSessionUUID": auth_session_uuid}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/apiFilesData",
+            params=params,
+        )
+        return [
+            DastApiFileWithType.from_dict(f)
+            for f in (response.json().get("apiFiles") or [])
+        ]
+
+    def get_auth_session_diagnostics(self, env_id: str) -> bytes:
+        """GET /authSession/{envId}/diagnostics — download a zip of
+        diagnostics for the auth session.
+
+        Confirmed live: 404s ("no auth diagnostics found") on a session
+        straight off create_auth_session — see update_auth_session_api_file's
+        docstring for the same "settle the session's method first" quirk.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+
+        Returns:
+            bytes: raw ZIP file content.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/diagnostics"
+        )
+        return response.content
+
+    def get_auth_session_domains(
+        self, env_id: str, uuid: str = None
+    ) -> List[str]:
+        """GET /authSession/{envId}/domains — get the domains visited
+        while setting up the auth session.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str, optional): A specific auth session UUID.
+
+        Returns:
+            List[str]: domains.
+        """
+        params = {"uuid": uuid}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/domains",
+            params=params,
+        )
+        return response.json().get("domains", [])
+
+    def get_auth_session_masked(
+        self, env_id: str, uuid: str = None, auth_success: str = None
+    ) -> DastAuthSession:
+        """GET /authSession/{envId}/masked — get the auth session with
+        credentials redacted (password, TOTP secret) and no file content.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str, optional): A specific auth session UUID.
+            auth_success (str, optional): Filter by last auth test result.
+
+        Returns:
+            DastAuthSession
+        """
+        params = {"uuid": uuid, "authSuccess": auth_success}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/masked",
+            params=params,
+        )
+        return DastAuthSession.from_dict(response.json())
+
+    def set_auth_session_no_auth(self, env_id: str, uuid: str) -> bool:
+        """PUT /authSession/{envId}/noAuth — switch the auth session to
+        no-auth.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/{env_id}/noAuth",
+            json={"UUID": uuid},
+        )
+        return 200 <= response.status_code < 300
+
+    def ping_auth_session(self, env_id: str, uuid: str, source: str) -> bool:
+        """PUT /authSession/{envId}/ping — ping the auth session to check
+        whether the opposite side (browser/CLI) is still connected.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+            source (str): Identifies which side is pinging. Required.
+                Same undocumented-value situation as SessionType on
+                create_auth_session; "CLI" is confirmed to work live
+                (ping on an already-finished session 409s, which is
+                expected and documented, not a validation rejection).
+
+        Returns:
+            bool: whether the opposite side is connected.
+        """
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/{env_id}/ping",
+            json={"UUID": uuid, "Source": source},
+        )
+        return response.json()
+
+    def update_auth_session_report(
+        self, env_id: str, uuid: str, test_log: str, report: str = None
+    ) -> bool:
+        """PUT /authSession/{envId}/report — upload the auth session's
+        report and test log files.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+            test_log (str): Local path to the test log file. Required.
+            report (str, optional): Local path to the report file.
+
+        Returns:
+            bool: True if the API returned a 2xx status.
+        """
+        with open(test_log, "rb") as fh:
+            test_log_content = fh.read()
+        files = {
+            "testLog": (os.path.basename(test_log), test_log_content, "text/plain"),
+        }
+        if report:
+            with open(report, "rb") as fh:
+                report_content = fh.read()
+            files["report"] = (
+                os.path.basename(report), report_content, "application/octet-stream"
+            )
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/authSession/{env_id}/report",
+            data={"UUID": uuid}, files=files,
+        )
+        return 200 <= response.status_code < 300
+
+    def get_auth_session_report(self, env_id: str, uuid: str) -> bytes:
+        """GET /authSession/{envId}/report — download the auth session's
+        report file.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+
+        Returns:
+            bytes: raw file content.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/report",
+            params={"uuid": uuid},
+        )
+        return response.content
+
+    def get_auth_session_report_data(
+        self, env_id: str, uuid: str
+    ) -> DastAuthSessionReportData:
+        """GET /authSession/{envId}/reportData — get the auth session's
+        report as structured data.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+
+        Returns:
+            DastAuthSessionReportData
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/reportData",
+            params={"uuid": uuid},
+        )
+        return DastAuthSessionReportData.from_dict(response.json())
+
+    def get_auth_session_state(self, env_id: str, uuid: str) -> Optional[str]:
+        """GET /authSession/{envId}/state — get the auth session's current
+        state.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+
+        Returns:
+            Optional[str]: the auth session's state.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/state",
+            params={"uuid": uuid},
+        )
+        return response.json().get("state")
+
+    def get_auth_session_test_log(self, env_id: str, uuid: str) -> bytes:
+        """GET /authSession/{envId}/testLog — download the auth session's
+        test log file.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str): The auth session's UUID. Required.
+
+        Returns:
+            bytes: raw file content.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/authSession/{env_id}/testLog",
+            params={"uuid": uuid},
+        )
+        return response.content
+
 
 # ----- Module-level conveniences -----
 
@@ -640,3 +1288,192 @@ def dast_get_scan_by_id(scan_id: str) -> DastScan:
 
 def get_scan_log(scan_id: str) -> bytes:
     return DastScanAPI().get_scan_log(scan_id=scan_id)
+
+
+def create_auth_session(
+    environment_id: str,
+    session_type: str,
+    url: str,
+    uuid: str = None,
+    method: str = None,
+) -> bool:
+    return DastScanAPI().create_auth_session(
+        environment_id=environment_id, session_type=session_type, url=url,
+        uuid=uuid, method=method,
+    )
+
+
+def update_auth_session_api_file(
+    uuid: str,
+    environment_id: str,
+    api_file: str,
+    api_type: str = None,
+    api_url: str = None,
+    api_variables: Dict[str, str] = None,
+) -> str:
+    return DastScanAPI().update_auth_session_api_file(
+        uuid=uuid, environment_id=environment_id, api_file=api_file,
+        api_type=api_type, api_url=api_url, api_variables=api_variables,
+    )
+
+
+def validate_auth_session_api_file(api_file: str, api_type: str = None) -> dict:
+    return DastScanAPI().validate_auth_session_api_file(
+        api_file=api_file, api_type=api_type,
+    )
+
+
+def bulk_replace_auth_session_api_files(
+    environment_id: str,
+    auth_session_uuid: str = None,
+    files: List[str] = None,
+    api_types: List[str] = None,
+    api_variables: List[Dict[str, str]] = None,
+    api_urls: List[str] = None,
+    file_ids_to_keep: List[str] = None,
+    kept_files_updates: Dict[str, dict] = None,
+) -> List[str]:
+    return DastScanAPI().bulk_replace_auth_session_api_files(
+        environment_id=environment_id, auth_session_uuid=auth_session_uuid,
+        files=files, api_types=api_types, api_variables=api_variables,
+        api_urls=api_urls, file_ids_to_keep=file_ids_to_keep,
+        kept_files_updates=kept_files_updates,
+    )
+
+
+def update_auth_session_credentials(
+    uuid: str,
+    environment_id: str,
+    login_page_url: str,
+    user_name: str,
+    password: str = None,
+    use_existing_password: bool = None,
+    totp: DastAuthSessionTotp = None,
+    use_existing_totp_secret: bool = None,
+    local_auth_test: bool = None,
+    totp_field: DastTotpField = None,
+) -> bool:
+    return DastScanAPI().update_auth_session_credentials(
+        uuid=uuid, environment_id=environment_id, login_page_url=login_page_url,
+        user_name=user_name, password=password,
+        use_existing_password=use_existing_password, totp=totp,
+        use_existing_totp_secret=use_existing_totp_secret,
+        local_auth_test=local_auth_test, totp_field=totp_field,
+    )
+
+
+def update_auth_session_file(
+    uuid: str,
+    environment_id: str,
+    method: str,
+    use_existing_file: bool = None,
+    totp_secret_key: str = None,
+    totp_length: str = None,
+    totp_period: str = None,
+    use_existing_totp_secret: bool = None,
+    api_type: str = None,
+    authenticated: bool = None,
+    local_auth_test: bool = None,
+    totp_field_attribute: str = None,
+    totp_field_value: str = None,
+    recording_username_field: str = None,
+    recording_password_field: str = None,
+    recording_display_name: str = None,
+    use_existing_recording_password: bool = None,
+    configuration_file: str = None,
+    recording_file: str = None,
+) -> bool:
+    return DastScanAPI().update_auth_session_file(
+        uuid=uuid, environment_id=environment_id, method=method,
+        use_existing_file=use_existing_file, totp_secret_key=totp_secret_key,
+        totp_length=totp_length, totp_period=totp_period,
+        use_existing_totp_secret=use_existing_totp_secret, api_type=api_type,
+        authenticated=authenticated, local_auth_test=local_auth_test,
+        totp_field_attribute=totp_field_attribute,
+        totp_field_value=totp_field_value,
+        recording_username_field=recording_username_field,
+        recording_password_field=recording_password_field,
+        recording_display_name=recording_display_name,
+        use_existing_recording_password=use_existing_recording_password,
+        configuration_file=configuration_file, recording_file=recording_file,
+    )
+
+
+def get_auth_session(
+    env_id: str, uuid: str = None, auth_success: str = None
+) -> DastAuthSession:
+    return DastScanAPI().get_auth_session(
+        env_id=env_id, uuid=uuid, auth_success=auth_success,
+    )
+
+
+def get_auth_session_api_file(
+    env_id: str, auth_session_uuid: str = None, file_uuid: str = None
+) -> bytes:
+    return DastScanAPI().get_auth_session_api_file(
+        env_id=env_id, auth_session_uuid=auth_session_uuid, file_uuid=file_uuid,
+    )
+
+
+def delete_auth_session_api_file(env_id: str, api_file_id: str) -> bool:
+    return DastScanAPI().delete_auth_session_api_file(
+        env_id=env_id, api_file_id=api_file_id,
+    )
+
+
+def get_auth_session_api_files_data(
+    env_id: str, auth_session_uuid: str = None
+) -> List[DastApiFileWithType]:
+    return DastScanAPI().get_auth_session_api_files_data(
+        env_id=env_id, auth_session_uuid=auth_session_uuid,
+    )
+
+
+def get_auth_session_diagnostics(env_id: str) -> bytes:
+    return DastScanAPI().get_auth_session_diagnostics(env_id=env_id)
+
+
+def get_auth_session_domains(env_id: str, uuid: str = None) -> List[str]:
+    return DastScanAPI().get_auth_session_domains(env_id=env_id, uuid=uuid)
+
+
+def get_auth_session_masked(
+    env_id: str, uuid: str = None, auth_success: str = None
+) -> DastAuthSession:
+    return DastScanAPI().get_auth_session_masked(
+        env_id=env_id, uuid=uuid, auth_success=auth_success,
+    )
+
+
+def set_auth_session_no_auth(env_id: str, uuid: str) -> bool:
+    return DastScanAPI().set_auth_session_no_auth(env_id=env_id, uuid=uuid)
+
+
+def ping_auth_session(env_id: str, uuid: str, source: str) -> bool:
+    return DastScanAPI().ping_auth_session(env_id=env_id, uuid=uuid, source=source)
+
+
+def update_auth_session_report(
+    env_id: str, uuid: str, test_log: str, report: str = None
+) -> bool:
+    return DastScanAPI().update_auth_session_report(
+        env_id=env_id, uuid=uuid, test_log=test_log, report=report,
+    )
+
+
+def get_auth_session_report(env_id: str, uuid: str) -> bytes:
+    return DastScanAPI().get_auth_session_report(env_id=env_id, uuid=uuid)
+
+
+def get_auth_session_report_data(
+    env_id: str, uuid: str
+) -> DastAuthSessionReportData:
+    return DastScanAPI().get_auth_session_report_data(env_id=env_id, uuid=uuid)
+
+
+def get_auth_session_state(env_id: str, uuid: str) -> Optional[str]:
+    return DastScanAPI().get_auth_session_state(env_id=env_id, uuid=uuid)
+
+
+def get_auth_session_test_log(env_id: str, uuid: str) -> bytes:
+    return DastScanAPI().get_auth_session_test_log(env_id=env_id, uuid=uuid)
