@@ -298,9 +298,12 @@ class AiAssetsAPI(object):
         asset_names: str = None,
         providers: str = None,
         version: str = None,
-        first_detection_date_time: str = None,
-        state: List[str] = None,
+        asset_first_detection_date: str = None,
+        asset_status: List[str] = None,
+        evidence_status: List[str] = None,
         path: str = None,
+        risk_severities: str = None,
+        project_id: str = None,
         limit: int = None,
         offset: int = 1,
         order_column: str = None,
@@ -309,6 +312,13 @@ class AiAssetsAPI(object):
         """
         Get AI supply chain results for a specific scan.
 
+        Confirmed live (2026-10-30): this is the current field/param
+        shape. It replaces an older shape (state/firstDetectionDateTime)
+        that's still what the public API reference documents -- state
+        has been split into separate asset-level/evidence-level triage
+        statuses, and firstDetectionDateTime renamed to
+        assetFirstDetectionDate.
+
         Args:
             scan_id (str): Scan ID (uuid)
             search (str): Full-text search
@@ -316,17 +326,34 @@ class AiAssetsAPI(object):
             asset_names (str): Comma-separated asset names
             providers (str): Comma-separated providers
             version (str): Filter by version
-            first_detection_date_time (str): Filter by detection time (date-time)
-            state (List[str]): Filter by state
+            asset_first_detection_date (str): Filter by detection time
+                (date-time)
+            asset_status (List[str]): Filter by asset-level triage
+                status (e.g. muted, snoozed). Requires project_id so
+                triage enrichment runs.
+            evidence_status (List[str]): Filter by evidence-level
+                triage status. Requires project_id so triage
+                enrichment runs.
             path (str): Filter by file location
+            risk_severities (str): Comma-separated severity labels
+                (CRITICAL, HIGH, MEDIUM, LOW); only assets with at
+                least one matching-severity risk are returned.
+            project_id (str, optional): Project GUID. Enriches each
+                result with triage (state/scope/snoozeEndDate) from
+                the triage service; also required for asset_status/
+                evidence_status filtering. Triage is always fetched
+                live, never cached.
             limit (int): Max results (1-100)
             offset (int): 1-based page number. Default: 1
-            order_column (str): assetType, assetName, provider, version,
-                firstDetectionDateTime, state. Default: assetName
+            order_column (str): assetType, assetName, provider,
+                version, assetFirstDetectionDate, state, riskSummary.
+                Default: assetName
             order_direction (str): asc, desc, ASC, DESC. Default: desc
 
         Returns:
-            dict with data, total, currentPage, lastPage
+            dict with data, total, currentPage, lastPage. Each entry
+            in data may include riskSummary (aggregated risk counts)
+            and triage (evidence/asset triage info) when available.
         """
         url = f"{self.base_url}/reader/scans/{scan_id}/results"
         params = {
@@ -335,9 +362,12 @@ class AiAssetsAPI(object):
             "asset-names": asset_names,
             "providers": providers,
             "version": version,
-            "firstDetectionDateTime": first_detection_date_time,
-            "state": state,
+            "assetFirstDetectionDate": asset_first_detection_date,
+            "asset-status": asset_status,
+            "evidence-status": evidence_status,
             "path": path,
+            "risk-severities": risk_severities,
+            "projectId": project_id,
             "limit": limit,
             "offset": offset,
             "orderColumn": order_column,
@@ -357,12 +387,18 @@ class AiAssetsAPI(object):
         asset_names: str = None,
         providers: str = None,
         version: str = None,
-        first_detection_date_time: str = None,
-        state: List[str] = None,
+        asset_first_detection_date: str = None,
+        asset_status: List[str] = None,
+        evidence_status: List[str] = None,
         path: str = None,
+        project_id: str = None,
     ) -> dict:
         """
         Aggregate scan results groups by specified fields.
+
+        Confirmed live (2026-10-30): see get_scan_results for the
+        state/firstDetectionDateTime -> asset_status+evidence_status/
+        assetFirstDetectionDate rename this endpoint also picked up.
 
         Args:
             scan_id (str): Scan ID (uuid)
@@ -373,9 +409,14 @@ class AiAssetsAPI(object):
             asset_names (str): Comma-separated asset names
             providers (str): Comma-separated providers
             version (str): Filter by version
-            first_detection_date_time (str): Filter by detection time
-            state (List[str]): Filter by state
+            asset_first_detection_date (str): Filter by detection time
+            asset_status (List[str]): Filter by asset-level triage
+                status. Requires project_id.
+            evidence_status (List[str]): Filter by evidence-level
+                triage status. Requires project_id.
             path (str): Filter by file location
+            project_id (str, optional): Project GUID, required for
+                asset_status/evidence_status filtering to take effect.
 
         Returns:
             dict with scanGroupsCounter
@@ -388,9 +429,11 @@ class AiAssetsAPI(object):
             "asset-names": asset_names,
             "providers": providers,
             "version": version,
-            "firstDetectionDateTime": first_detection_date_time,
-            "state": state,
+            "assetFirstDetectionDate": asset_first_detection_date,
+            "asset-status": asset_status,
+            "evidence-status": evidence_status,
             "path": path,
+            "projectId": project_id,
         }
         response = self.api_client.call_api(
             method="GET", url=url, params=params
@@ -408,11 +451,17 @@ class AiAssetsAPI(object):
         search: str = None,
         order_column: str = None,
         order_direction: str = None,
+        project_id: str = None,
         limit: int = None,
         offset: int = 1,
     ) -> dict:
         """
         Get LLM-assessed risks for a specific asset in a scan.
+
+        Confirmed live (2026-10-30): data is sourced from the ai-sc-risks
+        service. Each risk item's `riskId` is deprecated in favor of
+        `similarityId` (stable across rescans); `riskId` is planned for
+        removal.
 
         Args:
             scan_id (str): Scan ID (uuid)
@@ -424,11 +473,17 @@ class AiAssetsAPI(object):
             search (str): Full-text search
             order_column (str): name, severity, riskId
             order_direction (str): asc, desc
+            project_id (str, optional): Project GUID. When supplied,
+                each risk item is enriched with per-risk triage
+                (state/severity/scope) from the triage service, always
+                fetched live (never cached).
             limit (int): Max results (1-100)
             offset (int): 1-based page number. Default: 1
 
         Returns:
-            dict with scanId, assetId, assetName, risks, riskCountBySeverity
+            dict with scanId, assetId, assetName, assetUrl, risks,
+            riskCountBySeverity, and (when project_id is supplied)
+            asset-level triage.
         """
         url = (
             f"{self.base_url}/reader/scans/{scan_id}"
@@ -442,6 +497,7 @@ class AiAssetsAPI(object):
             "search": search,
             "orderColumn": order_column,
             "orderDirection": order_direction,
+            "projectId": project_id,
             "limit": limit,
             "offset": offset,
         }
@@ -559,9 +615,12 @@ def get_scan_results(
     asset_names: str = None,
     providers: str = None,
     version: str = None,
-    first_detection_date_time: str = None,
-    state: List[str] = None,
+    asset_first_detection_date: str = None,
+    asset_status: List[str] = None,
+    evidence_status: List[str] = None,
     path: str = None,
+    risk_severities: str = None,
+    project_id: str = None,
     limit: int = None,
     offset: int = 1,
     order_column: str = None,
@@ -570,8 +629,10 @@ def get_scan_results(
     return AiAssetsAPI().get_scan_results(
         scan_id=scan_id, search=search, asset_type_ids=asset_type_ids,
         asset_names=asset_names, providers=providers, version=version,
-        first_detection_date_time=first_detection_date_time, state=state,
-        path=path, limit=limit, offset=offset, order_column=order_column,
+        asset_first_detection_date=asset_first_detection_date,
+        asset_status=asset_status, evidence_status=evidence_status,
+        path=path, risk_severities=risk_severities, project_id=project_id,
+        limit=limit, offset=offset, order_column=order_column,
         order_direction=order_direction,
     )
 
@@ -584,16 +645,19 @@ def aggregate_scan_results(
     asset_names: str = None,
     providers: str = None,
     version: str = None,
-    first_detection_date_time: str = None,
-    state: List[str] = None,
+    asset_first_detection_date: str = None,
+    asset_status: List[str] = None,
+    evidence_status: List[str] = None,
     path: str = None,
+    project_id: str = None,
 ) -> dict:
     return AiAssetsAPI().aggregate_scan_results(
         scan_id=scan_id, group_by=group_by, search=search,
         asset_type_ids=asset_type_ids, asset_names=asset_names,
         providers=providers, version=version,
-        first_detection_date_time=first_detection_date_time,
-        state=state, path=path,
+        asset_first_detection_date=asset_first_detection_date,
+        asset_status=asset_status, evidence_status=evidence_status,
+        path=path, project_id=project_id,
     )
 
 
@@ -607,6 +671,7 @@ def get_asset_risks(
     search: str = None,
     order_column: str = None,
     order_direction: str = None,
+    project_id: str = None,
     limit: int = None,
     offset: int = 1,
 ) -> dict:
@@ -614,5 +679,6 @@ def get_asset_risks(
         scan_id=scan_id, asset_id=asset_id, severities=severities,
         names=names, risk_ids=risk_ids, file_path=file_path,
         search=search, order_column=order_column,
-        order_direction=order_direction, limit=limit, offset=offset,
+        order_direction=order_direction, project_id=project_id,
+        limit=limit, offset=offset,
     )

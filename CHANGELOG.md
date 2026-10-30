@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Breaking] AiAssetsAPI.get_scan_results / aggregate_scan_results / get_asset_risks — the live /api/ai-sc/reader service has moved past the shape the public API reference still documents. Renamed first_detection_date_time -> asset_first_detection_date (query param firstDetectionDateTime -> assetFirstDetectionDate) on get_scan_results/aggregate_scan_results; replaced the single state filter with separate asset_status/evidence_status filters (both require project_id to take effect); added project_id to all three methods (enables live triage enrichment -- riskSummary/triage fields on results, per-risk triage on asset risks) and risk_severities to get_scan_results. Confirmed via a live 404 Error-schema match (`{"message": ...}`) that this tenant is actually running the newer shape, not the one the public docs describe.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02
