@@ -1,0 +1,4197 @@
+openapi: 3.0.1
+info:
+  title: Result Service Frontend API
+  description: API for the Result Service Frontend
+  version: 1.0.0
+tags:
+  - name: result-service
+paths:
+  "/":
+    get:
+      description: healthCheck API
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Result-Service V2 V3 MFE Server Working!"
+      operationId: healthCheck
+  /results/{scan_id}:
+    get:
+      description: Gets all results with pagination, filtering, sorting and search for a specific scan id
+      operationId: getResults
+      parameters:
+        - name: scan_id
+          in: path
+          description: The scan id to get results for
+          required: true
+          schema:
+            type: string
+            example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+        - name: page
+          in: query
+          description: The page number to get results for
+          required: true
+          schema:
+            type: integer
+            example: "1"
+        - name: per_page
+          in: query
+          description: The number of results per page
+          required: true
+          schema:
+            type: integer
+            example: "10"
+        - name: sort_by
+          in: query
+          description: An object of key values to sort columns by regular - (method:asc), url encoded - (method%3Aasc)
+          required: false
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              example: "method%3Adesc"
+        - name: search
+          in: query
+          description: The search query
+          required: false
+          schema:
+            type: string
+        - name: filter
+          in: query
+          description: columns to filter by and values
+          required: false
+          schema:
+            $ref: '#/components/schemas/ResultsFilter'
+        - name: group
+          in: query
+          description: columns to group by and values
+          required: false
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              severity:
+                type: string
+              name:
+                type: string
+              method:
+                type: string
+              status:
+                type: string
+              state:
+                type: string
+              url:
+                type: string
+              path:
+                type: string
+              owasp:
+                type: string
+              alert_similarity_id:
+                type: string
+              correlation_findings:
+                type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultSummarizedList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/info/{result_id}/{scan_id}":
+    get:
+      description: Gets the results info for a specific result id
+      operationId: getResultInfo
+      parameters:
+        - name: result_id
+          in: path
+          description: The result id to get info for
+          required: true
+          schema:
+            type: string
+            example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+        - name: scan_id
+          in: path
+          description: The scan id to get results for
+          required: true
+          schema:
+            type: string
+            example: "a32b6565-67d4-4079-9d0e-97061d3b9f3f"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultInfo'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/{scan_id}/group":
+    get:
+      description: Group results by columns
+      operationId: getGroups
+      parameters:
+        - name: scan_id
+          in: path
+          description: The scan id to group results
+          required: true
+          schema:
+            type: string
+            example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+        - name: group
+          in: query
+          description: the columns to group by [status, name, method, severity, url, path]
+          required: false
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              example: status
+        - name: search
+          in: query
+          description: The search query
+          required: false
+          schema:
+            type: string
+        - name: filter
+          in: query
+          description: columns to filter by and values
+          required: false
+          schema:
+            $ref: '#/components/schemas/ResultsFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/{scan_id}/environment/{environment_id}/instance/{similarity_id_2}":
+    get:
+      description: Returns instance findings data (request/response, param, evidence, other info) for a given scan, environment, and instance similarity ID
+      operationId: getInstanceFindings
+      parameters:
+        - name: scan_id
+          in: path
+          description: The scan id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+        - name: environment_id
+          in: path
+          description: The environment id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: similarity_id_2
+          in: path
+          description: The instance similarity ID
+          required: true
+          schema:
+            type: string
+            example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceFindings'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/sitestree/{environment_id}/{scan_id}":
+    get:
+      description: Gets the sites tree for a scan
+      operationId: getScanSitesTree
+      parameters:
+        - name: environment_id
+          in: path
+          description: The environment id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: scan_id
+          in: path
+          description: The scan id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SiteTreeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/analytics/compliance/{app_id}":
+    get:
+      description: Gets compliance pass/fail analytics for a given application ID
+      operationId: getComplianceAnalytics
+      parameters:
+        - name: app_id
+          in: path
+          description: The application ID
+          required: true
+          schema:
+            type: string
+            example: "361b9e20-7ff5-43e4-b55c-bca3be151dda"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceAnalytics'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - failed to get compliance analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/states_summary/{app_id}":
+    get:
+      description: Gets the results states summary for a given application ID
+      operationId: getResultsStatesSummary
+      parameters:
+        - name: app_id
+          in: path
+          description: The application ID
+          required: true
+          schema:
+            type: string
+            example: "361b9e20-7ff5-43e4-b55c-bca3be151dda"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsStatesSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - failed to get results states summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/vulnerability_summary":
+    get:
+      description: Get comprehensive vulnerability summary for a specific environment and scan including severity breakdown, state breakdown, and compliance breakdown
+      operationId: getVulnerabilitySummary
+      parameters:
+        - name: environment_id
+          in: path
+          description: The environment ID to get vulnerability summary for
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: scan_id
+          in: path
+          description: The scan ID to get vulnerability summary for
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "5fea8569-563a-44cc-955b-5d5a2304f173"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VulnerabilitySummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - User does not have access to the environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - Scan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/setting/alert_level_enabled":
+    get:
+      description: Checks whether alert-level grouping is enabled for the caller's tenant
+      operationId: isAlertLevelEnabled
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  isEnabled:
+                    type: boolean
+                    example: true
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/alert_level":
+    get:
+      description: Gets results grouped by alert level (alert-similarity), with pagination, filtering, sorting, and search
+      operationId: getAlertLevelResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/perPage'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertLevelResultList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Same as GET, but accepts the filter/sort/search/group parameters in a JSON request body instead of query string
+      operationId: postAlertLevelResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertLevelRequestBody'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertLevelResultList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/overview/occurrences_over_time/{environment_id}":
+    get:
+      description: Gets new/recurrent occurrence counts over time for alert-level results in an environment
+      operationId: getAlertLevelOccurrences
+      parameters:
+        - name: environment_id
+          in: path
+          description: The environment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: scan_id
+          in: query
+          description: Optional scan ID filter
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: start
+          in: query
+          description: Start of the time period (ISO8601/RFC3339)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2024-10-01T00:00:00Z"
+        - name: end
+          in: query
+          description: End of the time period (ISO8601/RFC3339)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2024-11-01T00:00:00Z"
+        - name: severity
+          in: query
+          description: Filter by severity (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+        - name: compliance
+          in: query
+          description: Filter by compliance type (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: include_manual_results
+          in: query
+          description: Whether to include manual findings in the results
+          required: false
+          schema:
+            type: boolean
+            example: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertLevelOccurrencesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/alert/{alert_id}/info":
+    get:
+      description: Gets the alert description/info for a given alert similarity ID
+      operationId: getAlertInfo
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: alert_id
+          in: path
+          description: The alert similarity ID
+          required: true
+          schema:
+            type: string
+            example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertInfo'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/alert/{alert_id}/instances":
+    get:
+      description: Gets the instances for a given alert similarity ID, with pagination, filtering, sorting, and search
+      operationId: getAlertInstances
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: alert_id
+          in: path
+          description: The alert similarity ID
+          required: true
+          schema:
+            type: string
+            example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/perPage'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertInstanceSummarizedList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/alert_level/group":
+    get:
+      description: Gets grouped alert-level results (counts per tuple of the requested group-by columns)
+      operationId: getGroupedAlertLevelResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: group
+          in: query
+          description: the columns to group by [status, name, method, severity, url, path, state, compliance, owasp]
+          required: true
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              example: status
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Groups'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Same as GET, but accepts the group/filter/search parameters in a JSON request body instead of query string
+      operationId: postGroupedAlertLevelResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupByRequestBody'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Groups'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/full_scan_results":
+    get:
+      description: Returns all alerts and instances for a scan (used by the correlation wizard), including correlatedAt timestamps
+      operationId: getFullScanResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetScanResultsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/correlations/{environment_id}/{scan_id}/results/latest":
+    get:
+      description: Gets the latest code-correlation results for a given alert or instance similarity ID (requires the DAST-code correlation feature flag)
+      operationId: getLatestCorrelationResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: similarity_id
+          in: query
+          description: The alert or instance similarity ID to get correlation results for
+          required: true
+          schema:
+            type: string
+            example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+        - name: type
+          in: query
+          description: Whether similarity_id refers to an alert or an instance
+          required: true
+          schema:
+            type: string
+            enum: [alert, instance]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VulnerabilityCorrelations'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - user lacks environment access, or the DAST-code correlation feature is not enabled for this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/overview/risk_level_over_time/{environment_id}":
+    get:
+      description: Get risk level over time for alert level - returns total number of vulnerabilities for each scan with breakdown by severity level. Can be filtered by time period, risk level, and compliance.
+      operationId: getRiskLevelOverTime
+      parameters:
+        - name: environment_id
+          in: path
+          description: The environment ID to get risk level data for
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: start_date
+          in: query
+          description: Start date for the time period (RFC3339 format)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2024-10-01T00:00:00Z"
+        - name: end_date
+          in: query
+          description: End date for the time period (RFC3339 format)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2024-11-01T00:00:00Z"
+        - name: risk_levels
+          in: query
+          description: Filter by specific risk levels (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+            example: ["CRITICAL", "HIGH"]
+        - name: compliance_types
+          in: query
+          description: Filter by compliance types (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [OWASP, CWE, WASC]
+            example: ["OWASP"]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskLevelOverTimeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - User does not have access to the environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/overview/compliance_over_time/{environment_id}":
+    get:
+      description: Get compliance over time for alert level - returns total number of vulnerabilities for each scan with breakdown by compliance type (OWASP, CWE, WASC). Can be filtered by time period, risk level, and compliance.
+      operationId: getComplianceOverTime
+      parameters:
+        - name: environment_id
+          in: path
+          description: The environment ID to get compliance data for
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: start_date
+          in: query
+          description: Start date for the time period (RFC3339 format)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2024-10-01T00:00:00Z"
+        - name: end_date
+          in: query
+          description: End date for the time period (RFC3339 format)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2024-11-01T00:00:00Z"
+        - name: risk_levels
+          in: query
+          description: Filter by specific risk levels (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+            example: ["CRITICAL", "HIGH"]
+        - name: compliance_types
+          in: query
+          description: Filter by compliance types (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [OWASP, CWE, WASC]
+            example: ["OWASP", "CWE"]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceOverTimeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - User does not have access to the environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/overview/states_over_time/{environment_id}":
+    get:
+      description: Get state over time for alert level - returns total number of vulnerabilities for each scan with breakdown by state. Can be filtered by time period, risk level, and compliance.
+      operationId: getStatesOverTime
+      parameters:
+        - name: environment_id
+          in: path
+          description: The environment ID to get state data for
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "c668cda7-ec6a-498c-8660-4b29be557280"
+        - name: start_date
+          in: query
+          description: Start date for the time period (RFC3339 format)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2024-10-01T00:00:00Z"
+        - name: end_date
+          in: query
+          description: End date for the time period (RFC3339 format)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2024-11-01T00:00:00Z"
+        - name: risk_levels
+          in: query
+          description: Filter by specific risk levels (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+            example: ["CRITICAL", "HIGH"]
+        - name: compliance_types
+          in: query
+          description: Filter by compliance types (can specify multiple)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [OWASP, CWE, WASC]
+            example: ["OWASP"]
+        - name: include_manual_results
+          in: query
+          description: Whether to include manual findings in the results
+          required: false
+          schema:
+            type: boolean
+            example: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatesOverTimeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - User does not have access to the environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/{scan_id}/top_five_risks":
+    get:
+      description: Returns the top five risks (by category) for a given scan ID
+      operationId: getTopFiveRisks
+      parameters:
+        - name: scan_id
+          in: path
+          description: The scan id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+        - name: filter
+          in: query
+          description: filter results by severity
+          required: false
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              severity:
+                type: string
+                example: "HIGH"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TopFiveRisks'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/{scan_id}/aging_summary":
+    get:
+      description: Returns the aging summary (risk counts bucketed by age) for a given scan ID
+      operationId: getAgingSummary
+      parameters:
+        - name: scan_id
+          in: path
+          description: The scan id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeSpanRiskSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /changelog:
+    post:
+      description: Updates results metadata including severity, state, and notes
+      operationId: updateChangelog
+      requestBody:
+        description: A structure containing the results to update and the new metadata
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - similarityID2
+                - environment_id
+                - scan_id
+              properties:
+                similarityID2:
+                  type: array
+                  description: Array of result IDs to update
+                  maxItems: 1000
+                  minItems: 1
+                  items:
+                    type: string
+                    example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+                  example: ["79f91fc5-3779-4699-8cd2-9b466e72e799", "466f0848-7e0b-47e8-abe1-b2f114ccb130"]
+                environment_id:
+                  type: string
+                  description: The environment ID
+                  example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+                scan_id:
+                  type: string
+                  description: The scan ID
+                  example: "39e776e4-adfb-4fc7-a144-66c7237f5c7a"
+                severity:
+                  type: string
+                  description: New severity level (optional)
+                  enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+                  example: "HIGH"
+                state:
+                  type: string
+                  description: New state value (optional)
+                  enum: ["To Verify", "Not Exploitable", "Propose Not Exploitable", "Urgent", "Confirmed"]
+                  example: "To Verify"
+                note:
+                  type: string
+                  description: Optional note to add to the changelog
+                  maxLength: 1000
+                  example: "Updated severity based on security review"
+                type:
+                  type: string
+                  description: Type of changelog entry
+                custom_state_id:
+                  type: integer
+                  description: Custom state ID
+                alert_similarity_id:
+                  type: string
+                  description: Alert similarity ID
+      responses:
+        '200':
+          description: Success - metadata updated successfully
+        '400':
+          description: Bad Request - validation error or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - results not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/{environment_id}/{scan_id}/manual_findings":
+    post:
+      description: Creates a batch of manual findings (alerts, optionally with risks/instances) for a scan. Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: createManualFindingsBatch
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateManualFindingsBatchRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  batch_id:
+                    type: string
+                    format: uuid
+                    description: The ID of the created manual findings batch
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled, insufficient permissions, or invalid custom state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/unlink":
+    post:
+      description: Unlinks a manual findings batch from future scans according to the given option. Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: unlinkManualFindingsBatch
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - option
+              properties:
+                option:
+                  type: string
+                  enum: [current_scan, current_and_future, active_from_next]
+                  description: Which scans to unlink the batch from
+      responses:
+        '204':
+          description: No Content - unlink successful
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled or insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - scan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings":
+    get:
+      description: Gets manual findings instance-level results for a scan, with pagination, filtering, sorting, and search. Requires the DAST manual-findings feature flag.
+      operationId: getManualFindingsResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: alert_id
+          in: query
+          description: Optional alert ID to filter instances by
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/perPage'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualFindingInstanceResultList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/alert_level":
+    get:
+      description: Gets manual findings grouped by alert level, with pagination, filtering, sorting, and search. Requires the DAST manual-findings feature flag.
+      operationId: getManualFindingsAlertLevelResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/perPage'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualFindingsAlertLevelResultList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/alert_level/group":
+    get:
+      description: Gets grouped manual findings alert-level results (counts per tuple of the requested group-by columns). Requires the DAST manual-findings feature flag.
+      operationId: getGroupedManualFindingsAlertLevelResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: group
+          in: query
+          description: the columns to group by [status, name, method, severity, url, path, state, compliance, owasp]
+          required: true
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              example: status
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Groups'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/group":
+    get:
+      description: Gets grouped manual findings instance-level results (counts per tuple of the requested group-by columns). Requires the DAST manual-findings feature flag.
+      operationId: getGroupedManualFindingsResults
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: group
+          in: query
+          description: the columns to group by [status, name, method, severity, url, path, state, compliance, owasp]
+          required: true
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              example: status
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/alertLevelFilter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Groups'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/alert/{alert_id}/info":
+    get:
+      description: Gets alert description/info for a given manual finding alert ID. Requires the DAST manual-findings feature flag.
+      operationId: getManualAlertInfo
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: alert_id
+          in: path
+          description: The manual finding alert ID
+          required: true
+          schema:
+            type: string
+            example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertInfo'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - manual alert not found or scan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/instance/{instance_id}/info":
+    get:
+      description: Gets instance info for a given manual finding instance. Requires the DAST manual-findings feature flag.
+      operationId: getManualInstanceInfo
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: instance_id
+          in: path
+          description: The manual finding instance ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultInfo'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - manual instance info not found or scan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/instance/{instance_id}/screenshots":
+    get:
+      description: Gets the screenshots attached to a given manual finding instance. Requires the DAST manual-findings feature flag.
+      operationId: getManualInstanceScreenshots
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: instance_id
+          in: path
+          description: The manual finding instance ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ManualFindingScreenshot'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/alert":
+    put:
+      description: Updates a manual finding alert (severity/status/name/description/note/state or custom_state_id, etc). Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: updateManualFindingAlert
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateManualFindingAlertRequest'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request - validation error or state-specific rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled or insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/instance":
+    put:
+      description: Updates a manual finding instance (severity/status/url/path/method/evidence/note/state or custom_state_id, etc). Supports multipart/form-data with a 'data' JSON field plus optional 'screenshots' file uploads and 'delete_screenshot_ids'. Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: updateManualFindingInstance
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateManualFindingInstanceRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                data:
+                  type: string
+                  description: JSON-encoded UpdateManualFindingInstanceRequest
+                screenshots:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                    format: binary
+                  description: Screenshot files to upload (png/jpeg/gif/webp, max 10MiB each, max 10 total per instance)
+                delete_screenshot_ids:
+                  type: string
+                  description: JSON-encoded array of screenshot IDs to delete
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request - validation error, state-specific rule violation, or invalid screenshot upload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled or insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Unsupported Media Type - screenshot content type not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Request Entity Too Large - too many screenshots or file too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/alert_instance":
+    put:
+      description: Updates both the alert-level and instance-level fields of a manual finding in one call. Supports multipart/form-data the same way as the instance update endpoint. Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: updateManualFindingAlertInstance
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateManualFindingAlertInstanceRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                data:
+                  type: string
+                  description: JSON-encoded UpdateManualFindingAlertInstanceRequest
+                screenshots:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                    format: binary
+                delete_screenshot_ids:
+                  type: string
+                  description: JSON-encoded array of screenshot IDs to delete
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request - validation error, state-specific rule violation, or invalid screenshot upload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled or insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Unsupported Media Type - screenshot content type not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Request Entity Too Large - too many screenshots or file too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/alerts":
+    delete:
+      description: Deletes manual finding alerts and all their instances. Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: deleteManualAlerts
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - alert_ids
+              properties:
+                alert_ids:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                    format: uuid
+                  description: Alert IDs to delete
+      responses:
+        '204':
+          description: No Content - alerts deleted successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled or insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - scan not found, or alerts not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/{scan_id}/manual_findings/{alert_id}/instances":
+    delete:
+      description: Deletes specific manual finding instances belonging to an alert. Requires the DAST manual-findings feature flag and ImportFindingsExternalPlatforms permission.
+      operationId: deleteManualInstances
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - $ref: '#/components/parameters/scanIdInAlertPath'
+        - name: alert_id
+          in: path
+          description: The manual finding alert ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - instance_ids
+              properties:
+                instance_ids:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                    format: uuid
+                  description: Instance IDs to delete
+      responses:
+        '204':
+          description: No Content - instances deleted successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - feature not enabled or insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found - scan not found, or instances not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/pentest/{pentest_scan_id}/findings":
+    get:
+      description: Gets pentest findings for a given pentest scan ID
+      operationId: getPentestFindings
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - name: pentest_scan_id
+          in: path
+          description: The pentest scan ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PentestFindingResult'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/pentest/{pentest_scan_id}/findings/{finding_id}":
+    get:
+      description: Gets the steps and related DAST instances for a specific pentest finding
+      operationId: getPentestFindingDetails
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - name: pentest_scan_id
+          in: path
+          description: The pentest scan ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: finding_id
+          in: path
+          description: The pentest finding ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PentestFindingDetails'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/pentest/{pentest_scan_id}/wstg-coverage":
+    get:
+      description: >-
+        Gets the OWASP WSTG coverage of a pentest scan: the WSTG tests its plans exercised and which of them led to confirmed plans or findings, with totals per WSTG category. Maps to OWASP WSTG (https://github.com/OWASP/wstg, licensed CC BY-SA 4.0); it is not an OWASP certification.
+      operationId: getPentestWSTGCoverage
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - name: pentest_scan_id
+          in: path
+          description: The pentest scan ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PentestWstgCoverage'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  "/results/environment/{environment_id}/instance/{similarity_id_2}/screenshots":
+    get:
+      description: Returns all screenshots attached to a vulnerability instance. Requires DAST_VUL_SCREENSHOT_UPLOAD_ENABLED feature flag.
+      operationId: getVulnerabilityInstanceScreenshots
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - name: similarity_id_2
+          in: path
+          description: The instance similarity ID (lowercase hex)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VulnerabilityScreenshot'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden (no access or feature flag disabled)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Upload one or more screenshots for a vulnerability instance. Requires DAST_VUL_SCREENSHOT_UPLOAD_ENABLED feature flag.
+      operationId: uploadVulnerabilityInstanceScreenshots
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - name: similarity_id_2
+          in: path
+          description: The instance similarity ID (lowercase hex)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                screenshots:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Screenshot files (PNG, JPEG, GIF). Maximum 10 files, 10 MiB each.
+      responses:
+        '201':
+          description: Screenshots uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  screenshot_ids:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Bad Request (no files provided)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden (no access or feature flag disabled)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Request Entity Too Large (too many files or file too large)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Unsupported Media Type (file type not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: Delete screenshots for a vulnerability instance by ID. Requires DAST_VUL_SCREENSHOT_UPLOAD_ENABLED feature flag.
+      operationId: deleteVulnerabilityInstanceScreenshots
+      parameters:
+        - $ref: '#/components/parameters/environmentIdPath'
+        - name: similarity_id_2
+          in: path
+          description: The instance similarity ID (lowercase hex)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - screenshot_ids
+              properties:
+                screenshot_ids:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                  description: IDs of the screenshots to delete
+      responses:
+        '204':
+          description: Screenshots deleted successfully
+        '400':
+          description: Bad Request (empty screenshot_ids)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden (no access or feature flag disabled)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    ResultsFilter:
+      type: object
+      additionalProperties: false
+      properties:
+        severity:
+          type: string
+          example: HIGH
+        name:
+          type: string
+          example: SQL Injection
+        method:
+          type: string
+          example: GET
+        status:
+          type: string
+          example: New
+        state:
+          type: string
+          example: To Verify
+        url:
+          type: string
+          example: localhost
+        path:
+          type: string
+          example: /api/v1
+        owasp:
+          type: string
+          example: A1
+        alert_similarity_id:
+          type: string
+        correlation_findings:
+          type: string
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+          example: "Error message"
+          description: The message decribing the error
+        code:
+          type: integer
+          example: 401
+          description: The error code
+    ResultSummarizedList:
+      type: object
+      additionalProperties: false
+      properties:
+        results:
+          type: array
+          maxItems: 1000
+          items:
+            $ref: '#/components/schemas/ResultSummarized'
+        total:
+          type: integer
+          example: "10"
+        pages_number:
+          description: The total number of pages
+          type: integer
+          example: "10"
+    ResultSummarized:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          example: "a32b6565-67d4-4079-9d0e-97061d3b9f3f"
+        status:
+          type: string
+          example: "New"
+        name:
+          type: string
+          example: "Timestamp Disclosure - Unix"
+        url:
+          type: string
+          example: "http://localhost:2604/results/1"
+        path:
+          type: string
+          example: "/results/1"
+        method:
+          type: string
+          example: "GET"
+        scan_type:
+          type: string
+          example: "DAST"
+        severity:
+          type: string
+          example: "HIGH"
+        state:
+          type: string
+          example: "To Verify"
+        owasp:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            example:
+              - "OWASP_2021_A05"
+              - "OWASP_2017_A06"
+        environment_id:
+          type: string
+          description: "The environment ID"
+        solution:
+          type: string
+          description: "The solution for the vulnerability"
+        description:
+          type: string
+          description: "The description of the vulnerability"
+        cwe_id:
+          type: string
+          description: "The CWE ID"
+        similarity_id_2:
+          type: string
+          description: "The similarity ID"
+        notes_data:
+          type: array
+          description: "Notes associated with the result"
+          items:
+            type: object
+            properties:
+              note_text:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+              created_by:
+                type: string
+        changelog_data:
+          type: array
+          description: "Changelog entries for the result"
+          items:
+            type: object
+            properties:
+              note_text:
+                type: string
+              severity:
+                type: string
+              state:
+                type: string
+              created_by:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+    ResultInfo:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          example: "a32b6565-67d4-4079-9d0e-97061d3b9f3f"
+        description:
+          type: string
+          example: "risk description"
+        name:
+          type: string
+          example: "risk name"
+        params:
+          type: string
+          example: "risk params"
+        solution:
+          type: string
+          example: "risk solution"
+        path:
+          type: string
+          example: "http://localhost:2604/results/1"
+        url:
+          type: string
+          example: "http://localhost:2604/results/1"
+        method:
+          type: string
+          example: "GET"
+        attack:
+          type: string
+          example: "</font><scrIpt>alert(1);</script><font>"
+        evidence:
+          type: string
+          example: "</font><scrIpt>alert(1);</script><font>"
+        severity:
+          type: string
+          example: "HIGH"
+        confidence:
+          type: string
+          example: "HIGH"
+        state:
+          type: string
+          example: "To Verify"
+        status:
+          type: string
+          example: "New"
+        request_header:
+          type: string
+          example: "GET http://localhost:8080/bodgeit/search.jsp?q=%3C%2Ffont%3E%3CscrIpt%3Ealert%281%29%3B%3C%2FscRipt%3E%3Cfont%3EHTTP/1.1 ..."
+        response_header:
+          type: string
+          example: "HTTP/1.1 200 OK"
+        request_body:
+          type: string
+          example: "GET http://localhost:8080/bodgeit/search.jsp?q=%3C%2Ffont%3E%3CscrIpt%3Ealert%281%29%3B%3C%2FscRipt%3E%3Cfont%3EHTTP/1.1"
+        response_body:
+          type: string
+          example: "<!DOCTYPEHTMLPUBLIC-//W3C//DTDHTM"
+        comment:
+          type: string
+          example: "test"
+        updated_at:
+          type: string
+          example: "2020-01-01T00:00:00.000Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2020-01-01T00:00:00.000Z"
+        ref:
+          type: array
+          maxItems: 10
+          example: ["http://projects.webappsec.org/Cross-Site-Scripting", "http://cwe.mitre.org/data/definitions/79.html"]
+          items:
+            type: string
+            example: "1"
+        environment_id:
+          type: string
+          description: "The environment ID"
+        owasp:
+          type: array
+          items:
+            type: string
+          description: "OWASP categories"
+        other_info:
+          type: string
+          description: "Additional information"
+        alert_status:
+          type: string
+          description: "Alert status"
+        score:
+          type: number
+          description: "Risk score"
+        notes_data:
+          type: array
+          description: "Notes associated with the result"
+          items:
+            type: object
+            properties:
+              note_text:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+              created_by:
+                type: string
+        changelog_data:
+          type: array
+          description: "Changelog entries for the result"
+          items:
+            type: object
+            properties:
+              note_text:
+                type: string
+              severity:
+                type: string
+              state:
+                type: string
+              created_by:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+    Groups:
+      type: object
+      additionalProperties: false
+      properties:
+        count:
+          type: integer
+          example: 50
+          description: The total count for the current tuple
+        group:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            description: The tuples for the groups specified
+            example: ["GET", "NEW"]
+    VulnerabilitySummary:
+      type: object
+      additionalProperties: false
+      properties:
+        total_vulnerabilities:
+          type: integer
+          example: 42
+          description: Total number of vulnerabilities found in the scan
+        last_scan_date:
+          type: string
+          format: date-time
+          example: "2024-11-17T10:30:00Z"
+          description: Date and time of the last scan
+        severity_breakdown:
+          type: object
+          properties:
+            criticalCount:
+              type: integer
+              example: 5
+            highCount:
+              type: integer
+              example: 10
+            mediumCount:
+              type: integer
+              example: 15
+            lowCount:
+              type: integer
+              example: 8
+            infoCount:
+              type: integer
+              example: 4
+        state_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              state:
+                type: string
+                example: "To Verify"
+              count:
+                type: integer
+                example: 20
+        compliance_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              compliance_type:
+                type: string
+                example: "OWASP"
+              count:
+                type: integer
+                example: 35
+    RiskLevelOverTimeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        scans:
+          type: array
+          description: List of scan snapshots with risk level data
+          items:
+            type: object
+            properties:
+              scan_id:
+                type: string
+                format: uuid
+                example: "5fea8569-563a-44cc-955b-5d5a2304f173"
+                description: The scan ID
+              scan_date:
+                type: string
+                format: date-time
+                example: "2024-11-17T10:30:00Z"
+                description: Date and time of the scan
+              critical_count:
+                type: integer
+                example: 5
+                description: Number of critical severity vulnerabilities
+              high_count:
+                type: integer
+                example: 10
+                description: Number of high severity vulnerabilities
+              medium_count:
+                type: integer
+                example: 15
+                description: Number of medium severity vulnerabilities
+              low_count:
+                type: integer
+                example: 20
+                description: Number of low severity vulnerabilities
+              info_count:
+                type: integer
+                example: 5
+                description: Number of info severity vulnerabilities
+              total_count:
+                type: integer
+                example: 55
+                description: Total number of vulnerabilities in this scan
+        total:
+          type: integer
+          example: 10
+          description: Total number of scans returned
+    ComplianceOverTimeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        scans:
+          type: array
+          description: List of scan snapshots with compliance data
+          items:
+            type: object
+            properties:
+              scan_id:
+                type: string
+                format: uuid
+                example: "5fea8569-563a-44cc-955b-5d5a2304f173"
+                description: The scan ID
+              scan_date:
+                type: string
+                format: date-time
+                example: "2024-11-17T10:30:00Z"
+                description: Date and time of the scan
+              total_count:
+                type: integer
+                example: 50
+                description: Total number of vulnerabilities in this scan
+              compliance_breakdown:
+                type: object
+                description: Breakdown by compliance type
+                properties:
+                  owasp_count:
+                    type: integer
+                    example: 30
+                    description: Number of vulnerabilities with OWASP compliance tags
+                  cwe_count:
+                    type: integer
+                    example: 45
+                    description: Number of vulnerabilities with CWE compliance tags
+                  wasc_count:
+                    type: integer
+                    example: 20
+                    description: Number of vulnerabilities with WASC compliance tags
+        total:
+          type: integer
+          example: 10
+          description: Total number of scans returned
+    StatesOverTimeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        scans:
+          type: array
+          description: List of scan snapshots with state breakdown data
+          items:
+            type: object
+            properties:
+              scan_id:
+                type: string
+                format: uuid
+                example: "5fea8569-563a-44cc-955b-5d5a2304f173"
+                description: The scan ID
+              scan_date:
+                type: string
+                format: date-time
+                example: "2024-11-17T10:30:00Z"
+                description: Date and time of the scan
+              total_count:
+                type: integer
+                example: 50
+                description: Total number of vulnerabilities in this scan
+              state_counts:
+                type: object
+                additionalProperties:
+                  type: integer
+                description: Map of state name to count of vulnerabilities in that state
+                example:
+                  "To Verify": 20
+                  "Confirmed": 15
+        total:
+          type: integer
+          example: 10
+          description: Total number of scans returned
+    InstanceFindings:
+      type: object
+      additionalProperties: false
+      description: Instance-level detail data (request/response, parameter, evidence) for a single finding instance
+      properties:
+        request_body:
+          type: string
+        request_header:
+          type: string
+        response_body:
+          type: string
+        response_header:
+          type: string
+        confidence:
+          type: string
+          example: "HIGH"
+        param:
+          type: string
+        evidence:
+          type: string
+        other_info:
+          type: string
+        pentest_findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/PentestFindingLink'
+    SiteTreeResponse:
+      type: object
+      additionalProperties: false
+      description: A node in the scanned site tree
+      properties:
+        url:
+          type: string
+          example: "http://localhost:8080/bodgeit"
+        path:
+          type: string
+          example: "/bodgeit"
+        method:
+          type: string
+          example: "GET"
+        count:
+          type: integer
+          nullable: true
+          description: Number of results found under this node
+        max_severity:
+          type: string
+          nullable: true
+          example: "HIGH"
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteTreeResponse'
+    ComplianceAnalytics:
+      type: object
+      additionalProperties: false
+      properties:
+        fail:
+          type: integer
+          format: int64
+          example: 5
+        pass:
+          type: integer
+          format: int64
+          example: 42
+    ResultsStatesSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        state_counts:
+          type: array
+          items:
+            $ref: '#/components/schemas/StateCount'
+        total:
+          type: integer
+          format: int64
+          example: 100
+    StateCount:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          example: "To Verify"
+        count:
+          type: integer
+          format: int64
+          example: 20
+    RiskLevel:
+      type: object
+      additionalProperties: false
+      properties:
+        criticalCount:
+          type: integer
+          example: 5
+        highCount:
+          type: integer
+          example: 10
+        mediumCount:
+          type: integer
+          example: 15
+        lowCount:
+          type: integer
+          example: 8
+        infoCount:
+          type: integer
+          example: 4
+    TimeSpanRiskSummary:
+      type: object
+      additionalProperties: false
+      description: Risk counts bucketed by age of the result
+      properties:
+        last30Days:
+          $ref: '#/components/schemas/RiskLevel'
+        30To60Days:
+          $ref: '#/components/schemas/RiskLevel'
+        60To90Days:
+          $ref: '#/components/schemas/RiskLevel'
+        90Plus:
+          $ref: '#/components/schemas/RiskLevel'
+    TopFiveRisks:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          example: "SQL Injection"
+        criticalCount:
+          type: integer
+          format: int64
+          example: 2
+        highCount:
+          type: integer
+          format: int64
+          example: 5
+        mediumCount:
+          type: integer
+          format: int64
+          example: 3
+        lowCount:
+          type: integer
+          format: int64
+          example: 1
+        infoCount:
+          type: integer
+          format: int64
+          example: 0
+    PentestFindingLink:
+      type: object
+      additionalProperties: false
+      description: A pentest finding linked to an alert-level or instance-level DAST result
+      properties:
+        connection_type:
+          type: string
+          example: "manual"
+        pentest_finding_id:
+          type: string
+          example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+        pentest_scan_id:
+          type: string
+          format: uuid
+        severity:
+          type: string
+          example: "HIGH"
+        title:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    CorrelationFindingsSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        found:
+          type: integer
+          format: int64
+        not_found:
+          type: integer
+          format: int64
+        error:
+          type: integer
+          format: int64
+        false_positive:
+          type: integer
+          format: int64
+        platform_managed:
+          type: integer
+          format: int64
+        out_of_scope:
+          type: integer
+          format: int64
+    AlertLevelResult:
+      type: object
+      additionalProperties: false
+      properties:
+        alert_similarity_id:
+          type: string
+          example: "79f91fc5-3779-4699-8cd2-9b466e72e799"
+        state:
+          type: string
+          example: "To Verify"
+        severity:
+          type: string
+          example: "HIGH"
+        name:
+          type: string
+          example: "SQL Injection"
+        num_instances:
+          type: integer
+          format: int64
+          example: 3
+        status:
+          type: string
+          example: "New"
+        owasp:
+          type: array
+          items:
+            type: string
+        num_notes:
+          type: integer
+          format: int64
+          example: 0
+        systemic:
+          type: boolean
+        source:
+          type: string
+          example: "DAST"
+        correlation_findings:
+          $ref: '#/components/schemas/CorrelationFindingsSummary'
+        pentest_findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/PentestFindingLink'
+    AlertLevelResultList:
+      type: object
+      additionalProperties: false
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertLevelResult'
+        total:
+          type: integer
+          example: 10
+        pages_number:
+          type: integer
+          example: 1
+    AlertLevelRequestBody:
+      type: object
+      additionalProperties: false
+      description: Same filtering/sorting/grouping options as the GET query parameters, provided as a JSON body
+      properties:
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 10
+        sort_by:
+          type: array
+          items:
+            type: string
+            example: "severity:desc"
+        search:
+          type: string
+        filter:
+          $ref: '#/components/schemas/AlertLevelFilter'
+        group:
+          $ref: '#/components/schemas/AlertLevelFilter'
+    AlertLevelFilter:
+      type: object
+      additionalProperties: false
+      properties:
+        severity:
+          type: string
+          example: HIGH
+        name:
+          type: string
+        method:
+          type: string
+        status:
+          type: string
+        state:
+          type: string
+        url:
+          type: string
+        path:
+          type: string
+        owasp:
+          type: string
+          description: Compliance/OWASP filter value
+        alert_similarity_id:
+          type: string
+        correlation_findings:
+          type: string
+        source:
+          type: string
+        attack_findings:
+          type: string
+    AlertLevelOccurrencesResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        points:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              new_count:
+                type: integer
+                example: 3
+              recurrent_count:
+                type: integer
+                example: 5
+    AlertInfo:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          example: "SQL Injection"
+        severity:
+          type: string
+          example: "HIGH"
+        state:
+          type: string
+          example: "To Verify"
+        state_id:
+          type: integer
+          example: 0
+        description:
+          type: string
+        solution:
+          type: string
+        compliance:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          example: "New"
+        cwe_id:
+          type: string
+        wasc_id:
+          type: string
+        notes_data:
+          type: array
+          items:
+            type: object
+            properties:
+              note_text:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+              created_by:
+                type: string
+        changelog_data:
+          type: array
+          items:
+            type: object
+            properties:
+              note_text:
+                type: string
+              severity:
+                type: string
+              state:
+                type: string
+              created_by:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+        correlation_status:
+          type: string
+          nullable: true
+        correlation_findings_count:
+          type: integer
+          format: int64
+          nullable: true
+    AlertInstance:
+      type: object
+      additionalProperties: false
+      properties:
+        similarity_id_2:
+          type: string
+        method:
+          type: string
+          example: "GET"
+        path:
+          type: string
+        url:
+          type: string
+        status:
+          type: string
+          example: "New"
+        source:
+          type: string
+          example: "DAST"
+        correlation_findings_count:
+          type: integer
+          format: int64
+          nullable: true
+        correlation_status:
+          type: string
+          nullable: true
+        pentest_findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/PentestFindingLink'
+        has_screenshots:
+          type: boolean
+          description: Whether this instance has associated vulnerability screenshots
+    AlertInstanceSummarizedList:
+      type: object
+      additionalProperties: false
+      properties:
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertInstance'
+        total:
+          type: integer
+          example: 10
+        pages_number:
+          type: integer
+          example: 1
+    GroupByRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+        - group
+      properties:
+        group:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            example: status
+        search:
+          type: string
+        filter:
+          $ref: '#/components/schemas/AlertLevelFilter'
+    ScanResultInstance:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        method:
+          type: string
+        payload:
+          type: string
+        evidence:
+          type: string
+        path:
+          type: string
+        status:
+          type: string
+        correlatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        correlationStatus:
+          type: string
+          nullable: true
+        pentest_findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/PentestFindingLink'
+        parameter:
+          type: string
+        requestHeader:
+          type: string
+        responseHeader:
+          type: string
+        requestBody:
+          type: string
+        responseBody:
+          type: string
+    ScanResultAlert:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        solution:
+          type: string
+        cwe:
+          type: string
+        wasc:
+          type: string
+        severity:
+          type: string
+        state:
+          type: string
+        status:
+          type: string
+        systemic:
+          type: boolean
+        isManual:
+          type: boolean
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanResultInstance'
+    ScanResultLegacyInstance:
+      type: object
+      additionalProperties: false
+      description: Denormalized instance row returned only for old scans that have no alert-level data
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        solution:
+          type: string
+        cwe:
+          type: string
+        wasc:
+          type: string
+        severity:
+          type: string
+        state:
+          type: string
+        instanceId:
+          type: string
+          description: The similarity_id_2 of the instance
+        url:
+          type: string
+        method:
+          type: string
+        status:
+          type: string
+        payload:
+          type: string
+        evidence:
+          type: string
+        path:
+          type: string
+        isManual:
+          type: boolean
+    GetScanResultsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        alerts:
+          type: array
+          description: Populated when alert-level results are enabled for the tenant (normal path)
+          items:
+            $ref: '#/components/schemas/ScanResultAlert'
+        instances:
+          type: array
+          description: Populated only when alert-level results are not enabled (old scans without alert data)
+          items:
+            $ref: '#/components/schemas/ScanResultLegacyInstance'
+    CorrelationResultItem:
+      type: object
+      additionalProperties: false
+      properties:
+        uuid:
+          type: string
+        project_id:
+          type: string
+          nullable: true
+        project_name:
+          type: string
+          nullable: true
+        file_path:
+          type: string
+          nullable: true
+        start_line:
+          type: integer
+          nullable: true
+        end_line:
+          type: integer
+          nullable: true
+        code_snippet:
+          type: string
+        confidence:
+          type: number
+          nullable: true
+        reasoning:
+          type: string
+        status:
+          type: string
+    CorrelationScanProject:
+      type: object
+      additionalProperties: false
+      properties:
+        project_id:
+          type: string
+        project_name:
+          type: string
+    VulnerabilityCorrelations:
+      type: object
+      additionalProperties: false
+      properties:
+        correlation_scan_id:
+          type: string
+        correlated_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorrelationResultItem'
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorrelationScanProject'
+    CreateFindingRiskRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - severity
+        - method
+        - url
+        - path
+      properties:
+        severity:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+        state:
+          type: string
+        status:
+          type: string
+          enum: [New, Recurrent]
+        method:
+          type: string
+          enum: [GET, PUT, POST, DELETE, OPTIONS, PATCH]
+        url:
+          type: string
+        path:
+          type: string
+        evidence:
+          type: string
+        attack:
+          type: string
+        other_info:
+          type: string
+        request_header:
+          type: string
+        request_body:
+          type: string
+        response_header:
+          type: string
+        response_body:
+          type: string
+    CreateFindingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - severity
+      properties:
+        name:
+          type: string
+        severity:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+        state:
+          type: string
+          description: Built-in state name, or a custom state name (requires the custom-states feature flag)
+        status:
+          type: string
+          enum: [New, Recurrent]
+        description:
+          type: string
+        compliance:
+          type: array
+          items:
+            type: string
+        resolution:
+          type: string
+        confidence:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        cwe_id:
+          type: string
+        wasc_id:
+          type: string
+        risks:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateFindingRiskRequest'
+    CreateManualFindingsBatchRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - findings
+      properties:
+        findings:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreateFindingRequest'
+        only_current_scan:
+          type: boolean
+          description: If true, the batch only applies to the originating scan and is not carried forward to future scans
+    ManualFindingsAlertLevelResult:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        state:
+          type: string
+          example: "To Verify"
+        severity:
+          type: string
+          example: "HIGH"
+        name:
+          type: string
+        num_instances:
+          type: integer
+          format: int64
+        status:
+          type: string
+          example: "New"
+        compliance:
+          type: array
+          items:
+            type: string
+        cwe_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    ManualFindingsAlertLevelResultList:
+      type: object
+      additionalProperties: false
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManualFindingsAlertLevelResult'
+        total:
+          type: integer
+        pages_number:
+          type: integer
+    ManualFindingInstanceResult:
+      type: object
+      additionalProperties: false
+      properties:
+        risk_id:
+          type: string
+        alert_id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        path:
+          type: string
+        method:
+          type: string
+        severity:
+          type: string
+        state:
+          type: string
+        status:
+          type: string
+        compliance:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        solution:
+          type: string
+        attack:
+          type: string
+        evidence:
+          type: string
+        cwe_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    ManualFindingInstanceResultList:
+      type: object
+      additionalProperties: false
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManualFindingInstanceResult'
+        total:
+          type: integer
+        pages_number:
+          type: integer
+    UpdateManualFindingAlertRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - result_id
+        - severity
+        - name
+        - status
+      properties:
+        result_id:
+          type: string
+          format: uuid
+          description: The manual finding alert ID to update
+        note:
+          type: string
+        state:
+          type: string
+          description: Built-in or custom state name. Mutually exclusive with custom_state_id.
+        custom_state_id:
+          type: integer
+          description: Custom state ID. Mutually exclusive with state.
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+        name:
+          type: string
+        status:
+          type: string
+          enum: [New, Recurrent, Resolved]
+        description:
+          type: string
+        compliance:
+          type: array
+          items:
+            type: string
+        resolution:
+          type: string
+        confidence:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        cwe_id:
+          type: string
+        wasc_id:
+          type: string
+    UpdateManualFindingInstanceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - result_id
+        - severity
+        - status
+        - url
+        - path
+        - method
+      properties:
+        result_id:
+          type: string
+          format: uuid
+          description: The manual finding instance ID to update
+        note:
+          type: string
+        state:
+          type: string
+          description: Built-in or custom state name. Mutually exclusive with custom_state_id.
+        custom_state_id:
+          type: integer
+          description: Custom state ID. Mutually exclusive with state.
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+        status:
+          type: string
+          enum: [New, Recurrent, Resolved]
+        url:
+          type: string
+        path:
+          type: string
+        method:
+          type: string
+          enum: [GET, PUT, POST, DELETE, OPTIONS, PATCH]
+        evidence:
+          type: string
+        attack:
+          type: string
+        other_info:
+          type: string
+        request_header:
+          type: string
+        request_body:
+          type: string
+        response_header:
+          type: string
+        response_body:
+          type: string
+    UpdateManualFindingAlertInstanceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - instance_id
+        - severity
+        - status
+        - url
+        - path
+        - method
+      properties:
+        instance_id:
+          type: string
+          format: uuid
+          description: The manual finding instance ID; the linked alert is updated together with the instance
+        description:
+          type: string
+        compliance:
+          type: array
+          items:
+            type: string
+        resolution:
+          type: string
+        confidence:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        cwe_id:
+          type: string
+        wasc_id:
+          type: string
+        note:
+          type: string
+        state:
+          type: string
+          description: Built-in or custom state name. Mutually exclusive with custom_state_id.
+        custom_state_id:
+          type: integer
+          description: Custom state ID. Mutually exclusive with state.
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+        status:
+          type: string
+          enum: [New, Recurrent, Resolved]
+        url:
+          type: string
+        path:
+          type: string
+        method:
+          type: string
+          enum: [GET, PUT, POST, DELETE, OPTIONS, PATCH]
+        evidence:
+          type: string
+        attack:
+          type: string
+        other_info:
+          type: string
+        request_header:
+          type: string
+        request_body:
+          type: string
+        response_header:
+          type: string
+        response_body:
+          type: string
+    ManualFindingScreenshot:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+          description: Base64-encoded image content
+        content_type:
+          type: string
+          example: "image/png"
+    VulnerabilityScreenshot:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+          description: Base64-encoded image content
+        content_type:
+          type: string
+          example: "image/png"
+    PentestFindingResult:
+      type: object
+      additionalProperties: false
+      properties:
+        uuid:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        summary:
+          type: string
+        status:
+          type: string
+        severity:
+          type: string
+          example: "HIGH"
+        evidence:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        num_steps:
+          type: integer
+        wstg:
+          type: array
+          maxItems: 5
+          description: >-
+            The OWASP Web Security Testing Guide (WSTG) tests the finding shows, chosen by the pentester from the tests of the plans that produced it. Omitted for findings of scans without WSTG data. Maps to OWASP WSTG (https://github.com/OWASP/wstg, licensed CC BY-SA 4.0); it is not an OWASP certification.
+          items:
+            $ref: '#/components/schemas/PentestFindingWstg'
+    PentestFindingWstg:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          maxLength: 32
+          pattern: '^WSTG-[A-Z]+-[0-9]+$'
+          description: The WSTG test ID.
+          example: "WSTG-ATHN-04"
+        name:
+          type: string
+          maxLength: 200
+          pattern: '^.*$'
+          description: The test name. Omitted when the ID is not in the WSTG version the service was built with.
+          example: "Bypassing Authentication Schema"
+        url:
+          type: string
+          maxLength: 500
+          pattern: '^https://owasp\.org/.*$'
+          description: Link to the test in the WSTG. Omitted when the ID is not in the WSTG version the service was built with.
+    PentestWstgCoverage:
+      type: object
+      additionalProperties: false
+      required:
+        - categories
+        - tests
+      properties:
+        categories:
+          type: array
+          maxItems: 50
+          description: Every WSTG category of the snapshot the service was built with, with zero counts when the scan did not touch it.
+          items:
+            $ref: '#/components/schemas/PentestWstgCategoryCoverage'
+        tests:
+          type: array
+          maxItems: 500
+          description: The tests the scan's plans or confirmed findings mention, in WSTG order, then IDs that are not in the snapshot.
+          items:
+            $ref: '#/components/schemas/PentestWstgTestCoverage'
+    PentestWstgCategoryCoverage:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - total_tests
+        - planned_tests
+        - confirmed_tests
+      properties:
+        id:
+          type: string
+          maxLength: 32
+          pattern: '^WSTG-[A-Z]+$'
+          example: "WSTG-ATHN"
+        name:
+          type: string
+          maxLength: 200
+          pattern: '^.*$'
+        total_tests:
+          type: integer
+          description: Number of tests of the category in the snapshot.
+        planned_tests:
+          type: integer
+          description: Tests of the category that a plan of the scan exercised.
+        confirmed_tests:
+          type: integer
+          description: Tests of the category that a confirmed plan or finding of the scan shows.
+    PentestWstgTestCoverage:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - plans
+        - confirmed_plans
+        - confirmed_findings
+      properties:
+        id:
+          type: string
+          maxLength: 32
+          pattern: '^WSTG-[A-Z]+-[0-9]+$'
+          example: "WSTG-SESS-06"
+        name:
+          type: string
+          maxLength: 200
+          pattern: '^.*$'
+          description: Omitted when the ID is not in the WSTG version the service was built with.
+        url:
+          type: string
+          maxLength: 500
+          pattern: '^https://owasp\.org/.*$'
+          description: Omitted when the ID is not in the WSTG version the service was built with.
+        category:
+          type: string
+          maxLength: 32
+          pattern: '^WSTG-[A-Z]+$'
+          description: Omitted when the ID is not in the WSTG version the service was built with.
+        plans:
+          type: integer
+          description: Plans of the scan that exercised the test.
+        confirmed_plans:
+          type: integer
+          description: Of those plans, the ones whose outcome was confirmed.
+        confirmed_findings:
+          type: integer
+          description: Confirmed findings of the scan that show the test.
+    StepAlertLink:
+      type: object
+      additionalProperties: false
+      properties:
+        alert_similarity_id:
+          type: string
+        relationship:
+          type: string
+    PentestFindingStepData:
+      type: object
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        request_headers:
+          type: string
+        request_body:
+          type: string
+        response_headers:
+          type: string
+        response_body:
+          type: string
+        response_status:
+          type: integer
+        detail:
+          type: string
+    PentestFindingStep:
+      type: object
+      additionalProperties: false
+      properties:
+        step_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        data:
+          $ref: '#/components/schemas/PentestFindingStepData'
+        related_alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepAlertLink'
+    PentestFindingDastInstance:
+      type: object
+      additionalProperties: false
+      properties:
+        alert_similarity_id:
+          type: string
+        instance_similarity_id:
+          type: string
+        connection_type:
+          type: string
+        alert:
+          type: string
+        severity:
+          type: string
+        url:
+          type: string
+        path:
+          type: string
+        method:
+          type: string
+    PentestFindingDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/PentestFindingStep'
+        related_dast_instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/PentestFindingDastInstance'
+  parameters:
+    environmentIdPath:
+      name: environment_id
+      in: path
+      description: The environment ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: "c668cda7-ec6a-498c-8660-4b29be557280"
+    scanIdInAlertPath:
+      name: scan_id
+      in: path
+      description: The scan ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: "5fea8569-563a-44cc-955b-5d5a2304f173"
+    page:
+      name: page
+      in: query
+      description: The page number to get results for
+      required: true
+      schema:
+        type: integer
+        example: 1
+    perPage:
+      name: per_page
+      in: query
+      description: The number of results per page
+      required: true
+      schema:
+        type: integer
+        example: 10
+    sortBy:
+      name: sort_by
+      in: query
+      description: An object of key values to sort columns by regular - (method:asc), url encoded - (method%3Aasc)
+      required: false
+      schema:
+        type: array
+        maxItems: 10
+        items:
+          type: string
+          example: "severity%3Adesc"
+    search:
+      name: search
+      in: query
+      description: The search query
+      required: false
+      schema:
+        type: string
+    alertLevelFilter:
+      name: filter
+      in: query
+      description: columns to filter by and values
+      required: false
+      schema:
+        $ref: '#/components/schemas/AlertLevelFilter'
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/dast/mfe-results
+security:
+  - Login: []
