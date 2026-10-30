@@ -90,9 +90,10 @@
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_number_of_undocumented_apis` | GET | `/api/apisec/static/api/scan/{scan_id}/undocumented-apis` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_all_api_scan_metadata` | GET | `/api/apisec/static/api/scan/metadata` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_risk_detail_by_risk_id` | GET | `/api/apisec/static/api/risks/risk/{risk_id}` |
+| STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_risk_complete` | GET | `/api/apisec/static/api/risks/risk-orchestration/{scan_id}/{risk_id}` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_api_security_risks_by_scan_id` | GET | `/api/apisec/static/api/risks/{scan_id}` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_grouped_risk_summary` | GET | `/api/apisec/static/api/risks/{scan_id}/group/{group_column}` |
-| — | ApiSecAPI | `get_api_parameters` | GET | `/api/apisec/static/api/risks/parameters` |
+| STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_api_parameters` | GET | `/api/apisec/static/api/parameter/` |
 | STATIC_INVENTORY_READER.yaml | ApiSecAPI | `get_parameters` | GET | `/api/apisec/static/api/parameter/` |
 | APPLICATIONS.yaml | ApplicationsAPI | `create_an_application` | POST | `/api/applications` |
 | APPLICATIONS.yaml | ApplicationsAPI | `get_a_list_of_applications` | GET | `/api/applications` |

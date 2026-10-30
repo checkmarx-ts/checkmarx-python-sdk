@@ -20,6 +20,7 @@ paths:
         - name: api_id
           in: query
           description: API ID
+          required: true
           schema:
             type: string
         - name: X-Fields
@@ -37,6 +38,9 @@ paths:
                 $ref: '#/components/schemas/Parameter'
         400:
           description: Validation error
+          content: {}
+        404:
+          description: Not found
           content: {}
   /api/risks/risk/{risk_id}:
     get:
@@ -66,6 +70,9 @@ paths:
                 $ref: '#/components/schemas/RiskDetail_Response'
         400:
           description: Validation error
+          content: {}
+        404:
+          description: Not found
           content: {}
   /api/risks/{scan_id}:
     get:
@@ -113,6 +120,9 @@ paths:
                 $ref: '#/components/schemas/RiskResponse'
         400:
           description: Validation error
+          content: {}
+        404:
+          description: Not found
           content: {}
   /api/risks/{scan_id}/group/{group_column}:
     get:
@@ -173,6 +183,53 @@ paths:
         400:
           description: Validation error
           content: {}
+        404:
+          description: Not found
+          content: {}
+  /api/risks/risk-orchestration/{scan_id}/{risk_id}:
+    get:
+      tags:
+        - Risks
+      summary: Get combined risk summary and detailed information in single response
+      operationId: get_risk_complete
+      parameters:
+        - name: scan_id
+          in: path
+          description: Scan UUID
+          required: true
+          schema:
+            type: string
+        - name: risk_id
+          in: path
+          description: Risk UUID
+          required: true
+          schema:
+            type: string
+        - name: X-Fields
+          in: header
+          description: An optional fields mask
+          schema:
+            type: string
+            format: mask
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskCompleteResponse'
+        400:
+          description: Validation error
+          content: {}
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden - Permission Denied
+          content: {}
+        404:
+          description: Not found
+          content: {}
   /api/scan/{scan_id}/risks-origin:
     get:
       tags:
@@ -204,6 +261,9 @@ paths:
                 $ref: '#/components/schemas/ScanRisksOriginsResult'
         400:
           description: Validation error
+          content: {}
+        404:
+          description: Not found
           content: {}
   /api/scan/{scan_id}/risks-overview:
     get:
@@ -237,6 +297,9 @@ paths:
         400:
           description: Validation error
           content: {}
+        404:
+          description: Not found
+          content: {}
   /api/scan/{scan_id}/risks-types:
     get:
       tags:
@@ -268,6 +331,9 @@ paths:
                 $ref: '#/components/schemas/RisksTypes'
         400:
           description: Validation error
+          content: {}
+        404:
+          description: Not found
           content: {}
   /api/scan/{scan_id}/sensitive-data:
     get:
@@ -301,6 +367,9 @@ paths:
         400:
           description: Validation error
           content: {}
+        404:
+          description: Not found
+          content: {}
   /api/scan/{scan_id}/undocumented-apis:
     get:
       tags:
@@ -332,6 +401,9 @@ paths:
                 $ref: '#/components/schemas/ScanUndocumentedApis'
         400:
           description: Validation error
+          content: {}
+        404:
+          description: Not found
           content: {}
   /api/scan/metadata:
     get:
@@ -651,6 +723,57 @@ components:
         line_number:
           type: string
         content:
+          type: string
+    RiskCompleteResponse:
+      type: object
+      properties:
+        risk_id:
+          type: string
+        api_id:
+          type: string
+        severity:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        http_method:
+          type: string
+        url:
+          type: string
+        origin:
+          type: string
+        documented:
+          type: boolean
+        authenticated:
+          type: boolean
+        discovery_date:
+          type: string
+        scan_id:
+          type: string
+        sast_risk_id:
+          type: string
+        project_id:
+          type: string
+        state:
+          type: string
+        vulnerability:
+          type: string
+        source_node:
+          type: string
+        source_file:
+          type: string
+        total_pii:
+          type: integer
+        line_number:
+          type: integer
+        description:
+          type: string
+        actual_value:
+          type: string
+        expected_value:
+          type: string
+        similarity_id:
           type: string
   responses:
     MaskError:

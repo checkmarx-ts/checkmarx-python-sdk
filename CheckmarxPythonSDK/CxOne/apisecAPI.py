@@ -170,6 +170,66 @@ class Risk:
 
 
 @dataclass
+class RiskCompleteResponse:
+    """Response from GET /api/risks/risk-orchestration/{scan_id}/{risk_id}
+    -- the union of Risk and RiskDetailResponse's fields in one call,
+    so callers don't need to make two separate requests."""
+    risk_id: str = None
+    api_id: str = None
+    severity: str = None
+    name: str = None
+    status: str = None
+    http_method: str = None
+    url: str = None
+    origin: str = None
+    documented: bool = None
+    authenticated: bool = None
+    discovery_date: str = None
+    scan_id: str = None
+    sast_risk_id: str = None
+    project_id: str = None
+    state: str = None
+    vulnerability: str = None
+    source_node: str = None
+    source_file: str = None
+    total_pii: int = None
+    line_number: int = None
+    description: str = None
+    actual_value: str = None
+    expected_value: str = None
+    similarity_id: str = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "RiskCompleteResponse":
+        return cls(
+            risk_id=item.get("risk_id"),
+            api_id=item.get("api_id"),
+            severity=item.get("severity"),
+            name=item.get("name"),
+            status=item.get("status"),
+            http_method=item.get("http_method"),
+            url=item.get("url"),
+            origin=item.get("origin"),
+            documented=item.get("documented"),
+            authenticated=item.get("authenticated"),
+            discovery_date=item.get("discovery_date"),
+            scan_id=item.get("scan_id"),
+            sast_risk_id=item.get("sast_risk_id"),
+            project_id=item.get("project_id"),
+            state=item.get("state"),
+            vulnerability=item.get("vulnerability"),
+            source_node=item.get("source_node"),
+            source_file=item.get("source_file"),
+            total_pii=item.get("total_pii"),
+            line_number=item.get("line_number"),
+            description=item.get("description"),
+            actual_value=item.get("actual_value"),
+            expected_value=item.get("expected_value"),
+            similarity_id=item.get("similarity_id"),
+        )
+
+
+@dataclass
 class RiskResponse:
     entries: List[Risk] = None
     total_records: str = None
@@ -516,6 +576,23 @@ class ApiSecAPI(object):
         response = self.api_client.call_api(method="GET", url=url)
         return RiskDetailResponse.from_dict(response.json())
 
+    def get_risk_complete(self, scan_id: str, risk_id: str) -> RiskCompleteResponse:
+        """
+        Get a risk's summary and detailed information in a single
+        response -- the union of what get_api_security_risks_by_scan_id
+        and get_risk_detail_by_risk_id return, in one call.
+
+        Args:
+            scan_id (str): Scan UUID
+            risk_id (str): Risk UUID
+
+        Returns:
+            RiskCompleteResponse
+        """
+        url = f"{self.base_url}/risks/risk-orchestration/{scan_id}/{risk_id}"
+        response = self.api_client.call_api(method="GET", url=url)
+        return RiskCompleteResponse.from_dict(response.json())
+
     def get_api_security_risks_by_scan_id(
         self,
         scan_id: str,
@@ -594,13 +671,23 @@ class ApiSecAPI(object):
 
     def get_api_parameters(self, api_id: str) -> Parameter:
         """
+        Get all parameters for the API.
+
+        Confirmed live: the previous URL (`{base_url}/risks/parameters`)
+        is wrong -- the server routes it to GET /risks/{scan_id} with
+        scan_id literally set to the string "parameters", which 400s
+        with "Invalid UUID value to scan_id: parameters". Fixed to hit
+        the documented GET /api/parameter/ endpoint (same one
+        get_parameters calls); kept as a separate method/function for
+        backward compatibility with existing callers.
+
         Args:
             api_id (str): Specify the unique identifier of the API
 
         Returns:
             Parameter
         """
-        url = f"{self.base_url}/risks/parameters"
+        url = f"{self.base_url}/parameter/"
         params = {"api_id": api_id}
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return Parameter.from_dict(response.json())
@@ -621,8 +708,65 @@ class ApiSecAPI(object):
         return Parameter.from_dict(response.json())
 
 
+def get_risk_summary_by_origin(scan_id: str) -> ScanRisksOriginsResult:
+    return ApiSecAPI().get_risk_summary_by_origin(scan_id=scan_id)
+
+
 def get_scan_apisec_risk_overview(scan_id: str) -> ApiSecRisksOverview:
     return ApiSecAPI().get_scan_apisec_risk_overview(scan_id)
+
+
+def get_all_risk_types(scan_id: str) -> RisksTypesResponse:
+    return ApiSecAPI().get_all_risk_types(scan_id=scan_id)
+
+
+def get_number_of_sensitive_data_apis(scan_id: str) -> ScanSensitiveData:
+    return ApiSecAPI().get_number_of_sensitive_data_apis(scan_id=scan_id)
+
+
+def get_number_of_undocumented_apis(scan_id: str) -> ScanUndocumentedApis:
+    return ApiSecAPI().get_number_of_undocumented_apis(scan_id=scan_id)
+
+
+def get_all_api_scan_metadata() -> List[ScanMetadataResponse]:
+    return ApiSecAPI().get_all_api_scan_metadata()
+
+
+def get_risk_detail_by_risk_id(risk_id: str) -> RiskDetailResponse:
+    return ApiSecAPI().get_risk_detail_by_risk_id(risk_id=risk_id)
+
+
+def get_risk_complete(scan_id: str, risk_id: str) -> RiskCompleteResponse:
+    return ApiSecAPI().get_risk_complete(scan_id=scan_id, risk_id=risk_id)
+
+
+def get_api_security_risks_by_scan_id(
+    scan_id: str,
+    filtering: str = None,
+    page: int = None,
+    per_page: int = None,
+    searching: str = None,
+    sorting: str = None,
+) -> RiskResponse:
+    return ApiSecAPI().get_api_security_risks_by_scan_id(
+        scan_id=scan_id, filtering=filtering, page=page, per_page=per_page,
+        searching=searching, sorting=sorting,
+    )
+
+
+def get_grouped_risk_summary(
+    scan_id: str,
+    group_column: str,
+    filtering: str = None,
+    page: int = None,
+    per_page: int = None,
+    searching: str = None,
+    sorting: str = None,
+) -> GroupResponse:
+    return ApiSecAPI().get_grouped_risk_summary(
+        scan_id=scan_id, group_column=group_column, filtering=filtering,
+        page=page, per_page=per_page, searching=searching, sorting=sorting,
+    )
 
 
 def get_api_parameters(api_id: str) -> Parameter:
