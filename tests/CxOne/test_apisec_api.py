@@ -169,3 +169,20 @@ class TestApiSecAPI:
             pytest.skip("Scan has no API Security risks")
         params = self.apisec_api.get_parameters(api_id=risks.entries[0].api_id)
         assert params is not None
+
+    def test_get_parameters_pii(self):
+        """The wire key for the PII summary is `piis` (plural); confirm
+        it's actually populated for an API with real PII data, not
+        just that the call succeeds."""
+        if not self.scan_id:
+            pytest.skip("No completed API Security scan found")
+        risks = self.apisec_api.get_api_security_risks_by_scan_id(
+            scan_id=self.scan_id, per_page=20
+        )
+        for risk in risks.entries or []:
+            params = self.apisec_api.get_parameters(api_id=risk.api_id)
+            if params.pii:
+                assert params.pii[0].name is not None
+                assert params.pii[0].count is not None
+                return
+        pytest.skip("No API with PII data found in this scan")

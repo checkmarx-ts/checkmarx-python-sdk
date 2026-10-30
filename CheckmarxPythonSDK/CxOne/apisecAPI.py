@@ -59,9 +59,14 @@ class ApiResponseParameter:
 
 @dataclass
 class ApiResponsePii:
+    """An entry in Parameter.pii (wire key: "piis").
+
+    Confirmed live: `count` comes back as a string (e.g. "1"), not an
+    integer, despite the field name.
+    """
     name: str = None
     location: str = None
-    count: int = 0
+    count: str = None
     origin: List[str] = None
 
     @classmethod
@@ -69,13 +74,19 @@ class ApiResponsePii:
         return cls(
             name=item.get("name"),
             location=item.get("location"),
-            count=item.get("count", 0),
+            count=item.get("count"),
             origin=item.get("origin"),
         )
 
 
 @dataclass
 class Parameter:
+    """Response from GET /api/apisec/static/api/parameter/.
+
+    Confirmed live: the wire key for the PII summary is `piis`
+    (plural), not `pii` -- reading `pii` (the old, wrong key) silently
+    returned an empty list even when the server sent real PII data.
+    """
     request_parameters: List[ApiRequestParameter] = None
     response_parameters: List[ApiResponseParameter] = None
     pii: List[ApiResponsePii] = None
@@ -92,7 +103,7 @@ class Parameter:
                 ApiResponseParameter.from_dict(p)
                 for p in (item.get("response_parameters") or [])
             ],
-            pii=[ApiResponsePii.from_dict(p) for p in (item.get("pii") or [])],
+            pii=[ApiResponsePii.from_dict(p) for p in (item.get("piis") or [])],
             api_origins=item.get("api_origins"),
         )
 
