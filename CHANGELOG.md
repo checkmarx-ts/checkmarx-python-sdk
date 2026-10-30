@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] DastScanAPI overview/stats and flags/misc methods — this completes DAST_SCANS_MANAGER.yaml (94/94 endpoints). Apps list, scans-over-time, environment/application summaries and risk/results summaries, average scans data, missing-alert-data check, scans count, top vulnerable environments, successful-scan check, lean environments, scan meta, source-code-exists, latest project sources, config file download, environment settings update, scaled-jobs/systemic flags, technology catalog.
 * [Add] DastScanAPI pipeline and application-association methods — pipeline create/update/delete, associate/disassociate Applications with/from an Environment and vice versa, get associated apps/envs (with a primary-only filter).
 * [Add] DastScanAPI tunnels, sequences, recordings, correlations, pentest, and credits methods for the remaining /api/dast/scans/* endpoints — tunnel CRUD, sequence/recording CRUD and ordering, proxy-recorder file upload, correlations-scan and pentest-scan CRUD/listing (both feature-flag gated), and credits balance/action-rates/deduct/capacity.
 * [Add] DastScanAPI auth-session methods for the /api/dast/scans/authSession/* endpoints — create a session, get/get masked, update credentials/config file/recording file, bulk-replace API definition files, validate an API file, ping, switch to no-auth, upload/download the report and test log, get diagnostics/state/domains.

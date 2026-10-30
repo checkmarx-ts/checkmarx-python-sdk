@@ -17,17 +17,22 @@ from .dto import (
     DastAuthSession,
     DastAuthSessionReportData,
     DastAuthSessionTotp,
+    DastAverageScansDataResponse,
     DastEnvironment,
     DastEnvironmentsCollection,
     DastEnvironmentFilter,
     DastEnvironmentGroupCount,
     DastEnvironmentInput,
+    DastEnvironmentSummariesCollection,
     DastEnvironmentUpdate,
+    DastEnvironmentsRiskRatingSummary,
+    DastEnvironmentsRiskSummary,
     DastGroupBy,
     DastCorrelationCapacityResponse,
     DastCorrelationScansCollection,
     DastCreateTunnelResponse,
     DastFlagEnabled,
+    DastLeanEnvironmentsCollection,
     DastPentestMaxProfile,
     DastPentestScansCollection,
     DastPentestScanSettings,
@@ -40,12 +45,18 @@ from .dto import (
     DastScanGroupBy,
     DastScanGroupCount,
     DastScanGroupFilter,
+    DastScanMeta,
     DastScanSortBy,
     DastScanStatus,
+    DastScansCountResponse,
+    DastScansList,
+    DastScansOverTimeResponse,
     DastSequence,
     DastSequenceScriptsResponse,
     DastSimilarityIds,
     DastSequenceWithRecordingCount,
+    DastSourceVersion,
+    DastTechnology,
     DastTunnelResponse,
     DastTunnelsResponse,
     DastScanType,
@@ -53,6 +64,7 @@ from .dto import (
     DastScansCollection,
     DastSortBy,
     DastTotpField,
+    DastVulnerableEnvironment,
 )
 
 
@@ -2222,6 +2234,402 @@ class DastScanAPI(object):
         )
         return 200 <= response.status_code < 300
 
+    # ----- Overview & stats -----
+    #
+    # Dashboard/overview-oriented read endpoints, mostly scoped to a
+    # single Environment or Application.
+
+    def get_apps_list(
+        self, name: str = None, limit: int = None, offset: int = None, env_id: str = None
+    ) -> dict:
+        """GET /appsList — get the list of applications, optionally
+        filtered by name or environment.
+
+        Args:
+            name (str, optional): Filter by application name.
+            limit (int, optional): Page size.
+            offset (int, optional): Pagination offset.
+            env_id (str, optional): Filter to applications associated
+                with this Environment.
+
+        Returns:
+            dict: raw response body. The spec documents this as an
+            untyped object with no fixed shape.
+        """
+        params = {"name": name, "limit": limit, "offset": offset, "envId": env_id}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/appsList", params=params,
+        )
+        return response.json()
+
+    def get_environment_scans_over_time(
+        self, env_id: str, from_date: str, to_date: str
+    ) -> DastScansOverTimeResponse:
+        """GET /environment/{envId}/scans-over-time — get risk/compliance
+        severity over time for an Environment.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            from_date (str): Start of the date range (RFC3339). Required.
+            to_date (str): End of the date range (RFC3339). Required.
+
+        Returns:
+            DastScansOverTimeResponse
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environment/{env_id}/scans-over-time",
+            params={"fromDate": from_date, "toDate": to_date},
+        )
+        return DastScansOverTimeResponse.from_dict(response.json())
+
+    def get_environment_summaries(
+        self, filter_: dict = None, from_: int = None, to: int = None
+    ) -> DastEnvironmentSummariesCollection:
+        """GET /environmentSummaries — get summaries of all Environments.
+
+        Args:
+            filter_ (dict, optional): Partial-match filter. Supported
+                keys: domain (str), url (str). (Trailing underscore
+                avoids shadowing the built-in `filter`.)
+            from_ (int, optional): Pagination start offset. (Trailing
+                underscore avoids shadowing the built-in `from`.)
+            to (int, optional): Pagination end offset.
+
+        Returns:
+            DastEnvironmentSummariesCollection
+        """
+        params = {"from": from_, "to": to}
+        if filter_:
+            params.update({f"filter[{k}]": v for k, v in filter_.items()})
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environmentSummaries", params=params,
+        )
+        return DastEnvironmentSummariesCollection.from_dict(response.json())
+
+    def get_environments_tags(self) -> List[str]:
+        """GET /environments/tags — get all distinct tags across
+        Environments.
+
+        Returns:
+            List[str]
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/environments/tags"
+        )
+        return response.json() or []
+
+    def get_application_environments_results_summary(self, app_id: str) -> dict:
+        """GET /envsResultsSummary/{appId} — get a results summary
+        across an Application's Environments.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+
+        Returns:
+            dict: raw response body. The spec documents this as an
+            untyped object with no fixed shape.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/envsResultsSummary/{app_id}"
+        )
+        return response.json()
+
+    def get_application_environments_risk_rating_summary(
+        self, app_id: str
+    ) -> DastEnvironmentsRiskRatingSummary:
+        """GET /envsRiskRatingSummary/{appId} — get a risk rating
+        summary across an Application's Environments.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+
+        Returns:
+            DastEnvironmentsRiskRatingSummary
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/envsRiskRatingSummary/{app_id}"
+        )
+        return DastEnvironmentsRiskRatingSummary.from_dict(response.json())
+
+    def get_application_environments_risk_summary(
+        self, app_id: str
+    ) -> DastEnvironmentsRiskSummary:
+        """GET /envsRiskSummary/{appId} — get a risk summary (current and
+        by age bracket) across an Application's Environments.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+
+        Returns:
+            DastEnvironmentsRiskSummary
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/envsRiskSummary/{app_id}"
+        )
+        return DastEnvironmentsRiskSummary.from_dict(response.json())
+
+    def get_average_scans_data(
+        self, env_id: str, from_date: str = None, to_date: str = None
+    ) -> DastAverageScansDataResponse:
+        """GET /overview/averageScansData/{envId} — get average scan
+        duration/paths for an Environment.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            from_date (str, optional): Start of the date range (RFC3339).
+            to_date (str, optional): End of the date range (RFC3339).
+
+        Returns:
+            DastAverageScansDataResponse
+        """
+        params = {"fromDate": from_date, "toDate": to_date}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/overview/averageScansData/{env_id}",
+            params=params,
+        )
+        return DastAverageScansDataResponse.from_dict(response.json())
+
+    def get_has_missing_alert_data(self, env_id: str) -> Optional[bool]:
+        """GET /overview/hasMissingAlertData/{envId} — check whether an
+        Environment has scans with missing alert data.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+
+        Returns:
+            Optional[bool]
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/overview/hasMissingAlertData/{env_id}"
+        )
+        return response.json().get("hasMissingData")
+
+    def get_scans_count(
+        self, env_id: str, from_date: str = None, to_date: str = None
+    ) -> DastScansCountResponse:
+        """GET /overview/scansCount/{envId} — get the scan count for an
+        Environment, broken down by source.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            from_date (str, optional): Start of the date range (RFC3339).
+            to_date (str, optional): End of the date range (RFC3339).
+
+        Returns:
+            DastScansCountResponse
+        """
+        params = {"fromDate": from_date, "toDate": to_date}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/overview/scansCount/{env_id}",
+            params=params,
+        )
+        return DastScansCountResponse.from_dict(response.json())
+
+    def get_top_vulnerable_environments(
+        self, app_id: str, sort_by_total: str = None
+    ) -> List[DastVulnerableEnvironment]:
+        """GET /topVulnerableEnvs/{appId} — get an Application's most
+        vulnerable Environments.
+
+        Args:
+            app_id (str): UUID of the Application. Required.
+            sort_by_total (str, optional): Sort key for "total" risk
+                count.
+
+        Returns:
+            List[DastVulnerableEnvironment]
+        """
+        params = {"sortByTotal": sort_by_total}
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/topVulnerableEnvs/{app_id}",
+            params=params,
+        )
+        return [DastVulnerableEnvironment.from_dict(e) for e in (response.json() or [])]
+
+    def has_successful_scan(self) -> bool:
+        """GET /hasSuccessfulScan — check whether any Environment on the
+        tenant has a successful scan.
+
+        Returns:
+            bool
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/hasSuccessfulScan"
+        )
+        return response.text.strip().strip('"').lower() == "true"
+
+    def get_lean_environments(
+        self, from_: int = None, to: int = None
+    ) -> DastLeanEnvironmentsCollection:
+        """GET /leanEnvironments — get all Environments with only basic
+        information (a lighter-weight alternative to get_environments).
+
+        Confirmed live: from_/to have no visible effect -- the response
+        always contains every Environment (totalItems matches the
+        returned count either way). Passed through regardless in case a
+        given tenant/version does honor them.
+
+        Args:
+            from_ (int, optional): Pagination start offset. (Trailing
+                underscore avoids shadowing the built-in `from`.)
+            to (int, optional): Pagination end offset.
+
+        Returns:
+            DastLeanEnvironmentsCollection
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/leanEnvironments",
+            params={"from": from_, "to": to},
+        )
+        return DastLeanEnvironmentsCollection.from_dict(response.json())
+
+    def get_scan_meta(self, env_id: str, scan_id: str) -> DastScansList:
+        """GET /scans/{envId}/{scanId}/meta — get metadata for an
+        Environment's last scans (limited to 7), plus the given scan's
+        current status.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the scan to center the response on.
+                Required.
+
+        Returns:
+            DastScansList
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/scans/{env_id}/{scan_id}/meta"
+        )
+        return DastScansList.from_dict(response.json())
+
+    def get_source_code_exists(
+        self, env_id: str, scan_id: str, project_id: str
+    ) -> Optional[bool]:
+        """GET /sourceCodeExists/{envId} — check whether a scan's source
+        code still exists in RepoStore.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            scan_id (str): UUID of the scan. Required.
+            project_id (str): UUID of the project. Required.
+
+        Returns:
+            Optional[bool]
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/sourceCodeExists/{env_id}",
+            params={"scanId": scan_id, "projectId": project_id},
+        )
+        return response.json().get("exists")
+
+    def get_latest_project_sources(
+        self, env_id: str, project_ids: List[str]
+    ) -> Dict[str, DastSourceVersion]:
+        """GET /latestProjectSources/{envId} — get the latest source
+        upload for each of an Environment's projects.
+
+        Confirmed by the spec to 503 when code correlation isn't enabled
+        for the tenant.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            project_ids (List[str]): UUIDs of the projects. Required.
+
+        Returns:
+            Dict[str, DastSourceVersion]: keyed by project ID.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/latestProjectSources/{env_id}",
+            params={"projectIds": project_ids},
+        )
+        return {
+            project_id: DastSourceVersion.from_dict(v)
+            for project_id, v in (response.json() or {}).items()
+        }
+
+    def get_config_file(self, env_id: str, uuid: str = None) -> bytes:
+        """GET /configFile/{envId} — generate and download the
+        Environment's YAML configuration file.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            uuid (str, optional): A specific auth session UUID to bake
+                into the config.
+
+        Returns:
+            bytes: raw YAML file content.
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/configFile/{env_id}",
+            params={"uuid": uuid},
+        )
+        return response.content
+
+    def update_environment_settings(
+        self, env_id: str, settings: dict, encrypted_fields: dict = None
+    ) -> str:
+        """PUT /environmentSettings/{envId} — partially update an
+        Environment's settings.
+
+        Args:
+            env_id (str): UUID of the Environment. Required.
+            settings (dict): Partial EnvSettings update, raw (not
+                modeled as a DTO here — see DastEnvironmentSettings for
+                the request-side shape used by create/update_environment,
+                which covers most of the same fields). Required.
+            encrypted_fields (dict, optional): Explicit updates for
+                encrypted-at-rest fields (currently just
+                {"mcpSecurityKey": ...}); omit a field to leave it
+                unchanged, send "" to clear it.
+
+        Returns:
+            str: the API's plain-text response body.
+        """
+        body = {"Settings": settings, "encryptedFields": encrypted_fields}
+        body = {k: v for k, v in body.items() if v is not None}
+        response = self.api_client.call_api(
+            method="PUT", url=f"{self.base_url}/environmentSettings/{env_id}", json=body,
+        )
+        return response.text.strip().strip('"')
+
+    # ----- Flags & misc -----
+
+    def get_scaled_jobs_enabled(self) -> DastFlagEnabled:
+        """GET /flags/scaledJobsEnabled — get the scaled-jobs flag.
+
+        Per the spec, this is hardcoded true for backward compatibility.
+
+        Returns:
+            DastFlagEnabled
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/flags/scaledJobsEnabled"
+        )
+        return DastFlagEnabled.from_dict(response.json())
+
+    def get_systemic_enabled(self) -> DastFlagEnabled:
+        """GET /flags/systemicEnabled — get whether the "systemic"
+        feature flag is enabled for the tenant.
+
+        Returns:
+            DastFlagEnabled
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/flags/systemicEnabled"
+        )
+        return DastFlagEnabled.from_dict(response.json())
+
+    def get_technologies(self) -> List[DastTechnology]:
+        """GET /technologies — get the canonical technology catalog that
+        EnvSettings.Technologies accepts.
+
+        Returns:
+            List[DastTechnology]
+        """
+        response = self.api_client.call_api(
+            method="GET", url=f"{self.base_url}/technologies"
+        )
+        return [DastTechnology.from_dict(t) for t in (response.json() or [])]
+
 
 # ----- Module-level conveniences -----
 
@@ -2809,3 +3217,117 @@ def disassociate_envs_from_application(app_id: str, environment_ids: List[str]) 
     return DastScanAPI().disassociate_envs_from_application(
         app_id=app_id, environment_ids=environment_ids,
     )
+
+
+def get_apps_list(
+    name: str = None, limit: int = None, offset: int = None, env_id: str = None
+) -> dict:
+    return DastScanAPI().get_apps_list(name=name, limit=limit, offset=offset, env_id=env_id)
+
+
+def get_environment_scans_over_time(
+    env_id: str, from_date: str, to_date: str
+) -> DastScansOverTimeResponse:
+    return DastScanAPI().get_environment_scans_over_time(
+        env_id=env_id, from_date=from_date, to_date=to_date,
+    )
+
+
+def get_environment_summaries(
+    filter_: dict = None, from_: int = None, to: int = None
+) -> DastEnvironmentSummariesCollection:
+    return DastScanAPI().get_environment_summaries(filter_=filter_, from_=from_, to=to)
+
+
+def get_environments_tags() -> List[str]:
+    return DastScanAPI().get_environments_tags()
+
+
+def get_application_environments_results_summary(app_id: str) -> dict:
+    return DastScanAPI().get_application_environments_results_summary(app_id=app_id)
+
+
+def get_application_environments_risk_rating_summary(
+    app_id: str,
+) -> DastEnvironmentsRiskRatingSummary:
+    return DastScanAPI().get_application_environments_risk_rating_summary(app_id=app_id)
+
+
+def get_application_environments_risk_summary(app_id: str) -> DastEnvironmentsRiskSummary:
+    return DastScanAPI().get_application_environments_risk_summary(app_id=app_id)
+
+
+def get_average_scans_data(
+    env_id: str, from_date: str = None, to_date: str = None
+) -> DastAverageScansDataResponse:
+    return DastScanAPI().get_average_scans_data(
+        env_id=env_id, from_date=from_date, to_date=to_date,
+    )
+
+
+def get_has_missing_alert_data(env_id: str) -> Optional[bool]:
+    return DastScanAPI().get_has_missing_alert_data(env_id=env_id)
+
+
+def get_scans_count(
+    env_id: str, from_date: str = None, to_date: str = None
+) -> DastScansCountResponse:
+    return DastScanAPI().get_scans_count(env_id=env_id, from_date=from_date, to_date=to_date)
+
+
+def get_top_vulnerable_environments(
+    app_id: str, sort_by_total: str = None
+) -> List[DastVulnerableEnvironment]:
+    return DastScanAPI().get_top_vulnerable_environments(
+        app_id=app_id, sort_by_total=sort_by_total,
+    )
+
+
+def has_successful_scan() -> bool:
+    return DastScanAPI().has_successful_scan()
+
+
+def get_lean_environments(
+    from_: int = None, to: int = None
+) -> DastLeanEnvironmentsCollection:
+    return DastScanAPI().get_lean_environments(from_=from_, to=to)
+
+
+def get_scan_meta(env_id: str, scan_id: str) -> DastScansList:
+    return DastScanAPI().get_scan_meta(env_id=env_id, scan_id=scan_id)
+
+
+def get_source_code_exists(env_id: str, scan_id: str, project_id: str) -> Optional[bool]:
+    return DastScanAPI().get_source_code_exists(
+        env_id=env_id, scan_id=scan_id, project_id=project_id,
+    )
+
+
+def get_latest_project_sources(
+    env_id: str, project_ids: List[str]
+) -> Dict[str, DastSourceVersion]:
+    return DastScanAPI().get_latest_project_sources(env_id=env_id, project_ids=project_ids)
+
+
+def get_config_file(env_id: str, uuid: str = None) -> bytes:
+    return DastScanAPI().get_config_file(env_id=env_id, uuid=uuid)
+
+
+def update_environment_settings(
+    env_id: str, settings: dict, encrypted_fields: dict = None
+) -> str:
+    return DastScanAPI().update_environment_settings(
+        env_id=env_id, settings=settings, encrypted_fields=encrypted_fields,
+    )
+
+
+def get_scaled_jobs_enabled() -> DastFlagEnabled:
+    return DastScanAPI().get_scaled_jobs_enabled()
+
+
+def get_systemic_enabled() -> DastFlagEnabled:
+    return DastScanAPI().get_systemic_enabled()
+
+
+def get_technologies() -> List[DastTechnology]:
+    return DastScanAPI().get_technologies()

@@ -139,7 +139,9 @@ from .DastAutomationEngine import DastAutomationEngine
 from .DastAutomationScript import DastAutomationScript
 from .DastAutomationScriptType import DastAutomationScriptType
 from .DastAutomationType import DastAutomationType
+from .DastAverageScansDataResponse import DastAverageScansDataResponse
 from .DastCliSettings import DastCliSettings
+from .DastComplianceData import DastComplianceData
 from .DastConfigFileSettings import DastConfigFileSettings
 from .DastCorrelationCapacityResponse import DastCorrelationCapacityResponse
 from .DastCorrelationProjectResponse import DastCorrelationProjectResponse
@@ -154,10 +156,15 @@ from .DastEnvironmentInput import DastEnvironmentInput
 from .DastEnvironmentSettings import DastEnvironmentSettings
 from .DastEnvironmentUpdate import DastEnvironmentUpdate
 from .DastEnvironmentsCollection import DastEnvironmentsCollection
+from .DastEnvironmentSummariesCollection import DastEnvironmentSummariesCollection
+from .DastEnvironmentsRiskRatingSummary import DastEnvironmentsRiskRatingSummary
+from .DastEnvironmentsRiskSummary import DastEnvironmentsRiskSummary
 from .DastFileInfo import DastFileInfo
 from .DastFlagEnabled import DastFlagEnabled
 from .DastGroupBy import DastGroupBy
 from .DastLastRiskRating import DastLastRiskRating
+from .DastLeanEnvironment import DastLeanEnvironment
+from .DastLeanEnvironmentsCollection import DastLeanEnvironmentsCollection
 from .DastPentestMaxProfile import DastPentestMaxProfile
 from .DastPentestScanResponse import DastPentestScanResponse
 from .DastPentestScanSettings import DastPentestScanSettings
@@ -192,6 +199,12 @@ from .DastScanGroupBy import DastScanGroupBy
 from .DastScanGroupCount import DastScanGroupCount
 from .DastScanGroupFilter import DastScanGroupFilter
 from .DastScanInsight import DastScanInsight
+from .DastScanMeta import DastScanMeta
+from .DastScansCountBySource import DastScansCountBySource
+from .DastScansCountResponse import DastScansCountResponse
+from .DastScansList import DastScansList
+from .DastScansOverTime import DastScansOverTime
+from .DastScansOverTimeResponse import DastScansOverTimeResponse
 from .DastScanOption import DastScanOption
 from .DastScanOptions import DastScanOptions
 from .DastScanSortBy import DastScanSortBy
@@ -209,7 +222,10 @@ from .DastSessionManagement import DastSessionManagement
 from .DastSessionManagementHeader import DastSessionManagementHeader
 from .DastSimilarityIds import DastSimilarityIds
 from .DastSortBy import DastSortBy
+from .DastSourceVersion import DastSourceVersion
 from .DastSortOrder import DastSortOrder
+from .DastTechnology import DastTechnology
+from .DastTimeSpanRiskSummary import DastTimeSpanRiskSummary
 from .DastTotpField import DastTotpField
 from .DastTunnel import DastTunnel
 from .DastCreateTunnelResponse import DastCreateTunnelResponse
@@ -217,6 +233,7 @@ from .DastTunnelResponse import DastTunnelResponse
 from .DastTunnelsResponse import DastTunnelsResponse
 from .DastTunnelState import DastTunnelState
 from .DastUserCredentials import DastUserCredentials
+from .DastVulnerableEnvironment import DastVulnerableEnvironment
 from .DebugMessage import DebugMessage
 from .DebugMessageResponse import DebugMessageResponse
 from .DefaultConfig import DefaultConfig
