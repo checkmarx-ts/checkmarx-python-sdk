@@ -121,7 +121,15 @@ from .CredentialRepresentation import CredentialRepresentation
 from .Credentials import Credentials
 from .CustomState import CustomState
 from .DastAlertRiskLevel import DastAlertRiskLevel
+from .DastApiFileWithType import DastApiFileWithType
 from .DastApplication import DastApplication
+from .DastAuthSession import DastAuthSession
+from .DastAuthSessionCredentials import DastAuthSessionCredentials
+from .DastAuthSessionLoginStep import DastAuthSessionLoginStep
+from .DastAuthSessionReportData import DastAuthSessionReportData
+from .DastAuthSessionStatisticItem import DastAuthSessionStatisticItem
+from .DastAuthSessionSummaryItem import DastAuthSessionSummaryItem
+from .DastAuthSessionTotp import DastAuthSessionTotp
 from .DastAuthSettings import DastAuthSettings
 from .DastAuthSuccess import DastAuthSuccess
 from .DastAutomationAction import DastAutomationAction
@@ -139,6 +147,7 @@ from .DastEnvironmentInput import DastEnvironmentInput
 from .DastEnvironmentSettings import DastEnvironmentSettings
 from .DastEnvironmentUpdate import DastEnvironmentUpdate
 from .DastEnvironmentsCollection import DastEnvironmentsCollection
+from .DastFileInfo import DastFileInfo
 from .DastGroupBy import DastGroupBy
 from .DastLastRiskRating import DastLastRiskRating
 from .DastPollHeader import DastPollHeader
