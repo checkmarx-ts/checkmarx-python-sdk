@@ -450,6 +450,39 @@ class AiAssetsAPI(object):
         )
         return response.json()
 
+    def get_scan_result_by_id(
+        self, scan_id: str, result_id: str, project_id: str = None
+    ) -> dict:
+        """
+        Get the full profile of a single result (by id) within a scan,
+        for the UI's asset Details Tab.
+
+        An asset can have multiple detections/evidence rows (e.g. across
+        files), so the lookup is keyed on the individual result rather
+        than the asset. The response shape is discriminated by
+        assetType (AssetDetailResponse / McpAssetDetailResponse /
+        SkillAssetDetailResponse), left as a raw dict.
+
+        Args:
+            scan_id (str): Scan ID (uuid)
+            result_id (str): The result's id -- the same
+                DetectionHash-backed value returned as ScanResult.id
+                from get_scan_results.
+            project_id (str, optional): Project GUID, used to enrich
+                the result with triage state. When omitted, triage
+                enrichment is skipped.
+
+        Returns:
+            dict: identity, source, and detection-context fields for
+            the result; shape varies by assetType.
+        """
+        url = f"{self.base_url}/reader/scans/{scan_id}/results/{result_id}"
+        params = {"projectId": project_id}
+        response = self.api_client.call_api(
+            method="GET", url=url, params=params
+        )
+        return response.json()
+
 
 # ---- Module-level convenience functions ----
 
@@ -615,4 +648,12 @@ def get_asset_risks(
         names=names, risk_ids=risk_ids, file_path=file_path,
         search=search, order_column=order_column,
         order_direction=order_direction, limit=limit, offset=offset,
+    )
+
+
+def get_scan_result_by_id(
+    scan_id: str, result_id: str, project_id: str = None
+) -> dict:
+    return AiAssetsAPI().get_scan_result_by_id(
+        scan_id=scan_id, result_id=result_id, project_id=project_id,
     )

@@ -44,6 +44,7 @@ from .aiAssetsAPI import (
     get_scan_results,
     aggregate_scan_results,
     get_asset_risks,
+    get_scan_result_by_id,
 )
 
 from .aiTriageAPI import (
