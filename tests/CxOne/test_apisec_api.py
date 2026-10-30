@@ -120,6 +120,24 @@ class TestApiSecAPI:
                 logger.info(f"- {group.top_level_group_value}: {group.total_records}")
         assert grouped_summary is not None
 
+    def test_get_grouped_risk_summary_sorting_order(self):
+        """sorting_order is the correct param name for this endpoint
+        (unlike the sibling get_api_security_risks_by_scan_id, which
+        uses `sorting`) -- the server 500s if the wrong name is sent.
+        """
+        if not self.scan_id:
+            pytest.skip("No completed API Security scan found")
+        asc = self.apisec_api.get_grouped_risk_summary(
+            scan_id=self.scan_id, group_column="severity", sorting_order="asc"
+        )
+        desc = self.apisec_api.get_grouped_risk_summary(
+            scan_id=self.scan_id, group_column="severity", sorting_order="desc"
+        )
+        asc_values = [g.top_level_group_value for g in (asc.groups or [])]
+        desc_values = [g.top_level_group_value for g in (desc.groups or [])]
+        if len(asc_values) > 1:
+            assert asc_values == list(reversed(desc_values))
+
     def test_get_api_parameters(self):
         if not self.scan_id:
             pytest.skip("No completed API Security scan found")

@@ -645,12 +645,20 @@ class ApiSecAPI(object):
         page: int = None,
         per_page: int = None,
         searching: str = None,
-        sorting: str = None,
+        sorting_order: str = None,
     ) -> GroupResponse:
         """
         Get a summary of the number of API Security risks of each value for
         the specified category (e.g., for severity, returns number of critical,
         high, medium, low)
+
+        Confirmed live: the sort query param for this endpoint is
+        `sorting_order` (plain "asc"/"desc"), NOT `sorting` (the JSON
+        array-of-{column,order} string that the sibling
+        get_api_security_risks_by_scan_id endpoint uses) -- sending
+        `sorting` here doesn't just get ignored, it 500s the server
+        ("Internal Server Error"). Previously this method sent
+        `sorting`, which would have crashed any caller who passed it.
 
         Args:
             scan_id (str):
@@ -659,7 +667,7 @@ class ApiSecAPI(object):
             page (int):
             per_page (int):
             searching (str):
-            sorting (str):
+            sorting_order (str): "asc" or "desc".
 
         Returns:
             GroupResponse
@@ -670,7 +678,7 @@ class ApiSecAPI(object):
             "page": page,
             "per_page": per_page,
             "searching": searching,
-            "sorting": sorting,
+            "sorting_order": sorting_order,
         }
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return GroupResponse.from_dict(response.json())
@@ -767,11 +775,12 @@ def get_grouped_risk_summary(
     page: int = None,
     per_page: int = None,
     searching: str = None,
-    sorting: str = None,
+    sorting_order: str = None,
 ) -> GroupResponse:
     return ApiSecAPI().get_grouped_risk_summary(
         scan_id=scan_id, group_column=group_column, filtering=filtering,
-        page=page, per_page=per_page, searching=searching, sorting=sorting,
+        page=page, per_page=per_page, searching=searching,
+        sorting_order=sorting_order,
     )
 
 
