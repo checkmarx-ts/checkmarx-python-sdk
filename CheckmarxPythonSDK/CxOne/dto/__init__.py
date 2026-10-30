@@ -185,6 +185,7 @@ from .DastPentestScanSettings import DastPentestScanSettings
 from .DastPentestScansCollection import DastPentestScansCollection
 from .DastPollHeader import DastPollHeader
 from .DastRecording import DastRecording
+from .DastRecordingReport import DastRecordingReport
 from .DastRecordingWithPosition import DastRecordingWithPosition
 from .DastRecordingWithSequences import DastRecordingWithSequences
 from .DastRecordingsCollection import DastRecordingsCollection
@@ -234,9 +235,11 @@ from .DastScanUser import DastScanUser
 from .DastScansCollection import DastScansCollection
 from .DastSequence import DastSequence
 from .DastSequenceInfo import DastSequenceInfo
+from .DastSequenceReport import DastSequenceReport
 from .DastSequenceScriptsChain import DastSequenceScriptsChain
 from .DastSequenceScriptsResponse import DastSequenceScriptsResponse
 from .DastSequenceWithRecordingCount import DastSequenceWithRecordingCount
+from .DastSequencesReport import DastSequencesReport
 from .DastSessionManagement import DastSessionManagement
 from .DastSessionManagementHeader import DastSessionManagementHeader
 from .DastSimilarityIds import DastSimilarityIds
