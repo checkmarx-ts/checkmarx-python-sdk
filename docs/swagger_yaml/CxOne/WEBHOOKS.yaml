@@ -49,6 +49,12 @@ paths:
         - $ref: '#/components/parameters/authHeader'
         - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
+        - name: search
+          in: query
+          required: false
+          description: "Search term to filter webhooks by name and url"
+          schema:
+            type: string
         - name: offset
           in: query
           schema:
@@ -151,6 +157,12 @@ paths:
             default: 10
             example: 10
           description: "The maximum number of webhooks to return"
+        - name: search
+          in: query
+          required: false
+          description: "Search term to filter webhooks by name and url"
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -257,6 +269,7 @@ components:
           description: "Indicates whether a webhook is active or not"
         enabledEvents:
           type: array
+          minItems: 1
           items:
             type: string
           description: "List of subscribed events. `project_created` only available for tenant level"
@@ -310,6 +323,9 @@ components:
             url:
               type: string
               description: "Payload URL"
+            isSecretSet:
+              type: boolean
+              description: "Indicates whether a secret is set or not"
         createdAt:
           type: string
           format: date-time

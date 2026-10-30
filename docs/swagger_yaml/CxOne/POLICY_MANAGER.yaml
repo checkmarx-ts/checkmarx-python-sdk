@@ -1,0 +1,1202 @@
+openapi: 3.0.1
+info:
+  title: Cx Policy Manager API
+  description: Cx Policy Manager Endpoints
+  version: v0.0.1
+paths:
+  /policies/{policyId}:
+    get:
+      tags:
+        - policy-controller
+      summary: Get policy by id
+      operationId: getPolicy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PolicyWebDto"
+    put:
+      tags:
+        - policy-controller
+      summary: Update existing policy
+      operationId: updatePolicy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyWebDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+    delete:
+      tags:
+        - policy-controller
+      summary: Delete policy by id
+      operationId: deletePolicy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+  /policies/v2/{policyId}:
+    get:
+      tags:
+        - policy-controller
+      summary: Get policy by id (V2)
+      operationId: getPolicyV2
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PolicyWebDto"
+    put:
+      tags:
+        - policy-controller
+      summary: Update existing policy (V2)
+      operationId: updatePolicyV2
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyWebDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+  /policies/projects/{policyId}:
+    put:
+      tags:
+        - policy-controller
+      summary: Assign projects to existing policy
+      operationId: assignProjectsToPolicy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectsInPolicyDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+    delete:
+      tags:
+        - policy-controller
+      summary: Delete projects from existing policy
+      operationId: deleteProjectsFromPolicy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectsInPolicyDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /policies/pinPolicy/{policyId}/{pinPolicy}:
+    put:
+      tags:
+        - policy-controller
+      summary: Pin/unPin policy in table
+      operationId: pinPolicy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: pinPolicy
+          in: path
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+  /policies:
+    get:
+      tags:
+        - policy-controller
+      summary: Get tenant policies.
+      operationId: getTenantPolicies
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: "#/components/schemas/PolicyWebDto"
+    post:
+      tags:
+        - policy-controller
+      summary: Create policy
+      operationId: createPolicy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyWebDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+    delete:
+      tags:
+        - policy-controller
+      summary: Delete policies by ids
+      operationId: deletePolicies
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+      responses:
+        "200":
+          description: OK
+  /policies/v2:
+    get:
+      tags:
+        - policy-controller
+      summary: Get tenant policies with pagination
+      operationId: getTenantPoliciesWithPagination
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema:
+            maximum: 1000
+            minimum: 1
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: policyName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PoliciesPaginationDto"
+    post:
+      tags:
+        - policy-controller
+      summary: Create policy (V2)
+      operationId: createPolicyV2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyWebDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PolicyShortWebDto"
+  /projects:
+    get:
+      tags:
+        - project-controller
+      summary: Get tenant projects.
+      operationId: getTenantProjects
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectWebDto"
+  /projects/tags:
+    get:
+      tags:
+        - project-controller
+      summary: Get AST projects tags
+      operationId: getProjectsTags
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  type: string
+  /policy_violations:
+    get:
+      tags:
+        - policy-violation-controller
+      summary: Get policy violations by projectId and scanId
+      operationId: getPolicyViolations
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: scanId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PolicyViolationWebDto"
+  /policies/v3:
+    get:
+      tags:
+        - policy-controller
+      summary: Get tenant policies with pagination (V3)
+      operationId: getTenantPoliciesWithPaginationV2
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema:
+            maximum: 1000
+            minimum: 1
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: policyName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PoliciesPaginationDto"
+  /policies/default:
+    get:
+      tags:
+        - policy-controller
+      summary: Get default policy
+      operationId: getDefaultPolicy
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PolicyShortWebDto"
+  /incidents:
+    get:
+      tags:
+        - incident-controller
+      summary: Get tenant incidents.
+      operationId: getTenantIncidents
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/IncidentsPaginationDto"
+  /incidents/total:
+    get:
+      tags:
+        - incident-controller
+      summary: Get tenant incidents total count.
+      operationId: getTenantIncidentsTotalCount
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+  /incidents/filters:
+    get:
+      tags:
+        - incident-controller
+      summary: Get tenant incidents with pagination and filters
+      operationId: getTenantIncidentsWithPaginationAndFilters
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema:
+            maximum: 1000
+            minimum: 1
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: policyName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: ruleName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: scanId
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: projectName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: branch
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: scanDate
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/IncidentsPaginationDto"
+  /incidents/:
+    get:
+      tags:
+        - incident-controller
+      summary: Get tenant incidents with pagination
+      operationId: getTenantIncidentsWithPagination
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema:
+            maximum: 1000
+            minimum: 1
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: incidentName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/IncidentsPaginationDto"
+  /incidents/filters/v2:
+    get:
+      tags:
+        - incident-controller
+      summary: Get tenant enhanced incidents V2 with pagination, filters and sorting
+      operationId: getEnhancedIncidentsWithPaginationAndFilters
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: policyName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: ruleName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: scanId
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: projectName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: branch
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: scanner
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: tags
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: scanDateFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: scanDateTo
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: sortField
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EnhancedIncidentsPaginationDTO"
+  /incidents/{incidentId}/results:
+    get:
+      tags:
+        - incident-controller
+      summary: Get results for a specific incident
+      operationId: getIncidentResults
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          required: true
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+        - name: issue
+          in: query
+          required: false
+          description: Legacy issue-name filter. Ignored if 'search' is also provided (non-blank 'search' takes precedence).
+          schema:
+            type: string
+            default: ""
+        - name: search
+          in: query
+          required: false
+          description: Free-text search over the issue name. Takes precedence over 'issue' when non-blank.
+          schema:
+            type: string
+            default: ""
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: sortField
+          in: query
+          required: false
+          schema:
+            type: string
+            default: "severity"
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: "descend"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/IncidentResultsDTO"
+  /evaluation:
+    get:
+      tags:
+        - evaluated-policy-controller
+      summary: Get evaluated policy by scan id and ast project id
+      operationId: getEvaluatedPoliciesByScanIdAndProjectId
+      parameters:
+        - name: scanId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: astProjectId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PoliciesResultWebDto"
+  /internal/data-retention:
+    delete:
+      tags:
+        - data-retention-controller
+      summary: Delete data from all the services that implements the IDataRetention
+      operationId: deleteData
+      parameters:
+        - name: limitation
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+  /internal/data-retention/{serviceName}:
+    delete:
+      tags:
+        - data-retention-controller
+      summary: Delete data from a specific service that implements the IDataRetention
+      operationId: deleteData_1
+      parameters:
+        - name: serviceName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limitation
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    BreakBuildExemptStateDto:
+      type: object
+      properties:
+        scanner:
+          type: string
+        ruleName:
+          maxLength: 255
+          minLength: 0
+          type: string
+        stateName:
+          type: array
+          items:
+            type: string
+    PolicyWebDto:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+        description:
+          maxLength: 2500
+          minLength: 0
+          type: string
+        isActivated:
+          type: boolean
+        tags:
+          maxItems: 50
+          minItems: 0
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        breakBuild:
+          type: boolean
+        pinPolicy:
+          type: boolean
+        lastViolated:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        projects:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectWebDto"
+        netNewBreakBuild:
+          type: boolean
+        type:
+          type: string
+          enum:
+            - NET_NEW
+            - ENGINES_RULES
+        allScannersSeverities:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+            enum:
+              - CRITICAL
+              - HIGH
+              - MEDIUM
+              - LOW
+              - INFO
+        violatingAssocProjects:
+          $ref: "#/components/schemas/ViolatingAssocProjectsWebDto"
+        netNewScannerMode:
+          type: string
+          enum:
+            - ALL_SCANNERS
+            - BY_SCANNER
+        scannerSeverities:
+          type: object
+          additionalProperties:
+            uniqueItems: true
+            type: array
+            items:
+              type: string
+              enum:
+                - CRITICAL
+                - HIGH
+                - MEDIUM
+                - LOW
+                - INFO
+        breakBuildExemptStates:
+          type: array
+          items:
+            $ref: "#/components/schemas/BreakBuildExemptStateDto"
+        defaultPolicy:
+          type: boolean
+    ProjectWebDto:
+      required:
+        - astProjectId
+      type: object
+      properties:
+        astProjectId:
+          type: string
+        name:
+          type: string
+    ViolatingAssocProjectsWebDto:
+      type: object
+      properties:
+        assocProjects:
+          type: integer
+          format: int64
+        violating:
+          type: integer
+          format: int64
+    ProjectsInPolicyDto:
+      type: object
+      properties:
+        projects:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectWebDto"
+        id:
+          type: integer
+          format: int64
+    PolicyShortWebDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    FindingsWebDto:
+      type: object
+      properties:
+        resultId:
+          type: string
+        similarityId:
+          type: string
+        queryId:
+          type: string
+        queryName:
+          type: string
+        severity:
+          type: string
+        cweId:
+          type: integer
+          format: int64
+        fileName:
+          type: string
+        line:
+          type: integer
+          format: int32
+        description:
+          type: string
+        stateName:
+          type: string
+    PackageWebDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        outdated:
+          type: boolean
+        highVulnerabilityCount:
+          type: integer
+          format: int32
+        mediumVulnerabilityCount:
+          type: integer
+          format: int32
+        packageState:
+          type: string
+        vulnerabilities:
+          type: array
+          items:
+            $ref: "#/components/schemas/VulnerabilityWebDto"
+    PolicyViolationWebDto:
+      type: object
+      properties:
+        scanId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+        generatedOn:
+          type: string
+          format: date-time
+        policies:
+          type: array
+          items:
+            $ref: "#/components/schemas/ViolatedPolicyWebDto"
+        status:
+          type: string
+          enum:
+            - COMPLETED
+            - EVALUATING
+            - NONE
+    RuleViolatedWebDto:
+      type: object
+      properties:
+        ruleName:
+          type: string
+        scanner:
+          type: string
+        packages:
+          type: array
+          items:
+            $ref: "#/components/schemas/PackageWebDto"
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/FindingsWebDto"
+    ViolatedPolicyWebDto:
+      type: object
+      properties:
+        policyName:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        breakBuild:
+          type: boolean
+        rulesViolated:
+          type: array
+          items:
+            $ref: "#/components/schemas/RuleViolatedWebDto"
+    VulnerabilityWebDto:
+      type: object
+      properties:
+        id:
+          type: string
+        cveName:
+          type: string
+        severity:
+          type: string
+        description:
+          type: string
+        packageId:
+          type: string
+    PoliciesPaginationDto:
+      type: object
+      properties:
+        policies:
+          type: array
+          items:
+            $ref: "#/components/schemas/PolicyWebDto"
+        filteredPoliciesCount:
+          type: integer
+          format: int64
+    IncidentWebDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        policyName:
+          type: string
+        projectName:
+          type: string
+        branch:
+          type: string
+        ruleName:
+          type: string
+        scanId:
+          type: string
+        scanDate:
+          type: string
+          format: date-time
+        policyTags:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        defaultPolicy:
+          type: boolean
+        defaultPolicyEvaluation:
+          type: boolean
+    IncidentsPaginationDto:
+      type: object
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentWebDto"
+        filteredIncidentsCount:
+          type: integer
+          format: int64
+    EvaluatedPolicyWebDto:
+      type: object
+      properties:
+        policyName:
+          type: string
+        description:
+          type: string
+        rulesViolated:
+          type: array
+          items:
+            type: string
+        tags:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        breakBuild:
+          type: boolean
+        status:
+          type: string
+          enum:
+            - PASSED
+            - FAILED
+    EnhancedIncidentsWebDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        policyName:
+          type: string
+        projectName:
+          type: string
+        branch:
+          type: string
+        ruleName:
+          type: string
+        scanId:
+          type: string
+        scanDate:
+          type: string
+          format: date-time
+        policyTags:
+          type: array
+          items:
+            type: string
+        defaultPolicy:
+          type: boolean
+        defaultPolicyEvaluation:
+          type: boolean
+        engine:
+          type: string
+    EnhancedIncidentsPaginationDTO:
+      type: object
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnhancedIncidentsWebDTO"
+        filteredIncidentsCount:
+          type: integer
+          format: int64
+    ViolationDetailsDTO:
+      type: object
+      properties:
+        policyName:
+          type: string
+        ruleName:
+          type: string
+        engine:
+          type: string
+        conditions:
+          type: array
+          items:
+            type: string
+        breakBuild:
+          type: boolean
+    IncidentResultWebDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        severity:
+          type: string
+        issue:
+          type: string
+        issueLink:
+          type: string
+        cweLink:
+          type: string
+        sourceFilePackage:
+          type: string
+        sourceFileLink:
+          type: string
+        lineNumber:
+          type: integer
+          format: int64
+        insight:
+          type: string
+        insightLink:
+          type: string
+        resultId:
+          type: string
+        recommendedVersion:
+          type: string
+        attackVector:
+          type: string
+        attackComplexity:
+          type: string
+        riskOrchestrationLink:
+          type: string
+        sastResultsLink:
+          type: string
+    IncidentResultsDTO:
+      type: object
+      properties:
+        violationDetails:
+          $ref: "#/components/schemas/ViolationDetailsDTO"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentResultWebDTO"
+        filteredResultsCount:
+          type: integer
+          format: int64
+    PoliciesResultWebDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - COMPLETED
+            - NONE
+            - EVALUATING
+        breakBuild:
+          type: boolean
+        policies:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvaluatedPolicyWebDto"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/policy_management_service_uri
+security:
+  - Login: []
