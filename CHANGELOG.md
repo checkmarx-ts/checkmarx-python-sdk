@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] AiAssetsAPI.get_scan_result_by_id — GET /api/ai-sc/reader/scans/{scanId}/results/{id}, the one AI_SUPPLY_CHAIN_SCAN_RESULTS.yaml endpoint not yet covered (the other three -- get_scan_results, aggregate_scan_results, get_asset_risks -- were already implemented; a prior cross-reference audit had flagged get_asset_risks as missing too, but that was a false negative of the audit script's URL parser, not an actual gap).
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02

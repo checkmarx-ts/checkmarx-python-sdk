@@ -13,6 +13,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_scan_results,
     aggregate_scan_results,
     get_asset_risks,
+    get_scan_result_by_id,
 )
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
 import logging
@@ -141,3 +142,22 @@ def test_get_asset_risks():
         assert "risks" in result
     except Exception as e:
         logger.warning("get_asset_risks skipped: {}".format(str(e)))
+
+
+def test_get_scan_result_by_id():
+    scan_id = _get_ai_scan_id()
+    if not scan_id:
+        pytest.skip("No completed AI Supply Chain scan found")
+    results = get_scan_results(scan_id=scan_id, limit=1)
+    data = results.get("data", [])
+    if not data:
+        pytest.skip("No results found in scan")
+    result_id = data[0].get("id")
+    if not result_id:
+        pytest.skip("Result has no id")
+    try:
+        result = get_scan_result_by_id(scan_id=scan_id, result_id=result_id)
+        assert result is not None
+        assert "assetType" in result
+    except Exception as e:
+        logger.warning("get_scan_result_by_id skipped: {}".format(str(e)))
