@@ -291,6 +291,7 @@ from .RuleInput import RuleInput
 from .SastResult import SastResult
 from .SastScan import SastScan
 from .SastStatus import SastStatus
+from .ScaExportStatus import ScaExportStatus
 from .ScaContainersCounters import ScaContainersCounters
 from .ScaCounters import ScaCounters
 from .Scan import Scan

@@ -3,7 +3,7 @@ from dataclasses import asdict, is_dataclass
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List, Union
-from .dto import ExportParametersSbom, ExportParametersScanReport
+from .dto import ExportParametersSbom, ExportParametersScanReport, ScaExportStatus
 import logging
 logger = logging.getLogger(__name__)
 
@@ -307,6 +307,26 @@ class ReportAPI(object):
         )
         return response.json()["exportId"]
 
+    def get_sca_export_status(self, export_id: str) -> ScaExportStatus:
+        """GET /api/sca/export/requests?exportId={exportId} -- check
+        the status of an SCA export request (and, once Completed, its
+        download URL) without blocking/polling. For a one-shot
+        poll-until-done-and-download instead, see
+        get_sca_scan_report.
+
+        Args:
+            export_id (str):
+
+        Returns:
+            ScaExportStatus
+        """
+        base = self.api_client.configuration.server_base_url
+        url = f"{base}/api/sca/export/requests"
+        response = self.api_client.call_api(
+            method="GET", url=url, params={"exportId": export_id},
+        )
+        return ScaExportStatus.from_dict(response.json())
+
     def get_sca_scan_report(self, export_id: str) -> Union[dict, bytes]:
         """Poll an SCA export request until it completes, then download
         it. Export formats (set via create_sca_scan_report's
@@ -416,6 +436,10 @@ def create_sca_scan_report(
         file_format=file_format,
         export_parameters=export_parameters,
     )
+
+
+def get_sca_export_status(export_id: str) -> ScaExportStatus:
+    return ReportAPI().get_sca_export_status(export_id=export_id)
 
 
 def get_sca_scan_report(export_id: str) -> Union[dict, bytes]:

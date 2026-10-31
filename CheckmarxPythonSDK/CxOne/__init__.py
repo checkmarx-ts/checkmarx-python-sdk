@@ -444,6 +444,7 @@ from .reportAPI import (
     get_scan_report,
     get_risk_scan_report,
     create_sca_scan_report,
+    get_sca_export_status,
     get_sca_scan_report,
 )
 from .repositoryInsightsAPI import (
