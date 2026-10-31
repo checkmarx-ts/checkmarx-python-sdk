@@ -289,7 +289,15 @@ def test_get_predicates_changelog():
 
 
 def test_create_predicates_by_attack_vector():
-    """POST /attack-vector — create predicates by attack vector."""
+    """POST /attack-vector — create predicates by attack vector.
+
+    NOTE: this tenant is configured to use Similarity IDs rather than
+    Attack Vector IDs (confirmed live: "Account is configured to use
+    Similarity IDs. Updates by Attack Vector ID are not allowed."),
+    so this endpoint 400s here regardless of request shape -- not
+    specific to the placeholder attackVectorId used below. This test
+    can only confirm the call doesn't error on request shape.
+    """
     scan_id, project_id = _get_sast_scan_and_project_id()
     if not scan_id:
         pytest.skip("No completed SAST scan found")
@@ -302,7 +310,9 @@ def test_create_predicates_by_attack_vector():
                 "state": "TO_VERIFY",
                 "severity": "MEDIUM",
                 "comment": "test from SDK",
-            }]
+            }],
+            allow_ai_triage_cancellation=True,
+            correlation_id="11111111-1111-1111-1111-111111111111",
         )
         assert result is not None
     except Exception as e:
