@@ -51,6 +51,60 @@ def test_get_sast_results_by_scan_id():
     pass
 
 
+def test_get_sast_results_by_scan_id_with_new_filters():
+    # exercises filters added when this method was expanded to full
+    # doc parity: attack_vector_id, bfl_group_size/name,
+    # confidence_level/score, cwe_id, is_ai_generated, similarity_id,
+    # group_operation, query_operation, visible_columns,
+    # correlation_id -- plus their *_operation variants.
+    scan_id = _get_sast_scan_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+
+    result = get_sast_results_by_scan_id(
+        scan_id=scan_id,
+        limit=5,
+        cwe_id=79,
+        cwe_id_operation="EQUAL",
+        is_ai_generated=0,
+        is_ai_generated_operation="EQUAL",
+        confidence_score=50,
+        confidence_score_operation="GREATER_THAN",
+        confidence_level=1,
+        confidence_level_operation="EQUAL",
+        bfl_name="main",
+        bfl_name_operation="CONTAINS",
+        bfl_group_size=2,
+        bfl_group_size_operation="GREATER_THAN",
+        attack_vector_id="0000000000000001",
+        attack_vector_id_operation="EQUAL",
+        group_operation="CONTAINS",
+        query_operation="EQUAL",
+        query="SQL_Injection",
+        visible_columns=["scan-id", "result-id", "query-ids"],
+        correlation_id="11111111-1111-1111-1111-111111111111",
+    )
+    assert "results" in result
+    assert "totalCount" in result
+
+    # similarity_id filtering should narrow to at most the matching
+    # result(s) for *some* real similarity id in this scan -- grab one
+    # from the unfiltered call above rather than assuming a specific
+    # id exists on whatever scan _get_sast_scan_id() happens to pick.
+    if result["results"]:
+        real_similarity_id = result["results"][0].similarity_id
+        result2 = get_sast_results_by_scan_id(
+            scan_id=scan_id,
+            similarity_id=real_similarity_id,
+            similarity_id_operation="EQUAL",
+        )
+        assert result2["totalCount"] >= 1
+        assert all(
+            r.similarity_id == real_similarity_id
+            for r in result2["results"]
+        )
+
+
 def test_get_sast_results_compare_by_scans():
     scan_id, base_scan_id = _get_two_sast_scan_ids()
     if not scan_id or not base_scan_id:
