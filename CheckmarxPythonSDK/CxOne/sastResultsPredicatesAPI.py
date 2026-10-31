@@ -3,7 +3,7 @@ from typing import List
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED, OK
-from .dto import PredicateHistoryResponse
+from .dto import LatestPredicateResponse, PredicateHistoryResponse
 
 
 class SastResultsPredicatesAPI(object):
@@ -23,18 +23,28 @@ class SastResultsPredicatesAPI(object):
         similarity_id: str,
         project_ids: List[str] = None,
         include_comment_json: bool = None,
+        include_changed_by: bool = None,
         scan_id: str = None,
         offset: int = 0,
         limit: int = 100,
+        correlation_id: str = None,
     ) -> PredicateHistoryResponse:
-        """
+        """GET /api/sast-results-predicates/{similarityID} -- all SAST
+        predicates (state/severity/comment history) for a vulnerability
+        instance.
+
         Args:
-            similarity_id (str):
-            project_ids (list of str):
-            include_comment_json (bool):
-            scan_id (str):
-            offset (int):
-            limit (int):
+            similarity_id (str): Required.
+            project_ids (list of str): Filter by project (OR between
+                items). Default: all projects.
+            include_comment_json (bool): Include comment data.
+            include_changed_by (bool): Include triggeredBy/changedBy
+                info on each predicate.
+            scan_id (str): Filter by scan.
+            offset (int): Results to skip. Default: 0.
+            limit (int): Max results. Default: 100.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
             PredicateHistoryResponse
@@ -43,12 +53,16 @@ class SastResultsPredicatesAPI(object):
         params = {
             "project-ids": project_ids,
             "include-comment-json": include_comment_json,
+            "include-changed-by": include_changed_by,
             "scan-id": scan_id,
             "offset": offset,
             "limit": limit,
         }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="GET", url=url, params=params
+            method="GET", url=url, params=params, headers=headers,
         )
         return PredicateHistoryResponse.from_dict(response.json())
 
@@ -57,22 +71,42 @@ class SastResultsPredicatesAPI(object):
         similarity_id: str,
         project_ids: List[str] = None,
         scan_id: str = None,
-    ) -> PredicateHistoryResponse:
-        """
+        include_changed_by: bool = None,
+        correlation_id: str = None,
+    ) -> LatestPredicateResponse:
+        """GET /api/sast-results-predicates/{similarityID}/latest --
+        the latest predicate per project for a vulnerability instance.
+
         Args:
-            similarity_id (str):
-            project_ids (list of str):
-            scan_id (str):
+            similarity_id (str): Required.
+            project_ids (list of str): Filter by project (OR between
+                items). Default: all projects.
+            scan_id (str): Filter by scan.
+            include_changed_by (bool): Include triggeredBy/changedBy
+                info on each predicate. Not observed to have any
+                effect on this endpoint's response on a live tenant
+                (unlike the plain /{similarityID} endpoint, where it
+                does) -- still sent through in case that's
+                data-dependent rather than a genuine no-op.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
-            PredicateHistoryResponse
+            LatestPredicateResponse
         """
         url = f"{self.base_url}/{similarity_id}/latest"
-        params = {"project-ids": project_ids, "scan-id": scan_id}
+        params = {
+            "project-ids": project_ids,
+            "scan-id": scan_id,
+            "include-changed-by": include_changed_by,
+        }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="GET", url=url, params=params
+            method="GET", url=url, params=params, headers=headers,
         )
-        return PredicateHistoryResponse.from_dict(response.json())
+        return LatestPredicateResponse.from_dict(response.json())
 
     def predicate_severity_and_state_by_similarity_id_and_project_id(
         self, data: List[dict]
@@ -252,17 +286,21 @@ def get_all_predicates_for_similarity_id(
     similarity_id: str,
     project_ids: List[str] = None,
     include_comment_json: bool = None,
+    include_changed_by: bool = None,
     scan_id: str = None,
     offset: int = 0,
     limit: int = 100,
+    correlation_id: str = None,
 ) -> PredicateHistoryResponse:
     return SastResultsPredicatesAPI().get_all_predicates_for_similarity_id(
         similarity_id=similarity_id,
         project_ids=project_ids,
         include_comment_json=include_comment_json,
+        include_changed_by=include_changed_by,
         scan_id=scan_id,
         offset=offset,
         limit=limit,
+        correlation_id=correlation_id,
     )
 
 
@@ -270,11 +308,15 @@ def get_latest_predicates_for_similarity_id(
     similarity_id: str,
     project_ids: List[str] = None,
     scan_id: str = None,
-) -> PredicateHistoryResponse:
+    include_changed_by: bool = None,
+    correlation_id: str = None,
+) -> LatestPredicateResponse:
     return SastResultsPredicatesAPI().get_latest_predicates_for_similarity_id(
         similarity_id=similarity_id,
         project_ids=project_ids,
         scan_id=scan_id,
+        include_changed_by=include_changed_by,
+        correlation_id=correlation_id,
     )
 
 

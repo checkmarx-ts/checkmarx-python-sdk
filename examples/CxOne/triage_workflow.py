@@ -264,9 +264,8 @@ def process_finding(idx, total, finding, project, scan_id,
             project_ids=[project["id"]],
             scan_id=scan_id,
         )
-        for proj in (latest.predicate_history_per_project or []):
-            for p in (proj.predicates or []):
-                logger.info(f"  Latest: {p.state}/{p.severity} by {p.created_by}")
+        for p in (latest.latest_predicate_per_project or []):
+            logger.info(f"  Latest: {p.state}/{p.severity} by {p.created_by}")
     except Exception as e:
         logger.error(f"  Error: {e}")
     return True
