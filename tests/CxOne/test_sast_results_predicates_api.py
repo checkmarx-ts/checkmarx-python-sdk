@@ -212,16 +212,29 @@ def test_delete_a_predicate_history():
 
 
 def test_get_predicates_by_attack_vector_id():
-    """GET / — get predicates by attack vector ID."""
+    """GET / — get predicates by attack vector ID.
+
+    NOTE: "0000000000000001" is a placeholder, not a real attack
+    vector id discoverable on this tenant (confirmed: the live server
+    400s identically on this id both before and after this method
+    was extended with limit/offset/include_changed_by, isolating the
+    placeholder id -- not the new params -- as the cause). This test
+    can only confirm the call doesn't error on request shape; it
+    can't exercise a real PredicateHistoryResponse payload from this
+    endpoint specifically (the response DTO itself is already
+    live-verified via the sibling /{similarityID} endpoint).
+    """
     scan_id, project_id = _get_sast_scan_and_project_id()
     if not scan_id:
         pytest.skip("No completed SAST scan found")
-    # Use a known attack vector ID pattern (16-char hex)
     try:
         result = get_predicates_by_attack_vector_id(
             attack_vector_id="0000000000000001",
             project_ids=[project_id],
             scan_id=scan_id,
+            include_changed_by=True,
+            limit=5,
+            offset=0,
         )
         assert result is not None
     except Exception as e:
