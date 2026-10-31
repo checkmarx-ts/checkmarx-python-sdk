@@ -2,7 +2,7 @@ from typing import List
 
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED, OK
+from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED, OK, ACCEPTED
 from .dto import (
     LatestPredicateResponse,
     PredicateHistoryResponse,
@@ -168,19 +168,34 @@ class SastResultsPredicatesAPI(object):
         )
         return response.status_code == NO_CONTENT
 
-    def recalculate_summary_counters(self, data: dict) -> bool:
-        """
+    def recalculate_summary_counters(
+        self, data: dict, correlation_id: str = None
+    ) -> bool:
+        """POST /api/sast-results-predicates/recalculateSummaryCounters
+        -- fix a scan's results summary to reflect the actual number
+        of results.
+
         Args:
-            data (dict):
+            data (dict): {"projectId": str (required), "scanId": str
+                (optional)}. When scanId is given, processed
+                synchronously (200) and this call waits until it
+                completes; when omitted, processed asynchronously
+                (202) and this call returns immediately once queued
+                -- both are success.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
             bool
         """
         url = f"{self.base_url}/recalculateSummaryCounters"
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="POST", url=url, json=data
+            method="POST", url=url, json=data, headers=headers,
         )
-        return response.status_code == OK
+        return response.status_code in (OK, ACCEPTED)
 
     def delete_a_predicate_history(
         self, similarity_id: str, project_id: str, predicate_id: str
@@ -436,8 +451,12 @@ def update_predicate_comment_by_predicate_id(data: List[dict]) -> bool:
     )
 
 
-def recalculate_summary_counters(data: dict) -> bool:
-    return SastResultsPredicatesAPI().recalculate_summary_counters(data=data)
+def recalculate_summary_counters(
+    data: dict, correlation_id: str = None
+) -> bool:
+    return SastResultsPredicatesAPI().recalculate_summary_counters(
+        data=data, correlation_id=correlation_id
+    )
 
 
 def delete_a_predicate_history(
