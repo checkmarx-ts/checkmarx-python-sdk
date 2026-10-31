@@ -26,6 +26,8 @@ from .AiRemediationDetails import AiRemediationDetails
 from .ConfidenceScore import ConfidenceScore
 from .ReachabilityAnalysis import ReachabilityAnalysis
 from .ExploitabilityAnalysis import ExploitabilityAnalysis
+from .ExportParametersSbom import ExportParametersSbom
+from .ExportParametersScanReport import ExportParametersScanReport
 from .TriageAnalysis import TriageAnalysis
 from .VulnerabilityMetadata import VulnerabilityMetadata
 from .VerificationStep import VerificationStep
