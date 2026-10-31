@@ -301,22 +301,47 @@ class SastResultsPredicatesAPI(object):
         return PredicatesChangelogResponse.from_dict(response.json())
 
     def create_predicates_by_attack_vector(
-        self, data: List[dict]
+        self,
+        data: List[dict],
+        allow_ai_triage_cancellation: bool = None,
+        correlation_id: str = None,
     ) -> bool:
-        """
-        Create predicates by attack vector ID with bulk updates.
+        """POST /api/sast-results-predicates/attack-vector -- create a
+        predicate entry for SAST results sharing a common attack
+        vector. Supports bulk creation across all similarity groups
+        sharing the attack vector, or a targeted update for one via
+        filterBySimilarityId.
 
         Args:
-            data (List[dict]): Each item needs attackVectorId and projectId.
-                Optional: scanId, state, severity, comment,
-                customStateId, filterBySimilarityId, allowInconsistentStates
+            data (List[dict]): Each item needs attackVectorId
+                (16-char hex) and projectId. Optional: scanId, state,
+                severity, comment (<=1024 chars), customStateId,
+                filterBySimilarityId, allowInconsistentStates (if the
+                attack vector's similarity groups have different
+                states applied, the request fails unless this is
+                true).
+            allow_ai_triage_cancellation (bool): If an AI Triage
+                analysis is currently queued/in_progress for any
+                target vulnerability, the request fails with 409
+                (code 4092) unless this is true, in which case active
+                AI Triage jobs are cancelled, their reserved credits
+                returned, and this manual update applied immediately.
+                Default: false.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
             bool
         """
         url = f"{self.base_url}/attack-vector"
+        params = {
+            "allowAITriageCancellation": allow_ai_triage_cancellation,
+        }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="POST", url=url, json=data
+            method="POST", url=url, params=params, json=data, headers=headers,
         )
         return response.status_code == CREATED
 
@@ -454,9 +479,15 @@ def get_predicates_changelog(
     )
 
 
-def create_predicates_by_attack_vector(data: List[dict]) -> bool:
+def create_predicates_by_attack_vector(
+    data: List[dict],
+    allow_ai_triage_cancellation: bool = None,
+    correlation_id: str = None,
+) -> bool:
     return SastResultsPredicatesAPI().create_predicates_by_attack_vector(
-        data=data
+        data=data,
+        allow_ai_triage_cancellation=allow_ai_triage_cancellation,
+        correlation_id=correlation_id,
     )
 
 
