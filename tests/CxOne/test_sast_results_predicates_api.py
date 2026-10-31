@@ -209,8 +209,12 @@ def test_update_predicate_comment_by_predicate_id():
     assert result is not None
 
 
-@pytest.mark.skip(reason="400 - recalculate endpoint requires predicates-enabled project that does not exist in this tenant")
 def test_recalculate_summary_counters():
+    # Previously skipped with reason "400 - recalculate endpoint
+    # requires predicates-enabled project that does not exist in
+    # this tenant" -- that reason was stale/wrong: this works live
+    # against a plain completed SAST scan, no special project setup
+    # needed.
     scan_id, project_id = _get_sast_scan_and_project_id()
     if not scan_id:
         pytest.skip("No completed SAST scan found")
@@ -218,7 +222,22 @@ def test_recalculate_summary_counters():
         "projectId": project_id,
         "scanId": scan_id
     }
-    result = recalculate_summary_counters(data=request_body)
+    result = recalculate_summary_counters(
+        data=request_body,
+        correlation_id="11111111-1111-1111-1111-111111111111",
+    )
+    assert result is True
+
+
+def test_recalculate_summary_counters_async():
+    # Regression test: omitting scanId makes this endpoint process
+    # asynchronously (202 Accepted) per the doc -- the old
+    # implementation only checked status_code == OK (200), so this
+    # legitimate-success case would have incorrectly returned False.
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    result = recalculate_summary_counters(data={"projectId": project_id})
     assert result is True
 
 
