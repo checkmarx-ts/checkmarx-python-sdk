@@ -310,6 +310,10 @@ from .SessionRequest import SessionRequest
 from .SessionResponse import SessionResponse
 from .Sessions import Sessions
 from .SeverityCounter import SeverityCounter
+from .CompareStatusCount import CompareStatusCount
+from .SeverityStatusCounter import SeverityStatusCounter
+from .ScanSeverityCounters import ScanSeverityCounters
+from .SastComparisonStatus import SastComparisonStatus
 from .SeveritySummary import SeveritySummary
 from .SinkFileSummary import SinkFileSummary
 from .SinkNodeSummary import SinkNodeSummary

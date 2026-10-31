@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] evaluation_status/correlation_id params to get_compare_status (GET /api/scans-compare/sast/status), the Accept/CorrelationId headers it was sending neither of, and typed its return as the new SastComparisonStatus DTO (+ SeverityStatusCounter, CompareStatusCount, ScanSeverityCounters) instead of a raw dict. Live-verified against two real SAST scans of the same project, matching the doc's shape exactly. Also fixed the existing test's scan-pairing helper, which picked the first two SAST scans found without checking they belonged to the same project (the doc requires "two scans of a single project").
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02
