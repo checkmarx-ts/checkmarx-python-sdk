@@ -244,6 +244,7 @@ from .LatestPredicateResponse import LatestPredicateResponse
 from .PredicateChangelogEntry import PredicateChangelogEntry
 from .PredicateChangelogGroup import PredicateChangelogGroup
 from .PredicatesChangelogResponse import PredicatesChangelogResponse
+from .PredicatesStatus import PredicatesStatus
 from .Preset import Preset
 from .PresetPaged import PresetPaged
 from .PresetSummary import PresetSummary
