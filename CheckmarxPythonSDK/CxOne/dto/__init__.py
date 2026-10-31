@@ -41,6 +41,22 @@ from .ScaRegistryConfigResponse import (
 )
 from .PackageActionValue import PackageActionValue
 from .PackageAction import PackageAction
+from .VulnerabilityReference import VulnerabilityReference
+from .VulnerablePath import VulnerablePath
+from .Cpe import Cpe
+from .Epss import Epss
+from .Cvss3 import Cvss3
+from .Cvss4 import Cvss4
+from .VulnerabilityDetail import VulnerabilityDetail
+from .PackageVulnerability import PackageVulnerability
+from .SuspectedMalwareDetail import SuspectedMalwareDetail
+from .PackageSuspectedMalware import PackageSuspectedMalware
+from .RemediationVersionCounts import RemediationVersionCounts
+from .PackageVersionRemediation import PackageVersionRemediation
+from .PackageInfo import PackageInfo
+from .PackageRisk import PackageRisk
+from .PackageRiskItem import PackageRiskItem
+from .PackageRisksRequest import PackageRisksRequest
 from .SupplyChainRiskAction import SupplyChainRiskAction
 from .UpdatePackageStateBulkRequest import (
     BulkPackageEntry,

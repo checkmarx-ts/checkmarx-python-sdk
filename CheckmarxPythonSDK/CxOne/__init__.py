@@ -353,6 +353,10 @@ from .KeycloakAPI import (
     # create_a_new_user,
     # get_group_hierarchy,
 )
+from .packageRisksAPI import (
+    PackageRisksAPI,
+    get_package_risks,
+)
 from .projectsAPI import (
     ProjectsAPI,
     get_all_projects,
