@@ -4,6 +4,7 @@ from CheckmarxPythonSDK.CxOne import (
     get_sast_results_compare_by_scans,
     get_similar_results,
 )
+from CheckmarxPythonSDK.CxOne.dto import SimilarResultsResponse, SimilarResultGroup
 from CheckmarxPythonSDK.CxOne import ScansAPI as _ScansAPI
 import logging
 logger = logging.getLogger(__name__)
@@ -125,11 +126,23 @@ def test_get_similar_results():
     scan_id = _get_sast_scan_id()
     if not scan_id:
         pytest.skip("No completed SAST scan found")
-    try:
-        result = get_similar_results(
-            scan_id=scan_id,
-            results_hash=["dummyhash123"],
-        )
-        assert result is not None
-    except Exception as e:
-        logger.warning("get_similar_results skipped: {}".format(str(e)))
+    results = get_sast_results_by_scan_id(scan_id=scan_id, limit=1)
+    if not results["results"]:
+        pytest.skip("No SAST result found in scan")
+    result_hash = results["results"][0].result_hash
+
+    result = get_similar_results(
+        scan_id=scan_id,
+        results_hash=[result_hash],
+        correlation_id="11111111-1111-1111-1111-111111111111",
+    )
+    assert isinstance(result, SimilarResultsResponse)
+    assert result.total_counts == 1
+    assert result.grouping_mode in ("Similarity ID", "Attack Vector ID")
+    assert len(result.similar_results) == 1
+    group = result.similar_results[0]
+    assert isinstance(group, SimilarResultGroup)
+    assert group.result_hash == result_hash
+    assert group.similar_results_count is not None
+    assert group.is_state_inconsistent is not None
+    assert group.is_severity_inconsistent is not None
