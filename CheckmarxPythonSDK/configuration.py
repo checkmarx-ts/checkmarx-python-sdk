@@ -7,6 +7,7 @@ class Configuration:
     server_base_url: str = None
     iam_base_url: str = None
     token_url: str = None
+    datahub_base_url: str = None  # SCA Data Hub service host, e.g. https://us.datahub.sca.checkmarx.net
     tenant_name: str = None
     username: str = None
     password: str = None

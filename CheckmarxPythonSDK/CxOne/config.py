@@ -8,6 +8,7 @@ def construct_configuration() -> Configuration:
     config_default = {
         "access_control_url": "https://iam.checkmarx.net",
         "server": "https://ast.checkmarx.net",
+        "datahub_server": "https://us.datahub.sca.checkmarx.net",
         "tenant_name": None,
         "grant_type": "refresh_token",
         "client_id": "ast-app",
@@ -28,9 +29,11 @@ def construct_configuration() -> Configuration:
     config = get_config(config_default=config_default, section="CxOne", prefix="cxone_")
     access_control_url = config.get("access_control_url", "").rstrip("/")
     server_base_url = config.get("server", "").rstrip("/")
+    datahub_base_url = config.get("datahub_server", "").rstrip("/")
     configuration = Configuration(
         server_base_url=server_base_url,
         iam_base_url=access_control_url,
+        datahub_base_url=datahub_base_url,
         token_url=(
             f"{access_control_url}/auth/realms"
             f"/{config.get('tenant_name')}/protocol/openid-connect/token"
