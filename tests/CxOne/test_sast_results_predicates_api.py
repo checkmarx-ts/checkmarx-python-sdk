@@ -24,6 +24,7 @@ from CheckmarxPythonSDK.CxOne.dto import (
     PredicatesChangelogResponse,
     PredicateChangelogGroup,
     PredicateChangelogEntry,
+    PredicatesStatus,
     CommentJSON,
     WebError
 )
@@ -324,12 +325,15 @@ def test_get_predicates_status():
     scan_id, project_id = _get_sast_scan_and_project_id()
     if not scan_id:
         pytest.skip("No completed SAST scan found")
+    similarity_id = _get_sast_similarity_id(scan_id) or "491614176"
     try:
         result = get_predicates_status(
             scan_id=scan_id,
-            similar_results_ids=["491614176"],
+            similar_results_ids=[similarity_id],
+            correlation_id="11111111-1111-1111-1111-111111111111",
         )
-        assert result is not None
-        assert "isUpdatePredicatesRunning" in result
+        assert isinstance(result, PredicatesStatus)
+        assert result.is_update_predicates_running is not None
+        assert result.grouping_mode in ("Similarity ID", "Attack Vector ID")
     except Exception as e:
         logger.warning("get_predicates_status skipped: {}".format(str(e)))

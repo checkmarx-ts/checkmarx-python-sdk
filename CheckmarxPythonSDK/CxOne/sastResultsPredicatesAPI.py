@@ -7,6 +7,7 @@ from .dto import (
     LatestPredicateResponse,
     PredicateHistoryResponse,
     PredicatesChangelogResponse,
+    PredicatesStatus,
 )
 
 
@@ -346,25 +347,37 @@ class SastResultsPredicatesAPI(object):
         return response.status_code == CREATED
 
     def get_predicates_status(
-        self, scan_id: str, similar_results_ids: List[str]
-    ) -> dict:
-        """
-        Get predicates update status.
+        self,
+        scan_id: str,
+        similar_results_ids: List[str],
+        correlation_id: str = None,
+    ) -> PredicatesStatus:
+        """POST /api/sast-results-predicates/predicates-status --
+        monitoring endpoint to check whether a bulk update-predicates
+        process (e.g. AI Triage) is currently running for a set of
+        similarity/attack-vector IDs within a scan, and which
+        grouping mode ("Similarity ID" or "Attack Vector ID") this
+        tenant is configured to use.
 
         Args:
-            scan_id (str): Scan ID to check
-            similar_results_ids (List[str]): Similarity IDs or attack vector
-                IDs (max 200)
+            scan_id (str): Scan ID to check.
+            similar_results_ids (List[str]): Similarity IDs or attack
+                vector IDs to check (max 200).
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
-            dict with isUpdatePredicatesRunning and groupingMode
+            PredicatesStatus
         """
         url = f"{self.base_url}/predicates-status"
         body = {"scanID": scan_id, "similarResultsIDs": similar_results_ids}
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="POST", url=url, json=body
+            method="POST", url=url, json=body, headers=headers,
         )
-        return response.json()
+        return PredicatesStatus.from_dict(response.json())
 
 
 def get_all_predicates_for_similarity_id(
@@ -492,8 +505,12 @@ def create_predicates_by_attack_vector(
 
 
 def get_predicates_status(
-    scan_id: str, similar_results_ids: List[str]
-) -> dict:
+    scan_id: str,
+    similar_results_ids: List[str],
+    correlation_id: str = None,
+) -> PredicatesStatus:
     return SastResultsPredicatesAPI().get_predicates_status(
-        scan_id=scan_id, similar_results_ids=similar_results_ids
+        scan_id=scan_id,
+        similar_results_ids=similar_results_ids,
+        correlation_id=correlation_id,
     )
