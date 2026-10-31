@@ -443,6 +443,7 @@ from .reportAPI import (
     get_report_status,
     get_scan_report,
     get_risk_scan_report,
+    get_sca_export_file_formats,
     create_sca_scan_report,
     get_sca_export_status,
     get_sca_scan_report,

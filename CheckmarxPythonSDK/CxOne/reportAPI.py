@@ -3,14 +3,22 @@ from dataclasses import asdict, is_dataclass
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List, Union
-from .dto import ExportParametersSbom, ExportParametersScanReport, ScaExportStatus
+from .dto import (
+    ExportParametersSbom,
+    ExportParametersScanReport,
+    ScaExportFileFormats,
+    ScaExportStatus,
+)
 import logging
 logger = logging.getLogger(__name__)
 
 # POST /api/sca/export/requests fileFormat values, grouped by which
-# exportParameters shape they expect. RemediatedPackagesJson's shape
-# isn't documented by Checkmarx -- callers needing specific flags there
-# should pass a plain dict.
+# exportParameters shape they expect. RemediatedPackagesJson/
+# RemediatedPackages's shape isn't documented by Checkmarx -- callers
+# needing specific flags there should pass a plain dict. The full set
+# (including RemediatedPackages, undocumented but live-confirmed via
+# GET /api/sca/export/file-formats) is cross-checked against that
+# endpoint's actual output in get_sca_export_file_formats's test.
 SCA_EXPORT_SBOM_FILE_FORMATS = {"CycloneDxJson", "CycloneDxXml", "SpdxJson"}
 SCA_EXPORT_SCAN_REPORT_FILE_FORMATS = {
     "ScanReportJson", "ScanReportXml", "ScanReportCsv", "ScanReportPdf",
@@ -18,7 +26,7 @@ SCA_EXPORT_SCAN_REPORT_FILE_FORMATS = {
 SCA_EXPORT_FILE_FORMATS = (
     SCA_EXPORT_SBOM_FILE_FORMATS
     | SCA_EXPORT_SCAN_REPORT_FILE_FORMATS
-    | {"RemediatedPackagesJson"}
+    | {"RemediatedPackagesJson", "RemediatedPackages"}
 )
 
 
@@ -245,6 +253,21 @@ class ReportAPI(object):
         )
         return response.json()
 
+    def get_sca_export_file_formats(self) -> List[ScaExportFileFormats]:
+        """GET /api/sca/export/file-formats -- the fileFormat values
+        accepted by each SCA export route (e.g. /requests, the route
+        used by create_sca_scan_report).
+
+        Returns:
+            List[ScaExportFileFormats]
+        """
+        base = self.api_client.configuration.server_base_url
+        url = f"{base}/api/sca/export/file-formats"
+        response = self.api_client.call_api(method="GET", url=url)
+        return [
+            ScaExportFileFormats.from_dict(item) for item in response.json()
+        ]
+
     def create_sca_scan_report(
         self,
         scan_id: str,
@@ -422,6 +445,10 @@ def get_risk_scan_report(scan_id: str, report_type: str) -> dict:
     return ReportAPI().get_risk_scan_report(
         scan_id=scan_id, report_type=report_type
     )
+
+
+def get_sca_export_file_formats() -> List[ScaExportFileFormats]:
+    return ReportAPI().get_sca_export_file_formats()
 
 
 def create_sca_scan_report(
