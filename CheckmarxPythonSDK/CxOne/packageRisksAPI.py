@@ -1,9 +1,10 @@
 from dataclasses import asdict
 from typing import List
+from urllib.parse import quote
 
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from .dto import PackageRisk, PackageRiskItem
+from .dto import PackageRisk, PackageRiskItem, PackageVersionRemediation
 
 
 class PackageRisksAPI(object):
@@ -76,6 +77,48 @@ class PackageRisksAPI(object):
         )
         return [PackageRisk.from_dict(risk) for risk in response.json()]
 
+    def get_package_remediation_for_cve(
+        self,
+        package_type: str,
+        name: str,
+        package_version: str,
+        cve: str,
+        correlation_id: str = None,
+    ) -> PackageVersionRemediation:
+        """GET /api/v1/Packages/{type}/{name}/{packageVersion}/remediation/{cve}
+        -- retrieve upgrade recommendations for a package version with
+        respect to one CVE, based on the Checkmarx risk intelligence
+        database.
+
+        Args:
+            package_type (str): Package type/manager (e.g. npm, nuget,
+                maven).
+            name (str): Package name. URL-encoded automatically since
+                it may contain reserved characters (e.g. "/" in scoped
+                npm packages).
+            package_version (str): Package version.
+            cve (str): Vulnerability identifier.
+            correlation_id (str): Optional UUID, for internal Checkmarx
+                use.
+
+        Returns:
+            PackageVersionRemediation
+        """
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
+        url = (
+            f"{self.base_url}/Packages/"
+            f"{quote(str(package_type), safe='')}/"
+            f"{quote(str(name), safe='')}/"
+            f"{quote(str(package_version), safe='')}/"
+            f"remediation/{quote(str(cve), safe='')}"
+        )
+        response = self.api_client.call_api(
+            method="GET", url=url, headers=headers,
+        )
+        return PackageVersionRemediation.from_dict(response.json())
+
 
 def get_package_risks(
     items: List[PackageRiskItem],
@@ -91,5 +134,21 @@ def get_package_risks(
         include_risk_details=include_risk_details,
         include_version_details=include_version_details,
         include_version_remediation=include_version_remediation,
+        correlation_id=correlation_id,
+    )
+
+
+def get_package_remediation_for_cve(
+    package_type: str,
+    name: str,
+    package_version: str,
+    cve: str,
+    correlation_id: str = None,
+) -> PackageVersionRemediation:
+    return PackageRisksAPI().get_package_remediation_for_cve(
+        package_type=package_type,
+        name=name,
+        package_version=package_version,
+        cve=cve,
         correlation_id=correlation_id,
     )
