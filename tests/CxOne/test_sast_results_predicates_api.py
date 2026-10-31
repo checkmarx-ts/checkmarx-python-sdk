@@ -11,10 +11,13 @@ from CheckmarxPythonSDK.CxOne import (
     get_predicates_changelog,
     create_predicates_by_attack_vector,
     get_predicates_status,
+    get_sast_results_by_scan_id,
 )
 
 from CheckmarxPythonSDK.CxOne.dto import (
     PredicateHistory,
+    PredicateHistoryResponse,
+    LatestPredicateResponse,
     Predicate,
     PredicateWithCommentJSON,
     PredicateWithCommentsJSON,
@@ -34,6 +37,22 @@ def _get_sast_scan_and_project_id():
         if "sast" in (scan.engines or []):
             return scan.id, scan.project_id
     return None, None
+
+
+def _get_sast_similarity_id(scan_id):
+    """Return a real similarity_id (str) with at least one result in
+    scan_id, or None. The "491614176" similarity_id hardcoded
+    elsewhere in this file no longer exists in this tenant's project
+    (confirmed via a live 404: "sast similarity ID 491614176 does not
+    exist for project ...") -- tests that actually create/mutate a
+    predicate (rather than just listing, which tolerates an unknown
+    id by returning empty results) need a real one.
+    """
+    results = get_sast_results_by_scan_id(scan_id=scan_id, limit=1)
+    items = results.get("results") if isinstance(results, dict) else None
+    if items:
+        return str(items[0].similarity_id)
+    return None
 
 
 def test_get_all_predicates_for_similarity_id():
@@ -70,11 +89,83 @@ def test_predicate_severity_and_state_by_similarity_id_and_project_id():
     scan_id, project_id = _get_sast_scan_and_project_id()
     if not scan_id:
         pytest.skip("No completed SAST scan found")
-    request_body: List[dict] = [{"similarityId": "491614176", "projectId": project_id,
+    similarity_id = _get_sast_similarity_id(scan_id)
+    if not similarity_id:
+        pytest.skip("No SAST result found in scan")
+    request_body: List[dict] = [{"similarityId": similarity_id, "projectId": project_id,
                                  "scanId": scan_id, "severity": "HIGH",
                                  "state": "CONFIRMED", "comment": "test"}]
     result = predicate_severity_and_state_by_similarity_id_and_project_id(data=request_body)
     assert result is not None
+
+
+def test_get_latest_predicates_for_similarity_id_returns_real_data():
+    # Regression test: get_latest_predicates_for_similarity_id used to
+    # reuse PredicateHistoryResponse (which reads the
+    # predicateHistoryPerProject key) for this endpoint, whose actual
+    # response key is latestPredicatePerProject -- silently returning
+    # an always-empty list despite totalCount being correctly nonzero.
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    similarity_id = _get_sast_similarity_id(scan_id)
+    if not similarity_id:
+        pytest.skip("No SAST result found in scan")
+
+    # ensure at least one predicate exists for this similarity_id
+    predicate_severity_and_state_by_similarity_id_and_project_id(
+        data=[{
+            "similarityId": similarity_id, "projectId": project_id,
+            "scanId": scan_id, "severity": "LOW", "state": "TO_VERIFY",
+            "comment": "regression test for get_latest_predicates_for_similarity_id",
+        }]
+    )
+
+    result = get_latest_predicates_for_similarity_id(
+        similarity_id=similarity_id,
+        project_ids=[project_id],
+    )
+    assert isinstance(result, LatestPredicateResponse)
+    assert result.total_count > 0
+    assert len(result.latest_predicate_per_project) > 0
+    predicate = result.latest_predicate_per_project[0]
+    assert isinstance(predicate, PredicateWithCommentsJSON)
+    assert predicate.severity == "LOW"
+    assert predicate.state == "TO_VERIFY"
+    assert predicate.project_id == project_id
+    assert isinstance(predicate.comments_json, list)
+    assert len(predicate.comments_json) > 0
+    assert isinstance(predicate.comments_json[0], CommentJSON)
+
+
+def test_get_all_predicates_for_similarity_id_include_changed_by():
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    similarity_id = _get_sast_similarity_id(scan_id)
+    if not similarity_id:
+        pytest.skip("No SAST result found in scan")
+
+    predicate_severity_and_state_by_similarity_id_and_project_id(
+        data=[{
+            "similarityId": similarity_id, "projectId": project_id,
+            "scanId": scan_id, "severity": "LOW", "state": "TO_VERIFY",
+            "comment": "regression test for include_changed_by",
+        }]
+    )
+
+    result = get_all_predicates_for_similarity_id(
+        similarity_id=similarity_id,
+        project_ids=[project_id],
+        include_changed_by=True,
+    )
+    assert isinstance(result, PredicateHistoryResponse)
+    assert len(result.predicate_history_per_project) > 0
+    predicate = result.predicate_history_per_project[0].predicates[0]
+    assert isinstance(predicate, PredicateWithCommentJSON)
+    # present (even if empty string) only because include_changed_by=True
+    assert predicate.triggered_by is not None
+    assert predicate.changed_by is not None
 
 
 @pytest.mark.skip(reason="410 - endpoint not supported in current API version")

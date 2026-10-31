@@ -15,6 +15,8 @@ class PredicateWithCommentJSON:
     created_at: str = None
     change_origin_type: int = None
     change_origin_name: str = None
+    triggered_by: str = None  # only present when include-changed-by=true
+    changed_by: str = None  # only present when include-changed-by=true
 
     @classmethod
     def from_dict(cls, item: dict) -> "PredicateWithCommentJSON":
@@ -32,4 +34,6 @@ class PredicateWithCommentJSON:
             created_at=item.get("createdAt"),
             change_origin_type=item.get("changeOriginType"),
             change_origin_name=item.get("changeOriginName"),
+            triggered_by=item.get("triggeredBy"),
+            changed_by=item.get("changedBy"),
         )
