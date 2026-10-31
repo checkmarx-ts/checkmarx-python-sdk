@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] Full query-param parity for get_sast_aggregate_results (GET /api/sast-scan-summary/aggregate) -- previously covered ~12 of the ~38 documented filters; added the remaining ~26 (attack_vector_id, bfl_group_size/name, categories, confidence_level/score, cwe_id, first_found_at, group, is_ai_generated, notes, number_of_nodes, preset_id, query, query_ids, result_ids, search, similarity_id, sink_line, source_line, plus each new filter's *_operation variant), the missing STATE/CWE group_by_field values, and the Accept/CorrelationId headers it was sending none of. All ~45 params confirmed callable live against a real tenant (one at a time) without errors, aside from an expected 400 for a deliberately-invalid preset_id. Param order changed (apply_predicates moved earlier) -- not a compat break since every existing call site (examples/CxOne/triage_workflow.py, the test suite) already uses keyword arguments exclusively.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02
