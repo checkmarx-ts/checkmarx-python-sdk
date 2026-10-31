@@ -311,6 +311,8 @@ from .RoleWithDetails import RoleWithDetails
 from .Rule import Rule
 from .RuleInput import RuleInput
 from .SastResult import SastResult
+from .SimilarResultGroup import SimilarResultGroup
+from .SimilarResultsResponse import SimilarResultsResponse
 from .SastScan import SastScan
 from .SastStatus import SastStatus
 from .ScaExportStatus import ScaExportStatus

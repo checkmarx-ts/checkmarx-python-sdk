@@ -1,7 +1,7 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
-from .dto import SastResult
+from .dto import SastResult, SimilarResultsResponse
 
 
 class SastResultsAPI(object):
@@ -306,24 +306,33 @@ class SastResultsAPI(object):
         return response.json()
 
     def get_similar_results(
-        self, scan_id: str, results_hash: List[str]
-    ) -> dict:
-        """
-        Get similar results for result hashes.
+        self,
+        scan_id: str,
+        results_hash: List[str],
+        correlation_id: str = None,
+    ) -> SimilarResultsResponse:
+        """POST /api/sast-results/similar-results -- for each given
+        result hash, how many results are similar to it and whether
+        they're in a consistent state, before running a bulk update.
 
         Args:
-            scan_id (str): ID of the scan
-            results_hash (List[str]): Array of result hashes
+            scan_id (str): ID of the scan.
+            results_hash (List[str]): Array of result hashes.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
-            dict with similarResults, totalCounts, groupingMode
+            SimilarResultsResponse
         """
         url = f"{self.base_url}/similar-results"
         body = {"scanId": scan_id, "resultsHash": results_hash}
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="POST", url=url, json=body
+            method="POST", url=url, json=body, headers=headers,
         )
-        return response.json()
+        return SimilarResultsResponse.from_dict(response.json())
 
 
 def get_sast_results_by_scan_id(
@@ -475,8 +484,12 @@ def get_sast_results_compare_by_scans(
 
 
 def get_similar_results(
-    scan_id: str, results_hash: List[str]
-) -> dict:
+    scan_id: str,
+    results_hash: List[str],
+    correlation_id: str = None,
+) -> SimilarResultsResponse:
     return SastResultsAPI().get_similar_results(
-        scan_id=scan_id, results_hash=results_hash
+        scan_id=scan_id,
+        results_hash=results_hash,
+        correlation_id=correlation_id,
     )
