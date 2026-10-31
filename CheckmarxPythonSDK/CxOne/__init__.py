@@ -356,6 +356,7 @@ from .KeycloakAPI import (
 from .packageRisksAPI import (
     PackageRisksAPI,
     get_package_risks,
+    get_package_remediation_for_cve,
 )
 from .projectsAPI import (
     ProjectsAPI,
