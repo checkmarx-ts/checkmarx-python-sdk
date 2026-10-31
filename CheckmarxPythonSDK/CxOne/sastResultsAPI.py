@@ -22,8 +22,10 @@ class SastResultsAPI(object):
         state: List[str] = None,
         status: List[str] = None,
         query_group: str = None,
+        group_operation: str = None,
         compliance: str = None,
         query: str = None,
+        query_operation: str = None,
         language: List[str] = None,
         query_ids: List[str] = None,
         node_ids: List[str] = None,
@@ -49,11 +51,29 @@ class SastResultsAPI(object):
         result_id: List[str] = None,
         category: str = None,
         search: str = None,
+        attack_vector_id: str = None,
+        attack_vector_id_operation: str = None,
+        bfl_group_size: int = None,
+        bfl_group_size_operation: str = None,
+        bfl_name: str = None,
+        bfl_name_operation: str = None,
+        confidence_level: int = None,
+        confidence_level_operation: str = None,
+        confidence_score: int = None,
+        confidence_score_operation: str = None,
+        cwe_id: int = None,
+        cwe_id_operation: str = None,
+        is_ai_generated: int = None,
+        is_ai_generated_operation: str = None,
+        similarity_id: int = None,
+        similarity_id_operation: str = None,
+        visible_columns: List[str] = None,
         include_nodes: bool = True,
         apply_predicates: bool = True,
         offset: int = 0,
         limit: int = 20,
         sort: List[str] = ("+status", "+severity", "-queryname"),
+        correlation_id: str = None,
     ) -> dict:
         """
         Args:
@@ -65,9 +85,15 @@ class SastResultsAPI(object):
             status (list of str): Filter by status. OR between items.
                 Available values: NEW, RECURRENT, FIXED
             query_group (str): Filter by vulnerability group (substring).
+            group_operation (str): Operation for the group filter.
+                Values: LESS_THAN, GREATER_THAN, EQUAL, NOT_EQUAL,
+                CONTAINS, NOT_CONTAINS, START_WITH
             compliance (str): Filter by compliance standard (exact,
                 case-insensitive).
             query (str): Filter by query (exact match).
+            query_operation (str): Operation for the query filter.
+                Values: LESS_THAN, GREATER_THAN, EQUAL, NOT_EQUAL,
+                CONTAINS, NOT_CONTAINS, START_WITH
             language (list of str): Filter by language (exact,
                 case-insensitive).
             query_ids (list of str): Filter by query ids (exact match).
@@ -104,8 +130,43 @@ class SastResultsAPI(object):
                 Default: GREATER_THAN. Values: LESS_THAN, GREATER_THAN
             preset_id (str): Filter by preset.
             result_id (list of str): Filter by unique result hash.
-            category (str): Filter by category name.
+            category (str): Filter by comma-separated list of categories.
             search (str): Filter by source file, source/sink node, notes.
+            attack_vector_id (str): Filter by attack vector id.
+            attack_vector_id_operation (str): Operation for the attack
+                vector id filter. Values: LESS_THAN, GREATER_THAN,
+                EQUAL, NOT_EQUAL, CONTAINS, NOT_CONTAINS, START_WITH
+            bfl_group_size (int): Filter by BFL group size.
+            bfl_group_size_operation (str): Operation for the BFL
+                group size filter. Values: CONTAINS, NOT_CONTAINS,
+                EQUAL, NOT_EQUAL
+            bfl_name (str): Filter by BFL name.
+            bfl_name_operation (str): Operation for the BFL name
+                filter. Values: LESS_THAN, GREATER_THAN, EQUAL,
+                NOT_EQUAL, CONTAINS, NOT_CONTAINS, START_WITH
+            confidence_level (int): Filter by confidence level.
+            confidence_level_operation (str): Operation for the
+                confidence level filter. Values: CONTAINS,
+                NOT_CONTAINS, EQUAL, NOT_EQUAL
+            confidence_score (int): Filter by confidence score.
+            confidence_score_operation (str): Operation for the
+                confidence score filter. Values: CONTAINS,
+                NOT_CONTAINS, EQUAL, NOT_EQUAL
+            cwe_id (int): Filter by CWE id.
+            cwe_id_operation (str): Operation for the CWE id filter.
+                Values: CONTAINS, NOT_CONTAINS, EQUAL, NOT_EQUAL
+            is_ai_generated (int): Filter by AI-generated flag: 1 for
+                AI (LAST) results, 0 for traditional SAST results
+                (matches the isAiGenerated response field).
+            is_ai_generated_operation (str): Operation for the
+                is_ai_generated filter. Values: CONTAINS,
+                NOT_CONTAINS, EQUAL, NOT_EQUAL
+            similarity_id (int): Filter by similarity id.
+            similarity_id_operation (str): Operation for the
+                similarity id filter. Values: CONTAINS, NOT_CONTAINS,
+                EQUAL, NOT_EQUAL
+            visible_columns (list of str): Which columns to include in
+                results.
             include_nodes (bool): Return ResultNode objects. Default: true.
             apply_predicates (bool): Apply predicate changes. Default: true.
             offset (int): Items to skip. Default: 0.
@@ -113,6 +174,8 @@ class SastResultsAPI(object):
             sort (list of str): Ordered sort array, each "[-+]field".
                 Values: severity, status, firstfoundat, foundat,
                 queryname, firstscanid
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
             dict
@@ -123,8 +186,10 @@ class SastResultsAPI(object):
             "state": state,
             "status": status,
             "group": query_group,
+            "group-operation": group_operation,
             "compliance": compliance,
             "query": query,
+            "query-operation": query_operation,
             "language": language,
             "query-ids": query_ids,
             "node-ids": node_ids,
@@ -150,14 +215,34 @@ class SastResultsAPI(object):
             "result-id": result_id,
             "category": category,
             "search": search,
+            "attack-vector-id": attack_vector_id,
+            "attack-vector-id-operation": attack_vector_id_operation,
+            "bfl-group-size": bfl_group_size,
+            "bfl-group-size-operation": bfl_group_size_operation,
+            "bfl-name": bfl_name,
+            "bfl-name-operation": bfl_name_operation,
+            "confidence-level": confidence_level,
+            "confidence-level-operation": confidence_level_operation,
+            "confidence-score": confidence_score,
+            "confidence-score-operation": confidence_score_operation,
+            "cwe-id": cwe_id,
+            "cwe-id-operation": cwe_id_operation,
+            "is-ai-generated": is_ai_generated,
+            "is-ai-generated-operation": is_ai_generated_operation,
+            "similarity-id": similarity_id,
+            "similarity-id-operation": similarity_id_operation,
+            "visible-columns": visible_columns,
             "include-nodes": include_nodes,
             "apply-predicates": apply_predicates,
             "offset": offset,
             "limit": limit,
             "sort": ",".join(sort) if sort else None,
         }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="GET", url=self.base_url, params=params
+            method="GET", url=self.base_url, params=params, headers=headers,
         )
         resp = response.json()
         return {
@@ -247,8 +332,10 @@ def get_sast_results_by_scan_id(
     state: List[str] = None,
     status: List[str] = None,
     query_group: str = None,
+    group_operation: str = None,
     compliance: str = None,
     query: str = None,
+    query_operation: str = None,
     language: List[str] = None,
     query_ids: List[str] = None,
     node_ids: List[str] = None,
@@ -274,11 +361,29 @@ def get_sast_results_by_scan_id(
     result_id: List[str] = None,
     category: str = None,
     search: str = None,
+    attack_vector_id: str = None,
+    attack_vector_id_operation: str = None,
+    bfl_group_size: int = None,
+    bfl_group_size_operation: str = None,
+    bfl_name: str = None,
+    bfl_name_operation: str = None,
+    confidence_level: int = None,
+    confidence_level_operation: str = None,
+    confidence_score: int = None,
+    confidence_score_operation: str = None,
+    cwe_id: int = None,
+    cwe_id_operation: str = None,
+    is_ai_generated: int = None,
+    is_ai_generated_operation: str = None,
+    similarity_id: int = None,
+    similarity_id_operation: str = None,
+    visible_columns: List[str] = None,
     include_nodes: bool = True,
     apply_predicates: bool = True,
     offset: int = 0,
     limit: int = 20,
     sort: List[str] = ("+status", "+severity", "-queryname"),
+    correlation_id: str = None,
 ) -> dict:
     return SastResultsAPI().get_sast_results_by_scan_id(
         scan_id=scan_id,
@@ -286,8 +391,10 @@ def get_sast_results_by_scan_id(
         state=state,
         status=status,
         query_group=query_group,
+        group_operation=group_operation,
         compliance=compliance,
         query=query,
+        query_operation=query_operation,
         language=language,
         query_ids=query_ids,
         node_ids=node_ids,
@@ -313,11 +420,29 @@ def get_sast_results_by_scan_id(
         result_id=result_id,
         category=category,
         search=search,
+        attack_vector_id=attack_vector_id,
+        attack_vector_id_operation=attack_vector_id_operation,
+        bfl_group_size=bfl_group_size,
+        bfl_group_size_operation=bfl_group_size_operation,
+        bfl_name=bfl_name,
+        bfl_name_operation=bfl_name_operation,
+        confidence_level=confidence_level,
+        confidence_level_operation=confidence_level_operation,
+        confidence_score=confidence_score,
+        confidence_score_operation=confidence_score_operation,
+        cwe_id=cwe_id,
+        cwe_id_operation=cwe_id_operation,
+        is_ai_generated=is_ai_generated,
+        is_ai_generated_operation=is_ai_generated_operation,
+        similarity_id=similarity_id,
+        similarity_id_operation=similarity_id_operation,
+        visible_columns=visible_columns,
         include_nodes=include_nodes,
         apply_predicates=apply_predicates,
         offset=offset,
         limit=limit,
         sort=sort,
+        correlation_id=correlation_id,
     )
 
 

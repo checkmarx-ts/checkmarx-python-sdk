@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] Full query-param parity for get_sast_results_by_scan_id (GET /api/sast-results/) -- was already well-covered but missing 12 documented filters: attack_vector_id, bfl_group_size, bfl_name, confidence_level, confidence_score, cwe_id, group_operation, is_ai_generated, query_operation, similarity_id (each with its *_operation variant where applicable), plus visible_columns and the Accept/CorrelationId headers (previously sending neither). All added as purely additive new keyword params -- checked every call site first (examples/CxOne/triage_workflow.py, examples/CxOne/export_sast_state_by_query.py, tests/CxOne/test_ai_triage_and_remediation_api.py, and this module's own tests all use keyword arguments exclusively), so this isn't a compat break. Live-verified all 12 new filters individually against a real scan, including similarity_id correctly isolating a single known result.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
 1.9.1 - 2026-09-02
