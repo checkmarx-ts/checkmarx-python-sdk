@@ -102,6 +102,29 @@ def test_predicate_severity_and_state_by_similarity_id_and_project_id():
     assert result is not None
 
 
+def test_predicate_severity_and_state_with_allow_ai_triage_cancellation():
+    # Can't easily trigger a real 409 (code 4092) here -- that needs a
+    # genuinely queued/in_progress AI Triage job on the target
+    # vulnerability, not reproducible on demand. This just confirms
+    # the allowAITriageCancellation param round-trips without
+    # breaking the normal (no AI Triage conflict) success path.
+    scan_id, project_id = _get_sast_scan_and_project_id()
+    if not scan_id:
+        pytest.skip("No completed SAST scan found")
+    similarity_id = _get_sast_similarity_id(scan_id)
+    if not similarity_id:
+        pytest.skip("No SAST result found in scan")
+    request_body: List[dict] = [{"similarityId": similarity_id, "projectId": project_id,
+                                 "scanId": scan_id, "severity": "MEDIUM",
+                                 "state": "TO_VERIFY", "comment": "test allowAITriageCancellation"}]
+    result = predicate_severity_and_state_by_similarity_id_and_project_id(
+        data=request_body,
+        allow_ai_triage_cancellation=True,
+        correlation_id="11111111-1111-1111-1111-111111111111",
+    )
+    assert result is True
+
+
 def test_get_latest_predicates_for_similarity_id_returns_real_data():
     # Regression test: get_latest_predicates_for_similarity_id used to
     # reuse PredicateHistoryResponse (which reads the

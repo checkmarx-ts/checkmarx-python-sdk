@@ -113,18 +113,41 @@ class SastResultsPredicatesAPI(object):
         return LatestPredicateResponse.from_dict(response.json())
 
     def predicate_severity_and_state_by_similarity_id_and_project_id(
-        self, data: List[dict]
+        self,
+        data: List[dict],
+        allow_ai_triage_cancellation: bool = None,
+        correlation_id: str = None,
     ) -> bool:
-        """
+        """POST /api/sast-results-predicates/ -- change the predicate
+        (severity/state/comment) for one or more vulnerability
+        instances.
+
         Args:
-            data (list of dict):
+            data (list of dict): Each item needs similarityId,
+                projectId, severity, state, comment (required, may be
+                empty string), and optionally scanId.
+            allow_ai_triage_cancellation (bool): If an AI Triage
+                analysis is currently queued/in_progress for any
+                target vulnerability, the request fails with 409
+                (code 4092) unless this is true, in which case active
+                AI Triage jobs are cancelled, their reserved credits
+                returned, and this manual update applied immediately.
+                Default: false.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
-            bool
+            bool: True if the update was successful (201).
         """
         url = f"{self.base_url}/"
+        params = {
+            "allowAITriageCancellation": allow_ai_triage_cancellation,
+        }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="POST", url=url, json=data
+            method="POST", url=url, params=params, json=data, headers=headers,
         )
         return response.status_code == CREATED
 
@@ -359,9 +382,13 @@ def get_latest_predicates_for_similarity_id(
 
 def predicate_severity_and_state_by_similarity_id_and_project_id(
     data: List[dict],
+    allow_ai_triage_cancellation: bool = None,
+    correlation_id: str = None,
 ) -> bool:
     return SastResultsPredicatesAPI().predicate_severity_and_state_by_similarity_id_and_project_id(
-        data=data
+        data=data,
+        allow_ai_triage_cancellation=allow_ai_triage_cancellation,
+        correlation_id=correlation_id,
     )
 
 
