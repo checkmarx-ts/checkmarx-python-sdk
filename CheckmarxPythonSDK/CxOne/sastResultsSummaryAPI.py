@@ -227,19 +227,43 @@ class SastResultsSummaryAPI(object):
         scan_id: str,
         base_scan_id: str,
         group_by_field: List[str],
+        evaluation_status: bool = False,
+        is_ai_generated: int = None,
         language: List[str] = None,
         status: List[str] = None,
         severity: List[str] = None,
         query_ids: List[int] = None,
         limit: int = 20,
         offset: int = 0,
+        correlation_id: str = None,
     ) -> dict:
-        """
+        """GET /api/sast-scan-summary/compare/aggregate -- aggregated
+        summary of SAST results based on a comparison between two
+        scans.
+
         Args:
-            scan_id (str): Scan ID of the newer scan to compare.
-            base_scan_id (str): Scan ID of the older scan to compare.
-            group_by_field (List[str]): Group by parameters.
-                Values: LANGUAGE, QUERY
+            scan_id (str): Required. Scan ID of the newer scan to
+                compare.
+            base_scan_id (str): Required. Scan ID of the older scan to
+                compare.
+            group_by_field (List[str]): Required. Group by parameters.
+                Values: LANGUAGE, QUERY, CWE.
+            evaluation_status (bool): If true, enables evaluation-based
+                status classification -- FIXED results may be
+                reclassified as NOT_EVALUATED if scan configuration
+                changes (e.g. preset changes) invalidate the
+                comparison. Default: false.
+            is_ai_generated (int): Scope results by engine domain: 1
+                for LAST/AI-generated results only, 0 for traditional
+                SAST results (is_ai_generated false or null).
+                Typically paired with group_by_field=["CWE"].
+                KNOWN LIVE SERVER BUG (observed 2026-10-31): value 0
+                reliably 500s ("unknown filter operation 9 for field
+                ...is_ai_generated..."), with or without an explicit
+                operation param (this endpoint's doc doesn't document
+                one); value 1 works. Not fixable client-side -- this
+                is the server's own filter-to-SQL translation failing
+                specifically for the false/0 case.
             language (List[str]): Filter by language (exact,
                 case-insensitive).
             status (List[str]): Filter by status.
@@ -249,6 +273,8 @@ class SastResultsSummaryAPI(object):
             query_ids (List[int]): Filter by query IDs.
             limit (int): Maximum results. Default: 20.
             offset (int): Results to skip. Default: 0.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
             dict
@@ -258,6 +284,8 @@ class SastResultsSummaryAPI(object):
             "scan-id": scan_id,
             "base-scan-id": base_scan_id,
             "group-by-field": group_by_field,
+            "evaluation-status": evaluation_status,
+            "is-ai-generated": is_ai_generated,
             "language": language,
             "status": status,
             "severity": severity,
@@ -265,8 +293,11 @@ class SastResultsSummaryAPI(object):
             "limit": limit,
             "offset": offset,
         }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="GET", url=url, params=params
+            method="GET", url=url, params=params, headers=headers,
         )
         return response.json()
 
@@ -383,21 +414,27 @@ def get_sast_aggregate_results_comparison(
     scan_id: str,
     base_scan_id: str,
     group_by_field: List[str],
+    evaluation_status: bool = False,
+    is_ai_generated: int = None,
     language: List[str] = None,
     status: List[str] = None,
     severity: List[str] = None,
     query_ids: List[int] = None,
     limit: int = 20,
     offset: int = 0,
+    correlation_id: str = None,
 ) -> dict:
     return SastResultsSummaryAPI().get_sast_aggregate_results_comparison(
         scan_id=scan_id,
         base_scan_id=base_scan_id,
         group_by_field=group_by_field,
+        evaluation_status=evaluation_status,
+        is_ai_generated=is_ai_generated,
         language=language,
         status=status,
         severity=severity,
         query_ids=query_ids,
         limit=limit,
         offset=offset,
+        correlation_id=correlation_id,
     )
