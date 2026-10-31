@@ -350,13 +350,16 @@ class ReportAPI(object):
         )
         return ScaExportStatus.from_dict(response.json())
 
-    def get_sca_scan_report(self, export_id: str) -> Union[dict, bytes]:
-        """Poll an SCA export request until it completes, then download
-        it. Export formats (set via create_sca_scan_report's
-        file_format) download as JSON for the *Json formats, and as
-        raw bytes (XML/CSV/PDF) for the others -- decided from the
-        download response's actual Content-Type, not from a
-        remembered file_format.
+    def download_sca_export(self, export_id: str) -> Union[dict, bytes]:
+        """GET /api/sca/export/requests/{exportId}/download -- download
+        a completed SCA export/report. Does not check status first --
+        call get_sca_export_status (or wait for "Completed") before
+        calling this; downloading one that isn't ready yet may 404.
+
+        Returns dict for JSON export formats (set via
+        create_sca_scan_report's file_format), and raw bytes for the
+        others (XML/CSV/PDF) -- decided from the response's actual
+        Content-Type, not from a remembered file_format.
 
         Args:
             export_id (str):
@@ -367,9 +370,27 @@ class ReportAPI(object):
                 responsible for writing to disk / decoding as needed.
         """
         base = self.api_client.configuration.server_base_url
-        status_url = f"{base}/api/sca/export/requests"
-        download_url = (
-            f"{base}/api/sca/export/requests/{export_id}/download"
+        url = f"{base}/api/sca/export/requests/{export_id}/download"
+        response = self.api_client.call_api(method="GET", url=url)
+        if "json" in response.headers.get("content-type", "").lower():
+            return response.json()
+        return response.content
+
+    def get_sca_scan_report(self, export_id: str) -> Union[dict, bytes]:
+        """Poll an SCA export request until it completes, then download
+        it via download_sca_export.
+
+        Args:
+            export_id (str):
+
+        Returns:
+            dict: for JSON export formats.
+            bytes: for XML/CSV/PDF export formats -- caller is
+                responsible for writing to disk / decoding as needed.
+        """
+        status_url = (
+            f"{self.api_client.configuration.server_base_url}"
+            f"/api/sca/export/requests"
         )
         while True:
             response = self.api_client.call_api(
@@ -379,20 +400,13 @@ class ReportAPI(object):
             )
             status = response.json().get("exportStatus")
             if status == "Completed":
-                response = self.api_client.call_api(
-                    method="GET", url=download_url
-                )
                 logger.info("Report has been generated successfully!")
-                break
+                return self.download_sca_export(export_id)
             if status == "Failed":
                 logger.error(f"Error: {response.content}")
-                break
-            else:
-                logger.info("Generating report, please wait...")
-                time.sleep(2)
-        if "json" in response.headers.get("content-type", "").lower():
-            return response.json()
-        return response.content
+                return response.json()
+            logger.info("Generating report, please wait...")
+            time.sleep(2)
 
 
 def create_scan_report_v2(
@@ -467,6 +481,10 @@ def create_sca_scan_report(
 
 def get_sca_export_status(export_id: str) -> ScaExportStatus:
     return ReportAPI().get_sca_export_status(export_id=export_id)
+
+
+def download_sca_export(export_id: str) -> Union[dict, bytes]:
+    return ReportAPI().download_sca_export(export_id=export_id)
 
 
 def get_sca_scan_report(export_id: str) -> Union[dict, bytes]:

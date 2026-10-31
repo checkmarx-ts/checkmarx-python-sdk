@@ -446,6 +446,7 @@ from .reportAPI import (
     get_sca_export_file_formats,
     create_sca_scan_report,
     get_sca_export_status,
+    download_sca_export,
     get_sca_scan_report,
 )
 from .repositoryInsightsAPI import (
