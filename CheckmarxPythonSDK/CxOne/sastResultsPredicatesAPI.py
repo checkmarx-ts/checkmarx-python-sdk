@@ -3,7 +3,11 @@ from typing import List
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED, OK
-from .dto import LatestPredicateResponse, PredicateHistoryResponse
+from .dto import (
+    LatestPredicateResponse,
+    PredicateHistoryResponse,
+    PredicatesChangelogResponse,
+)
 
 
 class SastResultsPredicatesAPI(object):
@@ -213,19 +217,31 @@ class SastResultsPredicatesAPI(object):
         history: bool = False,
         offset: int = 0,
         limit: int = 100,
-    ) -> dict:
-        """
-        Retrieve bulk predicates by entity type.
+        correlation_id: str = None,
+    ) -> PredicatesChangelogResponse:
+        """GET /api/sast-results-predicates/changelog -- bulk
+        predicates for a similarityID, scanID, or projectID.
+
+        Note: the public doc's response schema shows `results` as a
+        flat array of change entries ({change, date, user, origin}).
+        The live response actually groups them by similarityId --
+        results[{similarityId, predicates: [{change, date, user,
+        origin}], totalCount}] -- as modeled by PredicatesChangelogResponse.
 
         Args:
-            entity_type (str): One of 'similarityID', 'scanID', 'projectID'
-            entity_id (str): The ID value of the selected entity type
-            history (bool): True = full history; False = latest state only
-            offset (int): Results to skip. Default: 0
-            limit (int): Max results (1-100). Default: 100
+            entity_type (str): One of 'similarityID', 'scanID', 'projectID'.
+            entity_id (str): The ID value of the selected entity type.
+            history (bool): True = full history; False = latest state
+                only (observed live: this can still return multiple
+                entries per similarity id, just fewer than with
+                history=True -- it's not strictly "one entry").
+            offset (int): Results to skip. Default: 0.
+            limit (int): Max results (1-100). Default: 100.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
-            dict
+            PredicatesChangelogResponse
         """
         url = f"{self.base_url}/changelog"
         params = {
@@ -235,10 +251,13 @@ class SastResultsPredicatesAPI(object):
             "offset": offset,
             "limit": limit,
         }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="GET", url=url, params=params
+            method="GET", url=url, params=params, headers=headers,
         )
-        return response.json()
+        return PredicatesChangelogResponse.from_dict(response.json())
 
     def create_predicates_by_attack_vector(
         self, data: List[dict]
@@ -370,13 +389,15 @@ def get_predicates_changelog(
     history: bool = False,
     offset: int = 0,
     limit: int = 100,
-) -> dict:
+    correlation_id: str = None,
+) -> PredicatesChangelogResponse:
     return SastResultsPredicatesAPI().get_predicates_changelog(
         entity_type=entity_type,
         entity_id=entity_id,
         history=history,
         offset=offset,
         limit=limit,
+        correlation_id=correlation_id,
     )
 
 

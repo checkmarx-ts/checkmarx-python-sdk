@@ -21,6 +21,9 @@ from CheckmarxPythonSDK.CxOne.dto import (
     Predicate,
     PredicateWithCommentJSON,
     PredicateWithCommentsJSON,
+    PredicatesChangelogResponse,
+    PredicateChangelogGroup,
+    PredicateChangelogEntry,
     CommentJSON,
     WebError
 )
@@ -237,6 +240,14 @@ def test_get_predicates_changelog():
             limit=10,
         )
         assert result is not None
+        assert isinstance(result, PredicatesChangelogResponse)
+        assert result.total_similarity_ids is not None
+        if result.results:
+            group = result.results[0]
+            assert isinstance(group, PredicateChangelogGroup)
+            assert group.similarity_id is not None
+            if group.predicates:
+                assert isinstance(group.predicates[0], PredicateChangelogEntry)
     except Exception as e:
         logger.warning("get_predicates_changelog skipped: {}".format(str(e)))
 

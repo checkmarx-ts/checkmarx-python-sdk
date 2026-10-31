@@ -241,6 +241,9 @@ from .PredicateHistoryResponse import PredicateHistoryResponse
 from .PredicateWithCommentJSON import PredicateWithCommentJSON
 from .PredicateWithCommentsJSON import PredicateWithCommentsJSON
 from .LatestPredicateResponse import LatestPredicateResponse
+from .PredicateChangelogEntry import PredicateChangelogEntry
+from .PredicateChangelogGroup import PredicateChangelogGroup
+from .PredicatesChangelogResponse import PredicatesChangelogResponse
 from .Preset import Preset
 from .PresetPaged import PresetPaged
 from .PresetSummary import PresetSummary
