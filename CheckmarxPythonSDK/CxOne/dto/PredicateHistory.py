@@ -7,12 +7,18 @@ from .PredicateWithCommentJSON import PredicateWithCommentJSON
 
 @dataclass
 class PredicateHistory:
-    """Predicates for one similarity ID within one project."""
+    """Predicates for one similarity ID within one project. Also
+    reused for GET /api/sast-results-predicates/ (predicates by
+    attack vector id), whose predicateHistoryPerProject entries carry
+    an extra attackVectorId field -- None for the plain
+    /{similarityID} endpoint, which has no such field.
+    """
     similarity_id: str = None
     project_id: str = None
     predicates: List[PredicateWithCommentJSON] = field(default_factory=list)
     total_count: int = None
     initial_predicate_values: PredicateInitialValues = None
+    attack_vector_id: str = None
 
     @classmethod
     def from_dict(cls, item: dict) -> "PredicateHistory":
@@ -29,4 +35,5 @@ class PredicateHistory:
             initial_predicate_values=PredicateInitialValues.from_dict(
                 item.get("initialPredicateValues")
             ),
+            attack_vector_id=item.get("attackVectorId"),
         )

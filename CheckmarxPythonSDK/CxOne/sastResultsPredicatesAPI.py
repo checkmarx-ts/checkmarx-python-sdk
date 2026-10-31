@@ -183,19 +183,31 @@ class SastResultsPredicatesAPI(object):
         project_ids: List[str] = None,
         scan_id: str = None,
         include_comment_json: bool = None,
-    ) -> dict:
-        """
-        Get all predicates by attack vector ID.
+        include_changed_by: bool = None,
+        offset: int = 0,
+        limit: int = 100,
+        correlation_id: str = None,
+    ) -> PredicateHistoryResponse:
+        """GET /api/sast-results-predicates/ -- predicates applied to
+        a specific attack vector.
 
         Args:
-            attack_vector_id (str): ID of the attack vector to get (required)
-            similarity_id (str): Filter by similarity ID
-            project_ids (List[str]): Filter by project IDs (OR)
-            scan_id (str): Filter by scan ID
-            include_comment_json (bool): Include comment JSON data
+            attack_vector_id (str): Required. 16-char hex ID of the
+                attack vector.
+            similarity_id (str): Filter by similarity ID.
+            project_ids (List[str]): Filter by project IDs (OR between
+                items). Default: all projects.
+            scan_id (str): Filter by scan ID.
+            include_comment_json (bool): Include comment JSON data.
+            include_changed_by (bool): Include triggeredBy/changedBy
+                info on each predicate.
+            offset (int): Results to skip. Default: 0.
+            limit (int): Max results, 1-100. Default: 100.
+            correlation_id (str): Optional UUID, for internal
+                Checkmarx use.
 
         Returns:
-            dict
+            PredicateHistoryResponse
         """
         url = f"{self.base_url}/"
         params = {
@@ -204,11 +216,17 @@ class SastResultsPredicatesAPI(object):
             "project-ids": project_ids,
             "scan-id": scan_id,
             "include-comment-json": include_comment_json,
+            "include-changed-by": include_changed_by,
+            "offset": offset,
+            "limit": limit,
         }
+        headers = {"Accept": "*/*; version=1.0"}
+        if correlation_id:
+            headers["CorrelationId"] = correlation_id
         response = self.api_client.call_api(
-            method="GET", url=url, params=params
+            method="GET", url=url, params=params, headers=headers,
         )
-        return response.json()
+        return PredicateHistoryResponse.from_dict(response.json())
 
     def get_predicates_changelog(
         self,
@@ -373,13 +391,21 @@ def get_predicates_by_attack_vector_id(
     project_ids: List[str] = None,
     scan_id: str = None,
     include_comment_json: bool = None,
-) -> dict:
+    include_changed_by: bool = None,
+    offset: int = 0,
+    limit: int = 100,
+    correlation_id: str = None,
+) -> PredicateHistoryResponse:
     return SastResultsPredicatesAPI().get_predicates_by_attack_vector_id(
         attack_vector_id=attack_vector_id,
         similarity_id=similarity_id,
         project_ids=project_ids,
         scan_id=scan_id,
         include_comment_json=include_comment_json,
+        include_changed_by=include_changed_by,
+        offset=offset,
+        limit=limit,
+        correlation_id=correlation_id,
     )
 
 
