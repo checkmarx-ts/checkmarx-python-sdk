@@ -24,7 +24,7 @@ def construct_configuration() -> Configuration:
         username=config.get("username"),
         password=config.get("password"),
         scope=config.get("scope"),
-        timeout=config.get("timeout"),
+        timeout=int(config.get("timeout")),
         verify=config.get("verify"),
         cert=config.get("cert"),
         proxy=config.get("proxy"),

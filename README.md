@@ -8,6 +8,21 @@ By using this SDK, Checkmarx users will be able to do automatic scanning with Cx
 [![Supported Versions](https://img.shields.io/pypi/pyversions/CheckmarxPythonSDK.svg)](https://pypi.org/project/CheckmarxPythonSDK)
 [![Contributors](https://img.shields.io/github/contributors/checkmarx-ts/checkmarx-python-sdk.svg)](https://github.com/checkmarx-ts/checkmarx-python-sdk/graphs/contributors)
 
+# When to use this SDK
+
+This Python SDK is a complementary offering to our official command-line interface (CLI). It is not intended to replace the CLI.
+
+Our official CLI is developed and maintained by the R&D team. It is the preferred tool for standard, predefined operational tasks. However, the business workflows within the CLI are statically implemented, which limits the ability for end users to introduce custom logic or adapt workflows to unique requirements.
+
+This SDK is designed for scenarios requiring programmable integration and flexible orchestration. You may use it to assemble custom API sequences, embed workflows into your Python automation pipelines, and implement business logic that cannot be satisfied by the fixed workflows of the CLI.
+
+> **Release notification**
+> You may subscribe to the PyPI release RSS feed to receive notifications of new versions:
+> `https://pypi.org/rss/project/CheckmarxPythonSDK/releases.xml`
+
+> **Important note**
+> Evaluate all version changes and complete validation in a non-production environment before deploying to production. Automated upgrades in production environments are not recommended.
+
 # Checkmarx API Official Documents
 
 For more information about Checkmarx API, please refer to Checkmarx knowledge Center：

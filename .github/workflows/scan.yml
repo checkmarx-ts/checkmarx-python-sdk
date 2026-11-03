@@ -15,6 +15,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VIRTUALENV_NO_PERIODIC_UPDATE: 1
+  PIP_INDEX_URL: https://:${{ secrets.ECHO_LIBRARIES_ACCESS_KEY }}@pypi.echohq.com/simple
+
 jobs:
   execute-scan:
     runs-on: cx-public-ubuntu-x64
@@ -26,13 +34,13 @@ jobs:
       - name: Fetch Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: "3.12"
 
       - name: Setup Python Build Env
         run: |
-          pip config set global.index-url https://:${{ secrets.ECHO_LIBRARIES_ACCESS_KEY }}@pypi.echohq.com/simple
+          pip install --upgrade pip
           pip install virtualenv
 
       - name: Scan with CxOne++ Action
