@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
-Unreleased
+1.9.2 - 2026-11-03
 * [Fix] configUtility env/CLI timeout (and max_try) parsing -- the int() conversion ran, then was immediately overwritten back to the raw string by an unconditional `if`/`else` a few lines later (needed to be `elif`), so e.g. setting cxsca_timeout=120 produced the string '120'. httpx later failed with TypeError: an integer is required (got type str) in socket.settimeout(). Affected every platform's env-var/CLI-arg timeout, though CxOne/config.py happened to mask it with its own redundant `int(config.get("timeout"))` cast. Fixed the shared root cause (env var and CLI arg parsing both now use elif), and added the same defensive int() cast to the 5 platforms that were missing it (CxScaApiSDK, CxRestAPISDK/CxSAST, CxReporting, CxODataApiSDK, CxPortalSoapApiSDK), matching CxOne's existing convention -- this also covers a config.json edge case (a quoted "60" instead of a numeric 60) that the root-cause fix alone doesn't reach. verify/cert/proxy/logging_level/max_retries/rate_limit_* were also audited; all are either already handled correctly or (for max_retries/rate_limit_*) not yet reachable via config outside CxOne, so not currently exposed to this bug.
 * [Breaking] Rename CxOne functions whose package-level exports collided in CxOne/__init__.py: dast_get_results (was dastResultsAPI.get_results), create_byor_import_v1 (was byorResultsHandlerAPI.create_byor_import), get_query_editor_queries (was queryEditorAPI.get_all_queries), get_query_editor_session_logs (was queryEditorAPI.get_the_logs_associated_to_the_audit_session)
 
