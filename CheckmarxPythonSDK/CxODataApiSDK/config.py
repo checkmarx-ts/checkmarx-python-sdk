@@ -42,7 +42,7 @@ def construct_configuration() -> Configuration:
         scope="access_control_api sast_api",
         client_id="resource_owner_sast_client",
         client_secret="014DF517-39D1-4453-B7B3-9930C563627C",
-        timeout=config.get("timeout"),
+        timeout=int(config.get("timeout")),
         verify=config.get("verify"),
         cert=config.get("cert"),
         proxy=config.get("proxy"),

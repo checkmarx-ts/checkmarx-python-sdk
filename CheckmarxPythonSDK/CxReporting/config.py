@@ -29,7 +29,7 @@ def construct_configuration() -> Configuration:
         scope=config.get("scope"),
         client_id=config.get("client_id"),
         client_secret=config.get("client_secret"),
-        timeout=config.get("timeout"),
+        timeout=int(config.get("timeout")),
         verify=config.get("verify"),
         cert=config.get("cert"),
         proxy=config.get("proxy"),
