@@ -168,3 +168,129 @@ class TestTokenExpiry:
         # Explicit refresh replaces the stored token
         client.token_manager.refresh_token()
         assert client.token_manager.current_token == "second_token"
+
+
+class TestServerErrorRetry:
+
+    def test_504_retries_with_backoff_and_succeeds(self):
+        """A 504 is retried after an exponential-backoff wait — succeeds on the second attempt."""
+        config = _config(max_retries=2)
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        session.request.side_effect = [
+            _http_response(504),
+            _http_response(200),
+        ]
+
+        client = _make_client(config, session)
+        with patch("CheckmarxPythonSDK.api_client.time.sleep") as mock_sleep:
+            result = client.call_api(method="GET", url="https://example.com/api/resource")
+
+        assert result.status_code == 200
+        assert session.request.call_count == 2
+        # first retry: 30 * 2**0 = 30 seconds
+        mock_sleep.assert_called_once_with(30)
+
+    def test_504_backoff_grows_exponentially(self):
+        """Each consecutive 504 waits longer: 30s, then 60s."""
+        config = _config(max_retries=3)
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        session.request.side_effect = [
+            _http_response(504),
+            _http_response(504),
+            _http_response(200),
+        ]
+
+        client = _make_client(config, session)
+        with patch("CheckmarxPythonSDK.api_client.time.sleep") as mock_sleep:
+            client.call_api(method="GET", url="https://example.com/api/resource")
+
+        assert [call.args[0] for call in mock_sleep.call_args_list] == [30, 60]
+
+    def test_504_backoff_is_capped_at_three_minutes(self):
+        """Successive 504s grow 30s, 60s, 120s, then stay capped at 180s (3 minutes)."""
+        config = _config(max_retries=5)
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        session.request.side_effect = [
+            _http_response(504),
+            _http_response(504),
+            _http_response(504),
+            _http_response(504),
+            _http_response(504),
+            _http_response(200),
+        ]
+
+        client = _make_client(config, session)
+        with patch("CheckmarxPythonSDK.api_client.time.sleep") as mock_sleep:
+            result = client.call_api(method="GET", url="https://example.com/api/resource")
+
+        assert result.status_code == 200
+        assert [call.args[0] for call in mock_sleep.call_args_list] == [30, 60, 120, 180, 180]
+
+    def test_504_honors_retry_after_header(self):
+        """When the 504 response carries a Retry-After header, the wait uses that value."""
+        config = _config(max_retries=2)
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        retry_after_504 = _http_response(504)
+        retry_after_504.headers = {"Retry-After": "12"}
+        session.request.side_effect = [
+            retry_after_504,
+            _http_response(200),
+        ]
+
+        client = _make_client(config, session)
+        with patch("CheckmarxPythonSDK.api_client.time.sleep") as mock_sleep:
+            client.call_api(method="GET", url="https://example.com/api/resource")
+
+        mock_sleep.assert_called_once_with(12)
+
+    def test_persistent_504_exhausts_retries_and_raises(self):
+        """When the server keeps returning 504 after all retries, the SDK raises its usual ValueError."""
+        config = _config(max_retries=1)
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        session.request.return_value = _http_response(504)
+
+        client = _make_client(config, session)
+        with patch("CheckmarxPythonSDK.api_client.time.sleep"), \
+             pytest.raises(ValueError, match="HttpStatusCode: 504"):
+            client.call_api(method="GET", url="https://example.com/api/resource")
+
+        # max_retries=1 means 2 total attempts (0 + 1 retry)
+        assert session.request.call_count == 2
+
+    def test_429_retries_after_retry_after_wait(self):
+        """429 is retried after honoring Retry-After — regression guard for check_response raising first."""
+        config = _config(max_retries=2)
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        limited = _http_response(429)
+        limited.headers = {"Retry-After": "7"}
+        session.request.side_effect = [
+            limited,
+            _http_response(200),
+        ]
+
+        client = _make_client(config, session)
+        with patch("CheckmarxPythonSDK.api_client.time.sleep") as mock_sleep:
+            result = client.call_api(method="GET", url="https://example.com/api/resource")
+
+        assert result.status_code == 200
+        assert session.request.call_count == 2
+        mock_sleep.assert_called_once_with(7)
+
+    def test_non_retryable_4xx_raises_value_error(self):
+        """A 404 is not retried and still raises the SDK's ValueError format."""
+        config = _config()
+        session = MagicMock()
+        session.post.return_value = _token_response("valid_token")
+        session.request.return_value = _http_response(404)
+
+        client = _make_client(config, session)
+        with pytest.raises(ValueError, match="HttpStatusCode: 404"):
+            client.call_api(method="GET", url="https://example.com/api/resource")
+
+        assert session.request.call_count == 1
