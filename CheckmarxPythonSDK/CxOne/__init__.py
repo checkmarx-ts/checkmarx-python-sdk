@@ -108,7 +108,16 @@ from .accessManagementAPI import (
 )
 from .apisecAPI import (
     ApiSecAPI,
+    get_risk_summary_by_origin,
     get_scan_apisec_risk_overview,
+    get_all_risk_types,
+    get_number_of_sensitive_data_apis,
+    get_number_of_undocumented_apis,
+    get_all_api_scan_metadata,
+    get_risk_detail_by_risk_id,
+    get_risk_complete,
+    get_api_security_risks_by_scan_id,
+    get_grouped_risk_summary,
     get_api_parameters,
     get_parameters,
 )
