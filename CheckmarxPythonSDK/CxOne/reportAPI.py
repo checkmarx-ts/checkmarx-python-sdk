@@ -1,9 +1,33 @@
 import time
+from dataclasses import asdict, is_dataclass
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from typing import List
+from typing import List, Union
+from .dto import (
+    ExportParametersSbom,
+    ExportParametersScanReport,
+    ScaExportFileFormats,
+    ScaExportStatus,
+)
 import logging
 logger = logging.getLogger(__name__)
+
+# POST /api/sca/export/requests fileFormat values, grouped by which
+# exportParameters shape they expect. RemediatedPackagesJson/
+# RemediatedPackages's shape isn't documented by Checkmarx -- callers
+# needing specific flags there should pass a plain dict. The full set
+# (including RemediatedPackages, undocumented but live-confirmed via
+# GET /api/sca/export/file-formats) is cross-checked against that
+# endpoint's actual output in get_sca_export_file_formats's test.
+SCA_EXPORT_SBOM_FILE_FORMATS = {"CycloneDxJson", "CycloneDxXml", "SpdxJson"}
+SCA_EXPORT_SCAN_REPORT_FILE_FORMATS = {
+    "ScanReportJson", "ScanReportXml", "ScanReportCsv", "ScanReportPdf",
+}
+SCA_EXPORT_FILE_FORMATS = (
+    SCA_EXPORT_SBOM_FILE_FORMATS
+    | SCA_EXPORT_SCAN_REPORT_FILE_FORMATS
+    | {"RemediatedPackagesJson", "RemediatedPackages"}
+)
 
 
 class ReportAPI(object):
@@ -229,45 +253,144 @@ class ReportAPI(object):
         )
         return response.json()
 
-    def create_sca_scan_report(self, scan_id: str) -> str:
-        """
-        Args:
-            scan_id (str):
+    def get_sca_export_file_formats(self) -> List[ScaExportFileFormats]:
+        """GET /api/sca/export/file-formats -- the fileFormat values
+        accepted by each SCA export route (e.g. /requests, the route
+        used by create_sca_scan_report).
 
         Returns:
-            str
+            List[ScaExportFileFormats]
         """
+        base = self.api_client.configuration.server_base_url
+        url = f"{base}/api/sca/export/file-formats"
+        response = self.api_client.call_api(method="GET", url=url)
+        return [
+            ScaExportFileFormats.from_dict(item) for item in response.json()
+        ]
+
+    def create_sca_scan_report(
+        self,
+        scan_id: str,
+        file_format: str = "ScanReportJson",
+        export_parameters: Union[
+            ExportParametersSbom, ExportParametersScanReport, dict
+        ] = None,
+    ) -> str:
+        """POST /api/sca/export/requests -- request an SCA export/report
+        for a scan. Accepted asynchronously; poll/download the result
+        with get_sca_scan_report(export_id).
+
+        Args:
+            scan_id (str): The scan to generate a report for.
+            file_format (str): One of CycloneDxJson, CycloneDxXml,
+                SpdxJson, RemediatedPackagesJson, ScanReportJson,
+                ScanReportXml, ScanReportCsv, ScanReportPdf. Default:
+                ScanReportJson (matches this method's previous,
+                non-parameterized behavior).
+            export_parameters: Shape depends on `file_format` --
+                ExportParametersSbom for the CycloneDx*/SpdxJson
+                formats, ExportParametersScanReport for the
+                ScanReport* formats, or a plain dict (e.g. for
+                RemediatedPackagesJson, whose exportParameters shape
+                Checkmarx does not document). Defaults to the right
+                type's defaults for `file_format` if omitted
+                (ExportParametersScanReport() when `file_format` is
+                any ScanReport* value, matching this method's previous
+                hardcoded defaults exactly; ExportParametersSbom()
+                for SBOM formats; {} otherwise).
+
+        Returns:
+            str: exportId, used to poll/download via
+            get_sca_scan_report.
+        """
+        if file_format not in SCA_EXPORT_FILE_FORMATS:
+            raise ValueError(
+                f"file_format must be one of {sorted(SCA_EXPORT_FILE_FORMATS)}, "
+                f"got {file_format!r}"
+            )
+        if export_parameters is None:
+            if file_format in SCA_EXPORT_SBOM_FILE_FORMATS:
+                export_parameters = ExportParametersSbom()
+            elif file_format in SCA_EXPORT_SCAN_REPORT_FILE_FORMATS:
+                export_parameters = ExportParametersScanReport()
+            else:
+                export_parameters = {}
+        if is_dataclass(export_parameters):
+            export_parameters = asdict(export_parameters)
+
         base = self.api_client.configuration.server_base_url
         url = f"{base}/api/sca/export/requests"
         payload = {
             "ScanId": scan_id,
-            "FileFormat": "ScanReportJson",
-            "ExportParameters": {
-                "hideDevAndTestDependencies": False,
-                "showOnlyEffectiveLicenses": False,
-                "excludePackages": False,
-                "excludeLicenses": True,
-                "excludeVulnerabilities": False,
-                "excludePolicies": True,
-            },
+            "FileFormat": file_format,
+            "ExportParameters": export_parameters,
         }
         response = self.api_client.call_api(
             method="POST", url=url, json=payload
         )
         return response.json()["exportId"]
 
-    def get_sca_scan_report(self, export_id: str) -> dict:
-        """
+    def get_sca_export_status(self, export_id: str) -> ScaExportStatus:
+        """GET /api/sca/export/requests?exportId={exportId} -- check
+        the status of an SCA export request (and, once Completed, its
+        download URL) without blocking/polling. For a one-shot
+        poll-until-done-and-download instead, see
+        get_sca_scan_report.
+
         Args:
             export_id (str):
 
         Returns:
-            dict
+            ScaExportStatus
         """
         base = self.api_client.configuration.server_base_url
-        status_url = f"{base}/api/sca/export/requests"
-        download_url = (
-            f"{base}/api/sca/export/requests/{export_id}/download"
+        url = f"{base}/api/sca/export/requests"
+        response = self.api_client.call_api(
+            method="GET", url=url, params={"exportId": export_id},
+        )
+        return ScaExportStatus.from_dict(response.json())
+
+    def download_sca_export(self, export_id: str) -> Union[dict, bytes]:
+        """GET /api/sca/export/requests/{exportId}/download -- download
+        a completed SCA export/report. Does not check status first --
+        call get_sca_export_status (or wait for "Completed") before
+        calling this; downloading one that isn't ready yet may 404.
+
+        Returns dict for JSON export formats (set via
+        create_sca_scan_report's file_format), and raw bytes for the
+        others (XML/CSV/PDF) -- decided from the response's actual
+        Content-Type, not from a remembered file_format.
+
+        Args:
+            export_id (str):
+
+        Returns:
+            dict: for JSON export formats.
+            bytes: for XML/CSV/PDF export formats -- caller is
+                responsible for writing to disk / decoding as needed.
+        """
+        base = self.api_client.configuration.server_base_url
+        url = f"{base}/api/sca/export/requests/{export_id}/download"
+        response = self.api_client.call_api(method="GET", url=url)
+        if "json" in response.headers.get("content-type", "").lower():
+            return response.json()
+        return response.content
+
+    def get_sca_scan_report(self, export_id: str) -> Union[dict, bytes]:
+        """Poll an SCA export request until it completes, then download
+        it via download_sca_export.
+
+        Args:
+            export_id (str):
+
+        Returns:
+            dict: for JSON export formats.
+            bytes: for XML/CSV/PDF export formats -- caller is
+                responsible for writing to disk / decoding as needed.
+        """
+        status_url = (
+            f"{self.api_client.configuration.server_base_url}"
+            f"/api/sca/export/requests"
         )
         while True:
             response = self.api_client.call_api(
@@ -277,18 +400,13 @@ class ReportAPI(object):
             )
             status = response.json().get("exportStatus")
             if status == "Completed":
-                response = self.api_client.call_api(
-                    method="GET", url=download_url
-                )
                 logger.info("Report has been generated successfully!")
-                break
+                return self.download_sca_export(export_id)
             if status == "Failed":
                 logger.error(f"Error: {response.content}")
-                break
-            else:
-                logger.info("Generating report, please wait...")
-                time.sleep(2)
-        return response.json()
+                return response.json()
+            logger.info("Generating report, please wait...")
+            time.sleep(2)
 
 
 def create_scan_report_v2(
@@ -343,9 +461,31 @@ def get_risk_scan_report(scan_id: str, report_type: str) -> dict:
     )
 
 
-def create_sca_scan_report(scan_id: str) -> str:
-    return ReportAPI().create_sca_scan_report(scan_id=scan_id)
+def get_sca_export_file_formats() -> List[ScaExportFileFormats]:
+    return ReportAPI().get_sca_export_file_formats()
 
 
-def get_sca_scan_report(export_id: str) -> dict:
+def create_sca_scan_report(
+    scan_id: str,
+    file_format: str = "ScanReportJson",
+    export_parameters: Union[
+        ExportParametersSbom, ExportParametersScanReport, dict
+    ] = None,
+) -> str:
+    return ReportAPI().create_sca_scan_report(
+        scan_id=scan_id,
+        file_format=file_format,
+        export_parameters=export_parameters,
+    )
+
+
+def get_sca_export_status(export_id: str) -> ScaExportStatus:
+    return ReportAPI().get_sca_export_status(export_id=export_id)
+
+
+def download_sca_export(export_id: str) -> Union[dict, bytes]:
+    return ReportAPI().download_sca_export(export_id=export_id)
+
+
+def get_sca_scan_report(export_id: str) -> Union[dict, bytes]:
     return ReportAPI().get_sca_scan_report(export_id=export_id)

@@ -26,6 +26,8 @@ from .AiRemediationDetails import AiRemediationDetails
 from .ConfidenceScore import ConfidenceScore
 from .ReachabilityAnalysis import ReachabilityAnalysis
 from .ExploitabilityAnalysis import ExploitabilityAnalysis
+from .ExportParametersSbom import ExportParametersSbom
+from .ExportParametersScanReport import ExportParametersScanReport
 from .TriageAnalysis import TriageAnalysis
 from .VulnerabilityMetadata import VulnerabilityMetadata
 from .VerificationStep import VerificationStep
@@ -289,6 +291,8 @@ from .RuleInput import RuleInput
 from .SastResult import SastResult
 from .SastScan import SastScan
 from .SastStatus import SastStatus
+from .ScaExportStatus import ScaExportStatus
+from .ScaExportFileFormats import ScaExportFileFormats
 from .ScaContainersCounters import ScaContainersCounters
 from .ScaCounters import ScaCounters
 from .Scan import Scan
