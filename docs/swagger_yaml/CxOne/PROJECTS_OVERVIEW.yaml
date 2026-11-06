@@ -43,6 +43,12 @@ paths:
             type: array
             items:
               type: string
+        - name: id
+          in: query
+          required: false
+          description: the id of the project
+          schema:
+            type: string
         - name: applications
           in: query
           required: false
@@ -150,6 +156,35 @@ paths:
           $ref: '#/components/responses/404'
         '501':
           $ref: '#/components/responses/501'
+  "/{id}":
+    delete:
+      summary: "Delete a project and its overview data"
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - name: id
+          in: path
+          required: true
+          description: the id of the project to delete
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: "No Content - the project and its overview data were successfully deleted"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
   /aggregate:
     get:
       parameters:
@@ -432,6 +467,18 @@ components:
             $ref: '#/components/schemas/error'
     '404':
       description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '409':
+      description: "Conflict"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '500':
+      description: "Internal Server Error"
       content:
         application/json:
           schema:

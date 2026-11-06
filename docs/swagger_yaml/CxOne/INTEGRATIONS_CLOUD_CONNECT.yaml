@@ -1,0 +1,287 @@
+openapi: 3.0.2
+info:
+  description: "Public REST API of the Integrations Cloud Connect service. Manages cloud/vendor connections (e.g. Sysdig, OCI container registries) used for runtime cloud scanning."
+  version: 1.0.0
+  title: "Integrations Cloud Connect Service"
+paths:
+  /api/cloud-connect/connections:
+    get:
+      tags:
+        - Connections
+      summary: "List cloud connections"
+      description: "Returns a paged, optionally filtered list of cloud connections. Requires the 'view-runtime-cloud' access management role."
+      security:
+        - bearer-key: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: filter
+          in: query
+          required: false
+          description: "Free-text filter applied to the connection list."
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudConnectionsResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  parameters:
+    authHeader:
+      name: Authorization
+      in: header
+      required: true
+      description: "Bearer JWT access token."
+      schema:
+        type: string
+  responses:
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralExceptionDto'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralExceptionDto'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralExceptionDto'
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralExceptionDto'
+  schemas:
+    GeneralExceptionDto:
+      type: object
+      properties:
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    CloudConnectionStatus:
+      type: object
+      description: "Status of a cloud connection for a specific consumer."
+      properties:
+        status:
+          type: string
+        statusMessage:
+          type: string
+        consumerName:
+          type: string
+          nullable: true
+    CloudConnectionItem:
+      type: object
+      description: "A single item in the cloud connection list response."
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        vendor:
+          type: string
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        status:
+          type: string
+          deprecated: true
+          description: "Deprecated, use statuses instead."
+          nullable: true
+        statusMessage:
+          type: string
+          deprecated: true
+          nullable: true
+        refreshDate:
+          type: string
+          format: date-time
+          deprecated: true
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+        statuses:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/CloudConnectionStatus'
+      required:
+        - id
+        - name
+        - vendor
+        - updatedAt
+    CloudConnectionsResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+        totalFilteredCount:
+          type: integer
+          format: int64
+        cloudConnections:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudConnectionItem'
+      required:
+        - totalCount
+        - totalFilteredCount
+        - cloudConnections
+    CloudConnectionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        vendor:
+          type: string
+        vendorSpecificConfig:
+          type: object
+          description: "Vendor-specific connection configuration. Shape depends on 'vendor' (e.g. Sysdig, ECR, ACR, GHCR, DockerHub, JFrog, Quay)."
+        statuses:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/CloudConnectionStatus'
+      required:
+        - id
+        - name
+        - vendor
+        - vendorSpecificConfig
+    CreateCloudConnectionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 255
+        tags:
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: string
+        vendor:
+          type: string
+          maxLength: 20
+        vendorSpecificConfig:
+          type: object
+          description: "Vendor-specific connection configuration payload."
+      required:
+        - name
+        - vendor
+        - vendorSpecificConfig
+    UpdateCloudConnectionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 255
+        tags:
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: string
+        vendorSpecificConfig:
+          type: object
+          description: "Vendor-specific connection configuration payload."
+      required:
+        - name
+        - vendorSpecificConfig
+    CreateCloudConnectionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    SysdigRegion:
+      type: object
+      properties:
+        domain:
+          type: string
+        name:
+          type: string
+      required:
+        - domain
+        - name
+    CheckOciConnectivityRequest:
+      type: object
+      description: "Either 'id' must be present, or token, registryPrefix and userName must all be provided (enforced by @ValidCheckOciConnectivityRequest)."
+      properties:
+        token:
+          type: string
+          nullable: true
+          description: "Registry access token/credential. Nullable when 'id' refers to an existing connection."
+        id:
+          type: string
+          nullable: true
+          description: "Existing cloud connection ID to reuse credentials from. Nullable when token/registryPrefix/userName are provided directly."
+        registryPrefix:
+          type: string
+        userName:
+          type: string
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/cloud-connect
+security:
+  - Login: []

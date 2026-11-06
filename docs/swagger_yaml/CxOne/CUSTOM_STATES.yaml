@@ -64,7 +64,7 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          $ref: "#/components/responses/ForbiddenOnCreateCustomState"
         "500":
           $ref: "#/components/responses/InternalServerError"
   "/{id}":
@@ -146,6 +146,22 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/WebError"
+    ForbiddenOnCreateCustomState:
+      description: |
+        Returned when the operation is not allowed. This includes, for example:
+        - the requested name is a reserved/predefined system name (error code 5003), or
+        - the tenant already has the maximum number of custom states (100) (error code 5008;
+          delete some custom states and try again).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WebError"
+          examples:
+            maxCustomStates:
+              summary: Maximum custom states per tenant
+              value:
+                code: 5008
+                message: "You have exceeded the maximum number of custom states, please delete some and try again"
     NotFound:
       description: Not Found
       content:

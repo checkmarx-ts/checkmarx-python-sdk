@@ -27,6 +27,14 @@ info:
     - **Internal Entities Management**: `/internal/users`, `/internal/groups`, `/internal/clients`
     - **Entity Resources**: `/users-resources`, `/clients-resources`, `/groups-resources`
     - **Advanced Entity Management**: `/my-groups`, `/effective-permissions`
+
+    ### Feature Flag Requirement
+
+    All Phase 2 endpoints require the `ACCESS_MANAGEMENT_PHASE_2` feature flag to be enabled for your tenant. If the flag is not enabled, the endpoint returns HTTP **400** with the following body:
+
+    ```json
+    {"message": "Access Management Phase 2 is not available for this tenant", "type": "ERROR", "code": 20}
+    ```
   version: 1.0.0
 paths:
   /:
@@ -549,7 +557,7 @@ paths:
             type: string
         - name: resource-type
           in: query
-          description: The type of resource. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
+          description: The type of resource. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'environment' - to check assignment to environment; 'tenant' or 'global' - to check access though base role.
           example: 'project'
           required: true
           schema:
@@ -611,6 +619,49 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+  /has-batch-access:
+    get:
+      tags:
+        - Access Management
+      summary: Check access to resource for batch of actions
+      description: Check if the current user (as identified by JWT token) has permission to do a particular actions on a particular resource.
+      operationId: hasBatchAccess
+      parameters:
+        - name: resource-id
+          in: query
+          description: The unique identifier of the resource
+          required: true
+          schema:
+            type: string
+        - name: resource-type
+          in: query
+          description: The type of resource. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
+          example: 'project'
+          required: true
+          schema:
+            type: string
+            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global']
+        - name: actions
+          in: query
+          description: The actions for which you are checking if permission is granted. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasBatchAccess'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /get-resources:
     get:
       tags:
@@ -621,12 +672,12 @@ paths:
       parameters:
         - name: resource-types
           in: query
-          description: The type of resource for which you are retrieving a list of accessible resources. Multiple types can be submitted (comma separated). The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'tenant' or 'global' - to check access though base role.
+          description: The type of resource for which you are retrieving a list of accessible resources. Multiple types can be submitted (comma separated). The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'environment' - to check assignment to environment; 'tenant' or 'global' - to check access though base role.
           example: 'project,application'
           required: true
           schema:
             type: string
-            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global']
+            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global', 'environment']
         - name: action
           in: query
           description: The action for which you are checking for accessible resources. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
@@ -640,6 +691,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetResourcesResponse'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+  /get-batch-resources:
+    get:
+      tags:
+        - Access Management
+      summary: Retrieve accessible resources for several actions
+      description: >
+        Multi-action form of /get-resources. Returns, for each requested action, the resources of the given types that are assigned to the current user (as identified by JWT token). Actions granted by the same set of roles are resolved together, so asking for many actions in one request costs substantially less than issuing one request per action. Note the response is not deduplicated: two actions resolving to the same resources each carry their own copy of the list.
+
+      operationId: getBatchResources
+      parameters:
+        - name: resource-type
+          in: query
+          description: The single type of resource for which you are retrieving a list of accessible resources. The 'tenantgroup' - to check tenant level assignment; 'application' - to check assignment to application; 'project' - to check assignment to project; 'environment' - to check assignment to environment; 'tenant' or 'global' - to check access though base role.
+          example: 'project'
+          required: true
+          schema:
+            type: string
+            enum: ['application', 'project', 'tenantgroup', 'tenant', 'global', 'environment']
+        - name: actions
+          in: query
+          description: Comma-separated actions for which you are checking for accessible resources. Blanks and duplicates are ignored. At most 20 distinct actions are allowed per request. You can submit any of the Action Roles listed [here](https://checkmarx.com/resource/documents/en/34965-68603-managing-roles.html#UUID-2f6845c6-e85c-3bee-f52c-207fcdccb12c_id_ManagingRoles-ActionRoles).
+          example: 'view-projects,view-scans,update-project'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBatchResourcesResponse'
         400:
           $ref: '#/components/responses/400'
         500:
@@ -779,6 +866,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseRolesResponse'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         404:
@@ -959,6 +1048,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RoleWithDetails'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         500:
@@ -1007,6 +1098,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RoleWithDetails'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         404:
@@ -1083,6 +1176,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PermissionsResponse'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         500:
@@ -1129,6 +1224,14 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: group-ids
+          in: query
+          description: >-
+            Filter by group IDs, separated with a comma.
+          example: 'b3f1c2a4-1234-4a5b-8c6d-1234567890ab,7a2e91f0-2345-4b6c-9d7e-2345678901bc'
+          required: false
+          schema:
+            type: string
         - name: created-from
           in: query
           description: Filter users by creation date. Use to specify the start date. Date format YYYY-MM-DDTHH:mm:ss
@@ -1158,7 +1261,7 @@ paths:
           schema:
             type: string
             enum: ['asc', 'desc']
-            default: 'asc'
+            default: 'desc'
         - name: limit
           in: query
           description: Max number of records
@@ -1244,7 +1347,7 @@ paths:
           schema:
             type: string
             enum: ['asc', 'desc']
-            default: 'asc'
+            default: 'desc'
         - name: limit
           in: query
           description: "The maximum number of results to return (default: 10)"
@@ -1264,6 +1367,14 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: group-ids
+          in: query
+          description: >-
+            Filter by group IDs, separated with a comma.
+          example: 'b3f1c2a4-1234-4a5b-8c6d-1234567890ab,7a2e91f0-2345-4b6c-9d7e-2345678901bc'
+          required: false
+          schema:
+            type: string
         - name: created-from
           in: query
           description: Filter clients by creation date. Use to specify the start date. Date format YYYY-MM-DDTHH:mm:ss
@@ -1372,7 +1483,7 @@ paths:
           schema:
             type: string
             enum: ['asc', 'desc']
-            default: 'asc'
+            default: 'desc'
         - name: limit
           in: query
           description: Max number of records
@@ -1483,9 +1594,10 @@ paths:
           schema:
             type: integer
             minimum: 0
+            maximum: 500
             default: 20
             example: 20
-          description: The number of items to return
+          description: The number of items to return (default 20, maximum 500)
         - name: name
           in: query
           schema:
@@ -1554,22 +1666,6 @@ paths:
           schema:
             type: string
           description: Project name, can be filtered by partial name. Mutually exclusive to names and name-regex
-        - in: query
-          name: tags-keys
-          schema:
-            type: array
-            items:
-              type: string
-          explode: false
-          description: Project tags, filter by the keys in the tags map (OR operation between the items)
-        - in: query
-          name: tags-values
-          schema:
-            type: array
-            items:
-              type: string
-          explode: false
-          description: Project tags, filter by the values in the tags map (OR operation between the items)
       responses:
         '200':
           description: OK
@@ -1606,7 +1702,7 @@ components:
         resourceType:
           type: string
           description: Type of resource
-          enum: ['application', 'project', 'tenant']
+          enum: ['application', 'project', 'tenant', 'environment']
         entityRoles:
           description: 'Optional for AM phase 1. The roles assigned to the entity for this resource.<br>Note: If no role is assigned, then the default "base" role is applied.'
           type: array
@@ -1658,7 +1754,7 @@ components:
         resourceType:
           type: string
           description: They type of resource
-          enum: ['application', 'project', 'tenant']
+          enum: ['application', 'project', 'tenant', 'environment']
         resourceName:
           type: string
           description: Human-readable name of the resource
@@ -1671,8 +1767,8 @@ components:
           enum: ['group', 'user', 'client']
         resourceType:
           type: string
-          description: The type of resource for which access is being checked. Valid values are 'application', 'project', or 'tenant'.
-          enum: ['application', 'project', 'tenant']
+          description: The type of resource for which access is being checked. Valid values are 'application', 'project', 'environment', or 'tenant'.
+          enum: ['application', 'project', 'tenant', 'environment']
         entityRoles:
           description: 'The roles assigned for these assignments.<br>Note: If no role is assigned, then the default "base" role is applied for each entity.'
           type: array
@@ -1706,6 +1802,14 @@ components:
         accessGranted:
           type: boolean
           description: Access to the resource is granted or not
+    HasBatchAccess:
+      type: object
+      properties:
+        actionAccess:
+          type: array
+          items:
+            type: boolean
+            description: Access to the resource with action is granted or not
     GetResourcesResponse:
       type: object
       properties:
@@ -1723,6 +1827,25 @@ components:
                 type: string
                 description: The type of resource
                 enum: [project, application, tenantgroup, tenant, global]
+    GetBatchResourceItem:
+      type: object
+      properties:
+        all:
+          type: boolean
+          description: All resources of the requested type are available to the user
+        resources:
+          type: array
+          items:
+            type: string
+          description: Resource IDs of the requested resource-type that are accessible for this action
+    GetBatchResourcesResponse:
+      type: object
+      properties:
+        actionResources:
+          type: object
+          description: Keyed by action name; one entry per requested action, including actions the user has no access for.
+          additionalProperties:
+            $ref: '#/components/schemas/GetBatchResourceItem'
     GetUsersWithResourcesResponse:
       type: object
       properties:
@@ -1773,6 +1896,8 @@ components:
                       type: number
                     tenantCount:
                       type: number
+                    environmentsCount:
+                      type: number
     GetClientsWithResourcesResponse:
       type: object
       properties:
@@ -1793,10 +1918,6 @@ components:
                 type: string
               createdAt:
                 type: string
-              groupIds:
-                type: array
-                items:
-                  type: string
               baseRoles:
                 type: array
                 items:
@@ -2224,7 +2345,7 @@ components:
               resourceType:
                 type: string
                 description: The type of resource
-                enum: ['application', 'project', 'tenant']
+                enum: ['application', 'project', 'environment', 'tenant']
               entityID:
                 type: string
                 description: The unique identifier of the entity
@@ -2334,38 +2455,18 @@ components:
         updatedAt:
           type: string
           format: date-time
-        groups:
+        applications:
           type: array
-          description: The groups authorized for this project
+          description: The applications this project belongs to
           items:
-            type: string
-        tags:
-          type: object
-          description: Project tags
-        repoUrl:
-          type: string
-          description: The representative repository URL
-        mainBranch:
-          type: string
-          description: The Git main branch
-        criticality:
-          type: integer
-          minimum: 1
-          maximum: 5
-          default: 3
-          example: 3
-          description: Criticality level of the project
-        privatePackage:
-          type: boolean
-          description: Whether the project is a private package
-        imported_proj_name:
-          type: string
-          description: The name of the imported project
-        applicationIds:
-          type: array
-          description: List of application IDs associated with this project
-          items:
-            type: string
+            type: object
+            properties:
+              id:
+                type: string
+                description: "A unique identifier for an application"
+              name:
+                type: string
+                description: "The application name"
     ProjectsResponse:
       type: object
       properties:

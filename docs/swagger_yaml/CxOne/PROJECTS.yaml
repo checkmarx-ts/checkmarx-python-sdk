@@ -315,6 +315,16 @@ paths:
             type: string
           description: "Containers engine status, please look at the scans API description for status options"
         - in: query
+          name: aisc-status
+          schema:
+            type: string
+          description: "AI Supply Chain engine status, please look at the scans API description for status options"
+        - in: query
+          name: cisec-status
+          schema:
+            type: string
+          description: "CISec engine status, please look at the scans API description for status options"
+        - in: query
           name: use-main-branch
           description: |
             A boolean flag to determine if the response should prioritize scans from the main branch.
@@ -577,6 +587,15 @@ paths:
               type: string
           explode: false
           description: "Schedule frequencies. filter by the frequencies given. Searching exact match with an OR operation between them."
+        - in: query
+          name: project_type
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [manual, scm]
+          explode: false
+          description: "Filter schedules by project type. Values are lowercase: manual (repository URL configured manually) or scm (SCM-imported project). Exact match with an OR operation between values."
         - in: query
           name: from-creation-date
           schema:
@@ -1103,6 +1122,10 @@ components:
             project_name:
               type: string
               description: "The name of the project"
+            project_type:
+              type: string
+              enum: [manual, scm]
+              description: "Project type derived from project SCM metadata. manual when the project is not SCM-imported; scm when ScmRepoId is set."
     createScheduledScanRequest:
       required: [start_time, frequency, engines, branch]
       properties:
@@ -1206,6 +1229,7 @@ components:
               "priority": "high"
             trigger_time: "2021-01-01T14:00:00Z"
             project_name: "MyProject"
+            project_type: "manual"
         totalCount: 1
         totalFilteredCount: 1
     updateScheduledScanRequest:
@@ -1278,6 +1302,7 @@ components:
       minItems: 1
     engines:
       type: array
+      uniqueItems: true
       items:
         type: string
         enum:
