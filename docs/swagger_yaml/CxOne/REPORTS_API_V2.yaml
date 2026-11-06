@@ -1,0 +1,482 @@
+openapi: 3.0.2
+info:
+  title: Reports API
+  version: 2.0.0
+  description: Asynchronous report generation. Status and download use the v1 routes.
+paths:
+  /v2:
+    post:
+      tags:
+        - Reports
+      summary: Create a new report (v2)
+      description: Queues a report. Mandatory fields depend on `reportName`.
+      operationId: createReportV2
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReportV2Request'
+      responses:
+        '202':
+          description: Report accepted for generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportCreateOutput'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+  /{reportId}:
+    get:
+      tags:
+        - Reports
+      summary: Get report status
+      description: Shared with v1.
+      operationId: getReportStatusV2
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: returnUrl
+          in: query
+          required: false
+          description: Return the download URL and file name. Enabled by default.
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Report status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportStatusOutput'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+  /{reportId}/download:
+    get:
+      tags:
+        - Reports
+      summary: Download a report artifact
+      description: Shared with v1. Redirects to the presigned URL.
+      operationId: downloadReportV2
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '301':
+          description: Redirect to the presigned download URL
+          headers:
+            Location:
+              description: Presigned URL of the artifact
+              schema:
+                type: string
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          description: Report not found, or not yet completed
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    ScannerId:
+      type: string
+      description: Scanner id. Available values depend on feature flags.
+      enum: [sast, iac, kics, sca, containers, microengines, apisec, dast, secretdetection, repohealth, byor]
+    FileFormatId:
+      type: string
+      enum: [pdf, json, csv, xml, markdown]
+    ReportNameV2:
+      type: string
+      description: The type of report being generated.
+      enum:
+        - improved-scan-report
+        - improved-project-report
+        - drill-down-report
+        - fixed-drill-down-report
+        - entities-report
+        - application-sbom-spdx-report
+        - application-sbom-cyclonedx-report
+        - scan-aibom-cyclonedx-report
+        - global-inventory-aibom-cyclonedx-report
+        - apisec-global-inventory-report
+        - sast-similar-results-report
+        - sast-compare-scan-report
+        - cgws-consumption
+        - cgws-consumption-activity
+        - byor-csv-report
+    CreateReportV2Request:
+      type: object
+      properties:
+        reportName:
+          $ref: '#/components/schemas/ReportNameV2'
+        fileFormat:
+          $ref: '#/components/schemas/FileFormatId'
+        reportFilename:
+          type: string
+          description: File name, without extension.
+        sections:
+          type: array
+          description: Ids depend on `reportName`. Not used for `csv`.
+          items:
+            type: string
+        entities:
+          type: array
+          description: Accepted types depend on `reportName`.
+          items:
+            $ref: '#/components/schemas/ReportEntity'
+        filters:
+          $ref: '#/components/schemas/ReportFilters'
+        reportType:
+          type: string
+          enum: [cli, email, ui]
+        emails:
+          type: array
+          description: Mandatory when `reportType` is `email`, rejected otherwise.
+          items:
+            type: string
+            format: email
+        timezone:
+          type: string
+          description: IANA timezone, e.g. `Europe/Lisbon`.
+        sort:
+          type: array
+          description: Only for the reports that support it.
+          items:
+            $ref: '#/components/schemas/SortRequest'
+      required:
+        - reportName
+        - reportType
+        - fileFormat
+        - reportFilename
+        - entities
+    SortRequest:
+      type: object
+      properties:
+        field:
+          type: string
+          description: "For `drill-down-report`, one of `severity`, `state`, `status`, `queryName`, `firstFoundAt`, `engine`. For `apisec-global-inventory-report`, an inventory column name."
+        order:
+          type: string
+          enum: [asc, desc]
+    ReportEntity:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum: [scan, base-scan, project, application, tenant, result]
+        ids:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - entity
+    ReportFilters:
+      type: object
+      description: Only the subset that applies to `reportName` is used.
+      properties:
+        scanners:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScannerId'
+        severities:
+          type: array
+          items:
+            type: string
+            enum: [critical, high, medium, low, information]
+        states:
+          type: array
+          description: Built-in states, plus custom states when enabled.
+          items:
+            type: string
+        status:
+          type: array
+          items:
+            type: string
+            enum: [new, recurrent]
+        branches:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+        queryNames:
+          type: array
+          items:
+            type: string
+        queryIds:
+          type: array
+          items:
+            type: string
+        aging:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagsFilter'
+        timeframe:
+          $ref: '#/components/schemas/Timeframe'
+        startDate:
+          type: string
+        endDate:
+          type: string
+        definedRange:
+          type: string
+          description: Used instead of `startDate`/`endDate`.
+        resultsLimit:
+          type: integer
+        offset:
+          type: integer
+        SLADays:
+          $ref: '#/components/schemas/SLADays'
+        hidePrivatePackages:
+          type: boolean
+        includeVEX:
+          type: boolean
+        includeAdditionalColumns:
+          type: boolean
+        evaluationStatus:
+          type: boolean
+        filteringQuery:
+          type: string
+        searching:
+          type: string
+        viewBy:
+          type: string
+          description: CGWS only.
+        period:
+          type: string
+          description: CGWS only.
+        sort_by:
+          type: string
+          description: CGWS only.
+        sort_order:
+          type: string
+          description: CGWS only.
+        filter_action:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_user:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_user_email:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_scanner:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_risk:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_project:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_application:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_environment:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_credits_used:
+          type: array
+          description: CGWS activity only.
+          items:
+            type: string
+        filter_scan:
+          type: array
+          description: CGWS activity only. Partial match on scan ID.
+          items:
+            type: string
+        aiscSearch:
+          type: string
+          description: Search across asset names, providers, and file paths.
+        aiscAssetTypeIds:
+          type: array
+          description: Filter by asset type UUIDs.
+          items:
+            type: string
+            format: uuid
+        aiscAssetNames:
+          type: array
+          description: Filter by asset name.
+          items:
+            type: string
+        aiscProviders:
+          type: array
+          description: Filter by provider name.
+          items:
+            type: string
+        aiscPath:
+          type: string
+          description: Filter by file path substring.
+        aiscProjectIds:
+          type: array
+          description: Filter by project UUIDs.
+          items:
+            type: string
+            format: uuid
+        aiscApplicationIds:
+          type: array
+          description: Filter by application UUIDs.
+          items:
+            type: string
+            format: uuid
+    TagsFilter:
+      type: object
+      properties:
+        scanTag:
+          type: boolean
+        projectTag:
+          type: boolean
+        applicationTag:
+          type: boolean
+        value:
+          type: string
+    Timeframe:
+      type: object
+      properties:
+        fromDate:
+          type: string
+        toDate:
+          type: string
+    SLADays:
+      type: object
+      properties:
+        SlaCritical:
+          type: integer
+        SlaHigh:
+          type: integer
+        SlaMedium:
+          type: integer
+        SlaLow:
+          type: integer
+    reportCreateOutput:
+      type: object
+      properties:
+        reportId:
+          type: string
+          format: uuid
+    reportStatusOutput:
+      type: object
+      properties:
+        reportId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [requested, started, completed, failed, partial]
+        url:
+          type: string
+          description: Only when `returnUrl=true`.
+        filename:
+          type: string
+          description: Only when `returnUrl=true`.
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          enum: [ERROR]
+        code:
+          type: integer
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '404':
+      description: "Not Found, or the report is not enabled for the tenant"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '405':
+      description: "Method Not Allowed, the feature is not enabled for the tenant"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '500':
+      description: "Internal Server Error"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/reports
+security:
+  - Login: []
