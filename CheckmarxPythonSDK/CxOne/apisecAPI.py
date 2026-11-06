@@ -599,6 +599,13 @@ class ApiSecAPI(object):
         response -- the union of what get_api_security_risks_by_scan_id
         and get_risk_detail_by_risk_id return, in one call.
 
+        Confirmed live: this undocumented endpoint returned a 500
+        Internal Server Error, consistently (reproduced twice), for a
+        valid scan_id/risk_id pair that get_api_security_risks_by_scan_id
+        itself returned successfully. Left as-is since there's no
+        documented contract to diagnose against; callers should be
+        prepared for this endpoint to be unreliable.
+
         Args:
             scan_id (str): Scan UUID
             risk_id (str): Risk UUID
