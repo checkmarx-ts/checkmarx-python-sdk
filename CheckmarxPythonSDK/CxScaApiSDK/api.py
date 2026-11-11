@@ -18,7 +18,8 @@ class Sca(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
-        self.base_url = api_client.configuration.server_base_url.rstrip("/")
+        url_prefix = (getattr(api_client, "url_prefix", "") or "").rstrip("/")
+        self.base_url = api_client.configuration.server_base_url.rstrip("/") + url_prefix
         self.gql_url = f"{self.base_url}/graphql/graphql"
 
     def get_all_projects(self, project_name: str = None) -> Union[dict, List[dict]]:
