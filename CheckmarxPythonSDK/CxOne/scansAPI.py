@@ -423,27 +423,47 @@ class ScansAPI(object):
         response = self.api_client.call_api(method="PUT", url=url, json=body)
         return response.json()
 
-    def sca_recalculate(self, project_id: str, branch: str) -> Response:
-        """
+    def sca_recalculate(
+        self, project_id: str, branch: str, config: List[dict] = None
+    ) -> Scan:
+        """POST /scans/recalculate — run scan recalculation, re-assessing
+        a project branch's most recent scan results against current data
+        (new vulnerabilities, policies, risk state changes, etc.)
+        without resubmitting the source code. Currently supported only
+        for the SCA scanner.
+
+        Confirmed live: returns 201 with a full Scan-shaped body (same
+        schema as create_scan's response); the Location response header
+        just duplicates the returned scan's id. Previously this method
+        silently hardcoded `config: [{"type": "sca", "value":
+        {"enableContainersScan": True}}]`, which isn't part of the
+        documented request body at all -- changed to an optional,
+        caller-controlled param (undocumented, so left as a raw dict
+        passthrough) that defaults to not being sent.
+
         Args:
-            project_id (str):
-            branch (str):
+            project_id (str): The project to recalculate. Required.
+            branch (str): The branch whose most recent scan results
+                will be used. Required.
+            config (List[dict], optional): Undocumented scanner config
+                overrides (e.g. the enableContainersScan flag above).
+                Omitted by default.
 
         Returns:
-            Response
+            Scan: the newly created recalculation scan.
         """
         url = f"{self.base_url}/recalculate"
         data = {
             "project_id": project_id,
             "branch": branch,
             "engines": ["sca"],
-            "config": [
-                {"type": "sca", "value": {"enableContainersScan": True}}
-            ],
         }
-        return self.api_client.call_api(
+        if config is not None:
+            data["config"] = config
+        response = self.api_client.call_api(
             method="POST", url=url, json=data
         )
+        return Scan.from_dict(response.json())
 
     def scan_by_repo_url(
         self,
@@ -657,9 +677,11 @@ def get_a_detailed_workflow_of_a_scan(scan_id: str) -> List[TaskInfo]:
     return ScansAPI().get_a_detailed_workflow_of_a_scan(scan_id=scan_id)
 
 
-def sca_recalculate(project_id: str, branch: str) -> Response:
+def sca_recalculate(
+    project_id: str, branch: str, config: List[dict] = None
+) -> Scan:
     return ScansAPI().sca_recalculate(
-        project_id=project_id, branch=branch
+        project_id=project_id, branch=branch, config=config,
     )
 
 

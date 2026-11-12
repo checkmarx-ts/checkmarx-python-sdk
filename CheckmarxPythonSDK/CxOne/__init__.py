@@ -669,6 +669,7 @@ from .scansAPI import (
     update_scan_tags,
     rescan,
     set_scan_recalculation_flag,
+    sca_recalculate,
     get_scans_by_filters,
 )
 
