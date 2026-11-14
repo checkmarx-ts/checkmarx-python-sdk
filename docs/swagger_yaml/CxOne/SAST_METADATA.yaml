@@ -12,12 +12,21 @@ paths:
         - name: scan-ids
           in: query
           required: true
+          explode: false
           schema:
             type: array
             maxItems: 50
             items:
               type: string
               format: uuid
+        - name: configuration-change-data
+          in: query
+          required: false
+          description: >
+            When `true`, each returned scan includes the `hasConfigurationChanged` field comparing it to its previous completed scan. Omitted otherwise.
+
+          schema:
+            type: boolean
       responses:
         '200':
           description: ""
@@ -29,6 +38,37 @@ paths:
           $ref: '#/components/responses/400'
         '404':
           $ref: '#/components/responses/404'
+  "/previous-scans":
+    get:
+      summary: Get previous completed scans for a list of scan IDs
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scan-ids
+          in: query
+          required: true
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+              format: uuid
+      responses:
+        '200':
+          description: "Previous scan info per requested scan ID. Each entry is either a success entry or a per-scan error entry."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/previousScansCollection'
+        '400':
+          $ref: '#/components/responses/400'
   "/{scan-id}":
     get:
       parameters:
@@ -41,6 +81,14 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: configuration-change-data
+          in: query
+          required: false
+          description: >
+            When `true`, the response includes the `hasConfigurationChanged` field comparing this scan to its previous completed scan. Omitted otherwise.
+
+          schema:
+            type: boolean
       responses:
         '200':
           description: ""
@@ -149,8 +197,12 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
     get:
       parameters:
         - $ref: '#/components/parameters/authHeader'
@@ -167,6 +219,8 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
   "/{project-id}/file-exclusion-config":
@@ -199,8 +253,12 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
     get:
       parameters:
         - $ref: '#/components/parameters/authHeader'
@@ -223,6 +281,30 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    delete:
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - name: project-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: "The project file exclusion config override has been removed; the project now inherits the tenant config"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
   "/delete-persisted-dom":
@@ -322,6 +404,11 @@ components:
           format: float
         queryPreset:
           type: string
+        hasConfigurationChanged:
+          type: boolean
+          description: >
+            Indicates whether the scan configuration changed compared to the previous scan. True if any of the following changed: the query preset, the fast-scan configuration became more restrictive, or the light-queries configuration became more restrictive. Present only when the request was made with `configuration-change-data=true`.
+
     scanInfoCollection:
       type: object
       properties:
@@ -391,6 +478,42 @@ components:
           type: string
         engineVersion:
           type: string
+    previousScansCollection:
+      type: object
+      properties:
+        scans:
+          type: array
+          description: One entry per requested scan ID. Each entry is either a success entry or a per-scan error entry.
+          items:
+            oneOf:
+              - description: Success entry
+                type: object
+                required: [scanId]
+                properties:
+                  scanId:
+                    type: string
+                    format: uuid
+                  scanCreatedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  previousScanId:
+                    type: string
+                    format: uuid
+                    nullable: true
+                  previousScanCreatedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+              - description: Error entry (scan not found or not belonging to project/tenant)
+                type: object
+                required: [scanId, error]
+                properties:
+                  scanId:
+                    type: string
+                    format: uuid
+                  error:
+                    type: string
     fileExclusionConfig:
       type: object
       properties:
@@ -450,8 +573,20 @@ components:
             $ref: '#/components/schemas/error'
     '401':
       description: Access token is missing or invalid
+    '403':
+      description: Recommended exclusion settings feature is disabled (error code 1115)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
     '404':
       description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '422':
+      description: Inconsistent file exclusion config, e.g. a rule enabled with all its subitems disabled (error code 1107)
       content:
         application/json:
           schema:

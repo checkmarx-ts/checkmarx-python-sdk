@@ -1,0 +1,336 @@
+openapi: 3.0.3
+info:
+  title: Analytics - DevAssist
+  version: v1.0.0
+paths:
+  /analyticsAPI/v1/devAssist:
+    post:
+      tags:
+        - analytics-api-controller
+      summary: Query devAssist kpi
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+      operationId: queryDevAssist
+      requestBody:
+        content:
+          application/json; version=1.0:
+            schema:
+              $ref: '#/components/schemas/DevAssistKpiQuery'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AiSuggestionsResponse"
+                  - $ref: "#/components/schemas/AiSuggestionsOvertimeResponse"
+                  - $ref: "#/components/schemas/FixClickedResponse"
+                  - $ref: "#/components/schemas/FixClickedOvertimeResponse"
+                  - $ref: "#/components/schemas/UniqueDevelopersResponse"
+                  - $ref: "#/components/schemas/AssistUsageByScannerResponse"
+                  - $ref: "#/components/schemas/AssistUsageByScannerOvertimeResponse"
+                  - $ref: "#/components/schemas/RealTimeDetectionByScannerResponse"
+                  - $ref: "#/components/schemas/RealTimeDetectionByScannerOvertimeResponse"
+                discriminator:
+                  propertyName: kpi
+                  mapping:
+                    aiSuggestions: "#/components/schemas/AiSuggestionsResponse"
+                    aiSuggestionsOvertime: "#/components/schemas/AiSuggestionsOvertimeResponse"
+                    fixClicked: "#/components/schemas/FixClickedResponse"
+                    fixClickedOvertime: "#/components/schemas/FixClickedOvertimeResponse"
+                    uniqueDevelopers: "#/components/schemas/UniqueDevelopersResponse"
+                    assistUsageByScanner: "#/components/schemas/AssistUsageByScannerResponse"
+                    assistUsageByScannerOvertime: "#/components/schemas/AssistUsageByScannerOvertimeResponse"
+                    realTimeDetectionByScanner: "#/components/schemas/RealTimeDetectionByScannerResponse"
+                    realTimeDetectionByScannerOvertime: "#/components/schemas/RealTimeDetectionByScannerOvertimeResponse"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+components:
+  schemas:
+    # ==============================================================
+    # Schemas shared with /analyticsAPI/v1 (see ast-analyticsAPI.yaml)
+    # ==============================================================
+    KpiQueryBase:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: "A valid timezone identifier. This will convert the input and output dates to the selected timezone"
+        startDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
+          format: date-time
+          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
+        endDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
+          format: date-time
+          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
+    SeverityType:
+      type: string
+      description: "Severity code accepted in request filters"
+      enum:
+        - critical
+        - high
+        - medium
+        - low
+        - information
+    SeverityLabelType:
+      type: string
+      description: "Severity display label returned in responses"
+      enum:
+        - Critical
+        - High
+        - Medium
+        - Low
+        - Information
+    # ==============================================================
+    # /analyticsAPI/v1/devAssist schemas
+    # ==============================================================
+    DevAssistKpiQuery:
+      allOf:
+        - $ref: "#/components/schemas/KpiQueryBase"
+        - type: object
+          required: [kpi]
+          properties:
+            severities:
+              type: array
+              items:
+                $ref: "#/components/schemas/SeverityType"
+            scanners:
+              type: array
+              items:
+                $ref: "#/components/schemas/DevAssistScannerType"
+            kpi:
+              $ref: "#/components/schemas/DevAssistKpiType"
+      example:
+        scanners: ["asca"]
+        severities: ["critical"]
+        timezone: "GMT"
+        startDate: "2025-01-01T09:30:00"
+        endDate: "2025-02-14T14:30:00"
+        kpi: aiSuggestionsOvertime
+    DevAssistScannerType:
+      type: string
+      description: "Scanner code accepted in devAssist request filters"
+      enum:
+        - iac
+        - containers
+        - secretdetection
+        - asca
+        - oss
+    DevAssistScannerLabelType:
+      type: string
+      description: "Scanner display label returned in devAssist responses"
+      enum:
+        - IaC Security
+        - Container Security
+        - Secret Detection
+        - ASCA
+        - Open Source Security
+    DevAssistKpiType:
+      type: string
+      enum:
+        - aiSuggestions
+        - aiSuggestionsOvertime
+        - fixClicked
+        - fixClickedOvertime
+        - uniqueDevelopers
+        - assistUsageByScanner
+        - assistUsageByScannerOvertime
+        - realTimeDetectionByScanner
+        - realTimeDetectionByScannerOvertime
+    AiSuggestionsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+    AiSuggestionsOvertimeResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                description: "date-time in format yyyy-MM-dd HH:mm:ss"
+              time:
+                type: integer
+                format: int64
+              suggestions:
+                type: number
+                format: double
+                description: "Sum across all scanners for this date"
+    FixClickedResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+    FixClickedOvertimeResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                description: "date-time in format yyyy-MM-dd HH:mm:ss"
+              time:
+                type: integer
+                format: int64
+              fixesClicked:
+                type: number
+                format: double
+                description: "Sum across all scanners for this date"
+    UniqueDevelopersResponse:
+      type: object
+      properties:
+        uniqueDevelopers:
+          type: integer
+          format: int64
+    AssistUsageByScannerResponse:
+      type: object
+      properties:
+        usageByScanner:
+          type: array
+          items:
+            type: object
+            properties:
+              scanner:
+                $ref: "#/components/schemas/DevAssistScannerLabelType"
+              usageCount:
+                type: integer
+                format: int64
+              percentage:
+                type: number
+                format: double
+    AssistUsageByScannerOvertimeResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                description: "date-time in format yyyy-MM-dd HH:mm:ss"
+              time:
+                type: integer
+                format: int64
+              total:
+                type: number
+                format: double
+              byScanner:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    scanner:
+                      $ref: "#/components/schemas/DevAssistScannerLabelType"
+                    usage:
+                      type: number
+                      format: double
+                    percentage:
+                      type: number
+                      format: double
+    RealTimeDetectionByScannerResponse:
+      type: object
+      properties:
+        detectionsByScanner:
+          type: array
+          items:
+            type: object
+            properties:
+              scanner:
+                $ref: "#/components/schemas/DevAssistScannerLabelType"
+              total:
+                type: integer
+                format: int64
+              bySeverity:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityLabelType"
+                    value:
+                      type: number
+                      format: double
+                    percentage:
+                      type: number
+                      format: double
+    RealTimeDetectionByScannerOvertimeResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                description: "date-time in format yyyy-MM-dd HH:mm:ss"
+              time:
+                type: integer
+                format: int64
+              total:
+                type: number
+                format: double
+              byScanner:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    scanner:
+                      $ref: "#/components/schemas/DevAssistScannerLabelType"
+                    detections:
+                      type: number
+                      format: double
+                    percentage:
+                      type: number
+                      format: double
+                    bySeverity:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          severity:
+                            $ref: "#/components/schemas/SeverityLabelType"
+                          value:
+                            type: number
+                            format: double
+                          percentage:
+                            type: number
+                            format: double
+  parameters:
+    authHeader:
+      in: header
+      name: Authorization
+      description: "REQUIRED: JWT authorization token"
+      schema:
+        type: string
+        format: JWT
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/data_analytics
+security:
+  - Login: []

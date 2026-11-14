@@ -219,7 +219,14 @@ paths:
             default: 25
             example: 100
           description: "The maximum number of processes to return"
-      summary: Get the list of locked scans
+        - in: query
+          name: projectId
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: "When provided, restricts results to locked scans belonging to this project."
+      summary: Get the list of locked scans, optionally filtered by project
       responses:
         "200":
           description: Success
@@ -343,6 +350,9 @@ components:
               scanId:
                 type: string
                 example: "12345"
+              projectId:
+                type: string
+                format: uuid
               lockedDate:
                 type: string
                 format: date-time
@@ -370,6 +380,10 @@ components:
         scanID:
           type: string
           example: "0f984c06-fe68-4541-98eb-062396765fd4"
+        projectId:
+          type: string
+          format: uuid
+          description: "The project the scan belongs to, when known"
         reason:
           type: string
     UnlockScansResponse:

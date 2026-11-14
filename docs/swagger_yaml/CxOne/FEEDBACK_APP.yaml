@@ -1,0 +1,231 @@
+openapi: 3.0.2
+info:
+  description: "Public REST API for the Integrations Feedback App Service. Manages feedback apps (external issue-tracker integrations) and feedback profiles (mappings of feedback apps to AST projects)."
+  version: 1.0.0
+  title: "Integrations Feedback App Service"
+paths:
+  /api/feedback-app/v2/profiles:
+    get:
+      tags:
+        - FeedbackProfile
+      summary: "Get all feedback profiles with Pagination"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - name: limit
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: profileName
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackProfilePaginationDto'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  /api/feedback-app/v2/apps:
+    get:
+      tags:
+        - FeedbackApp
+      summary: "Get all feedback apps with pagination"
+      description: "Supports additional filter fields via FeedbackAppFilter (query-bound model attribute) plus an optional trigger-condition query param."
+      security:
+        - bearer-key: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - name: limit
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: trigger-condition
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TriggerConditionEnum'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackAppPaginationDto'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+components:
+  parameters:
+    authHeader:
+      name: Authorization
+      in: header
+      required: true
+      description: "Bearer JWT access token"
+      schema:
+        type: string
+  responses:
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+  schemas:
+    # --- Local DTOs (source read directly from this repo) ---
+    AutocompleteSuggestion:
+      type: object
+      properties:
+        value:
+          type: string
+        text:
+          type: string
+    AutocompleteResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutocompleteSuggestion'
+    AstProjectWithProfile:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        profileName:
+          type: string
+    AstProjectsWithProfilesPaginationDto:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/AstProjectWithProfile'
+        totalCount:
+          type: integer
+        hasMore:
+          type: boolean
+    # --- External DTOs: defined in the com.checkmarx.integrations.common / com.checkmarx.ast
+    # jar dependencies, not present in this repository's source tree. Their Maven artifacts
+    # were unavailable in the local ~/.m2 cache at spec-authoring time, so these schemas are
+    # BEST-EFFORT stubs (generic object) inferred only from usage in the controllers
+    # (getters/setters/builder fields referenced). They should be reviewed/refined by a human
+    # with access to the common-dtos source or jar.
+    FeedbackProfileDto:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Represents a feedback profile; observed usage includes an 'id' (long) getter."
+      properties:
+        id:
+          type: integer
+          format: int64
+      additionalProperties: true
+    FeedbackProfileBaseDto:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Base/create-update payload for a feedback profile, may include mapped AST project ids."
+      additionalProperties: true
+    FeedbackProfilePaginationDto:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Observed usage includes 'profiles' (list) and 'totalCount' getters."
+      properties:
+        profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackProfileDto'
+        totalCount:
+          type: integer
+      additionalProperties: true
+    FeedbackAppDto:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Full feedback app payload; observed usage includes 'id' (long), 'name', 'type', 'filters' getters/setters."
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        type:
+          type: string
+        filters:
+          type: object
+      additionalProperties: true
+    FeedbackAppBaseDto:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Summary/list representation of a feedback app."
+      additionalProperties: true
+    FeedbackAppPaginationDto:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Observed usage includes 'apps' (list) and 'filteredTotalCount' getters."
+      properties:
+        apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackAppBaseDto'
+        filteredTotalCount:
+          type: integer
+      additionalProperties: true
+    FeedbackAppFilter:
+      type: object
+      description: "BEST-EFFORT (external DTO, source not available). Query-bound filter model for GET /v2/apps; built via a builder with at least a 'name' field and a settable 'triggerCondition'."
+      properties:
+        name:
+          type: string
+        triggerCondition:
+          $ref: '#/components/schemas/TriggerConditionEnum'
+      additionalProperties: true
+    TriggerConditionEnum:
+      type: string
+      description: "BEST-EFFORT (external enum, source not available). Exact enum values could not be determined."
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/feedback-app
+security:
+  - Login: []

@@ -587,6 +587,52 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+  /tagsByFilters:
+    get:
+      tags:
+        - Scans
+      summary: "Get scan tags with filtering and pagination"
+      description: "Get scan tags with advanced filtering capabilities, and pagination support. Returns a paginated response with links and metadata."
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/versionHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            default: 20
+            example: 20
+          description: The number of items to return
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search text, filtered by partial match on tag key OR tag value.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: '#/components/schemas/scanTagsFilterResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          description: Internal server error
   /fieldValues:
     get:
       tags:
@@ -1011,7 +1057,7 @@ components:
               type:
                 type: string
                 description: "The type of scanners run on the scan."
-                enum: [sca, sast, kics, microengines, containers, system, aisc]
+                enum: [sca, sast, kics, microengines, containers, system, aisc, cisec]
                 example: sast
               value:
                 type: object
@@ -1165,6 +1211,20 @@ components:
           description: "An array containing the scan results returned, based on the applied filters."
           items:
             $ref: '#/components/schemas/scansBrief'
+    scanTagsFilterResponse:
+      type: object
+      description: "A bounded, searchable, paginated set of distinct scan tags, based on the applied filters."
+      properties:
+        items:
+          type: object
+          example:
+            "test": [""]
+            "priority": ["high", "low"]
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: "Scan custom tags"
     git:
       properties:
         branch:
@@ -1219,7 +1279,7 @@ components:
           name:
             type: string
             description: "Name of the area status relates to"
-            enum: ["general", "sast", "sca", "kics", "apisec"]
+            enum: ["general", "sast", "sca", "kics", "apisec", "microengines", "containers", "aisc", "cisec"]
           status:
             type: string
             enum: ["Completed", "Failed", "Canceled"]

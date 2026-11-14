@@ -1,0 +1,1380 @@
+openapi: 3.0.2
+info:
+  description: "Public REST API of the Checkmarx Integrations Repos Manager service. This service is the integration layer between Checkmarx AST (CxOne) and external SCMs (GitHub, GitHub App, GitLab, Bitbucket, Azure DevOps, Harness), handling SCM configuration, organization/repository discovery, import/re-import of repos as CxOne projects, webhook lifecycle, protected branches, and access-token management. Endpoints under an 'internal' path segment (used by other Checkmarx services, e.g. Flow-Listener or the Azure monitor job) are intentionally excluded from this spec."
+  version: 1.0.0
+  title: "Integrations Repos Manager Service"
+tags:
+  - name: Installations
+  - name: Scm
+  - name: Tokens
+  - name: Orgs
+  - name: AsyncJob
+  - name: Import
+  - name: Repos
+  - name: Tenant
+  - name: ProjectConversion
+  - name: Projects
+  - name: ProtectedBranches
+paths:
+  /api/repos-manager/v2/scms:
+    get:
+      tags: [Scm]
+      summary: "Get default SCMs (available to all the tenants) and all SCMs linked to the current tenant"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: fields
+          in: query
+          required: false
+          description: "Comma-separated list of fields to include in the returned resource. Currently supported field: 'repoCount' which returns the count of associated projects."
+          schema: {type: string, enum: [repoCount]}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScmConfigDto'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+  /api/repos-manager/scms/{scmId}/projects:
+    get:
+      tags: [Scm]
+      summary: "Returns SCM projects by ID."
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: scmId
+          in: path
+          required: true
+          schema: {type: integer, format: int64}
+        - name: offset
+          in: query
+          required: true
+          schema: {type: integer, minimum: 0}
+        - name: limit
+          in: query
+          required: true
+          schema: {type: integer, minimum: 1, maximum: 100}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScmProjectsResponse'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+  /api/repos-manager/scm-projects:
+    post:
+      tags: [Import]
+      summary: "Public API for asynchronous import"
+      description: "Starts a background job that imports selected repos from a given SCM organization. Returns a process ID to follow the import progress."
+      security:
+        - bearer-key: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicImportRequest'
+      responses:
+        '202':
+          description: Import was started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicImportResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicImportResponse'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+  /api/repos-manager/scm-projects/import-status:
+    get:
+      tags: [Import]
+      summary: "Public API to get import job status"
+      description: "Deprecated — superseded by the v2 endpoint."
+      deprecated: true
+      security:
+        - bearer-key: []
+      parameters:
+        - name: process-id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicImportStatusResponseV1'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+  /api/repos-manager/project-conversion:
+    post:
+      tags: [ProjectConversion]
+      summary: "API to convert CxOne non-imported projects into imported projects"
+      description: ""
+      security:
+        - bearer-key: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectsConversionWebDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsConversionResultWebDto'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+  /api/repos-manager/v2/project-conversion:
+    get:
+      tags: [ProjectConversion]
+      summary: "v2: return a conversion status by process-id — includes per-repo overridden settings"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: processId
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessDetails'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+  /api/repos-manager/protected-branches:
+    get:
+      tags: [ProtectedBranches]
+      summary: "Get protected branches for project"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: cxProjectName
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchDto'
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+    post:
+      tags: [ProtectedBranches]
+      summary: "Add protected branches for project"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: cxProjectName
+          in: query
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 100
+              items:
+                $ref: '#/components/schemas/BranchDto'
+              description: "Non-empty list of at most 100 branches, each with a unique pattern."
+      responses:
+        '200': {description: OK}
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+    put:
+      tags: [ProtectedBranches]
+      summary: "Update protected branches for project"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: cxProjectName
+          in: query
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 100
+              items:
+                $ref: '#/components/schemas/BranchDto'
+              description: "Non-empty list of at most 100 branches, each with a unique pattern."
+      responses:
+        '200': {description: OK}
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+    delete:
+      tags: [ProtectedBranches]
+      summary: "Delete protected branches for project"
+      description: ""
+      security:
+        - bearer-key: []
+      parameters:
+        - name: cxProjectName
+          in: query
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 100
+              items: {type: string}
+              description: "Non-empty list of at most 100 branch patterns to delete."
+      responses:
+        '200': {description: OK}
+        '401': {$ref: '#/components/responses/401'}
+        '403': {$ref: '#/components/responses/403'}
+        '404': {$ref: '#/components/responses/404'}
+components:
+  responses:
+    404:
+      description: Not Found
+    401:
+      description: Unauthorized
+    403:
+      description: Forbidden
+  schemas:
+    InstallationResponse:
+      type: object
+      description: "Response DTO for creating a GitHub App installation."
+      properties:
+        installationId:
+          type: integer
+          format: int64
+          description: "The installation ID (internal database ID)."
+        tokenId:
+          type: integer
+          format: int64
+          description: "The token ID stored in the database. Can be used to retrieve and use the actual token."
+    ScmConfigDto:
+      type: object
+      description: "Configuration info of an SCM (external type ScmConfigDto, from cx-integrations-common). Fields inferred from usage."
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          type: string
+        typeId:
+          type: integer
+          format: int64
+        instanceName:
+          type: string
+        repoBaseUrl:
+          type: string
+        onPrem:
+          type: boolean
+        repoCount:
+          type: integer
+          format: int64
+    CreateScmDto:
+      type: object
+      description: "External type CreateScmDto (from cx-integrations-common). Fields inferred from usage."
+      properties:
+        type:
+          type: integer
+          format: int64
+          description: "SCM type id."
+        instanceName:
+          type: string
+        repoBaseUrl:
+          type: string
+        apiBaseUrl:
+          type: string
+        onPrem:
+          type: boolean
+    ScmTypeDto:
+      type: object
+      description: "External type ScmTypeDto (from cx-integrations-common). Represents an SCM type together with OAuth-flow metadata."
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        onPrem:
+          type: boolean
+        oauthUrl:
+          type: string
+    CountByScmTypeResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+        countsByScmType:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+    ScmProjectsResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items: {type: string}
+        hasMore:
+          type: boolean
+    UpdateScmBasicSettingsRequest:
+      type: object
+      required: [instanceName]
+      properties:
+        instanceName:
+          type: string
+          minLength: 1
+          maxLength: 255
+    UpdateOauthScmRequest:
+      type: object
+      required: [authCode, repoBaseUrl, instanceName, clientId]
+      properties:
+        authCode:
+          type: string
+        repoBaseUrl:
+          type: string
+        instanceName:
+          type: string
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+          description: "If not provided, the client secret loaded from the DB is used."
+    UpdatePatBasedScmRequest:
+      type: object
+      required: [repoBaseUrl, instanceName]
+      properties:
+        repoBaseUrl:
+          type: string
+        instanceName:
+          type: string
+        pat:
+          type: string
+          description: "If not provided, the PAT is loaded from the DB."
+    UpdatePatBasedScmResponse:
+      type: object
+      properties:
+        authCode:
+          type: string
+        tokenId:
+          type: integer
+          format: int64
+          description: "Returned instead of authCode for SCMs whose tokens have no authCode (e.g. Harness)."
+    UpdateGithubAppScmRequest:
+      type: object
+      required: [repoBaseUrl, instanceName]
+      properties:
+        repoBaseUrl:
+          type: string
+        instanceName:
+          type: string
+        privateKey:
+          type: string
+          description: "If not provided, loaded from the DB."
+        webhookSecret:
+          type: string
+          description: "If not provided, loaded from the DB."
+    CreateOauthScmRequest:
+      type: object
+      required: [typeId, authCode, repoBaseUrl, instanceName, clientId, clientSecret]
+      properties:
+        typeId:
+          type: integer
+          format: int64
+        authCode:
+          type: string
+        repoBaseUrl:
+          type: string
+        instanceName:
+          type: string
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+    CreateOauthScmResponse:
+      type: object
+      properties:
+        scmId:
+          type: integer
+          format: int64
+        message:
+          type: string
+    CreatePatBasedScmRequest:
+      type: object
+      required: [typeId, repoBaseUrl, instanceName, pat]
+      properties:
+        typeId:
+          type: integer
+          format: int64
+        repoBaseUrl:
+          type: string
+        instanceName:
+          type: string
+        pat:
+          type: string
+    CreatePatBasedScmResponse:
+      type: object
+      properties:
+        scmId:
+          type: integer
+          format: int64
+        authCode:
+          type: string
+          description: "For PAT-based SCMs, this authCode is generated on ReposManager side (unlike OAuth-based SCMs, where the SCM itself generates authCode)."
+        tokenId:
+          type: integer
+          format: int64
+          description: "Newer PAT-based SCMs (e.g. Harness) return a tokenId instead of an authCode. Downstream consumers can resolve either via AccessTokenReference."
+        message:
+          type: string
+    CreateHarnessScmRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreatePatBasedScmRequest'
+        - type: object
+          required: [accountIdentity]
+          properties:
+            accountIdentity:
+              type: string
+              description: "Scopes the SCM to a single Harness account (PAT-based, cloud-only)."
+    CreateOrgPatBasedScmRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreatePatBasedScmRequest'
+        - type: object
+          required: [orgIdentity]
+          properties:
+            orgIdentity:
+              type: string
+    CreateOrgPatBasedScmResponse:
+      allOf:
+        - $ref: '#/components/schemas/CreatePatBasedScmResponse'
+        - type: object
+          properties:
+            organization:
+              $ref: '#/components/schemas/OrganizationWebDto'
+    createOrgPatRequest:
+      type: object
+      required: [orgIdentity, pat]
+      properties:
+        orgIdentity:
+          type: string
+        pat:
+          type: string
+    createOrgPatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        organization:
+          $ref: '#/components/schemas/OrganizationWebDto'
+    CreateGithubAppScmRequest:
+      type: object
+      required: [typeId, repoBaseUrl, instanceName, appId, privateKey, webhookSecret, externalScmId]
+      properties:
+        typeId:
+          type: integer
+          format: int64
+        repoBaseUrl:
+          type: string
+        instanceName:
+          type: string
+        appId:
+          type: string
+        privateKey:
+          type: string
+        webhookSecret:
+          type: string
+          description: "Must be exactly 16 characters."
+        externalScmId:
+          type: string
+          format: uuid
+    CreateGithubAppScmResponse:
+      type: object
+      properties:
+        scmId:
+          type: integer
+          format: int64
+        appInfo:
+          $ref: '#/components/schemas/GitHubAppInfoResponseDto'
+        message:
+          type: string
+    GitHubAppInfoResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        slug:
+          type: string
+        hasInstallation:
+          type: boolean
+          description: "Indicates whether the GitHub App has at least one Organization installation."
+    ValidatePatResponse:
+      type: object
+      properties:
+        authCode:
+          type: string
+        tokenId:
+          type: integer
+          format: int64
+        message:
+          type: string
+    ValidateOrgPatResponse:
+      type: object
+      properties:
+        tokenId:
+          type: integer
+          format: int64
+        message:
+          type: string
+    TestScmConnectionDto:
+      type: object
+      properties:
+        scmTypeId:
+          type: integer
+          format: int64
+        repoBaseUrl:
+          type: string
+        apiBaseUrl:
+          type: string
+        username:
+          type: string
+        token:
+          type: string
+    TestScmConnectionResponseDto:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        message:
+          type: string
+        details:
+          type: string
+    OrganizationWebDto:
+      type: object
+      description: "May also be returned as the polymorphic subtype OrganizationWithConfigurationWebDto (adds configuration fields) when returned from the *config* organization endpoints."
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        isUser:
+          type: boolean
+        installationTokenId:
+          type: integer
+          format: int64
+          deprecated: true
+        tokenId:
+          type: integer
+          format: int64
+        isValid:
+          type: boolean
+          description: "Used for ADO org-scoped PAT mode to indicate if the organization's PAT is valid."
+    OrgWebDtoWrapper:
+      type: object
+      description: "Organization list response with pagination support."
+      properties:
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationWebDto'
+        nextPageLink:
+          type: string
+    ScmOrgsResponse:
+      type: object
+      properties:
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfiguredOrgDto'
+        totalCount:
+          type: integer
+          format: int64
+    ConfiguredOrgDto:
+      type: object
+      description: "A persisted (configured) SCM organization. Fields inferred from usage context."
+      properties:
+        id:
+          type: integer
+          format: int64
+        orgIdentity:
+          type: string
+        name:
+          type: string
+    OrganizationItem:
+      type: object
+      properties:
+        orgId:
+          type: integer
+          format: int64
+        orgIdentity:
+          type: string
+        scmId:
+          type: integer
+          format: int64
+        scmType:
+          type: string
+        instanceName:
+          type: string
+        webhookEnabled:
+          type: boolean
+        webhookEditable:
+          type: boolean
+        webhookNotEditableMsg:
+          type: string
+        defaultRepositorySettings:
+          $ref: '#/components/schemas/DefaultRepositorySettingsWebDto'
+        isUserOrg:
+          type: boolean
+        applicationIds:
+          type: array
+          items: {type: string, format: uuid}
+    DefaultRepositorySettingsWebDto:
+      type: object
+      description: "Default per-org repository scanner/webhook settings applied to newly imported repos. Fields inferred from usage context (RepoWebDto scanner flags)."
+      properties:
+        sastScannerEnabled:
+          type: boolean
+        scaScannerEnabled:
+          type: boolean
+        kicsScannerEnabled:
+          type: boolean
+        apiSecScannerEnabled:
+          type: boolean
+        containerScannerEnabled:
+          type: boolean
+        ossfScoreCardScannerEnabled:
+          type: boolean
+        secretsDetectionScannerEnabled:
+          type: boolean
+        aiscScannerEnabled:
+          type: boolean
+        prDecorationEnabled:
+          type: boolean
+        sastIncrementalScan:
+          type: boolean
+        scaAutoPrEnabled:
+          type: boolean
+        commitIdScanTagEnabled:
+          type: boolean
+    OrganizationItemsResponse:
+      type: object
+      properties:
+        orgItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationItem'
+        totalCount:
+          type: integer
+          format: int64
+        offset:
+          type: integer
+        limit:
+          type: integer
+    UpdateOrgPatRequest:
+      type: object
+      required: [pat]
+      properties:
+        pat:
+          type: string
+    UpdateOrgDto:
+      type: object
+      properties:
+        isOrgWebhookEnabled:
+          type: boolean
+        orgSshKey:
+          type: string
+        orgSshState:
+          $ref: '#/components/schemas/SshState'
+    OrgConfigResult:
+      type: object
+      properties:
+        orgIdentity:
+          type: string
+        status:
+          $ref: '#/components/schemas/ConfigResultStatus'
+        statusMessageError:
+          type: string
+    OrgSettingsWebDto:
+      type: object
+      properties:
+        scmId:
+          type: integer
+          format: int64
+        orgIdentity:
+          type: string
+        scmType:
+          type: string
+        isOrgWebhookEnabled:
+          type: boolean
+        isTokenConfigured:
+          type: boolean
+    SshState:
+      type: string
+      enum: [skipped, updated]
+    ConfigResultStatus:
+      type: string
+      enum:
+        - SUCCESS
+        - DB_ERROR
+        - SCM_ERROR
+        - PERMISSIONS_ERROR
+        - PROJECT_CREATION_ERROR
+        - PROJECT_SCAN_ERROR
+        - ORG_WEBHOOK_ERROR
+        - ORG_WEBHOOK_RESTRICTED_INSTALLATION_ERROR
+        - ORG_WEBHOOK_CONFLICT_ERROR
+        - ORG_WEBHOOK_PREV_PROCESS_RUNNING
+        - ORG_WEBHOOK_APP_ASSOCIATION_ENFORCED
+        - GENERAL_ERROR
+    ScmOrgAndReposDto:
+      type: object
+      properties:
+        reposFromRequest:
+          type: array
+          items:
+            $ref: '#/components/schemas/RepoWebDto'
+        orgSshKey:
+          type: string
+        orgSshState:
+          $ref: '#/components/schemas/SshState'
+    ConfigResultWrapper:
+      type: object
+      properties:
+        orgConfigResult:
+          $ref: '#/components/schemas/OrgConfigResult'
+        repoConfigResultList:
+          type: array
+          items:
+            $ref: '#/components/schemas/RepoConfigResult'
+    RepoConfigResult:
+      type: object
+      properties:
+        repoId:
+          type: integer
+          format: int64
+        projectId:
+          type: string
+        repoIdentity:
+          type: string
+        scmProjectIdentity:
+          type: string
+          description: "SCM-side project identity (e.g. Harness project under an org), distinct from projectId which holds the CxOne/AST project ID."
+        repoUrl:
+          type: string
+        status:
+          $ref: '#/components/schemas/ConfigResultStatus'
+        statusMessageError:
+          type: string
+        name:
+          type: string
+        overriddenSettings:
+          type: array
+          items:
+            type: object
+            description: "SettingOverride — a setting name/value pair that was overridden by org-level cascade rules."
+    PublicImportRequest:
+      type: object
+      required: [scm, organization, defaultProjectSettings, projects]
+      properties:
+        scm:
+          $ref: '#/components/schemas/ScmImportSettings'
+        organization:
+          $ref: '#/components/schemas/OrgImportSettings'
+        defaultProjectSettings:
+          $ref: '#/components/schemas/DefaultProjectSettings'
+        scanProjectsAfterImport:
+          type: boolean
+        projects:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PublicImportProjectDto'
+    ScmImportSettings:
+      type: object
+      description: "SCM connection settings for a public import request."
+      properties:
+        type:
+          type: string
+        selfHostedScmUrl:
+          type: string
+        token:
+          type: string
+    OrgImportSettings:
+      type: object
+      description: "Organization identification for a public import request."
+      properties:
+        identity:
+          type: string
+        name:
+          type: string
+    DefaultProjectSettings:
+      type: object
+      description: "Default settings applied to all projects being imported (scanners, webhook, PR decoration, etc), unless overridden per-project."
+      properties:
+        webhookEnabled:
+          type: boolean
+        sastScannerEnabled:
+          type: boolean
+        scaScannerEnabled:
+          type: boolean
+        kicsScannerEnabled:
+          type: boolean
+        prDecorationEnabled:
+          type: boolean
+    PublicImportProjectDto:
+      type: object
+      description: "One project (repo) to import as part of a public import request. Named ProjectDto in source."
+      properties:
+        name:
+          type: string
+        fullName:
+          type: string
+        defaultBranch:
+          type: string
+    PublicImportResponse:
+      type: object
+      properties:
+        processId:
+          type: string
+          format: uuid
+        message:
+          type: string
+    PublicImportStatusResponse:
+      type: object
+      properties:
+        currentPhase:
+          type: string
+          description: "JobPhase enum (external type, from cx-integrations-common gRPC contract)."
+        percentage:
+          type: number
+          format: double
+        result:
+          $ref: '#/components/schemas/PublicImportStatusResult'
+    PublicImportStatusResponseV1:
+      type: object
+      deprecated: true
+      properties:
+        currentPhase:
+          type: string
+          description: "JobPhase enum (external type, from cx-integrations-common gRPC contract)."
+        percentage:
+          type: number
+          format: double
+        result:
+          $ref: '#/components/schemas/PublicImportStatusResultV1'
+    PublicImportStatusResult:
+      type: object
+      description: "Result payload of a completed/in-progress public import job."
+      properties:
+        totalCount:
+          type: integer
+        successCount:
+          type: integer
+        failedCount:
+          type: integer
+    PublicImportStatusResultV1:
+      type: object
+      deprecated: true
+      description: "Deprecated v1 result payload of a completed/in-progress public import job."
+      properties:
+        totalCount:
+          type: integer
+        successCount:
+          type: integer
+        failedCount:
+          type: integer
+    ReImportRepoDto:
+      type: object
+      properties:
+        astProjectId:
+          type: string
+        astProjectName:
+          type: string
+        importedProjectName:
+          type: string
+        repoId:
+          type: integer
+          format: int64
+    ReImportResultDto:
+      type: object
+      properties:
+        repoId:
+          type: integer
+          format: int64
+        error:
+          type: string
+    RefreshOrgPermissionsRequestDto:
+      type: object
+      properties:
+        authCode:
+          type: string
+        token:
+          type: string
+        monitor:
+          type: boolean
+    RefreshOrgPermissionsResultDto:
+      type: object
+      properties:
+        webhookEnabled:
+          type: boolean
+        webhookError:
+          type: string
+    EnrichedReposResponse:
+      type: object
+      description: "'Enriched' means that each repo has additional properties (isSuggested and isImported)."
+      properties:
+        repos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrichedRepoDto'
+        nextPageLink:
+          type: string
+          description: "If present, can be passed as the pageLink parameter in a subsequent request."
+    EnrichedRepoDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Aka repo identity. SCM-specific string used to identify the repo within its organization. This is not an ID from the CxOne DB."
+        name:
+          type: string
+        url:
+          type: string
+        defaultBranch:
+          type: string
+        fullName:
+          type: string
+          description: "Affects the value of RepoWebDto.name that the frontend submits in an import request: when non-empty, FE submits it as RepoWebDto.name; otherwise, FE constructs RepoWebDto.name itself as '{org.id}/{repo.name}'."
+        scmProjectId:
+          type: string
+          description: "Project ID on the SCM side (not the CxOne project ID). Used for SCMs with a project level below org (Azure, Harness)."
+        isRepoAdmin:
+          type: boolean
+        isSuggested:
+          type: boolean
+        isImported:
+          type: boolean
+    BranchWebDtoWrapper:
+      type: object
+      properties:
+        branchWebDtoList:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchWebDto'
+        nextPageLink:
+          type: string
+    BranchWebDto:
+      allOf:
+        - $ref: '#/components/schemas/BranchDto'
+        - type: object
+          properties:
+            bitBucketBranchCommitHash:
+              type: string
+    BranchDto:
+      type: object
+      description: "External base type BranchDto (from cx-integrations-common). Represents a (protected) branch / branch pattern. Fields inferred from usage in ProtectedBranchesController and BranchWebDto."
+      properties:
+        pattern:
+          type: string
+          description: "Branch name or wildcard pattern."
+        isDefaultBranch:
+          type: boolean
+    RepositoryDefaultBranch:
+      type: object
+      properties:
+        repoIdentity:
+          type: string
+        defaultBranch:
+          type: string
+    RepoWebDto:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        defaultBranch:
+          type: string
+        fullName:
+          type: string
+        branchToScanUponCreation:
+          type: string
+          description: "Cannot contain a wildcard (*)."
+        webhookId:
+          type: string
+        webhookEnabled:
+          type: boolean
+        prDecorationEnabled:
+          type: boolean
+        isRepoAdmin:
+          type: boolean
+        sastIncrementalScan:
+          type: boolean
+        sastScannerEnabled:
+          type: boolean
+        scaScannerEnabled:
+          type: boolean
+        kicsScannerEnabled:
+          type: boolean
+        apiSecScannerEnabled:
+          type: boolean
+        containerScannerEnabled:
+          type: boolean
+        ossfScoreCardScannerEnabled:
+          type: boolean
+        secretsDetectionScannerEnabled:
+          type: boolean
+        aiscScannerEnabled:
+          type: boolean
+        privatePackage:
+          type: boolean
+        criticality:
+          type: integer
+        branches:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: "0-100 branches allowed, each with a unique pattern."
+          items:
+            $ref: '#/components/schemas/BranchWebDto'
+        remediationSeverities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Severity'
+        sshState:
+          $ref: '#/components/schemas/SshState'
+        sshKey:
+          type: string
+        sshRepoUrl:
+          type: string
+        repoId:
+          type: integer
+          format: int64
+        scmId:
+          type: integer
+          format: int64
+          description: "Should conceptually be inside the 'scm' object, but is kept top-level for historical reasons."
+        scm:
+          $ref: '#/components/schemas/RepoScmDto'
+        orgId:
+          type: integer
+          format: int64
+        groups:
+          type: array
+          items: {type: string}
+        tags:
+          type: object
+          additionalProperties: {type: string}
+        applicationIds:
+          type: array
+          items: {type: string, format: uuid}
+        cxOneProjectId:
+          type: string
+        scaAutoPrEnabled:
+          type: boolean
+        commitIdScanTagEnabled:
+          type: boolean
+    Severity:
+      type: string
+      description: "External enum Severity (from cx-integrations-common scan results DTOs)."
+      enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+    RepoScmDto:
+      type: object
+      description: "SCM info stored inside a repo DTO."
+      properties:
+        typeName:
+          type: string
+        instanceName:
+          type: string
+        repoBaseUrl:
+          type: string
+    RepoWithConfigWebDto:
+      type: object
+      description: "Enriched response for repo read/update endpoints. Each configurable setting includes isEditable derived from the org override cascade. When the GLOBAL_SETTINGS_BY_ORGANIZATION_ENABLED feature flag is OFF, all settings have isEditable=true."
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        defaultBranch:
+          type: string
+        fullName:
+          type: string
+        branchToScanUponCreation:
+          type: string
+        webhookId:
+          type: string
+        webhookEnabled:
+          type: boolean
+        isRepoAdmin:
+          type: boolean
+        privatePackage:
+          type: boolean
+        criticality:
+          type: integer
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchWebDto'
+        sshState:
+          $ref: '#/components/schemas/SshState'
+        sshKey:
+          type: string
+        sshRepoUrl:
+          type: string
+        repoId:
+          type: integer
+          format: int64
+        scmId:
+          type: integer
+          format: int64
+        scm:
+          $ref: '#/components/schemas/RepoScmDto'
+        orgId:
+          type: integer
+          format: int64
+        orgIdentity:
+          type: string
+        groups:
+          type: array
+          items: {type: string}
+        tags:
+          type: object
+          additionalProperties: {type: string}
+        cxOneProjectId:
+          type: string
+        kicsScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        sastScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        ossfScoreCardScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        secretsDetectionScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        sastIncrementalScan:
+          $ref: '#/components/schemas/RepoSettingItem'
+        scaScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        apiSecScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        containerScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        aiscScannerEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        prDecorationEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        remediationSeverities:
+          $ref: '#/components/schemas/RemediationSettingItem'
+        scaAutoPrEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+        commitIdScanTagEnabled:
+          $ref: '#/components/schemas/RepoSettingItem'
+    RepoSettingItem:
+      type: object
+      properties:
+        value:
+          type: boolean
+        isEditable:
+          type: boolean
+    RemediationSettingItem:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Severity'
+        isEditable:
+          type: boolean
+    ScmDisconnectResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    OneRepoProjectScanWebDto:
+      type: object
+      description: "A request used to trigger scans for one project."
+      properties:
+        repoOrigin:
+          type: string
+        orgSshKey:
+          type: string
+        project:
+          $ref: '#/components/schemas/RepoProjectScanWebDtoProject'
+    RepoProjectScanWebDtoProject:
+      type: object
+      description: "Nested Project descriptor of RepoProjectScanWebDto. Fields inferred from usage context."
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        branch:
+          type: string
+    ProjectsConversionWebDto:
+      type: object
+      required: [scmType, orgIdentity]
+      properties:
+        scmType:
+          type: string
+        scmOnPremUrl:
+          type: string
+        orgIdentity:
+          type: string
+        token:
+          type: string
+        types:
+          type: array
+          items: {type: string}
+        webhookEnabled:
+          type: boolean
+        autoScanCxProjectAfterConversion:
+          type: boolean
+        decoratePullRequests:
+          type: boolean
+        scaAutoPrEnabled:
+          type: boolean
+        commitIdScanTagEnabled:
+          type: boolean
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectWebDto'
+    ProjectWebDto:
+      type: object
+      description: "A single CxOne project to be converted into an imported (SCM-linked) project. Fields inferred from usage context."
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        repoIdentity:
+          type: string
+        fullName:
+          type: string
+    ProjectsConversionResultWebDto:
+      type: object
+      properties:
+        processId:
+          type: string
+        message:
+          type: string
+    ProcessDetails:
+      type: object
+      properties:
+        migrationStatus:
+          $ref: '#/components/schemas/MigrationStatus'
+        summary:
+          type: string
+        totalProjects:
+          type: integer
+        migratedProjects:
+          type: integer
+        successfulProjectsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportedProjectResult'
+        failedProjectList:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedProject'
+    ProcessDetailsV1:
+      type: object
+      deprecated: true
+      properties:
+        migrationStatus:
+          $ref: '#/components/schemas/MigrationStatus'
+        summary:
+          type: string
+        totalProjects:
+          type: integer
+        migratedProjects:
+          type: integer
+        successfulProjectsList:
+          type: array
+          items: {type: string}
+        failedProjectList:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedProject'
+    MigrationStatus:
+      type: string
+      enum: [OK, IN_PROGRESS, PARTIAL, FAILURE]
+    FailedProject:
+      type: object
+      properties:
+        projectUrl:
+          type: string
+        error:
+          type: string
+    ImportedProjectResult:
+      type: object
+      description: "Per-repo result of a successful project-conversion import, including per-repo overridden settings. Fields inferred from usage context (custom-deserialized via ImportedProjectResultListDeserializer for v1 backward-compatibility)."
+      properties:
+        projectUrl:
+          type: string
+        projectId:
+          type: string
+        overriddenSettings:
+          type: array
+          items:
+            type: object
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/repos-manager
+security:
+  - Login: []

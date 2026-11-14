@@ -21,7 +21,11 @@ paths:
         - $ref: "#/components/parameters/applicationIdsParam"
         - $ref: "#/components/parameters/orderColumnParam"
         - $ref: "#/components/parameters/orderDirectionParam"
+        - $ref: "#/components/parameters/statusesParam"
+        - $ref: "#/components/parameters/assetStatusParam"
+        - $ref: "#/components/parameters/evidenceStatusParam"
         - $ref: "#/components/parameters/includeEvidenceParam"
+        - $ref: "#/components/parameters/riskSeveritiesParam"
       responses:
         "200":
           description: Ok
@@ -49,6 +53,7 @@ paths:
         - $ref: "#/components/parameters/assetTypeIdsParam"
         - $ref: "#/components/parameters/applicationIdsParam"
         - $ref: "#/components/parameters/groupByParam"
+        - $ref: "#/components/parameters/statusesParam"
       responses:
         "200":
           description: Ok
@@ -102,6 +107,48 @@ components:
         lastPage:
           type: integer
           description: currentPage
+    resultTriage:
+      type: object
+      properties:
+        evidence:
+          $ref: '#/components/schemas/evidenceTriage'
+        asset:
+          $ref: '#/components/schemas/assetTriage'
+    evidenceTriage:
+      type: object
+      properties:
+        status:
+          type: string
+        scope:
+          type: string
+        snoozeEndDate:
+          type: string
+          format: date-time
+    assetTriage:
+      type: object
+      properties:
+        status:
+          type: string
+        scope:
+          type: string
+        snoozeEndDate:
+          type: string
+          format: date-time
+        isSuppressed:
+          type: boolean
+    riskSummary:
+      type: object
+      properties:
+        assetId:
+          type: string
+          format: uuid4
+        totalRisks:
+          type: integer
+        riskCountBySeverity:
+          type: object
+          additionalProperties:
+            type: integer
+          description: keys are CRITICAL/HIGH/MEDIUM/LOW, present only when count > 0
     result:
       type: object
       properties:
@@ -121,6 +168,18 @@ components:
           type: string
           format: uuid4
           description: The tenant id where the result belongs to
+        status:
+          type: string
+          description: Triage display status for this asset in this project
+          enum: [Monitored, Muted, Snoozed, Mixed]
+        snooze_end_date:
+          type: string
+          format: date-time
+          description: When the snooze expires; only set when status is Snoozed
+        triage:
+          $ref: '#/components/schemas/resultTriage'
+        riskSummary:
+          $ref: '#/components/schemas/riskSummary'
         created_at:
           type: string
           format: date-time
@@ -150,6 +209,18 @@ components:
           type: string
           format: uuid4
           description: The tenant id where the result belongs to
+        status:
+          type: string
+          description: Triage display status for this asset in this project
+          enum: [Monitored, Muted, Snoozed, Mixed]
+        snooze_end_date:
+          type: string
+          format: date-time
+          description: When the snooze expires; only set when status is Snoozed
+        triage:
+          $ref: '#/components/schemas/resultTriage'
+        riskSummary:
+          $ref: '#/components/schemas/riskSummary'
         created_at:
           type: string
           format: date-time
@@ -160,11 +231,67 @@ components:
           $ref: '#/components/schemas/asset'
         project:
           $ref: '#/components/schemas/project'
+        mcpMetadata:
+          $ref: '#/components/schemas/mcpMetadata'
+        skillMetadata:
+          $ref: '#/components/schemas/skillMetadata'
         evidences:
           type: array
           items:
             $ref: "#/components/schemas/evidence"
           description: list of evidences
+    mcpMetadata:
+      type: object
+      description: >
+        MCP-specific fields, returned for MCP server/client findings (asset.asset_type.display_format "MCP Server" or "MCP Client"). Values are merged across the result's evidences: a field keeps its value when every evidence reports it identically, and is "Mixed" when the evidences disagree or only some of them report it.
+
+      properties:
+        transport:
+          type: string
+          nullable: true
+          description: stdio, SSE, or Streamable HTTP. "Mixed" when the evidences disagree.
+        sourceType:
+          type: string
+          nullable: true
+          description: >
+            Engine-internal category for how the asset was resolved (e.g. package/docker/url). "Mixed" when the evidences disagree.
+
+    skillMetadata:
+      type: object
+      description: >
+        Skill-specific fields, returned for Skill findings (asset.asset_type.display_format "Skill"). Currently sourced from engine-reported skill frontmatter metadata (raw string values, e.g. "true"/"false" for the boolean-shaped fields). Values are merged across the result's evidences: a field keeps its value when every evidence reports it identically, and is "Mixed" when the evidences disagree or only some of them report it.
+
+      properties:
+        allowedTools:
+          type: string
+          nullable: true
+          description: >
+            Comma-separated list of tools the skill is allowed to invoke. "Mixed" when the evidences disagree.
+
+        disableModelInvocation:
+          type: string
+          nullable: true
+        userInvocable:
+          type: string
+          nullable: true
+        frontmatterDescription:
+          type: string
+          nullable: true
+          description: >
+            The skill's own description, from its SKILL.md frontmatter. "Mixed" when the evidences disagree.
+
+        frontmatterVersion:
+          type: string
+          nullable: true
+          description: >
+            The skill's own version, from its SKILL.md frontmatter. "Mixed" when the evidences disagree.
+
+        lockFile:
+          type: string
+          nullable: true
+          description: >
+            Lockfile kind that manages the skill ("microsoft/apm" or "vercel-labs/skills"), when one does. "Mixed" when the evidences disagree, e.g. only some copies of the skill are claimed by a lockfile.
+
     evidence:
       type: object
       properties:
@@ -190,6 +317,9 @@ components:
         evidence_type:
           type: string
           description: The type of the evidence
+        evidence_key:
+          type: string
+          description: Stable content-based identity for the evidence, set by the owning analyzer
         result_id:
           type: string
           format: uuid4
@@ -223,10 +353,10 @@ components:
         license:
           type: string
           description: The asset license
-        license_url:
-          type: string
-          description: The asset license url
         created_at:
+          type: string
+          format: date-time
+        updated_at:
           type: string
           format: date-time
         asset_type:
@@ -238,13 +368,16 @@ components:
           type: string
           format: uuid4
           description: A unique identifier for the asset type
-        match_format:
-          type: string
-          description: The asset type match format
         display_format:
           type: string
-          description: The asset type display format
+          description: >
+            The asset type display format, passed through from the discovery engine. Known values: "AI Model", "AI SDK", "AI Library", "MCP Server", "MCP Client", "AI Agent", "AI Orchestration Framework", "Skill". Not an enum: new values can appear without a contract change.
+
+          example: "MCP Server"
         created_at:
+          type: string
+          format: date-time
+        updated_at:
           type: string
           format: date-time
     project:
@@ -468,6 +601,7 @@ components:
           - scan-date
           - project-name
           - asset-name
+          - risk-severity
         default: created-at
     orderDirectionParam:
       name: order-direction
@@ -490,6 +624,38 @@ components:
       schema:
         type: boolean
         default: false
+    assetStatusParam:
+      name: asset-status
+      in: query
+      description: Comma-separated list of asset-level triage statuses to filter by (alias of statuses)
+      required: false
+      schema:
+        type: string
+        example: "Monitored,Muted,Snoozed,Mixed"
+    evidenceStatusParam:
+      name: evidence-status
+      in: query
+      description: Comma-separated list of evidence-level triage statuses to filter enriched rows by
+      required: false
+      schema:
+        type: string
+        example: "Monitored,Muted,Snoozed,Mixed"
+    statusesParam:
+      name: statuses
+      in: query
+      description: Comma-separated list of triage statuses to filter by (Monitored, Muted, Snoozed, Mixed)
+      required: false
+      schema:
+        type: string
+        example: "Monitored,Muted,Snoozed,Mixed"
+    riskSeveritiesParam:
+      name: risk-severities
+      in: query
+      description: Comma-separated list of risk severities to filter by (CRITICAL, HIGH, MEDIUM, LOW)
+      required: false
+      schema:
+        type: string
+        example: "CRITICAL,HIGH"
   securitySchemes:
     Login:
       type: oauth2
