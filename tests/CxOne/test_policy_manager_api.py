@@ -216,8 +216,6 @@ def test_get_enhanced_incidents_with_pagination_and_filters():
 
 def test_get_incident_results():
     result = get_tenant_incidents()
-    if not result.incidents:
-        pytest.skip("No incidents on this tenant to fetch results for")
     from CheckmarxPythonSDK.CxOne import get_incident_results
     from CheckmarxPythonSDK.CxOne.dto import IncidentResultsDTO
 
@@ -229,13 +227,9 @@ def test_get_incident_results():
 
 
 def test_get_policy_violations(completed_scan):
-    try:
-        result = get_policy_violations(
-            project_id=completed_scan.project_id, scan_id=completed_scan.id
-        )
-    except Exception as e:
-        _skip_on_client_error(e)
-        return
+    result = get_policy_violations(
+        project_id=completed_scan.project_id, scan_id=completed_scan.id
+    )
     assert isinstance(result, PolicyViolationWebDto)
 
 
