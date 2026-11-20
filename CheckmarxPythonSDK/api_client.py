@@ -36,6 +36,7 @@ def create_session(configuration: Configuration) -> httpx.Client:
     # httpx ignores Client-level proxy/cert when a custom transport is given,
     # so they must be configured on the transport itself.
     return httpx.Client(
+        timeout=configuration.timeout,
         transport=httpx.HTTPTransport(
             retries=3,
             verify=verify,
