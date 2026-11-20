@@ -33,10 +33,15 @@ def create_session(configuration: Configuration) -> httpx.Client:
         if raw_verify is not True:
             ctx.load_verify_locations(raw_verify)
         verify = ctx
+    # httpx ignores Client-level proxy/cert when a custom transport is given,
+    # so they must be configured on the transport itself.
     return httpx.Client(
-        cert=configuration.cert,
-        proxy=configuration.proxy,
-        transport=httpx.HTTPTransport(retries=3, verify=verify),
+        transport=httpx.HTTPTransport(
+            retries=3,
+            verify=verify,
+            cert=configuration.cert,
+            proxy=configuration.proxy,
+        ),
         follow_redirects=True,
         headers={"User-Agent": f"checkmarx-python-sdk/{__version__}"},
     )

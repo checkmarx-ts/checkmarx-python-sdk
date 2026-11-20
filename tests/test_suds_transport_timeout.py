@@ -27,3 +27,18 @@ def test_open_passes_configured_timeout():
     transport = _RequestsTransport(session, timeout=123)
     transport.open(Request("http://x/y?wsdl"))
     assert session.get.call_args.kwargs["timeout"] == 123
+
+
+def test_create_session_applies_proxy_and_cert(monkeypatch):
+    from unittest.mock import patch
+    from CheckmarxPythonSDK import api_client
+    from CheckmarxPythonSDK.configuration import Configuration
+
+    cfg = Configuration(server_base_url="http://x", verify=False,
+                        cert="client.pem", proxy="http://proxy:8080")
+    with patch.object(api_client.httpx, "HTTPTransport") as ht, \
+            patch.object(api_client.httpx, "Client"):
+        api_client.create_session(cfg)
+    kwargs = ht.call_args.kwargs
+    assert kwargs["proxy"] == "http://proxy:8080"
+    assert kwargs["cert"] == "client.pem"
