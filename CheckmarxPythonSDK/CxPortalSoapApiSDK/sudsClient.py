@@ -12,12 +12,13 @@ from CheckmarxPythonSDK.CxPortalSoapApiSDK.config import construct_configuration
 class _RequestsTransport(Transport):
     """suds transport backed by an httpx.Client."""
 
-    def __init__(self, session):
+    def __init__(self, session, timeout=None):
         super().__init__()
         self.session = session
+        self.timeout = timeout
 
     def open(self, request):
-        response = self.session.get(request.url)
+        response = self.session.get(request.url, timeout=self.timeout)
         return BytesIO(response.content)
 
     def send(self, request):
@@ -25,6 +26,7 @@ class _RequestsTransport(Transport):
             request.url,
             content=request.message,
             headers=dict(request.headers),
+            timeout=self.timeout,
         )
         return Reply(response.status_code, response.headers, response.content)
 
@@ -106,7 +108,9 @@ class SudsClient(ApiClient):
         wsdl_url = f"{configuration.server_base_url}{relative_web_interface_url}"
         self._client = Client(
             wsdl_url,
-            transport=_RequestsTransport(self.session),
+            transport=_RequestsTransport(
+                self.session, timeout=configuration.timeout
+            ),
         )
         self._client.options.allowUnknownMessageParts = True
         self.factory = _SudsFactory(self._client.factory)
