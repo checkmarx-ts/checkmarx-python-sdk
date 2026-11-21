@@ -22,18 +22,24 @@ class CxReporting(object):
         self.api_client = api_client
         self.base_url = api_client.configuration.server_base_url.rstrip("/")
 
-    def retrieve_the_file_of_a_specific_report(self, report_id: int) -> bytes:
+    def retrieve_the_file_of_a_specific_report(
+        self, report_id: int, timeout: float = None
+    ) -> bytes:
         """
 
         Args:
             report_id (int):
+            timeout (float): per-call timeout in seconds; defaults to the
+                configured timeout. Raise it for very large reports.
 
         Returns:
             file content (binary string)
         """
         report_content = None
         url = f"{self.base_url}/api/reports/{report_id}"
-        response = self.api_client.call_api("GET", url, headers=headers)
+        response = self.api_client.call_api(
+            "GET", url, headers=headers, timeout=timeout
+        )
         if response.status_code == OK:
             report_content = response.content
         return report_content
@@ -81,11 +87,18 @@ class CxReporting(object):
             report_status = item.get("reportStatus")
         return report_status
 
-    def get_report(self, report_request: CreateReportDTO) -> Union[bytes, None]:
+    def get_report(
+        self,
+        report_request: CreateReportDTO,
+        max_wait: int = 3600,
+        timeout: float = None,
+    ) -> Union[bytes, None]:
         """
 
         Args:
             report_request (CreateReportDTO):
+            max_wait (int): maximum seconds to wait for the report.
+            timeout (float): per-call timeout in seconds for the download.
 
         Returns:
             file content (binary string)
@@ -97,21 +110,33 @@ class CxReporting(object):
         report_status = self.retrieve_the_status_of_a_specific_report(
             report_id=report_id
         )
-        while report_status.upper() != "FINISHED":
-            if "FAIL" in report_status.upper():
+        deadline = time.monotonic() + max_wait
+        while str(report_status).upper() != "FINISHED":
+            if "FAIL" in str(report_status).upper():
                 logger.error("Report generation failed!")
                 return None
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"Report {report_id} not finished within {max_wait}s, "
+                    f"last status: {report_status}"
+                )
             report_status = self.retrieve_the_status_of_a_specific_report(
                 report_id=report_id
             )
             logger.info("report status: {}".format(report_status))
             time.sleep(2)
 
-        return self.retrieve_the_file_of_a_specific_report(report_id=report_id)
+        return self.retrieve_the_file_of_a_specific_report(
+            report_id=report_id, timeout=timeout
+        )
 
 
-def retrieve_the_file_of_a_specific_report(report_id: int) -> bytes:
-    return CxReporting().retrieve_the_file_of_a_specific_report(report_id=report_id)
+def retrieve_the_file_of_a_specific_report(
+    report_id: int, timeout: float = None
+) -> bytes:
+    return CxReporting().retrieve_the_file_of_a_specific_report(
+        report_id=report_id, timeout=timeout
+    )
 
 
 def create_a_new_report_request(report_request: CreateReportDTO) -> int:
@@ -122,5 +147,9 @@ def retrieve_the_status_of_a_specific_report(report_id: int) -> str:
     return CxReporting().retrieve_the_status_of_a_specific_report(report_id=report_id)
 
 
-def get_report(report_request: CreateReportDTO) -> Union[bytes, None]:
-    return CxReporting().get_report(report_request=report_request)
+def get_report(
+    report_request: CreateReportDTO, max_wait: int = 3600, timeout: float = None
+) -> Union[bytes, None]:
+    return CxReporting().get_report(
+        report_request=report_request, max_wait=max_wait, timeout=timeout
+    )
