@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
+* [Add] ApiClient.call_api optional per-call `timeout` (overrides configuration.timeout), plus a `timeout` param on the large report downloads (ReportAPI.get_scan_report/get_sca_scan_report, CxReporting.retrieve_the_file_of_a_specific_report/get_report, ScansAPI.get_report_by_id), so a very large report no longer requires raising the session-wide timeout.
+* [Fix] ApiClient retry — idempotent requests (GET/HEAD/OPTIONS) are now retried with backoff on httpx timeouts and connection errors (previously a single ReadTimeout failed the call). POST/PUT/DELETE are deliberately not retried to avoid duplicate side effects.
+* [Fix] Report polling loops could hang forever: ReportAPI.create_scan_report/create_scan_report_v2 never exited on a failed report, and none of the loops had a deadline. They now raise RuntimeError on failure and TimeoutError after `max_wait` seconds (default 3600). ReportAPI.get_sca_scan_report now raises on a Failed export instead of returning the status payload; CxReporting.get_report raises TimeoutError past `max_wait`.
+* [Fix] RepoManagerAPI.batch_import_repo — the job-status loop retried RemoteProtocolError with no delay and had no upper bound; it now sleeps between polls and raises TimeoutError after `max_wait_per_round` seconds (default 7200).
+* [Breaking] ProjectsAPI.get_all_projects — errors are no longer logged and swallowed (which returned a silently partial project list); they now propagate to the caller.
 * [Add] PolicyManagerAPI for the Cx Policy Manager REST API (/api/policy_management_service_uri) — tenant policies (create/get/update/delete, V2/V3 pagination, pin, project assignment), policy violations, per-scan policy evaluation, incidents (including the enhanced V2 view), incident results, and internal data-retention cleanup. 27 endpoints, 22 new DTOs.
 
 1.9.3 - 2026-11-12

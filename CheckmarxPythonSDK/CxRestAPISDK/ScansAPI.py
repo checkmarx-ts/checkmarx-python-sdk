@@ -811,13 +811,17 @@ class ScansAPI(object):
             result = CxScanReportStatus.from_dict(a_dict)
         return result
 
-    def get_report_by_id(self, report_id: int, api_version: str = "1.0") -> bytes:
+    def get_report_by_id(
+        self, report_id: int, api_version: str = "1.0", timeout: float = None
+    ) -> bytes:
         """
         Get the specified report once generated.
 
         Args:
             report_id (int): Unique Id of the report
             api_version (str, optional):
+            timeout (float, optional): per-call timeout in seconds; defaults
+                to the configured timeout. Raise it for very large reports.
 
         Returns:
             byte
@@ -831,7 +835,7 @@ class ScansAPI(object):
         result = None
         url = f"{self.base_url}/cxrestapi/reports/sastScan/{report_id}"
         response = self.api_client.call_api(
-            "GET", url, headers=get_headers(api_version)
+            "GET", url, headers=get_headers(api_version), timeout=timeout
         )
         if response.status_code == OK:
             # write r.content to file with "wb" mode

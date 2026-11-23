@@ -30,6 +30,7 @@ class ReportAPI(object):
         emails: List[str] = None,
         report_filename: str = None,
         timezone: str = None,
+        max_wait: int = 3600,
     ) -> str:
         """POST /reports/v2 (reportName=improved-scan-report) — generate
         an Improved Scan Report and poll until it's ready.
@@ -113,6 +114,7 @@ class ReportAPI(object):
         )
         report_id = response.json().get("reportId")
         status_url = f"{self.base_url}/{report_id}"
+        deadline = time.monotonic() + max_wait
         while True:
             response = self.api_client.call_api(
                 method="GET",
@@ -123,13 +125,25 @@ class ReportAPI(object):
             if status == "completed":
                 logger.info("Report has been generated successfully!")
                 break
-            else:
-                logger.info("Generating report, please wait...")
-                time.sleep(2)
+            if status in ("failed", "error"):
+                raise RuntimeError(
+                    f"Report {report_id} generation failed, status: {status}"
+                )
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"Report {report_id} not completed within {max_wait}s, "
+                    f"last status: {status}"
+                )
+            logger.info("Generating report, please wait...")
+            time.sleep(2)
         return report_id
 
     def create_scan_report(
-        self, file_format: str, scan_id: str, project_id: str
+        self,
+        file_format: str,
+        scan_id: str,
+        project_id: str,
+        max_wait: int = 3600,
     ) -> str:
         """
         Args:
@@ -162,6 +176,7 @@ class ReportAPI(object):
         )
         report_id = response.json().get("reportId")
         status_url = f"{self.base_url}/{report_id}"
+        deadline = time.monotonic() + max_wait
         while True:
             response = self.api_client.call_api(
                 method="GET",
@@ -172,9 +187,17 @@ class ReportAPI(object):
             if status == "completed":
                 logger.info("Report has been generated successfully!")
                 break
-            else:
-                logger.info("Generating report, please wait...")
-                time.sleep(2)
+            if status in ("failed", "error"):
+                raise RuntimeError(
+                    f"Report {report_id} generation failed, status: {status}"
+                )
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"Report {report_id} not completed within {max_wait}s, "
+                    f"last status: {status}"
+                )
+            logger.info("Generating report, please wait...")
+            time.sleep(2)
         return report_id
 
     def get_report_status(self, report_id: str, return_url: bool = True) -> dict:
@@ -196,16 +219,22 @@ class ReportAPI(object):
         )
         return response.json()
 
-    def get_scan_report(self, report_id: str) -> dict:
+    def get_scan_report(
+        self, report_id: str, timeout: float = None
+    ) -> dict:
         """
         Args:
             report_id (str):
+            timeout (float): per-call timeout in seconds for the download;
+                defaults to the configured timeout.
 
         Returns:
             dict
         """
         url = f"{self.base_url}/{report_id}/download"
-        response = self.api_client.call_api(method="GET", url=url)
+        response = self.api_client.call_api(
+            method="GET", url=url, timeout=timeout
+        )
         return response.json()
 
     def get_risk_scan_report(
@@ -256,10 +285,14 @@ class ReportAPI(object):
         )
         return response.json()["exportId"]
 
-    def get_sca_scan_report(self, export_id: str) -> dict:
+    def get_sca_scan_report(
+        self, export_id: str, max_wait: int = 3600, timeout: float = None
+    ) -> dict:
         """
         Args:
             export_id (str):
+            max_wait (int): maximum seconds to wait for the export.
+            timeout (float): per-call timeout in seconds for the download.
 
         Returns:
             dict
@@ -269,6 +302,7 @@ class ReportAPI(object):
         download_url = (
             f"{base}/api/sca/export/requests/{export_id}/download"
         )
+        deadline = time.monotonic() + max_wait
         while True:
             response = self.api_client.call_api(
                 method="GET",
@@ -278,16 +312,21 @@ class ReportAPI(object):
             status = response.json().get("exportStatus")
             if status == "Completed":
                 response = self.api_client.call_api(
-                    method="GET", url=download_url
+                    method="GET", url=download_url, timeout=timeout
                 )
                 logger.info("Report has been generated successfully!")
                 break
             if status == "Failed":
-                logger.error(f"Error: {response.content}")
-                break
-            else:
-                logger.info("Generating report, please wait...")
-                time.sleep(2)
+                raise RuntimeError(
+                    f"SCA export {export_id} failed: {response.text}"
+                )
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"SCA export {export_id} not completed within "
+                    f"{max_wait}s, last status: {status}"
+                )
+            logger.info("Generating report, please wait...")
+            time.sleep(2)
         return response.json()
 
 
@@ -303,6 +342,7 @@ def create_scan_report_v2(
     emails: List[str] = None,
     report_filename: str = None,
     timezone: str = None,
+    max_wait: int = 3600,
 ) -> str:
     return ReportAPI().create_scan_report_v2(
         file_format=file_format,
@@ -316,14 +356,18 @@ def create_scan_report_v2(
         emails=emails,
         report_filename=report_filename,
         timezone=timezone,
+        max_wait=max_wait,
     )
 
 
 def create_scan_report(
-    file_format: str, scan_id: str, project_id: str
+    file_format: str, scan_id: str, project_id: str, max_wait: int = 3600
 ) -> str:
     return ReportAPI().create_scan_report(
-        file_format=file_format, scan_id=scan_id, project_id=project_id
+        file_format=file_format,
+        scan_id=scan_id,
+        project_id=project_id,
+        max_wait=max_wait,
     )
 
 
