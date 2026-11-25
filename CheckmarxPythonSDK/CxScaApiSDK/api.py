@@ -18,7 +18,8 @@ class Sca(object):
             configuration = construct_configuration()
             api_client = ApiClient(configuration=configuration)
         self.api_client = api_client
-        self.base_url = api_client.configuration.server_base_url.rstrip("/")
+        url_prefix = (getattr(api_client, "url_prefix", "") or "").rstrip("/")
+        self.base_url = api_client.configuration.server_base_url.rstrip("/") + url_prefix
         self.gql_url = f"{self.base_url}/graphql/graphql"
 
     def get_all_projects(self, project_name: str = None) -> Union[dict, List[dict]]:
@@ -1069,6 +1070,57 @@ class Sca(object):
             is_successful = True
         return is_successful
 
+    def _scan_reports_url(
+        self, scan_id: str, report_format: str, data_types: List[str]
+    ) -> str:
+        if report_format not in [
+            "Json",
+            "Xml",
+            "Pdf",
+            "Csv",
+            "CycloneDxJson",
+            "CycloneDxXml",
+        ]:
+            raise ValueError(
+                "parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml"
+            )
+        if data_types and not isinstance(data_types, (list, tuple)):
+            raise ValueError("parameter data_types can only be list or tuple")
+        for item in data_types:
+            if item not in [
+                "All",
+                "Packages",
+                "Vulnerabilities",
+                "Licenses",
+                "Policies",
+                "SupplyChainRisks",
+            ]:
+                raise ValueError(
+                    "dataType can only be All, Packages, Vulnerabilities, Licenses, Policies, "
+                    "SupplyChainRisks"
+                )
+        url = f"{self.base_url}/risk-management/risk-reports/{scan_id}/export"
+        url += "?format={report_format}".format(report_format=report_format)
+        url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
+        return url
+
+    def download_scan_reports(
+        self,
+        scan_id: str,
+        path: str,
+        report_format: str = "Json",
+        data_types: List[str] = ("All",),
+        timeout: float = None,
+    ) -> str:
+        """Stream the SCA scan report to ``path`` instead of memory.
+        See get_scan_reports for the report_format and data_types options.
+
+        Returns:
+            str: ``path``
+        """
+        url = self._scan_reports_url(scan_id, report_format, data_types)
+        return self.api_client.download_to("GET", url, path, timeout=timeout)
+
     def get_scan_reports(
         self,
         scan_id: str,
@@ -1102,35 +1154,7 @@ class Sca(object):
         Returns:
             bytes
         """
-        if report_format not in [
-            "Json",
-            "Xml",
-            "Pdf",
-            "Csv",
-            "CycloneDxJson",
-            "CycloneDxXml",
-        ]:
-            raise ValueError(
-                "parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml"
-            )
-        if data_types and not isinstance(data_types, (list, tuple)):
-            raise ValueError("parameter data_types can only be list or tuple")
-        for item in data_types:
-            if item not in [
-                "All",
-                "Packages",
-                "Vulnerabilities",
-                "Licenses",
-                "Policies",
-                "SupplyChainRisks",
-            ]:
-                raise ValueError(
-                    "dataType can only be All, Packages, Vulnerabilities, Licenses, Policies, "
-                    "SupplyChainRisks"
-                )
-        url = f"{self.base_url}/risk-management/risk-reports/{scan_id}/export"
-        url += "?format={report_format}".format(report_format=report_format)
-        url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
+        url = self._scan_reports_url(scan_id, report_format, data_types)
         response = self.api_client.call_api("GET", url)
         return response.content
 
@@ -2892,6 +2916,90 @@ class Sca(object):
         )
         return response
 
+    def get_package_vulnerability_state_and_score_actions(
+        self, scan_id: str, project_id: str, is_latest: bool,
+        package_name: str, package_version: str,
+        package_manager: str, vulnerability_id: str
+    ) -> Response:
+        """
+            This is a GraphQL API
+        Args:
+            scan_id (str):
+            project_id (str):
+            is_latest (bool):
+            package_name (str):
+            package_version (str):
+            package_manager (str):
+            vulnerability_id (str):
+
+        Returns:
+            example:
+            {
+              'data': {
+                'searchPackageVulnerabilityStateAndScoreActions':
+                  {
+                    'actions': [
+                      {
+                        'isComment': False,
+                        'actionType': 'ChangeState',
+                        'actionValue': 'Urgent',
+                        'enabled': True,
+                        'createdAt': '2026-10-08T03:03:48.041Z',
+                        'previousActionValue': 'ToVerify',
+                        'comment': {
+                          'id': '00000000-0000-0000-0000-000000000000',
+                          'message': 'This must be fixed asap.',
+                          'createdOn': '2026-10-08T03:03:48.041Z',
+                          'userName': 'john.doe@checkmarx.com'
+                        }
+                      }
+                    ]
+                  }
+              }
+            }
+        """
+        query = (
+            "query ( "
+            "  $scanId: UUID!,"
+            "  $projectId: String,"
+            "  $isLatest: Boolean!,"
+            "  $packageName: String,"
+            "  $packageVersion: String,"
+            "  $packageManager: String,"
+            "  $vulnerabilityId: String"
+            ") {"
+            "searchPackageVulnerabilityStateAndScoreActions ("
+            "  scanId: $scanId,"
+            "  projectId: $projectId,"
+            "  isLatest: $isLatest,"
+            "  packageName: $packageName,"
+            "  packageVersion: $packageVersion,"
+            "  packageManager: $packageManager,"
+            "  vulnerabilityId: $vulnerabilityId"
+            ") {"
+            "  actions {"
+            "    isComment, actionType, actionValue, enabled, createdAt,"
+            "    previousActionValue, comment {"
+            "      id, message, createdOn, userName"
+            "    }"
+            "  }"
+            "}"
+            "}"
+        )
+        variables = {
+            "scanId": scan_id,
+            "projectId": project_id,
+            "isLatest": is_latest,
+            "packageName": package_name,
+            "packageVersion": package_version,
+            "packageManager": package_manager,
+            "vulnerabilityId": vulnerability_id
+        }
+        response = self.api_client.call_api(
+            "POST", self.gql_url, json={"query": query, "variables": variables}
+        )
+        return response
+
 
 def get_all_projects(project_name=None):
     return Sca().get_all_projects(project_name=project_name)
@@ -3401,4 +3509,14 @@ def get_packages_from_inventory_by_name_and_version(
 ):
     return Sca().get_packages_from_inventory_by_name_and_version(
         package_name=package_name, package_version=package_version
+    )
+
+
+def get_package_vulnerability_state_and_score_actions(
+    scan_id: str, project_id: str, is_latest: bool, package_name: str,
+    package_version: str, package_manager: str, vulnerability_id: str
+) -> Response:
+    return Sca().get_package_vulnerability_state_and_score_actions(
+        scan_id, project_id, is_latest, package_name,
+        package_version, package_manager, vulnerability_id
     )

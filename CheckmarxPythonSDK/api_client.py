@@ -33,10 +33,16 @@ def create_session(configuration: Configuration) -> httpx.Client:
         if raw_verify is not True:
             ctx.load_verify_locations(raw_verify)
         verify = ctx
+    # httpx ignores Client-level proxy/cert when a custom transport is given,
+    # so they must be configured on the transport itself.
     return httpx.Client(
-        cert=configuration.cert,
-        proxy=configuration.proxy,
-        transport=httpx.HTTPTransport(retries=3, verify=verify),
+        timeout=configuration.timeout,
+        transport=httpx.HTTPTransport(
+            retries=3,
+            verify=verify,
+            cert=configuration.cert,
+            proxy=configuration.proxy,
+        ),
         follow_redirects=True,
         headers={"User-Agent": f"checkmarx-python-sdk/{__version__}"},
     )
@@ -125,6 +131,9 @@ def _retry_after_seconds(response) -> typing.Optional[float]:
         return max(1, backoff_time)
 
 
+_IDEMPOTENT_METHODS = ("GET", "HEAD", "OPTIONS")
+
+
 def retry():
     """
     Decorator that retries the HTTP request when receiving a 401 Unauthorized, 429 Too Many Requests,
@@ -145,7 +154,25 @@ def retry():
                     headers["Authorization"] = f"Bearer {token}"
                     kwargs["headers"] = headers
 
-                    response = func(self, *args, **kwargs)
+                    try:
+                        response = func(self, *args, **kwargs)
+                    except httpx.TransportError as transport_error:
+                        # Timeouts and connection drops. Only idempotent reads are
+                        # retried; repeating a POST could create duplicates.
+                        method = kwargs.get("method") or (args[0] if args else "")
+                        if (
+                            str(method).upper() in _IDEMPOTENT_METHODS
+                            and retries < max_retries
+                        ):
+                            wait = min(5 * (2**retries), 60)
+                            logger.info(
+                                f"{type(transport_error).__name__}, retrying in "
+                                f"{wait}s ({retries + 1}/{max_retries})"
+                            )
+                            time.sleep(wait)
+                            retries += 1
+                            continue
+                        raise
 
                     if hasattr(response, "status_code"):
                         if response.status_code == 401:
@@ -276,7 +303,13 @@ class ApiClient:
         json: Union[typing.Any, None] = None,
         auth=None,
         headers: dict = None,
+        timeout: Union[float, None] = None,
     ):
+        """Send a request.
+
+        ``timeout`` overrides ``configuration.timeout`` for this call only, e.g.
+        for large report downloads that need longer than ordinary requests.
+        """
         # Acquire token for rate limiting
         if not self.rate_limiter.acquire():
             raise RuntimeError("Rate limiter failed to acquire token")
@@ -297,11 +330,113 @@ class ApiClient:
             files=files,
             json=json,
             auth=auth,
-            timeout=self.configuration.timeout,
+            timeout=self.configuration.timeout if timeout is None else timeout,
             headers=headers,
         )
         # Note: check_response() runs in the @retry wrapper after the retry
         # decision, so 429/5xx responses reach the retry logic instead of
         # raising immediately.
         return response
+
+    def download_to(
+        self,
+        method: str,
+        url: str,
+        path: str,
+        params: dict = None,
+        json: Union[typing.Any, None] = None,
+        headers: dict = None,
+        timeout: Union[float, None] = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> str:
+        """Stream a response body to ``path`` without holding it in memory.
+
+        Use this for large reports and exports instead of ``call_api`` followed by
+        ``response.content``. The body is written to ``<path>.part`` and moved to
+        ``path`` only after it was fully received, so a failed download never leaves
+        a truncated file at ``path``.
+
+        A 401 refreshes the token and retries once. Idempotent requests (GET/HEAD)
+        are retried on timeouts and connection errors up to
+        ``configuration.max_retries`` times, restarting the download from the start.
+
+        Args:
+            method (str): HTTP method.
+            url (str): request url.
+            path (str): destination file path.
+            timeout (float): per-call timeout in seconds; defaults to
+                ``configuration.timeout``. The read timeout applies between chunks.
+            chunk_size (int): bytes read per chunk.
+
+        Returns:
+            str: ``path``
+
+        Raises:
+            ValueError: on an HTTP error status, in the same format as call_api.
+            httpx.TransportError: when retries are exhausted.
+        """
+        import os
+
+        if not self.rate_limiter.acquire():
+            raise RuntimeError("Rate limiter failed to acquire token")
+        if params:
+            params = {k: v for k, v in params.items() if v is not None}
+        effective_timeout = self.configuration.timeout if timeout is None else timeout
+        idempotent = str(method).upper() in _IDEMPOTENT_METHODS
+        part_path = f"{path}.part"
+        token_refreshed = False
+        transport_retries = 0
+
+        while True:
+            request_headers = dict(headers or {})
+            request_headers["Authorization"] = f"Bearer {self.token_manager.get_token()}"
+            try:
+                with self.session.stream(
+                    method=method,
+                    url=url,
+                    params=params,
+                    json=json,
+                    headers=request_headers,
+                    timeout=effective_timeout,
+                ) as response:
+                    if response.status_code == UNAUTHORIZED and not token_refreshed:
+                        token_refreshed = True
+                        self.token_manager.refresh_token()
+                        continue
+                    if response.status_code not in (OK, ACCEPTED, NO_CONTENT):
+                        response.read()  # error bodies are small
+                        check_response(response)
+                        raise ValueError(
+                            f"HttpStatusCode: {response.status_code}",
+                            f"ErrorMessage: {response.text}",
+                        )
+                    with open(part_path, "wb") as file:
+                        for chunk in response.iter_bytes(chunk_size=chunk_size):
+                            file.write(chunk)
+                os.replace(part_path, path)
+                return path
+            except httpx.TransportError as transport_error:
+                self._remove_quietly(part_path)
+                if idempotent and transport_retries < self.configuration.max_retries:
+                    wait = min(5 * (2**transport_retries), 60)
+                    logger.info(
+                        f"{type(transport_error).__name__} while downloading, "
+                        f"retrying in {wait}s"
+                    )
+                    time.sleep(wait)
+                    transport_retries += 1
+                    continue
+                raise
+            except BaseException:
+                self._remove_quietly(part_path)
+                raise
+
+    @staticmethod
+    def _remove_quietly(path: str) -> None:
+        import os
+
+        try:
+            os.remove(path)
+        except OSError:
+            pass
 

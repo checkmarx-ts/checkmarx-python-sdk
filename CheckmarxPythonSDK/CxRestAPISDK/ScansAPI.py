@@ -811,13 +811,17 @@ class ScansAPI(object):
             result = CxScanReportStatus.from_dict(a_dict)
         return result
 
-    def get_report_by_id(self, report_id: int, api_version: str = "1.0") -> bytes:
+    def get_report_by_id(
+        self, report_id: int, api_version: str = "1.0", timeout: float = None
+    ) -> bytes:
         """
         Get the specified report once generated.
 
         Args:
             report_id (int): Unique Id of the report
             api_version (str, optional):
+            timeout (float, optional): per-call timeout in seconds; defaults
+                to the configured timeout. Raise it for very large reports.
 
         Returns:
             byte
@@ -831,7 +835,7 @@ class ScansAPI(object):
         result = None
         url = f"{self.base_url}/cxrestapi/reports/sastScan/{report_id}"
         response = self.api_client.call_api(
-            "GET", url, headers=get_headers(api_version)
+            "GET", url, headers=get_headers(api_version), timeout=timeout
         )
         if response.status_code == OK:
             # write r.content to file with "wb" mode
@@ -1094,6 +1098,40 @@ class ScansAPI(object):
         if response.status_code == OK:
             result = CxScanResultLabelsFields.from_dict(response.json())
         return result
+
+    def download_report_by_id(
+        self,
+        report_id: int,
+        path: str,
+        api_version: str = "1.0",
+        timeout: float = None,
+    ) -> str:
+        """Stream a generated SAST report to ``path`` instead of memory.
+
+        Returns:
+            str: ``path``
+        """
+        url = f"{self.base_url}/cxrestapi/reports/sastScan/{report_id}"
+        return self.api_client.download_to(
+            "GET", url, path, headers=get_headers(api_version), timeout=timeout
+        )
+
+    def download_scan_logs(
+        self,
+        scan_id: int,
+        path: str,
+        api_version: str = "5.0",
+        timeout: float = None,
+    ) -> str:
+        """Stream the scan logs zip to ``path`` instead of memory.
+
+        Returns:
+            str: ``path``
+        """
+        url = f"{self.base_url}/cxrestapi/sast/scans/{scan_id}/logs"
+        return self.api_client.download_to(
+            "GET", url, path, headers=get_headers(api_version), timeout=timeout
+        )
 
     def get_scan_logs(self, scan_id: int, api_version: str = "5.0") -> bytes:
         """

@@ -1014,6 +1014,9 @@ components:
         totalPackagesCounter:
           type: integer
           description: The total number of container packages identified
+        totalVulnerableImages:
+          type: integer
+          description: Distinct image:tag count with vulnerabilities. Without apply-predicates, counts all images with risks; with apply-predicates, excludes images whose risks are all NOT_EXPLOITABLE.
         severityCounters:
           type: array
           uniqueItems: true
@@ -1114,14 +1117,101 @@ components:
           description: Total number of MicroEngines vulnerabilities
     AiscCounters:
       type: object
-      description: Counters for assets and asset types identified by the AI SC engine
+      description: Counters for AI Supply Chain risks identified by the AI SC engine
       properties:
+        severityCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by severity level
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              counter:
+                type: integer
+        statusCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by status
+          items:
+            type: object
+            properties:
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        stateCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by state<br> Note: Data is returned only if the `apply-predicates` parameter is true."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              state:
+                $ref: "#/components/schemas/StateEnum"
+              counter:
+                type: integer
+        severityStatusCounters:
+          type: array
+          nullable: true
+          description: "An array of counters by the combination of severity and status.<br> Note: Data is returned only if the `include-severity-status` parameter is true. Results are not returned for FIXED status."
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              severity:
+                $ref: "#/components/schemas/SeverityEnum"
+              status:
+                $ref: "#/components/schemas/StatusEnum"
+              counter:
+                type: integer
+        sourceFileCounters:
+          description: An array of counters by source file
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              counter:
+                type: integer
+        ageCounters:
+          type: array
+          uniqueItems: true
+          description: An array of counters by age (i.e. time since first identified)
+          items:
+            type: object
+            properties:
+              age:
+                type: string
+                enum: ["0-30", "30-60", "60-90", "90+"]
+              counter:
+                type: integer
+              severityCounters:
+                type: array
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    severity:
+                      $ref: "#/components/schemas/SeverityEnum"
+                    counter:
+                      type: integer
+        filesScannedCounter:
+          type: integer
+          description: NOT IN USE (always returns value 0 for the AI Supply Chain counter)
+        totalCounter:
+          type: integer
+          description: Total number of AI Supply Chain risks identified
         assetsCounter:
           type: integer
-          description: Number of assets identified by the AI SC engine
+          description: Total number of distinct AI Supply Chain assets identified
         assetTypesCounter:
           type: integer
-          description: Number of asset types identified by the AI SC engine
+          description: Total number of distinct AI Supply Chain asset types identified
     SeverityEnum:
       type: string
       description: Severity of a vulnerability

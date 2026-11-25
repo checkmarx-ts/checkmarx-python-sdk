@@ -59,6 +59,46 @@ paths:
           description: Unauthorized
 components:
   schemas:
+    # ==============================================================
+    # Schemas shared with /analyticsAPI/v1/devAssist (see ast-analyticsAPI-devAssist.yaml)
+    # ==============================================================
+    KpiQueryBase:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: "A valid timezone identifier. This will convert the input and output dates to the selected timezone"
+        startDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
+          format: date-time
+          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
+        endDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
+          format: date-time
+          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
+    SeverityType:
+      type: string
+      description: "Severity code accepted in request filters"
+      enum:
+        - critical
+        - high
+        - medium
+        - low
+        - information
+    SeverityLabelType:
+      type: string
+      description: "Severity display label returned in responses"
+      enum:
+        - Critical
+        - High
+        - Medium
+        - Low
+        - Information
+    # ==============================================================
+    # /analyticsAPI/v1 schemas
+    # ==============================================================
     AnalyticsKpiQuery:
       oneOf:
         - $ref: "#/components/schemas/AnalyticsKpiQueryWithStatus"
@@ -99,89 +139,78 @@ components:
         limit: 50
         offset: 0
     AnalyticsKpiQueryBase:
-      type: object
-      properties:
-        projects:
-          type: array
-          items:
-            anyOf:
-              - type: string
-                description: "Project ID"
-              - type: string
-                description: "Project Name"
-        applications:
-          type: array
-          items:
-            anyOf:
-              - type: string
-                description: "Application ID"
-              - type: string
-                description: "Application Name"
-        environments:
-          type: array
-          items:
-            anyOf:
-              - type: string
-                description: "Environment ID"
-              - type: string
-                description: "Environment Name"
-        scanners:
-          type: array
-          items:
-            $ref: "#/components/schemas/ScannerType"
-        applicationTags:
-          type: array
-          items:
-            type: string
-        projectTags:
-          type: array
-          items:
-            type: string
-        scanTags:
-          type: array
-          items:
-            type: string
-        states:
-          type: array
-          items:
-            $ref: "#/components/schemas/StateType"
-        severities:
-          type: array
-          items:
-            $ref: "#/components/schemas/SeverityType"
-        branchNames:
-          type: array
-          description: "List of strings representing the name of the selected branches"
-          items:
-            type: string
-        timezone:
-          type: string
-          description: "A valid timezone identifier. This will convert the input and output dates to the selected timezone"
-        groupIds:
-          type: array
-          description: "List of UUIDs representing the IDs of the selected groups"
-          items:
-            type: string
-        startDate:
-          type: string
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
-          format: date-time
-          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
-        endDate:
-          type: string
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
-          format: date-time
-          description: "date-time in format yyyy-MM-ddTHH:mm:ss"
-        limit:
-          type: integer
-          description: "Number between 1 and 100 for mostCommonVulnerabilities, mostAgingVulnerabilities KPI types and between 1 and 1000 for allVulnerabilities KPI type. Required for all three KPI types."
-          minimum: 1
-          maximum: 100
-        offset:
-          type: integer
-          description: "Required for allVulnerabilities"
-          minimum: 0
-          maximum: 100000
+      allOf:
+        - $ref: "#/components/schemas/KpiQueryBase"
+        - type: object
+          properties:
+            limit:
+              type: integer
+              description: "Number between 1 and 100 for mostCommonVulnerabilities, mostAgingVulnerabilities KPI types and between 1 and 1000 for allVulnerabilities KPI type. Required for all three KPI types."
+              minimum: 1
+              maximum: 100
+            offset:
+              type: integer
+              description: "Required for allVulnerabilities"
+              minimum: 0
+              maximum: 100000
+            projects:
+              type: array
+              items:
+                anyOf:
+                  - type: string
+                    description: "Project ID"
+                  - type: string
+                    description: "Project Name"
+            applications:
+              type: array
+              items:
+                anyOf:
+                  - type: string
+                    description: "Application ID"
+                  - type: string
+                    description: "Application Name"
+            environments:
+              type: array
+              items:
+                anyOf:
+                  - type: string
+                    description: "Environment ID"
+                  - type: string
+                    description: "Environment Name"
+            applicationTags:
+              type: array
+              items:
+                type: string
+            projectTags:
+              type: array
+              items:
+                type: string
+            scanTags:
+              type: array
+              items:
+                type: string
+            branchNames:
+              type: array
+              description: "List of strings representing the name of the selected branches"
+              items:
+                type: string
+            groupIds:
+              type: array
+              description: "List of UUIDs representing the IDs of the selected groups"
+              items:
+                type: string
+            states:
+              type: array
+              items:
+                $ref: "#/components/schemas/StateType"
+            severities:
+              type: array
+              items:
+                $ref: "#/components/schemas/SeverityType"
+            scanners:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScannerType"
     AnalyticsKpiQueryWithStatus:
       allOf:
         - $ref: "#/components/schemas/AnalyticsKpiQueryBase"
@@ -208,8 +237,12 @@ components:
         - sast
         - iac
         - sca
+        - apisec
         - dast
         - containers
+        - secretdetection
+        - repohealth
+        - byor
     StateType:
       type: string
       enum:
@@ -218,14 +251,6 @@ components:
         - proposedNotExploitable
         - confirmed
         - urgent
-    SeverityType:
-      type: string
-      enum:
-        - critical
-        - high
-        - medium
-        - low
-        - information
     StatusType:
       type: string
       enum:
@@ -474,13 +499,19 @@ components:
           items:
             $ref: "#/components/schemas/TimeSeriesValue"
     SeverityOvertimeDistribution:
-      type: array
-      items:
-        $ref: "#/components/schemas/SeverityOvertimeItem"
+      type: object
+      properties:
+        distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeverityOvertimeItem"
     FixedVulnerabilitiesBySeverityDistribution:
-      type: array
-      items:
-        $ref: "#/components/schemas/SeverityOvertimeItem"
+      type: object
+      properties:
+        distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeverityOvertimeItem"
     MeanTimeToResolutionDistribution:
       type: object
       properties:
@@ -515,6 +546,8 @@ components:
       properties:
         vulnerabilityName:
           type: string
+        scanner:
+          type: string
         total:
           type: integer
         severities:
@@ -535,19 +568,12 @@ components:
     AgingVulnerabilitiesItem:
       type: object
       properties:
+        label:
+          type: string
+        age:
+          type: integer
         vulnerabilityName:
           type: string
-        total:
-          type: integer
-        severities:
-          type: array
-          items:
-            type: object
-            properties:
-              label:
-                type: string
-              results:
-                type: integer
     AgingVulnerabilitiesDistribution:
       type: array
       items:
@@ -556,23 +582,9 @@ components:
       type: object
       properties:
         allVulnerabilities:
-          type: object
-          properties:
-            vulnerabilityName:
-              type: string
-            scanner:
-              type: string
-            total:
-              type: integer
-            severities:
-              type: array
-              items:
-                type: object
-                properties:
-                  label:
-                    type: string
-                  results:
-                    type: integer
+          type: array
+          items:
+            $ref: "#/components/schemas/MostCommonVulnerabilitiesItem"
         page:
           type: integer
           description: "Current page number"
@@ -600,14 +612,7 @@ components:
       type: object
       properties:
         label:
-          type: string
-          enum:
-            - Critical
-            - High
-            - Medium
-            - Low
-            - Information
-          example: "High"
+          $ref: "#/components/schemas/SeverityLabelType"
         results:
           type: integer
           example: 235

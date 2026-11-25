@@ -37,21 +37,20 @@ class ProjectsAPI(object):
         projects = []
         offset = 0
         limit = 500
-        try:
-            while True:
-                project_collection = self.get_a_list_of_projects(
-                    offset=offset,
-                    limit=limit,
-                )
-                total_count = int(project_collection.total_count)
-                projects.extend(project_collection.projects)
-                if len(projects) >= total_count:
-                    break
-                offset += limit
-                if offset > total_count:
-                    break
-        except Exception as e:
-            logger.error(f"Error in get_all_projects: {str(e)}")
+        # Errors propagate: returning a partial list would silently hide that
+        # some projects were never fetched.
+        while True:
+            project_collection = self.get_a_list_of_projects(
+                offset=offset,
+                limit=limit,
+            )
+            total_count = int(project_collection.total_count)
+            projects.extend(project_collection.projects)
+            if len(projects) >= total_count:
+                break
+            offset += limit
+            if offset > total_count:
+                break
         return projects
 
     def create_a_project(self, project_input: ProjectInput) -> Project:
