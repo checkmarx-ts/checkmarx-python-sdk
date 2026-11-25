@@ -35,6 +35,7 @@ def test_sast_results_pagination_no_duplicates():
     seen_path_ids = set()
     duplicates = []
     all_results = []
+    total_expected = 0
     offset = 0
     page_num = 1
 
@@ -45,6 +46,8 @@ def test_sast_results_pagination_no_duplicates():
         if page is None or not page.results:
             break
 
+        # totalCount is reported per page (CxScanResultsPage), not per result
+        total_expected = page.total_count
         batch = page.results
         all_results.extend(batch)
 
@@ -71,7 +74,6 @@ def test_sast_results_pagination_no_duplicates():
         offset += limit
         page_num += 1
 
-    total_expected = all_results[0].total_count if all_results else 0
     logger.info(f"\nSummary: fetched {len(all_results)} results across {page_num} pages")
     logger.info(f"Server reported totalCount: {total_expected}")
     logger.info(f"Unique path_ids: {len(seen_path_ids)}")
