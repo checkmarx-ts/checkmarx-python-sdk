@@ -1,0 +1,169 @@
+openapi: 3.0.1
+info:
+  title: Cx Sast Policy Engine API
+  description: Cx Sast Policy Engine Endpoints
+  version: v0.0.1
+paths:
+  /rules/{ruleId}:
+    get:
+      tags:
+        - sast-rule-controller
+      summary: Get rule by id
+      operationId: getRuleById
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RuleWebDto"
+    put:
+      tags:
+        - sast-rule-controller
+      summary: Update rule by id
+      operationId: updateRuleById
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleWebDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /policies/{policyId}:
+    get:
+      tags:
+        - sast-policy-controller
+      summary: Get policy associated rules
+      operationId: getPolicyRules
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RuleWebDto"
+    post:
+      tags:
+        - sast-policy-controller
+      summary: Create new SAST rule
+      operationId: createRule
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleWebDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+  /rules/manifest:
+    get:
+      tags:
+        - sast-rule-controller
+      summary: Get SAST rules manifest
+      operationId: getRulesManifest
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /rules:
+    delete:
+      tags:
+        - sast-rule-controller
+      summary: Delete rules by rules ID's
+      operationId: deleteRulesByIds
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    RuleConditionWebDto:
+      type: object
+      properties:
+        operator:
+          type: string
+        value:
+          type: string
+        ruleSubject:
+          type: string
+        entityType:
+          type: string
+        order:
+          type: integer
+          format: int32
+        group:
+          type: integer
+          format: int32
+    RuleWebDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        ruleName:
+          type: string
+        conditions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: "#/components/schemas/RuleConditionWebDto"
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/sast_rules_service_uri
+security:
+  - Login: []

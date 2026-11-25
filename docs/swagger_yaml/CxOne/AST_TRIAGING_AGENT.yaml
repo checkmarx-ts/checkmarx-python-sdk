@@ -1,0 +1,1107 @@
+openapi: 3.0.2
+info:
+  title: AST Triaging Agent
+  description: REST API for triggering and retrieving AI triage results. Requires a CxOne Bearer JWT; request/response bodies use camelCase JSON.
+  version: 1.0.0
+paths:
+  /triage:
+    post:
+      tags:
+        - AST Triaging Agent
+      summary: Create Triage
+      description: Create a new triage request and publish a work event to RabbitMQ.
+      operationId: create_triage_triage_post
+      parameters:
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriageRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageAcceptedResponse'
+        '400':
+          description: AI Triage could not run. Source code unavailable, unsupported scanner, or result id not found for the scan.
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '402':
+          description: Insufficient AI consumption credits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '403':
+          description: Feature not enabled or insufficient roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '404':
+          description: AI Triage could not run. The scan was not found.
+        '422':
+          description: Validation error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '503':
+          description: External service unavailable
+  /triage/{project_id}/{group_id}:
+    get:
+      tags:
+        - AST Triaging Agent
+      summary: Get Triage
+      description: Retrieve the triage result for a specific project and vulnerability group.
+      operationId: get_triage_triage__project_id___group_id__get
+      parameters:
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Project Id
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Group Id
+      responses:
+        '200':
+          description: Completed triage result or in-flight placeholder for the project/group
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/TriageResultDetailSchema'
+                  - $ref: '#/components/schemas/TriageResultInProgressSchema'
+                title: Response Get Triage Triage  Project Id   Group Id  Get
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '403':
+          description: Feature not enabled or insufficient roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '404':
+          description: Triage result not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v2/triage/{project_id}/{group_id}:
+    get:
+      tags:
+        - AST Triaging Agent
+      summary: Get Triage V2
+      description: Retrieve the v2 triage result for a specific project and vulnerability group.
+      operationId: get_triage_v2_v2_triage__project_id___group_id__get
+      parameters:
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Project Id
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Group Id
+      responses:
+        '200':
+          description: Completed v2 triage result or in-flight placeholder for the project/group
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/TriageResultCompletedV2Schema'
+                  - $ref: '#/components/schemas/TriageResultInProgressV2Schema'
+                title: Response Get Triage V2 V2 Triage  Project Id   Group Id  Get
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '403':
+          description: Feature not enabled or insufficient roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '404':
+          description: Triage result not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /triage/{project_id}/status:
+    post:
+      tags:
+        - AST Triaging Agent
+      summary: Bulk Triage Status
+      description: Return bucketed lifecycle status for one or many groups.
+      operationId: bulk_triage_status_triage__project_id__status_post
+      parameters:
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkTriageStatusRequest'
+      responses:
+        '200':
+          description: Bucketed lifecycle status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkTriageGroupsStatusResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '403':
+          description: Feature not enabled or insufficient roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '422':
+          description: Validation error (empty/over-cap groupIds)
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '503':
+          description: Group lifecycle status temporarily unavailable
+  /triage/{project_id}/discard:
+    post:
+      tags:
+        - AST Triaging Agent
+      summary: Bulk Discard Triage
+      description: Request cancellation for one or many groups within a project.
+      operationId: bulk_discard_triage_triage__project_id__discard_post
+      parameters:
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDiscardTriageRequest'
+      responses:
+        '200':
+          description: Per-group cancel outcomes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDiscardTriageResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '403':
+          description: Feature not enabled or insufficient roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '422':
+          description: Validation error (empty/over-cap groupIds)
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+  /triage/{project_id}/{group_id}/discard:
+    post:
+      tags:
+        - AST Triaging Agent
+      summary: Discard Triage
+      description: "Record a discard request for a project/group pair.\n\n.. deprecated::\n    Use ``POST /triage/{projectId}/discard`` (bulk cancel) instead."
+      operationId: discard_triage_triage__project_id___group_id__discard_post
+      deprecated: true
+      parameters:
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Project Id
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Group Id
+      responses:
+        '204':
+          description: Discard recorded for a project/group without a completed result
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '403':
+          description: Feature not enabled or insufficient roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '404':
+          description: Triage result already completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriageErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AttackabilityAnalysisV2Schema:
+      properties:
+        status:
+          $ref: '#/components/schemas/AttackabilityStatus'
+        reasoning:
+          type: string
+          title: Reasoning
+          default: ''
+      type: object
+      required:
+        - status
+      title: AttackabilityAnalysisV2Schema
+    AttackabilityStatus:
+      type: string
+      enum:
+        - UNSPECIFIED
+        - ATTACKABLE
+        - NOT_ATTACKABLE
+      title: AttackabilityStatus
+      description: Derived attackability (reachable ∧ exploitable), aligned with SSE wire tokens.
+    BulkDiscardTriageRequest:
+      properties:
+        groupIds:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Groupids
+          description: Group identifiers to cancel (1..200 for REST).
+      type: object
+      required:
+        - groupIds
+      title: BulkDiscardTriageRequest
+      description: POST /triage/{projectId}/discard body.
+    BulkDiscardTriageResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/GroupCancelResultSchema'
+          type: array
+          title: Results
+      type: object
+      title: BulkDiscardTriageResponse
+      description: 200 response for POST /triage/{projectId}/discard.
+    BulkTriageGroupsStatusResponse:
+      properties:
+        queued:
+          items:
+            type: string
+          type: array
+          title: Queued
+        inProgress:
+          items:
+            type: string
+          type: array
+          title: Inprogress
+        succeeded:
+          items:
+            type: string
+          type: array
+          title: Succeeded
+        failed:
+          items:
+            type: string
+          type: array
+          title: Failed
+        cancelled:
+          items:
+            type: string
+          type: array
+          title: Cancelled
+      type: object
+      title: BulkTriageGroupsStatusResponse
+      description: 200 response for POST /triage/{projectId}/status (bucketed lifecycle).
+    BulkTriageStatusRequest:
+      properties:
+        groupIds:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Groupids
+          description: Group identifiers to query (1..200 for REST).
+      type: object
+      required:
+        - groupIds
+      title: BulkTriageStatusRequest
+      description: POST /triage/{projectId}/status body.
+    ConfidenceScoreSchema:
+      properties:
+        score:
+          type: number
+          title: Score
+        explanation:
+          type: string
+          title: Explanation
+          default: ''
+      type: object
+      required:
+        - score
+      title: ConfidenceScoreSchema
+      description: Confidence score and explanation.
+    ConfidenceScoreV2Schema:
+      properties:
+        score:
+          type: number
+          title: Score
+        explanation:
+          type: string
+          title: Explanation
+          default: ''
+      type: object
+      required:
+        - score
+      title: ConfidenceScoreV2Schema
+    CxOneTriageState:
+      type: string
+      enum:
+        - TO_VERIFY
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+      title: CxOneTriageState
+      description: 'CxOne platform risk state written to SAST predicates and SCA MOR.
+
+
+        Subset of result-management states shared across engines: Confirmed, PNE, and
+
+        To Verify. Distinct from :class:`TriageStatus`, which also covers job lifecycle
+
+        and richer agent verdicts (e.g. ``UNCERTAIN``, ``RISK_ACCEPTED``).'
+    ExploitabilityAnalysisSchema:
+      properties:
+        status:
+          $ref: '#/components/schemas/ExploitabilityStatus'
+        reasoning:
+          type: string
+          title: Reasoning
+          default: ''
+      type: object
+      required:
+        - status
+      title: ExploitabilityAnalysisSchema
+      description: Exploitability analysis details.
+    ExploitabilityAnalysisV2Schema:
+      properties:
+        status:
+          $ref: '#/components/schemas/ExploitabilityStatus'
+        reasoning:
+          type: string
+          title: Reasoning
+          default: ''
+      type: object
+      required:
+        - status
+      title: ExploitabilityAnalysisV2Schema
+    ExploitabilityStatus:
+      type: string
+      enum:
+        - UNSPECIFIED
+        - EXPLOITABLE
+        - NOT_EXPLOITABLE
+        - UNCERTAIN
+      title: ExploitabilityStatus
+      description: 'Exploitability analysis result.
+
+
+        Aligned with publisher-triage.proto ExploitabilityStatus enum.'
+    GroupCancelResultSchema:
+      properties:
+        groupId:
+          type: string
+          minLength: 1
+          title: Groupid
+        outcome:
+          type: string
+          minLength: 1
+          title: Outcome
+      type: object
+      required:
+        - groupId
+        - outcome
+      title: GroupCancelResultSchema
+      description: One per-group cancel outcome.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ReachabilityAnalysisSchema:
+      properties:
+        status:
+          $ref: '#/components/schemas/ReachabilityStatus'
+        reasoning:
+          type: string
+          title: Reasoning
+          default: ''
+      type: object
+      required:
+        - status
+      title: ReachabilityAnalysisSchema
+      description: Reachability analysis details.
+    ReachabilityAnalysisV2Schema:
+      properties:
+        status:
+          $ref: '#/components/schemas/ReachabilityStatus'
+        reasoning:
+          type: string
+          title: Reasoning
+          default: ''
+      type: object
+      required:
+        - status
+      title: ReachabilityAnalysisV2Schema
+    ReachabilityStatus:
+      type: string
+      enum:
+        - UNSPECIFIED
+        - REACHABLE
+        - NOT_REACHABLE
+        - UNCERTAIN
+      title: ReachabilityStatus
+      description: 'Reachability analysis result.
+
+
+        Aligned with publisher-triage.proto ReachabilityStatus enum.'
+    ReasoningTraceSchema:
+      properties:
+        verification_steps:
+          items:
+            $ref: '#/components/schemas/VerificationStepSchema'
+          type: array
+          title: Verification Steps
+        repository_info:
+          anyOf:
+            - $ref: '#/components/schemas/RepositoryInfoSchema'
+            - type: 'null'
+      type: object
+      title: ReasoningTraceSchema
+      description: Optional detailed reasoning trace from the triage agent.
+    ReasoningTraceTaskV2Schema:
+      properties:
+        task:
+          type: string
+          title: Task
+        result_steps:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Result Steps
+      additionalProperties: false
+      type: object
+      required:
+        - task
+      title: ReasoningTraceTaskV2Schema
+      description: One checklist task with passthrough S3 ``result_steps``.
+    ReasoningTraceV2Schema:
+      properties:
+        reachability:
+          items:
+            $ref: '#/components/schemas/ReasoningTraceTaskV2Schema'
+          type: array
+          title: Reachability
+        exploitability:
+          items:
+            $ref: '#/components/schemas/ReasoningTraceTaskV2Schema'
+          type: array
+          title: Exploitability
+      type: object
+      title: ReasoningTraceV2Schema
+    RepositoryInfoSchema:
+      properties:
+        path:
+          type: string
+          title: Path
+          default: ''
+        excluded_subdirectories:
+          items:
+            type: string
+          type: array
+          title: Excluded Subdirectories
+        description:
+          type: string
+          title: Description
+          default: ''
+        programming_languages:
+          items:
+            type: string
+          type: array
+          title: Programming Languages
+        frameworks:
+          items:
+            type: string
+          type: array
+          title: Frameworks
+        dependency_management_systems:
+          items:
+            type: string
+          type: array
+          title: Dependency Management Systems
+        dependency_files:
+          items:
+            type: string
+          type: array
+          title: Dependency Files
+        build_process_info:
+          type: string
+          nullable: true
+          title: Build Process Info
+        build_system:
+          type: string
+          nullable: true
+          title: Build System
+        documentation:
+          items:
+            type: string
+          type: array
+          title: Documentation
+        key_directories:
+          items:
+            type: string
+          type: array
+          title: Key Directories
+      type: object
+      title: RepositoryInfoSchema
+      description: Repository technology stack snapshot included in a reasoning trace.
+    TriageAcceptedResponse:
+      properties:
+        scanID:
+          type: string
+          minLength: 1
+          title: Scanid
+        status:
+          type: string
+          const: accepted
+          title: Status
+          default: accepted
+        triageID:
+          type: string
+          title: Triageid
+          default: ''
+        published:
+          type: boolean
+          title: Published
+          default: true
+        existingTriageState:
+          type: string
+          nullable: true
+          title: Existingtriagestate
+      type: object
+      required:
+        - scanID
+      title: TriageAcceptedResponse
+      description: '202 Accepted response for POST /triage.
+
+
+        ``triageID`` is the stable UUID identifying this triage job (used for SSE wiring).
+
+        Correlation ID is returned in the ``X-Correlation-ID`` response header.
+
+
+        ``published`` distinguishes a newly enqueued run (``true``) from an idempotent
+
+        duplicate that was swallowed (``false``). ``existingState`` exposes the Redis
+
+        idempotency state before this request (``"processing"`` or ``"completed"``);
+
+        it is ``null`` only when no prior triage existed. A completed reconciliation
+
+        republish returns ``published=true`` with ``existingState="completed"``.'
+    TriageAnalysisSchema:
+      properties:
+        confidence:
+          $ref: '#/components/schemas/ConfidenceScoreSchema'
+        reachability:
+          $ref: '#/components/schemas/ReachabilityAnalysisSchema'
+        exploitability:
+          $ref: '#/components/schemas/ExploitabilityAnalysisSchema'
+        usage_locations:
+          items:
+            type: string
+          type: array
+          title: Usage Locations
+      type: object
+      required:
+        - confidence
+        - reachability
+        - exploitability
+      title: TriageAnalysisSchema
+      description: Structured analysis for a single triage result.
+    TriageAnalysisV2Schema:
+      properties:
+        confidence:
+          $ref: '#/components/schemas/ConfidenceScoreV2Schema'
+        reachability:
+          $ref: '#/components/schemas/ReachabilityAnalysisV2Schema'
+        exploitability:
+          $ref: '#/components/schemas/ExploitabilityAnalysisV2Schema'
+        attackability:
+          $ref: '#/components/schemas/AttackabilityAnalysisV2Schema'
+        usageLocations:
+          items:
+            type: string
+          type: array
+          title: Usagelocations
+      type: object
+      required:
+        - confidence
+        - reachability
+        - exploitability
+        - attackability
+      title: TriageAnalysisV2Schema
+    TriageBucket:
+      properties:
+        scannerType:
+          type: string
+          minLength: 1
+          title: Scannertype
+          description: 'Scanner engine: sast or sca (case-insensitive).'
+        resultIDs:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Resultids
+          description: Explicit result IDs for this scanner.
+      type: object
+      required:
+        - scannerType
+        - resultIDs
+      title: TriageBucket
+      description: One scanner's result IDs in a POST /triage body.
+    TriageErrorResponse:
+      properties:
+        error:
+          type: string
+          minLength: 1
+          title: Error
+        message:
+          type: string
+          minLength: 1
+          title: Message
+      type: object
+      required:
+        - error
+        - message
+      title: TriageErrorResponse
+      description: Standard error body for documented 4xx/5xx responses.
+    TriageRequest:
+      properties:
+        scanID:
+          type: string
+          minLength: 1
+          title: Scanid
+          description: Scan identifier (UUID).
+        projectID:
+          type: string
+          nullable: true
+          title: Projectid
+          description: Optional project identifier.
+        applicationID:
+          type: string
+          nullable: true
+          title: Applicationid
+          description: Optional application identifier.
+        buckets:
+          items:
+            $ref: '#/components/schemas/TriageBucket'
+          type: array
+          minItems: 1
+          title: Buckets
+          description: Per-scanner explicit result sets to triage.
+      type: object
+      required:
+        - scanID
+        - buckets
+      title: TriageRequest
+      description: POST /triage request body.
+    TriageResultCompletedV2Schema:
+      properties:
+        apiVersion:
+          type: string
+          const: '2.0'
+          title: Apiversion
+          default: '2.0'
+        responseType:
+          type: string
+          const: completed
+          title: Responsetype
+          default: completed
+        resultId:
+          type: string
+          minLength: 1
+          title: Resultid
+        projectId:
+          type: string
+          minLength: 1
+          title: Projectid
+        groupId:
+          type: string
+          minLength: 1
+          title: Groupid
+        scanner:
+          type: string
+          minLength: 1
+          title: Scanner
+        triageStatus:
+          $ref: '#/components/schemas/CxOneTriageState'
+        reachabilityStatus:
+          $ref: '#/components/schemas/ReachabilityStatus'
+        exploitabilityStatus:
+          $ref: '#/components/schemas/ExploitabilityStatus'
+        attackabilityStatus:
+          $ref: '#/components/schemas/AttackabilityStatus'
+        summary:
+          type: string
+          title: Summary
+          default: ''
+        triagedAt:
+          type: string
+          format: date-time
+          title: Triagedat
+        mockOrigin:
+          type: boolean
+          title: Mockorigin
+          default: false
+        analysis:
+          $ref: '#/components/schemas/TriageAnalysisV2Schema'
+        reasoningTrace:
+          $ref: '#/components/schemas/ReasoningTraceV2Schema'
+      type: object
+      required:
+        - resultId
+        - projectId
+        - groupId
+        - scanner
+        - triageStatus
+        - reachabilityStatus
+        - exploitabilityStatus
+        - attackabilityStatus
+        - triagedAt
+        - analysis
+        - reasoningTrace
+      title: TriageResultCompletedV2Schema
+      description: Completed GET /v2/triage response.
+    TriageResultDetailSchema:
+      properties:
+        resultID:
+          type: string
+          minLength: 1
+          title: Resultid
+        scanner:
+          type: string
+          minLength: 1
+          title: Scanner
+        triageStatus:
+          $ref: '#/components/schemas/CxOneTriageState'
+        reachabilityStatus:
+          $ref: '#/components/schemas/ReachabilityStatus'
+        exploitabilityStatus:
+          $ref: '#/components/schemas/ExploitabilityStatus'
+        attackabilityStatus:
+          $ref: '#/components/schemas/AttackabilityStatus'
+          default: UNSPECIFIED
+        summary:
+          type: string
+          title: Summary
+          default: ''
+        triagedAt:
+          type: string
+          format: date-time
+          title: Triagedat
+        analysis:
+          $ref: '#/components/schemas/TriageAnalysisSchema'
+        metadata:
+          $ref: '#/components/schemas/VulnerabilityMetadataSchema'
+        reasoningTrace:
+          anyOf:
+            - $ref: '#/components/schemas/ReasoningTraceSchema'
+            - type: 'null'
+        mockOrigin:
+          type: boolean
+          title: Mockorigin
+          default: false
+        groupId:
+          type: string
+          nullable: true
+          title: Groupid
+        projectId:
+          type: string
+          nullable: true
+          title: Projectid
+        sourceProjectId:
+          type: string
+          nullable: true
+          title: Sourceprojectid
+      type: object
+      required:
+        - resultID
+        - scanner
+        - triageStatus
+        - reachabilityStatus
+        - exploitabilityStatus
+        - triagedAt
+        - analysis
+        - metadata
+      title: TriageResultDetailSchema
+      description: Single completed vulnerability triage result in a GET /triage response.
+    TriageResultInProgressSchema:
+      properties:
+        projectID:
+          type: string
+          minLength: 1
+          title: Projectid
+        groupID:
+          type: string
+          minLength: 1
+          title: Groupid
+        jobStatus:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - FAILED
+          title: Jobstatus
+      type: object
+      required:
+        - projectID
+        - groupID
+        - jobStatus
+      title: TriageResultInProgressSchema
+      description: Group-scoped job placeholder returned by GET /triage while work is in flight.
+    TriageResultInProgressV2Schema:
+      properties:
+        apiVersion:
+          type: string
+          const: '2.0'
+          title: Apiversion
+          default: '2.0'
+        projectID:
+          type: string
+          minLength: 1
+          title: Projectid
+        groupID:
+          type: string
+          minLength: 1
+          title: Groupid
+        jobStatus:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - FAILED
+          title: Jobstatus
+      type: object
+      required:
+        - projectID
+        - groupID
+        - jobStatus
+      title: TriageResultInProgressV2Schema
+      description: In-flight GET /v2/triage placeholder — same shape as v1 plus ``apiVersion``.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+    VerificationCategory:
+      type: string
+      enum:
+        - REACHABILITY
+        - EXPLOITABILITY
+      title: VerificationCategory
+      description: Category of a verification step.
+    VerificationStatus:
+      type: string
+      enum:
+        - VERIFIED
+        - NOT_VERIFIED
+        - INCONCLUSIVE
+      title: VerificationStatus
+      description: Status of a verification step in reasoning trace.
+    VerificationStepSchema:
+      properties:
+        task:
+          type: string
+          title: Task
+        category:
+          $ref: '#/components/schemas/VerificationCategory'
+        status:
+          $ref: '#/components/schemas/VerificationStatus'
+        thoughts:
+          items:
+            type: string
+          type: array
+          title: Thoughts
+        conclusion:
+          type: string
+          title: Conclusion
+          default: ''
+        usage_locations:
+          items:
+            type: string
+          type: array
+          title: Usage Locations
+      type: object
+      required:
+        - task
+        - category
+        - status
+      title: VerificationStepSchema
+      description: One verification step from the agent reasoning trace.
+    VulnerabilityMetadataSchema:
+      properties:
+        component:
+          type: string
+          nullable: true
+          title: Component
+        version:
+          type: string
+          nullable: true
+          title: Version
+        dependency_type:
+          type: string
+          nullable: true
+          title: Dependency Type
+      type: object
+      title: VulnerabilityMetadataSchema
+      description: Metadata about the vulnerable component.
+  parameters:
+    correlationIdHeader:
+      name: x-correlation-id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Correlation ID for distributed tracing
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/ai-triage
+security:
+  - Login: []

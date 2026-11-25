@@ -1,0 +1,543 @@
+openapi: 3.0.3
+info:
+  title: Core Results API
+  description: |
+    API for listing risks. Includes the risks endpoint (paginated risks for a project).
+  version: "1.0"
+paths:
+  /:
+    get:
+      summary: Get risks
+      description: |
+        Returns a paginated list of risks for a project. Requires tenant JWT and
+        feature flag RISKHUB_ENABLED on. attackability, remediation and remediationPrUrl
+        are gated by an AI feature flag and omitted when it's off; filtering and sorting
+        by them are gated the same way.
+      operationId: getRisks
+      tags:
+        - Risks
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/order"
+        - name: sort
+          in: query
+          description: Sort field.
+          schema:
+            type: string
+            enum:
+              - severity
+              - state
+              - riskName
+              - status
+              - assetName
+              - assetType
+              - subAssetName
+              - source
+              - origin
+              - firstDetectionDate
+              - attackability
+              - remediation
+        - $ref: "#/components/parameters/severity"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/state"
+        - $ref: "#/components/parameters/engine"
+        - $ref: "#/components/parameters/riskName"
+        - $ref: "#/components/parameters/fromDate"
+        - $ref: "#/components/parameters/toDate"
+        - $ref: "#/components/parameters/assetName"
+        - $ref: "#/components/parameters/subAssetName"
+        - $ref: "#/components/parameters/assetType"
+        - $ref: "#/components/parameters/source"
+        - $ref: "#/components/parameters/origin"
+        - $ref: "#/components/parameters/isAiGenerated"
+        - $ref: "#/components/parameters/attackability"
+        - $ref: "#/components/parameters/remediation"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskResponse"
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '501':
+          $ref: '#/components/responses/501'
+  /aggregate:
+    get:
+      summary: Get aggregated risks
+      description: |
+        Get aggregated risks for the specified scan. attackability and remediation filters
+        are gated by an AI feature flag; grouping/sorting by them is not supported.
+      operationId: getAggregatedRisks
+      tags:
+        - Risks
+      parameters:
+        - $ref: "#/components/parameters/auth"
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/projectId"
+        - name: groupBy
+          in: query
+          required: true
+          description: Specify parameters for grouping results
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [severity, engine]
+        - $ref: "#/components/parameters/severity"
+        - $ref: "#/components/parameters/engine"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/state"
+        - $ref: "#/components/parameters/riskName"
+        - $ref: "#/components/parameters/source"
+        - $ref: "#/components/parameters/origin"
+        - $ref: "#/components/parameters/assetName"
+        - $ref: "#/components/parameters/fromDate"
+        - $ref: "#/components/parameters/toDate"
+        - $ref: "#/components/parameters/isAiGenerated"
+        - $ref: "#/components/parameters/attackability"
+        - $ref: "#/components/parameters/remediation"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 50
+          description: The maximum number of results to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: The number of results to skip before returning results
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  risksCounters:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        Severity:
+                          allOf:
+                            - $ref: "#/components/schemas/SeverityEnum"
+                          example: HIGH
+                        Engine:
+                          allOf:
+                            - $ref: "#/components/schemas/EngineEnum"
+                          example: SAST
+                        Count:
+                          type: integer
+                          description: Aggregated count
+                          example: 6
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '501':
+          $ref: '#/components/responses/501'
+components:
+  schemas:
+    RiskResponse:
+      type: object
+      properties:
+        metaData:
+          $ref: "#/components/schemas/MetaData"
+        risks:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskAPIModel"
+    RiskAPIModel:
+      type: object
+      description: Risk API model.
+      properties:
+        id:
+          type: string
+        riskName:
+          type: string
+        status:
+          type: string
+        state:
+          type: string
+        severity:
+          type: string
+        firstDetectionDate:
+          $ref: "#/components/schemas/datetime"
+        origin:
+          type: string
+        source:
+          type: string
+        assetName:
+          type: string
+        subAssetName:
+          type: string
+        projectId:
+          type: string
+        scanId:
+          type: string
+        engine:
+          type: string
+        groupId:
+          type: string
+        assetType:
+          type: string
+        isAiGenerated:
+          type: boolean
+        stateChangedBy:
+          $ref: "#/components/schemas/StateChangedByEnum"
+        attackability:
+          allOf:
+            - $ref: "#/components/schemas/AttackabilityEnum"
+          description: Gated by an AI feature flag; omitted when disabled.
+        attackabilityInProgress:
+          type: boolean
+          description: Whether attackability analysis is running. Gated by an AI feature flag.
+        remediation:
+          allOf:
+            - $ref: "#/components/schemas/RemediationEnum"
+          description: Gated by an AI feature flag; omitted when disabled.
+        remediationPrUrl:
+          type: string
+          description: Gated by an AI feature flag; omitted when disabled.
+        remediationInProgress:
+          type: boolean
+          description: Whether an automated remediation attempt is running. Gated by an AI feature flag.
+    MetaData:
+      type: object
+      properties:
+        totalResults:
+          type: integer
+          description: Total count matching filter
+        filteredResults:
+          type: integer
+          description: Count after filters
+        page:
+          type: integer
+        pageSize:
+          type: integer
+    StateChangedByEnum:
+      type: string
+      description: Who changed the state of a risk
+      enum:
+        - MANUAL
+        - AI
+        - UNCHANGED
+    EmptyFilterValue:
+      type: string
+      description: |
+        Sentinel filter value that matches risks with no value set for the filtered field
+        (null or empty string). Matched case-insensitively and never matched literally.
+      enum:
+        - "[empty]"
+    AttackabilityEnum:
+      type: string
+      description: Exploitability classification assigned to a risk.
+      enum:
+        - ATTACKABLE
+        - NOT_ATTACKABLE
+    RemediationEnum:
+      type: string
+      description: State of an automated remediation attempt for a risk.
+      enum:
+        - PR_OPEN
+        - PR_MERGED
+        - PR_CLOSED
+        - MANUAL_REMEDIATION_PR_FAILED
+        - MANUAL_REMEDIATION
+        - REMEDIATION_FAILED
+    SeverityEnum:
+      type: string
+      description: Severity enum of a risk
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+        - INFO
+    EngineEnum:
+      type: string
+      description: Engine enum
+      enum:
+        - SAST
+        - IAC
+        - SCA
+        - CISEC
+        - APISEC
+    StateEnum:
+      type: string
+      description: State enum of a risk
+      enum:
+        - TO_VERIFY
+        - NOT_EXPLOITABLE
+        - PROPOSED_NOT_EXPLOITABLE
+        - CONFIRMED
+        - URGENT
+    StatusEnum:
+      type: string
+      description: Status enum of a risk
+      enum:
+        - NEW
+        - RECURRENT
+        - FIXED
+    datetime:
+      type: string
+      description: RFC3339 formatted datetime or a unix timestamp in seconds
+      format: date-time
+      example: "2024-03-15T10:30:00+02:00"
+    ErrorResponse:
+      type: object
+      description: Error payload with code and message
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    '401':
+      description: "Unauthorized, Access token is missing or invalid"
+    '403':
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    '404':
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    '501':
+      description: "Not Implemented"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    projectId:
+      name: projectId
+      in: query
+      required: true
+      description: Project UUID.
+      schema:
+        type: string
+        format: uuid
+    limit:
+      name: limit
+      in: query
+      description: Page size.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 20
+    offset:
+      name: offset
+      in: query
+      description: Number of items to skip.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    order:
+      name: order
+      in: query
+      description: Sort direction.
+      schema:
+        type: string
+        enum: [ASC, DESC]
+        default: DESC
+    severity:
+      name: severity
+      in: query
+      description: Filter by severity (repeatable).
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/SeverityEnum"
+    status:
+      name: status
+      in: query
+      description: Filter by status (repeatable).
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/StatusEnum"
+    state:
+      name: state
+      in: query
+      description: Filter by state (repeatable).
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/StateEnum"
+    engine:
+      name: engine
+      in: query
+      description: Filter by engine (repeatable).
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/EngineEnum"
+    riskName:
+      name: riskName
+      in: query
+      description: Filter by risk name (repeatable).
+      schema:
+        type: array
+        items:
+          type: string
+    fromDate:
+      name: fromDate
+      in: query
+      description: Filter by first detection from date (inclusive).
+      schema:
+        $ref: "#/components/schemas/datetime"
+    toDate:
+      name: toDate
+      in: query
+      description: Filter by first detection to date (inclusive).
+      schema:
+        $ref: "#/components/schemas/datetime"
+    assetName:
+      name: assetName
+      in: query
+      description: Filter by asset name (repeatable).
+      schema:
+        type: array
+        items:
+          type: string
+    subAssetName:
+      name: subAssetName
+      in: query
+      description: |
+        Filter by sub-asset name (repeatable). The "[empty]" value (see EmptyFilterValue)
+        matches risks with no sub-asset, e.g. "subAssetName=[empty]".
+      schema:
+        type: array
+        items:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/EmptyFilterValue"
+    assetType:
+      name: assetType
+      in: query
+      description: Filter by asset type (repeatable).
+      schema:
+        type: array
+        items:
+          type: string
+          enum: [ENDPOINT, SOURCE_CODE, CONTAINER_IMAGE, MANIFEST_FILE, XML_FILE, CODE, DOCUMENTATION]
+    source:
+      name: source
+      in: query
+      description: Filter by source (repeatable).
+      schema:
+        type: array
+        items:
+          type: string
+    origin:
+      name: origin
+      in: query
+      description: Filter by scan origin (repeatable).
+      schema:
+        type: array
+        items:
+          type: string
+    isAiGenerated:
+      name: isAiGenerated
+      in: query
+      description: Filter by AI-generated flag. false also matches results where the field is not set.
+      schema:
+        type: boolean
+    attackability:
+      name: attackability
+      in: query
+      description: |
+        Filter by attackability (repeatable). Requires the AI feature flag. The "[empty]"
+        value (see EmptyFilterValue) matches risks with no attackability value set,
+        e.g. "attackability=[empty]" or "attackability=ATTACKABLE,[empty]".
+      schema:
+        type: array
+        items:
+          oneOf:
+            - $ref: "#/components/schemas/AttackabilityEnum"
+            - $ref: "#/components/schemas/EmptyFilterValue"
+    remediation:
+      name: remediation
+      in: query
+      description: |
+        Filter by remediation status (repeatable). Requires the AI feature flag. The "[empty]"
+        value (see EmptyFilterValue) matches risks with no remediation value set,
+        e.g. "remediation=[empty]" or "remediation=PR_OPEN,[empty]".
+      schema:
+        type: array
+        items:
+          oneOf:
+            - $ref: "#/components/schemas/RemediationEnum"
+            - $ref: "#/components/schemas/EmptyFilterValue"
+    auth:
+      in: header
+      name: Authorization
+      description: "JWT access token (REQUIRED)"
+      schema:
+        type: string
+        format: JWT
+    correlationId:
+      in: header
+      name: CorrelationId
+      description: "Correlation ID, used to keep track of a flow if many APIs are involved"
+      schema:
+        type: string
+        format: uuid
+    version:
+      in: header
+      name: Accept
+      description: "Requested API version"
+      schema:
+        type: string
+        example: "*/*; version=1.0"
+        pattern: .*version\s*=\s*([\d|.]+)
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/risks
+security:
+  - Login: []

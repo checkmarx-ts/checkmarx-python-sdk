@@ -1,0 +1,6785 @@
+openapi: 3.0.1
+info:
+  title: Scans Manager Service Frontend API
+  description: API for the Scans Manager Service Frontend
+  version: 1.0.0
+tags:
+  - name: scans-manager-service
+paths:
+  /tenant:
+    get:
+      summary: "Get the tenant dashboard information"
+      description: "Get tenant dashboard information"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantInfo'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments:
+    get:
+      summary: "Get all environments with their last scans"
+      description: "Get all environments"
+      parameters:
+        - name: match
+          in: query
+          description: "Look for exact match of values in columns domain, url, scanType, projectId, lastRiskRating or environmentId"
+          schema:
+            $ref: '#/components/schemas/EnvironmentFilter'
+        - name: filter
+          description: "Look for a partial match of values in columns domain, url, scanType, projectId, lastRiskRating or environmentId"
+          in: query
+          schema:
+            $ref: '#/components/schemas/EnvironmentFilter'
+        - name: lastStatus
+          in: query
+          description: "Valid staus: New, ExternalScan, Running, Finished, Failed, Cancelled"
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+        - name: search
+          in: query
+          description: "Will search in columns: domain, url"
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: "Valid columns: domain, url, scantype, lastscantime, lastscanstatus, lastriskrating"
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+              example: "domain:asc"
+        - name: tags
+          in: query
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+        - name: groups
+          in: query
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+        - name: scanTypes
+          in: query
+          description: "Filter by scan types"
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [DAST, DASTAPI, DASTMCP]
+        - name: riskRatings
+          in: query
+          description: "Filter by risk ratings"
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+        - name: alertRiskRatings
+          in: query
+          description: "Filter by alert risk ratings"
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [CRITICAL, HIGH, MEDIUM, LOW, INFO]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentsResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environment:
+    post:
+      summary: "Create a new environment"
+      description: "Create a new environment"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - domain
+                - url
+                - scanType
+              properties:
+                domain:
+                  type: string
+                url:
+                  type: string
+                scanType:
+                  type: string
+                  enum: [DAST, DASTAPI, DASTMCP]
+                  description: "Type of scan/environment. DASTMCP environments must have HasAuth set to false"
+                isPublic:
+                  type: boolean
+                projectIds:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                tags:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                groups:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                clientIds:
+                  type: array
+                  description: "Client IDs to assign to the environment"
+                  items:
+                    type: string
+                userIds:
+                  type: array
+                  description: "User IDs to assign to the environment"
+                  items:
+                    type: string
+                Settings:
+                  $ref: '#/components/schemas/EnvSettings'
+                HasAuth:
+                  type: boolean
+                  description: "Whether the environment has authentication configured. Must be false when scanType is 'DASTMCP'"
+                appIds:
+                  type: array
+                  description: "Application IDs"
+                  items:
+                    type: string
+                primaryAppIds:
+                  type: array
+                  description: "Primary application IDs"
+                  items:
+                    type: string
+                source:
+                  type: string
+                  description: "Source of the environment"
+            examples:
+              "0":
+                value: "{\n\t\"domain\":\"my-domain\",\n\n\t\"url\":\"http://local-domain\",\n\t\"scanType\":\"DAST\",\n\t\"isPublic\":true,\n\t\"projectIds\":[\"af281f72-83b2-4a53-ae26-12a32303456f\"],\n\t\"tags\":[\"A\", \"B\"],\n\t\"groups\":[\"C\", \"D\"]\n}"
+      responses:
+        "201":
+          description: Created
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    put:
+      summary: "Update an existing environment"
+      description: "Update an existing environment"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentID
+              properties:
+                environmentID:
+                  type: string
+                domain:
+                  type: string
+                url:
+                  type: string
+                scanType:
+                  type: string
+                  enum: [DAST, DASTAPI, DASTMCP]
+                isPublic:
+                  type: boolean
+                projectIds:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                tags:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                groups:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: string
+                clientIds:
+                  type: array
+                  description: "Client IDs to assign to the environment"
+                  items:
+                    type: string
+                userIds:
+                  type: array
+                  description: "User IDs to assign to the environment"
+                  items:
+                    type: string
+                Settings:
+                  $ref: '#/components/schemas/EnvSettings'
+                tunnelId:
+                  type: string
+                  description: "Tunnel ID"
+                appIds:
+                  type: array
+                  description: "Application IDs"
+                  items:
+                    type: string
+                primaryAppIds:
+                  type: array
+                  description: "Primary application IDs"
+                  items:
+                    type: string
+            examples:
+              "0":
+                value: "{\n\t\"environmentID\":\"af281f72-83b2-4a53-ae26-12a32303456f\",\n\t\"domain\":\"my-domain\",\n\n\t\"url\":\"http://local-domain\",\n\t\"scanType\":\"DAST\",\n\t\"isPublic\":true,\n\t\"projectIds\":[\"af281f72-83b2-4a53-ae26-12a32303456f\"],\n\t\"tags\":[\"A\", \"B\"],\n\t\"groups\":[\"C\", \"D\"]\n}"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    delete:
+      summary: "Delete an existing environment"
+      description: "Delete an existing environment"
+      parameters:
+        - name: environmentId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environment/{envId}:
+    get:
+      summary: "Fetch the environemt information"
+      description: "Get environment information"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvWithStatus'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: No such environment was found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/groups:
+    get:
+      summary: "Group environments by columns"
+      description: "Group environments by columns"
+      parameters:
+        - name: groupBy
+          in: query
+          description: "Columns to group-by: domain, url, scanType, lastRiskRating, projectId"
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+        - name: filter
+          in: query
+          description: "Look for a partial match of values in columns Domain, URL, ScanType, LastRiskRating or environmentId"
+          schema:
+            type: object
+            properties:
+              domain:
+                type: string
+              url:
+                type: string
+              scanType:
+                type: string
+              projectId:
+                type: string
+              lastRiskRating:
+                type: string
+              environmentId:
+                type: string
+              authSuccess:
+                type: string
+              tunnelState:
+                type: string
+        - name: LastScanStatus
+          in: query
+          description: "Filter by last scan status"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: Search
+          in: query
+          description: "Search term"
+          schema:
+            type: string
+        - name: Tags
+          in: query
+          description: "Filter by tags"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: Groups
+          in: query
+          description: "Filter by groups"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: RiskRatings
+          in: query
+          description: "Filter by risk ratings"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: AlertRiskRatings
+          in: query
+          description: "Filter by alert risk ratings"
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupItem'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /scans:
+    get:
+      summary: "Fetch all scans for an environment"
+      description: "Get all scans for an environment"
+      parameters:
+        - name: environmentID
+          in: query
+          required: true
+          description: "Environment ID"
+          schema:
+            type: string
+            format: uuid
+        - name: match
+          in: query
+          description: "Look for an exact match of values in columns"
+          schema:
+            type: object
+            properties:
+              initiator:
+                type: string
+              scanType:
+                type: string
+              projectId:
+                type: string
+              riskRating:
+                type: string
+              scanId:
+                type: string
+        - name: filter
+          in: query
+          description: "Look for a partial match of values in columns"
+          schema:
+            type: object
+            properties:
+              initiator:
+                type: string
+              scanType:
+                type: string
+              projectId:
+                type: string
+              riskRating:
+                type: string
+              scanId:
+                type: string
+        - name: lastStatus
+          in: query
+          description: "Filter by scan status"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: sort
+          in: query
+          description: "Sort by columns"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: search
+          in: query
+          description: "Search term"
+          schema:
+            type: string
+        - name: tags
+          in: query
+          description: "Filter by tags"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: groups
+          in: query
+          description: "Filter by groups"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: from
+          in: query
+          description: "Pagination start"
+          schema:
+            type: integer
+        - name: to
+          in: query
+          description: "Pagination end"
+          schema:
+            type: integer
+        - name: insightLevels
+          in: query
+          description: "Filter by insight levels"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: hasResults
+          in: query
+          description: "Filter by has results"
+          schema:
+            type: boolean
+        - name: hasFailedSequences
+          in: query
+          description: "Filter by has failed sequences"
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScanWithStatus'
+                  totalCount:
+                    type: integer
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /scans/groups:
+    get:
+      summary: "Group scans by columns"
+      description: "Group scans by columns"
+      parameters:
+        - name: environmentID
+          in: query
+          required: true
+          description: "Environment ID"
+          schema:
+            type: string
+            format: uuid
+        - name: groupBy
+          in: query
+          description: "Columns to group-by"
+          schema:
+            type: array
+            maxItems: 10
+            items:
+              type: string
+        - name: filter
+          in: query
+          description: "Look for a partial match of values in columns"
+          schema:
+            type: object
+            properties:
+              initiator:
+                type: string
+              scanType:
+                type: string
+              projectId:
+                type: string
+              riskRating:
+                type: string
+              scanId:
+                type: string
+        - name: ScanStatus
+          in: query
+          description: "Filter by scan status"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: Search
+          in: query
+          description: "Search term"
+          schema:
+            type: string
+        - name: Tags
+          in: query
+          description: "Filter by tags"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: Groups
+          in: query
+          description: "Filter by groups"
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupItem'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /scan:
+    post:
+      summary: "Create a new scan"
+      description: "Create a new scan for an environment"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - scanType
+                - configurationFile
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanType:
+                  type: string
+                  enum: [DAST, DASTAPI, DASTMCP]
+                tags:
+                  type: array
+                  items:
+                    type: string
+                groups:
+                  type: array
+                  items:
+                    type: string
+                useExternalWorker:
+                  type: boolean
+                useAuthSession:
+                  type: boolean
+                apiFileType:
+                  type: string
+                cliVersion:
+                  type: string
+                heartbeatInterval:
+                  type: integer
+                initiator:
+                  type: string
+                configurationFile:
+                  type: string
+                  format: binary
+                  description: "Configuration file for the scan"
+                APIFile:
+                  type: string
+                  format: binary
+                  description: "API specification file (OpenAPI, Postman, HAR)"
+      responses:
+        "201":
+          description: Created
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    put:
+      summary: "Update a scan"
+      description: "Update a scan"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - scanId
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+                tags:
+                  type: array
+                  items:
+                    type: string
+                groups:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    patch:
+      summary: "Cancel a scan"
+      description: "Cancel a running scan"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - scanId
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    delete:
+      summary: "Delete a scan"
+      description: "Delete a scan"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - scanId
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /scan/{scanId}:
+    get:
+      summary: "Fetch a scan"
+      description: "Get a scan by ID"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanWithStatus'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /log/{scanId}:
+    get:
+      summary: "Fetch scan logs"
+      description: "Get logs for a scan"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /publicScan:
+    post:
+      summary: "Create a new public scan"
+      description: "Post a new public scan"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentID
+              properties:
+                environmentID:
+                  type: string
+            examples:
+              "0":
+                value: "{\n    \"environmentID\":\"af281f72-83b2-4a53-ae26-12a32303456f\"\n}"
+      responses:
+        "201":
+          description: Created
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+              example: "af281f72-83b2-4a53-ae26-12a32303456f"
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /externalScan:
+    put:
+      summary: "Update an external scan to finished/failed state"
+      description: 'Update an external scan to finished/failed state, have no affect on scans that are not in "ExternalScan" status (including finished/failed external scans)'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - scanId
+              properties:
+                environmentId:
+                  type: string
+                scanId:
+                  type: string
+                startTime:
+                  type: string
+                updateTime:
+                  type: string
+                scanDuration:
+                  type: number
+                lastStatus:
+                  type: string
+                  description: "A message describing the scan state"
+                  example: "Uploading results to ResultsService"
+                log:
+                  type: string
+                  description: "String representation of the binary log file (plaintext)"
+                statistics:
+                  type: string
+                  description: 'Determines if the scan was successful; Should contain "Finished" or "Failed"'
+                zapError:
+                  type: string
+                zapExitStatus:
+                  type: string
+                errCode:
+                  type: string
+                errors:
+                  type: array
+                  items:
+                    type: string
+                hasResultsError:
+                  type: boolean
+                numLogFiles:
+                  type: integer
+                insights:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Insight'
+                failedSequencesCount:
+                  type: integer
+            examples:
+              "0":
+                value: "{\n\t\"scanId\":\"af281f72-83b2-4a53-ae26-12a32303456f\",\n\t\"startTime\":\"2022-10-30T15:56:32.8813678Z\",\n\t\"updateTime\":\"2022-10-30T15:56:32.8813678Z\",\n\t\"scanDuration\":30,\n\t\"lastStatus\":\"Scan went just fine :)\",\n\t\"log\":\"Q29uZmln\",\"statistics\":\"All is OK\"\n}"
+      responses:
+        "200":
+          description: "OK. When the scan reaches a finished/failed state, the body is instead \"ProjectIDs:<comma-separated project ids>\""
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: No such scan was found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environmentSummaries:
+    get:
+      summary: "Get summaries of all environments"
+      description: "Get summaries of all environments"
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: object
+            properties:
+              domain:
+                type: string
+              url:
+                type: string
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  environments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApplicationEnvironmentsResponse'
+                  totalItems:
+                    type: integer
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /leanEnvironments:
+    get:
+      summary: "Get lean environments with basic information"
+      description: "Get lean environments with basic information"
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  environments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LeanEnvironment'
+                  totalItems:
+                    type: integer
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /technologies:
+    get:
+      summary: "Get the technology catalog for the enable/disable UI"
+      description: "Get the canonical, static list of technology ids/categories that EnvSettings.Technologies accepts"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Technology'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environment/{envId}/scans-over-time:
+    get:
+      summary: "Get severity over time for an environment"
+      description: "Get severity over time for an environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: fromDate
+          in: query
+          required: true
+          description: "RFC3339 formatted date"
+          schema:
+            type: string
+        - name: toDate
+          in: query
+          required: true
+          description: "RFC3339 formatted date"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScansOverTimeResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/tags:
+    get:
+      summary: "Get all tags for environments"
+      description: "Get all distinct tags across environments"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environmentSettings/{envId}:
+    put:
+      summary: "Update environment settings"
+      description: "Update environment settings (partial update of the Settings object)"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - Settings
+              properties:
+                Settings:
+                  $ref: '#/components/schemas/EnvSettings'
+                encryptedFields:
+                  $ref: '#/components/schemas/EncryptedFieldsUpdate'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment settings not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/proxyRecorderFile:
+    put:
+      summary: "Save proxy-recorder HAR file for environment"
+      description: "Save proxy-recorder HAR file for environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - proxyRecorderFile
+              properties:
+                proxyRecorderFile:
+                  type: string
+                  format: binary
+                  description: "A .zst compressed HAR file"
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /scans/{envId}/{scanId}/meta:
+    get:
+      summary: "Get scan meta data"
+      description: "Get metadata for the last scans of an environment (limited to 7)"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScansList'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /flags/systemicEnabled:
+    get:
+      summary: "Get systemic flag"
+      description: "Get whether the systemic feature flag is enabled for the tenant"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlagEnabled'
+  /externalScan/log:
+    post:
+      summary: "External scan log upload"
+      description: "Upload the log file of an external scan"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - scanId
+                - log
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+                numLogFiles:
+                  type: integer
+                log:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  code:
+                    type: integer
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /externalScan/results:
+    post:
+      summary: "External scan results upload"
+      description: "Upload the results file of an external scan"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - scanId
+                - results
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+                zapError:
+                  type: string
+                zapExitStatus:
+                  type: string
+                errorCode:
+                  type: string
+                errors:
+                  type: array
+                  items:
+                    type: string
+                results:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  code:
+                    type: integer
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession:
+    post:
+      summary: "Create auth session"
+      description: "Create a new authentication session for an environment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - EnvironmentID
+                - SessionType
+                - URL
+              properties:
+                EnvironmentID:
+                  type: string
+                  format: uuid
+                SessionType:
+                  type: string
+                URL:
+                  type: string
+                UUID:
+                  type: string
+                  format: uuid
+                Method:
+                  type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /recordings:
+    post:
+      summary: "Create recordings"
+      description: "Create recordings (files in MinIO + metadata in DB)"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - environmentId
+                - metadata
+                - files
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                metadata:
+                  type: string
+                  description: "JSON-encoded array of RecordingMetadataItem: [{\"name\":\"...\",\"description\":\"...\"}]"
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recording'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    delete:
+      summary: "Delete recordings (file, DB row, and from sequence if present)"
+      description: "Delete recordings (file, DB row, and from sequence if present)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - recordingIds
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                recordingIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Recording(s) not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/recordings:
+    get:
+      summary: "Get recordings for an environment"
+      description: "Get recordings for an environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecordingWithSequences'
+                  totalItems:
+                    type: integer
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/sequences:
+    get:
+      summary: "Get sequences for an environment"
+      description: "Get sequences for an environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SequenceWithRecordingCount'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/sequence-scripts:
+    get:
+      summary: "Get sequence scripts (chains + recording archive) for CLI"
+      description: "Get sequence scripts (chains + recording archive) for CLI"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceScriptsResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/sequences/{sequenceId}/recordings:
+    get:
+      summary: "Get recordings for a sequence"
+      description: "Get recordings for a sequence"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          required: true
+          name: sequenceId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecordingWithPosition'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Sequence not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /recordings/{recordingId}:
+    put:
+      summary: "Update recording (name, description, file)"
+      description: "Update recording (name, description, file)"
+      parameters:
+        - in: path
+          required: true
+          name: recordingId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - environmentId
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                description:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+                  description: "Optional replacement .zst recording file"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recording'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Recording not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /sequences:
+    post:
+      summary: "Create sequence (name, recording IDs)"
+      description: "Create sequence (name, recording IDs)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - name
+                - recordingIds
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                recordingIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sequence'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Recording(s) not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    delete:
+      summary: "Delete sequences by IDs"
+      description: "Delete sequences by IDs"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - sequenceIds
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                sequenceIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /sequences/order:
+    put:
+      summary: "Update sequences order within environment"
+      description: "Update sequences order within environment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - sequenceIds
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                sequenceIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: One or more sequences not found in environment
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /sequences/{sequenceId}:
+    put:
+      summary: "Update sequence (name, recording IDs)"
+      description: "Update sequence (name, recording IDs)"
+      parameters:
+        - in: path
+          required: true
+          name: sequenceId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - name
+                - recordingIds
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                recordingIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sequence'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Sequence or recording(s) not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/sequences/{sequenceId}/duplicate:
+    post:
+      summary: "Duplicate sequence (name, recordings, and place after source)"
+      description: "Duplicate sequence (name, recordings, and place after source)"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          required: true
+          name: sequenceId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sequence'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Sequence not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /environments/{envId}/scans/{scanId}/sequences-report:
+    get:
+      summary: "Get sequences report for a scan"
+      description: "Get sequences report for a scan"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequencesReport'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/credentials:
+    put:
+      summary: "Update auth session credentials"
+      description: "Update auth session credentials"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - UUID
+                - EnvironmentID
+                - LoginPageURL
+                - UserName
+              properties:
+                UUID:
+                  type: string
+                  format: uuid
+                EnvironmentID:
+                  type: string
+                  format: uuid
+                LoginPageURL:
+                  type: string
+                UserName:
+                  type: string
+                Password:
+                  type: string
+                UseExistingPassword:
+                  type: boolean
+                TOTP:
+                  $ref: '#/components/schemas/TOTP'
+                UseExistingTOTPSecret:
+                  type: boolean
+                LocalAuthTest:
+                  type: boolean
+                TotpField:
+                  $ref: '#/components/schemas/TotpField'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/file:
+    put:
+      summary: "Update auth session file"
+      description: "Update auth session file (config or recording)"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - UUID
+                - EnvironmentID
+                - Method
+              properties:
+                UUID:
+                  type: string
+                  format: uuid
+                EnvironmentID:
+                  type: string
+                  format: uuid
+                Method:
+                  type: string
+                  description: "CONFIG or RECORDING"
+                UseExistingFile:
+                  type: boolean
+                TOTPSecretKey:
+                  type: string
+                TOTPLength:
+                  type: string
+                TOTPPeriod:
+                  type: string
+                UseExistingTOTPSecret:
+                  type: boolean
+                APIType:
+                  type: string
+                Authenticated:
+                  type: boolean
+                LocalAuthTest:
+                  type: boolean
+                TOTPFieldAttribute:
+                  type: string
+                TOTPFieldValue:
+                  type: string
+                RecordingUsernameField:
+                  type: string
+                  description: "The username value selected from the Zest recording"
+                RecordingPasswordField:
+                  type: string
+                  description: "The password value selected from the Zest recording"
+                RecordingDisplayName:
+                  type: string
+                  description: "Optional display name shown on screen after login"
+                UseExistingRecordingPassword:
+                  type: boolean
+                  description: "When true, keeps the previously stored recording password; RecordingPasswordField must be empty"
+                configurationFile:
+                  type: string
+                  format: binary
+                  description: "Required when Method=CONFIG (unless UseExistingFile=true)"
+                recordingFile:
+                  type: string
+                  format: binary
+                  description: "Required when Method=RECORDING (unless UseExistingFile=true)"
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "422":
+          description: Unprocessable entity (failed to unmarshal input YAML)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/apiFile:
+    put:
+      summary: "Update auth session api file"
+      description: "Update auth session api file"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - UUID
+                - EnvironmentID
+                - APIFile
+              properties:
+                UUID:
+                  type: string
+                  format: uuid
+                EnvironmentID:
+                  type: string
+                  format: uuid
+                APIType:
+                  type: string
+                  description: "OPENAPI, POSTMAN, HAR, SOAP, GRAPHQL"
+                APIURL:
+                  type: string
+                APIVariables:
+                  type: string
+                  description: "JSON-encoded object of string key/value pairs"
+                APIFile:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/apiFile/validate:
+    post:
+      summary: "Validate auth session api file"
+      description: "Validate auth session api file (extension + content); always returns 200 with the outcome in the body"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - APIFile
+              properties:
+                APIType:
+                  type: string
+                APIFile:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  error:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/apiFiles:
+    put:
+      summary: "Bulk replace auth session api files"
+      description: "Bulk replace auth session api files"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - environmentId
+              properties:
+                AuthSessionUUID:
+                  type: string
+                  format: uuid
+                environmentId:
+                  type: string
+                  format: uuid
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                apiTypes:
+                  type: array
+                  items:
+                    type: string
+                  description: "Must have the same length as files"
+                apiVariables:
+                  type: array
+                  items:
+                    type: string
+                  description: "JSON-encoded objects; may be shorter than files (sparse)"
+                apiUrls:
+                  type: array
+                  items:
+                    type: string
+                  description: "May be shorter than files (sparse)"
+                fileIDsToKeep:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                keptFilesUpdates:
+                  type: string
+                  description: "JSON-encoded object keyed by file ID, mapping to {apiVariables, apiUrl} updates"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileIDs:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/noAuth:
+    put:
+      summary: "Update auth session credentials to no-auth"
+      description: "Update auth session credentials to no-auth"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - UUID
+              properties:
+                UUID:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/state:
+    get:
+      summary: "Get auth session state"
+      description: "Get auth session state"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/domains:
+    get:
+      summary: "Get auth session domains"
+      description: "Get auth session domains"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  domains:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}:
+    get:
+      summary: "Get auth session"
+      description: "Get full auth session (including credentials and files)"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: authSuccess
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/masked:
+    get:
+      summary: "Get redacted auth session"
+      description: "Get auth session with credentials redacted (password, TOTP secret) and no file content"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: authSuccess
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /hasSuccessfulScan:
+    get:
+      summary: "Check if any environment has a successful scan"
+      description: "Check if any environment has a successful scan"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+                enum: ["true", "false"]
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/testLog:
+    get:
+      summary: "Get auth session test log"
+      description: "Get auth session test log file"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/text:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Test log file not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/ping:
+    put:
+      summary: "Ping auth session"
+      description: "Ping auth session; returns whether the opposite side (browser/CLI) is connected"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - UUID
+                - Source
+              properties:
+                UUID:
+                  type: string
+                  format: uuid
+                Source:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "409":
+          description: Session is already done
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/report:
+    put:
+      summary: "Update auth session report"
+      description: "Upload auth session report and test log files"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - UUID
+                - testLog
+              properties:
+                UUID:
+                  type: string
+                  format: uuid
+                testLog:
+                  type: string
+                  format: binary
+                report:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    get:
+      summary: "Get auth session report"
+      description: "Get auth session report file"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found or report has no content
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/reportData:
+    get:
+      summary: "Get auth session report data"
+      description: "Get auth session report data (structured)"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionReportData'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Auth session not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/apiFile:
+    get:
+      summary: "Get auth session api file"
+      description: "Get auth session api file"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: authSessionUUID
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: fileUUID
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Api file not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/apiFilesData:
+    get:
+      summary: "Get auth session api files data"
+      description: "Get auth session api files data"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: authSessionUUID
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  apiFiles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/APIFileWithType'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/apiFile/{apiFileId}:
+    delete:
+      summary: "Delete auth session api file"
+      description: "Delete auth session api file"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          required: true
+          name: apiFileId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /authSession/{envId}/diagnostics:
+    get:
+      summary: "Get auth session diagnostics"
+      description: "Get auth session diagnostics as a zip file"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: No auth diagnostics found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /associateApps/{envId}:
+    post:
+      summary: "Post applications environment"
+      description: "Associate applications with an environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - ApplicationIDs
+              properties:
+                ApplicationIDs:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Applications environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /disassociateApps/{envId}:
+    delete:
+      summary: "Delete applications environments"
+      description: "Disassociate applications from an environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - ApplicationIDs
+              properties:
+                ApplicationIDs:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Applications environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /associatedApps/{envId}:
+    get:
+      summary: "Get associated applications"
+      description: "Get applications associated with an environment"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationEnvironmentWithPrimaryResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Applications environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /appsList:
+    get:
+      summary: "Get applications list"
+      description: "Get the list of applications, optionally filtered by name or environment"
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: envId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /associatedEnvs/{appId}:
+    get:
+      summary: "Get associated application environments"
+      description: "Get environments associated with an application"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+        - name: primary
+          in: query
+          description: "Set to 'true' to only return the primary environment"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationEnvironmentsResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /associateEnvs/{appId}:
+    post:
+      summary: "Post associated application environments"
+      description: "Associate environments with an application"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - EnvironmentIDs
+              properties:
+                EnvironmentIDs:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                PrimaryEnvironmentID:
+                  type: string
+                  format: uuid
+                  description: "Optional. Must also be included in EnvironmentIDs; replaces the application's current primary environment"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /disassociateEnvs/{appId}:
+    delete:
+      summary: "Delete application environments"
+      description: "Disassociate environments from an application"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - EnvironmentIDs
+              properties:
+                EnvironmentIDs:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Application environments not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /topVulnerableEnvs/{appId}:
+    get:
+      summary: "Get top vulnerable environments"
+      description: "Get top vulnerable environments for an application"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+        - name: sortByTotal
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VulnerableEnvironment'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Application environments not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /envsRiskSummary/{appId}:
+    get:
+      summary: "Get application environments risk summary"
+      description: "Get application environments risk summary"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentsRiskSummary'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Application environments not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /envsResultsSummary/{appId}:
+    get:
+      summary: "Get application environments results summary"
+      description: "Get application environments results summary"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Application environments not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /envsRiskRatingSummary/{appId}:
+    get:
+      summary: "Get application environments risk rating summary"
+      description: "Get application environments risk rating summary"
+      parameters:
+        - in: path
+          required: true
+          name: appId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentsRiskRatingSummary'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Application environments not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /configFile/{envId}:
+    get:
+      summary: "Get application environments risk rating summary"
+      description: "Generate and download the environment's YAML configuration file"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: uuid
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/x-yaml:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /tunnel:
+    post:
+      summary: "Post tunnel"
+      description: "Create a new tunnel for an environment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - name
+                - environmentId
+                - url
+              properties:
+                name:
+                  type: string
+                environmentId:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTunnelResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (feature flag disabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /tunnel/:
+    delete:
+      summary: "Delete tunnel without ID"
+      description: "Always returns 400, since no tunnel ID was supplied"
+      responses:
+        "400":
+          description: "Bad request: tunnel id is required"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /tunnel/{id}:
+    delete:
+      summary: "Delete tunnel"
+      description: "Delete tunnel"
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (feature flag disabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /tunnels:
+    get:
+      summary: "Get tunnels"
+      description: "Get all tunnels, filtered to environments the caller can view"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TunnelsResponse'
+        "404":
+          description: Tunnels not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (feature flag disabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /tunnel/{tunnelId}:
+    get:
+      summary: "Get tunnel"
+      description: "Get tunnel by ID"
+      parameters:
+        - in: path
+          required: true
+          name: tunnelId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TunnelResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Tunnel not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (feature flag disabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /tunnelByName/{name}:
+    get:
+      summary: "Get tunnel by name"
+      description: "Get tunnel by name"
+      parameters:
+        - in: path
+          required: true
+          name: name
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TunnelResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Tunnel not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /overview/scansCount/{envId}:
+    get:
+      summary: "Get scans count"
+      description: "Get scans count for an environment, optionally filtered by date range"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+        - name: toDate
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScansCountResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /overview/averageScansData/{envId}:
+    get:
+      summary: "Get average scans data"
+      description: "Get average scans data for an environment, optionally filtered by date range"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+        - name: toDate
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AverageScansDataResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /overview/hasMissingAlertData/{envId}:
+    get:
+      summary: "Check if environment has scans with missing alert data"
+      description: "Check if environment has scans with missing alert data"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasMissingAlertDataResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Environment not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /flags/scaledJobsEnabled:
+    get:
+      summary: "Get scaled jobs flag (hardcoded true for backward compatibility)"
+      description: "Get scaled jobs flag (hardcoded true for backward compatibility)"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaledJobsFlag'
+  /correlations/scan:
+    post:
+      summary: "Create a correlations scan"
+      description: "Create a correlations scan"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - scanId
+                - similarityIds
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+                projects:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CorrelationProject'
+                projectUploads:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ProjectUploadPayload'
+                similarityIds:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SimilarityIDs'
+                source:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "402":
+          description: Payment required (insufficient credits)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "409":
+          description: Conflict (correlations scan limit exceeded)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (correlations not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /correlations/scans:
+    get:
+      summary: "Get correlations scans"
+      description: "Get correlations scans, optionally filtered by scan/correlation ID"
+      parameters:
+        - name: environmentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scanId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: correlationId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: filter
+          in: query
+          schema:
+            type: object
+            properties:
+              initiator:
+                type: string
+              projectIds:
+                type: array
+                items:
+                  type: string
+              source:
+                type: array
+                items:
+                  type: string
+              status:
+                type: array
+                items:
+                  type: string
+        - name: sort
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  correlationScans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CorrelationScanResponse'
+                  totalCorrelationScans:
+                    type: integer
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (correlations not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /correlations/scan/{scanId}:
+    delete:
+      summary: "Delete a correlations scan"
+      description: "Delete a correlations scan"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Correlations scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (correlations not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    patch:
+      summary: "Cancel a correlations scan"
+      description: "Cancel a correlations scan"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request (scan cannot be canceled in its current state)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Correlations scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (correlations not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /correlations/scan/{scanId}/status:
+    get:
+      summary: "Get a correlation scan status"
+      description: "Get a correlation scan status"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+        - name: environmentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Correlations scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (correlations not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /correlations/enabled:
+    get:
+      summary: "Get whether correlations are enabled"
+      description: "Get whether correlations are enabled"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlagEnabled'
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /pentest/scans:
+    get:
+      summary: "Get pentest scans"
+      description: "Get pentest scans, optionally filtered by scan/pentest scan ID"
+      parameters:
+        - name: environmentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scanId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: pentestScanId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: filter
+          in: query
+          schema:
+            type: object
+            properties:
+              initiator:
+                type: string
+              source:
+                type: array
+                items:
+                  type: string
+              status:
+                type: array
+                items:
+                  type: string
+        - name: sort
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: integer
+        - name: to
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pentestScans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PentestScanResponse'
+                  totalPentestScans:
+                    type: integer
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (AI pentester not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /pentest/scan:
+    post:
+      summary: "Create a pentest scan"
+      description: "Create a pentest scan"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - scanId
+                - similarityIds
+                - settings
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                scanId:
+                  type: string
+                  format: uuid
+                similarityIds:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SimilarityIDs'
+                source:
+                  type: string
+                settings:
+                  $ref: '#/components/schemas/PentestScanSettings'
+      responses:
+        "201":
+          description: Created
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "402":
+          description: Payment required (insufficient credits)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "409":
+          description: Conflict (pentest scan limit exceeded)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (AI pentester not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /pentest/scan/{scanId}:
+    patch:
+      summary: "Cancel a pentest scan"
+      description: "Cancel a pentest scan"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request (scan cannot be canceled in its current state)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Pentest scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (AI pentester not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    delete:
+      summary: "Delete a pentest scan"
+      description: "Delete a pentest scan"
+      parameters:
+        - in: path
+          required: true
+          name: scanId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Pentest scan not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (AI pentester not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /pentest/enabled:
+    get:
+      summary: "Get whether AI pentester is enabled"
+      description: "Get whether AI pentester is enabled"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlagEnabled'
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /latestProjectSources/{envId}:
+    get:
+      summary: "Get latest sources uploaded to repostore for projects through DAST"
+      description: "Get latest sources uploaded to repostore for projects through DAST"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: projectIds
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/SourceVersion'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "503":
+          description: Service unavailable (code correlation not enabled)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /sourceCodeExists/{envId}:
+    get:
+      summary: "Check whether source code for a given AST scan still exists in repostore"
+      description: "Check whether source code for a given AST scan still exists in repostore"
+      parameters:
+        - in: path
+          required: true
+          name: envId
+          schema:
+            type: string
+            format: uuid
+        - name: scanId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceCodeExistsResponse'
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /pipeline:
+    post:
+      summary: "Create a pipeline"
+      description: "Create a pipeline"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                cancelOlderPipelines:
+                  type: boolean
+      responses:
+        "201":
+          description: Created
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "409":
+          description: Conflict (pipeline operation in progress for this environment)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /pipeline/{id}:
+    put:
+      summary: "Update a pipeline"
+      description: "Update a pipeline"
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environmentId
+                - currentStepType
+                - currentStepId
+              properties:
+                environmentId:
+                  type: string
+                  format: uuid
+                currentStepType:
+                  type: string
+                currentStepId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Pipeline not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "409":
+          description: Conflict (pipeline operation in progress for this environment)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+    delete:
+      summary: "Delete a pipeline"
+      description: "Delete a pipeline"
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: string
+            format: uuid
+      requestBody: null
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "404":
+          description: Pipeline not found
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /credits/deduct:
+    post:
+      summary: "Deduct credits"
+      description: "Deduct credits for an action"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - environment_id
+                - risk_names
+              properties:
+                environment_id:
+                  type: string
+                  format: uuid
+                risk_names:
+                  type: array
+                  items:
+                    type: string
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /credits/balance:
+    get:
+      summary: "Get credit balance"
+      description: "Get credit balance"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /credits/action-rates:
+    get:
+      summary: "Get action rates"
+      description: "Get credit action rates"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /credits/correlation-capacity:
+    get:
+      summary: "Get correlation capacity"
+      description: "Get remaining correlation capacity"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrelationCapacityResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+  /credits/pentest-max-profile:
+    get:
+      summary: "Get pentest max profile"
+      description: "Get the maximum attack profile the tenant can afford for pentest scans"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PentestMaxProfile'
+        "402":
+          description: Payment required (insufficient credits)
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+components:
+  schemas:
+    EnvironmentFilter:
+      type: object
+      additionalProperties: false
+      properties:
+        domain:
+          type: string
+        url:
+          type: string
+        scanType:
+          type: string
+          description: DAST/DASTAPI/DASTMCP
+        projectId:
+          type: string
+        lastRiskRating:
+          type: string
+          description: High/Medium/Low/None
+        environmentId:
+          type: string
+        authSuccess:
+          type: string
+          description: "Filter by auth success status: true/false/no_auth/auth_not_set"
+        tunnelState:
+          type: string
+          description: "Filter by tunnel state: connected/disconnected/no_tunnel"
+    TenantInfo:
+      type: object
+      properties:
+        tenantID:
+          type: string
+        environmentsCount:
+          type: integer
+        riskRating:
+          type: string
+    RiskLevel:
+      type: object
+      properties:
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        lowCount:
+          type: integer
+        infoCount:
+          type: integer
+    AssociatedApplication:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        isPrimary:
+          type: boolean
+    EnvWithStatus:
+      type: object
+      properties:
+        environmentId:
+          type: string
+        tunnelId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        domain:
+          type: string
+        url:
+          type: string
+        scanType:
+          type: string
+        projectIds:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+        clientIds:
+          type: array
+          items:
+            type: string
+        userIds:
+          type: array
+          items:
+            type: string
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociatedApplication'
+        riskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        riskRating:
+          type: string
+        alertRiskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        lastScanID:
+          type: string
+        lastScanTime:
+          type: string
+          format: date-time
+        lastStatus:
+          type: string
+        authSuccess:
+          type: boolean
+        isPublic:
+          type: boolean
+        authMethod:
+          type: string
+        lastAuthUUID:
+          type: string
+        lastAuthSuccess:
+          type: boolean
+        settings:
+          $ref: '#/components/schemas/EnvSettings'
+        hasReport:
+          type: boolean
+        hasAuth:
+          type: boolean
+        tunnelState:
+          type: string
+        scanConfig:
+          $ref: '#/components/schemas/ScanConfig'
+        lastAlertRiskRating:
+          type: string
+        creator:
+          type: string
+        lastCorrelationStatus:
+          type: string
+    EnvironmentsResponse:
+      type: object
+      properties:
+        environments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvWithStatus'
+        totalItems:
+          type: integer
+        misconfiguredCount:
+          type: integer
+        zrokHost:
+          type: string
+    ComplianceBreakdown:
+      type: object
+      properties:
+        owasp:
+          type: integer
+        pci:
+          type: integer
+        hipaa:
+          type: integer
+    ComplianceData:
+      type: object
+      properties:
+        total_risks:
+          type: integer
+        compliance_coverage_percentage:
+          type: number
+        compliance_breakdown:
+          $ref: '#/components/schemas/ComplianceBreakdown'
+    Insight:
+      type: object
+      properties:
+        level:
+          type: string
+        reason:
+          type: string
+        site:
+          type: string
+        key:
+          type: string
+        description:
+          type: string
+        statistic:
+          type: string
+    ScanWithStatus:
+      type: object
+      properties:
+        scanId:
+          type: string
+        environmentId:
+          type: string
+        initiator:
+          type: string
+        scanType:
+          type: string
+        created:
+          type: string
+          format: date-time
+        projectId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+        riskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        riskRating:
+          type: string
+        alertRiskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        alertRiskRating:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        updateTime:
+          type: string
+          format: date-time
+        scanDuration:
+          type: integer
+        lastStatus:
+          type: string
+        statistics:
+          type: string
+        hasResults:
+          type: boolean
+        scannedPathsCount:
+          type: integer
+        complianceData:
+          $ref: '#/components/schemas/ComplianceData'
+        hasLog:
+          type: boolean
+        source:
+          type: string
+        settings:
+          $ref: '#/components/schemas/EnvSettings'
+        insights:
+          type: array
+          items:
+            $ref: '#/components/schemas/Insight'
+    GroupItem:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            type: string
+        itemCount:
+          type: integer
+    EnvSettings:
+      type: object
+      properties:
+        browserId:
+          type: string
+        configFileSettings:
+          $ref: '#/components/schemas/ConfigFileSettings'
+        cliSettings:
+          $ref: '#/components/schemas/CLISettings'
+        authSettings:
+          $ref: '#/components/schemas/AuthSettings'
+        customHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomHeader'
+        sessionManagementMethod:
+          type: string
+          description: >-
+            The auth test's reported sessionManagement.method (e.g. "headers", "autodetect", "cookie"). "headers" is valid with an empty sessionManagement list.
+        sessionManagement:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthHeader'
+        scanOptions:
+          $ref: '#/components/schemas/ScanOptions'
+        automationScripts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationScript'
+        correlationScan:
+          $ref: '#/components/schemas/CorrelationScanSettings'
+    ConfigFileSettings:
+      type: object
+      properties:
+        excludePaths:
+          type: array
+          items:
+            type: string
+    CLISettings:
+      type: object
+      properties:
+        jvmProperties:
+          type: string
+        logLevel:
+          type: string
+        output:
+          type: string
+        retryDelay:
+          type: integer
+        retry:
+          type: integer
+        updateInterval:
+          type: integer
+    AuthSettings:
+      type: object
+      properties:
+        browserId:
+          type: string
+        verificationUrl:
+          type: string
+        loggedInRegex:
+          type: string
+        loggedOutRegex:
+          type: string
+        loginPageWait:
+          type: integer
+        pollAdditionalHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthHeader'
+        includePaths:
+          type: array
+          items:
+            type: string
+        pollPostData:
+          type: string
+        totpField:
+          $ref: '#/components/schemas/TotpField'
+        mcpSecurityKey:
+          type: string
+          description: "Optional MCP Authorization value; encrypted at rest. Only supported when the environment's scanType is 'DASTMCP'"
+    TotpField:
+      type: object
+      properties:
+        attribute:
+          type: string
+        value:
+          type: string
+    CustomHeader:
+      type: object
+      properties:
+        header:
+          type: string
+        value:
+          type: string
+        url:
+          type: string
+    AuthHeader:
+      type: object
+      properties:
+        header:
+          type: string
+        value:
+          type: string
+    ScanOptions:
+      type: object
+      properties:
+        scanOption:
+          type: string
+        includeServer:
+          type: boolean
+        slowApp:
+          type: boolean
+    CorrelationScanSettings:
+      type: object
+      properties:
+        mode:
+          type: string
+          description: "Correlations scan mode"
+    EncryptedFieldsUpdate:
+      type: object
+      description: "Explicit updates for encrypted-at-rest settings fields. Omit a field to leave it unchanged; send an empty string to clear it"
+      properties:
+        mcpSecurityKey:
+          type: string
+          description: "Optional MCP Authorization value; encrypted at rest. Only supported when the environment's scanType is 'DASTMCP'"
+    AutomationScript:
+      type: object
+      properties:
+        type:
+          type: string
+        action:
+          type: string
+        scriptType:
+          type: string
+        engine:
+          type: string
+        name:
+          type: string
+        source:
+          type: string
+        inline:
+          type: string
+        target:
+          type: string
+    ScanConfig:
+      type: object
+      properties:
+        ScanURL:
+          type: string
+        IncludePaths:
+          type: array
+          items:
+            type: string
+        Authentication:
+          type: object
+          properties:
+            Method:
+              type: string
+            Parameters:
+              type: object
+              properties:
+                Script:
+                  type: string
+                ScriptEngine:
+                  type: string
+                BrowserID:
+                  type: string
+                LoginPageURL:
+                  type: string
+                LoginPageWait:
+                  type: integer
+                Steps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      Description:
+                        type: string
+                      Type:
+                        type: string
+                      XPath:
+                        type: string
+                      Timeout:
+                        type: integer
+                StepDelay:
+                  type: integer
+                MinWaitFor:
+                  type: integer
+            Verification:
+              type: object
+              properties:
+                Method:
+                  type: string
+                LoggedInRegex:
+                  type: string
+                LoggedOutRegex:
+                  type: string
+                PollFrequency:
+                  type: integer
+                PollUnits:
+                  type: string
+                PollURL:
+                  type: string
+                PollPostData:
+                  type: string
+                PollAdditionalHeaders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      header:
+                        type: string
+                      value:
+                        type: string
+        SessionManagement:
+          type: object
+          properties:
+            Method:
+              type: string
+            Parameters:
+              type: object
+        Users:
+          type: array
+          items:
+            type: object
+            properties:
+              Name:
+                type: string
+              Credentials:
+                type: object
+                properties:
+                  Username:
+                    type: string
+                  Password:
+                    type: string
+    ApplicationEnvironmentWithPrimaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        criticality:
+          type: integer
+        projectIds:
+          type: array
+          items:
+            type: string
+        isPrimary:
+          type: boolean
+    ApplicationEnvironmentsResponse:
+      type: object
+      description: "Environment associated with an application"
+      properties:
+        EnvironmentID:
+          type: string
+        URL:
+          type: string
+        Domain:
+          type: string
+        LastScanID:
+          type: string
+        LastScanStatus:
+          type: string
+        IsPrimary:
+          type: boolean
+    VulnerableEnvironment:
+      type: object
+      properties:
+        ApplicationID:
+          type: string
+        EnvironmentID:
+          type: string
+        Domain:
+          type: string
+        URL:
+          type: string
+        RiskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        ScanID:
+          type: string
+    TimeSpanRiskSummary:
+      type: object
+      properties:
+        last30Days:
+          $ref: '#/components/schemas/RiskLevel'
+        30To60Days:
+          $ref: '#/components/schemas/RiskLevel'
+        60To90Days:
+          $ref: '#/components/schemas/RiskLevel'
+        90Plus:
+          $ref: '#/components/schemas/RiskLevel'
+    EnvironmentsRiskSummary:
+      type: object
+      properties:
+        SummerizedScanRisk:
+          $ref: '#/components/schemas/RiskLevel'
+        SpanSummerizedScanRisk:
+          $ref: '#/components/schemas/TimeSpanRiskSummary'
+    EnvironmentsRiskRatingSummary:
+      type: object
+      properties:
+        TotalEnvironments:
+          type: integer
+          format: int64
+        RiskRatingSummary:
+          $ref: '#/components/schemas/RiskLevel'
+    LeanEnvironment:
+      type: object
+      properties:
+        id:
+          type: string
+        domain:
+          type: string
+        environmentType:
+          type: string
+        isPrivate:
+          type: boolean
+        hasTunnel:
+          type: boolean
+        isAuthRequired:
+          type: boolean
+        isAuthenticated:
+          type: boolean
+    Technology:
+      type: object
+      properties:
+        tag:
+          type: string
+        category:
+          type: string
+          enum: [DB, Framework, Language, OS, Protocol, WS]
+    ScansOverTime:
+      type: object
+      properties:
+        risk:
+          $ref: '#/components/schemas/RiskLevel'
+        compliance:
+          $ref: '#/components/schemas/ComplianceData'
+        statusData:
+          type: object
+          properties:
+            new:
+              type: integer
+            recurrent:
+              type: integer
+        scanDate:
+          type: string
+          format: date-time
+        scanId:
+          type: string
+    ScansOverTimeResponse:
+      type: object
+      properties:
+        scansOverTime:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScansOverTime'
+    ScansCountResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        countBySource:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              counts:
+                type: object
+                additionalProperties:
+                  type: integer
+    AverageScansDataResponse:
+      type: object
+      properties:
+        averageScannedPaths:
+          type: number
+        averageScanDuration:
+          type: number
+        totalScans:
+          type: integer
+    HasMissingAlertDataResponse:
+      type: object
+      properties:
+        hasMissingData:
+          type: boolean
+    ScansList:
+      type: object
+      properties:
+        lastScans:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanMeta'
+        currentScanDate:
+          type: string
+          format: date-time
+        currentHasSitesTree:
+          type: boolean
+        currentScanStatistics:
+          type: string
+        currentFailedSequencesCount:
+          type: integer
+        currentSequencesCount:
+          type: integer
+    ScanMeta:
+      type: object
+      properties:
+        scanId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        statistics:
+          type: string
+        failedSequencesCount:
+          type: integer
+        sequencesCount:
+          type: integer
+    FlagEnabled:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+    ScaledJobsFlag:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+    Recording:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        environmentId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        interactionsNumber:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        type:
+          type: string
+    SequenceInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    RecordingWithSequences:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        interactionsNumber:
+          type: integer
+        sequences:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceInfo'
+        type:
+          type: string
+    SequenceWithRecordingCount:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        position:
+          type: integer
+        recordingsCount:
+          type: integer
+    RecordingWithPosition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    Sequence:
+      type: object
+      properties:
+        id:
+          type: string
+        environmentId:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        recordingIds:
+          type: array
+          items:
+            type: string
+    SequenceScriptsChain:
+      type: object
+      properties:
+        recordings:
+          type: array
+          items:
+            type: string
+            description: "Recording filename (e.g. myRecording.zst)"
+    SequenceScriptsResponse:
+      type: object
+      properties:
+        chains:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceScriptsChain'
+        archive:
+          type: string
+          format: byte
+          description: "Zip archive (base64-encoded) containing the recording files for all chains"
+    RecordingReport:
+      type: object
+      properties:
+        name:
+          type: string
+        position:
+          type: integer
+        failed:
+          type: boolean
+        error:
+          type: string
+        screenshot:
+          type: string
+    SequenceReport:
+      type: object
+      properties:
+        name:
+          type: string
+        position:
+          type: integer
+        recordings:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecordingReport'
+    SequencesReport:
+      type: object
+      properties:
+        sequences:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceReport'
+    TOTP:
+      type: object
+      properties:
+        SecretKey:
+          type: string
+        OTPLength:
+          type: integer
+        Period:
+          type: integer
+    GetAuthSessionCredentials:
+      type: object
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+        loginPageURL:
+          type: string
+    APIFileWithType:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            FileName:
+              type: string
+            Size:
+              type: integer
+            Content:
+              type: string
+              format: byte
+        apiType:
+          type: string
+          enum: [OPENAPI, POSTMAN, HAR, SOAP, GRAPHQL]
+        apiURL:
+          type: string
+        apiVariables:
+          type: object
+          additionalProperties:
+            type: string
+    ProxyRecorderFile:
+      type: object
+      properties:
+        File:
+          type: object
+          properties:
+            FileName:
+              type: string
+            Size:
+              type: integer
+            Content:
+              type: string
+              format: byte
+    AuthSessionResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+        method:
+          type: string
+        Credentials:
+          $ref: '#/components/schemas/GetAuthSessionCredentials'
+        TOTP:
+          $ref: '#/components/schemas/TOTP'
+        File:
+          type: object
+          properties:
+            FileName:
+              type: string
+            Size:
+              type: integer
+            Content:
+              type: string
+              format: byte
+        ScanConfig:
+          $ref: '#/components/schemas/ScanConfig'
+        URL:
+          type: string
+        scanType:
+          type: string
+        Settings:
+          $ref: '#/components/schemas/EnvSettings'
+        apiType:
+          type: string
+        apiFileType:
+          type: string
+        apiURL:
+          type: string
+        apiFileName:
+          type: string
+        APIFile:
+          type: object
+          properties:
+            FileName:
+              type: string
+            Size:
+              type: integer
+            Content:
+              type: string
+              format: byte
+        apiFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIFileWithType'
+        proxyRecorderFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProxyRecorderFile'
+        isPublic:
+          type: boolean
+        browserId:
+          type: string
+    SummaryItem:
+      type: object
+      properties:
+        description:
+          type: string
+        passed:
+          type: boolean
+        key:
+          type: string
+    StatisticItem:
+      type: object
+      properties:
+        key:
+          type: string
+        description:
+          type: string
+        value:
+          type: integer
+    WebElementItem:
+      type: object
+      properties:
+        attributeId:
+          type: string
+        attributeName:
+          type: string
+        attributeType:
+          type: string
+        displayed:
+          type: boolean
+    MessageItem:
+      type: object
+      properties:
+        requestHeader:
+          type: string
+        requestBody:
+          type: string
+        responseHeader:
+          type: string
+        responseBody:
+          type: string
+    LoginStep:
+      type: object
+      properties:
+        description:
+          type: string
+        url:
+          type: string
+        screenshot:
+          type: string
+        webElements:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebElementItem'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageItem'
+    AuthConfig:
+      type: object
+      properties:
+        url:
+          type: string
+        method:
+          type: string
+        browser:
+          type: string
+        waitTime:
+          type: integer
+    VerificationConfig:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        loggedInRegex:
+          type: string
+        loggedOutRegex:
+          type: string
+    AuthSessionConfig:
+      type: object
+      properties:
+        authentication:
+          $ref: '#/components/schemas/AuthConfig'
+        verification:
+          $ref: '#/components/schemas/VerificationConfig'
+        sessionManagement:
+          type: object
+          properties:
+            method:
+              type: string
+            parameters:
+              type: object
+              additionalProperties:
+                type: string
+    AuthSessionReportData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        method:
+          type: string
+        url:
+          type: string
+        authSuccess:
+          type: boolean
+        environmentName:
+          type: string
+        environmentCreated:
+          type: string
+          format: date-time
+        summary:
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryItem'
+        failureItems:
+          type: array
+          items:
+            type: string
+        config:
+          $ref: '#/components/schemas/AuthSessionConfig'
+        afEnv:
+          type: string
+        statistics:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatisticItem'
+        loginSteps:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoginStep'
+        domains:
+          type: array
+          items:
+            type: string
+    ApplicationsEnvironmentSuccess:
+      type: object
+      description: "Placeholder empty success object"
+    CreateTunnelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tunnelName:
+          type: string
+        token:
+          type: string
+        associated:
+          type: boolean
+        associatedErr:
+          type: string
+    TunnelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        tunnelName:
+          type: string
+        name:
+          type: string
+        token:
+          type: string
+        state:
+          type: string
+        zrokHost:
+          type: string
+    Tunnel:
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+        tunnelName:
+          type: string
+        token:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+    TunnelsResponse:
+      type: object
+      properties:
+        tunnels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tunnel'
+        zrokHost:
+          type: string
+    SourceVersion:
+      type: object
+      properties:
+        sourceId:
+          type: string
+        uploadedAt:
+          type: string
+    SourceCodeExistsResponse:
+      type: object
+      properties:
+        exists:
+          type: boolean
+    SimilarityIDs:
+      type: object
+      required:
+        - alertId
+      properties:
+        alertId:
+          type: string
+        instanceIds:
+          type: array
+          items:
+            type: string
+    SCMCredentials:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum: [apiKey, password, ssh, JWT, basic-extra-header]
+        value:
+          type: string
+    RepoFilePayload:
+      type: object
+      required:
+        - zipUrl
+      properties:
+        zipUrl:
+          type: string
+    RepoSCMPayload:
+      type: object
+      required:
+        - repoUrl
+        - branch
+      properties:
+        repoUrl:
+          type: string
+        branch:
+          type: string
+        credentials:
+          $ref: '#/components/schemas/SCMCredentials'
+    UploadRepoPayload:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [file, SCM]
+        file:
+          $ref: '#/components/schemas/RepoFilePayload'
+        scm:
+          $ref: '#/components/schemas/RepoSCMPayload'
+    ProjectUploadPayload:
+      type: object
+      required:
+        - projectId
+        - upload
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        upload:
+          $ref: '#/components/schemas/UploadRepoPayload'
+    CorrelationProject:
+      type: object
+      required:
+        - projectId
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        projectName:
+          type: string
+          description: "Set by the manager; ignored on input"
+        sourceId:
+          type: string
+          format: uuid
+          description: "Set for DAST uploads; either sourceId or scanId must be a valid uuid"
+        scanId:
+          type: string
+          format: uuid
+          description: "Set for SAST scan uploads; either sourceId or scanId must be a valid uuid"
+    CorrelationProjectResponse:
+      type: object
+      properties:
+        projectId:
+          type: string
+        projectName:
+          type: string
+        sourceId:
+          type: string
+        scanId:
+          type: string
+    CorrelationScanResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+        tenantId:
+          type: string
+        environmentId:
+          type: string
+        correlationScanDate:
+          type: string
+          format: date-time
+        scanId:
+          type: string
+        scanDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorrelationProjectResponse'
+        similarityIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimilarityIDs'
+        settings:
+          $ref: '#/components/schemas/CorrelationScanSettings'
+        initiator:
+          type: string
+        initiatorId:
+          type: string
+        source:
+          type: string
+        duration:
+          type: integer
+        foundInstances:
+          type: integer
+        totalInstances:
+          type: integer
+        incorrectReportsCount:
+          type: integer
+    CorrelationCapacityResponse:
+      type: object
+      properties:
+        remaining_instances:
+          type: integer
+          format: int64
+    PentestScanSettings:
+      type: object
+      required:
+        - planMode
+      properties:
+        planMode:
+          type: string
+          enum: [safe, standard, destructive, unrestricted]
+        attackProfile:
+          type: string
+          enum: [targeted, progressive, expansive]
+        includePaths:
+          type: array
+          items:
+            type: string
+        excludePaths:
+          type: array
+          items:
+            type: string
+    PentestScanResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+        tenantId:
+          type: string
+        environmentId:
+          type: string
+        pentestScanDate:
+          type: string
+          format: date-time
+        scanId:
+          type: string
+        scanDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+        similarityIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimilarityIDs'
+        settings:
+          $ref: '#/components/schemas/PentestScanSettings'
+        initiator:
+          type: string
+        initiatorId:
+          type: string
+        source:
+          type: string
+        duration:
+          type: integer
+        summary:
+          type: string
+        findingRiskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        emergentAlertRiskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        incorrectReportsCount:
+          type: integer
+    PentestMaxProfile:
+      type: object
+      properties:
+        max_attack_profile:
+          type: string
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/dast/scans
+security:
+  - Login: []

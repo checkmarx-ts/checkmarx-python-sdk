@@ -374,12 +374,66 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+  "/results/changelog":
+    get:
+      tags:
+        - Triages
+      summary: Get triage changelog
+      description: Returns a paginated list of triage changelog entries for a result
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project-id
+          in: query
+          required: true
+          description: ID of the project
+          schema:
+            type: string
+            format: uuid
+        - name: result-id
+          in: query
+          required: false
+          description: ID of the result to filter changelog entries
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Number of items to return (max 100)
+          schema:
+            type: integer
+            default: 100
+            maximum: 100
+            minimum: 1
+        - name: offset
+          in: query
+          required: false
+          description: Pagination offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Changelog entries successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/changelogResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
   "/imports/{import_id}/results/triages":
     put:
       tags:
         - Triages
       summary: Bulk triage results
-      description: "Make result's triages"
+      description: "Make result's triages. At least one of state, severity, or comment must be provided."
       parameters:
         - $ref: '#/components/parameters/authHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
@@ -903,7 +957,7 @@ components:
         resultIds:
           description: All results id's to be patched
           type: array
-          maxItems: 1000
+          maxItems: 50
           items:
             type: string
             format: uuid
@@ -920,6 +974,10 @@ components:
             - URGENT
         severity:
           $ref: '#/components/schemas/severity'
+        comment:
+          type: string
+          description: Optional comment to record alongside the triage action
+          example: "Reviewed and confirmed as non-exploitable"
       required:
         - projectId
         - resultIds
@@ -933,6 +991,62 @@ components:
         - MEDIUM
         - LOW
         - INFO
+    changelogResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/changelogItem'
+        total:
+          type: integer
+          description: Total number of changelog entries
+          example: 42
+      required:
+        - items
+        - total
+    changelogItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the changelog entry
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        created_by:
+          type: string
+          description: User who created the changelog entry
+          example: "user@example.com"
+        created_at:
+          type: string
+          format: date-time
+          description: When the changelog entry was created
+          example: "2023-01-01T12:00:00Z"
+        new_state:
+          type: string
+          description: New state set in this triage action
+          enum:
+            - TO_VERIFY
+            - NOT_EXPLOITABLE
+            - PROPOSED_NOT_EXPLOITABLE
+            - CONFIRMED
+            - URGENT
+        new_severity:
+          type: string
+          description: New severity set in this triage action
+          enum:
+            - CRITICAL
+            - HIGH
+            - MEDIUM
+            - LOW
+            - INFO
+        comment:
+          type: string
+          description: Comment added in this triage action
+          example: "Reviewed and confirmed as non-exploitable"
+      required:
+        - id
+        - created_by
+        - created_at
     aggregateResponse:
       type: object
       properties:

@@ -31,6 +31,12 @@ paths:
             format: uuid
           required: true
           description: Scan ID of the older scan to compare
+        - in: query
+          name: evaluation-status
+          schema:
+            type: boolean
+          required: false
+          description: "Enable evaluation-based status classification. When true, FIXED results may be reclassified as NOT_EVALUATED if scan configuration changes (e.g., preset changes) invalidate the comparison."
       responses:
         "200":
           description: Successful operation
@@ -129,6 +135,7 @@ components:
         - NEW
         - RECURRENT
         - FIXED
+        - NOT_EVALUATED
     WebError:
       type: object
       properties:

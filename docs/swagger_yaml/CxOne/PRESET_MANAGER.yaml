@@ -264,9 +264,12 @@ components:
       name: id
       description: "Preset identifier. Accepts either an integer (e.g., 1234) for SAST or a UUID string (e.g., '123e4567-e89b-12d3-a456-426614174000') for IaC."
       schema:
+        type: string
         oneOf:
-          - type: integer
+          - type: string
             example: 1234
+            format: int64
+            maxLength: 36
           - type: string
             format: uuid
             example: "123e4567-e89b-12d3-a456-426614174000"
@@ -345,8 +348,16 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          example: 1
+          type: string
+          oneOf:
+            - type: string
+              example: 1234
+              format: int64
+              maxLength: 36
+            - type: string
+              format: uuid
+              maxLength: 36
+              example: "123e4567-e89b-12d3-a456-426614174000"
         name:
           type: string
           example: "High only"
@@ -390,8 +401,15 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          example: 123456
+          type: string
+          oneOf:
+            - type: string
+              example: 1234
+              format: int64
+              maxLength: 36
+            - type: string
+              format: uuid
+              example: "123e4567-e89b-12d3-a456-426614174000"
         message:
           type: string
           example: "preset saved"
@@ -419,8 +437,16 @@ components:
       type: object
       properties:
         id:
+          additionalProperties: false
           type: string
-          example: "123456"
+          oneOf:
+            - type: string
+              example: 1234
+              format: int64
+              maxLength: 36
+            - type: string
+              format: uuid
+              example: "123e4567-e89b-12d3-a456-426614174000"
         name:
           type: string
           example: "High only"
