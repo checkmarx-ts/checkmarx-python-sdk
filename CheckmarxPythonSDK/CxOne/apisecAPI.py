@@ -59,9 +59,14 @@ class ApiResponseParameter:
 
 @dataclass
 class ApiResponsePii:
+    """An entry in Parameter.pii (wire key: "piis").
+
+    Confirmed live: `count` comes back as a string (e.g. "1"), not an
+    integer, despite the field name.
+    """
     name: str = None
     location: str = None
-    count: int = 0
+    count: str = None
     origin: List[str] = None
 
     @classmethod
@@ -69,13 +74,19 @@ class ApiResponsePii:
         return cls(
             name=item.get("name"),
             location=item.get("location"),
-            count=item.get("count", 0),
+            count=item.get("count"),
             origin=item.get("origin"),
         )
 
 
 @dataclass
 class Parameter:
+    """Response from GET /api/apisec/static/api/parameter/.
+
+    Confirmed live: the wire key for the PII summary is `piis`
+    (plural), not `pii` -- reading `pii` (the old, wrong key) silently
+    returned an empty list even when the server sent real PII data.
+    """
     request_parameters: List[ApiRequestParameter] = None
     response_parameters: List[ApiResponseParameter] = None
     pii: List[ApiResponsePii] = None
@@ -92,7 +103,7 @@ class Parameter:
                 ApiResponseParameter.from_dict(p)
                 for p in (item.get("response_parameters") or [])
             ],
-            pii=[ApiResponsePii.from_dict(p) for p in (item.get("pii") or [])],
+            pii=[ApiResponsePii.from_dict(p) for p in (item.get("piis") or [])],
             api_origins=item.get("api_origins"),
         )
 
@@ -166,6 +177,66 @@ class Risk:
             sast_risk_id=item.get("sast_risk_id"),
             project_id=item.get("project_id"),
             state=item.get("state"),
+        )
+
+
+@dataclass
+class RiskCompleteResponse:
+    """Response from GET /api/risks/risk-orchestration/{scan_id}/{risk_id}
+    -- the union of Risk and RiskDetailResponse's fields in one call,
+    so callers don't need to make two separate requests."""
+    risk_id: str = None
+    api_id: str = None
+    severity: str = None
+    name: str = None
+    status: str = None
+    http_method: str = None
+    url: str = None
+    origin: str = None
+    documented: bool = None
+    authenticated: bool = None
+    discovery_date: str = None
+    scan_id: str = None
+    sast_risk_id: str = None
+    project_id: str = None
+    state: str = None
+    vulnerability: str = None
+    source_node: str = None
+    source_file: str = None
+    total_pii: int = None
+    line_number: int = None
+    description: str = None
+    actual_value: str = None
+    expected_value: str = None
+    similarity_id: str = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "RiskCompleteResponse":
+        return cls(
+            risk_id=item.get("risk_id"),
+            api_id=item.get("api_id"),
+            severity=item.get("severity"),
+            name=item.get("name"),
+            status=item.get("status"),
+            http_method=item.get("http_method"),
+            url=item.get("url"),
+            origin=item.get("origin"),
+            documented=item.get("documented"),
+            authenticated=item.get("authenticated"),
+            discovery_date=item.get("discovery_date"),
+            scan_id=item.get("scan_id"),
+            sast_risk_id=item.get("sast_risk_id"),
+            project_id=item.get("project_id"),
+            state=item.get("state"),
+            vulnerability=item.get("vulnerability"),
+            source_node=item.get("source_node"),
+            source_file=item.get("source_file"),
+            total_pii=item.get("total_pii"),
+            line_number=item.get("line_number"),
+            description=item.get("description"),
+            actual_value=item.get("actual_value"),
+            expected_value=item.get("expected_value"),
+            similarity_id=item.get("similarity_id"),
         )
 
 
@@ -481,6 +552,12 @@ class ApiSecAPI(object):
         Get the number of APIs identified in your source code that aren't
         in your documentation, for a particular scan.
 
+        Confirmed live: `count` can come back as null (not just 0) --
+        observed on several scans, apparently meaning "not computed"
+        as distinct from "computed, zero found" (a different scan
+        returned a real 0). Despite the doc declaring `count` as a
+        plain (non-nullable) integer, treat it as optional.
+
         Args:
             scan_id (str)
 
@@ -515,6 +592,30 @@ class ApiSecAPI(object):
         url = f"{self.base_url}/risks/risk/{risk_id}"
         response = self.api_client.call_api(method="GET", url=url)
         return RiskDetailResponse.from_dict(response.json())
+
+    def get_risk_complete(self, scan_id: str, risk_id: str) -> RiskCompleteResponse:
+        """
+        Get a risk's summary and detailed information in a single
+        response -- the union of what get_api_security_risks_by_scan_id
+        and get_risk_detail_by_risk_id return, in one call.
+
+        Confirmed live: this undocumented endpoint returned a 500
+        Internal Server Error, consistently (reproduced twice), for a
+        valid scan_id/risk_id pair that get_api_security_risks_by_scan_id
+        itself returned successfully. Left as-is since there's no
+        documented contract to diagnose against; callers should be
+        prepared for this endpoint to be unreliable.
+
+        Args:
+            scan_id (str): Scan UUID
+            risk_id (str): Risk UUID
+
+        Returns:
+            RiskCompleteResponse
+        """
+        url = f"{self.base_url}/risks/risk-orchestration/{scan_id}/{risk_id}"
+        response = self.api_client.call_api(method="GET", url=url)
+        return RiskCompleteResponse.from_dict(response.json())
 
     def get_api_security_risks_by_scan_id(
         self,
@@ -562,12 +663,20 @@ class ApiSecAPI(object):
         page: int = None,
         per_page: int = None,
         searching: str = None,
-        sorting: str = None,
+        sorting_order: str = None,
     ) -> GroupResponse:
         """
         Get a summary of the number of API Security risks of each value for
         the specified category (e.g., for severity, returns number of critical,
         high, medium, low)
+
+        Confirmed live: the sort query param for this endpoint is
+        `sorting_order` (plain "asc"/"desc"), NOT `sorting` (the JSON
+        array-of-{column,order} string that the sibling
+        get_api_security_risks_by_scan_id endpoint uses) -- sending
+        `sorting` here doesn't just get ignored, it 500s the server
+        ("Internal Server Error"). Previously this method sent
+        `sorting`, which would have crashed any caller who passed it.
 
         Args:
             scan_id (str):
@@ -576,7 +685,7 @@ class ApiSecAPI(object):
             page (int):
             per_page (int):
             searching (str):
-            sorting (str):
+            sorting_order (str): "asc" or "desc".
 
         Returns:
             GroupResponse
@@ -587,20 +696,30 @@ class ApiSecAPI(object):
             "page": page,
             "per_page": per_page,
             "searching": searching,
-            "sorting": sorting,
+            "sorting_order": sorting_order,
         }
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return GroupResponse.from_dict(response.json())
 
     def get_api_parameters(self, api_id: str) -> Parameter:
         """
+        Get all parameters for the API.
+
+        Confirmed live: the previous URL (`{base_url}/risks/parameters`)
+        is wrong -- the server routes it to GET /risks/{scan_id} with
+        scan_id literally set to the string "parameters", which 400s
+        with "Invalid UUID value to scan_id: parameters". Fixed to hit
+        the documented GET /api/parameter/ endpoint (same one
+        get_parameters calls); kept as a separate method/function for
+        backward compatibility with existing callers.
+
         Args:
             api_id (str): Specify the unique identifier of the API
 
         Returns:
             Parameter
         """
-        url = f"{self.base_url}/risks/parameters"
+        url = f"{self.base_url}/parameter/"
         params = {"api_id": api_id}
         response = self.api_client.call_api(method="GET", url=url, params=params)
         return Parameter.from_dict(response.json())
@@ -621,8 +740,66 @@ class ApiSecAPI(object):
         return Parameter.from_dict(response.json())
 
 
+def get_risk_summary_by_origin(scan_id: str) -> ScanRisksOriginsResult:
+    return ApiSecAPI().get_risk_summary_by_origin(scan_id=scan_id)
+
+
 def get_scan_apisec_risk_overview(scan_id: str) -> ApiSecRisksOverview:
     return ApiSecAPI().get_scan_apisec_risk_overview(scan_id)
+
+
+def get_all_risk_types(scan_id: str) -> RisksTypesResponse:
+    return ApiSecAPI().get_all_risk_types(scan_id=scan_id)
+
+
+def get_number_of_sensitive_data_apis(scan_id: str) -> ScanSensitiveData:
+    return ApiSecAPI().get_number_of_sensitive_data_apis(scan_id=scan_id)
+
+
+def get_number_of_undocumented_apis(scan_id: str) -> ScanUndocumentedApis:
+    return ApiSecAPI().get_number_of_undocumented_apis(scan_id=scan_id)
+
+
+def get_all_api_scan_metadata() -> List[ScanMetadataResponse]:
+    return ApiSecAPI().get_all_api_scan_metadata()
+
+
+def get_risk_detail_by_risk_id(risk_id: str) -> RiskDetailResponse:
+    return ApiSecAPI().get_risk_detail_by_risk_id(risk_id=risk_id)
+
+
+def get_risk_complete(scan_id: str, risk_id: str) -> RiskCompleteResponse:
+    return ApiSecAPI().get_risk_complete(scan_id=scan_id, risk_id=risk_id)
+
+
+def get_api_security_risks_by_scan_id(
+    scan_id: str,
+    filtering: str = None,
+    page: int = None,
+    per_page: int = None,
+    searching: str = None,
+    sorting: str = None,
+) -> RiskResponse:
+    return ApiSecAPI().get_api_security_risks_by_scan_id(
+        scan_id=scan_id, filtering=filtering, page=page, per_page=per_page,
+        searching=searching, sorting=sorting,
+    )
+
+
+def get_grouped_risk_summary(
+    scan_id: str,
+    group_column: str,
+    filtering: str = None,
+    page: int = None,
+    per_page: int = None,
+    searching: str = None,
+    sorting_order: str = None,
+) -> GroupResponse:
+    return ApiSecAPI().get_grouped_risk_summary(
+        scan_id=scan_id, group_column=group_column, filtering=filtering,
+        page=page, per_page=per_page, searching=searching,
+        sorting_order=sorting_order,
+    )
 
 
 def get_api_parameters(api_id: str) -> Parameter:
