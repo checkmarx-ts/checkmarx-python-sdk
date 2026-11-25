@@ -15,8 +15,16 @@ components:
           type: string
         similarity_id:
           type: string
+        state_id:
+          type: integer
+          description: >
+            Integer ID of the state to set. Fixed states: 0=to_verify, 1=not_exploitable, 2=proposed_not_exploitable, 3=confirmed, 4=urgent. Custom state IDs are returned by GET /api/custom-states/. Used when CUSTOM_STATES_ENABLED feature flag is on.
+
         state:
           type: string
+          description: >
+            Legacy string state value. Used when CUSTOM_STATES_ENABLED feature flag is off. Valid values: to_verify, not_exploitable, proposed_not_exploitable, confirmed, urgent. Ignored if state_id is also present.
+
         url:
           type: string
       required:

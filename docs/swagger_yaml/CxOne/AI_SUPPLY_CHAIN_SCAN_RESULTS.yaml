@@ -22,9 +22,12 @@ paths:
         - $ref: "#/components/parameters/AssetNamesParam"
         - $ref: "#/components/parameters/ProvidersParam"
         - $ref: "#/components/parameters/VersionParam"
-        - $ref: "#/components/parameters/FirstDetectionDateTimeParam"
-        - $ref: "#/components/parameters/StateParam"
+        - $ref: "#/components/parameters/AssetFirstDetectionDateParam"
+        - $ref: "#/components/parameters/AssetStatusParam"
+        - $ref: "#/components/parameters/EvidenceStatusParam"
         - $ref: "#/components/parameters/PathParam"
+        - $ref: "#/components/parameters/RiskSeveritiesParam"
+        - $ref: "#/components/parameters/ProjectIdParam"
         # pagination and ordering
         - $ref: "#/components/parameters/LimitParam"
         - $ref: "#/components/parameters/OffsetParam"
@@ -58,9 +61,11 @@ paths:
         - $ref: "#/components/parameters/AssetNamesParam"
         - $ref: "#/components/parameters/ProvidersParam"
         - $ref: "#/components/parameters/VersionParam"
-        - $ref: "#/components/parameters/FirstDetectionDateTimeParam"
-        - $ref: "#/components/parameters/StateParam"
+        - $ref: "#/components/parameters/AssetFirstDetectionDateParam"
+        - $ref: "#/components/parameters/AssetStatusParam"
+        - $ref: "#/components/parameters/EvidenceStatusParam"
         - $ref: "#/components/parameters/PathParam"
+        - $ref: "#/components/parameters/ProjectIdParam"
         # grouping
         - $ref: "#/components/parameters/ResultsGroupByParam"
       responses:
@@ -83,7 +88,7 @@ paths:
         - "Scan Results"
       summary: Get LLM-assessed risks for a specific asset in a scan
       description: >
-        Returns a paginated, filtered list of risk findings for one asset (by discovery asset_id). Filters and pagination are optional query parameters; omitting them returns all risks with default pagination. AND logic is applied between different filter fields; OR logic within each comma-separated field. Data is sourced from the ai-sc-risks service.
+        Returns a paginated, filtered list of risk findings for one asset (by discovery asset_id). Filters and pagination are optional query parameters; omitting them returns all risks with default pagination. AND logic is applied between different filter fields; OR logic within each comma-separated field. Data is sourced from the ai-sc-risks service. When projectId is supplied, each risk item is enriched with per-risk triage (state, severity, scope, etc.) from ai-sc-results-triage for that project, asset, and riskId. Triage is always fetched live on each request; only ai-sc-risks payload is cached.
 
       operationId: GetAssetRisks
       parameters:
@@ -96,6 +101,7 @@ paths:
         - $ref: "#/components/parameters/SearchParam"
         - $ref: "#/components/parameters/AssetRisksOrderColumnParam"
         - $ref: "#/components/parameters/AssetRisksOrderDirectionParam"
+        - $ref: "#/components/parameters/ProjectIdParam"
         - $ref: "#/components/parameters/LimitParam"
         - $ref: "#/components/parameters/OffsetParam"
       responses:
@@ -115,6 +121,49 @@ paths:
           $ref: "#/components/responses/404"
         "503":
           description: Upstream risks service temporarily unavailable
+          content:
+            application/json; version=1.0:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/scans/{scanId}/results/{id}":
+    get:
+      tags:
+        - "Scan Results"
+      summary: Get the full profile of a single result
+      description: >
+        Returns the identity, source, and detection-context fields for one specific result row (by id — the same DetectionHash-backed value returned as ScanResult.id from GET /scans/{scanId}/results) within a scan, for the UI's asset Details Tab. An asset can have multiple detections/evidence rows (e.g. across files), so the lookup is keyed on the individual result rather than the asset. Fields without an available upstream source yet (e.g. commitSha, publisher, description, consumingClient, referenceType, lastSeen) are omitted from the response until they can be resolved. The response shape is discriminated by assetType..
+
+      operationId: GetAssetDetail
+      parameters:
+        - $ref: "#/components/parameters/ScanIdParam"
+        - $ref: "#/components/parameters/ResultIdPathParam"
+        - $ref: "#/components/parameters/ProjectIdParam"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AssetDetailResponse"
+                  - $ref: "#/components/schemas/McpAssetDetailResponse"
+                  - $ref: "#/components/schemas/SkillAssetDetailResponse"
+                discriminator:
+                  propertyName: assetType
+                  mapping:
+                    "MCP Server": "#/components/schemas/McpAssetDetailResponse"
+                    "MCP Client": "#/components/schemas/McpAssetDetailResponse"
+                    "Skill": "#/components/schemas/SkillAssetDetailResponse"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "503":
+          description: Upstream discovery service temporarily unavailable
           content:
             application/json; version=1.0:
               schema:
@@ -145,6 +194,11 @@ components:
           type: string
           format: uuid4
           description: A unique identifier for a scan result
+        evidenceKey:
+          type: string
+          description: >
+            Stable, content-based evidence identity, passed through unchanged from the upstream engine (Detection.evidence_key). Clients (e.g. mute/snooze) should use this to reference the same logical detection across rescans instead of path/startLine.
+
         assetType:
           $ref: "#/components/schemas/AssetTypeName"
         assetTypeId:
@@ -157,11 +211,16 @@ components:
           type: string
         version:
           type: string
-        firstDetectionDateTime:
+        assetFirstDetectionDate:
           type: string
           format: date-time
-        state:
-          $ref: "#/components/schemas/State"
+        status:
+          $ref: "#/components/schemas/Status"
+          description: Evidence triage status mapped for REST.
+        snoozeDate:
+          type: string
+          format: date-time
+          description: Evidence snooze end date from triage when projectId is supplied.
         path:
           type: string
         startLine:
@@ -179,11 +238,46 @@ components:
         riskSummary:
           $ref: "#/components/schemas/RiskSummary"
           description: >
-            Optional LLM risk rollup for the asset when risk enrichment is available. Omitted when summaries are not loaded or not applicable.
+            Aggregated risk counts for the asset (shared across all evidence rows with the same assetId). From ai-sc-risks when available; may be updated from triage when risk rows are returned. Omitted when no risk data is available.
 
+        triage:
+          $ref: "#/components/schemas/TriageInfo"
+          description: >
+            Evidence- and asset-level triage from ai-sc-results-triage when projectId is supplied. Evidence triage must use the row id (similarityId). Per-risk triage is not included; use riskSummary for severity rollups. Triage is always fetched live on each request (not cached). Omitted when skipped.
+
+    TriageInfo:
+      type: object
+      description: Resolved triage state for one scan result row (evidence and asset scope only).
+      properties:
+        evidence:
+          $ref: "#/components/schemas/EvidenceTriageInfo"
+        asset:
+          $ref: "#/components/schemas/AssetTriageInfo"
+    EvidenceTriageInfo:
+      type: object
+      properties:
+        status:
+          type: string
+        scope:
+          type: string
+        snoozeEndDate:
+          type: string
+          format: date-time
+    AssetTriageInfo:
+      type: object
+      properties:
+        status:
+          type: string
+        scope:
+          type: string
+        snoozeEndDate:
+          type: string
+          format: date-time
+        isSuppressed:
+          type: boolean
     RiskSummary:
       type: object
-      description: Aggregated risk counts for an asset (from ai-sc-risks enrichment).
+      description: Aggregated risk counts for an asset, keyed by assetId.
       properties:
         assetId:
           type: string
@@ -207,12 +301,16 @@ components:
       description: The asset ID.
       examples:
         - "123e4567-e89b-12d3-a456-426614174000"
-    State:
+    Status:
       type: string
       enum:
         - Snoozed
         - Muted
-        - Unresolved
+        - Monitored
+        - Mixed
+      description: >
+        Evidence triage status mapped for REST.
+
     AssetTypeId:
       type: string
       format: uuid4
@@ -221,11 +319,18 @@ components:
         - "223e4567-e89b-12d3-a456-426614174001"
     AssetTypeName:
       type: string
-      description: The asset type name.
+      description: >
+        The asset type name, passed through unchanged from the upstream discovery engine (models.Detection.AssetType / models.AssetDetail.AssetType).
+
       enum:
-        - model
-        - sdk
-        - framework
+        - AI Model
+        - AI SDK
+        - AI Library
+        - MCP Server
+        - MCP Client
+        - AI Agent
+        - AI Orchestration Framework
+        - Skill
     Position:
       type: object
       properties:
@@ -254,8 +359,8 @@ components:
           type: string
         version:
           type: string
-        state:
-          $ref: "#/components/schemas/State"
+        status:
+          $ref: "#/components/schemas/Status"
         count:
           type: integer
           description: The count for the field value.
@@ -300,19 +405,180 @@ components:
           examples:
             - HIGH: 2
               CRITICAL: 1
+        triage:
+          type: object
+          description: >
+            Asset-level triage from ai-sc-results-triage when projectId is supplied (same triage.asset shape as scan results). Omitted when projectId is missing or triage lookup fails. Not cached.
+
+          properties:
+            asset:
+              $ref: "#/components/schemas/AssetTriageInfo"
         risks:
           type: array
           description: The page of risk items matching the applied filters
           items:
             $ref: "#/components/schemas/RiskItem"
+    AssetDetailResponse:
+      type: object
+      description: >
+        Common identity, source, and detection-context fields for one result row (see CX-2024 REQ-12). Fields marked nullable have no upstream source yet and are omitted until resolvable. Returned as-is for asset types with no type-specific fields.
+
+      properties:
+        id:
+          type: string
+          description: >
+            DetectionHash-backed identifier for the specific result this detail was resolved for (same value as the path parameter, and as ScanResult.id from GET /scans/{scanId}/results).
+
+        assetId:
+          $ref: "#/components/schemas/AssetId"
+        assetName:
+          $ref: "#/components/schemas/AssetName"
+        assetType:
+          $ref: "#/components/schemas/AssetTypeName"
+        version:
+          type: string
+          nullable: true
+          description: Pinned version, or resolved commit SHA when no version is pinned.
+        commitSha:
+          type: string
+          nullable: true
+          description: Not yet resolvable upstream.
+        distributionChannel:
+          type: string
+          nullable: true
+          description: >
+            npm, PyPI, Docker, GitHub, remote, or SDK. For MCP findings, falls back to metadata derived from the engine when not directly available.
+
+        provider:
+          type: string
+          nullable: true
+          description: Publisher/maker of the asset.
+        license:
+          type: string
+          nullable: true
+        sourceUrl:
+          type: string
+          nullable: true
+          description: >
+            Resolved web location the asset is fetched from. For a remote MCP server this is its connection endpoint; for a stdio-launched one, falls back to its package/image/repo location when no endpoint applies.
+
+        packageCoordinate:
+          type: string
+          nullable: true
+          description: e.g. "@modelcontextprotocol/server-filesystem" or a Docker image coordinate.
+        publisher:
+          type: string
+          nullable: true
+          description: Author/org. Not yet resolvable upstream.
+        description:
+          type: string
+          nullable: true
+          description: Short summary from registry/package metadata. Not yet resolvable upstream.
+        sourceFile:
+          type: string
+          nullable: true
+          description: Where in the scanned code the reference was found.
+        consumingClient:
+          type: string
+          nullable: true
+          description: e.g. Claude Desktop, OpenAI Agents SDK. Not yet resolvable upstream.
+        referenceType:
+          type: string
+          nullable: true
+          description: >
+            Client config, dependency manifest, remote endpoint, or SDK usage. Not yet resolvable upstream.
+
+        projectId:
+          type: string
+          nullable: true
+          description: Echoed back from the request; not currently stored per-detection.
+        firstDetection:
+          type: string
+          format: date-time
+          nullable: true
+        lastSeen:
+          type: string
+          format: date-time
+          nullable: true
+          description: Not yet resolvable upstream.
+    McpAssetDetailResponse:
+      description: >
+        AssetDetailResponse plus MCP-specific fields, returned for MCP server/client findings (assetType "MCP Server" or "MCP Client"). Currently sourced from engine metadata passthrough, when the AISupplyChainEngineMCPAnalyzerEnabled feature flag is on upstream.
+
+      allOf:
+        - $ref: "#/components/schemas/AssetDetailResponse"
+        - type: object
+          properties:
+            transport:
+              type: string
+              nullable: true
+              description: stdio, SSE, or Streamable HTTP.
+            sourceType:
+              type: string
+              nullable: true
+              description: >
+                Engine-internal category for how the asset was resolved (e.g. package/docker/url). No CX-2024 field of its own, exposed as engine metadata passthrough.
+
+            mcpName:
+              type: string
+              nullable: true
+              description: >
+                The MCP server/client's own self-reported name, resolved from its constructor call (e.g. Server(name="my-server")). MCP SDK-usage findings only; assetName is already derived from this upstream, so the two may differ (a mismatch is itself a signal).
+
+            mcpVersion:
+              type: string
+              nullable: true
+              description: >
+                The MCP server/client's own self-reported version. MCP SDK-usage findings only; version is already derived from this upstream, so the two may differ.
+
+    SkillAssetDetailResponse:
+      description: >
+        AssetDetailResponse plus Skill-specific fields, returned for Skill findings (assetType "Skill"). Currently sourced from engine-reported skill frontmatter metadata (raw string values, e.g. "true"/"false" for the boolean-shaped fields).
+
+      allOf:
+        - $ref: "#/components/schemas/AssetDetailResponse"
+        - type: object
+          properties:
+            allowedTools:
+              type: string
+              nullable: true
+              description: Comma-separated list of tools the skill is allowed to invoke.
+            disableModelInvocation:
+              type: string
+              nullable: true
+            userInvocable:
+              type: string
+              nullable: true
+            frontmatterDescription:
+              type: string
+              nullable: true
+            frontmatterVersion:
+              type: string
+              nullable: true
+            lockFile:
+              type: string
+              nullable: true
+              description: >
+                Lockfile that claimed the skill: "microsoft/apm" (apm.lock.yaml) or "vercel-labs/skills" (skills-lock.json). Absent when no lockfile matched.
+
     RiskItem:
       type: object
       properties:
         riskId:
           type: string
-          description: Stable identifier for the risk finding
+          deprecated: true
+          description: >
+            Scan-local identifier for the risk finding. Deprecated in favor of similarityId, which is stable across rescans; riskId is planned for removal in Q1.
+
+        similarityId:
+          type: string
+          description: Stable identifier for the risk finding that stays consistent across rescans
         name:
           type: string
+          description: Technical rule identifier (e.g. pickle.dangerous_opcodes)
+        displayName:
+          type: string
+          description: Human-readable rule name for UI display
         severity:
           type: string
           description: Severity label (e.g. HIGH, MEDIUM, LOW, CRITICAL)
@@ -324,6 +590,27 @@ components:
           items:
             $ref: "#/components/schemas/RiskLocation"
         remediation:
+          type: string
+        triage:
+          $ref: "#/components/schemas/RiskTriageInfo"
+          description: >
+            Per-risk triage from ai-sc-results-triage when projectId is supplied. Omitted when projectId is missing or triage lookup fails.
+
+    RiskTriageInfo:
+      type: object
+      description: Resolved triage state for one risk within a project and asset.
+      properties:
+        riskId:
+          type: string
+        state:
+          type: string
+        customStateId:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true
+        scope:
           type: string
     RiskLocation:
       type: object
@@ -432,6 +719,15 @@ components:
       in: path
       description: >
         Discovery asset_id for the asset within the scan (must match asset_id stored with LLM risks). URL-encode reserved characters if present (e.g. %2F for a slash).
+
+      required: true
+      schema:
+        type: string
+    ResultIdPathParam:
+      name: id
+      in: path
+      description: >
+        DetectionHash-backed result identifier — the same value returned as ScanResult.id by GET /scans/{scanId}/results. An opaque identity with no reserved URL characters, unlike assetId.
 
       required: true
       schema:
@@ -550,8 +846,9 @@ components:
           - assetName
           - provider
           - version
-          - firstDetectionDateTime
+          - assetFirstDetectionDate
           - state
+          - riskSummary
         default: assetName
     ScanResultsOrderDirectionParam:
       name: orderDirection
@@ -573,18 +870,31 @@ components:
       required: false
       schema:
         type: string
-    FirstDetectionDateTimeParam:
-      name: firstDetectionDateTime
+    AssetFirstDetectionDateParam:
+      name: assetFirstDetectionDate
       in: query
       description: Filter results by detection time
       required: false
       schema:
         type: string
         format: date-time
-    StateParam:
-      name: state
+    AssetStatusParam:
+      name: asset-status
       in: query
-      description: "Filter results by state<br> Note (TBD): Must be an exact match, case insensitive."
+      description: >
+        Filter results by asset-level triage status (from ai-sc-results-triage). Requires projectId so triage enrichment runs. Comma-separated values; OR within values, AND with other filters. Case insensitive (e.g. muted, snoozed).
+
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    EvidenceStatusParam:
+      name: evidence-status
+      in: query
+      description: >
+        Filter results by evidence-level triage status (triage.evidence.status from ai-sc-results-triage). Requires projectId so triage enrichment runs. Comma-separated values; OR within values, AND with other filters. Case insensitive (e.g. muted, snoozed).
+
       required: false
       schema:
         type: array
@@ -597,6 +907,23 @@ components:
       required: false
       schema:
         type: string
+    RiskSeveritiesParam:
+      name: risk-severities
+      in: query
+      required: false
+      schema:
+        type: string
+      description: "Comma-separated severity labels to filter by (case-insensitive). Only assets that have at least one risk with a matching severity are returned. Supported values: CRITICAL, HIGH, MEDIUM, LOW."
+    ProjectIdParam:
+      name: projectId
+      in: query
+      description: >
+        Project GUID required to enrich results with triage state from ai-sc-results-triage. When omitted, triage enrichment is skipped.
+
+      required: false
+      schema:
+        type: string
+        format: uuid
   securitySchemes:
     Login:
       type: oauth2

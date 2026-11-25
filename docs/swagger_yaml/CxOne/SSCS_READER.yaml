@@ -320,60 +320,159 @@ paths:
           description: Internal Server Error
 components:
   schemas:
-    Engine:
-      enum:
-        - 2ms
-        - Scorecard
-      type: string
-      x-enum-varnames:
-        - TooMS
-        - Scorecard
+    Error:
+      example:
+        code: 1
+        message: message
+        type: type
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        type:
+          type: string
+      type: object
     EngineFailure:
       example:
         scannedAt: scannedAt
         scanId: scanId
         name: 2ms
+        partial: true
       properties:
         name:
           $ref: '#/components/schemas/Engine'
+        partial:
+          type: boolean
         scanId:
           type: string
         scannedAt:
           type: string
       type: object
-    EngineFullName:
-      enum:
-        - Secret Detection
-        - Scorecard
-      type: string
-      x-enum-varnames:
-        - TooMSFullName
-        - ScorecardFullName
-    EngineOverview:
+    Project:
       example:
-        riskSummary:
+        slsaStep:
+          - Source
+          - Source
+        riskLevel:
+          key: 6
+        engines:
           key: 0
-        name: 2ms
-        totalRisks: 6
-        fullName: Secret Detection
-        status: Completed
+        enginesFailures:
+          - scannedAt: scannedAt
+            scanId: scanId
+            name: 2ms
+            partial: true
+          - scannedAt: scannedAt
+            scanId: scanId
+            name: 2ms
+            partial: true
+        lastScanMetadata:
+          scannedAt: scannedAt
+          id: id
+        name: name
+        id: id
+        scanType: scanType
       properties:
-        fullName:
-          $ref: '#/components/schemas/EngineFullName'
-        name:
-          $ref: '#/components/schemas/Engine'
-        riskSummary:
+        engines:
           additionalProperties:
             type: integer
           type: object
-        status:
-          $ref: '#/components/schemas/ScanStatus'
-        totalRisks:
+        enginesFailures:
+          items:
+            $ref: '#/components/schemas/EngineFailure'
+          type: array
+        id:
+          type: string
+        lastScanMetadata:
+          $ref: '#/components/schemas/ScanInfo'
+        name:
+          type: string
+        riskLevel:
+          additionalProperties:
+            type: integer
+          type: object
+        scanType:
+          type: string
+        slsaStep:
+          items:
+            $ref: '#/components/schemas/SlsaStep'
+          type: array
+      type: object
+    Projects:
+      example:
+        entries:
+          - slsaStep:
+              - Source
+              - Source
+            riskLevel:
+              key: 6
+            engines:
+              key: 0
+            enginesFailures:
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+                partial: true
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+                partial: true
+            lastScanMetadata:
+              scannedAt: scannedAt
+              id: id
+            name: name
+            id: id
+            scanType: scanType
+          - slsaStep:
+              - Source
+              - Source
+            riskLevel:
+              key: 6
+            engines:
+              key: 0
+            enginesFailures:
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+                partial: true
+              - scannedAt: scannedAt
+                scanId: scanId
+                name: 2ms
+                partial: true
+            lastScanMetadata:
+              scannedAt: scannedAt
+              id: id
+            name: name
+            id: id
+            scanType: scanType
+        totalFilteredCount: 5
+        totalCount: 1
+      properties:
+        entries:
+          items:
+            $ref: '#/components/schemas/Project'
+          type: array
+        totalCount:
           type: integer
+        totalFilteredCount:
+          type: integer
+      type: object
+    ScanInfo:
+      example:
+        scannedAt: scannedAt
+        id: id
+      properties:
+        id:
+          type: string
+        scannedAt:
+          type: string
       type: object
     EngineResult:
       example:
         severity: critical
+        commitUrl: commitUrl
+        stateId: 6
         lineContent: lineContent
         similarityId: similarityId
         path: path
@@ -385,10 +484,15 @@ components:
         validity: Valid
         lineNumber: 0
         ruleId: ruleId
+        isInSource: true
         status: New
       properties:
+        commitUrl:
+          type: string
         id:
           type: string
+        isInSource:
+          type: boolean
         lineContent:
           type: string
         lineNumber:
@@ -409,6 +513,8 @@ components:
           type: string
         state:
           type: string
+        stateId:
+          type: integer
         status:
           $ref: '#/components/schemas/ResultStatus'
         validity:
@@ -418,6 +524,8 @@ components:
       example:
         entries:
           - severity: critical
+            commitUrl: commitUrl
+            stateId: 6
             lineContent: lineContent
             similarityId: similarityId
             path: path
@@ -429,8 +537,11 @@ components:
             validity: Valid
             lineNumber: 0
             ruleId: ruleId
+            isInSource: true
             status: New
           - severity: critical
+            commitUrl: commitUrl
+            stateId: 6
             lineContent: lineContent
             similarityId: similarityId
             path: path
@@ -442,19 +553,24 @@ components:
             validity: Valid
             lineNumber: 0
             ruleId: ruleId
+            isInSource: true
             status: New
-        totalCount: 6
+        scanType: scanType
+        totalCount: 1
       properties:
         entries:
           items:
             $ref: '#/components/schemas/EngineResult'
           type: array
+        scanType:
+          type: string
         totalCount:
           type: integer
       type: object
     Group:
       example:
         metadata:
+          severity: critical
           ruleName: ruleName
           ruleDescription: ruleDescription
         count: 0
@@ -471,11 +587,13 @@ components:
       example:
         entries:
           - metadata:
+              severity: critical
               ruleName: ruleName
               ruleDescription: ruleDescription
             count: 0
             columnValue: columnValue
           - metadata:
+              severity: critical
               ruleName: ruleName
               ruleDescription: ruleDescription
             count: 0
@@ -605,116 +723,9 @@ components:
         totalCount:
           type: integer
       type: object
-    Project:
-      example:
-        slsaStep:
-          - Source
-          - Source
-        riskLevel:
-          key: 6
-        engines:
-          key: 0
-        enginesFailures:
-          - scannedAt: scannedAt
-            scanId: scanId
-            name: 2ms
-          - scannedAt: scannedAt
-            scanId: scanId
-            name: 2ms
-        lastScanMetadata:
-          scannedAt: scannedAt
-          id: id
-        name: name
-        id: id
-      properties:
-        engines:
-          additionalProperties:
-            type: integer
-          type: object
-        enginesFailures:
-          items:
-            $ref: '#/components/schemas/EngineFailure'
-          type: array
-        id:
-          type: string
-        lastScanMetadata:
-          $ref: '#/components/schemas/ScanInfo'
-        name:
-          type: string
-        riskLevel:
-          additionalProperties:
-            type: integer
-          type: object
-        slsaStep:
-          items:
-            $ref: '#/components/schemas/SlsaStep'
-          type: array
-      type: object
-    Projects:
-      example:
-        entries:
-          - slsaStep:
-              - Source
-              - Source
-            riskLevel:
-              key: 6
-            engines:
-              key: 0
-            enginesFailures:
-              - scannedAt: scannedAt
-                scanId: scanId
-                name: 2ms
-              - scannedAt: scannedAt
-                scanId: scanId
-                name: 2ms
-            lastScanMetadata:
-              scannedAt: scannedAt
-              id: id
-            name: name
-            id: id
-          - slsaStep:
-              - Source
-              - Source
-            riskLevel:
-              key: 6
-            engines:
-              key: 0
-            enginesFailures:
-              - scannedAt: scannedAt
-                scanId: scanId
-                name: 2ms
-              - scannedAt: scannedAt
-                scanId: scanId
-                name: 2ms
-            lastScanMetadata:
-              scannedAt: scannedAt
-              id: id
-            name: name
-            id: id
-        totalFilteredCount: 5
-        totalCount: 1
-      properties:
-        entries:
-          items:
-            $ref: '#/components/schemas/Project'
-          type: array
-        totalCount:
-          type: integer
-        totalFilteredCount:
-          type: integer
-      type: object
-    ResultStatus:
-      enum:
-        - New
-        - Recurrent
-        - Fixed
-      type: string
-      x-enum-varnames:
-        - New
-        - Recurrent
-        - Fixed
     RuleInfo:
       example:
+        severity: critical
         ruleName: ruleName
         ruleDescription: ruleDescription
       properties:
@@ -722,16 +733,30 @@ components:
           type: string
         ruleName:
           type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
       type: object
-    ScanInfo:
+    EngineOverview:
       example:
-        scannedAt: scannedAt
-        id: id
+        riskSummary:
+          key: 0
+        name: 2ms
+        totalRisks: 6
+        fullName: Secret Detection
+        status: Completed
       properties:
-        id:
-          type: string
-        scannedAt:
-          type: string
+        fullName:
+          $ref: '#/components/schemas/EngineFullName'
+        name:
+          $ref: '#/components/schemas/Engine'
+        riskSummary:
+          additionalProperties:
+            type: integer
+          type: object
+        status:
+          $ref: '#/components/schemas/ScanStatus'
+        totalRisks:
+          type: integer
       type: object
     ScanOverview:
       example:
@@ -772,6 +797,32 @@ components:
         totalRisks:
           type: integer
       type: object
+    Engine:
+      enum:
+        - 2ms
+        - Scorecard
+      type: string
+      x-enum-varnames:
+        - TooMS
+        - Scorecard
+    EngineFullName:
+      enum:
+        - Secret Detection
+        - Scorecard
+      type: string
+      x-enum-varnames:
+        - TooMSFullName
+        - ScorecardFullName
+    ResultStatus:
+      enum:
+        - New
+        - Recurrent
+        - Fixed
+      type: string
+      x-enum-varnames:
+        - New
+        - Recurrent
+        - Fixed
     ScanStatus:
       enum:
         - Completed
@@ -820,19 +871,6 @@ components:
         - Valid
         - Unknown
         - Invalid
-    Error:
-      example:
-        code: 1
-        message: message
-        type: type
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-        type:
-          type: string
-      type: object
   securitySchemes:
     Login:
       type: oauth2

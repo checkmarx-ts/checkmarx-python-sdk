@@ -47,7 +47,7 @@ paths:
           schema:
             type: string
             pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
-            maxLength: 30
+            maxLength: 50
       responses:
         "200":
           description: OK
@@ -114,7 +114,8 @@ paths:
           name: id
           example: 1234
           schema:
-            type: integer
+            type: string
+            format: int64
       responses:
         "200":
           description: OK
@@ -140,7 +141,8 @@ paths:
           name: id
           example: 1234
           schema:
-            type: integer
+            type: string
+            format: int64
       requestBody:
         content:
           application/json:
@@ -169,7 +171,8 @@ paths:
           name: id
           example: 1234
           schema:
-            type: integer
+            type: string
+            format: int64
       responses:
         "200":
           description: Preset was deleted
@@ -190,7 +193,8 @@ paths:
           name: id
           example: 1234
           schema:
-            type: integer
+            type: string
+            format: int64
       responses:
         "200":
           description: OK
@@ -217,7 +221,8 @@ paths:
           name: id
           example: 1234
           schema:
-            type: integer
+            type: string
+            format: int64
       requestBody:
         content:
           application/json:
@@ -247,7 +252,8 @@ paths:
           name: id
           example: 1234
           schema:
-            type: integer
+            type: string
+            format: int64
       requestBody:
         content:
           application/json:
@@ -300,7 +306,7 @@ components:
           type: string
           example: "High only"
           pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
-          maxLength: 30
+          maxLength: 50
         description:
           type: string
           example: "Queries with high severity only"
@@ -313,13 +319,14 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          example: 1
+          type: string
+          format: int64
+          example: "1"
         name:
           type: string
           example: "High only"
           pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
-          maxLength: 30
+          maxLength: 50
         description:
           type: string
           example: "Queries with high severity only"
@@ -352,7 +359,7 @@ components:
           type: string
           example: "High only"
           pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
-          maxLength: 30
+          maxLength: 50
         description:
           type: string
           example: "Queries with high severity only"
@@ -360,8 +367,9 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          example: 123456
+          type: string
+          format: int64
+          example: "123456"
         message:
           type: string
           example: "preset saved"
@@ -376,6 +384,7 @@ components:
       properties:
         id:
           type: string
+          format: int64
           example: "987321654"
         cweID:
           type: integer
@@ -403,11 +412,15 @@ components:
     PresetDetails:
       type: object
       properties:
+        id:
+          type: string
+          format: int64
+          example: "123456"
         name:
           type: string
           example: "High only"
           pattern: "^[A-Za-z0-9\\s\\-\\_]*$"
-          maxLength: 30
+          maxLength: 50
         description:
           type: string
           example: "Queries with high severity only"

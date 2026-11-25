@@ -50,10 +50,10 @@ paths:
         - $ref: "#/components/parameters/authHeader"
         - name: name
           in: path
-          description: Name of the desired flag
+          description: Name of the desired flag. Must contain only letters (a-z, A-Z), digits (0-9), underscores (_) and hyphens (-), max 50 characters
           required: true
           schema:
-            pattern: ^[\w-]{2,250}$
+            pattern: ^[a-zA-Z0-9_-]{1,50}$
             type: string
       responses:
         200:
@@ -91,7 +91,7 @@ components:
       type: object
       properties:
         name:
-          pattern: ^[\w-]{2,250}$
+          pattern: ^[a-zA-Z0-9_-]{1,50}$
           type: string
           description: Name of the feature flag
         status:

@@ -41,8 +41,21 @@ paths:
           schema:
             type: boolean
       responses:
+        '410':
+          description: "Gone - This endpoint has been deprecated and is no longer available"
+          headers:
+            Sunset:
+              description: "Date when this endpoint was deprecated"
+              schema:
+                type: string
+                format: date-time
+                example: "Sat, 31 Dec 2024 23:59:59 GMT"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deprecationResponse'
         '200':
-          description: ""
+          description: "DEPRECATED - This response is no longer returned. Endpoint now returns 410 Gone."
           content:
             application/json:
               schema:
@@ -57,6 +70,35 @@ paths:
           $ref: '#/components/responses/404'
 components:
   schemas:
+    deprecationResponse:
+      type: object
+      description: Response returned for deprecated endpoints
+      properties:
+        code:
+          type: integer
+          example: 410
+        message:
+          type: string
+          example: "This API endpoint has been deprecated and is no longer available."
+        migration:
+          type: object
+          properties:
+            new_endpoint:
+              type: string
+              example: "/api/projects-overview/projects"
+              description: "The new endpoint to use instead"
+            new_port:
+              type: integer
+              example: 81
+              description: "The port where the new API is available"
+            documentation:
+              type: string
+              example: "https://docs.checkmarx.com/api/projects-overview"
+              description: "Link to documentation for the new API"
+            deprecation_date:
+              type: string
+              example: "2024-12-31"
+              description: "Date when this endpoint was deprecated"
     projectsOverview:
       type: array
       description: array of projects information

@@ -44,6 +44,49 @@ class CxReporting(object):
             report_content = response.content
         return report_content
 
+    def download_report(
+        self,
+        report_request: CreateReportDTO,
+        path: str,
+        max_wait: int = 3600,
+        timeout: float = None,
+    ) -> Union[str, None]:
+        """Generate a report and stream it to ``path`` instead of memory.
+
+        Returns:
+            ``path``, or None if the report could not be created or failed.
+        """
+        report_id = self.create_a_new_report_request(report_request=report_request)
+        if not report_id:
+            return None
+        if not self._wait_until_finished(report_id, max_wait):
+            return None
+        url = f"{self.base_url}/api/reports/{report_id}"
+        return self.api_client.download_to(
+            "GET", url, path, headers=headers, timeout=timeout
+        )
+
+    def _wait_until_finished(self, report_id: int, max_wait: int) -> bool:
+        deadline = time.monotonic() + max_wait
+        report_status = self.retrieve_the_status_of_a_specific_report(
+            report_id=report_id
+        )
+        while str(report_status).upper() != "FINISHED":
+            if "FAIL" in str(report_status).upper():
+                logger.error("Report generation failed!")
+                return False
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"Report {report_id} not finished within {max_wait}s, "
+                    f"last status: {report_status}"
+                )
+            time.sleep(2)
+            report_status = self.retrieve_the_status_of_a_specific_report(
+                report_id=report_id
+            )
+            logger.info("report status: {}".format(report_status))
+        return True
+
     def create_a_new_report_request(
         self, report_request: CreateReportDTO
     ) -> Union[int, None]:

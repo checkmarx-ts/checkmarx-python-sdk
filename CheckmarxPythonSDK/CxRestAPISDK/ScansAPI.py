@@ -1099,6 +1099,40 @@ class ScansAPI(object):
             result = CxScanResultLabelsFields.from_dict(response.json())
         return result
 
+    def download_report_by_id(
+        self,
+        report_id: int,
+        path: str,
+        api_version: str = "1.0",
+        timeout: float = None,
+    ) -> str:
+        """Stream a generated SAST report to ``path`` instead of memory.
+
+        Returns:
+            str: ``path``
+        """
+        url = f"{self.base_url}/cxrestapi/reports/sastScan/{report_id}"
+        return self.api_client.download_to(
+            "GET", url, path, headers=get_headers(api_version), timeout=timeout
+        )
+
+    def download_scan_logs(
+        self,
+        scan_id: int,
+        path: str,
+        api_version: str = "5.0",
+        timeout: float = None,
+    ) -> str:
+        """Stream the scan logs zip to ``path`` instead of memory.
+
+        Returns:
+            str: ``path``
+        """
+        url = f"{self.base_url}/cxrestapi/sast/scans/{scan_id}/logs"
+        return self.api_client.download_to(
+            "GET", url, path, headers=get_headers(api_version), timeout=timeout
+        )
+
     def get_scan_logs(self, scan_id: int, api_version: str = "5.0") -> bytes:
         """
         Gets Scan logs.

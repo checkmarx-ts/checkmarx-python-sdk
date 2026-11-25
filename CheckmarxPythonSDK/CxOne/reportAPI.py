@@ -261,6 +261,24 @@ class ReportAPI(object):
         )
         return response.json()
 
+    def download_scan_report(
+        self, report_id: str, path: str, timeout: float = None
+    ) -> str:
+        """Stream a generated report to ``path`` instead of loading it in memory.
+
+        Use for large reports or non-JSON formats (pdf, csv, ...).
+
+        Args:
+            report_id (str):
+            path (str): destination file path.
+            timeout (float): per-call timeout in seconds.
+
+        Returns:
+            str: ``path``
+        """
+        url = f"{self.base_url}/{report_id}/download"
+        return self.api_client.download_to("GET", url, path, timeout=timeout)
+
     def get_risk_scan_report(
         self, scan_id: str, report_type: str
     ) -> dict:
@@ -430,21 +448,50 @@ class ReportAPI(object):
             bytes: for XML/CSV/PDF export formats -- caller is
                 responsible for writing to disk / decoding as needed.
         """
-        status_url = (
-            f"{self.api_client.configuration.server_base_url}"
-            f"/api/sca/export/requests"
+        self._wait_for_sca_export(export_id, max_wait)
+        return self.download_sca_export(export_id, timeout=timeout)
+
+    def download_sca_scan_report(
+        self,
+        export_id: str,
+        path: str,
+        max_wait: int = 3600,
+        timeout: float = None,
+    ) -> str:
+        """Wait for an SCA export, then stream it to ``path``.
+
+        Works for every export format and never holds the file in
+        memory, so prefer it over get_sca_scan_report for large exports.
+
+        Args:
+            export_id (str):
+            path (str): destination file path.
+            max_wait (int): maximum seconds to wait for the export; raises
+                TimeoutError afterwards, and RuntimeError if the export failed.
+            timeout (float): per-call timeout in seconds for the download.
+
+        Returns:
+            str: ``path``
+        """
+        download_url = self._wait_for_sca_export(export_id, max_wait)
+        return self.api_client.download_to(
+            "GET", download_url, path, timeout=timeout
         )
+
+    def _wait_for_sca_export(self, export_id: str, max_wait: int) -> str:
+        """Poll until the export is complete and return its download url."""
+        base = self.api_client.configuration.server_base_url
+        status_url = f"{base}/api/sca/export/requests"
+        download_url = f"{base}/api/sca/export/requests/{export_id}/download"
         deadline = time.monotonic() + max_wait
         while True:
             response = self.api_client.call_api(
-                method="GET",
-                url=status_url,
-                params={"exportId": export_id},
+                method="GET", url=status_url, params={"exportId": export_id}
             )
             status = response.json().get("exportStatus")
             if status == "Completed":
                 logger.info("Report has been generated successfully!")
-                return self.download_sca_export(export_id, timeout=timeout)
+                return download_url
             if status == "Failed":
                 raise RuntimeError(
                     f"SCA export {export_id} failed: {response.text}"

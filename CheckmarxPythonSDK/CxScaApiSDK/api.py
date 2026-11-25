@@ -1070,6 +1070,57 @@ class Sca(object):
             is_successful = True
         return is_successful
 
+    def _scan_reports_url(
+        self, scan_id: str, report_format: str, data_types: List[str]
+    ) -> str:
+        if report_format not in [
+            "Json",
+            "Xml",
+            "Pdf",
+            "Csv",
+            "CycloneDxJson",
+            "CycloneDxXml",
+        ]:
+            raise ValueError(
+                "parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml"
+            )
+        if data_types and not isinstance(data_types, (list, tuple)):
+            raise ValueError("parameter data_types can only be list or tuple")
+        for item in data_types:
+            if item not in [
+                "All",
+                "Packages",
+                "Vulnerabilities",
+                "Licenses",
+                "Policies",
+                "SupplyChainRisks",
+            ]:
+                raise ValueError(
+                    "dataType can only be All, Packages, Vulnerabilities, Licenses, Policies, "
+                    "SupplyChainRisks"
+                )
+        url = f"{self.base_url}/risk-management/risk-reports/{scan_id}/export"
+        url += "?format={report_format}".format(report_format=report_format)
+        url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
+        return url
+
+    def download_scan_reports(
+        self,
+        scan_id: str,
+        path: str,
+        report_format: str = "Json",
+        data_types: List[str] = ("All",),
+        timeout: float = None,
+    ) -> str:
+        """Stream the SCA scan report to ``path`` instead of memory.
+        See get_scan_reports for the report_format and data_types options.
+
+        Returns:
+            str: ``path``
+        """
+        url = self._scan_reports_url(scan_id, report_format, data_types)
+        return self.api_client.download_to("GET", url, path, timeout=timeout)
+
     def get_scan_reports(
         self,
         scan_id: str,
@@ -1103,35 +1154,7 @@ class Sca(object):
         Returns:
             bytes
         """
-        if report_format not in [
-            "Json",
-            "Xml",
-            "Pdf",
-            "Csv",
-            "CycloneDxJson",
-            "CycloneDxXml",
-        ]:
-            raise ValueError(
-                "parameter report_format can only be Json, Xml, Pdf, Csv, CycloneDxJson, or CycloneDxXml"
-            )
-        if data_types and not isinstance(data_types, (list, tuple)):
-            raise ValueError("parameter data_types can only be list or tuple")
-        for item in data_types:
-            if item not in [
-                "All",
-                "Packages",
-                "Vulnerabilities",
-                "Licenses",
-                "Policies",
-                "SupplyChainRisks",
-            ]:
-                raise ValueError(
-                    "dataType can only be All, Packages, Vulnerabilities, Licenses, Policies, "
-                    "SupplyChainRisks"
-                )
-        url = f"{self.base_url}/risk-management/risk-reports/{scan_id}/export"
-        url += "?format={report_format}".format(report_format=report_format)
-        url += "".join(["&dataType[]={}".format(data_type) for data_type in data_types])
+        url = self._scan_reports_url(scan_id, report_format, data_types)
         response = self.api_client.call_api("GET", url)
         return response.content
 

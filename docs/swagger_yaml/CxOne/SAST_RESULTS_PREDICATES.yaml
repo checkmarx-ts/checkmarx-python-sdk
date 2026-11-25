@@ -36,6 +36,12 @@ paths:
           required: false
           description: if true, will include the comment's JSON data in the response.
         - in: query
+          name: include-changed-by
+          schema:
+            type: boolean
+          required: false
+          description: if true, will include the changed-by and triggered-by fields in the response.
+        - in: query
           name: scan-id
           schema:
             type: string
@@ -268,6 +274,12 @@ paths:
             type: boolean
           required: false
           description: if true, will include the comment's JSON data in the response.
+        - in: query
+          name: include-changed-by
+          schema:
+            type: boolean
+          required: false
+          description: if true, will include the changed-by and triggered-by fields in the response.
       responses:
         '200':
           description: successful operation
@@ -322,6 +334,13 @@ paths:
         - $ref: '#/components/parameters/authHeader'
         - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: allowAITriageCancellation
+          schema:
+            type: boolean
+          required: false
+          default: false
+          description: If true, allows cancellation of in-flight AI Triage operations before applying manual triage changes. When false (default), returns HTTP 409 if active AI Triage found.
       requestBody:
         content:
           application/json:
@@ -409,6 +428,28 @@ paths:
                     type: string
                   data:
                     type: object
+        '409':
+          description: >
+            Conflict - Active AI Triage operations found and allowAITriageCancellation is false.
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 4092
+                message: "Manual triage cannot be applied because AI Triage is currently in progress"
+                data: null
+        '503':
+          description: Service temporarily unavailable - the AI Triage agent could not be reached.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 503
+                message: "AI triage agent is unavailable, cannot verify whether AI Triage is running for one or more of the selected vulnerabilities"
+                data: null
     patch:
       tags:
         - predicates
@@ -628,13 +669,20 @@ paths:
         - predicates
       summary: Create predicates by attack vector ID with bulk updates
       description: >
-        Creates new predicate entries for SAST results by attack vector ID.  Supports bulk updates across all similarity groups or filtered updates for a specific similarity group.
+        Creates new predicate entries for SAST results by attack vector ID. Supports bulk updates across all similarity groups or filtered updates for a specific similarity group.
 
       operationId: createPredicatesByAttackVector
       parameters:
         - $ref: '#/components/parameters/authHeader'
         - $ref: '#/components/parameters/versionHeader'
         - $ref: '#/components/parameters/correlationIdHeader'
+        - in: query
+          name: allowAITriageCancellation
+          schema:
+            type: boolean
+          required: false
+          default: false
+          description: If true, allows cancellation of in-flight AI Triage operations before applying manual triage changes. When false (default), returns HTTP 409 if active AI Triage found.
       requestBody:
         required: true
         content:
@@ -792,22 +840,41 @@ paths:
                 data: null
         '409':
           description: >
-            Conflict - Inconsistent states detected (bulk update with state provided without override). Only returned for single attack vector requests.
+            Conflict - Either inconsistent states detected (bulk update with state provided without override), or active AI Triage operations found with allowAITriageCancellation=false. Only returned for single attack vector requests.
 
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WebError'
-              example:
-                code: 4091
-                message: "Inconsistent states detected across similarity groups. Set allowInconsistentStates=true to override"
-                data: null
+              examples:
+                inconsistentStates:
+                  summary: Inconsistent states conflict
+                  value:
+                    code: 4091
+                    message: "Inconsistent states detected across similarity groups. Set allowInconsistentStates=true to override"
+                    data: null
+                aiTriageConflict:
+                  summary: Active AI Triage conflict
+                  value:
+                    code: 4092
+                    message: "Manual triage cannot be applied because AI Triage is currently in progress"
+                    data: null
         '500':
           description: Internal Server Error - Database operation failed or internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WebError'
+        '503':
+          description: Service temporarily unavailable - the AI Triage agent could not be reached.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebError'
+              example:
+                code: 503
+                message: "AI triage agent is unavailable, cannot verify whether AI Triage is running for one or more of the selected vulnerabilities"
+                data: null
   '/{similarityID}/{projectID}/{predicateID}':
     delete:
       tags:
@@ -1008,6 +1075,14 @@ components:
         changeOriginName:
           type: string
           description: Entity name which is responsible for the change (where the change originated from)
+        changedBy:
+          type: string
+          nullable: true
+          description: The user who last changed the state of this result
+        triggeredBy:
+          type: string
+          nullable: true
+          description: The entity that triggered this change, returned when include-changed-by is true
     PredicateWitCommentsJSON:
       type: object
       properties:

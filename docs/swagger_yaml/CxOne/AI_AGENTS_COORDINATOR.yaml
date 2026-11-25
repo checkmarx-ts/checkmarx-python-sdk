@@ -1,0 +1,1247 @@
+openapi: 3.0.2
+info:
+  title: AI Agents Coordinator
+  description: Auto-triage and auto-remediation configuration and history API. Requires a CxOne Bearer JWT; request/response bodies use camelCase JSON.
+  version: 0.1.0
+paths:
+  /configuration:
+    get:
+      tags:
+        - AI Agents Coordinator
+      summary: Get account configuration
+      operationId: get_account_configuration_configuration_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountConfigResponse'
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Insufficient permissions or feature disabled
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - AI Agents Coordinator
+      summary: Upsert account configuration
+      operationId: update_account_configuration_configuration_put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountConfigRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountConfigResponse'
+        '400':
+          description: Invalid payload or validation failure
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Insufficient permissions or feature disabled
+        '422':
+          description: Request body validation failed
+  /projects/{project_id}/configuration:
+    get:
+      tags:
+        - AI Agents Coordinator
+      summary: Get project configuration
+      operationId: get_project_configuration_projects__project_id__configuration_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: Checkmarx One project UUID.
+            title: Project Id
+          description: Checkmarx One project UUID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectConfigResponse'
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Insufficient permissions, feature disabled, or project access denied
+        '404':
+          description: Project not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - AI Agents Coordinator
+      summary: Upsert project configuration
+      operationId: update_project_configuration_projects__project_id__configuration_put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: Checkmarx One project UUID.
+            title: Project Id
+          description: Checkmarx One project UUID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectConfigRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectConfigResponse'
+        '400':
+          description: Invalid payload or validation failure
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Insufficient permissions, feature disabled, override blocked, or project access denied
+        '404':
+          description: Project not found
+        '422':
+          description: Request body validation failed
+  /history:
+    get:
+      tags:
+        - AI Agents Coordinator — History
+      summary: List auto-action execution history
+      operationId: list_history_history_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            minimum: 1
+            default: 50
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            title: Offset
+        - name: projectName
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Projectname
+        - name: projectNames
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Projectnames
+        - name: origins
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Origins
+        - name: scanners
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Scanners
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Fromdate
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Todate
+        - name: sort
+          in: query
+          required: false
+          schema:
+            const: completedAt
+            type: string
+            description: v1 supports completedAt only.
+            default: completedAt
+            title: Sort
+          description: v1 supports completedAt only.
+        - name: order
+          in: query
+          required: false
+          schema:
+            enum:
+              - ASC
+              - DESC
+            type: string
+            default: DESC
+            title: Order
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryListResponse'
+        '400':
+          description: Invalid params/pagination
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Not authorized
+        '422':
+          description: Semantic validation error
+  /history/fieldValues:
+    get:
+      tags:
+        - AI Agents Coordinator — History
+      summary: List distinct filter values for a History Tab column
+      operationId: list_history_field_values_history_fieldValues_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: field
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/HistoryFilterField'
+            description: 'Filter column: projectNames.'
+          description: 'Filter column: projectNames.'
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Search
+            description: Case-insensitive substring match on filter values.
+          description: Case-insensitive substring match on filter values.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            minimum: 1
+            default: 50
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryFieldValuesResponse'
+        '400':
+          description: Invalid field or pagination
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Not authorized
+        '422':
+          description: Unknown or missing field
+  /history/export/csv:
+    get:
+      tags:
+        - AI Agents Coordinator — History
+      summary: Export auto-action execution history as CSV
+      operationId: export_history_csv_history_export_csv_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/correlationIdHeader'
+        - name: projectName
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Projectname
+        - name: projectNames
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Projectnames
+        - name: origins
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Origins
+        - name: scanners
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Scanners
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Fromdate
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+            title: Todate
+        - name: sort
+          in: query
+          required: false
+          schema:
+            const: completedAt
+            type: string
+            description: v1 supports completedAt only.
+            default: completedAt
+            title: Sort
+          description: v1 supports completedAt only.
+        - name: order
+          in: query
+          required: false
+          schema:
+            enum:
+              - ASC
+              - DESC
+            type: string
+            default: DESC
+            title: Order
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid params
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Not authorized
+        '422':
+          description: Semantic validation error
+components:
+  schemas:
+    AccountConfigRequest:
+      properties:
+        configurations:
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AutoTriageAccountConfigWriteItem'
+              - $ref: '#/components/schemas/AutoRemediationAccountConfigWriteItem'
+            discriminator:
+              propertyName: feature
+              mapping:
+                auto_remediation: '#/components/schemas/AutoRemediationAccountConfigWriteItem'
+                auto_triage: '#/components/schemas/AutoTriageAccountConfigWriteItem'
+          type: array
+          maxItems: 2
+          minItems: 1
+          title: Configurations
+      additionalProperties: false
+      type: object
+      required:
+        - configurations
+      title: AccountConfigRequest
+    AccountConfigResponse:
+      properties:
+        scope:
+          type: string
+          const: account
+          title: Scope
+          default: account
+        configurations:
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AutoTriageAccountConfigItem'
+              - $ref: '#/components/schemas/AutoRemediationAccountConfigItem'
+            discriminator:
+              propertyName: feature
+              mapping:
+                auto_remediation: '#/components/schemas/AutoRemediationAccountConfigItem'
+                auto_triage: '#/components/schemas/AutoTriageAccountConfigItem'
+          type: array
+          title: Configurations
+      type: object
+      required:
+        - configurations
+      title: AccountConfigResponse
+    AutoRemediationAccountConfigItem:
+      properties:
+        feature:
+          type: string
+          const: auto_remediation
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        allowOverride:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Allowoverride
+        config:
+          $ref: '#/components/schemas/AutoRemediationConfigPayload'
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoRemediationAccountConfigItem
+    AutoRemediationAccountConfigWriteItem:
+      properties:
+        feature:
+          type: string
+          const: auto_remediation
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        allowOverride:
+          $ref: '#/components/schemas/AutoRemediationAllowOverridePayload'
+        config:
+          $ref: '#/components/schemas/AutoRemediationAccountWriteConfigPayload'
+      additionalProperties: false
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoRemediationAccountConfigWriteItem
+    AutoRemediationAccountWriteConfigPayload:
+      properties:
+        projects:
+          items:
+            type: string
+          type: array
+          title: Projects
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          minItems: 1
+          title: Scannertypes
+        riskStates:
+          items:
+            $ref: '#/components/schemas/RiskState'
+          type: array
+          minItems: 1
+          title: Riskstates
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          minItems: 1
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          minItems: 1
+          title: Severitylevels
+        riskAggregation:
+          type: boolean
+          title: Riskaggregation
+          description: When true, auto-remediation may aggregate findings. Omitted on write leaves the stored value unchanged. Absent storage is returned as false.
+          default: false
+        aggregationLimit:
+          type: integer
+          maximum: 200.0
+          minimum: 2.0
+          title: Aggregationlimit
+          description: Maximum findings covered by one aggregation. Omitted on write leaves the stored value unchanged. Absent storage is returned as 50.
+          default: 50
+      additionalProperties: false
+      type: object
+      title: AutoRemediationAccountWriteConfigPayload
+      description: 'Account PUT payload: ``projects`` entries must be valid UUIDs (AST-170521).'
+    AutoRemediationAllowOverridePayload:
+      properties:
+        projects:
+          type: boolean
+          title: Projects
+          default: false
+        branches:
+          type: boolean
+          title: Branches
+          default: false
+        scannerTypes:
+          type: boolean
+          title: Scannertypes
+          default: false
+        riskStates:
+          type: boolean
+          title: Riskstates
+          default: false
+        riskStatuses:
+          type: boolean
+          title: Riskstatuses
+          default: false
+        severityLevels:
+          type: boolean
+          title: Severitylevels
+          default: false
+        riskAggregation:
+          type: boolean
+          title: Riskaggregation
+          default: false
+        aggregationLimit:
+          type: boolean
+          title: Aggregationlimit
+          default: false
+      additionalProperties: false
+      type: object
+      title: AutoRemediationAllowOverridePayload
+      description: Account-scope allowOverride flags for auto-remediation.
+    AutoRemediationConfigPayload:
+      properties:
+        projects:
+          items:
+            type: string
+          type: array
+          title: Projects
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          title: Scannertypes
+        riskStates:
+          items:
+            $ref: '#/components/schemas/RiskState'
+          type: array
+          minItems: 1
+          title: Riskstates
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          title: Severitylevels
+        riskAggregation:
+          type: boolean
+          title: Riskaggregation
+          description: When true, auto-remediation may aggregate findings. Omitted on write leaves the stored value unchanged. Absent storage is returned as false.
+          default: false
+        aggregationLimit:
+          type: integer
+          maximum: 200.0
+          minimum: 2.0
+          title: Aggregationlimit
+          description: Maximum findings covered by one aggregation. Omitted on write leaves the stored value unchanged. Absent storage is returned as 50.
+          default: 50
+      additionalProperties: false
+      type: object
+      title: AutoRemediationConfigPayload
+      description: Account-scope auto-remediation filters.
+    AutoRemediationProjectConfigItem:
+      properties:
+        feature:
+          type: string
+          const: auto_remediation
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        config:
+          $ref: '#/components/schemas/AutoRemediationProjectConfigPayload'
+        allowOverride:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Allowoverride
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoRemediationProjectConfigItem
+    AutoRemediationProjectConfigPayload:
+      properties:
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          title: Scannertypes
+        riskStates:
+          items:
+            $ref: '#/components/schemas/RiskState'
+          type: array
+          minItems: 1
+          title: Riskstates
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          title: Severitylevels
+        riskAggregation:
+          type: boolean
+          title: Riskaggregation
+          description: When true, auto-remediation may aggregate findings. Omitted on write leaves the stored value unchanged. Absent storage is returned as false.
+          default: false
+        aggregationLimit:
+          type: integer
+          maximum: 200.0
+          minimum: 2.0
+          title: Aggregationlimit
+          description: Maximum findings covered by one aggregation. Omitted on write leaves the stored value unchanged. Absent storage is returned as 50.
+          default: 50
+      additionalProperties: false
+      type: object
+      title: AutoRemediationProjectConfigPayload
+      description: Project-scope auto-remediation filters (``projects`` is account-only).
+    AutoRemediationProjectConfigWriteItem:
+      properties:
+        feature:
+          type: string
+          const: auto_remediation
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        config:
+          $ref: '#/components/schemas/AutoRemediationProjectWriteConfigPayload'
+      additionalProperties: false
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoRemediationProjectConfigWriteItem
+    AutoRemediationProjectWriteConfigPayload:
+      properties:
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          minItems: 1
+          title: Scannertypes
+        riskStates:
+          items:
+            $ref: '#/components/schemas/RiskState'
+          type: array
+          minItems: 1
+          title: Riskstates
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          minItems: 1
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          minItems: 1
+          title: Severitylevels
+        riskAggregation:
+          type: boolean
+          title: Riskaggregation
+          description: When true, auto-remediation may aggregate findings. Omitted on write leaves the stored value unchanged. Absent storage is returned as false.
+          default: false
+        aggregationLimit:
+          type: integer
+          maximum: 200.0
+          minimum: 2.0
+          title: Aggregationlimit
+          description: Maximum findings covered by one aggregation. Omitted on write leaves the stored value unchanged. Absent storage is returned as 50.
+          default: 50
+      additionalProperties: false
+      type: object
+      title: AutoRemediationProjectWriteConfigPayload
+      description: 'Project PUT payload: stricter list and branch validation than read models.'
+    AutoTriageAccountConfigItem:
+      properties:
+        feature:
+          type: string
+          const: auto_triage
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        allowOverride:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Allowoverride
+        config:
+          $ref: '#/components/schemas/AutoTriageConfigPayload'
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoTriageAccountConfigItem
+    AutoTriageAccountConfigWriteItem:
+      properties:
+        feature:
+          type: string
+          const: auto_triage
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        allowOverride:
+          $ref: '#/components/schemas/AutoTriageAllowOverridePayload'
+        config:
+          $ref: '#/components/schemas/AutoTriageAccountWriteConfigPayload'
+      additionalProperties: false
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoTriageAccountConfigWriteItem
+    AutoTriageAccountWriteConfigPayload:
+      properties:
+        projects:
+          items:
+            type: string
+          type: array
+          title: Projects
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          minItems: 1
+          title: Scannertypes
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          minItems: 1
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          minItems: 1
+          title: Severitylevels
+      additionalProperties: false
+      type: object
+      title: AutoTriageAccountWriteConfigPayload
+      description: 'Account PUT payload: ``projects`` entries must be valid UUIDs (AST-170521).'
+    AutoTriageAllowOverridePayload:
+      properties:
+        projects:
+          type: boolean
+          title: Projects
+          default: false
+        branches:
+          type: boolean
+          title: Branches
+          default: false
+        scannerTypes:
+          type: boolean
+          title: Scannertypes
+          default: false
+        riskStatuses:
+          type: boolean
+          title: Riskstatuses
+          default: false
+        severityLevels:
+          type: boolean
+          title: Severitylevels
+          default: false
+      additionalProperties: false
+      type: object
+      title: AutoTriageAllowOverridePayload
+      description: Account-scope allowOverride flags for auto-triage.
+    AutoTriageConfigPayload:
+      properties:
+        projects:
+          items:
+            type: string
+          type: array
+          title: Projects
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          title: Scannertypes
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          title: Severitylevels
+      additionalProperties: false
+      type: object
+      title: AutoTriageConfigPayload
+      description: Account-scope auto-triage filters.
+    AutoTriageProjectConfigItem:
+      properties:
+        feature:
+          type: string
+          const: auto_triage
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        config:
+          $ref: '#/components/schemas/AutoTriageProjectConfigPayload'
+        allowOverride:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Allowoverride
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoTriageProjectConfigItem
+    AutoTriageProjectConfigPayload:
+      properties:
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          title: Scannertypes
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          title: Severitylevels
+      additionalProperties: false
+      type: object
+      title: AutoTriageProjectConfigPayload
+      description: Project-scope auto-triage filters (``projects`` is account-only).
+    AutoTriageProjectConfigWriteItem:
+      properties:
+        feature:
+          type: string
+          const: auto_triage
+          title: Feature
+        enabled:
+          type: boolean
+          title: Enabled
+        config:
+          $ref: '#/components/schemas/AutoTriageProjectWriteConfigPayload'
+      additionalProperties: false
+      type: object
+      required:
+        - feature
+        - enabled
+      title: AutoTriageProjectConfigWriteItem
+    AutoTriageProjectWriteConfigPayload:
+      properties:
+        branches:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Branches
+        scannerTypes:
+          items:
+            $ref: '#/components/schemas/ScannerType'
+          type: array
+          minItems: 1
+          title: Scannertypes
+        riskStatuses:
+          items:
+            $ref: '#/components/schemas/RiskStatus'
+          type: array
+          minItems: 1
+          title: Riskstatuses
+        severityLevels:
+          items:
+            $ref: '#/components/schemas/SeverityLevel'
+          type: array
+          minItems: 1
+          title: Severitylevels
+      additionalProperties: false
+      type: object
+      title: AutoTriageProjectWriteConfigPayload
+      description: 'Project PUT payload: stricter list and branch validation than read models.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HistoryCounts:
+      properties:
+        processed:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Processed
+        succeeded:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Succeeded
+        failed:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Failed
+        skipped:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Skipped
+      type: object
+      title: HistoryCounts
+    HistoryFieldValuesResponse:
+      properties:
+        metaData:
+          $ref: '#/components/schemas/HistoryListMetaData'
+        values:
+          items:
+            type: string
+          type: array
+          title: Values
+      type: object
+      required:
+        - metaData
+        - values
+      title: HistoryFieldValuesResponse
+    HistoryFilterField:
+      type: string
+      enum:
+        - projectNames
+      title: HistoryFilterField
+    HistoryItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        origin:
+          type: string
+          title: Origin
+        status:
+          type: string
+          title: Status
+        completedAt:
+          type: string
+          nullable: true
+          title: Completedat
+        projectName:
+          type: string
+          nullable: true
+          title: Projectname
+        scanners:
+          items:
+            type: string
+          type: array
+          title: Scanners
+        counts:
+          anyOf:
+            - $ref: '#/components/schemas/HistoryCounts'
+            - type: 'null'
+        failureReason:
+          type: string
+          nullable: true
+          title: Failurereason
+        occurrenceCount:
+          type: integer
+          title: Occurrencecount
+          default: 1
+      type: object
+      required:
+        - id
+        - origin
+        - status
+        - scanners
+      title: HistoryItem
+      description: Single auto-action run in the History Tab (list row).
+    HistoryListMetaData:
+      properties:
+        totalResults:
+          type: integer
+          title: Totalresults
+        filteredResults:
+          type: integer
+          title: Filteredresults
+        page:
+          type: integer
+          title: Page
+        pageSize:
+          type: integer
+          title: Pagesize
+      type: object
+      required:
+        - totalResults
+        - filteredResults
+        - page
+        - pageSize
+      title: HistoryListMetaData
+      description: Pagination envelope matching platform list style.
+    HistoryListResponse:
+      properties:
+        metaData:
+          $ref: '#/components/schemas/HistoryListMetaData'
+        history:
+          items:
+            $ref: '#/components/schemas/HistoryItem'
+          type: array
+          title: History
+      type: object
+      required:
+        - metaData
+        - history
+      title: HistoryListResponse
+      description: GET /history response envelope.
+    ProjectConfigRequest:
+      properties:
+        configurations:
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AutoTriageProjectConfigWriteItem'
+              - $ref: '#/components/schemas/AutoRemediationProjectConfigWriteItem'
+            discriminator:
+              propertyName: feature
+              mapping:
+                auto_remediation: '#/components/schemas/AutoRemediationProjectConfigWriteItem'
+                auto_triage: '#/components/schemas/AutoTriageProjectConfigWriteItem'
+          type: array
+          maxItems: 2
+          minItems: 1
+          title: Configurations
+      additionalProperties: false
+      type: object
+      required:
+        - configurations
+      title: ProjectConfigRequest
+    ProjectConfigResponse:
+      properties:
+        scope:
+          type: string
+          const: project
+          title: Scope
+          default: project
+        projectId:
+          type: string
+          format: uuid
+          title: Projectid
+        configurations:
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AutoTriageProjectConfigItem'
+              - $ref: '#/components/schemas/AutoRemediationProjectConfigItem'
+            discriminator:
+              propertyName: feature
+              mapping:
+                auto_remediation: '#/components/schemas/AutoRemediationProjectConfigItem'
+                auto_triage: '#/components/schemas/AutoTriageProjectConfigItem'
+          type: array
+          title: Configurations
+      type: object
+      required:
+        - projectId
+        - configurations
+      title: ProjectConfigResponse
+    RiskState:
+      type: string
+      enum:
+        - TO_VERIFY
+        - CONFIRMED
+        - URGENT
+        - PROPOSED_NOT_EXPLOITABLE
+        - NOT_EXPLOITABLE
+      title: RiskState
+      description: Engine-resolved triage verdict (predicate state).
+    RiskStatus:
+      type: string
+      enum:
+        - NEW
+        - RECURRENT
+      title: RiskStatus
+    ScannerType:
+      type: string
+      enum:
+        - SAST
+        - SCA
+      title: ScannerType
+    SeverityLevel:
+      type: string
+      enum:
+        - CRITICAL
+        - HIGH
+        - MEDIUM
+        - LOW
+      title: SeverityLevel
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+  parameters:
+    authHeader:
+      name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+      description: Bearer JWT token
+    correlationIdHeader:
+      name: x-correlation-id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Correlation ID for distributed tracing
+  securitySchemes:
+    Login:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /spec/cxauth.html
+          scopes: {}
+servers:
+  - url: /api/ai-agents-coordinator
+security:
+  - Login: []
