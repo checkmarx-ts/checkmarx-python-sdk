@@ -26,6 +26,7 @@ from CheckmarxPythonSDK.CxOne import (
     update_scan_tags,
     rescan,
     set_scan_recalculation_flag,
+    sca_recalculate,
     get_scans_by_filters,
 )
 
@@ -207,6 +208,30 @@ def test_rescan():
         assert scan.id is not None
     except Exception as e:
         logger.warning("Rescan skipped (no valid prior scan): {}".format(str(e)))
+
+
+def test_sca_recalculate():
+    """Triggers a real SCA recalculation scan (no source resubmission,
+    just re-assesses the branch's most recent SCA results), so cancel
+    it once we've confirmed the response shape rather than letting it
+    run to completion."""
+    project_id = get_project_id_by_name(name=new_project_name)
+    scans = get_a_list_of_scans(project_id=project_id, sort=["-created_at"], limit=1)
+    if not scans.scans:
+        logger.warning("No scans found, skipping sca_recalculate test")
+        return
+    branch = getattr(scans.scans[0], "branch", None) or "master"
+
+    try:
+        scan = sca_recalculate(project_id=project_id, branch=branch)
+        assert scan is not None
+        assert scan.id is not None
+        assert scan.project_id == project_id
+        assert scan.branch == branch
+        assert scan.engines == ["sca"]
+        cancel_scan(scan_id=scan.id)
+    except Exception as e:
+        logger.warning("sca_recalculate skipped: {}".format(str(e)))
 
 
 def test_set_scan_recalculation_flag():

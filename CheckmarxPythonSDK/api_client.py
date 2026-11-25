@@ -33,10 +33,16 @@ def create_session(configuration: Configuration) -> httpx.Client:
         if raw_verify is not True:
             ctx.load_verify_locations(raw_verify)
         verify = ctx
+    # httpx ignores Client-level proxy/cert when a custom transport is given,
+    # so they must be configured on the transport itself.
     return httpx.Client(
-        cert=configuration.cert,
-        proxy=configuration.proxy,
-        transport=httpx.HTTPTransport(retries=3, verify=verify),
+        timeout=configuration.timeout,
+        transport=httpx.HTTPTransport(
+            retries=3,
+            verify=verify,
+            cert=configuration.cert,
+            proxy=configuration.proxy,
+        ),
         follow_redirects=True,
         headers={"User-Agent": f"checkmarx-python-sdk/{__version__}"},
     )
@@ -125,6 +131,9 @@ def _retry_after_seconds(response) -> typing.Optional[float]:
         return max(1, backoff_time)
 
 
+_IDEMPOTENT_METHODS = ("GET", "HEAD", "OPTIONS")
+
+
 def retry():
     """
     Decorator that retries the HTTP request when receiving a 401 Unauthorized, 429 Too Many Requests,
@@ -145,7 +154,25 @@ def retry():
                     headers["Authorization"] = f"Bearer {token}"
                     kwargs["headers"] = headers
 
-                    response = func(self, *args, **kwargs)
+                    try:
+                        response = func(self, *args, **kwargs)
+                    except httpx.TransportError as transport_error:
+                        # Timeouts and connection drops. Only idempotent reads are
+                        # retried; repeating a POST could create duplicates.
+                        method = kwargs.get("method") or (args[0] if args else "")
+                        if (
+                            str(method).upper() in _IDEMPOTENT_METHODS
+                            and retries < max_retries
+                        ):
+                            wait = min(5 * (2**retries), 60)
+                            logger.info(
+                                f"{type(transport_error).__name__}, retrying in "
+                                f"{wait}s ({retries + 1}/{max_retries})"
+                            )
+                            time.sleep(wait)
+                            retries += 1
+                            continue
+                        raise
 
                     if hasattr(response, "status_code"):
                         if response.status_code == 401:
@@ -276,7 +303,13 @@ class ApiClient:
         json: Union[typing.Any, None] = None,
         auth=None,
         headers: dict = None,
+        timeout: Union[float, None] = None,
     ):
+        """Send a request.
+
+        ``timeout`` overrides ``configuration.timeout`` for this call only, e.g.
+        for large report downloads that need longer than ordinary requests.
+        """
         # Acquire token for rate limiting
         if not self.rate_limiter.acquire():
             raise RuntimeError("Rate limiter failed to acquire token")
@@ -297,7 +330,7 @@ class ApiClient:
             files=files,
             json=json,
             auth=auth,
-            timeout=self.configuration.timeout,
+            timeout=self.configuration.timeout if timeout is None else timeout,
             headers=headers,
         )
         # Note: check_response() runs in the @retry wrapper after the retry

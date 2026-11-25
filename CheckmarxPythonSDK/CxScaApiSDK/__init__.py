@@ -72,6 +72,7 @@ from .api import (
     get_down_stream_remediation_by_scan_id,
     get_scan_info_by_scan_id,
     get_scan_progress_by_scan_id,
+    get_package_vulnerability_state_and_score_actions,
 )
 
 from .AccessControlAPI import AccessControlAPI

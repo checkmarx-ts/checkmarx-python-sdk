@@ -660,6 +660,7 @@ class RepoManagerAPI(object):
         tags: dict = None,
         is_repo_admin: bool = False,
         delay_request_timeout: int = 30,
+        max_wait_per_round: int = 7200,
     ) -> None:
         """
 
@@ -688,6 +689,8 @@ class RepoManagerAPI(object):
             private_repository_scan (bool):
             tags (dict):
             is_repo_admin (bool):
+            max_wait_per_round (int): maximum seconds to wait for each import
+                round to reach 100% before raising TimeoutError.
             delay_request_timeout (int):
 
         Returns:
@@ -767,14 +770,19 @@ class RepoManagerAPI(object):
                 scan_ast_project=scan_ast_project,
             )
             percentage = 0
+            deadline = time.monotonic() + max_wait_per_round
             while percentage < 100:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"repo import round {round_i} did not finish within "
+                        f"{max_wait_per_round}s, last percent: {percentage}"
+                    )
                 try:
                     percentage = self.get_job_status()
                     logger.info(f"import percent: {percentage}")
-                    time.sleep(delay_request_timeout)
                 except httpx.RemoteProtocolError as e:
                     logger.info(f"ChunkedEncodingError: {e}")
-                    continue
+                time.sleep(delay_request_timeout)
             time.sleep(delay_request_timeout)
 
     def get_repo_by_id(self, repo_id: int) -> dict:
@@ -1145,6 +1153,7 @@ def batch_import_repo(
     tags: dict = None,
     is_repo_admin: bool = False,
     delay_request_timeout: int = 30,
+    max_wait_per_round: int = 7200,
 ) -> None:
     return RepoManagerAPI().batch_import_repo(
         repos=repos,
@@ -1172,6 +1181,7 @@ def batch_import_repo(
         tags=tags,
         is_repo_admin=is_repo_admin,
         delay_request_timeout=delay_request_timeout,
+        max_wait_per_round=max_wait_per_round,
     )
 
 
