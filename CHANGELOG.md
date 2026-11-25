@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
-Unreleased
+1.9.4 - 2026-11-25
 * [Add] file_format/export_parameters params to ReportAPI.create_sca_scan_report (POST /api/sca/export/requests) -- previously hardcoded to always request ScanReportJson with one fixed ExportParameters shape, now supports all 8 documented fileFormat values (CycloneDxJson/Xml, SpdxJson, RemediatedPackagesJson, ScanReportJson/Xml/Csv/Pdf) with the right exportParameters shape per format (2 new DTOs: ExportParametersSbom, ExportParametersScanReport; RemediatedPackagesJson's shape isn't documented by Checkmarx, so it takes a plain dict). Default behavior when called with just scan_id is unchanged. Live-verified against a real tenant across all 8 formats.
 * [Fix] get_sca_scan_report crashing with UnicodeDecodeError on non-JSON export formats (XML/CSV/PDF) -- the download step unconditionally called response.json(); now returns dict for JSON formats and raw bytes otherwise, decided from the download response's actual Content-Type. Reproduced live with ScanReportPdf before fixing.
 * [Add] get_sca_export_status (GET /api/sca/export/requests?exportId=) -- standalone, non-blocking status check for an SCA export request, returning the new ScaExportStatus DTO (exportId/exportStatus/fileUrl/errorMessage). Previously this call was only reachable indirectly, buried inside get_sca_scan_report's blocking poll loop; a caller wanting to check status once, or to get fileUrl without waiting, had no way to do that.
