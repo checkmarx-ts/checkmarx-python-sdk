@@ -338,3 +338,105 @@ class ApiClient:
         # raising immediately.
         return response
 
+    def download_to(
+        self,
+        method: str,
+        url: str,
+        path: str,
+        params: dict = None,
+        json: Union[typing.Any, None] = None,
+        headers: dict = None,
+        timeout: Union[float, None] = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> str:
+        """Stream a response body to ``path`` without holding it in memory.
+
+        Use this for large reports and exports instead of ``call_api`` followed by
+        ``response.content``. The body is written to ``<path>.part`` and moved to
+        ``path`` only after it was fully received, so a failed download never leaves
+        a truncated file at ``path``.
+
+        A 401 refreshes the token and retries once. Idempotent requests (GET/HEAD)
+        are retried on timeouts and connection errors up to
+        ``configuration.max_retries`` times, restarting the download from the start.
+
+        Args:
+            method (str): HTTP method.
+            url (str): request url.
+            path (str): destination file path.
+            timeout (float): per-call timeout in seconds; defaults to
+                ``configuration.timeout``. The read timeout applies between chunks.
+            chunk_size (int): bytes read per chunk.
+
+        Returns:
+            str: ``path``
+
+        Raises:
+            ValueError: on an HTTP error status, in the same format as call_api.
+            httpx.TransportError: when retries are exhausted.
+        """
+        import os
+
+        if not self.rate_limiter.acquire():
+            raise RuntimeError("Rate limiter failed to acquire token")
+        if params:
+            params = {k: v for k, v in params.items() if v is not None}
+        effective_timeout = self.configuration.timeout if timeout is None else timeout
+        idempotent = str(method).upper() in _IDEMPOTENT_METHODS
+        part_path = f"{path}.part"
+        token_refreshed = False
+        transport_retries = 0
+
+        while True:
+            request_headers = dict(headers or {})
+            request_headers["Authorization"] = f"Bearer {self.token_manager.get_token()}"
+            try:
+                with self.session.stream(
+                    method=method,
+                    url=url,
+                    params=params,
+                    json=json,
+                    headers=request_headers,
+                    timeout=effective_timeout,
+                ) as response:
+                    if response.status_code == UNAUTHORIZED and not token_refreshed:
+                        token_refreshed = True
+                        self.token_manager.refresh_token()
+                        continue
+                    if response.status_code not in (OK, ACCEPTED, NO_CONTENT):
+                        response.read()  # error bodies are small
+                        check_response(response)
+                        raise ValueError(
+                            f"HttpStatusCode: {response.status_code}",
+                            f"ErrorMessage: {response.text}",
+                        )
+                    with open(part_path, "wb") as file:
+                        for chunk in response.iter_bytes(chunk_size=chunk_size):
+                            file.write(chunk)
+                os.replace(part_path, path)
+                return path
+            except httpx.TransportError as transport_error:
+                self._remove_quietly(part_path)
+                if idempotent and transport_retries < self.configuration.max_retries:
+                    wait = min(5 * (2**transport_retries), 60)
+                    logger.info(
+                        f"{type(transport_error).__name__} while downloading, "
+                        f"retrying in {wait}s"
+                    )
+                    time.sleep(wait)
+                    transport_retries += 1
+                    continue
+                raise
+            except BaseException:
+                self._remove_quietly(part_path)
+                raise
+
+    @staticmethod
+    def _remove_quietly(path: str) -> None:
+        import os
+
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
