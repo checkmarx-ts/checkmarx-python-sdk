@@ -231,6 +231,10 @@ from .contributorsAPI import (
     get_number_of_unfamiliar_projects,
     get_unfamiliar_projects_in_csv,
 )
+from .discoveryAPI import (
+    DiscoveryAPI,
+    get_orgs_coverage,
+)
 from .cxLinkAPI import (
     CxLinkAPI,
     get_links,
