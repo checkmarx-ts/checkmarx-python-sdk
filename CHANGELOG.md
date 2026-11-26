@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
+Unreleased
+* [Change] CxLinkAPI.get_link (GET /api/v1/link/links/{id}) now returns the new CxLink dataclass (id, name, description, private_url, link_url, state, client_type, client_version, client_private_url, created_at) instead of a raw dict, consistent with other typed endpoints. Callers indexing the result as a dict should switch to attribute access. The other link methods are unchanged.
+
 1.9.4 - 2026-11-25
 * [Add] file_format/export_parameters params to ReportAPI.create_sca_scan_report (POST /api/sca/export/requests) -- previously hardcoded to always request ScanReportJson with one fixed ExportParameters shape, now supports all 8 documented fileFormat values (CycloneDxJson/Xml, SpdxJson, RemediatedPackagesJson, ScanReportJson/Xml/Csv/Pdf) with the right exportParameters shape per format (2 new DTOs: ExportParametersSbom, ExportParametersScanReport; RemediatedPackagesJson's shape isn't documented by Checkmarx, so it takes a plain dict). Default behavior when called with just scan_id is unchanged. Live-verified against a real tenant across all 8 formats.
 * [Fix] get_sca_scan_report crashing with UnicodeDecodeError on non-JSON export formats (XML/CSV/PDF) -- the download step unconditionally called response.json(); now returns dict for JSON formats and raw bytes otherwise, decided from the download response's actual Content-Type. Reproduced live with ScanReportPdf before fixing.
