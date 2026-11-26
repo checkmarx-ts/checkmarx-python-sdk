@@ -7,7 +7,7 @@ from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from typing import List
 import httpx
 from httpx import Response
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from .projectsAPI import get_all_projects
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,65 @@ class GithubApp:
     hasInstallation: bool = False
 
 
+def _known_fields(cls, item: dict) -> dict:
+    """Keep only the keys ``cls`` declares, so new server-side fields never
+    crash deserialization."""
+    names = {f.name for f in fields(cls)}
+    return {k: v for k, v in (item or {}).items() if k in names}
+
+
+@dataclass
+class RepoSetting:
+    value: object = None
+    allowOverride: bool = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "RepoSetting":
+        return cls(**_known_fields(cls, item))
+
+
+@dataclass
+class FusionScanConfig:
+    enabled: bool = None
+    llmModel: str = None
+    allowOverride: bool = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "FusionScanConfig":
+        return cls(**_known_fields(cls, item))
+
+
+@dataclass
+class DefaultRepositorySettings:
+    """Default scan settings of an SCM organization. Each setting is a
+    ``RepoSetting`` (value/allowOverride); remediationSeverities has a list
+    value and fusionScanConfig has its own shape."""
+    kicsScannerEnabled: RepoSetting = None
+    sastScannerEnabled: RepoSetting = None
+    ossfScoreCardScannerEnabled: RepoSetting = None
+    secretsDetectionScannerEnabled: RepoSetting = None
+    sastIncrementalScan: RepoSetting = None
+    scaScannerEnabled: RepoSetting = None
+    apiSecScannerEnabled: RepoSetting = None
+    containerScannerEnabled: RepoSetting = None
+    aiscScannerEnabled: RepoSetting = None
+    prDecorationEnabled: RepoSetting = None
+    remediationSeverities: RepoSetting = None
+    scaAutoPrEnabled: RepoSetting = None
+    commitIdScanTagEnabled: RepoSetting = None
+    fusionScanConfig: FusionScanConfig = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "DefaultRepositorySettings":
+        known = _known_fields(cls, item)
+        kwargs = {
+            k: (FusionScanConfig.from_dict(v) if k == "fusionScanConfig"
+                else RepoSetting.from_dict(v))
+            for k, v in known.items() if isinstance(v, dict)
+        }
+        return cls(**kwargs)
+
+
 @dataclass
 class RepoOrg:
     id: str = None
@@ -45,6 +104,17 @@ class RepoOrg:
     installationTokenId: int = None
     webhookEditable: bool = True
     webhookEnabled: bool = True
+    defaultRepositorySettings: DefaultRepositorySettings = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "RepoOrg":
+        known = _known_fields(cls, item)
+        settings = known.get("defaultRepositorySettings")
+        if isinstance(settings, dict):
+            known["defaultRepositorySettings"] = (
+                DefaultRepositorySettings.from_dict(settings)
+            )
+        return cls(**known)
 
 
 @dataclass
@@ -225,19 +295,49 @@ class RepoManagerAPI(object):
         """
         origin = self.check_origin(origin)
         origin_index = self.origin_dict.get(origin)
-        url = f"{self.base_url_v2}/{origin_index}/user/orgs/config"
-        params = {
-            "authCode": auth_code,
-            "page": page,
-            "pageSize": page_size,
-        }
+        return self.get_all_repo_orgs_for_scm_id(
+            scm_id=origin_index,
+            auth_code=auth_code,
+            page=page,
+            page_size=page_size,
+        )
+
+    def get_all_repo_orgs_for_scm_id(
+        self,
+        scm_id: int,
+        auth_code: str,
+        page: int = None,
+        page_size: int = 50,
+    ) -> RepoOrgs:
+        """
+        Get the organizations of one registered SCM instance, addressed by
+        its SCM id (GET /api/repos-manager/v2/scms/{scm_id}/user/orgs/config).
+        Unlike get_all_repo_orgs_for_a_scm_type this also works for
+        self-hosted instances registered with create_oauth_based_scm, whose
+        ids are not one of the fixed 1-4.
+
+        Args:
+            scm_id (int): id from get_all_scm_types_v2() or the scmId
+                returned by create_oauth_based_scm.
+            auth_code (str): authorization code / token for the SCM.
+            page (int, optional): page number; omitted when None.
+            page_size (int): page size. Default: 50
+
+        Returns:
+            RepoOrgs
+        """
+        url = f"{self.base_url_v2}/{scm_id}/user/orgs/config"
+        params = {"authCode": auth_code, "pageSize": page_size}
+        if page is not None:
+            params["page"] = page
         response = self.api_client.call_api(
             method="GET",
             url=url,
             params=params,
         )
-        logger.info(response.json())
-        return RepoOrgs(orgs=[RepoOrg(**item) for item in response.json().get("orgs")])
+        return RepoOrgs(
+            orgs=[RepoOrg.from_dict(i) for i in response.json().get("orgs", [])]
+        )
 
     def create_installation_of_scm_on_org(
         self,
