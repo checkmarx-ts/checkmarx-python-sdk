@@ -138,6 +138,78 @@ class Repo:
     isRepoAdmin: bool = True
     isSuggested: bool = False
     isImported: bool = False
+    # duplicates of the is* fields that the server also returns
+    imported: bool = False
+    repoAdmin: bool = True
+    suggested: bool = False
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "Repo":
+        return cls(**_known_fields(cls, item))
+
+
+@dataclass
+class OrgConfigResult:
+    orgIdentity: str = None
+    status: str = None
+    statusMessageError: str = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "OrgConfigResult":
+        return cls(**_known_fields(cls, item))
+
+
+@dataclass
+class OverriddenSetting:
+    """A requested repo setting the server changed, e.g.
+    reason UNSUPPORTED_SCM_TYPE or LICENSE."""
+    field: str = None
+    reason: str = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "OverriddenSetting":
+        return cls(**_known_fields(cls, item))
+
+
+@dataclass
+class RepoConfigResult:
+    repoId: int = None
+    projectId: str = None
+    repoIdentity: str = None
+    scmProjectIdentity: str = None
+    repoUrl: str = None
+    status: str = None
+    statusMessageError: str = None
+    name: str = None
+    overriddenSettings: List[OverriddenSetting] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "RepoConfigResult":
+        known = _known_fields(cls, item)
+        known["overriddenSettings"] = [
+            OverriddenSetting.from_dict(o)
+            for o in (known.get("overriddenSettings") or [])
+        ]
+        return cls(**known)
+
+
+@dataclass
+class RepoImportResult:
+    """Response of POST /api/repos-manager/scms/{id}/orgs/{org}/repos."""
+    orgConfigResult: OrgConfigResult = None
+    repoConfigResultList: List[RepoConfigResult] = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "RepoImportResult":
+        return cls(
+            orgConfigResult=OrgConfigResult.from_dict(
+                item.get("orgConfigResult")
+            ),
+            repoConfigResultList=[
+                RepoConfigResult.from_dict(r)
+                for r in (item.get("repoConfigResultList") or [])
+            ],
+        )
 
 
 @dataclass
@@ -372,13 +444,104 @@ class RepoManagerAPI(object):
         """
         origin = self.check_origin(origin)
         origin_index = self.origin_dict.get(origin)
-        url = f"{self.base_url_v2}/{origin_index}/orgs/{org_name}/repos"
-        params = {
-            "tokenId": token_id,
-            "isUser": is_user,
-        }
+        return self.get_all_repos_for_scm_id(
+            scm_id=origin_index,
+            org_name=org_name,
+            token_id=token_id,
+            is_user=is_user,
+        )
+
+    def get_all_repos_for_scm_id(
+        self,
+        scm_id: int,
+        org_name: str,
+        auth_code: str = None,
+        token_id: str = None,
+        is_user: bool = False,
+    ) -> Repos:
+        """
+        Get the repositories of one organization of a registered SCM
+        instance (GET /api/repos-manager/v2/scms/{scm_id}/orgs/{org}/repos).
+        Works for self-hosted instances whose ids are not the fixed 1-4.
+
+        Args:
+            scm_id (int): id from get_all_scm_types_v2() or create_oauth_based_scm.
+            org_name (str): organization id/name.
+            auth_code (str, optional): authorization code for the SCM.
+            token_id (str, optional): stored token id, alternative to auth_code.
+            is_user (bool): True when org_name is a user namespace.
+
+        Returns:
+            Repos
+        """
+        url = f"{self.base_url_v2}/{scm_id}/orgs/{org_name}/repos"
+        params = {"isUser": str(is_user).lower()}
+        if auth_code is not None:
+            params["authCode"] = auth_code
+        if token_id is not None:
+            params["tokenId"] = token_id
         response = self.api_client.call_api(method="GET", url=url, params=params)
-        return Repos(repos=[Repo(**item) for item in response.json().get("repos")])
+        return Repos(
+            repos=[Repo.from_dict(i) for i in response.json().get("repos", [])]
+        )
+
+    def repo_import_for_scm_id(
+        self,
+        scm_id: int,
+        organization: str,
+        repos_from_request: List[dict],
+        auth_code: str = None,
+        token_id: str = None,
+        is_user: bool = False,
+        is_org_webhook_enabled: bool = None,
+        create_ast_project: bool = True,
+        scan_ast_project: bool = False,
+        org_ssh_key: str = "",
+        org_ssh_state: str = "SKIPPED",
+    ) -> RepoImportResult:
+        """
+        Import repositories of one organization of a registered SCM instance
+        (POST /api/repos-manager/scms/{scm_id}/orgs/{org}/repos), optionally
+        creating and scanning the Checkmarx One projects.
+
+        Args:
+            scm_id (int): id of the SCM instance (any registered scm).
+            organization (str): organization id/name.
+            repos_from_request (List[dict]): repo objects as the UI sends
+                them (id, uid, url, scmRepoId, name, origin, defaultBranch,
+                branches, scanner flags, sshState, criticality, ...).
+            auth_code (str, optional): authorization code for the SCM.
+            token_id (str, optional): stored token id.
+            is_user (bool): True when organization is a user namespace.
+            is_org_webhook_enabled (bool, optional): sent only when given.
+            create_ast_project (bool): create the CxOne project.
+            scan_ast_project (bool): start a scan after creating it.
+
+        Returns:
+            RepoImportResult: org status and a per-repo result, including
+            any settings the server overrode (overriddenSettings).
+        """
+        url = f"{self.base_url}/{scm_id}/orgs/{organization}/repos"
+        params = {
+            "isUser": str(is_user).lower(),
+            "createAstProject": str(create_ast_project).lower(),
+            "scanAstProject": str(scan_ast_project).lower(),
+        }
+        if auth_code is not None:
+            params["authCode"] = auth_code
+        if token_id is not None:
+            params["tokenId"] = token_id
+        if is_org_webhook_enabled is not None:
+            params["isOrgWebhookEnabled"] = str(is_org_webhook_enabled).lower()
+        payload = {
+            "reposFromRequest": repos_from_request,
+            "orgSshKey": org_ssh_key,
+            "orgSshState": org_ssh_state,
+        }
+        response = self.api_client.call_api(
+            method="POST", url=url, params=params, json=payload
+        )
+        return RepoImportResult.from_dict(response.json())
 
     def get_repos(
         self,
