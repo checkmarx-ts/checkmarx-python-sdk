@@ -51,6 +51,19 @@ class GithubApp:
     hasInstallation: bool = False
 
 
+@dataclass
+class JobStatus:
+    """Latest progress event from GET /api/ssegateway/job-status.
+
+    The server replays the last finished job's final event (percentage 100,
+    job_running False) until a new job reports, so ``job_running`` is the
+    way to tell a stale 100 apart from a job that is actually running.
+    """
+    percentage: Optional[float] = None
+    job_running: Optional[bool] = None
+    current_phase: Optional[str] = None
+
+
 def _known_fields(cls, item: dict) -> dict:
     """Keep only the keys ``cls`` declares, so new server-side fields never
     crash deserialization."""
@@ -929,13 +942,15 @@ class RepoManagerAPI(object):
         return response
 
     @staticmethod
-    def _parse_job_percentage(text: str) -> Optional[int]:
-        """Last ``percentage`` in an SSE body, or None when there is none.
+    def _parse_job_event(text: str) -> Optional["JobStatus"]:
+        """Latest progress event from an SSE body, or None when there is none.
 
         Only ``data:`` lines are read; keep-alive comments, ``event:`` lines
-        and malformed payloads are ignored.
+        and malformed payloads are ignored. The latest value seen for each
+        field wins, so the replay of an older finished job is returned as
+        ``JobStatus(percentage=100, job_running=False)``.
         """
-        percentage = None
+        parsed = None
         for line in text.splitlines():
             line = line.strip()
             if not line.startswith("data:"):
@@ -944,9 +959,17 @@ class RepoManagerAPI(object):
                 event = json.loads(line[len("data:"):])
             except ValueError:
                 continue
-            if isinstance(event, dict) and event.get("percentage") is not None:
-                percentage = event["percentage"]
-        return percentage
+            if not isinstance(event, dict):
+                continue
+            if parsed is None:
+                parsed = JobStatus()
+            if event.get("percentage") is not None:
+                parsed.percentage = event["percentage"]
+            if event.get("jobRunning") is not None:
+                parsed.job_running = event["jobRunning"]
+            if event.get("currentPhase") is not None:
+                parsed.current_phase = event["currentPhase"]
+        return parsed
 
     def get_job_status(self) -> Optional[int]:
         """
@@ -957,6 +980,26 @@ class RepoManagerAPI(object):
             int | None: 0 - 100, or None when the stream carried no progress
             event (for example no job is running or none has reported yet).
         """
+        event = self._get_job_status_event()
+        return event.percentage if event else None
+
+    def get_job_status_details(self) -> Optional["JobStatus"]:
+        """
+        Full latest progress event of the import job
+        (GET /api/ssegateway/job-status, a server-sent-events stream).
+
+        Unlike :meth:`get_job_status`, this also exposes ``job_running`` and
+        ``current_phase``. The server replays the previous job's final event
+        (percentage 100, job_running False) until a new job reports, so
+        ``job_running`` tells a stale 100 apart from a running job.
+
+        Returns:
+            JobStatus | None: percentage, job_running and current_phase of
+            the latest progress event, or None when the stream carried none.
+        """
+        return self._get_job_status_event()
+
+    def _get_job_status_event(self) -> Optional["JobStatus"]:
         url = (
             f"{self.api_client.configuration.server_base_url}"
             "/api/ssegateway/job-status"
@@ -965,7 +1008,7 @@ class RepoManagerAPI(object):
         response = self.api_client.call_api(
             method="GET", url=url, headers=headers
         )
-        return self._parse_job_percentage(response.text)
+        return self._parse_job_event(response.text)
 
     def batch_import_repo(
         self,
@@ -995,6 +1038,7 @@ class RepoManagerAPI(object):
         is_repo_admin: bool = False,
         delay_request_timeout: int = 30,
         max_wait_per_round: int = 7200,
+        settle_timeout: int = 60,
         existing_project_names: Optional[Iterable[str]] = None,
     ) -> None:
         """
@@ -1035,6 +1079,15 @@ class RepoManagerAPI(object):
                 polls. Polling starts at 2 seconds and doubles up to this cap,
                 so a fast import is detected after a few short polls; the next
                 round starts as soon as the current one reaches 100%.
+            settle_timeout (int): seconds after each import POST during which
+                a 100% status with no observed job activity is ignored. The
+                server replays the previous job's final event (percentage 100,
+                jobRunning false) until the new job reports, so a 100% is
+                trusted immediately only after this round's job has been
+                observed (percentage below 100 or jobRunning true). A 100%
+                that is still unconfirmed after this many seconds is accepted
+                as done, so a job that finished before the first poll is not
+                waited on forever.
 
         Returns:
             None
@@ -1118,25 +1171,34 @@ class RepoManagerAPI(object):
             )
             percentage = 0
             deadline = time.monotonic() + max_wait_per_round
+            settle_deadline = time.monotonic() + settle_timeout
             poll_interval = min(2.0, delay_request_timeout)
-            while percentage < 100:
+            saw_job_start = False
+            while True:
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
                         f"repo import round {round_i} did not finish within "
                         f"{max_wait_per_round}s, last percent: {percentage}"
                     )
                 try:
-                    status = self.get_job_status()
+                    event = self.get_job_status_details()
                 except httpx.HTTPError as e:
                     logger.warning(
                         f"job-status poll failed ({type(e).__name__}): {e}"
                     )
-                    status = None
-                if status is not None:
-                    if status != percentage:
-                        logger.info(f"import percent: {status}")
-                    percentage = status
-                if percentage >= 100:
+                    event = None
+                if event is not None and event.percentage is not None:
+                    if event.percentage != percentage:
+                        logger.info(f"import percent: {event.percentage}")
+                    percentage = event.percentage
+                if event is not None and (
+                    (event.percentage is not None and event.percentage < 100)
+                    or event.job_running
+                ):
+                    saw_job_start = True
+                if percentage >= 100 and (
+                    saw_job_start or time.monotonic() >= settle_deadline
+                ):
                     break
                 remaining = deadline - time.monotonic()
                 if remaining > 0:
@@ -1485,6 +1547,10 @@ def get_job_status() -> Optional[int]:
     return RepoManagerAPI().get_job_status()
 
 
+def get_job_status_details() -> Optional["JobStatus"]:
+    return RepoManagerAPI().get_job_status_details()
+
+
 def batch_import_repo(
     repos: List[dict],
     origin: str,
@@ -1512,6 +1578,7 @@ def batch_import_repo(
     is_repo_admin: bool = False,
     delay_request_timeout: int = 30,
     max_wait_per_round: int = 7200,
+    settle_timeout: int = 60,
     existing_project_names: Optional[Iterable[str]] = None,
 ) -> None:
     return RepoManagerAPI().batch_import_repo(
@@ -1541,6 +1608,7 @@ def batch_import_repo(
         is_repo_admin=is_repo_admin,
         delay_request_timeout=delay_request_timeout,
         max_wait_per_round=max_wait_per_round,
+        settle_timeout=settle_timeout,
         existing_project_names=existing_project_names,
     )
 

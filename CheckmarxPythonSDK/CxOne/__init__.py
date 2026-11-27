@@ -474,6 +474,7 @@ from .repoManagerAPI import (
     construct_repo_request,
     repo_import,
     get_job_status,
+    get_job_status_details,
     batch_import_repo,
     get_repo_by_id,
     update_repo_by_id,
