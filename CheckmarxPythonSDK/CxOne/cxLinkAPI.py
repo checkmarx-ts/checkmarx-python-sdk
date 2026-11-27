@@ -1,5 +1,6 @@
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
+from CheckmarxPythonSDK.CxOne.dto import CxLink
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, CREATED
 
 
@@ -32,7 +33,7 @@ class CxLinkAPI(object):
         )
         return response.json()
 
-    def get_link(self, id: str) -> dict:
+    def get_link(self, id: str) -> CxLink:
         """
         Retrieve a link by ID.
 
@@ -40,11 +41,11 @@ class CxLinkAPI(object):
             id (str): Link ID (uuid)
 
         Returns:
-            dict with link details
+            CxLink
         """
         url = f"{self.base_url}/links/{id}"
         response = self.api_client.call_api(method="GET", url=url)
-        return response.json()
+        return CxLink.from_dict(response.json())
 
     def create_link(
         self,
@@ -138,7 +139,7 @@ def get_links(offset: int = 0, limit: int = 10) -> dict:
     return CxLinkAPI().get_links(offset=offset, limit=limit)
 
 
-def get_link(id: str) -> dict:
+def get_link(id: str) -> CxLink:
     return CxLinkAPI().get_link(id=id)
 
 

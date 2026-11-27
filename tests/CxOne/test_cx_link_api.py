@@ -1,5 +1,7 @@
 import pytest
 
+from CheckmarxPythonSDK.CxOne.dto import CxLink
+
 from CheckmarxPythonSDK.CxOne import (
     get_links,
     get_link,
@@ -34,7 +36,9 @@ def test_create_update_recreate_delete_link():
     # GET by ID
     link = get_link(id=link_id)
     assert link is not None
-    assert "name" in link
+    assert isinstance(link, CxLink)
+    assert link.id == link_id
+    assert link.name == link_name
 
     # Update
     updated_name = "test-sdk-link-upd-{}".format(suffix)
