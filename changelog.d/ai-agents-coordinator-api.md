@@ -1,0 +1,1 @@
+* [Add] AiAgentsCoordinatorAPI for the new /api/ai-agents-coordinator service — get/update the account- and project-level auto-triage/auto-remediation configuration (eligibility filters, allowOverride permissions), and list/export the auto-action execution history. Currently supported for SAST and SCA scanners.
