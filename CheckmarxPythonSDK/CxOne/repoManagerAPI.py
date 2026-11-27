@@ -4,13 +4,27 @@ import time
 import logging
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from typing import List
+from typing import List, Optional
 import httpx
 from httpx import Response
 from dataclasses import dataclass, fields
 from .projectsAPI import get_all_projects
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ScmTypeInfo:
+    """An SCM type from GET /api/repos-manager/scm-types, the catalog the UI
+    takes ``typeId`` from when registering an SCM (e.g. 2 = GitLab)."""
+    id: int = None
+    name: str = None
+    displayName: str = None
+    scope: str = None
+
+    @classmethod
+    def from_dict(cls, item: dict) -> "ScmTypeInfo":
+        return cls(**_known_fields(cls, item))
 
 
 @dataclass
@@ -238,6 +252,21 @@ class RepoManagerAPI(object):
             "AZURE": 3,
             "BITBUCKET": 4,
         }
+
+    def get_scm_types(self) -> List[ScmTypeInfo]:
+        """
+        List the SCM types Checkmarx One supports
+        (GET /api/repos-manager/scm-types). Use an entry's ``id`` as the
+        ``type_id`` of create_oauth_based_scm. Not to be confused with
+        get_all_scm_types_v2, which lists the SCM instances registered in
+        the tenant.
+
+        Returns:
+            List[ScmTypeInfo]
+        """
+        url = f"{self.base_url.rsplit('/', 1)[0]}/scm-types"
+        response = self.api_client.call_api(method="GET", url=url)
+        return [ScmTypeInfo.from_dict(item) for item in response.json()]
 
     def get_all_scm_types_v2(self) -> List[ScmType]:
         """
@@ -899,44 +928,44 @@ class RepoManagerAPI(object):
         )
         return response
 
-    def get_job_status(self) -> int:
-        """0 - 100"""
+    @staticmethod
+    def _parse_job_percentage(text: str) -> Optional[int]:
+        """Last ``percentage`` in an SSE body, or None when there is none.
+
+        Only ``data:`` lines are read; keep-alive comments, ``event:`` lines
+        and malformed payloads are ignored.
+        """
+        percentage = None
+        for line in text.splitlines():
+            line = line.strip()
+            if not line.startswith("data:"):
+                continue
+            try:
+                event = json.loads(line[len("data:"):])
+            except ValueError:
+                continue
+            if isinstance(event, dict) and event.get("percentage") is not None:
+                percentage = event["percentage"]
+        return percentage
+
+    def get_job_status(self) -> Optional[int]:
+        """
+        Progress of the running import job (GET /api/ssegateway/job-status,
+        a server-sent-events stream).
+
+        Returns:
+            int | None: 0 - 100, or None when the stream carried no progress
+            event (for example no job is running or none has reported yet).
+        """
         url = (
             f"{self.api_client.configuration.server_base_url}"
             "/api/ssegateway/job-status"
         )
-        headers = {
-            "accept": "*/*",
-            "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "priority": "u=1, i",
-            "sec-ch-ua": (
-                '"Chromium";v="134", "Not:A-Brand";v="24",'
-                ' "Google Chrome";v="134"'
-            ),
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-            "user-agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/134.0.0.0 Safari/537.36"
-            ),
-            "Accept-Encoding": "identity",
-        }
+        headers = {"accept": "*/*", "Accept-Encoding": "identity"}
         response = self.api_client.call_api(
             method="GET", url=url, headers=headers
         )
-        data_list = [
-            json.loads(item.replace("data:", ""))
-            for item in response.text.split("\n")
-            if item != ""
-        ]
-        job_percentage = data_list[-1].get("percentage")
-        return job_percentage
+        return self._parse_job_percentage(response.text)
 
     def batch_import_repo(
         self,
@@ -1083,7 +1112,9 @@ class RepoManagerAPI(object):
                         f"{max_wait_per_round}s, last percent: {percentage}"
                     )
                 try:
-                    percentage = self.get_job_status()
+                    status = self.get_job_status()
+                    if status is not None:
+                        percentage = status
                     logger.info(f"import percent: {percentage}")
                 except httpx.RemoteProtocolError as e:
                     logger.info(f"ChunkedEncodingError: {e}")
@@ -1428,7 +1459,7 @@ def repo_import(
     )
 
 
-def get_job_status() -> int:
+def get_job_status() -> Optional[int]:
     return RepoManagerAPI().get_job_status()
 
 
@@ -1542,3 +1573,7 @@ def create_oauth_based_scm(
         client_id=client_id,
         client_secret=client_secret,
     )
+
+
+def get_scm_types() -> List[ScmTypeInfo]:
+    return RepoManagerAPI().get_scm_types()
