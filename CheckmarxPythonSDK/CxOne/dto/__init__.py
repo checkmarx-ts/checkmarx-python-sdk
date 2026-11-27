@@ -315,6 +315,7 @@ from .SastScan import SastScan
 from .SastStatus import SastStatus
 from .ScaExportStatus import ScaExportStatus
 from .CxLink import CxLink
+from .OrgCoverage import OrgCoverage, ScmCoverage
 from .ScaExportFileFormats import ScaExportFileFormats
 from .ScaContainersCounters import ScaContainersCounters
 from .ScaCounters import ScaCounters
