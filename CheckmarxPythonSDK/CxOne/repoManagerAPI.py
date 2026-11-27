@@ -4,7 +4,7 @@ import time
 import logging
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from typing import List, Optional
+from typing import Iterable, List, Optional
 import httpx
 from httpx import Response
 from dataclasses import dataclass, fields
@@ -995,10 +995,16 @@ class RepoManagerAPI(object):
         is_repo_admin: bool = False,
         delay_request_timeout: int = 30,
         max_wait_per_round: int = 7200,
+        existing_project_names: Optional[Iterable[str]] = None,
     ) -> None:
         """
 
         Args:
+            existing_project_names (Iterable[str]): names of projects that already
+                exist in CxOne; repos whose fullName is in it are skipped. When
+                None (default) all projects are listed once per call. Pass it
+                when calling this method repeatedly (e.g. once per group) so the
+                full project list is not fetched again every time.
             repos (List[dict]):
             origin (str):
             organization (str):
@@ -1040,8 +1046,9 @@ class RepoManagerAPI(object):
             )
             token_id = installation.tokenId
             auth_code = None
-        project_list = get_all_projects()
-        project_name_list = [project.name for project in project_list]
+        if existing_project_names is None:
+            existing_project_names = [p.name for p in get_all_projects()]
+        project_name_list = set(existing_project_names)
         repo_requests = []
         for repo in repos:
             repo_full_name = repo.get("fullName")
@@ -1074,7 +1081,7 @@ class RepoManagerAPI(object):
                     tags=tags,
                 )
             )
-        round_of_requests = math.ceil(len(repos) / chunk_size)
+        round_of_requests = math.ceil(len(repo_requests) / chunk_size)
         logger.info(
             f"there are total {len(repos)} repos in org: {organization}, "
             f"total {len(repo_requests)} repo requests created, "
@@ -1490,6 +1497,7 @@ def batch_import_repo(
     is_repo_admin: bool = False,
     delay_request_timeout: int = 30,
     max_wait_per_round: int = 7200,
+    existing_project_names: Optional[Iterable[str]] = None,
 ) -> None:
     return RepoManagerAPI().batch_import_repo(
         repos=repos,
@@ -1518,6 +1526,7 @@ def batch_import_repo(
         is_repo_admin=is_repo_admin,
         delay_request_timeout=delay_request_timeout,
         max_wait_per_round=max_wait_per_round,
+        existing_project_names=existing_project_names,
     )
 
 
