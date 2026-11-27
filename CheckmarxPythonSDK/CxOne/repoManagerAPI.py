@@ -112,6 +112,48 @@ class RepoManagerAPI(object):
         )
         return [ScmType(**item) for item in response.json()]
 
+    def create_oauth_based_scm(
+        self,
+        type_id: int,
+        auth_code: str,
+        instance_name: str,
+        repo_base_url: str,
+        client_id: str,
+        client_secret: str,
+    ) -> int:
+        """
+        Register an OAuth-based, self-hosted SCM instance
+        (POST /api/repos-manager/scms/oauth-based), e.g. an on-prem GitLab
+        reached through a Checkmarx Link.
+
+        Args:
+            type_id (int): SCM type id from get_all_scm_types_v2()
+                (e.g. 2 for GitLab).
+            auth_code (str): OAuth authorization code issued by the SCM.
+            instance_name (str): Name for the new SCM instance.
+            repo_base_url (str): Base url of the SCM, for a Link-backed
+                instance the Link's linkUrl
+                (https://<tenant>/link/<link-id>).
+            client_id (str): OAuth application id registered in the SCM.
+            client_secret (str): OAuth application secret.
+
+        Returns:
+            int: the new SCM's id (scmId).
+        """
+        url = f"{self.base_url}/oauth-based"
+        payload = {
+            "typeId": type_id,
+            "authCode": auth_code,
+            "instanceName": instance_name,
+            "repoBaseUrl": repo_base_url,
+            "clientId": client_id,
+            "clientSecret": client_secret,
+        }
+        response = self.api_client.call_api(
+            method="POST", url=url, json=payload
+        )
+        return response.json().get("scmId")
+
     def get_verify_status_for_user(
         self,
         origin: str,
@@ -1218,4 +1260,22 @@ def scm_managed_project_scan(
         scanner_types=scanner_types,
         is_incremental_scan=is_incremental_scan,
         org_ssh_key=org_ssh_key,
+    )
+
+
+def create_oauth_based_scm(
+    type_id: int,
+    auth_code: str,
+    instance_name: str,
+    repo_base_url: str,
+    client_id: str,
+    client_secret: str,
+) -> int:
+    return RepoManagerAPI().create_oauth_based_scm(
+        type_id=type_id,
+        auth_code=auth_code,
+        instance_name=instance_name,
+        repo_base_url=repo_base_url,
+        client_id=client_id,
+        client_secret=client_secret,
     )
