@@ -1031,7 +1031,10 @@ class RepoManagerAPI(object):
             is_repo_admin (bool):
             max_wait_per_round (int): maximum seconds to wait for each import
                 round to reach 100% before raising TimeoutError.
-            delay_request_timeout (int):
+            delay_request_timeout (int): maximum seconds between job-status
+                polls. Polling starts at 2 seconds and doubles up to this cap,
+                so a fast import is detected after a few short polls; the next
+                round starts as soon as the current one reaches 100%.
 
         Returns:
             None
@@ -1092,8 +1095,11 @@ class RepoManagerAPI(object):
             repo_request_chunks = repo_requests[
                 round_i * chunk_size : (round_i + 1) * chunk_size
             ]
-            urls_str = "\n".join([item.get("url") for item in repo_request_chunks])
-            logger.debug(f"All urls in this round of chunks: {urls_str}")
+            if logger.isEnabledFor(logging.DEBUG):
+                urls_str = "\n".join(
+                    item.get("url") for item in repo_request_chunks
+                )
+                logger.debug(f"All urls in this round of chunks: {urls_str}")
             logger.info(
                 f"round {round_i + 1}, number of repos to create: "
                 f"{len(repo_request_chunks)} "
@@ -1112,6 +1118,7 @@ class RepoManagerAPI(object):
             )
             percentage = 0
             deadline = time.monotonic() + max_wait_per_round
+            poll_interval = min(2.0, delay_request_timeout)
             while percentage < 100:
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
@@ -1120,13 +1127,21 @@ class RepoManagerAPI(object):
                     )
                 try:
                     status = self.get_job_status()
-                    if status is not None:
-                        percentage = status
-                    logger.info(f"import percent: {percentage}")
-                except httpx.RemoteProtocolError as e:
-                    logger.info(f"ChunkedEncodingError: {e}")
-                time.sleep(delay_request_timeout)
-            time.sleep(delay_request_timeout)
+                except httpx.HTTPError as e:
+                    logger.warning(
+                        f"job-status poll failed ({type(e).__name__}): {e}"
+                    )
+                    status = None
+                if status is not None:
+                    if status != percentage:
+                        logger.info(f"import percent: {status}")
+                    percentage = status
+                if percentage >= 100:
+                    break
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    time.sleep(min(poll_interval, remaining))
+                poll_interval = min(poll_interval * 2, delay_request_timeout)
 
     def get_repo_by_id(self, repo_id: int) -> dict:
         """
