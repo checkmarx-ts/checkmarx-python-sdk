@@ -2,7 +2,6 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
-* [Add] RepoManagerAPI.create_oauth_based_scm (POST /api/repos-manager/scms/oauth-based) -- registers an OAuth-based self-hosted SCM instance (e.g. on-prem GitLab behind a Checkmarx Link) from typeId/authCode/instanceName/repoBaseUrl/clientId/clientSecret and returns the new scmId. The route is not in the published Swagger; request/response shape taken from the Checkmarx One UI's own call.
 * [Add] DiscoveryAPI.get_orgs_coverage (GET /api/discovery/v2/orgs/coverage) -- repository import coverage per SCM instance and organization (repo counts, imported counts, KPI percentage, onPrem), returned as ScmCoverage/OrgCoverage dataclasses. The route is not in the published Swagger; response shape taken from the Checkmarx One UI's own call.
 
 1.9.4 - 2026-11-25
