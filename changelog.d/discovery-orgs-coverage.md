@@ -1,0 +1,1 @@
+* [Add] DiscoveryAPI.get_orgs_coverage (GET /api/discovery/v2/orgs/coverage) -- repository import coverage per SCM instance and organization (repo counts, imported counts, KPI percentage, onPrem), returned as ScmCoverage/OrgCoverage dataclasses. The route is not in the published Swagger; response shape taken from the Checkmarx One UI's own call.

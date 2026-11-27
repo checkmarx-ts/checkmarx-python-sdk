@@ -1,9 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in  this file.
 
-Unreleased
-* [Add] DiscoveryAPI.get_orgs_coverage (GET /api/discovery/v2/orgs/coverage) -- repository import coverage per SCM instance and organization (repo counts, imported counts, KPI percentage, onPrem), returned as ScmCoverage/OrgCoverage dataclasses. The route is not in the published Swagger; response shape taken from the Checkmarx One UI's own call.
-
 1.9.4 - 2026-11-25
 * [Add] file_format/export_parameters params to ReportAPI.create_sca_scan_report (POST /api/sca/export/requests) -- previously hardcoded to always request ScanReportJson with one fixed ExportParameters shape, now supports all 8 documented fileFormat values (CycloneDxJson/Xml, SpdxJson, RemediatedPackagesJson, ScanReportJson/Xml/Csv/Pdf) with the right exportParameters shape per format (2 new DTOs: ExportParametersSbom, ExportParametersScanReport; RemediatedPackagesJson's shape isn't documented by Checkmarx, so it takes a plain dict). Default behavior when called with just scan_id is unchanged. Live-verified against a real tenant across all 8 formats.
 * [Fix] get_sca_scan_report crashing with UnicodeDecodeError on non-JSON export formats (XML/CSV/PDF) -- the download step unconditionally called response.json(); now returns dict for JSON formats and raw bytes otherwise, decided from the download response's actual Content-Type. Reproduced live with ScanReportPdf before fixing.
