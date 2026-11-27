@@ -479,6 +479,7 @@ from .repoManagerAPI import (
     update_repo_by_id,
     scm_managed_project_scan,
     create_oauth_based_scm,
+    get_scm_types,
 )
 from .reportAPI import (
     ReportAPI,
