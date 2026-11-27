@@ -2,10 +2,6 @@
 All notable changes to this project will be documented in  this file.
 
 Unreleased
-* [Add] RepoManagerAPI.get_all_repos_for_scm_id (GET /api/repos-manager/v2/scms/{scmId}/orgs/{org}/repos) and RepoManagerAPI.repo_import_for_scm_id (POST /api/repos-manager/scms/{scmId}/orgs/{org}/repos) -- address any registered SCM by its id (the origin-based methods only reach the fixed ids 1-4), accept authCode or tokenId, and the import returns a typed RepoImportResult (orgConfigResult, per-repo repoConfigResultList with projectId/status and overriddenSettings) instead of a raw Response. The new import sends no copied browser headers.
-* [Fix] Repo crashed with TypeError on the `imported`, `repoAdmin` and `suggested` keys the server returns for each repo; Repo gains those fields and Repo.from_dict ignores unknown keys. get_all_repos_of_an_org_for_a_scm now delegates to get_all_repos_for_scm_id.
-* [Add] RepoManagerAPI.get_all_repo_orgs_for_scm_id (GET /api/repos-manager/v2/scms/{scmId}/user/orgs/config) -- lists the organizations of any registered SCM by its scm id; get_all_repo_orgs_for_a_scm_type could only reach the fixed ids 1-4 (and GitHub App), so self-hosted instances (e.g. on-prem GitLab via a Link, registered with create_oauth_based_scm) were unreachable. get_all_repo_orgs_for_a_scm_type now delegates to it.
-* [Fix] RepoOrg crashed with TypeError on the `defaultRepositorySettings` key the server now returns on each org. RepoOrg gains a typed defaultRepositorySettings (DefaultRepositorySettings of RepoSetting value/allowOverride, plus FusionScanConfig) and RepoOrg.from_dict ignores unknown keys so future server fields cannot break it again.
 * [Add] DiscoveryAPI.get_orgs_coverage (GET /api/discovery/v2/orgs/coverage) -- repository import coverage per SCM instance and organization (repo counts, imported counts, KPI percentage, onPrem), returned as ScmCoverage/OrgCoverage dataclasses. The route is not in the published Swagger; response shape taken from the Checkmarx One UI's own call.
 
 1.9.4 - 2026-11-25
