@@ -125,6 +125,7 @@
 | BYOR_RESULTS_HANDLER_V2.yaml | ByorResultsHandlerV2API | `get_imports_summaries` | GET | `/api/v2/byor/imports/summaries` |
 | BYOR_RESULTS_HANDLER_V2.yaml | ByorResultsHandlerV2API | `get_import_results` | GET | `/api/v2/byor/imports/{import_id}/results` |
 | BYOR_RESULTS_HANDLER_V2.yaml | ByorResultsHandlerV2API | `bulk_triage_import_results` | PUT | `/api/v2/byor/imports/{import_id}/results/triages` |
+| — | CloudConnectAPI | `get_cloud_connections` | GET | `/api/cloud-connect/connections` |
 | CLOUD_INSIGHTS.yaml | CloudInsightsServiceAPI | `create_enrich_account` | POST | `/api/cnas/accounts/enrich` |
 | CLOUD_INSIGHTS.yaml | CloudInsightsServiceAPI | `get_enrich_account_by_external_id` | GET | `/api/cnas/accounts/enrich` |
 | CLOUD_INSIGHTS.yaml | CloudInsightsServiceAPI | `start_enrichment` | POST | `/api/cnas/accounts/{cloud_insights_account_id}/enrich` |
@@ -177,6 +178,7 @@
 | DATA_RETENTION.yaml | DataRetentionAPI | `unlock_scans` | POST | `/api/data-retention/scans/unlock` |
 | DATA_RETENTION.yaml | DataRetentionAPI | `start_data_retention_process` | POST | `/api/data-retention/tenant` |
 | DATA_RETENTION.yaml | DataRetentionAPI | `abort_process` | POST | `/api/data-retention/{id}/abort` |
+| — | DiscoveryAPI | `get_orgs_coverage` | GET | `/api/discovery/v2/orgs/coverage` |
 | FEATURE_FLAG.yaml | FeatureFlagAPI | `get_all_feature_flags` | GET | `/api/flags` |
 | FEATURE_FLAG.yaml | FeatureFlagAPI | `get_feature_flag` | GET | `/api/flags/{name}` |
 | FUSION_DISPATCHER.yaml | FusionDispatcherAPI | `correlate` | POST | `/api/correlation/dispatcher/{id}/correlate` |
@@ -300,12 +302,14 @@
 | QUERY_EDITOR.yaml | QueryEditorAPI | `delete_query_builder_gpt_history` | DELETE | `/api/query-editor/sessions/{session_id}/gpt` |
 | QUERY_EDITOR.yaml | QueryEditorAPI | `process_query_builder_gpt_request` | POST | `/api/query-editor/sessions/{session_id}/gpt` |
 | — | RepoManagerAPI | `get_all_scm_types_v2` | GET | `/api/repos-manager/scms` |
+| — | RepoManagerAPI | `create_oauth_based_scm` | POST | `/api/repos-manager/scms/oauth-based` |
 | — | RepoManagerAPI | `get_verify_status_for_user` | GET | `/api/repos-manager/scms/{origin_index}/user/verify` |
 | — | RepoManagerAPI | `get_github_app_info` | GET | `/api/repos-manager/scms/{origin_index}/github-app-info` |
 | — | RepoManagerAPI | `create_token_for_github_app` | POST | `/api/repos-manager/scms/{origin_index}/token` |
-| — | RepoManagerAPI | `get_all_repo_orgs_for_a_scm_type` | GET | `{self.base_url_v2}/{origin_index}/user/orgs/config` |
+| — | RepoManagerAPI | `get_all_repo_orgs_for_scm_id` | GET | `{self.base_url_v2}/{scm_id}/user/orgs/config` |
 | — | RepoManagerAPI | `create_installation_of_scm_on_org` | POST | `/api/repos-manager/scms/{origin_index}/installations` |
-| — | RepoManagerAPI | `get_all_repos_of_an_org_for_a_scm` | GET | `{self.base_url_v2}/{origin_index}/orgs/{org_name}/repos` |
+| — | RepoManagerAPI | `get_all_repos_for_scm_id` | GET | `{self.base_url_v2}/{scm_id}/orgs/{org_name}/repos` |
+| — | RepoManagerAPI | `repo_import_for_scm_id` | POST | `/api/repos-manager/scms/{scm_id}/orgs/{organization}/repos` |
 | — | RepoManagerAPI | `get_repos` | GET | `/api/repos-manager/scms/{origin_index}/orgs/{organization}/repos` |
 | — | RepoManagerAPI | `repo_import` | POST | `/api/repos-manager/scms/{scm_id}/orgs/{organization}/` |
 | REPOSTORE.yaml | RepoStoreServiceAPI | `check_if_scan_has_source_code_available` | HEAD | `/api/repostore/scans/{scan_id}` |
@@ -318,7 +322,10 @@
 | REPORTS_API.yaml | ReportAPI | `create_scan_report` | POST | `/api/reports` |
 | REPORTS_API.yaml | ReportAPI | `get_report_status` | GET | `/api/reports/{report_id}` |
 | REPORTS_API.yaml | ReportAPI | `get_scan_report` | GET | `/api/reports/{report_id}/download` |
+| — | ReportAPI | `get_sca_export_file_formats` | GET | `{base}/api/sca/export/file-formats` |
 | — | ReportAPI | `create_sca_scan_report` | POST | `{base}/api/sca/export/requests` |
+| — | ReportAPI | `get_sca_export_status` | GET | `{base}/api/sca/export/requests` |
+| — | ReportAPI | `download_sca_export` | GET | `{base}/api/sca/export/requests/{export_id}/download` |
 | REPOSITORY_INSIGHTS.yaml | RepositoryInsightsAPI | `get_project_repositories` | GET | `/api/insights/project/{project_id}` |
 | REPOSITORY_INSIGHTS.yaml | RepositoryInsightsAPI | `get_insights_by_repository` | POST | `/api/insights/repository` |
 | RESULTS_OVERVIEW.yaml | ResultsOverviewAPI | `get_projects_overview` | GET | `/api/results-overview/projects` |
