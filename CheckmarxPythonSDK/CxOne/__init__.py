@@ -409,6 +409,7 @@ from .projectsAPI import (
     update_a_project,
     update_specific_project_fields,
     delete_a_project,
+    delete_projects_by_pattern,
     get_a_list_of_schedules,
     create_a_schedule,
     get_a_schedule_by_project_id,

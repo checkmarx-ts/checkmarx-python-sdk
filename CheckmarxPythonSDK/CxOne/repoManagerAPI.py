@@ -9,6 +9,7 @@ import httpx
 from httpx import Response
 from dataclasses import dataclass, fields
 from .projectsAPI import get_all_projects
+from CheckmarxPythonSDK.utilities.singleton import LazySingleton
 
 logger = logging.getLogger(__name__)
 
@@ -1471,14 +1472,17 @@ class RepoManagerAPI(object):
         return response.json()
 
 
+_repo_manager_api = LazySingleton(RepoManagerAPI)
+
+
 def check_origin(origin: str) -> str:
-    return RepoManagerAPI().check_origin(origin=origin)
+    return _repo_manager_api.get().check_origin(origin=origin)
 
 
 def get_repos(
     origin: str, organization: str, auth_code: str, is_user: bool = False, page: int = 1
 ) -> Response:
-    return RepoManagerAPI().get_repos(
+    return _repo_manager_api.get().get_repos(
         origin=origin,
         organization=organization,
         auth_code=auth_code,
@@ -1490,7 +1494,7 @@ def get_repos(
 def get_all_repos(
     origin: str, organization: str, auth_code: str, is_user: bool = False
 ) -> List[dict]:
-    return RepoManagerAPI().get_all_repos(
+    return _repo_manager_api.get().get_all_repos(
         origin=origin, organization=organization, auth_code=auth_code, is_user=is_user
     )
 
@@ -1498,7 +1502,7 @@ def get_all_repos(
 def get_repo_branches(
     origin: str, organization: str, repo_name: str, auth_code: str, page: int = 1
 ) -> Response:
-    return RepoManagerAPI().get_repo_branches(
+    return _repo_manager_api.get().get_repo_branches(
         origin=origin,
         organization=organization,
         repo_name=repo_name,
@@ -1510,7 +1514,7 @@ def get_repo_branches(
 def get_all_repo_branches(
     origin: str, organization: str, repo_name: str, auth_code: str
 ) -> List[dict]:
-    return RepoManagerAPI().get_all_repo_branches(
+    return _repo_manager_api.get().get_all_repo_branches(
         origin=origin,
         organization=organization,
         repo_name=repo_name,
@@ -1541,7 +1545,7 @@ def construct_repo_request(
     private_repository_scan: bool = False,
     tags: dict = None,
 ) -> dict:
-    return RepoManagerAPI().construct_repo_request(
+    return _repo_manager_api.get().construct_repo_request(
         http_repo_url=http_repo_url,
         repo_id=repo_id,
         branches=branches,
@@ -1577,7 +1581,7 @@ def repo_import(
     create_ast_project: bool = True,
     scan_ast_project: bool = False,
 ) -> Response:
-    return RepoManagerAPI().repo_import(
+    return _repo_manager_api.get().repo_import(
         origin=origin,
         organization=organization,
         auth_code=auth_code,
@@ -1591,11 +1595,11 @@ def repo_import(
 
 
 def get_job_status() -> Optional[int]:
-    return RepoManagerAPI().get_job_status()
+    return _repo_manager_api.get().get_job_status()
 
 
 def get_job_status_details() -> Optional["JobStatus"]:
-    return RepoManagerAPI().get_job_status_details()
+    return _repo_manager_api.get().get_job_status_details()
 
 
 def batch_import_repo(
@@ -1628,7 +1632,7 @@ def batch_import_repo(
     settle_timeout: int = 60,
     existing_project_names: Optional[Iterable[str]] = None,
 ) -> None:
-    return RepoManagerAPI().batch_import_repo(
+    return _repo_manager_api.get().batch_import_repo(
         repos=repos,
         origin=origin,
         organization=organization,
@@ -1661,11 +1665,11 @@ def batch_import_repo(
 
 
 def get_repo_by_id(repo_id: int) -> dict:
-    return RepoManagerAPI().get_repo_by_id(repo_id=repo_id)
+    return _repo_manager_api.get().get_repo_by_id(repo_id=repo_id)
 
 
 def update_repo_by_id(repo_id: int, project_id: str, pay_load: dict) -> dict:
-    return RepoManagerAPI().update_repo_by_id(
+    return _repo_manager_api.get().update_repo_by_id(
         repo_id=repo_id, project_id=project_id, pay_load=pay_load
     )
 
@@ -1682,7 +1686,7 @@ def scm_managed_project_scan(
     is_incremental_scan: bool = False,
     org_ssh_key: str = None,
 ) -> Response:
-    return RepoManagerAPI().scm_managed_project_scan(
+    return _repo_manager_api.get().scm_managed_project_scan(
         project_id=project_id,
         origin=origin,
         organization=organization,
@@ -1704,7 +1708,7 @@ def create_oauth_based_scm(
     client_id: str,
     client_secret: str,
 ) -> int:
-    return RepoManagerAPI().create_oauth_based_scm(
+    return _repo_manager_api.get().create_oauth_based_scm(
         type_id=type_id,
         auth_code=auth_code,
         instance_name=instance_name,
@@ -1715,4 +1719,4 @@ def create_oauth_based_scm(
 
 
 def get_scm_types() -> List[ScmTypeInfo]:
-    return RepoManagerAPI().get_scm_types()
+    return _repo_manager_api.get().get_scm_types()
