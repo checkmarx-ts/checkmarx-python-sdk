@@ -50,3 +50,27 @@ def test_job_status_none_for_empty_or_eventless_stream():
     assert _api(text="")[0].get_job_status() is None
     assert _api(text=": ping\n\n")[0].get_job_status() is None
     assert _api(text='data: {"percentage": 0}\n')[0].get_job_status() == 0
+
+
+def test_job_status_details_parses_full_event():
+    body = (
+        'data: {"currentPhase":"DONE","percentage":100.0,'
+        '"jobRunning":false}\n\n'
+        'data: {"currentPhase":"RUNNING","percentage":42.0,'
+        '"jobRunning":true}\n\n'
+    )
+    api, client = _api(text=body)
+    status = api.get_job_status_details()
+    assert status.percentage == 42.0
+    assert status.job_running is True
+    assert status.current_phase == "RUNNING"
+    # get_job_status keeps returning the plain percentage
+    assert api.get_job_status() == 42.0
+    kwargs = client.call_api.call_args.kwargs
+    assert kwargs["url"] == "https://example.com/api/ssegateway/job-status"
+    assert kwargs["headers"] == {"accept": "*/*", "Accept-Encoding": "identity"}
+
+
+def test_job_status_details_none_for_empty_stream():
+    assert _api(text="")[0].get_job_status_details() is None
+    assert _api(text=": ping\n\n")[0].get_job_status_details() is None

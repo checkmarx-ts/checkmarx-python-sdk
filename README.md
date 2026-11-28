@@ -157,8 +157,29 @@ For CxOne:
     - cxreporting_client_secret
 
 # Debug Mode
-You can use command line option `--cx_debug true` to enable debug mode. In debug mode, it will print out how to load the
-configuration file and print every http request send out.
+The SDK logs its activity (how the configuration is loaded, every HTTP request sent, ...) through the
+`CheckmarxPythonSDK` logger hierarchy. To enable debug output, pick one of:
+
+1. Command line option `--cx_debug` (read at import time): `python your_script.py --cx_debug`
+   The SDK's option parser is pass-through, so it does not disturb your own argparse options.
+   It prints how the configuration file is loaded and every HTTP request sent.
+
+2. `logging_level` per SDK section, from ~/.Checkmarx/config.ini, environment variables, or command line options:
+   | Scope | config.ini | Environment | Command line |
+   |---|---|---|---|
+   | CxOne | `[CxOne] logging_level = DEBUG` | `CXONE_LOGGING_LEVEL=DEBUG` | `--cxone_logging_level DEBUG` |
+   | CxSAST | `[CxSAST] logging_level = DEBUG` | `CXSAST_LOGGING_LEVEL=DEBUG` | `--cxsast_logging_level DEBUG` |
+   Only the selected section's modules print debug output; the others keep their level.
+
+3. Programmatically, after importing the SDK:
+   ```python
+   import logging
+   import CheckmarxPythonSDK
+   root = logging.getLogger("CheckmarxPythonSDK")
+   root.setLevel(logging.DEBUG)
+   for handler in root.handlers:
+       handler.setLevel(logging.DEBUG)
+   ```
 
 # Configuration Override Sequence
 

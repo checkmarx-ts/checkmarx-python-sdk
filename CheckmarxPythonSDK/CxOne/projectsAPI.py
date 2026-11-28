@@ -3,6 +3,7 @@ from dataclasses import dataclass, asdict
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
 from CheckmarxPythonSDK.utilities.compat import NO_CONTENT, OK
+from CheckmarxPythonSDK.utilities.singleton import LazySingleton
 from .dto import (
     ProjectInput,
     Project,
@@ -324,6 +325,46 @@ class ProjectsAPI(object):
         response = self.api_client.call_api(method="DELETE", url=url)
         return response.status_code == NO_CONTENT
 
+    def delete_projects_by_pattern(self, pattern: str, workers: int = 1) -> List[str]:
+        """Delete every project whose name matches the fnmatch ``pattern``.
+
+        All deletes run through this instance's client (connection reuse and
+        the cached access token), so many deletions are cheap. ``workers`` > 1
+        runs the deletes on that many threads sharing this client; httpx
+        clients are thread-safe and the API client's rate limiter serializes
+        when needed.
+
+        Args:
+            pattern (str): fnmatch pattern on the project name, e.g. ``"org/*"``.
+            workers (int): concurrent delete workers (1 = sequential).
+
+        Returns:
+            List[str]: names of the projects that could not be deleted
+            (each prefixed with the error type when an exception occurred).
+        """
+        from concurrent.futures import ThreadPoolExecutor
+        from fnmatch import fnmatchcase
+
+        projects = [proj for proj in self.get_all_projects() if fnmatchcase(proj.name, pattern)]
+        if not projects:
+            return []
+        failed: List[str] = []
+
+        def delete_one(proj) -> None:
+            try:
+                if not self.delete_a_project(project_id=proj.id):
+                    failed.append(proj.name)
+            except Exception as e:
+                failed.append(f"{proj.name} ({type(e).__name__}: {e})")
+
+        if workers > 1 and len(projects) > 1:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                list(executor.map(delete_one, projects))
+        else:
+            for proj in projects:
+                delete_one(proj)
+        return failed
+
     def delete_a_schedule(self, project_id: str) -> bool:
         """
         Delete a scheduled scan for a project.
@@ -610,12 +651,15 @@ class ProjectsAPI(object):
         return ProjectsCollection.from_dict(response.json())
 
 
+_projects_api = LazySingleton(ProjectsAPI)
+
+
 def get_all_projects() -> List[Project]:
-    return ProjectsAPI().get_all_projects()
+    return _projects_api.get().get_all_projects()
 
 
 def create_a_project(project_input: ProjectInput) -> Project:
-    return ProjectsAPI().create_a_project(project_input=project_input)
+    return _projects_api.get().create_a_project(project_input=project_input)
 
 
 def get_a_list_of_projects(
@@ -630,7 +674,7 @@ def get_a_list_of_projects(
     tags_values: List[str] = None,
     repo_url: str = None,
 ) -> ProjectsCollection:
-    return ProjectsAPI().get_a_list_of_projects(
+    return _projects_api.get().get_a_list_of_projects(
         offset=offset,
         limit=limit,
         ids=ids,
@@ -645,11 +689,11 @@ def get_a_list_of_projects(
 
 
 def get_project_id_by_name(name: str) -> Union[str, None]:
-    return ProjectsAPI().get_project_id_by_name(name=name)
+    return _projects_api.get().get_project_id_by_name(name=name)
 
 
 def get_all_project_tags() -> dict:
-    return ProjectsAPI().get_all_project_tags()
+    return _projects_api.get().get_all_project_tags()
 
 
 def get_last_scan_info(
@@ -668,7 +712,7 @@ def get_last_scan_info(
     containers_status: str = None,
     use_main_branch: bool = False,
 ) -> dict:
-    return ProjectsAPI().get_last_scan_info(
+    return _projects_api.get().get_last_scan_info(
         offset=offset,
         limit=limit,
         project_ids=project_ids,
@@ -692,7 +736,7 @@ def get_branches(
     project_id: str = None,
     branch_name: str = None,
 ) -> List[str]:
-    return ProjectsAPI().get_branches(
+    return _projects_api.get().get_branches(
         offset=offset,
         limit=limit,
         project_id=project_id,
@@ -701,11 +745,11 @@ def get_branches(
 
 
 def get_a_project_by_id(project_id: str) -> Project:
-    return ProjectsAPI().get_a_project_by_id(project_id=project_id)
+    return _projects_api.get().get_a_project_by_id(project_id=project_id)
 
 
 def update_a_project(project_id: str, project_input: ProjectInput) -> bool:
-    return ProjectsAPI().update_a_project(
+    return _projects_api.get().update_a_project(
         project_id=project_id, project_input=project_input
     )
 
@@ -713,17 +757,21 @@ def update_a_project(project_id: str, project_input: ProjectInput) -> bool:
 def update_specific_project_fields(
     project_id: str, project_input: ProjectInput
 ) -> bool:
-    return ProjectsAPI().update_specific_project_fields(
+    return _projects_api.get().update_specific_project_fields(
         project_id=project_id, project_input=project_input
     )
 
 
 def delete_a_project(project_id: str) -> bool:
-    return ProjectsAPI().delete_a_project(project_id=project_id)
+    return _projects_api.get().delete_a_project(project_id=project_id)
+
+
+def delete_projects_by_pattern(pattern: str, workers: int = 1) -> List[str]:
+    return _projects_api.get().delete_projects_by_pattern(pattern=pattern, workers=workers)
 
 
 def delete_a_schedule(project_id: str) -> bool:
-    return ProjectsAPI().delete_a_schedule(project_id=project_id)
+    return _projects_api.get().delete_a_schedule(project_id=project_id)
 
 
 def get_a_list_of_schedules(
@@ -739,7 +787,7 @@ def get_a_list_of_schedules(
     to_trigger_date: str = None,
     sort: List[str] = None,
 ) -> dict:
-    return ProjectsAPI().get_a_list_of_schedules(
+    return _projects_api.get().get_a_list_of_schedules(
         offset=offset,
         limit=limit,
         search=search,
@@ -755,19 +803,19 @@ def get_a_list_of_schedules(
 
 
 def create_a_schedule(project_id: str, schedule_input: ScheduleInput) -> dict:
-    return ProjectsAPI().create_a_schedule(
+    return _projects_api.get().create_a_schedule(
         project_id=project_id, schedule_input=schedule_input
     )
 
 
 def get_a_schedule_by_project_id(project_id: str) -> dict:
-    return ProjectsAPI().get_a_schedule_by_project_id(project_id=project_id)
+    return _projects_api.get().get_a_schedule_by_project_id(project_id=project_id)
 
 
 def update_a_schedule(
     project_id: str, schedule_input: ScheduleInput
 ) -> bool:
-    return ProjectsAPI().update_a_schedule(
+    return _projects_api.get().update_a_schedule(
         project_id=project_id, schedule_input=schedule_input
     )
 
@@ -777,7 +825,7 @@ def get_project_tags_by_filters(
     limit: int = 20,
     search: str = None,
 ) -> dict:
-    return ProjectsAPI().get_project_tags_by_filters(
+    return _projects_api.get().get_project_tags_by_filters(
         offset=offset, limit=limit, search=search
     )
 
@@ -787,7 +835,7 @@ def reassign_a_project(
     application_ids_to_disassociate: List[str],
     application_ids_to_associate: List[str],
 ) -> bool:
-    return ProjectsAPI().reassign_a_project(
+    return _projects_api.get().reassign_a_project(
         project_id=project_id,
         application_ids_to_disassociate=application_ids_to_disassociate,
         application_ids_to_associate=application_ids_to_associate,
@@ -795,13 +843,13 @@ def reassign_a_project(
 
 
 def update_project_group(project_id: str, groups: List[str]) -> bool:
-    return ProjectsAPI().update_project_group(
+    return _projects_api.get().update_project_group(
         project_id=project_id, groups=groups
     )
 
 
 def update_primary_branch(project_id: str, branch_name: str) -> bool:
-    return ProjectsAPI().update_primary_branch(
+    return _projects_api.get().update_primary_branch(
         project_id=project_id, branch_name=branch_name
     )
 
@@ -809,13 +857,13 @@ def update_primary_branch(project_id: str, branch_name: str) -> bool:
 def add_project_single_tag(
     project_id: str, tag_key: str, tag_value: str
 ) -> bool:
-    return ProjectsAPI().add_project_single_tag(
+    return _projects_api.get().add_project_single_tag(
         project_id=project_id, tag_key=tag_key, tag_value=tag_value
     )
 
 
 def remove_project_single_tag(project_id: str, tag_key: str) -> bool:
-    return ProjectsAPI().remove_project_single_tag(
+    return _projects_api.get().remove_project_single_tag(
         project_id=project_id, tag_key=tag_key
     )
 
@@ -823,7 +871,7 @@ def remove_project_single_tag(project_id: str, tag_key: str) -> bool:
 def update_project_single_tag_key_value(
     project_id: str, tag_key: str, tag_value: str
 ) -> bool:
-    return ProjectsAPI().update_project_single_tag_key_value(
+    return _projects_api.get().update_project_single_tag_key_value(
         project_id=project_id, tag_key=tag_key, tag_value=tag_value
     )
 
@@ -831,6 +879,6 @@ def update_project_single_tag_key_value(
 def get_projects_for_a_specific_application(
     app_id: str,
 ) -> ProjectsCollection:
-    return ProjectsAPI().get_projects_for_a_specific_application(
+    return _projects_api.get().get_projects_for_a_specific_application(
         app_id=app_id
     )

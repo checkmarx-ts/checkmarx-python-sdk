@@ -4,11 +4,12 @@ import time
 import logging
 from CheckmarxPythonSDK.api_client import ApiClient
 from CheckmarxPythonSDK.CxOne.config import construct_configuration
-from typing import List, Optional
+from typing import Iterable, List, Optional
 import httpx
 from httpx import Response
 from dataclasses import dataclass, fields
 from .projectsAPI import get_all_projects
+from CheckmarxPythonSDK.utilities.singleton import LazySingleton
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,19 @@ class GithubApp:
     name: str = None
     slug: str = None
     hasInstallation: bool = False
+
+
+@dataclass
+class JobStatus:
+    """Latest progress event from GET /api/ssegateway/job-status.
+
+    The server replays the last finished job's final event (percentage 100,
+    job_running False) until a new job reports, so ``job_running`` is the
+    way to tell a stale 100 apart from a job that is actually running.
+    """
+    percentage: Optional[float] = None
+    job_running: Optional[bool] = None
+    current_phase: Optional[str] = None
 
 
 def _known_fields(cls, item: dict) -> dict:
@@ -929,13 +943,15 @@ class RepoManagerAPI(object):
         return response
 
     @staticmethod
-    def _parse_job_percentage(text: str) -> Optional[int]:
-        """Last ``percentage`` in an SSE body, or None when there is none.
+    def _parse_job_event(text: str) -> Optional["JobStatus"]:
+        """Latest progress event from an SSE body, or None when there is none.
 
         Only ``data:`` lines are read; keep-alive comments, ``event:`` lines
-        and malformed payloads are ignored.
+        and malformed payloads are ignored. The latest value seen for each
+        field wins, so the replay of an older finished job is returned as
+        ``JobStatus(percentage=100, job_running=False)``.
         """
-        percentage = None
+        parsed = None
         for line in text.splitlines():
             line = line.strip()
             if not line.startswith("data:"):
@@ -944,9 +960,17 @@ class RepoManagerAPI(object):
                 event = json.loads(line[len("data:"):])
             except ValueError:
                 continue
-            if isinstance(event, dict) and event.get("percentage") is not None:
-                percentage = event["percentage"]
-        return percentage
+            if not isinstance(event, dict):
+                continue
+            if parsed is None:
+                parsed = JobStatus()
+            if event.get("percentage") is not None:
+                parsed.percentage = event["percentage"]
+            if event.get("jobRunning") is not None:
+                parsed.job_running = event["jobRunning"]
+            if event.get("currentPhase") is not None:
+                parsed.current_phase = event["currentPhase"]
+        return parsed
 
     def get_job_status(self) -> Optional[int]:
         """
@@ -957,6 +981,26 @@ class RepoManagerAPI(object):
             int | None: 0 - 100, or None when the stream carried no progress
             event (for example no job is running or none has reported yet).
         """
+        event = self._get_job_status_event()
+        return event.percentage if event else None
+
+    def get_job_status_details(self) -> Optional["JobStatus"]:
+        """
+        Full latest progress event of the import job
+        (GET /api/ssegateway/job-status, a server-sent-events stream).
+
+        Unlike :meth:`get_job_status`, this also exposes ``job_running`` and
+        ``current_phase``. The server replays the previous job's final event
+        (percentage 100, job_running False) until a new job reports, so
+        ``job_running`` tells a stale 100 apart from a running job.
+
+        Returns:
+            JobStatus | None: percentage, job_running and current_phase of
+            the latest progress event, or None when the stream carried none.
+        """
+        return self._get_job_status_event()
+
+    def _get_job_status_event(self) -> Optional["JobStatus"]:
         url = (
             f"{self.api_client.configuration.server_base_url}"
             "/api/ssegateway/job-status"
@@ -965,7 +1009,7 @@ class RepoManagerAPI(object):
         response = self.api_client.call_api(
             method="GET", url=url, headers=headers
         )
-        return self._parse_job_percentage(response.text)
+        return self._parse_job_event(response.text)
 
     def batch_import_repo(
         self,
@@ -995,10 +1039,17 @@ class RepoManagerAPI(object):
         is_repo_admin: bool = False,
         delay_request_timeout: int = 30,
         max_wait_per_round: int = 7200,
-    ) -> None:
+        settle_timeout: int = 60,
+        existing_project_names: Optional[Iterable[str]] = None,
+    ) -> Optional[List[dict]]:
         """
 
         Args:
+            existing_project_names (Iterable[str]): names of projects that already
+                exist in CxOne; repos whose fullName is in it are skipped. When
+                None (default) all projects are listed once per call. Pass it
+                when calling this method repeatedly (e.g. once per group) so the
+                full project list is not fetched again every time.
             repos (List[dict]):
             origin (str):
             organization (str):
@@ -1025,10 +1076,26 @@ class RepoManagerAPI(object):
             is_repo_admin (bool):
             max_wait_per_round (int): maximum seconds to wait for each import
                 round to reach 100% before raising TimeoutError.
-            delay_request_timeout (int):
+            delay_request_timeout (int): maximum seconds between job-status
+                polls. Polling starts at 2 seconds and doubles up to this cap,
+                so a fast import is detected after a few short polls; the next
+                round starts as soon as the current one reaches 100%.
+            settle_timeout (int): seconds after each import POST during which
+                a 100% status with no observed job activity is ignored. The
+                server replays the previous job's final event (percentage 100,
+                jobRunning false) until the new job reports, so a 100% is
+                trusted immediately only after this round's job has been
+                observed (percentage below 100 or jobRunning true). A 100%
+                that is still unconfirmed after this many seconds is accepted
+                as done, so a job that finished before the first poll is not
+                waited on forever.
 
         Returns:
-            None
+            Optional[List[dict]]: the per-repo result entries (name, status,
+                projectId, statusMessageError, ...) when every round completed
+                synchronously and the import response carried the results (e.g.
+                the GitLab /repos endpoint). None when the async path was used
+                and rounds were awaited through the job-status stream.
         """
         origin = self.check_origin(origin)
         token_id = None
@@ -1040,8 +1107,9 @@ class RepoManagerAPI(object):
             )
             token_id = installation.tokenId
             auth_code = None
-        project_list = get_all_projects()
-        project_name_list = [project.name for project in project_list]
+        if existing_project_names is None:
+            existing_project_names = [p.name for p in get_all_projects()]
+        project_name_list = set(existing_project_names)
         repo_requests = []
         for repo in repos:
             repo_full_name = repo.get("fullName")
@@ -1074,25 +1142,29 @@ class RepoManagerAPI(object):
                     tags=tags,
                 )
             )
-        round_of_requests = math.ceil(len(repos) / chunk_size)
+        round_of_requests = math.ceil(len(repo_requests) / chunk_size)
         logger.info(
             f"there are total {len(repos)} repos in org: {organization}, "
             f"total {len(repo_requests)} repo requests created, "
             f"will be {round_of_requests} round_of_requests "
         )
+        results: List[dict] = []
         round_i = 0
         while round_i < round_of_requests:
             repo_request_chunks = repo_requests[
                 round_i * chunk_size : (round_i + 1) * chunk_size
             ]
-            urls_str = "\n".join([item.get("url") for item in repo_request_chunks])
-            logger.debug(f"All urls in this round of chunks: {urls_str}")
+            if logger.isEnabledFor(logging.DEBUG):
+                urls_str = "\n".join(
+                    item.get("url") for item in repo_request_chunks
+                )
+                logger.debug(f"All urls in this round of chunks: {urls_str}")
             logger.info(
                 f"round {round_i + 1}, number of repos to create: "
                 f"{len(repo_request_chunks)} "
             )
             round_i += 1
-            self.repo_import(
+            response = self.repo_import(
                 origin=origin,
                 organization=organization,
                 auth_code=auth_code,
@@ -1103,23 +1175,83 @@ class RepoManagerAPI(object):
                 create_ast_project=create_ast_project,
                 scan_ast_project=scan_ast_project,
             )
+            round_results = self._parse_import_response(response)
+            if round_results is not None:
+                # the server completed this round synchronously (e.g. GitLab /repos):
+                # the response already carries the final per-repo results, nothing to poll
+                successes = [r for r in round_results if r.get("status") == "SUCCESS"]
+                failures = [r for r in round_results if r.get("status") != "SUCCESS"]
+                logger.info(
+                    f"round {round_i} completed synchronously: "
+                    f"{len(successes)} success, {len(failures)} failed/ignored"
+                )
+                for r in failures:
+                    logger.warning(
+                        f"repo {r.get('name')} not imported: {r.get('status')} - "
+                        f"{r.get('statusMessageError')}"
+                    )
+                results.extend(round_results)
+                continue
             percentage = 0
             deadline = time.monotonic() + max_wait_per_round
-            while percentage < 100:
+            settle_deadline = time.monotonic() + settle_timeout
+            poll_interval = min(2.0, delay_request_timeout)
+            saw_job_start = False
+            while True:
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
                         f"repo import round {round_i} did not finish within "
                         f"{max_wait_per_round}s, last percent: {percentage}"
                     )
                 try:
-                    status = self.get_job_status()
-                    if status is not None:
-                        percentage = status
-                    logger.info(f"import percent: {percentage}")
-                except httpx.RemoteProtocolError as e:
-                    logger.info(f"ChunkedEncodingError: {e}")
-                time.sleep(delay_request_timeout)
-            time.sleep(delay_request_timeout)
+                    event = self.get_job_status_details()
+                except httpx.HTTPError as e:
+                    logger.warning(
+                        f"job-status poll failed ({type(e).__name__}): {e}"
+                    )
+                    event = None
+                if event is not None and event.percentage is not None:
+                    if event.percentage != percentage:
+                        logger.info(f"import percent: {event.percentage}")
+                    percentage = event.percentage
+                if event is not None and (
+                    (event.percentage is not None and event.percentage < 100)
+                    or event.job_running
+                ):
+                    saw_job_start = True
+                if percentage >= 100 and (
+                    saw_job_start or time.monotonic() >= settle_deadline
+                ):
+                    break
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    time.sleep(min(poll_interval, remaining))
+                poll_interval = min(poll_interval * 2, delay_request_timeout)
+        return results or None
+
+    @staticmethod
+    def _parse_import_response(response) -> Optional[List[dict]]:
+        """Per-repo results when the import POST completed synchronously, else None.
+
+        When the server finishes the batch before answering (e.g. the GitLab
+        /repos endpoint), the response body is::
+
+            {"orgConfigResult": {...},
+             "repoConfigResultList": [{"name", "status", "projectId",
+                                       "statusMessageError", ...}, ...]}
+
+        Async endpoints (e.g. GitHub asyncImport) answer with an acknowledgment
+        and the job-status stream must be polled instead, so they return None.
+        """
+        try:
+            body = response.json()
+        except (ValueError, AttributeError):
+            return None
+        if isinstance(body, dict) and isinstance(body.get("repoConfigResultList"), list):
+            org_status = (body.get("orgConfigResult") or {}).get("status")
+            logger.info(f"org config result: {org_status}")
+            return body["repoConfigResultList"]
+        return None
 
     def get_repo_by_id(self, repo_id: int) -> dict:
         """
@@ -1340,14 +1472,17 @@ class RepoManagerAPI(object):
         return response.json()
 
 
+_repo_manager_api = LazySingleton(RepoManagerAPI)
+
+
 def check_origin(origin: str) -> str:
-    return RepoManagerAPI().check_origin(origin=origin)
+    return _repo_manager_api.get().check_origin(origin=origin)
 
 
 def get_repos(
     origin: str, organization: str, auth_code: str, is_user: bool = False, page: int = 1
 ) -> Response:
-    return RepoManagerAPI().get_repos(
+    return _repo_manager_api.get().get_repos(
         origin=origin,
         organization=organization,
         auth_code=auth_code,
@@ -1359,7 +1494,7 @@ def get_repos(
 def get_all_repos(
     origin: str, organization: str, auth_code: str, is_user: bool = False
 ) -> List[dict]:
-    return RepoManagerAPI().get_all_repos(
+    return _repo_manager_api.get().get_all_repos(
         origin=origin, organization=organization, auth_code=auth_code, is_user=is_user
     )
 
@@ -1367,7 +1502,7 @@ def get_all_repos(
 def get_repo_branches(
     origin: str, organization: str, repo_name: str, auth_code: str, page: int = 1
 ) -> Response:
-    return RepoManagerAPI().get_repo_branches(
+    return _repo_manager_api.get().get_repo_branches(
         origin=origin,
         organization=organization,
         repo_name=repo_name,
@@ -1379,7 +1514,7 @@ def get_repo_branches(
 def get_all_repo_branches(
     origin: str, organization: str, repo_name: str, auth_code: str
 ) -> List[dict]:
-    return RepoManagerAPI().get_all_repo_branches(
+    return _repo_manager_api.get().get_all_repo_branches(
         origin=origin,
         organization=organization,
         repo_name=repo_name,
@@ -1410,7 +1545,7 @@ def construct_repo_request(
     private_repository_scan: bool = False,
     tags: dict = None,
 ) -> dict:
-    return RepoManagerAPI().construct_repo_request(
+    return _repo_manager_api.get().construct_repo_request(
         http_repo_url=http_repo_url,
         repo_id=repo_id,
         branches=branches,
@@ -1446,7 +1581,7 @@ def repo_import(
     create_ast_project: bool = True,
     scan_ast_project: bool = False,
 ) -> Response:
-    return RepoManagerAPI().repo_import(
+    return _repo_manager_api.get().repo_import(
         origin=origin,
         organization=organization,
         auth_code=auth_code,
@@ -1460,7 +1595,11 @@ def repo_import(
 
 
 def get_job_status() -> Optional[int]:
-    return RepoManagerAPI().get_job_status()
+    return _repo_manager_api.get().get_job_status()
+
+
+def get_job_status_details() -> Optional["JobStatus"]:
+    return _repo_manager_api.get().get_job_status_details()
 
 
 def batch_import_repo(
@@ -1490,8 +1629,10 @@ def batch_import_repo(
     is_repo_admin: bool = False,
     delay_request_timeout: int = 30,
     max_wait_per_round: int = 7200,
+    settle_timeout: int = 60,
+    existing_project_names: Optional[Iterable[str]] = None,
 ) -> None:
-    return RepoManagerAPI().batch_import_repo(
+    return _repo_manager_api.get().batch_import_repo(
         repos=repos,
         origin=origin,
         organization=organization,
@@ -1518,15 +1659,17 @@ def batch_import_repo(
         is_repo_admin=is_repo_admin,
         delay_request_timeout=delay_request_timeout,
         max_wait_per_round=max_wait_per_round,
+        settle_timeout=settle_timeout,
+        existing_project_names=existing_project_names,
     )
 
 
 def get_repo_by_id(repo_id: int) -> dict:
-    return RepoManagerAPI().get_repo_by_id(repo_id=repo_id)
+    return _repo_manager_api.get().get_repo_by_id(repo_id=repo_id)
 
 
 def update_repo_by_id(repo_id: int, project_id: str, pay_load: dict) -> dict:
-    return RepoManagerAPI().update_repo_by_id(
+    return _repo_manager_api.get().update_repo_by_id(
         repo_id=repo_id, project_id=project_id, pay_load=pay_load
     )
 
@@ -1543,7 +1686,7 @@ def scm_managed_project_scan(
     is_incremental_scan: bool = False,
     org_ssh_key: str = None,
 ) -> Response:
-    return RepoManagerAPI().scm_managed_project_scan(
+    return _repo_manager_api.get().scm_managed_project_scan(
         project_id=project_id,
         origin=origin,
         organization=organization,
@@ -1565,7 +1708,7 @@ def create_oauth_based_scm(
     client_id: str,
     client_secret: str,
 ) -> int:
-    return RepoManagerAPI().create_oauth_based_scm(
+    return _repo_manager_api.get().create_oauth_based_scm(
         type_id=type_id,
         auth_code=auth_code,
         instance_name=instance_name,
@@ -1576,4 +1719,4 @@ def create_oauth_based_scm(
 
 
 def get_scm_types() -> List[ScmTypeInfo]:
-    return RepoManagerAPI().get_scm_types()
+    return _repo_manager_api.get().get_scm_types()

@@ -59,6 +59,14 @@ def set_module_logger_level(module_name: str, logging_level: Optional[str]) -> N
     for handler in logger.handlers:
         handler.setLevel(level)
 
+    # The SDK root logger's console handler actually emits every record, so a
+    # module-level DEBUG record is dropped when that handler stays at INFO.
+    # Lower it when the module requests a more verbose level, so records
+    # enabled by the module level can reach the console.
+    for handler in logging.getLogger(_ROOT_LOGGER_NAME).handlers:
+        if level < handler.level:
+            handler.setLevel(level)
+
 
 def get_module_logger(module_name: str) -> logging.Logger:
     logger_name = f"{_ROOT_LOGGER_NAME}.{module_name}"
