@@ -178,3 +178,38 @@ def test_stale_100_alone_is_accepted_after_settle_timeout():
     # job never observed: the unconfirmed 100 is accepted after 10s
     assert sleeps == [2.0, 4.0, 8.0]
     api.repo_import.assert_called_once()
+
+
+def test_sync_response_skips_polling_and_returns_results():
+    api = _api()
+    body = {
+        "orgConfigResult": {"status": "SUCCESS"},
+        "repoConfigResultList": [
+            {"name": "o/a", "status": "SUCCESS", "projectId": "p1"},
+            {"name": "o/b", "status": "GENERAL_ERROR",
+             "statusMessageError": "already imported and was ignored"},
+        ],
+    }
+    resp = MagicMock()
+    resp.json.return_value = body
+    api.repo_import = MagicMock(return_value=resp)
+    with patch.object(m.time, "sleep") as s, patch.object(
+        m, "get_all_projects", return_value=[]
+    ):
+        results = api.batch_import_repo(REPOS, "GITLAB", "o", "code")
+    api.get_job_status_details.assert_not_called()
+    s.assert_not_called()
+    assert results == body["repoConfigResultList"]
+
+
+def test_non_json_response_falls_back_to_polling():
+    api = _api()
+    resp = MagicMock()
+    resp.json.side_effect = ValueError("not json")
+    api.repo_import = MagicMock(return_value=resp)
+    with patch.object(m.time, "sleep"), patch.object(
+        m, "get_all_projects", return_value=[]
+    ):
+        results = api.batch_import_repo(REPOS, "GITLAB", "o", "code")
+    api.get_job_status_details.assert_called()
+    assert results is None

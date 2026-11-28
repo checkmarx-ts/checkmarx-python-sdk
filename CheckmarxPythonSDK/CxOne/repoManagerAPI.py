@@ -1040,7 +1040,7 @@ class RepoManagerAPI(object):
         max_wait_per_round: int = 7200,
         settle_timeout: int = 60,
         existing_project_names: Optional[Iterable[str]] = None,
-    ) -> None:
+    ) -> Optional[List[dict]]:
         """
 
         Args:
@@ -1090,7 +1090,11 @@ class RepoManagerAPI(object):
                 waited on forever.
 
         Returns:
-            None
+            Optional[List[dict]]: the per-repo result entries (name, status,
+                projectId, statusMessageError, ...) when every round completed
+                synchronously and the import response carried the results (e.g.
+                the GitLab /repos endpoint). None when the async path was used
+                and rounds were awaited through the job-status stream.
         """
         origin = self.check_origin(origin)
         token_id = None
@@ -1143,6 +1147,7 @@ class RepoManagerAPI(object):
             f"total {len(repo_requests)} repo requests created, "
             f"will be {round_of_requests} round_of_requests "
         )
+        results: List[dict] = []
         round_i = 0
         while round_i < round_of_requests:
             repo_request_chunks = repo_requests[
@@ -1158,7 +1163,7 @@ class RepoManagerAPI(object):
                 f"{len(repo_request_chunks)} "
             )
             round_i += 1
-            self.repo_import(
+            response = self.repo_import(
                 origin=origin,
                 organization=organization,
                 auth_code=auth_code,
@@ -1169,6 +1174,23 @@ class RepoManagerAPI(object):
                 create_ast_project=create_ast_project,
                 scan_ast_project=scan_ast_project,
             )
+            round_results = self._parse_import_response(response)
+            if round_results is not None:
+                # the server completed this round synchronously (e.g. GitLab /repos):
+                # the response already carries the final per-repo results, nothing to poll
+                successes = [r for r in round_results if r.get("status") == "SUCCESS"]
+                failures = [r for r in round_results if r.get("status") != "SUCCESS"]
+                logger.info(
+                    f"round {round_i} completed synchronously: "
+                    f"{len(successes)} success, {len(failures)} failed/ignored"
+                )
+                for r in failures:
+                    logger.warning(
+                        f"repo {r.get('name')} not imported: {r.get('status')} - "
+                        f"{r.get('statusMessageError')}"
+                    )
+                results.extend(round_results)
+                continue
             percentage = 0
             deadline = time.monotonic() + max_wait_per_round
             settle_deadline = time.monotonic() + settle_timeout
@@ -1204,6 +1226,31 @@ class RepoManagerAPI(object):
                 if remaining > 0:
                     time.sleep(min(poll_interval, remaining))
                 poll_interval = min(poll_interval * 2, delay_request_timeout)
+        return results or None
+
+    @staticmethod
+    def _parse_import_response(response) -> Optional[List[dict]]:
+        """Per-repo results when the import POST completed synchronously, else None.
+
+        When the server finishes the batch before answering (e.g. the GitLab
+        /repos endpoint), the response body is::
+
+            {"orgConfigResult": {...},
+             "repoConfigResultList": [{"name", "status", "projectId",
+                                       "statusMessageError", ...}, ...]}
+
+        Async endpoints (e.g. GitHub asyncImport) answer with an acknowledgment
+        and the job-status stream must be polled instead, so they return None.
+        """
+        try:
+            body = response.json()
+        except (ValueError, AttributeError):
+            return None
+        if isinstance(body, dict) and isinstance(body.get("repoConfigResultList"), list):
+            org_status = (body.get("orgConfigResult") or {}).get("status")
+            logger.info(f"org config result: {org_status}")
+            return body["repoConfigResultList"]
+        return None
 
     def get_repo_by_id(self, repo_id: int) -> dict:
         """
